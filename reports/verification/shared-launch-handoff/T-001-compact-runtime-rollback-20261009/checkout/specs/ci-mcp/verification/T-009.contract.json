@@ -1,0 +1,102 @@
+{
+ "task_id": "T-009",
+ "feature": "ci-mcp",
+ "risk": "high",
+ "required_workflow": "tdd",
+ "stack": "shell",
+ "spec_revision": "",
+ "created": "2026-07-07T17:08:04Z",
+ "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session. Stack is shell (install.sh / install.ps1); precedent: specs/local-env-mcp/verification/T-009.contract.json (local-env-mcp's analogous high-risk shell-stack uninstall/installer task) waives lint/typecheck/build for the same reason -- check-contract.py's compile_waivable rule (COMPILE_CHECKS waivable when stack is in NONCODE_STACKS) permits this at high tier without downgrading unit-tests/acceptance-tests/regression/requirement-traceability, which all remain required:true with real evidence below. unit-tests and acceptance-tests both cite install-tests.log (35 passed / 0 failed, covering the new ci-mcp scenarios plus the pre-existing sdd-forge-mcp/local-env-mcp scenarios) and the T-009 red/green pair; red evidence was captured by reverting install.sh/install.ps1 to their pre-ci-mcp committed content while keeping the new test scenarios in place (disclosed deviation in T-009-red.txt: source edits and test-writing happened in the same working session, not literal red-first commits, but the captured red run is a genuine failing-first state against the same content the green run later exercises).",
+ "checks": [
+  {
+   "id": "lint",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "shell stack (risk-gate-matrix.md stack descriptor): no compile-toolchain applies to install.sh/install.ps1; behavior verified via the install.tests.sh/install.tests.ps1 acceptance suite (AC-016/AC-017) and the red/green TDD evidence below",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "typecheck",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "shell stack (risk-gate-matrix.md stack descriptor): no compile-toolchain applies to install.sh/install.ps1; behavior verified via the install.tests.sh/install.tests.ps1 acceptance suite (AC-016/AC-017) and the red/green TDD evidence below",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "build",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "shell stack (risk-gate-matrix.md stack descriptor): no compile-toolchain applies to install.sh/install.ps1; behavior verified via the install.tests.sh/install.tests.ps1 acceptance suite (AC-016/AC-017) and the red/green TDD evidence below",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "placeholder-scan",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/check-placeholders.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "task-state-check",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/check-task-state.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "unit-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/install-tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "specs/ci-mcp/verification/T-009-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-009-green.txt"
+  },
+  {
+   "id": "acceptance-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/install-tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "specs/ci-mcp/verification/T-009-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-009-green.txt"
+  },
+  {
+   "id": "regression",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "specs/ci-mcp/verification/T-009-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-009-green.txt"
+  },
+  {
+   "id": "requirement-traceability",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-009/check-traceability.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-010"],
+   "red_evidence": "",
+   "green_evidence": ""
+  }
+ ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "bootstrap-interviewer-enhancement",
+  "run_id": "impl-orchestrator-run-20260629T1357Z",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "cli",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "9317bf406295b72a1fb6af8ffd03ee98ebd0c5052fd1511f52f091dbb4e1e280",
+  "requirements_sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+  "acceptance_sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "design_sha256": "782f4956235888913e97a714c6bdd73a19ec6b68b9ab7915ff6edf3315934583",
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "ira-a1-r2-20260629-9f7c2e41",
+      "host_session_id": "host-ira-a1-r2-6b3d8a25",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/design.md", "sha256": "782f4956235888913e97a714c6bdd73a19ec6b68b9ab7915ff6edf3315934583"},
+        {"path": "/Users/jrmag/sdd-forge/reports/impl-review/bootstrap-interviewer-enhancement/attempt-1/round-2/precheck-result.json", "sha256": "42d2d23b725bc4d3adfd8ea61976a8e2397699b95cdd71cdd6e5ae79c0ae9dc3"},
+        {"path": "/Users/jrmag/sdd-forge/reports/impl-review/bootstrap-interviewer-enhancement/attempt-1/round-1/integrated-summary.json", "sha256": "8c22e99df76ae0e9220959a1f3b4a7647170347a93ce4d329e07ed20cc2fc614"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "b7c548fa-93fd-4a68-927e-47d83942294b",
+      "host_session_id": "c3198ca1-9fe3-4574-bdd8-08d865c85be2",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/design.md", "sha256": "782f4956235888913e97a714c6bdd73a19ec6b68b9ab7915ff6edf3315934583"},
+        {"path": "/Users/jrmag/sdd-forge/reports/impl-review/bootstrap-interviewer-enhancement/attempt-1/round-2/precheck-result.json", "sha256": "42d2d23b725bc4d3adfd8ea61976a8e2397699b95cdd71cdd6e5ae79c0ae9dc3"},
+        {"path": "/Users/jrmag/sdd-forge/reports/impl-review/bootstrap-interviewer-enhancement/attempt-1/round-2/integrated-summary.json", "sha256": "655b5ed3b02ec85eb9621f44d50353c8f20cdd9d344c3dd776deaa64f45ae68e"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Added exact fail-closed feature-selector contract and complete Layer Spec traceability validation rules.",
+  "timestamp": "2026-06-29T13:57:00Z"
+}

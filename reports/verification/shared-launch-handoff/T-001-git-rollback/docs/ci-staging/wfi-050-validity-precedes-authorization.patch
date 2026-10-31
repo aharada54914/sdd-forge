@@ -1,0 +1,116 @@
+--- a/plugins/sdd-implementation/scripts/validate-implementation-report.sh
++++ b/plugins/sdd-implementation/scripts/validate-implementation-report.sh
+@@ -23,15 +23,34 @@
+ valid_schema_lines = re.findall(
+     r"(?m)^Report Schema: implementation-report/v2$", text
+ )
++# These promote a schema-less document into the STRICT branch. They were tested
++# with a bare `in text` substring scan, which has no anchoring, so a document
++# that merely QUOTES one -- a review report citing a validator diagnostic inside
++# backticks, mid-sentence -- was promoted and then failed as a malformed v2
++# report. That is the mention-versus-declaration confusion WFI-049 records for
++# section headings, one layer up: a citation is not a declaration. Each
++# indicator is now anchored to the start of its own line.
+ v2_indicators = (
+-    "## Output Paths And Hashes",
+-    "## Test Evidence",
+-    "## Iteration And Escalation",
+-    "## Isolation Evidence",
+-    "**Task Attempt Count**",
+-    "**Handoff Reload Evidence Hash**",
++    r"^## Output Paths And Hashes[ \t]*$",
++    r"^## Test Evidence[ \t]*$",
++    r"^## Iteration And Escalation[ \t]*$",
++    r"^## Isolation Evidence[ \t]*$",
++    r"^- \*\*Task Attempt Count\*\*",
++    r"^- \*\*Handoff Reload Evidence Hash\*\*",
+ )
+-if not schema_lines and not any(indicator in text for indicator in v2_indicators):
++# The indicators are a heuristic for LEGACY implementation reports, which carry
++# no schema line. They must never promote a document that is not an
++# implementation report at all: an independent review report filed beside one
++# shares its section names ("## Test Evidence") without being one, and was
++# failing as a malformed v2 report. A document's own title is its declaration of
++# kind, and it is a sound discriminator here -- measured across all 228 shipped
++# reports, every one of the 145 carrying a schema line also claims the kind in
++# its title, and there is no counterexample.
++declares_implementation_report = bool(re.match(r"^# Implementation Report", text))
++if not schema_lines and not (
++    declares_implementation_report
++    and any(re.search(indicator, text, re.M) for indicator in v2_indicators)
++):
+     print("IMPLEMENTATION_REPORT_LEGACY_OK")
+     raise SystemExit(0)
+ if not schema_lines:
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -472,6 +472,37 @@
+   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
+     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+ 
++  # WFI-050 (Option A, scoped by the corpus ratchet). Report VALIDITY is now a
++  # PRECONDITION of authorization. Until this block existed, the report
++  # validator and this boundary were the VALIDATOR and the GRANTER of the same
++  # document with no stated ordering between them, so every rule the validator
++  # enforces -- row shape, hash format, canonical paths, duplicate sections,
++  # isolation consistency -- was advisory from the authorization boundary's
++  # point of view. That is exactly what turned the WFI-049 heading divergence
++  # from a formatting defect into a live bypass: the strict component's refusal
++  # carried no authorizing weight, so it never had to be consulted.
++  #
++  # The ONLY exemption is the corpus ratchet baseline. Two grandfathering
++  # schemes were measured on this repository before choosing:
++  #   * keyed on the declared schema version -- REJECTED: 118 of 147
++  #     v2-declaring reports fail the validator today, so it would have blocked
++  #     almost every gate;
++  #   * keyed on the ratchet baseline -- CHOSEN: exactly one shipped report
++  #     fails outside that list, and the ratchet forbids ADDING entries, so the
++  #     exemption set can only ever shrink toward zero.
++  # A repository that does not ship the sdd-implementation validator keeps its
++  # current behaviour rather than failing closed on a file it cannot check.
++  implementation_report_validator="$repository_root/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
++  implementation_report_baseline="$repository_root/tests/fixtures/implementation-report-corpus-baseline.txt"
++  if [[ -f "$implementation_report_validator" ]] &&
++    ! bash "$implementation_report_validator" \
++      "$repository_root/$implementation_report_path" >/dev/null 2>&1; then
++    if ! { [[ -f "$implementation_report_baseline" ]] &&
++      grep -Fxq -- "$implementation_report_path" "$implementation_report_baseline"; }; then
++      fail REPORT 'implementation report is rejected by the report validator and is not grandfathered on the corpus ratchet baseline'
++    fi
++  fi
++
+   # WFI-036. The named gate report is a declaration source, not a manifest
+   # input. It is verified in full here -- canonical path, confined to the gate's
+   # own report namespace, no symlink component, regular file, and byte-exact
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -405,6 +405,29 @@
+             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
+             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
+         }
++
++        # WFI-050 (Option A, scoped by the corpus ratchet) -- the twin of the
++        # rule in the sh boundary. Shipping it on one runtime only is the
++        # half-width defect this repository has been failed on repeatedly:
++        # validity must gate authorization on BOTH runtimes, or the weaker one
++        # simply IS the bypass. The report validator is a single python-backed
++        # script with no PowerShell twin, so both runtimes invoke the same
++        # implementation and cannot disagree about the verdict itself.
++        $reportValidator = Join-Path $root 'plugins/sdd-implementation/scripts/validate-implementation-report.sh'
++        $reportBaseline = Join-Path $root 'tests/fixtures/implementation-report-corpus-baseline.txt'
++        if (Test-Path -LiteralPath $reportValidator -PathType Leaf) {
++            & bash $reportValidator $implementationReport *> $null
++            if ($LASTEXITCODE -ne 0) {
++                $grandfathered = $false
++                if (Test-Path -LiteralPath $reportBaseline -PathType Leaf) {
++                    $baselineEntries = @(Get-Content -LiteralPath $reportBaseline -Encoding UTF8)
++                    $grandfathered = $baselineEntries -ccontains $implementationReportPath
++                }
++                if (-not $grandfathered) {
++                    Fail-ReviewContext 'REPORT' 'implementation report is rejected by the report validator and is not grandfathered on the corpus ratchet baseline'
++                }
++            }
++        }
+         $inOutputs = $false
+         foreach ($line in $implementationReportLines) {
+             if ($line -cmatch '^## Outputs\s*$') {

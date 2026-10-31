@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import cp from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const out=path.dirname(fileURLToPath(import.meta.url));
+const context=JSON.parse(fs.readFileSync(path.join(out,'combined-context.json')));
+const git=(args)=>cp.spawnSync('rtk',['proxy','git','-C',context.baseline,...args]);
+const head=git(['rev-parse','HEAD']).stdout.toString().trim();
+if(head!==context.head)throw Error('baseline HEAD differs');
+const rows=context.targets.filter(t=>t.before&&!t.historical_hash).map(t=>{
+  const blob=git(['show','HEAD:'+t.path]);
+  const entry=git(['ls-tree','HEAD','--',t.path]);
+  if(blob.status!==0||entry.status!==0)throw Error('unbound baseline input '+t.path);
+  const sha256=crypto.createHash('sha256').update(blob.stdout).digest('hex');
+  const mode=parseInt(entry.stdout.toString().split(' ')[0],8)&511;
+  if(sha256!==t.before.sha256||mode!==t.before.mode)throw Error('baseline does not match Git '+t.path);
+  return {path:t.path,sha256,mode,source:'baseline Git HEAD blob and mode'};
+});
+fs.writeFileSync(path.join(out,'combined-baseline-provenance.json'),JSON.stringify({head,additional_baseline_inputs:rows},null,2)+'\n');
+console.log(`Verified ${rows.length} additional baseline files against Git HEAD bytes and modes.`);

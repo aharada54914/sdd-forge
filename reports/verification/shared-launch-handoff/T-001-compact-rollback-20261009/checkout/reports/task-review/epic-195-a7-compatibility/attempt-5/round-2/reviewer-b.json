@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 5,
+  "round": 2,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt5r2-seq0784",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0784",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/integrated-summary.json", "sha256": "98f9d4c44351a66b242063864689ce626ea60188368a73dad563e579699091c8"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json", "sha256": "b0ceba1063af9583f733b2366c291b3f82a3f516565c543a133584d622dbe511"},
+      {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+      {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"},
+      {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+      {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+      {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"},
+      {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+      {"path": "specs/epic-195-a7-compatibility/tasks.md", "sha256": "55b8408f6e7cdfe02e83912ae4d291d88bf1dd3f70fe2ff3339cbe998a6a6399"},
+      {"path": "specs/epic-195-a7-compatibility/traceability.md", "sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+      {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No under-classification: no task touches auth/authz/payment/PII/migration/public-API surfaces (tasks.md Data Migration fields all 'none' or purely additive). No over-classification: every high-tier task (T-002,T-004,T-005,T-008,T-009,T-010,T-011,T-012,T-013) names a concrete Security Boundary (B1-B5, security-spec.md#trust-boundaries) whose silent-defect scenario matches the policy's material-harm high-tier language. T-013 (tasks.md:1852-1990), though test-authoring only, is the detector for B1's structural-verification loop (a missed static-scan reference or non-invoking refusal fixture lets a mutation-capable CI wiring go undetected) and is consistent with sibling security-boundary-detector tasks T-002/T-004/T-008/T-010 already accepted at 'high' in this package. T-011's retained high tier (tasks.md:1507-1531) is independently earned as the sole editor of the protected `.github/workflows/test.yml` path (the write side of B1), not merely inherited from T-013's split-out clause."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002,T-004,T-005,T-008,T-009,T-010,T-011,T-012,T-013) carries both a TDD Red->Green Done-When item and an 'independent quality-gate verdict records PASS' Done-When item (e.g. tasks.md:1971-1973 for T-013; tasks.md:1632-1634 for T-011), consistent with this package's Lifecycle rule that only quality-gate (distinct from implement-task) may set Done. No Risk: critical task exists in this feature, so the second-approver/signed-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task's Done-When list stays at or under 8 items (T-004 and T-012 are the largest at 8) and each Scope section maps to one cohesive suite/library deliverable, including the newly split T-011 (4 Done-When items, registration-only scope) and T-013 (6 Done-When items, one suite pair). No task's scope is a bare 'rename X to Y', and no cluster of 3+ tasks is single-function-only with no integration concern."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional (non-test, non-infra) tasks each carry edge-case/error-path ACs: T-001/AC-014 (PROJECT_CONTEXT_INVALID deliberately-broken-field variant), T-002/AC-001 (CI-env-var and --approved-by refusal fixtures), T-005/AC-008 (pre-epic-registry backward-compat fixture), T-009/AC-033 (capability-only usage-error golden negative test), T-010/AC-035 (three independent hard-fail fixtures: dependency-present SKIP, unknown SKIP, fingerprint drift)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each test task's scope matches the type acceptance-tests.md assigns its ACs: T-003 (AC-002/003/038, 'integration') drives the fixture builder plus CLI scripts plus install/uninstall (>=2 components); T-013's AC-040 ('static/doc-review') is a single-file text scan and AC-041 ('integration, negative self-check x2') exercises promote-golden-baseline.sh's interaction with the candidate/canonical filesystem paths; T-011's AC-015 ('static/registration-forcing') matches its registration-and-confirm scope. No task declares a type inconsistent with its own Scope/Planned Files."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit `Rollback:` field (e.g. T-013 tasks.md:1912-1916; T-011 tasks.md:1568-1570), each citing infra-spec.md#rollback and a concrete revert mechanism."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All shared-file overlaps (tests/run-all.sh/.ps1 across T-002/T-003/T-004/T-010/T-013/T-011; tests/loop-consistency.tests.sh and tests/loop-escalation.tests.sh across T-006/T-007/T-008/T-010) are ordered via Blockers matching a create->extend pattern (e.g. T-013 Blockers: T-002,T-003,T-004,T-010; T-010 Blockers include T-006,T-007,T-008). No uncoordinated parallel overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-004's Blockers (T-001,T-002,T-003) now correctly reflect the shared run-all append-order dependency on T-002/T-003 (tasks.md:587-592), remediating round 1's finding. T-013's Blockers (T-002,T-003,T-004,T-010) and T-011's Blockers (all of T-001-T-010,T-013) both match the Global Constraints append order and functional need for every suite to exist before final registration/confirmation. No spurious or missing blockers found in the current byte content."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

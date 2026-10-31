@@ -1,0 +1,155 @@
+############ LEG 1: whole-batch, both bundles ############
+== whole-batch epic-136-phase2
+  exit=19 | {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-
+  [whole-batch epic-136-phase2] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== whole-batch epic-189-a1
+  exit=19 | {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-
+  [whole-batch epic-189-a1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 2: single-target, EVERY manifest entry ############
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"]}
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"]}
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1"]}
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh"]}
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/check-contract.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/check-contract.ps1"]}
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/check-contract.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/references/risk-upgrade-policy.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-lite/references/risk-upgrade-policy.md"]}
+  [single epic-136-phase2-gates :: plugins/sdd-lite/references/risk-upgrade-policy.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.sh
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-lite/scripts/check-risk-upgrade.sh"]}
+  [single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-lite/scripts/check-risk-upgrade.ps1"]}
+  [single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-lite/skills/lite-spec/SKILL.md"]}
+  [single epic-136-phase2-gates :: plugins/sdd-lite/skills/lite-spec/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-ship/skills/ship/SKILL.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-ship/skills/ship/SKILL.md"]}
+  [single epic-136-phase2-gates :: plugins/sdd-ship/skills/ship/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: tests/guard-parity.tests.sh
+  exit=0 | {"status":"ok","recovered":0,"targets":["tests/guard-parity.tests.sh"]}
+  [single epic-136-phase2-gates :: tests/guard-parity.tests.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["specs/epic-136-phase2-gates/human-copy/apply-protected-file
+  [single epic-136-phase2-gates :: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["specs/epic-189-a1-project-context/human-copy/PROTECTED-MANI
+  [single epic-189-a1-project-context :: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/references/guard-invariants.json
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/references/guard-invariants.json"]
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/references/guard-invariants.json] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generate-guard-invariants.
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard_invariants
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-ship/skills/ship/SKILL.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-ship/skills/ship/SKILL.md"]}
+  [single epic-189-a1-project-context :: plugins/sdd-ship/skills/ship/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-lite/skills/lite-spec/SKILL.md"]}
+  [single epic-189-a1-project-context :: plugins/sdd-lite/skills/lite-spec/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/apply-human-copy.sh"]}
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"]}
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generate-approval-sidecar.
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/validate-approval-sidecar.
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"]
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1"]}
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"]}
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"]}
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 3: adversarial replay of every EVICTED line ############
+# The 2026-08-11 hazard shape: hand-craft the deleted manifest line and
+# apply it as a single-target batch. Must be REFUSED (candidate absent).
+== REPLAY 136 :: .github/workflows/test.yml
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github
+  [REPLAY 136 :: .github/workflows/test.yml] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/references/guard-invariants.json
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/references/guard-invariants.json] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/references/guard-invariants.json"]
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generate-guard-invariants.
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard_invariants
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  exit=10 | {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for 'plugins
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=0 | {"status":"ok","recovered":0,"targets":["plugins/sdd-quality-loop/scripts/generated/guard-invariants
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 4: bundle-specific runner ############
+== runner apply-protected-files.ps1
+  exit=127 | /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealous-proskuriako
+  [runner] FAILED: exit 127 with no recognised preflight refusal; this leg is neither a skip nor a proven apply
+  [runner (failed leg, state recorded)] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ VERDICT ############
+watched live paths: 25 (plus the CI step-name set and every canonical array)
+leg 4 (bundle runner): FAILED
+RUNNER LEG FAILED: the runner exited nonzero without a recognised
+preflight refusal, so no verdict can be issued for it. Removals counted
+on the other legs: 0.

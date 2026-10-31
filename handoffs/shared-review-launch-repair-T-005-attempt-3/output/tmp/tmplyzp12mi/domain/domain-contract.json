@@ -1,0 +1,1 @@
+{"schema": "domain-contract/v1", "meta": {"version": "1.0.0", "status": "Approved", "generated_from": ["domain/context-map.md"]}, "contexts": [{"name": "sales", "description": "", "terms": [], "aggregates": [{"name": "Order", "root_entity": "Order", "invariants": ["valid"], "transaction_boundary": "order", "card": "domain/aggregates/Order.md"}]}]}

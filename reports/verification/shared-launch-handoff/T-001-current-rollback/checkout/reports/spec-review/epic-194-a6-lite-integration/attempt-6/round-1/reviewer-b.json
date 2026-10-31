@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a6-r1-reviewer-b-seq791",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a6-r1-reviewer-b-791",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "ac197966d3d9b66b23c18337873d7e5960d04d8c8af167e5fd0af20e0ec83e6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "77f60bf2d21f085ca656575a0795dbc8877fb5daf838068d5365202ed0d82c2e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "9a15e8023005f2666527c7d5a3e3991f6480e0f013716e24068e18d0dfad39a4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-6/round-1/precheck-result.json",
+      "sha256": "f50c0b3e8f071975f0e53a32dc22e354d2d34a3df6145824b5f6ce2ad182fc63"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-6/round-1/integrated-summary.json",
+      "sha256": "45ab8e541d39c1d88b2730ea39819839cd46db6c11e29981d497082599137e59"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The AC-024 dated qualifier's scoping of the original parenthetical to authoring-commit time is precise and unambiguous; no ambiguity found beyond the contradiction reported separately."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md AC-024's dated qualifier (lines 124-133) asserts as current fact 'requirements.md Spec-Review-Status: Passed', but requirements.md line 3 (in this same manifest) currently reads the pending value. This is a direct, verifiable contradiction between two documents in the reviewed package concerning the workflow-boundary status field that gates phase progression. The clause also omits the commit-hash citation this package's own evidence-citation convention requires elsewhere, which is why it went stale as soon as this attempt was reset. A downstream reader trusting the acceptance-tests.md claim over the authoritative requirements.md header would misjudge the package's actual review state."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The reviewed diff is confined to the AC-024 dated qualifier; the REQ-006 fixture inventory (a-l) and all other acceptance-test rows are unchanged and continue to cover the material negative/boundary/failure paths implied by the requirements."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No new unresolved assumption is introduced by this round's change; pre-existing cross-epic assumptions (e.g. the A5 dependency tracked in AC-029/investigation.md B5) remain explicitly flagged as open in the unchanged portions of the package."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-copy protected-file application boundary (AC-010/AC-031, TEST-010/TEST-031) remains testable via the exact-set/hash/post-copy-verification contract; this round's diff does not touch that boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Substantive REQ/AC content is unaffected by this round's diff; the contradiction found above is a status-tracking/documentation defect, not a gap that would force a downstream design reviewer to invent missing product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (confirmed via Glob), so this check is out of scope and skipped per its explicit skip condition."
+    }
+  ]
+}

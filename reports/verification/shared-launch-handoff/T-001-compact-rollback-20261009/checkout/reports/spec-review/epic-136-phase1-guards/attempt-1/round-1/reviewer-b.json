@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-epic136guards-a1r1-20260711-e6f7",
+  "host_session_id": "hs-spec-b-epic136guards-0149",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "73bd0a31e6298d3ce7893d8056a648833f7d7cef97714d1e53b47ebf4c972351"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "dbacfa5593b7477237b7ba35547058ed140eaec8166f84d3884407381e4c83ff"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+      "sha256": "21fc9899f66f1d5282a95a6ad8daa16833e13491ab129d6ab2d4a2035e40408b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-1/integrated-summary.json",
+      "sha256": "532a712f4cb2a3cc39c88c4f3be615c0641ae54b399d21e6537d5bd86f4e9483"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004/AC-008 gate cross-model verification on 'Risk: critical or an explicit security-sensitive marking,' but no artifact defines the marking's field name, syntax, or values. Two implementers could invent different tag syntaxes for the same behavior, so a task could silently skip cross-model verification under one implementation."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict between Goals, Non-goals, Acceptance Criteria, or Security Boundaries. The REQ-004 vs lite-track-non-goal interaction is scoped by AC-009 requiring lite-track behavior for critical tasks to be documented."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Edge Cases mandates a vacuous pass when no PR is created, but AC-011/TEST-011 only obligate fail-on-violation and pass-on-compliant fixtures; the no-PR path has no acceptance criterion."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions are resolved by an explicit prior decision or a deterministic implementation-time verification with a fallback (REQ-005 OIDC check anchored to pinned SHA v1.0.165)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "REQ-004 allows skipping cross-model only with a human waiver, but tasks.md is not a protected human-copy surface, so nothing prevents the shipping agent from writing the waiver field itself; AC-008/AC-009 test only presence, not human authorship."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two product/security decisions (the marking field syntax and the waiver human-only mechanism) would otherwise fall to the downstream reviewer to invent rather than verify, blocking a clean handoff on AC-008/AC-009."
+    }
+  ]
+}

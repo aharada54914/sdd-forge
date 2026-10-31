@@ -1,0 +1,17 @@
+=== vendor-capability-registry --check (clean tree, T-005 extension: facet-manifest.schema.json, capability-summary.schema.json, context-projection.schema.json) ===
+
+$ python3 plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+vendor-capability-registry: vendored copies match their canonical sources; no drift.
+exit=0
+
+$ bash plugins/sdd-quality-loop/scripts/vendor-capability-registry.sh --check
+vendor-capability-registry: vendored copies match their canonical sources; no drift.
+exit=0
+
+$ pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/vendor-capability-registry.ps1 --check
+vendor-capability-registry: vendored copies match their canonical sources; no drift.
+exit=0
+
+=== Demonstrated RED (drift) then restored byte-identically -- see gate-mutation-proof.log Mutation 4 for the full transcript ===
+vendor-capability-registry: vendored copies are stale: facet-manifest.schema.json
+exit=1

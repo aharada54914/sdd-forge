@@ -1,0 +1,66 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "epic136guards-t-006-run-01",
+  "session_id": "epic136guards-t-006-session-01",
+  "agent_instance_id": "epic136guards-t-006-agent-01",
+  "model_tier": "strong",
+  "provider": "anthropic",
+  "model": "opus",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-07-12T05:20:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/tasks.md",
+      "sha256": "0a4360a8104826fabfb597a23b6678940564e32c538e1ffcaecdfe97ed7d6c6d"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/traceability.md",
+      "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "sha256": "d171e519715518ffd73d91390dc80c35dda58ba37f461d8e303f1c5bbdb8d492"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+      "sha256": "ae679756447145cd053e09dc1d29c1f6078d64935d95ca5d301ef2d2141f9501"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "92a213dab316dbacfde8a46d176ef394b288434e007cd989c1a07ca9b3dd85d0"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/claude-bash-matcher.tests.sh",
+    "specs/epic-136-phase1-guards/human-copy/claude-hooks.json",
+    "specs/epic-136-phase1-guards/human-copy/T-006.MANIFEST.sha256",
+    "specs/epic-136-phase1-guards/verification/T-006/red.log",
+    "specs/epic-136-phase1-guards/verification/T-006/green.log",
+    "reports/implementation/epic-136-phase1-guards/T-006.md"
+  ]
+}

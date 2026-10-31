@@ -1,0 +1,45 @@
+The epic's standing check: the suite must FAIL from a product-free root, so a
+green run can never be produced without the shipped product surfaces. Recorded in
+both of the forms cycle 1 distinguished -- 0/4 with the suite's own test assets
+present but plugins/ and specs/ absent, and 0/9 from a wholly empty root.
+
+$ sh -c 
+      set -u
+      empty=$(mktemp -d "${TMPDIR:-/tmp}/qg-t004-empty.XXXXXX")
+      assets=$(mktemp -d "${TMPDIR:-/tmp}/qg-t004-assets.XXXXXX")
+      mkdir -p "$assets/tests/lib" "$assets/tests/fixtures"
+      cp tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 "$assets/tests/"
+      cp tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 "$assets/tests/lib/"
+      cp -R tests/fixtures/structural-fixture-corpus "$assets/tests/fixtures/"
+      rc=0
+      for root_dir in "$assets" "$empty"; do
+        label=$([ "$root_dir" = "$assets" ] && echo "suite assets present, no product" || echo "wholly empty root")
+        echo "--- $label ---"
+        STRUCTURAL_COMPAT_REPO_ROOT="$root_dir" bash tests/structural-compatibility.tests.sh 2>&1 | tail -1
+        STRUCTURAL_COMPAT_REPO_ROOT="$root_dir" bash tests/structural-compatibility.tests.sh >/dev/null 2>&1
+        s=$?; echo "bash exit=$s"
+        STRUCTURAL_COMPAT_REPO_ROOT="$root_dir" pwsh -NoProfile -File tests/structural-compatibility.tests.ps1 2>&1 | tail -1
+        STRUCTURAL_COMPAT_REPO_ROOT="$root_dir" pwsh -NoProfile -File tests/structural-compatibility.tests.ps1 >/dev/null 2>&1
+        p=$?; echo "pwsh exit=$p"
+        echo
+        [ "$s" -ne 0 ] && [ "$p" -ne 0 ] || rc=1
+      done
+      rm -rf "$empty" "$assets"
+      [ "$rc" -eq 0 ] && echo "PRODUCT-FREE-ROOT: both twins fail in both forms"
+      exit $rc
+
+--- suite assets present, no product ---
+0 passed, 4 failed
+bash exit=1
+0 passed, 4 failed
+pwsh exit=1
+
+--- wholly empty root ---
+0 passed, 9 failed
+bash exit=1
+0 passed, 9 failed
+pwsh exit=1
+
+PRODUCT-FREE-ROOT: both twins fail in both forms
+
+exit status: 0

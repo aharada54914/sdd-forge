@@ -1,0 +1,158 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-194-a6-lite-integration",
+  "task_id": "T-004",
+  "run_id": "RUN-epic-194-a6-lite-integration-qg-T-004-seq0647",
+  "host_session_id": "SESS-qg-epic-194-a6-lite-integration-T-004-0647",
+  "sequence": 647,
+  "previous_record_sha256": "44eee988f7dfe7c905b11300f86504e953d54f6722a970dac8c70e91a622a3c0",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "56686a305c0922547a1f999662d00fc4fd6b7182e3b62e6f5aa4bcef67fea2cf",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "81aa1bf49fda9ad3c7d775e47162849a3b0e4bdc8ab4b0cb5b7ee561fba7d20e"
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "01622e8b6811add9e1e6c9889d96ba6cd26aef76e7b3b5fc35378da594441d85"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-194-a6-lite-integration/T-004.md",
+      "sha256": "bcdb1c87ba495149c3cfc9393b48351e8c50c4d4a4c64082e59ea01375dbde54"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/design.md",
+      "sha256": "fd67385479a902fa593beb1a40bf88414859a3b155736d70cb204586f159916d"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+      "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/PROPOSED/README.md",
+      "sha256": "9084fb735dc87957f0cfaac9a0c09517b6dc66bc65c67c2a35aba1bc5187f9d0"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/PROPOSED/dot-github-workflows-test.yml.PROPOSED",
+      "sha256": "f6efce1c800630711dd5ce5fa119582b23047e5bfb4b760a16f38a1b03a20ceb"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+      "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+      "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/tasks.md",
+      "sha256": "66ffa8ca01d135b000ad3af7be11006da1b4283c920aa49754f9e37edfc90bd3"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/traceability.json",
+      "sha256": "9f292087e4e2466c8e8ee3530a91af96698be1a4408c1f703e6ccf4d37208b84"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/traceability.md",
+      "sha256": "0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+      "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
+      "sha256": "d0f6878ff8f8e1b865c5319f511236b72de0a0e190221da314df3c9bb3ba5dce"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.red.log",
+      "sha256": "5973a8bc1709a08533f5b82ccc1c23d589c045fc6d8f23952aa28d760388ee71"
+    },
+    {
+      "path": "tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.ps1",
+      "sha256": "723519bd0e96d3bec7f32693d94db7acb2c51de49a393da65e4fa5278d86d7a5"
+    },
+    {
+      "path": "tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.sh",
+      "sha256": "d2728bc09477ef8b8adb67226fc88797d3d43ea94fba17c0bb007fdcf2356959"
+    },
+    {
+      "path": "tests/fixtures/epic-194-lite-gate/skill-ordering-note.golden.txt",
+      "sha256": "6f376de09feaeed17f9ef20f5a3792d3add55fd0f05775c63b8d016e21e8ada1"
+    },
+    {
+      "path": "tests/lite-gate-direct-edit-contract.tests.ps1",
+      "sha256": "d4a6225cedcea6ea9fc79f900dbf435ce9b4cef2ff4f9aa3164ef94452e743df"
+    },
+    {
+      "path": "tests/lite-gate-direct-edit-contract.tests.sh",
+      "sha256": "2607739276e6b6e985ae559e86e831b8c71bd1ee5ad25ce7382e066b4d4d65f5"
+    },
+    {
+      "path": "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+      "sha256": "1ca912f85907c0a9488a69dd2f43bf8608db4d285bf397dca535f19b80526a64"
+    },
+    {
+      "path": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+      "sha256": "992b854683b3d7caec1afcfb20989d708cab2032bf483e89190bba0693ea0976"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+      "sha256": "bc3c176765b9fb5be1463b22f16be0a2e72078b75468ca8f2cdb3812346c7281"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+      "sha256": "d431ad64d14fc4a7c28a523746fed8113b5a6a0ffd891968e15005b8016b51cf"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent.tests.ps1",
+      "sha256": "765b8bf63f3bc278152b26e1e124245a3e032ed261281e00ed73d8f2bd0931b3"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent.tests.sh",
+      "sha256": "4a3ec3af07e1ff9b5caf17c234e85e962bc501ecd4485845d376902dc34b80f4"
+    },
+    {
+      "path": "tests/lite-gate-summary-consumption.tests.ps1",
+      "sha256": "67f03a9dffb4b5839a275e4eb2b66db9c1883dbea146d3acfe2830a9d4bf30db"
+    },
+    {
+      "path": "tests/lite-gate-summary-consumption.tests.sh",
+      "sha256": "263402a343220709433d3c7659af1b8f6833346fd42718cb880cfe67516d358c"
+    },
+    {
+      "path": "tests/lite-gate-summary-invalid.tests.ps1",
+      "sha256": "7dc9055137b46c27bf7e27c55782efaeeb51660f49fc4297a5f4c298efac9f99"
+    },
+    {
+      "path": "tests/lite-gate-summary-invalid.tests.sh",
+      "sha256": "d4ceefe7e16602919357842d9ff3fd41b09348df894659e39f8651dd75508c77"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "097808545d8440dd7718b3cd75097d94ff4301af6d8c5db58ec2406aea150a1a"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "11d6d8424d9aed286c5b6591a93f22a372b632121a5d7f6a3ee5c69b675ddec2"
+    }
+  ]
+}

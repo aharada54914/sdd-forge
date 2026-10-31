@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase3-impl-a3r3-a-seq0441",
+  "host_session_id": "SESS-impl-a3r3-a-epic136phase3-0441",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/integrated-summary.json",
+      "sha256": "6b4bb932c6109618533b858b12f41f1934de0a72ec2ff3c9c829b071e074fca4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-3/precheck-result.json",
+      "sha256": "8c7f7b01ed06b1abb1fe3b86224144600f1d5f193a52bf93a69f4a09abbe4c56"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` (lines 59-108) gives four labelled subgraphs (Stream A-D) with component boxes and directed edges describing both intra-stream and cross-stream interactions (e.g. `GDF -->|PATH-restricted subshell, drives real| SHGSH`), integration with existing/live components (`sdd-hook-guard.{py,js,ps1,sh}` marked live/protected/READ-ONLY, `ADR0010`, `LOOPINV` = `tests/loops/loop-inventory.json`), and per-component technology in the `## Components` table (Bash, Python, Node, PowerShell, GitHub Actions YAML, JSON schema, Markdown) -- satisfying all three required elements at the granularity applicable to a UI-less feature (Layer Specifications table explicitly marks UX/Frontend N/A). I independently verified the round-2-corrected two-path staging account (Protected-File Statement, lines 152-183, and the Stream D subgraph's `TESTYML_DRAFT`/`TESTYML_HC`/`TESTYML_LIVE` nodes) against the live tree: `find specs/epic-136-phase3/human-copy -type f` returns exactly `MANIFEST.sha256` (no `.github/workflows/test.yml` present), and `shasum -a 256 specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml` = `ad07d8dfa9caa3e9119ca49030771f64ed94886742ee15fa6feeaf5611338c51`, which matches the hash recorded in `specs/epic-136-phase3/human-copy/MANIFEST.sha256` verbatim. design.md, infra-spec.md (`## CI/CD Sequence`, lines 46-127) and security-spec.md (Boundary B3, line 50) all now describe the SAME two paths consistently and match the tree -- the round-2 defect (claiming bytes exist at a nonexistent `human-copy/.github/workflows/test.yml`) is resolved. I additionally confirmed design.md's technical claim that the guard has no `human-copy/` carve-out by reading `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:1001-1015` (`_is_protected_gate_file` matches via `normalized.endswith(suffix.lower())` with no prefix exception) and its call site at `:1496` on Edit/Write/MultiEdit `file_path` -- the claim is accurate. On the specific question of whether this two-path framing contradicts requirements.md (FROZEN): AC-016 names only the destination path and `MANIFEST.sha256` as the staging artifact, without specifying who writes it -- design.md's draft path is an implementation-level elaboration of HOW that destination gets populated, not a change to WHAT AC-016 names, and it is satisfied once the human completes step 1 of Deployment/CI Plan. requirements.md's Field Definitions entry for `human-copy staging` does say generically 'the agent stages an edited copy under specs/epic-136-phase3/human-copy/<repository-relative-target>', which is technically imprecise for THIS specific protected-suffix file given the guard's endswith() behavior (verified above) -- design.md correctly diverges from that generic, precedent-inherited phrasing rather than perpetuating an unachievable instruction, and states its reasoning explicitly (Protected-File Statement, Global Constraints). This is a legitimate, transparent, and now internally-consistent design response to a genuine technical constraint, not a structural defect; I judge it non-contradictory in substance. CHANGELOG.md: I verified the `## Unreleased > ### Corrections` entry quotes the offending v1.12.0 #125 text accurately (present verbatim at CHANGELOG.md:191-193) and explains the correction accurately against verified fact: the draft file does contain a 'Test workflow-scenarios suite' step (confirmed by direct read). Leaving the released v1.12.0 text unedited and adding the correction under Unreleased is the correct non-destructive-history practice and leaves a coherent, traceable account for a reader."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture mermaid graph (design.md lines 59-108) forms a DAG: Stream A (GDF->SHGSH->{SHGPY,SHGPS}), Stream B (GNC->{SHGPY,SHGPS,SHGSH,SHGJS}), Stream C (ADR0010->WFSCEN, LOOPINV->WFSCEN), Stream D (TESTYML_DRAFT->TESTYML_HC->TESTYML_LIVE, TESTYML_HC->RC, SELFCHECK->TESTYML_HC), plus HUMAN->TESTYML_LIVE. No edge points back into an ancestor of any of these chains; no A->B->A pattern exists. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (lines 223-237) explicitly states all three required sub-fields: `Data Entities:` (none new for Streams A/B/D; Stream C's scenario-schema JSON documents under `tests/workflow-scenarios/` with the closed `greenfield|brownfield` enum), `Existing Data Affected:` ('none... `tests/loops/loop-inventory.json` is read-only for Stream C'), and `Migration Strategy:` ('none. No schema changes to any existing artifact'). All sub-fields present and substantive, not boilerplate."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## API / Contract Plan` (lines 239-452) documents an internal contract for each of the four streams' new artifacts (fixture harness structure for Streams A/B, `tests/workflow-scenarios/` directory shape and schema for Stream C, and the exact byte-tail of the staged `test.yml` candidate for Stream D) even though this feature has no public HTTP/RPC surface. This satisfies the check's intent more thoroughly than a bare 'No API changes' statement would, since it gives concrete internal contract detail (e.g. the literal YAML step block reproduced at lines 417-430, which I cross-checked against the actual draft file and found byte-identical to `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml` lines 418-430)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` (lines 615-624) names four trust boundaries (B1: new-suite fixtures vs. live guard binaries; B2: fixture issue body vs. reading agent session; B3: `test.yml` vs. agent-direct edits; B4: fixture world vs. real repository/network/ledger state), each with an explicit Auth/Authz Mechanism column, a Data Classification column (all 'internal ... only' / 'synthetic fixtures only'), and an OWASP Concerns column (Security Misconfiguration, Prompt Injection, Test Isolation). security-spec.md's linked STRIDE Analysis and OWASP Mapping tables (security-spec.md lines 53-97) substantiate each boundary with threat/mitigation/verification detail. All four required sub-items are present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type (design.md header, line 5) is test/CI hardening, not one of the four literal skip-list values, but the Layer Specifications table (design.md lines 187-192) explicitly marks both UX and Frontend as 'N/A -- no change: no GUI or user-facing surface' / 'N/A -- no change: Bash/PowerShell/YAML/JSON-schema only', and design.md contains no `## Frontend Plan` or `## Backend Plan` section at all -- there is no frontend/backend pairing to check for consistency. Confirmed via a heading scan of specs/epic-136-phase3/frontend-spec.md (Technology Stack / Component Tree / Performance / Dependencies / Testing / Open Questions only, no user-facing routes)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` (lines 454-511) covers: unit-level scope (item 2, per-combination fixture enumeration for Stream B's 3x4x3 matrix; item 6, self-registration grep-checks), integration/cross-boundary scope (item 3, Stream D's step-survival self-check across the whole `test` job; item 8, sibling-workflow isolation TEST-018), and AC-verification mapping via the Cross-Layer Dependencies table (design.md lines 199-210) tying every REQ/AC to a TEST-ID range, cross-checked against acceptance-tests.md which I confirmed contains all of TEST-001 through TEST-023. Concrete planned evidence is named throughout: command names (`bash tests/run-all.sh`, `pwsh tests/run-all.ps1`, item 5), report/log paths (the `specs/epic-136-phase3/verification/T-00N/*.log` set, which I confirmed exists on disk via `find`), and artifact names (`tests/deterministic-lane-selfcheck.tests.sh`). No fullstack user-journey E2E path is required since this feature has no UI (Layer Specifications N/A)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in `## Architecture`'s mermaid graph and in `## API / Contract Plan` is either defined as a `## Components` table row (`tests/guard-dispatch-fallback.tests.sh`, `tests/guard-negative-corpus.tests.sh`, `sdd-hook-guard.{sh,py,js,ps1}`, `tests/workflow-scenarios/`, `docs/adr/0010-*.md`, `.github/workflows/test.yml`, `tests/deterministic-lane-selfcheck.tests.sh`, `tests/run-all.sh`, `tests/run-all.ps1`, `CHANGELOG.md`) or is an established existing system component identifiable from requirements.md/investigation.md (`required-checks` -- requirements.md BL-001; `tests/loops/loop-inventory.json` -- requirements.md Overview and design.md's own read-only-reuse paragraph beneath the Components table; 'Human maintainer' -- requirements.md Roles and Permissions). The two staging-path nodes (`TESTYML_DRAFT`, `TESTYML_HC`) are both explicitly defined with full path and role in the Protected-File Statement section (lines 152-183), which I verified matches the live tree exactly."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## ADR Change Log` (lines 212-221) states 'No new ADR' and explains each stream reuses an existing pattern/vocabulary verbatim (epic-136 human-copy procedure, `guard-cwd-bypass.tests.sh` env-var indirection, ADR-0010's `greenfield`/`brownfield` vocabulary, the `tests/workflow-state-ci-integration.tests.sh` text-marker technique) rather than introducing a new one. The one referenced existing ADR, `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`, exists on disk and I confirmed its `## Status` reads `Accepted`, matching design.md's and requirements.md's claim of commit `67015a5` discharging Stream C's Blocker. No new architectural/technology decision is introduced without a corresponding ADR."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Confirmed via `ls -d design-system` that no `design-system/` directory exists in this repository. design.md `## Design System Compliance` (lines 194-197) records `N/A -- ds_profile: none`. Check skipped per rule; PASS recorded."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Confirmed via `ls -d domain` that no `domain/` directory exists in this repository. Check does not apply; PASS recorded per rule (no `domain/context-map.md` with `Domain-Model-Status: Approved` to check against)."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "Test/CI-hardening infrastructure feature (4 independent new-test-suite + CI-lane-marking streams); no UI, no public API, no application data schema -- internal Bash/PowerShell/YAML/JSON-schema harness work only."
+}

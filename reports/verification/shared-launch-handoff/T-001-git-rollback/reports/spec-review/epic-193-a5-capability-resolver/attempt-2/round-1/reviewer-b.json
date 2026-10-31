@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a2r1-seq0331",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-193-a5-capability-resolver-a2r1-0331",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "d0e66eaff2344b4f1f4edb9093dc45755630d74786bc5f66faa4ed767d5a7c6c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-2/round-1/precheck-result.json",
+      "sha256": "1830ef7db51e55e280ae3f78f16878e74dce5aca4e1a2fe54e2cc3394fdde4af"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-2/round-1/integrated-summary.json",
+      "sha256": "9d98a4df644af99799451a7a9cde13c847bec88c10f50ae513a7cbf7adba33d2"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The narrowed lite-check-source-undefined rule (REQ-002 row, requirements.md line ~366) states its trigger as a precise three-part conjunction (spec_profile==lite AND capability_enforcement==required AND >=1 matched Capability's lite_policy.required_lite_checks key absent), and names each of the three non-Blocking sibling states with concrete boolean conditions: advisory-missing (advisory + key absent -> contributes []), required-present-empty (required + key present + array empty -> valid, non-Block), and zero-match (no matched Capability, either state). Matched Capability itself is precisely defined in Field Definitions (trigger evaluates result:true against >=1 affected component). Mixed-state behavior across multiple matched Capabilities under required enforcement is unambiguous: any one absent key triggers Block regardless of other Capabilities' states, per the 'at least one' quantifier. Two implementers reading REQ-002, REQ-003, Workflows 2/3, and AC-009/AC-010/AC-016 would converge on identical Block/non-Block classification for every enumerated state."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Traced every occurrence of the lite-check-source-undefined diagnostic and the advisory/required byte-identity guarantee across requirements.md (Dependencies ~137-163, REQ-002 row 366, REQ-003 434-447, Workflow 2 956-972, Workflow 3 973-985, Risks 1228-1258) and acceptance-tests.md (AC-009/AC-010/AC-016, lines 51-52/58). All instances consistently state the same narrowed conjunction (lite + required + matched-key-absent) and the same three non-Blocking carve-outs (advisory-missing, required-present-empty, zero-match), each citing the identical addendum (Epic A6 adversarial verification finding B5). No instance retains the earlier revision's broader 'any Lite-track matched Capability lacking a source' framing as an actual trigger; every reference to that earlier framing is explicitly marked as superseded (e.g. AC-009: 'superseding an earlier revision's premise'; AC-010: 'distinct from, and narrower than, an earlier revision's...trigger'). requirements.md AC-009/AC-010/AC-016 (rows 795-796, 802) and acceptance-tests.md's corresponding rows describe the identical state model with no divergence found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md provides an independently-triggerable fixture for each of the four narrowed states relevant to this diagnostic: AC-009/TEST-009 covers advisory-missing and zero-match with real-Registry-fixturable evidence, and documents required-present-empty as a valid but not-yet-fixturable rule with an explicit, cited reason (Epic A2's additionalProperties:false schema admits no such key today); AC-010/TEST-010 covers the required-missing Block state. AC-016/TEST-016 explicitly scopes its byte-identity fixture pairs to exclude the diverging case and cross-references AC-009/AC-010 for that case. Beyond this diagnostic, the broader Block taxonomy (16 rows, AC-010), TOCTOU races (AC-040/048/049), crash recovery (AC-047), zero-affected-components (AC-018), and WARN cardinality (AC-056) are each independently fixtured."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 1177-1202) states three assumptions (sibling-contract stability, protected-suffix reservation timing, SKILL.md's unprotected-status snapshot) each with an explicit resolution/mitigation path (follow-up edit, re-verification at implementation-start). Open Questions (1204-1224) explicitly marks OQ-001/OQ-002 as deferred to a future epic with a stated reason, and records OQ-003 as resolved by this revision (INV-020's anchor-fingerprint mechanism). The lite-check-source-undefined gap itself (investigation.md INV-019) is not left as an unresolved assumption -- it is fixed as an explicit, owned Dependencies-section prerequisite (Epic A2 maintainers, additive schema field, migration path stated) rather than an open question."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A governance/human-approval boundary is in scope: Roles and Permissions (lines 901-932) scopes the human-copy mechanism narrowly to the three scripts' own immutable code content, staged under specs/epic-193-a5-capability-resolver/human-copy/ for human apply-human-copy application, distinct from the Resolver-process-writable live artifact paths. AC-026 explicitly notes 'Status resolves through a human cp action for the test.yml portion,' and AC-032 fixes a testable scope boundary (no plugins/** path touched by this package's own commits). The Resolver's own core behavior requires no human approval mid-pipeline (ambiguous cases fail closed via Block, never solicit approval), consistent with decision v2's fail-closed principle (REQ-007(d)). The boundary that exists (human-copy application) is testable via AC-026/AC-032 and the Roles and Permissions section's explicit scoping."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification fixes a closed, 16-row Block-diagnostic enumeration (REQ-002), a fully-ordered processing procedure (REQ-001 steps 0/a-m), concrete field definitions (Field Definitions section), and an explicit CLI contract (REQ-001) with citations to each upstream sibling epic's already-Passed, content-frozen contract for every field this feature populates. The narrowed lite-check-source-undefined rule and its three non-Blocking sibling states are stated with testable, closed-form conditions (AC-009/AC-010/AC-016) rather than left for a design reviewer to invent. No requirement defers a product-behavior decision to the design phase without a stated resolution path (Open Questions/Risks/Assumptions each name an owner and resolution mechanism)."
+    }
+  ]
+}

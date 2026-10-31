@@ -1,0 +1,213 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-001",
+  "run_id": "T-001-01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "session_id": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "agent_instance_id": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "48.22",
+  "cost_estimate_source": "Historical API-equivalent estimate, NOT current measured implementation cost: reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json and report.md; historical Sol/high native preflight workload, all input uncached, all requests long-context, nonregional, excluding tool charges; not subscription billing or cost ceiling.",
+  "cost_estimate_timestamp": "2026-09-28T05:01:53Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/tasks.md",
+      "sha256": "bfc70a0ecaa14ba6cbad5879665e3acd84a29fa277c5ee45a4d5350b4d4819ea"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/traceability.md",
+      "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/authority.md",
+      "sha256": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd"
+    },
+    {
+      "path": "reports/verification/shared-review-launch-integration.md",
+      "sha256": "91e9e12ebee94367d463b134d7f79aa8ce212d095ff8a82e1560ec5c32486829"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "sha256": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "sha256": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+      "sha256": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d"
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333"
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "sha256": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8"
+    },
+    {
+      "path": "tests/unified-task-launch.tests.py",
+      "sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b"
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "sha256": "a2d0b04a160c198d6c45396721e07253f96191a26a5d073f717a5834e986c80f"
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3"
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "sha256": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "f739742b5e3e87db4856ee4aa4ec2f80fcc3aeeb99a60326f6ae04dbc1d7f257"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+      "sha256": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+      "sha256": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+    },
+    {
+      "path": "specs/workflow-state-registry.json",
+      "sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/verification/shared-launch-handoff/T-001-output/"
+  ]
+}

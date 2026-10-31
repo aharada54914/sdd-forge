@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 6,
+  "round": 1,
+  "requirements_sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939",
+  "acceptance_sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0",
+  "design_sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9",
+  "tasks_sha256": "7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d",
+  "traceability_sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4",
+  "layer_sha256": {
+    "ux-spec.md": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6",
+    "frontend-spec.md": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8",
+    "infra-spec.md": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0",
+    "security-spec.md": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Task-stage evidence re-bind opened after the human-authorized spec amendments (AC-035 extension + TEST-035c/d; AC-056/TEST-056 anchor, 6e7c84dd) and the impl-stage remedy edits staled the attempt-5 pins. tasks.md and traceability.md bytes are unchanged since the attempt-5 PASS; requirements.md, acceptance-tests.md, and design.md hashes moved. The plan remains status-mixed (T-001/T-004 Implementation Complete, T-002/T-005 Done, T-003/T-006 Planned), so this binding is again raw-bytes.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-epic-191-a3-path-ownership-a6r1",
+  "timestamp": "2026-08-11T10:28:40Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-a-a6r1-seq0675",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-191-a3-path-ownership-a6r1-0675",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-191-a3-path-ownership/requirements.md",
+          "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+          "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/design.md",
+          "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/tasks.md",
+          "sha256": "7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/traceability.md",
+          "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+          "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+          "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+          "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+          "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/precheck-result.json",
+          "sha256": "b5e6b4f9a073089096e2a8754d9fe8eee970344ac541c39e8f5c409b7af7c37e"
+        },
+        {
+          "path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/dependency-graph.json",
+          "sha256": "d18d5e70d28023462bde9303f08488c747b71e22ff7979b0c59b63736b35f314"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-b-a6r1-seq0676",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-191-a3-path-ownership-a6r1-0676",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-191-a3-path-ownership/requirements.md",
+          "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+          "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/design.md",
+          "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/tasks.md",
+          "sha256": "7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/traceability.md",
+          "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+          "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+          "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+          "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+        },
+        {
+          "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+          "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/precheck-result.json",
+          "sha256": "b5e6b4f9a073089096e2a8754d9fe8eee970344ac541c39e8f5c409b7af7c37e"
+        },
+        {
+          "path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/integrated-summary.json",
+          "sha256": "67d40c71585fa09bcb7a747b1ea4e755fd1b1c463c4af1155454e249d34df50f"
+        }
+      ]
+    }
+  ]
+}

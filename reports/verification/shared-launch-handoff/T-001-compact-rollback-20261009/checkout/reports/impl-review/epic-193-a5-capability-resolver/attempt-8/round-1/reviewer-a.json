@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a8r1-seq0871",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a8r1-0871",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b80ded58f0742c5a6c9f57d18a61880a9430d9186ed3bb6b60b180ecd4d1559b"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-8/round-1/precheck-result.json", "sha256": "26c2c63792b2e81fcb9f6a1dfcdd6b56cde0202cb9db0e3801079d070cfb9386"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 61-188) gives a full ASCII pipeline diagram naming every component boundary (state derivation → canonicalizer → Context Projection assembly → resolve-component-paths → Registry discovery → evaluate-predicate fan-out → track branch → Evidence assembly → schema self-validation → snapshot recheck → atomic commit), explicitly narrates integration with Epics A1-A4's already-Passed contracts (## Cross-Layer Dependencies, lines 328-402), and states technology choices per layer via ## Layer Specifications (lines 306-322: Python master + sh/ps1 dispatchers for the script layer, explicit N/A with rationale for UX/Frontend, 'no new runtime deployment' for Infra). Far beyond a one-sentence description."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture diagram and ## Cross-Layer Dependencies section describe a strictly linear/DAG dependency chain (A1 project-context -> A1 canonicalizer -> A4 Context Projection -> A3 resolve-component-paths -> A2 Registry/evaluate-predicate -> this feature's own track-branch/Evidence assembly -> publication). No component is declared to depend back on a downstream component; no cycle exists."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (lines 464-729) contains explicit 'Data Entities:' (contracts/resolver-evidence.schema.json field-by-field, plus the three A4-owned artifact shapes read/written), 'Existing Data Affected: none written; two existing artifacts read only' (line 701), and 'Migration Strategy: none' with rationale (line 719) — all three required sub-fields present and substantive."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (lines 731-1834) lists every new CLI/contract surface as named ### subsections: resolve-project-context CLI contract (flags, request/response = staged artifact shapes), the Resolver publication transactional bundle contract, contracts/resolver-evidence.schema.json, validate-resolver-evidence CLI contract, and the Discovery contract. Explicitly states no existing contract is edited or deprecated (Non-goals, requirements.md, cited throughout design.md)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries (design.md lines 2742-2906) names every trust boundary this feature crosses (Resolver <-> Registry/Context/ownership-source dependencies, Resolver <-> approval-sidecar non-participation, Resolver <-> live-path publication) and states the mechanism at each (no-write grep checks AC-025/AC-059, fail-closed CLI-misuse guard, journaled atomic-commit-or-nothing). PII classification and an explicit OWASP mapping are carried in security-spec.md's '## Data Classification and Protection' (line 108, 'no PII/credential') and '## OWASP Mapping' (line 124) sections, which this review treats as a normative refinement of design.md per its Layer Specifications table (design.md line 313). Minor note (non-blocking): investigation.md rulings (A)/(B)/(F) (2026-08-29 to 2026-09-03) document symlink-PRE-state handling and POSIX-only directory-fsync hardening discovered during post-Done adversarial security review; per ruling F's own stated scope these were mirrored only into requirements.md/acceptance-tests.md, not into design.md or security-spec.md, and are explicitly recorded as introducing no behavioral requirement change."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type field describes a deterministic CLI script family with no UI, and ## Layer Specifications explicitly marks UX and Frontend as 'N/A — no user-facing surface' / 'N/A — no browser/client UI'; this is equivalent to Feature Type 'cli', which this check's skip list covers."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (lines 1834-2179) enumerates 10 fixture suites with concrete file names under tests/fixtures/capability-resolver/, mapping each to specific AC-IDs (unit-level per-diagnostic fixtures, integration-level component-boundary fixtures via stubbed dependency subprocesses, and an end-to-end 'resolve-project-context-caller-contract' suite (item 10) asserting live sdd-bootstrap-interviewer/SKILL.md integration behavior with an anchor-fingerprint drift check). Concrete registration path given (tests/run-all.sh/.ps1, AC-026)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component design.md's Architecture/API-Contract-Plan sections name is either defined in ## Components (contracts/resolver-evidence.schema.json, resolve-project-context.{py,sh,ps1}, validate-resolver-evidence.*, generated/project-context.resolved.json, per-Feature yaml outputs, sdd-bootstrap-interviewer/SKILL.md) or is an already-established upstream system component cited with investigation.md provenance (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, generate-registry-digest, validate-capability-registry — all Epic A1-A3 already-Passed artifacts)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## ADR Change Log (lines 404-462) cites ADR-0016, 0017, 0019, 0020, 0021, 0023, 0025; verified all seven exist at docs/adr/<NNNN-slug>.md. Six additional non-ADR-worthy design decisions are explicitly named and justified as narrow mechanical extensions rather than new architectural axes, with an explicit escalation path offered if reviewers disagree."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No design-system/ directory exists in this repository (verified via ls). design.md's ## Design System Compliance states 'Not applicable — no UI surface,' consistent with the skip condition."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (verified via ls). Check is inapplicable per its own skip condition."
+    }
+  ]
+}

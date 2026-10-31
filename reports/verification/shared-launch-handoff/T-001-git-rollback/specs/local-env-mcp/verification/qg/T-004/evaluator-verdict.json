@@ -1,0 +1,21 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-004",
+ "run_id": "qg-eval-localenvmcp-t004-20260706-6a95",
+ "host_session_id": "hs-qg-e4-6503d1ba-0015",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-004/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 22 manifest hashes, independently rebuilt the esbuild bundle (SHA-256 identical to committed dist, git diff --exit-code green = dist-parity holds NOW), line-level verified the local-env-mcp-tests CI job in .github/workflows/test.yml (3-OS matrix + ubuntu dist-parity, step-for-step identical shape to the sdd-forge-mcp job), and re-ran the Inspector smoke test (2/2 pass, real subprocess asserting exactly the 3 tools + ok:true envelope) plus the full suite (50/50). Verdict PASS with one Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Deferred",
+   "description": "local-env-mcp-tests job runs but is not wired into the required-checks needs list (test.yml:341), so it does not gate merges; Done When does not require gating. Recommend wiring in a follow-up so AC-008 protects the branch.",
+   "location": ".github/workflows/test.yml:341"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}

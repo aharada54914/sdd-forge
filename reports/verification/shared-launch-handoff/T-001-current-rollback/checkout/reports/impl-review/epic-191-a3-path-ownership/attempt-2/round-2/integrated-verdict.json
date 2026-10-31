@@ -1,0 +1,15 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-orchestrator-a2r2",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "verdict_note": "Provenance re-review (--provenance-rereview) round 2 of attempt 2: both reviewers PASS with zero FAIL findings. The two round-1 Majors are confirmed resolved (ADR-PRESENT: all three design.md references updated to docs/adr/0027-component-path-ownership-resolver-semantics.md, verified on disk with its Numbering note; OPEN-QUESTIONS-RESOLVABLE: OQ-002 restructured into the owner/Blocks Implementation/Resolution Path schema). Clean PASS re-binds the impl-stage provenance to the amended spec bytes; Impl-Review-Status remains Passed per the mode contract (no flip performed or needed)."
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "epic-136-phase3",
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-a-seq0447",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-136-phase3-0447",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "fac8d12a74243b7b2dfa45a412aa098be2cbdb55cc9c0dab70ce045660858b33",
+  "previous_record_sha256": "72ca2eb1b8d55993b2b0bcbdb7615546b00ff22ee9907b118616af864fefad5f",
+  "sequence": 447,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase3/attempt-2/round-3/dependency-graph.json",
+      "sha256": "f7de19f10cd5182d19cccd4c3673509e41fa0972c1e30c41fd7b731241918555"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase3/attempt-2/round-3/precheck-result.json",
+      "sha256": "b98567354ff0801df5e0f89f620cbc6604563820da426982afad3badb04513f7"
+    },
+    {
+      "path": "specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "specs/epic-136-phase3/design.md",
+      "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+    },
+    {
+      "path": "specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+    },
+    {
+      "path": "specs/epic-136-phase3/infra-spec.md",
+      "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+    },
+    {
+      "path": "specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "specs/epic-136-phase3/security-spec.md",
+      "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+    },
+    {
+      "path": "specs/epic-136-phase3/tasks.md",
+      "sha256": "fc95cd05b2e4965383695368b90789e52745210ae60942271a05b6ce1040bd27"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.md",
+      "sha256": "2a5914e2cb439c1e6197ee8cb7ec4ca3def7e11ba4cfde33bf6f9cfb73f81a33"
+    },
+    {
+      "path": "specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-b-seq0498",
+  "host_session_id": "SESS-task-task-reviewer-b-mcp-readonly-preflight-0498",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/integrated-summary.json",
+        "sha256": "fefcda55f9349373ce715d6719028317db44d3c0e764056d078c52c07d641984"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+        "sha256": "f9d7177be6f0ff74c2d7267ae5bd6d6c89173a7e6bb0babc86222658d4fb6375"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+        "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+        "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+        "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+        "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+        "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+        "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/tasks.md",
+        "sha256": "c2894f512692878ef207d49063c817c54aceafaf89336717bdcf79e95e6db5af"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/traceability.md",
+        "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+        "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "None of the 5 tasks' Scope/Done-When touches the sentinel surfaces (authentication, authorization, payment, PII storage, data migration, externally-visible API contracts): T-001/T-002 add advisory prose to bootstrap/SKILL.md and a ship/SKILL.md human-copy candidate respectively (tasks.md:243-263, :377-400); T-003/T-004 add doc claims to USERGUIDE.md/README.md (tasks.md:509-526, :579-589); T-005 only reads mcp/*/src/server.ts, writing no product file (tasks.md:637-651). design.md:40 states 'No contract change is required or permitted' (no external API touched). T-002's medium tier (tasks.md:379-400) is consistent with policy: its own footprint never opens the live protected ship/SKILL.md for write (guard_invariants.py untouched; BL-004/D-003 verified in Protected Files table tasks.md:176-186), so the task does not itself modify an authorization/access-control mechanism -- the human apply-commit that does touch the protected file is explicitly out of this task's Done-When scope (tasks.md:493-499). No task is high/critical over cosmetic-only scope either. No violation found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No task in tasks.md carries Risk: high or Risk: critical -- T-001 Risk: medium (tasks.md:243), T-002 Risk: medium (:377), T-003 Risk: medium (:509), T-004 Risk: medium (:579), T-005 Risk: low (:637). The mandatory high/critical Done-When evidence set (Red->Green TDD capture, named independent-reviewer verdict, and for critical a second approver + signed bundle) therefore does not attach to any task in this decomposition; check is vacuously satisfied per risk-gate-matrix.md's tier-conditioned requirements (risk-gate-matrix.md:28-33)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Done-When (tasks.md:303-367) contains 11 distinct '- [ ]' checkbox items and T-002's Done-When (tasks.md:436-491) contains 10 (grep-verified: 11/10 vs. 5/5/5 for T-003/T-004/T-005), both exceeding the 8-item oversized-task indicator. T-001 alone binds roughly 15 acceptance criteria to one task (AC-001, AC-004-007, AC-008-009, AC-012, AC-027a, AC-027b, AC-017-020, AC-027, plus BL-001 -- see tasks.md:282-286 Requirements line), spanning presence, 4 absence checks, 2 fallback branches, 1 differential run, 2 divergence assertions, 4 open-method runtime items, and 1 regression check, several requiring separately saved verification artifacts (tasks.md:358-363). This concentration in a single task increases the risk that a single implementation/review session partially satisfies the checklist while still being marked 'Implementation Complete', or that the quality gate misses one of the many independently-verifiable properties bundled into one task."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task has bound error-path/edge-case ACs, not just happy-path: T-001/T-002 carry AC-008/AC-009/AC-010/AC-011 (MCP absent / call-fails fallback, requirements.md:116-126), AC-012/AC-013 (differential outcome-equality edge check, requirements.md:134-140), AC-027a/AC-027b (probe/file divergence branch, requirements.md:148-157), and T-002 additionally AC-026 (protected-file non-write assertion, requirements.md:238-239) -- all cited in tasks.md Requirements lines 282-286 and 416-419. T-003/T-004 (AC-021-024) are guarded by an explicit false-positive/negative check: acceptance-tests.md:140 notes the existing \u52a9\u8a00\u7684 usage that makes a bare-keyword check a live false positive, and BL-003 preservation is verified by diff (tasks.md:562, :619). No functional task has only unguarded happy-path criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md's per-task Test Type fields (T-001: :271-280, T-002: :408-414, T-005: :659-665) faithfully restate acceptance-tests.md's own per-row typing rather than inventing new labels. T-005's registry read across three separate MCP servers is labeled 'unit', consistent with acceptance-tests.md's documented local convention (acceptance-tests.md:164) and design.md Test Strategy point 2 (design.md:177). The dual-runtime rows (AC-017-020) are explicitly disclosed as method-undetermined (OQ-009) rather than mislabeled as a concrete type (tasks.md:353-363, :487-490), matching design.md Risk R-2's warning against a false text-assertion substitute (design.md:209)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task carries Risk: high or Risk: critical, so the check's mandatory trigger is not present. All 5 tasks nonetheless include explicit Rollback: fields with concrete, scoped revert plans: T-001 tasks.md:290-299 (single-commit prose revert, notes cross-task interaction with T-002), T-002 tasks.md:423-432 (agent-commit revert vs. human-apply-commit revert distinguished), T-003 tasks.md:544-549, T-004 tasks.md:605-609, T-005 tasks.md:671-673 (nothing functional to revert). No gap."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Global Constraints (tasks.md:190-197) states 'no two tasks below write the same file' and each task's own Scope/target confirms disjoint file sets: T-001 writes only bootstrap/SKILL.md; T-002 writes only the staged human-copy candidate + MANIFEST.sha256 (never the live protected path, per tasks.md:472-479); T-003 writes only USERGUIDE.md; T-004 writes only README.md; T-005 writes no product file (verification-only, tasks.md:700-702). tests/workflow-documentation.tests.sh is referenced by both T-001 (tasks.md:364-366) and T-004 (tasks.md:620-625), but both instances explicitly require it 'passes unmodified' as a read-only regression check -- neither task edits it, so this is not a write-write overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 tasks declare 'Blockers: None' (tasks.md:288, :421, :542, :603, :669), justified in tasks.md Global Constraints (tasks.md:190-197: 'Task independence, by construction, not by omission... none of the four writable-target tasks... depends on T-002's content') and corroborated by design.md:15 ('They can be implemented in either order and must merge together' -- order-independence, not a hard sequencing dependency) and traceability.md:118-125 ('Task independence, stated plainly... every task above carries Blockers: None'). No task's Scope consumes another task's output artifact, so no missing blocker is evident, and none of the declared 'None' values is spurious since no ordering constraint is asserted."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 5 tasks (T-001 add probe to bootstrap, T-002 stage probe for ship, T-003/T-004 add policy prose, T-005 verify existing write-tool absence) are net-new feature, documentation, or preservation-verification work, not remediation of an existing failure -- requirements.md:11 states 'The probe is a genuine create... there is no partial implementation to extend' and REQ-006/T-005 is framed as 'a preservation obligation... satisfied today' (requirements.md:166), not a fix for a broken state."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "tasks.md T-001 (Done-When at :303-367, 11 checkbox items) and T-002 (Done-When at :436-491, 10 checkbox items) each exceed the 8-item oversized-task threshold, bundling many independently-verifiable properties (presence, 4 absence checks, 2 fallback branches, 1 differential run, 2 divergence assertions, 4 open-method runtime items, 1 regression check) into a single task, risking partial/misjudged completion in one implementation session."
+    }
+  ]
+}

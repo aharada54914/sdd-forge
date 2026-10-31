@@ -1,0 +1,55 @@
+T-002 Green Evidence
+
+Command:
+bash -n plugins/sdd-implementation/scripts/select-agent-model.sh plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh tests/agent-model-routing.tests.sh
+
+Result: PASS (exit 0)
+
+Command:
+pwsh -NoProfile -Command '$null = [scriptblock]::Create((Get-Content -Raw plugins/sdd-implementation/scripts/select-agent-model.ps1)); $null = [scriptblock]::Create((Get-Content -Raw plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1)); "powershell parse ok"'
+
+Result: PASS (exit 0)
+Output:
+powershell parse ok
+
+Command:
+bash tests/agent-model-routing.tests.sh
+
+Result: PASS (exit 0)
+Output:
+ok: turn-first model routing structure is defined
+
+This fixture executes both Bash and PowerShell model selectors, structured-risk
+checks, and terminal-tier resume validators. It covers matrix routing,
+same-versus-different failure recurrence, exactly-one-tier escalation,
+complete escalation audit fields, terminal blocking, availability, effort
+selection, scalar candidate rejection, strict timestamp parity, trusted
+blocked-state binding, forged hashes, diagnosis hashing, and
+task-section-bound resume hashing. It rejects parent-directory symlink escapes
+in both runtimes. It directly invokes the deterministic runtime probe and
+verifies `BLOCKED deterministic-runtime-unavailable`.
+
+Command:
+bash plugins/sdd-quality-loop/scripts/check-risk.sh /tmp/sdd-forge-turn-first-T-002-snapshot/specs/agent-cost-context-isolation/tasks.md T-002
+
+Result: PASS (exit 0)
+Output:
+Risk check passed for task T-002.
+
+Command:
+pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-risk.ps1 -TasksPath /tmp/sdd-forge-turn-first-T-002-snapshot/specs/agent-cost-context-isolation/tasks.md -TaskId T-002
+
+Result: PASS (exit 0)
+Output:
+Risk check passed for task T-002.
+
+Output SHA-256:
+bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5  contracts/terminal-tier-blocked-state.schema.json
+fa5b8df3a28b9ea7398fe32d22e5569ea20164ae11564c0c29ca0f736c0189a9  plugins/sdd-implementation/scripts/select-agent-model.sh
+ab5605f7bec4f4b47dbfb96e5d734a916dc039e6ec8c2cab980d2aafd7d9b804  plugins/sdd-implementation/scripts/select-agent-model.ps1
+924650079942c623414ae1334f8a9d9b8d1e8bdbdc84b3615715aba7c9e6d794  plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh
+eef6c101c5995cc550df36d3e833d26fb85b823b48bd54f6172e0704d9fb39e4  plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1
+8dd64c267fd2643c38c59bc3331c539344cff436bb3f1fd5ef0f95db6a489bec  plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md
+09ec1ad0186df438bc792f63f1ad6562471d37fc5455719a58142701f76bfbcd  tests/agent-model-routing.tests.sh
+
+Unresolved items: none within the T-002 allowed-output scope.

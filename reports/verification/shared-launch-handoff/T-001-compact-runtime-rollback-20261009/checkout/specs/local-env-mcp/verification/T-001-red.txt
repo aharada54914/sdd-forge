@@ -1,0 +1,19 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: src/ modules not yet implemented — the pretest compile fails,
+# so no tests can run. This is the genuine failing-first (Red) state.
+
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/error-paths/probe-engine.test.ts(23,48): error TS2307: Cannot find module '../../src/probe-engine.js' or its corresponding type declarations.
+tests/error-paths/probe-engine.test.ts(24,37): error TS2307: Cannot find module '../../src/allowlist.js' or its corresponding type declarations.
+tests/readonly/envelope-allowlist.test.ts(17,38): error TS2307: Cannot find module '../../src/envelope.js' or its corresponding type declarations.
+tests/readonly/envelope-allowlist.test.ts(18,32): error TS2307: Cannot find module '../../src/envelope.js' or its corresponding type declarations.
+tests/readonly/envelope-allowlist.test.ts(19,27): error TS2307: Cannot find module '../../src/allowlist.js' or its corresponding type declarations.
+tests/readonly/envelope-allowlist.test.ts(20,37): error TS2307: Cannot find module '../../src/allowlist.js' or its corresponding type declarations.
+tests/readonly/envelope-allowlist.test.ts(90,32): error TS7006: Parameter 'e' implicitly has an 'any' type.
+tests/readonly/envelope-allowlist.test.ts(94,32): error TS7006: Parameter 'e' implicitly has an 'any' type.
+
+npm test exit code: 2

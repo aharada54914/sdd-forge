@@ -1,0 +1,110 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-c-impl-impl-reviewer-a-seq0292",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-c-0292",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md '## Architecture' (lines 30-77) contains a mermaid flowchart with 18 named component nodes and labeled interaction edges (e.g. 'V1 -->|legacy schema path, byte-identical| SEL', 'PANEL -->|codex --model --effort| CODEXCLI'), covering top-level boundaries and integration with existing components (V1 registry, existing select-agent-model.sh, existing run-panelist-gpt.sh, existing emit-run-record.sh all shown as edited/consumed). Technology choices per layer are given immediately adjacent in the '## Components' table's Technology column (JSON, Bash/PowerShell, Markdown, TOML, YAML) and reinforced by the '## Layer Specifications' table, which explicitly marks Frontend/UX as N/A (cross-referenced to ux-spec.md/frontend-spec.md, both stating no GUI exists) and names Infrastructure/Security detail owners. This is well beyond a one-sentence description naming components without interactions."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Traced the full mermaid dependency graph in '## Architecture' (19 nodes, 24 edges: V1/V2 -> PARITY/SEL; SEL -> ROUTE/RENDER/PREP/STARTUP/RECORD/FLIP; RENDER -> CLAUDEMD/CODEXTOML/PROTECTED/CHECK; PANEL -> CODEXCLI/RECORD; FLIP -> RELEASE). No back-edge exists into V1, V2, or SEL from any downstream node (RECORD, CODEXCLI, CI, PROTECTED, RELEASE are all terminal with no outgoing edges). Confirmed a DAG; no cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Data Plan' (lines 238-287) contains all three required sub-fields: 'Data Entities:' enumerates contracts/agent-model-capabilities.v2.json's full field shape, sdd-run-record/v2's new `effort.{main,reviewers}.*` six-subfield sibling object, and specs/epic-159-pillar-c/human-copy/; 'Existing Data Affected:' names v1 registry (read-only) and real plugins/**/agents/*.md + .codex/agents/*.toml files (written in production); 'Migration Strategy:' states 'none for the registry (v1/v2 coexist...)' and explains run-record v2 is additive-only with schema-field-keyed dual-shape acceptance."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## API / Contract Plan' (lines 289-493) lists every new/changed interface with dedicated subsections: the v2 registry JSON schema (T-001, full example), select-agent-model's schema auto-detection + 4 new flags with full JSON input/output key enumeration (T-002), render-agent-frontmatter's Claude/.md, Codex/.toml, and --check behaviors (T-003), emit-run-record's new flags and effort object shape (T-004), and run-panelist-gpt's --effort flag/argv change (T-006). Breaking-change status is addressed distributed through the same section ('existing keys ... unchanged in name and type', 'leaving every existing TOML key ... byte-unchanged', 'unconditionally backward-compatible by construction', 'preserving today's exact invocation for any caller that does not yet pass --effort') -- functionally equivalent to an explicit no-breaking-change statement per interface."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Security Boundaries' (lines 628-637) is present with a 4-row table (B1-B4) naming every trust boundary this feature crosses (registry/candidates-file input, render output vs. R-10 protected files, selector output vs. codex CLI argv, run-record effort-field truthfulness), stating the control/authorization mechanism at each (schema validation fail-closed; write-target exclusion + scratchpad/human-cp; provenance-restricted argv construction; confirmed-application-only field population), classifying data at each boundary ('internal source' for all rows, correctly reflecting no PII is handled), and naming OWASP concerns (Injection, Broken Access Control, Injection/command-argument tampering, Repudiation/false-positive telemetry). Cross-referenced and elaborated by security-spec.md's Trust Boundaries, STRIDE, Authorization, and OWASP Mapping tables (normative refinement, consistent, no contradiction found)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'contract schema migration + CLI/script feature additions ... no GUI or user-facing surface' -- not fullstack. Confirmed by ux-spec.md ('N/A -- no change: this feature ... has no GUI, view, dialog, menu item, or human interactive shell surface') and frontend-spec.md ('N/A -- no change ... There is no browser or frontend application'; Component Tree/State/Routes/API Client section explicitly N/A). design.md contains no '## Frontend Plan' or '## Backend Plan' section to check against '## API / Contract Plan', consistent with this being a non-fullstack (CLI/script/library-class) feature."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Test Strategy' (lines 495-543) contains 8 numbered items covering unit scope (item 1, 2, 5 -- golden-baseline mutation self-checks and field-population pairing, naming exact suite files e.g. tests/agent-capabilities-v2.tests.sh, tests/emit-run-record-feature-scope.tests.sh, with explicit note that no live LLM is invoked), integration/boundary scope (item 3, 4, 7 -- protected-file write/read boundary pairing and self-registration grep pattern), and acceptance-criteria-to-test mapping via the '## Cross-Layer Dependencies' table (REQ -> AC -> TEST ID) plus acceptance-tests.md's own 1:1 AC-to-TEST table. Concrete planned verification evidence is named: exact commands ('bash tests/run-all.sh', 'pwsh tests/run-all.ps1'), a git command ('git merge-base --is-ancestor', item 6/AC-045), and artifact names (MANIFEST.sha256, staged human-copy candidates). Feature has no GUI/critical user journey (confirmed non-fullstack per FRONTEND-BACKEND-CONSISTENCY finding above); item 4's real-file no-op render proof and item 6's real Codex-host smoke check (AC-044) serve as the closest applicable external-observable/end-to-end verification path."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node referenced in the '## Architecture' mermaid diagram and every component named in '## API / Contract Plan' is defined in the '## Components' table (V1/V2/PARITY/SEL/RENDER/CLAUDEMD-CODEXTOML targets/PROTECTED/CHECK-CI/PANEL/PREP/RECORD/ROUTE all have matching rows). CODEXCLI (codex CLI) and RELEASE (scripts/bump-version.sh) are established existing system components identifiable from investigation.md (INV-004, INV-007, INV-008) and requirements.md (REQ-009 citing prior specs' precedent), not new components requiring a Components-table definition. No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## ADR Change Log' (lines 199-236) lists a new ADR (docs/adr/0012-effort-tier-decoupling.md) plus references to existing ADR-0003 and ADR-0010. Independently verified via `ls docs/adr/`: 0003-turn-first-agent-routing.md exists, 0010-loop-inventory-and-fixture-vocabulary.md exists, 0011-phase2-handle-relative-protected-copy.md exists (confirming the round-2 collision-avoidance claim against the live repository is accurate), and 0012-effort-tier-decoupling.md correctly does not yet exist (it is not yet drafted). This is consistent with the design's explicit Drafting Ownership paragraph assigning creation to T-002's own implementation commit with a mandatory `ls docs/adr/` re-verification/renumbering procedure at drafting time -- the round-1 Major (unassigned ownership + stale number collision) is resolved and independently confirmed correct as of the current repository state."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+      "sha256": "f52c716dc69d01e0175d27ccee3379c6b7d6e44ac0b293421262c408f9daf375"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+      "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+      "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+      "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+      "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-2/precheck-result.json",
+      "sha256": "230026ddb5a2865a23842991c110f0b4369bdb54a74af9ff09c7d658b9cd9bbc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+      "sha256": "23321da059ee37298a88ef1e5faf0f828a2aaa2b31097ca3ef3508237402f5cf"
+    }
+  ]
+}

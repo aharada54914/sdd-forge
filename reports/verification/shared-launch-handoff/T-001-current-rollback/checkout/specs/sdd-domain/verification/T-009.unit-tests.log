@@ -1,0 +1,29 @@
+
+
+
+
+
+Describing workflow-retrospective SKILL.md documents domain-drift metric aggregation
+ [+] SKILL.md exists and is unchanged as an internal, non-model-invocable skill 495ms
+ [+] documents the domain-drift metrics subsection gated on domain/ existing 86ms
+ [+] documents sourcing only from already-recorded check-domain-conformance findings (no new evidence-collection path) 32ms
+ [+] documents Term-Deviation Count and Boundary-Violation Count as named metrics 30ms
+ [+] documents the exact classification rule matching check-domain-conformance's real finding messages 30ms
+ [+] documents omitting the section entirely when domain/ is absent (does not emit a zero-filled table) 32ms
+ [+] does not disturb the existing Deterministic artifact rules section (still present, still numbered 1-5) 30ms
+ [+] the domain-drift subsection is placed after dataset quality indicators and before the review-gate metric derivation 36ms
+Describing retrospective-report.template.md documents the Domain Drift Metrics section
+ [+] template exists 106ms
+ [+] contains a Domain Drift Metrics section gated on domain/ existing 30ms
+ [+] the Domain Drift Metrics table carries Term-Deviation Count and Boundary-Violation Count rows 33ms
+ [+] the Domain Drift Metrics section is placed after Metrics and before Friction Patterns (additive insertion point) 27ms
+ [+] does not disturb the existing Metrics table header (still the same 8 columns) 30ms
+Describing check-domain-conformance script (T-008) finding messages are read-only referenced correctly
+ [+] the five drift finding message shapes classified by the SKILL.md rule are the exact literal strings the script emits 47ms
+Describing Worked fixture: nonzero term-deviation and boundary-violation counts across multiple quality-gate reports
+ [+] Get-DomainDriftCounts produces nonzero Term-Deviation Count and Boundary-Violation Count across the retained reports 105ms
+ [+] a report with no check-domain-conformance WARN/FAILED block (clean pass) contributes zero to both counts 33ms
+ [+] an empty report set produces all-zero counts (no domain/ scenario) 30ms
+ [+] classifying only the T-103 FAILED block (SDD_DOMAIN_ENFORCE=error) still counts as a boundary violation 32ms
+Tests completed in 1.25s
+Passed: 18 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

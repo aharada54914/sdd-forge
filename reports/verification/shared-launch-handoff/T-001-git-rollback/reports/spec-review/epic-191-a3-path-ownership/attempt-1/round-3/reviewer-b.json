@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a1r3-seq0325",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a1r3-0325",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "4d366a371d43f8a7fa6b1290251dafeaa3d706022948bedae63ca66f9bee6ce4"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-3/precheck-result.json", "sha256": "c5814903c3db85fc1aaca279c2423c32f0ac2dc9ef86fbc23d4bbb0b5ea370a1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-3/integrated-summary.json", "sha256": "e222a98a36012574a3c1dc0bdddd2e4d1bca32cbfe5c33a52d6b6b33f55a1920"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "Core terms (EXCLUSIVE/SHARED-bounded/SHARED-unbounded/OVERLAP/UNOWNED/EXCLUDED_MATCH), the glob matching contract, the three derived capability states, and the six Fail-condition triggers are each given explicit, mutually-consistent definitions in requirements.md Field Definitions and REQ-001/002/004, cross-referenced by dedicated AC-001..AC-055 with no residual two-implementer divergence found within the reviewed scope."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "The round-2 Fail-6/OQ-001 contradiction is resolved: requirements.md Dependencies/Open Questions now designate REQ-004's Fail-condition definitions and AC-033 as normative, and investigation.md's OQ-001 section (independently read) already carries the matching disclaimer and identical substantive rule (adapter_paths glob match as sole trigger; WARN-not-N/A for declared-but-unmatched vs. N/A-WARN for file-absent). No other contradiction found across REQ-001..REQ-009, Non-goals, Edge Cases, or Security Boundaries in this independent pass."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "acceptance-tests.md's 55 TEST entries cover material negative/boundary/failure paths: empty diff/empty include, NFC collision, schema-absence fail-closed, exclude-as-include invariant, rename across component boundary and limit-exceeded fallback, 4 submodule/symlink reference-only fixtures, TOCTOU retry-then-fail-closed, manifest-missing hard error, disabled-legacy zero-evaluation, Fail-2/Fail-4 mutual exclusivity, producer-digest mismatch rejection, and dual-runtime parity divergence."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "Every entry in the Assumptions section is paired with either a fail-closed fixture backstop or an explicit, named cross-epic Dependency rather than left as an unresolved open item; OQ-001 is marked Resolved and OQ-002 is resolved via the AC-011-gated middle path."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "The human-copy protected-file staging/approval boundary (implementing agent never writes a protected path directly; human maintainer applies cp+SHA-256 verification; Approval Draft->Approved is human-only) is made testable via AC-036 (six-file staged candidate + generator --check exit 0 + byte-identical live files) and AC-047 (CI human-copy staging proof), so this in-scope boundary is verifiable rather than merely asserted."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "Field Definitions, Roles and Permissions, Main Workflows, Edge Cases, Security Boundaries, and a 55-item AC set give an implementation-policy/design reviewer concrete product behavior for every REQ without needing to invent missing behavior; scope boundaries against Epic A1/A2/A4 schemas are explicit in Non-goals and Dependencies."}
+  ]
+}

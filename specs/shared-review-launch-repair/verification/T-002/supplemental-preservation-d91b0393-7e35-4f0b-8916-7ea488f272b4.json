@@ -1,0 +1,287 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "shared-review-launch-repair",
+  "task_id": "T-002",
+  "implementation_report": {
+    "path": "reports/implementation/shared-review-launch-repair/T-002.md",
+    "sha256": "e9a12b168350ebd9e6d2e2a23b742ebe9bedcde797c455f9d07dd79177bf5b3a"
+  },
+  "artifacts": [
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/prepare-t002-evaluation-attempt-4-retry-2.py",
+      "sha256": "d705d2e4c412fc9e8cc8b718f35fdc702c593c465ebbf4a1f95298914a95c758"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002.contract.json",
+      "sha256": "d63c95d86ed924618f0c4c2ccd47beeedc2349f82b9c2b6c9abdea7adfd0349e"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "sha256": "0db5fe1b86a1fa2414535b9a217d493450b8ae90860f2ee880b3961de63567e1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/independent-verification-20261010.md",
+      "sha256": "14023e647a2ec3c0020fc4865d3f7883605fb0091599b49656a79a2f7c77fd07"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/independent-diff-review-20261010.md",
+      "sha256": "fed9fdbf5a04948592cc5df588869b7fec5002afaf7b68a3b155677a0699c072"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/build.log",
+      "sha256": "db975f852e59e53d089d92764f7f1ef1334895e2bf6dedb8d328ca88f25aee3e"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/checks.json",
+      "sha256": "dcc0a8bd6bfaa27246ea222f0eb990d1b3774ed4b15355fcd1b27063a1c7bd39"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/collect.py",
+      "sha256": "441330f970e241432abb5260aebcc4cd8c7bfac38a28effa9dcfa6e9d040213b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/component.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/fresh-binding-after.json",
+      "sha256": "e9b27d09730852ce3e672d00e0670dfd88b5f39896ef8e3f4679fdd3bd3ce53a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/fresh-binding.json",
+      "sha256": "8a77af08deb7c8e0cfc0c420afb49615371cd949b87049449551459e5ec93c5a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/mypy.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/report-adoption.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/report.log",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/risk.log",
+      "sha256": "476b82b0108c876d6bcb8025355dd2862790b4805c38d91ae8850145fe5457b1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/scope-before.json",
+      "sha256": "32d196cf4114d6ff498c206788d914ecd28ca17c8b5d5eec1744547bb76bced0"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/task-state.log",
+      "sha256": "3a16dd5381125ed075d1e04410261bfad70aa66cf4deb0a1f3c57eb59bfe5ca4"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.json",
+      "sha256": "8fa9e68cbdda6a78c13b29e2777f51b3dffb0ba173d5f0017dca5de4e5a42756"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.log",
+      "sha256": "559f6aff9bb40053c7c73cb80f8777bdd5b9153f0dc66c174831b9d81a9fee7f"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/commands.json",
+      "sha256": "def5e713231589665153b1e511d2a27edfe6d1d82a39a77959154b737f6ac4ce"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/downstream-parity.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/downstream-parity.stdout.log",
+      "sha256": "e9bd4fa6085a96720208c06f09d8693527971d8e6e0f7ea3cfd96d459532ac58"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/environment-retry-1.json",
+      "sha256": "31e8c5827613ed654cd8a51c20a2262b75e89d9a2f56b5e5f6c17d9f410215de"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/environment.json",
+      "sha256": "e16f86fcc26d5493c98ae6e13029da1127506af9c57836c6cf25baaed45e859b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/execution-summary.json",
+      "sha256": "7f6914ba9ed15eec03d3d7c4f6f992d3f54ebf0f8dcd978568706ba5a404cb78"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/hash-parity.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/hash-parity.stdout.log",
+      "sha256": "cd016dcc27c6dc2e3d6db8946c897bc9558c9471c82fda802bf0b9a11662d4a6"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/input-hashes.json",
+      "sha256": "82cfb1dcf2b13c4c5905a092892ae20ada4d0b9176d344b41eceaea35e7bc7ed"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/old-incomplete-report.md",
+      "sha256": "790f391ffa56f0cafd07acb1481158a795da3791c91495f18dcf339927540b63"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/report-validation.json",
+      "sha256": "bb89ce6fe1920fee706f0fc85ca4d912b115abeddf03db5f8eaf3bb6a33b3683"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/report-validation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/report-validation.stdout.log",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/run-native-retry-1.py",
+      "sha256": "3d5ecddd76ec9f2102881a3c8a5c7036be6adaaf74466909e4df834406c87313"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/run-native.py",
+      "sha256": "a0aae39d16644ca0188c98bd4d8065a025801367b6fa26ee408bfd08797c9293"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/runtime-versions.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/runtime-versions.stdout.log",
+      "sha256": "d9e620fb6e2b3cf71e8426b9b1174c2b3135b9e8bcbe087727df89316f78a617"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/source-integrity.json",
+      "sha256": "14336a6fd6a6cc0b946e142347f15acdf7bbcd38cafee4d65013dfcc5431f4d0"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/traceability-freeze-retry-1.stderr.log",
+      "sha256": "3516aa1d53d5c5a0c6157716a51795472e18cbf025919ab8f907c2b4ebe7f0b5"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/traceability-freeze-retry-1.stdout.log",
+      "sha256": "74a3e3d85a0ea3fa30ab9ce70f185f0aeb2be69646009180b9e0ed3a5c8d6101"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/traceability-freeze.stderr.log",
+      "sha256": "8e620d5490cbb601b8140925477a0a0fec6a3af38b41d133142654edc222fa7a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/traceability-freeze.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/unreadable-equivalence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/unreadable-equivalence.stdout.log",
+      "sha256": "3c3734df92ca563bf99466a9dacc639992d6fb1e04f47279bac791d939baa72c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/unreadable-recovered-file.md",
+      "sha256": "140f291497b868ed9a4b038f2788845d057a728d02ca10c30d3607abf99409d2"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/work-preparation.json",
+      "sha256": "8ebc6305b41d0ec115b25bf9c4af2094ecc456cce344fecb67619f0d05adf978"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/prepare-restoration-evaluation.py",
+      "sha256": "5d3d7251dcad586f43136609adcba173a9fa897318882f7528566c307fc53d02"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/evaluation-response-20261010.md",
+      "sha256": "3ec3b4392464ae14ab5e51c7fb35c459e9116eef80f6ef44d67dc8c6a593c5e1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/restoration-retry-scope-20261010.md",
+      "sha256": "e32bde82a05b95d677f4edf89b0324c61240c56e0e99a16322c251837ce904a8"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/verify-disposable.py",
+      "sha256": "757cbd20e89fed96bbe026d077b0a74c5efc445ffab59e2e415a242272043fcb"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/before-hash-parity.log",
+      "sha256": "cd016dcc27c6dc2e3d6db8946c897bc9558c9471c82fda802bf0b9a11662d4a6"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/before-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/before-traceability.log",
+      "sha256": "1290f7f02159c550ec7987b665690421ffb6505774df5834db7836b367a98d71"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/checkout-creation.log",
+      "sha256": "6c8776b1c86527b14b659d611ccae61831f3a34815ce003402133b294e52f694"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/mutated-hashes.json",
+      "sha256": "f3de6ec2b675b26ad746058726281cc61a3724d53c279b51be8203d56f89f2be"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/registry-topology.json",
+      "sha256": "59ea1207604b60dd41266c3aa50d7cb6f0d4dbadece4c9ffc405ff131c84abbd"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/restored-downstream-parity.log",
+      "sha256": "e9bd4fa6085a96720208c06f09d8693527971d8e6e0f7ea3cfd96d459532ac58"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/restored-hash-parity.log",
+      "sha256": "cd016dcc27c6dc2e3d6db8946c897bc9558c9471c82fda802bf0b9a11662d4a6"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/restored-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/restored-traceability.log",
+      "sha256": "09a85d4a7c1d64e515e11e08693f09b267ba53415f269079f6dbdb4db3c3ab8c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/results.json",
+      "sha256": "161515d390c1388b3adca36c03cf2f59ed7bc4abe3ff06a2ce4ff96f723cf1e6"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/scope-check.json",
+      "sha256": "bfcf5806bb01538d8d45437500b0e34e7fae86704c22193af15e7f233a9355bc"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-fjg8_bgi/unreadable-equivalence.log",
+      "sha256": "3c3734df92ca563bf99466a9dacc639992d6fb1e04f47279bac791d939baa72c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/prepare-preservation-evaluation.py",
+      "sha256": "18f1b4657e4036aff24f6c9b6e3150d10b40d3eec92a7095a2cf45560c3c0d93"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/preservation-response-20261010.md",
+      "sha256": "8cd82faf5f702757610081ca2eee2dd716e34cc9c53c8956adcc2c2793c6a08b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/preservation-d91b0393-7e35-4f0b-8916-7ea488f272b4/baseline-check-workflow-state.sh",
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/preservation-d91b0393-7e35-4f0b-8916-7ea488f272b4/baseline-check-workflow-state.ps1",
+      "sha256": "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/preservation-d91b0393-7e35-4f0b-8916-7ea488f272b4/results.json",
+      "sha256": "dc811b0617de2d296cded6db835d3d6e4a93267fc16720bedc0cc3050584f1f0"
+    }
+  ]
+}

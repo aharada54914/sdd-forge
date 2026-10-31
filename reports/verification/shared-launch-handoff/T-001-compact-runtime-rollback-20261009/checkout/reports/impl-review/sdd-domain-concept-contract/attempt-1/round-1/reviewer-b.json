@@ -1,0 +1,118 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-b-a1r1-seq0777",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-domain-concept-contract-a1r1-0777",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/design.md",
+      "sha256": "28bb9247458d339d86f3f79b9f872dad365732b9dfe4311140ae60db4c7b474f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/ux-spec.md",
+      "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/frontend-spec.md",
+      "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/infra-spec.md",
+      "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/security-spec.md",
+      "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-domain-concept-contract/attempt-1/round-1/precheck-result.json",
+      "sha256": "3899c0367c75843a3c026ea9b3a58efc6ceb0c9b3f8d4450f9e84b1d50fd6b68"
+    },
+    {
+      "path": "reports/impl-review/sdd-domain-concept-contract/attempt-1/round-1/integrated-summary.json",
+      "sha256": "80ecb9d8b35712f7145bb3a0e833ac801b12eea0f9a38183618913a7b232a19b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Design Decisions table (lines 22-30) states a rationale for every entry: e.g. DD-1 (line 24) justifies the top-level-array shape via distinguished_from's cross-context references and JSON Schema draft-07's inability to express referential integrity (INV-003); DD-4 (line 27) justifies the python3/ConvertFrom-Json choice via INV-005 house pattern, existing repo runtime assumption, and PS5.1 compatibility (Test-Json is PS6+); DD-6 (line 29) justifies v2-only validation via OQ-004 and non-duplication of the existing v1 verification path. frontend-spec.md's Technology Stack table (lines 10-15) likewise carries a filled Rationale column for every stack row. No 'we will use X' statement lacks a 'because/since' clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no literal '## Open Questions' section (its only section list, confirmed via `grep '^## '`, ends at '## Open Items', line 148) — a [LEGACY COMPAT] gap consistent with legacy_design: true. Substantively, both entries are resolvable and non-blocking: OQ-003 (line 152-154) is already closed ('確定'; spec-review attempt 4 PASS, reflected in REQ-002/AC-014); OQ-001 (line 150-151) is explicitly deferred to Phase 3 with a stated reason the deferral doesn't block Phase 0 ('本設計は削除にも恒久共存にも耐える', DD-3 non-coupling). requirements.md's own Open Questions section (lines 249-252) confirms OQ-001..004 were to be confirmed by spec-review, which passed. OQ-002 (CI registration) is resolved in Test Strategy line 136 and infra-spec.md lines 15-18/29-31 ('follows that convention... changing the registration policy... is a separate WFI'); OQ-004 is resolved via DD-6. No entry blocks implementation without a resolution path, and none is a bare 'TBD'. The missing structured Owner/Blocks-Implementation/Resolution-Path field syntax is a template-vintage gap, not a substantive resolvability defect."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md carries no separate '## Assumptions' section (legacy-template gap, same as above); requirements.md's '## Assumptions' section (lines 236-247) is the substantive analog and is used for this check. Its three entries are grounded: (1) lines 238-244, the hook-uninitiated generation deviation, cites INV-010 directly and records the owner's explicit accepted-risk instruction (2026-08-16); (2) line 245, 'v1 契約インスタンスは存在しない', cites INV-009 (owner decision) directly; (3) lines 246-247, that later Phases build on this contract without changing it, is a reasonable technical default consistent with the additive/no-dual-loader posture already established by DD-2 and the Non-goals section (lines 71-72), and states its own escape hatch ('変更が必要になった場合は当該 Phase で本契約の改版を明示的に扱う'). investigation.md is present per the requirements.md header (INV-001..012), so the 'investigation.md absent' branch does not apply."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a '## Constraint Compliance' section (lines 138-146), so the Primary/TYPE-D path applies. All constraints stated in requirements.md are addressed: REQ-007 additive-only guarantee (row 1, backed by TEST-002/TEST-015 drift locks); hook-guard non-protection / no new machinery (row 2, matches requirements.md Roles and Permissions lines 194-202 and INV-008); content-as-data (row 3, matches Security Boundaries lines 227-230); external-dependency prohibition / house pattern (row 4, matches DD-4 and security-spec.md line 33-34 'No network, no external dependency'); ASCII/newline hygiene for new .ps1 (row 5). The fail-closed 10MB/malformed-input edge case from requirements.md Edge Cases (lines 222-223) is concretely addressed in design.md's Error Handling section (lines 100-101) and tested by AC-017/TEST-017, so it is not an unaddressed constraint, merely documented outside the compliance table itself. No layer spec overrides or contradicts requirements.md or design.md; all four are consistent 'N/A — no change' or elaboration documents."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. The document contains no response-time, throughput, concurrency, or latency/SLA statement; the only numeric threshold present (Edge Cases, line 222, '契約ファイルが10MBを超える') is a fail-closed input-size boundary for a CLI validator, not a performance/SLA target, and is addressed by design.md Error Handling (lines 100-101) and AC-017/TEST-017 regardless."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no literal '## Deployment / CI Plan' section (legacy-template gap), but the required layer spec infra-spec.md (hash-bound, part of the full profile per orchestrator instructions) substantively covers all four elements: deployment target — 'any host with bash + python3 (.sh) or Windows PowerShell 5.1+/pwsh (.ps1)' (lines 10-12); feature-flag strategy — implicitly N/A and stated as such, since Rollback (lines 33-37) confirms 'no consumer wired in Phase 0 (INV-004 consumers untouched)', i.e. nothing is being incrementally rolled out to a live path; CI pipeline changes — explicitly 'unchanged' for test.yml, release.yml, bump-version.sh, and validate-repository.ps1 (lines 20-31); migration execution order — not applicable, no database or schema-bearing runtime exists in this feature (see MIGRATION-PLANNED)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no '## Data Plan' section and no database/data-entity model is part of this feature at all — the only 'schema' referenced is a new JSON Schema contract file, not a database schema. infra-spec.md Rollback (lines 33-37) states the three deliverables are additive files with 'no data, state, or registration to unwind,' and requirements.md Non-goals (lines 73-74) explicitly excludes generation/change of any domain/ artifact. This is functionally equivalent to 'No data changes,' for which the check specifies PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no external system, third-party service, or cross-service API call is referenced in design.md. security-spec.md states explicitly (lines 33-34) 'No network, no external dependency... Nothing is fetched, uploaded, or cached.' design.md's Architecture section (lines 94-95) names only future in-repo Phase consumers (Phase 1 concept-test gate, Phase 3 reviewer record-checks) and explicitly states '本 feature ではまだ接続しない' (not yet connected). The scoped integration surface this check targets does not exist."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal in requirements.md (G1-G5, lines 53-63) has a corresponding design element and no extraneous component is introduced: G1 (concepts[] required top-level array, 7 required fields) -> v2 Schema Shape (lines 32-78) and Field Definitions match exactly; G2 (term->concept linking) -> contexts[].terms[].concept_id in the same shape; G3 (deterministic validator) -> Architecture (lines 80-96) and Error Handling's RULE-ID enumeration (lines 104-113), which maps 1:1 onto REQ-004(a)-(i) plus DD-6's version check with no extra rule IDs; G4 (fixture corpus) -> DD-5 and Test Strategy (lines 115-136); G5 (additive-only) -> DD-2/DD-3 and Constraint Compliance row 1. ux-spec.md confirms ds_profile: none (line 26) and ACs table shows no UI surface, so the design-system sub-check does not apply. No component, data model, or endpoint appears in design.md without a requirements.md anchor, and no Goal/User Story is left uncovered."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "security-spec.md frames this feature as carrying an elevated risk surface regardless of the five illustrative categories: 'Impact assessment is ALWAYS required for this feature class... A validator that best-effort-parses malformed input, executes contract content, or silently passes an invalid contract would weaken every downstream gate built on it' (lines 3-9). design.md names a concrete, itemized validation path for exactly this risk: the Test Strategy section (lines 115-136) and the fully cross-referenced acceptance-tests.md AC-001..AC-026 table, including named negative-canary fixtures per validator rule (73 fixtures), fail-closed proof (AC-017), no-raw-exception proof for type mismatches (AC-024), and sh/ps1 twin-parity proof (AC-013/TEST-013). This is a concrete, inspectable verification artifact named in design.md, satisfying the check."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the repository has no top-level domain/ directory at all (verified: `ls -d domain` returns no match at repo root), so the precondition (`domain/context-map.md` recording `Domain-Model-Status: Approved` plus a schema-valid `domain/domain-contract.json`) cannot be satisfied. Independently, requirements.md carries no `Bounded-Context:` field anywhere in the document (grep confirms zero matches), consistent with no Approved domain model applying to this feature. Per the check's own applicability clause, this records as skipped."
+    }
+  ]
+}

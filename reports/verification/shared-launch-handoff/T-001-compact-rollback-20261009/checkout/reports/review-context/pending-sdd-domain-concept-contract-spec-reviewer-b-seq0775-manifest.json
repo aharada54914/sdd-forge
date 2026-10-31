@@ -1,0 +1,41 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "sdd-domain-concept-contract",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a4r2-seq0775",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a4r2-0775",
+  "sequence": 775,
+  "previous_record_sha256": "1aa375fef12a6e68cd4983ec30db699c63b2579875a921ef8f81482c3033d63b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "80ebd4cef00601782a801c2365577ef3bf510bfe0632c1efbc4e3db3330e8dd3",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-2/precheck-result.json",
+      "sha256": "f28af1e2d430fd7e875bc5a3e690c0da92848d4b67c6c05a82aaf78a903599c1"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-2/integrated-summary.json",
+      "sha256": "1d253ed8e7089e825becb1d79d841b0491f6800ccd5c8cf263be847e0473c75e"
+    }
+  ]
+}

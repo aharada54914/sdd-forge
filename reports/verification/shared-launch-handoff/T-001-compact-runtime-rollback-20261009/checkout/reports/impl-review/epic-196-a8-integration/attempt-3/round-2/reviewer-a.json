@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196a8integration-impl-a3r2-a-seq0756",
+  "host_session_id": "SESS-impl-a3r2-a-epic196a8integration-0756",
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 - no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture section (mermaid diagram) describes top-level component boundaries per REQ-001..REQ-006, integration with existing components (Cross-Layer Dependencies names install.sh/install.ps1/tests/cli-hook-enforcement.ps1 as extension points), and per-layer technology choices (Components table Language column: sh/PowerShell/JSON). All three required elements present with substantive detail."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency graph built from the Architecture diagram and Cross-Layer Dependencies is a DAG: HANDOFF->CANARY->LIVE->AGGREGATE; MATRIX->{LOCAL,CI3,DRIFT}; SYN->{FLAG,SUBAGENT}->LIVE. No cycle detected."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan carries explicit Data Entities / Existing Data Affected / Migration Strategy labels with concrete content, plus fully specified schemas (cross-runtime-handoff-trace/v1, install-uninstall-matrix-result/v1, live-host-verification-record/v1, path-lineending-fixture-result/v1, installed-plugin-drift-report/v1)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "API / Contract Plan enumerates every CLI-equivalent surface with flags, request/response schema, and exit/error-code contract (validate-live-host-proof's 18 named error codes). No existing endpoint deprecated; this is a net-new CLI/test-infra feature."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Security Boundaries plus security-spec.md's B1..B5 trust-boundary table, STRIDE analysis, OWASP mapping, and Data Classification table (no PII beyond public git-authorship-equivalent identity) satisfy all four sub-requirements. Round-1's residual-risk overclaim is fixed: design.md Risks and security-spec.md's B3 boundary/STRIDE row now state the compensating control (T-005/T-008 already Approved and on the critical-path chain) and plainly state the gap (no automated approved-but-never-started staleness alarm) rather than asserting the prior 'never indefinitely-extended' guarantee."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no '## Frontend Plan' / '## Backend Plan' sections exist in design.md; design.md's Layer Specifications section and frontend-spec.md both state Frontend: N/A (no browser/frontend application, no UI surface). The scoped surface for this check does not exist."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test Strategy (11 items) covers integration testing extensively, maps every AC-001..AC-030 to a concrete verification step via the Classification Table, and names concrete commands/artifacts/error codes throughout (e.g. tests/hook-activation-live-proof/<matrix_cell>.json, validate-live-host-proof exit codes). Round-1's specific defect - single-clause 'until Epic A1 merges' language in items 1 and 5 - is fixed; both items now cite the two-clause SKIP Allowlist Activation Gate predicate."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture/Components/API sections is defined in the Components table or is an established external system component identifiable from investigation.md citations (Epic A1's check-hook-activation-handshake, install.sh/install.ps1/uninstall.sh/uninstall.ps1)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 'ADR Change Log' section (functionally equivalent to Architecture Decision Records) proposes ADR-0028, verified to exist at docs/adr/0028-live-host-proof-ed25519-signing.md; ADR-0019 is cited as an existing, unmodified authoritative source."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: no design-system/ directory exists in the target repository."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory exists in the target repository."
+    }
+  ],
+  "scope_notes": [
+    "specs/epic-196-a8-integration/tasks.md is cited by design.md (T-001 Out of Scope, T-008 Planned Files/Scope) but is not authorized for impl-reviewer-a by validate-review-context-set.sh's path_is_authorized table and was therefore not read. design.md's citations are specific and falsifiable (exact task IDs and section names) rather than vague, but their wording could not be independently confirmed from this role's manifest.",
+    "The bound identity_ledger_sha256 reads as stale on a live re-run because record 757 (reviewer-b) was appended after this reservation. Verified instead by recomputing the full chain from record 1 through 757: every record_sha256/previous_record_sha256 link holds, and sequence 756 appears exactly once with this run_id."
+  ]
+}

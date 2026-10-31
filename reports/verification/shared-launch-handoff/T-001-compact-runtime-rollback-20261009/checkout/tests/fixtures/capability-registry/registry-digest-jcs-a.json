@@ -1,0 +1,6 @@
+{
+  "schema": "capability-registry/v1",
+  "vector": {"z": 1e+0, "a": 0.000001, "m": 1000000000000000000000},
+  "gates": [],
+  "capabilities": []
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase2-gates",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic136phase2-task-a-seq0190",
+  "host_session_id": "SESS-task-a-epic136phase2-0190",
+  "manifest": [
+    {"path":"specs/epic-136-phase2-gates/requirements.md","sha256":"57ee24d1e483386be348442c4d719dc44d9a83782e4293580457fd8a69fba25a"},
+    {"path":"specs/epic-136-phase2-gates/acceptance-tests.md","sha256":"4e1718b6e5cf2019ab290e83aa8ef4035acc8529d6185ef02ceb93d779ee0fd9"},
+    {"path":"specs/epic-136-phase2-gates/design.md","sha256":"c53002ea3a13000b36610afa38ec8fc26cc011b861d5b430ce7c1751b36b45b0"},
+    {"path":"specs/epic-136-phase2-gates/tasks.md","sha256":"40a4c9d05bda867859dd47df22809c3cde7ea561d7fba717a1e26649096ba615"},
+    {"path":"specs/epic-136-phase2-gates/traceability.md","sha256":"f82637581151dfc861314dd3aa908aae75244b758a22845388796b6fb50da30a"},
+    {"path":"specs/epic-136-phase2-gates/ux-spec.md","sha256":"4d6bd35f07521191150a0085b2a8b4c35466f427fa420799ea5dee56686b1225"},
+    {"path":"specs/epic-136-phase2-gates/frontend-spec.md","sha256":"4f788250b6130c4198c755598b673f0fb41bfc8086b98a3f0f3c66d0ade38bf0"},
+    {"path":"specs/epic-136-phase2-gates/infra-spec.md","sha256":"768bbb47b5f357b9e8600d9d4cffd6ff8bccc50b7cde88eb49c71478db474d07"},
+    {"path":"specs/epic-136-phase2-gates/security-spec.md","sha256":"8455aafedaa87ed2787e648d4afa2edde80c2c8a4cd7a559f67d75313a1a98b4"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/epic-136-phase2-gates/attempt-1/round-1/precheck-result.json","sha256":"4f074811774a88a286bd4267886052d68c3318d02789659d886c5fec23733f87"},
+    {"path":"reports/task-review/epic-136-phase2-gates/attempt-1/round-1/dependency-graph.json","sha256":"9257657ff258952e1d3d7e48104d351be0425c0fa4a2cf20925fc0246eacd72e"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","status":"PASS","severity":"Critical","finding":"All REQ/AC references resolve in requirements.md and acceptance-tests.md."},
+    {"id":"BLOCKERS-FORMAT","status":"PASS","severity":"Major","finding":"precheck-result.json records blockers_format_valid true; all five Blockers fields use None or canonical task-ID lists."},
+    {"id":"REQ-COVERAGE","status":"PASS","severity":"Critical","finding":"REQ-001 through REQ-005 each appear in a task Requirements field and traceability row."},
+    {"id":"AC-COVERAGE","status":"PASS","severity":"Critical","finding":"AC-001 through AC-013 map exactly to T-001 through T-005 in traceability.md."},
+    {"id":"ORPHAN-TASK","status":"PASS","severity":"Major","finding":"Every task names one primary REQ-NNN."},
+    {"id":"ORPHAN-TEST","status":"PASS","severity":"Major","finding":"No task is a test-only orphan; each new test file is tied to its task acceptance criteria."},
+    {"id":"INITIAL-STATE","status":"PASS","severity":"Major","finding":"Every task is Approval: Draft and Status: Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","status":"PASS","severity":"Critical","finding":"All high/critical tasks use Required Workflow: tdd, matching the risk matrix; precheck workflow match is PASS."},
+    {"id":"NO-DUPLICATE-AC","status":"PASS","severity":"Major","finding":"Primary AC coverage is partitioned by task; T-005's TEST-001..004 rerun is explicit regression, not duplicate primary coverage."},
+    {"id":"DEPENDENCY-COMPLETE","status":"PASS","severity":"Major","finding":"T-002 -> T-001 and T-005 -> T-001/T-002 resolve to existing tasks."},
+    {"id":"DEPENDENCY-CYCLE","status":"PASS","severity":"Critical","finding":"dependency-graph.json is acyclic."},
+    {"id":"SINGLE-CONCERN","status":"PASS","severity":"Major","finding":"Each task aligns to one source issue and coherent implementation boundary."},
+    {"id":"OBSERVABLE-DONE","status":"FAIL","severity":"Major","finding":"T-001 through T-005 require quality gate to update traceability.md, but the task-plan body and traceability.md freeze once this review passes; use an explicit non-frozen verification addendum instead."},
+    {"id":"TRACEABILITY-SYNC","status":"PASS","severity":"Major","finding":"All task IDs and requirement rows are mutually mapped; layer anchors validate."}
+  ],
+  "findings": [
+    {"check_id":"OBSERVABLE-DONE","severity":"Major","task_id":null,"finding":"Replace the five frozen traceability-update completion conditions with named non-frozen quality-gate/verification addenda."}
+  ]
+}

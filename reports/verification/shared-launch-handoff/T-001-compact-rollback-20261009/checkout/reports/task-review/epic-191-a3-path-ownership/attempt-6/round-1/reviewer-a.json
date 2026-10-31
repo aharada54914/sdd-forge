@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 6,
+  "round": 1,
+  "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-a-a6r1-seq0675",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-191-a3-path-ownership-a6r1-0675",
+  "manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"},
+    {"path": "specs/epic-191-a3-path-ownership/tasks.md", "sha256": "7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d"},
+    {"path": "specs/epic-191-a3-path-ownership/traceability.md", "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/precheck-result.json", "sha256": "b5e6b4f9a073089096e2a8754d9fe8eee970344ac541c39e8f5c409b7af7c37e"},
+    {"path": "reports/task-review/epic-191-a3-path-ownership/attempt-6/round-1/dependency-graph.json", "sha256": "d18d5e70d28023462bde9303f08488c747b71e22ff7979b0c59b63736b35f314"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN identifiers cited in tasks.md Requirements: fields (AC-045 in T-001 via REQ-007 share, AC-046 in T-004 via REQ-006 share, AC-047 in T-006 via REQ-007 share) resolve to real criteria in acceptance-tests.md's AC-001..AC-056 table. No dangling AC reference found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid: true. Every task's Blockers: field is either the literal 'None' (T-001) or a comma-separated T-NNN list matching ^T-\\d{3}$ (T-002: T-001; T-003: T-001, T-002; T-004: T-001, T-002, T-003; T-005: T-001; T-006: T-001, T-002, T-003, T-004). No range notation or prose found; precheck-result.json confirms blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-009 each appear in at least one task's Requirements: field: REQ-001/REQ-002 -> T-001; REQ-003 -> T-002; REQ-004 -> T-004; REQ-005 -> T-003; REQ-006 -> T-004 (share)/T-005; REQ-007 -> T-001..T-006 (share); REQ-008 -> T-001..T-006 (share); REQ-009 -> T-006. No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "FAIL",
+      "severity": "Critical",
+      "finding": "AC-056 (acceptance-tests.md row, REQ-001, 'resolver-side present-but-malformed config fail-closed', mapped to TEST-056, added 2026-08-11 closing the a2r3 spec re-review's EDGE-CASE-COVERAGE Major) is not referenced anywhere in tasks.md: grep for 'AC-056' and 'TEST-056' across tasks.md returns zero matches. T-001 (the only task carrying REQ-001) enumerates its committed TEST IDs explicitly in Scope ('TEST-001..TEST-010', 'TEST-011', 'TEST-012, TEST-015, TEST-016, TEST-017', 'TEST-013 + TEST-014', 'TEST-018', 'TEST-045') and Done When, and TEST-056 is absent from every one of those lists. traceability.md likewise omits it: the Acceptance Mapping table runs AC-001..AC-055 with no AC-056 row, and REQ-001's own Test ID column lists only 'TEST-001, TEST-002, ..., TEST-011' (traceability.md line 8), with no deferral rationale recorded anywhere in the file (grep for 'AC-056'/'TEST-056' in traceability.md also returns zero matches). This is not a stale-freeze artifact to be waived: design.md's own Cross-Layer Dependencies table (hash-verified, current content, line 290) already lists 'AC-056 (assigned 2026-08-11: config-read fail-closed on a present-but-malformed file, incl. --diagnose)' under REQ-001, and acceptance-tests.md's header explicitly states the range now reads 'TEST-001..TEST-056 / AC-001..AC-056' with 'no pre-existing TEST ID changed meaning and none was deleted' -- i.e. AC-056 is a live, non-deferred criterion by the current documents' own terms. Failure mode: an implementer following T-001's literal Done-When checklist can mark T-001 Done without ever implementing or testing the resolver's (and --diagnose's) fail-closed behavior on a present-but-unparseable --config file, leaving REQ-001's AC-056 clause and its API/Contract Plan commitment (design.md API/Contract Plan, resolve-component-paths.sh/.ps1 section) unimplemented with no task tracking it."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-006) cites at least one REQ-NNN in its Requirements: field. No orphan task found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test', 'spec', or 'verify' (T-005's 'Validate the cross-epic cross-cutting seed inventory' does not match any of the three keywords), and no task's Planned Files/Scope is exclusively test-file changes once fixtures, CHANGELOG.md, and (for T-001..T-004, T-006) new production scripts/ADR are counted. Regardless of classification, every task's Done When list cites explicit AC-NNN ids (e.g. T-005: AC-042, AC-043, AC-044), so no task is orphaned from acceptance criteria."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Orchestrator-declared post-implementation provenance re-review; the lifecycle-validity rule applies. All six tasks carry Approval: Approved (sudo <timestamp>) -- a workflow-bypass-mode audit mark -- and Status one of the allowed post-implementation set {Planned, In Progress, Blocked, Implementation Complete, Done}: T-001 Implementation Complete, T-002 Done, T-003 Planned, T-004 Implementation Complete, T-005 Done, T-006 Planned. No task carries an invalid or missing status/approval field."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every task declares a Risk/Required Workflow pairing consistent with the risk-gate-matrix: T-001 high/tdd, T-002 high/tdd, T-003 medium/acceptance-first, T-004 high/tdd, T-005 medium/acceptance-first, T-006 high/tdd. precheck-result.json records workflow_match_precheck: PASS, corroborating no mismatch."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Acceptance Mapping table assigns each of AC-001..AC-055 to exactly one primary task. AC-048 and AC-049 are the only ACs intentionally shared across all six tasks, and each task's own Done When bullet scopes that share explicitly and distinctly ('AC-048 share' -> that task's own NEW CHANGELOG.md entry citing #191; 'AC-049 share' -> that task's own grep self-check of its own diff), matching the check's distinct-scope exception. No undifferentiated duplicate primary-target claim found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers: field (T-001..T-006) exists in dependency-graph.json's nodes array (['T-001','T-002','T-003','T-004','T-005','T-006']). No reference to a non-existent task ID."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json's 11 edges (T-002->T-001; T-003->T-001,T-002; T-004->T-001,T-002,T-003; T-005->T-001; T-006->T-001,T-002,T-003,T-004) form a DAG rooted at T-001 (no outgoing edges from T-001); following edges from any node terminates at T-001 without revisiting a node. No cycle found."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001, T-004, and T-006 titles join multiple deliverables with 'and', but each fits the check's exceptions on the merits: T-001's '...and ADR-0025' is mandatory REQ-008 doc-following housekeeping tied to the resolver decisions it documents; T-004's '...the --diagnose command...' is itself part of REQ-004's own 'resolver-only diagnostics' bullet (requirements.md), not a separate feature concern, and '...the protected-file registrations' is the mandatory reachability housekeeping that makes the same Gate script enforceable (INV-017); T-006's '...and the whole-feature registration audit' (AC-047) is test/verification work directly tied to the parity-harness deliverable. Each task's own 'Note on scope breadth' text additionally cites design.md's explicit bundling ('not a Phase-2 decomposition choice') as the reason splitting would contradict the frozen (Impl-Review-Status: Passed) design.md. Advisory: this tasks.md content is byte-identical (sha256 7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d) to the content bound by attempt-5 round-1's persisted task-review PASS evidence (reports/task-review/epic-191-a3-path-ownership/attempt-5/round-1/), corroborating this independent assessment."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item across T-001..T-006 names a concrete TEST-NNN/AC-NNN pass criterion, a named artifact (docs/adr/0025-... existence + correct numbering via 'ls docs/adr/', MANIFEST.sha256 entries, byte-unchanged live test.yml), a grep self-check outcome (no-version-bump, suite self-registration), or 'An independent quality-gate verdict records PASS'. A full-file grep found zero occurrences of the forbidden vague verbs/phrases ('ensure', 'consider', 'works correctly', 'verify is correct', bare 'review <X>'/'confirm <X>'). No Done When item requires editing a review-frozen artifact (design.md, or the tasks.md/traceability.md body) -- all edit/apply references point at human-copy/ staging, docs/adr/, CHANGELOG.md, or test/fixture files. Each non-documentation task's Done When includes at least one concrete verification command/evidence artifact (TEST suite pass + quality-gate verdict)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six task IDs (T-001..T-006) appear in traceability.md's Task Mapping and Deliverables (Per Task) tables. All nine requirement IDs (REQ-001..REQ-009) cited in traceability.md exist in requirements.md. Each requirement row's Layer Spec column cites canonical <layer>-spec.md#<section> anchors (security-spec.md#trust-boundaries, security-spec.md#stride-analysis, infra-spec.md#cicd-sequence) that resolve to real headers ('## Trust Boundaries', '## STRIDE Analysis', '## CI/CD Sequence') in the hash-verified security-spec.md/infra-spec.md content. traceability.md's Layer Coverage table records UX and Frontend as reasoned N/A ('N/A -- no user-facing UI' / 'N/A -- no browser/frontend bundle'), consistent with the hash-verified ux-spec.md/frontend-spec.md N/A content. No dangling task-ID or requirement-ID reference found (the AC-056/TEST-056 gap is a distinct AC-COVERAGE defect, not a task-ID/requirement-ID/anchor dangling reference, and is not double-counted here)."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "AC-COVERAGE",
+      "severity": "Critical",
+      "task_id": null,
+      "finding": "AC-056 (acceptance-tests.md, REQ-001, 'resolver-side present-but-malformed config fail-closed', TEST-056, added 2026-08-11) has no task Requirements-field/Scope/Done-When reference in tasks.md (grep confirms zero matches for 'AC-056' and 'TEST-056') and no deferral entry in traceability.md (its Acceptance Mapping table runs only AC-001..AC-055, and REQ-001's Test ID column lists only TEST-001..TEST-011). design.md's current, hash-verified Cross-Layer Dependencies table already assigns AC-056 to REQ-001, and acceptance-tests.md's own header states the criterion range now runs through AC-056 with 'no pre-existing TEST ID changed meaning and none was deleted' -- so this is a live, unwaived criterion with no task committed to implementing or testing it."
+    }
+  ]
+}

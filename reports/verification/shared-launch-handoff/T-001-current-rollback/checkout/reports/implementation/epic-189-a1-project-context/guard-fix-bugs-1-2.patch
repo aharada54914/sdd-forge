@@ -1,0 +1,278 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py	2026-07-23 18:18:10
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py	2026-07-23 18:32:40
+@@ -973,12 +973,35 @@
+ )
+ 
+ 
++# Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
++# copies awaiting human review and human application, never the live
++# enforcement chain itself.
++_HUMAN_COPY_STAGING_RE = re.compile(r"(?:^|/)specs/[^/]+/human-copy/")
++
++
+ def _is_protected_gate_file(file_path):
+     """R-10: Return True if file_path matches a protected enforcement-chain file."""
+     if not file_path:
+         return False
+     # normpath collapses .. segments so `../../tests/gates.tests.sh` is caught.
+     normalized = os.path.normpath(str(file_path).replace("\\", "/")).replace("\\", "/").lower()
++    # Staging exemption: a path still carrying the specs/<feature>/human-copy/
++    # prefix after normpath cannot reach a live enforcement-chain file (any
++    # ..-traversal has already been collapsed), so a staging candidate is
++    # writable — unless a registered suffix itself names a human-copy path
++    # (e.g. the phase2 publisher script), which stays protected.
++    if _HUMAN_COPY_STAGING_RE.search(normalized):
++        for suffix in _PROTECTED_GATE_SUFFIXES:
++            sl = suffix.lower()
++            if "/human-copy/" in sl and normalized.endswith(sl):
++                return True
++        for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
++            sl = suffix.lower()
++            if "/human-copy/" in sl and (
++                normalized.endswith(sl) or normalized.endswith(sl.lstrip("/"))
++            ):
++                return True
++        return False
+     for suffix in _PROTECTED_GATE_SUFFIXES:
+         if normalized.endswith(suffix.lower()):
+             return True
+@@ -1296,13 +1319,41 @@
+             cwd_known = False
+             continue
+         if _segment_write_hits_protected(seg, current_dir, cwd_known):
++            return True
++    return False
++
++
++def _command_references_protected_path(cmd):
++    """R-10 pre-filter: True when a protected path appears as a shell TOKEN
++    (a path-shaped word, or a redirect token's target), not merely as a
++    substring of the raw command text. Prose inside a quoted argument — e.g.
++    a commit message that mentions a protected filename mid-sentence — no
++    longer trips the filter, because the quoted argument is one token whose
++    full text does not END with the protected suffix. Falls back to the raw
++    substring scan when the tokenizer cannot model the command (fail closed)."""
++    tokens = _tokenize_shell_command(cmd)
++    if tokens is None:
++        cmd_lower = cmd.lower()
++        return any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
++            any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
++                for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
++    for kind, text in tokens:
++        if kind != "word":
++            continue
++        candidate = text
++        if ">" in text:
++            m = _SHELL_REDIRECT_TOKEN_RE.match(text)
++            if m and m.group(2):
++                candidate = m.group(2)
++        if _is_protected_gate_file(candidate):
+             return True
+     return False
+ 
+ 
+ def _shell_targets_protected_gate_file(cmd):
+     """R-10: Deny shell commands that WRITE to protected gate files.
+-    Uses substring scan (path appears literally in command) combined with
++    Uses a token-based pre-filter (a protected path appears as a shell token
++    or redirect target) combined with
+     write-target analysis (issue #62): a write verb/redirect elsewhere in the
+     command no longer denies read-only access to a protected path.
+     Read-only short-circuit only fires when ALL of the following hold:
+@@ -1321,10 +1372,7 @@
+     # so this is checked before the read-only short-circuit below.
+     if _shell_cwd_write_hits_protected(cmd):
+         return True
+-    cmd_lower = cmd.lower()
+-    has_protected_path = any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
+-                         any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
+-                             for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
++    has_protected_path = _command_references_protected_path(cmd)
+     if not has_protected_path:
+         return False
+     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js	2026-07-23 18:18:10
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js	2026-07-23 18:32:43
+@@ -197,10 +197,27 @@
+   })
+ );
+ 
++// Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
++// copies awaiting human review and human application, never the live
++// enforcement chain itself.
++const HUMAN_COPY_STAGING_RE = /(?:^|\/)specs\/[^/]+\/human-copy\//;
++
+ function isProtectedGateFile(filePath) {
+   if (!filePath) return false;
+   // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
+   const normalized = path.posix.normalize(String(filePath).replace(/\\/g, '/')).toLowerCase();
++  // Staging exemption: a path still carrying the specs/<feature>/human-copy/
++  // prefix after normalize cannot reach a live enforcement-chain file (any
++  // ..-traversal has already been collapsed), so a staging candidate is
++  // writable — unless a registered suffix itself names a human-copy path
++  // (e.g. the phase2 publisher script), which stays protected.
++  if (HUMAN_COPY_STAGING_RE.test(normalized)) {
++    return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
++      const sl = s.toLowerCase();
++      if (!sl.includes('/human-copy/')) return false;
++      return normalized.endsWith(sl) || (sl.startsWith('/') && normalized.endsWith(sl.slice(1)));
++    });
++  }
+   return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
+     const sl = s.toLowerCase();
+     // Match absolute paths and relative paths for suffixes that start with /.
+@@ -504,13 +521,43 @@
+     }
+     if (verb === 'popd') { cwdKnown = false; continue; }
+     if (segmentWriteHitsProtected(seg, currentDir, cwdKnown)) return true;
++  }
++  return false;
++}
++
++function commandReferencesProtectedPath(cmd) {
++  // R-10 pre-filter: true when a protected path appears as a shell TOKEN
++  // (a path-shaped word, or a redirect token's target), not merely as a
++  // substring of the raw command text. Prose inside a quoted argument — e.g.
++  // a commit message that mentions a protected filename mid-sentence — no
++  // longer trips the filter, because the quoted argument is one token whose
++  // full text does not END with the protected suffix. Falls back to the raw
++  // substring scan when the tokenizer cannot model the command (fail closed).
++  const tokens = tokenizeShellCommand(cmd);
++  if (tokens === null) {
++    const cmdLower = cmd.toLowerCase();
++    return PROTECTED_GATE_SUFFIXES.some(s => {
++      const sl = s.toLowerCase();
++      // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
++      return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
++    });
+   }
++  for (const [kind, text] of tokens) {
++    if (kind !== 'word') continue;
++    let candidate = text;
++    if (text.includes('>')) {
++      const m = text.match(SHELL_REDIRECT_TOKEN_RE);
++      if (m && m[2]) candidate = m[2];
++    }
++    if (isProtectedGateFile(candidate)) return true;
++  }
+   return false;
+ }
+ 
+ function shellTargetsProtectedGateFile(cmd) {
+   // R-10: Deny shell commands that WRITE to protected gate files.
+-  // Substring scan (path appears literally in command) combined with
++  // Token-based pre-filter (a protected path appears as a shell token or
++  // redirect target) combined with
+   // write-target analysis (issue #62): a write verb/redirect elsewhere in the
+   // command no longer denies read-only access to a protected path.
+   // REQ-002 (issue #110): a working-directory-aware pass additionally resolves
+@@ -521,12 +568,7 @@
+   // spell the full protected path literally. Read-only segments never hit,
+   // so this is checked before the read-only short-circuit below.
+   if (shellCwdWriteHitsProtected(cmd)) return true;
+-  const cmdLower = cmd.toLowerCase();
+-  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
+-    const sl = s.toLowerCase();
+-    // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
+-    return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
+-  });
++  const hasProtectedPath = commandReferencesProtectedPath(cmd);
+   if (!hasProtectedPath) return false;
+   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
+   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1	2026-07-23 18:18:10
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1	2026-07-23 18:32:45
+@@ -526,6 +526,23 @@
+     param([string]$FilePath)
+     if ([string]::IsNullOrEmpty($FilePath)) { return $false }
+     $normalized = (Normalize-PosixPath ($FilePath -replace "\\", "/")).ToLower()
++    # Staging exemption: a path still carrying the specs/<feature>/human-copy/
++    # prefix after normalization cannot reach a live enforcement-chain file
++    # (any ..-traversal has already been collapsed), so a staging candidate is
++    # writable -- unless a registered suffix itself names a human-copy path
++    # (e.g. the phase2 publisher script), which stays protected.
++    if ([regex]::IsMatch($normalized, '(?:^|/)specs/[^/]+/human-copy/')) {
++        foreach ($suffix in $ProtectedGateSuffixes) {
++            $sl = $suffix.ToLower()
++            if ($sl.Contains("/human-copy/") -and $normalized.EndsWith($sl)) { return $true }
++        }
++        foreach ($suffix in $ProtectedGatePluginJsonSuffixes) {
++            $sl = $suffix.ToLower()
++            if ($sl.Contains("/human-copy/") -and
++                ($normalized.EndsWith($sl) -or $normalized.EndsWith($sl.TrimStart("/")))) { return $true }
++        }
++        return $false
++    }
+     foreach ($suffix in $ProtectedGateSuffixes) {
+         if ($normalized.EndsWith($suffix.ToLower())) { return $true }
+     }
+@@ -841,13 +858,48 @@
+         }
+         if ($verb -eq "popd") { $cwdKnown = $false; continue }
+         if (Test-SegmentWriteHitsProtected $seg $currentDir $cwdKnown) { return $true }
++    }
++    return $false
++}
++
++function Test-CommandReferencesProtectedPath {
++    # R-10 pre-filter: True when a protected path appears as a shell TOKEN
++    # (a path-shaped word, or a redirect token's target), not merely as a
++    # substring of the raw command text. Prose inside a quoted argument --
++    # e.g. a commit message that mentions a protected filename mid-sentence --
++    # no longer trips the filter, because the quoted argument is one token
++    # whose full text does not END with the protected suffix. Falls back to
++    # the raw substring scan when the tokenizer cannot model the command
++    # (fail closed).
++    param([string]$Cmd)
++    $res = Tokenize-ShellCommand $Cmd
++    if ($null -eq $res) {
++        $cmdLower = $Cmd.ToLower()
++        foreach ($s in $ProtectedGateSuffixes) {
++            if ($cmdLower.Contains($s.ToLower())) { return $true }
++        }
++        foreach ($s in $ProtectedGatePluginJsonSuffixes) {
++            $sl = $s.ToLower()
++            if ($cmdLower.Contains($sl) -or $cmdLower.Contains($sl.TrimStart("/"))) { return $true }
++        }
++        return $false
+     }
++    foreach ($t in $res.Tokens) {
++        if ($t[0] -ne "word") { continue }
++        $candidate = [string]$t[1]
++        if ($candidate.Contains(">")) {
++            $m = [regex]::Match($candidate, $ShellRedirectTokenRe)
++            if ($m.Success -and $m.Groups[2].Value) { $candidate = $m.Groups[2].Value }
++        }
++        if (Test-IsProtectedGateFile $candidate) { return $true }
++    }
+     return $false
+ }
+ 
+ function Test-ShellTargetsProtectedGateFile {
+-    # R-10: Deny shell commands that WRITE to protected gate files. Substring scan
+-    # (path appears literally in command) combined with write-target analysis
++    # R-10: Deny shell commands that WRITE to protected gate files. Token-based
++    # pre-filter (a protected path appears as a shell token or redirect target)
++    # combined with write-target analysis
+     # (issue #62): a write verb/redirect elsewhere no longer denies read-only
+     # access to a protected path. Read-only short-circuit fires only when: no
+     # compound operators, command starts with a read-only verb, and no write
+@@ -859,17 +911,7 @@
+     # the full protected path literally. Read-only segments never hit, so this is
+     # checked before the read-only short-circuit below.
+     if (Test-ShellCwdWriteHitsProtected $Cmd) { return $true }
+-    $cmdLower = $Cmd.ToLower()
+-    $hasProtectedPath = $false
+-    foreach ($s in $ProtectedGateSuffixes) {
+-        if ($cmdLower.Contains($s.ToLower())) { $hasProtectedPath = $true; break }
+-    }
+-    if (-not $hasProtectedPath) {
+-        foreach ($s in $ProtectedGatePluginJsonSuffixes) {
+-            $sl = $s.ToLower()
+-            if ($cmdLower.Contains($sl) -or $cmdLower.Contains($sl.TrimStart("/"))) { $hasProtectedPath = $true; break }
+-        }
+-    }
++    $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd
+     if (-not $hasProtectedPath) { return $false }
+     $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+     $hasCompound = [regex]::IsMatch($Cmd, $ShellCompoundRe)

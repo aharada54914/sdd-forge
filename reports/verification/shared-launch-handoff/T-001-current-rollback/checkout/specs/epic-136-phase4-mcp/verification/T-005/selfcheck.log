@@ -1,0 +1,62 @@
+# T-005 self-check log (shared Done-When legs)
+# Captured: 2026-07-29T12:46:33Z
+# Worktree: /Users/jrmag/Projects/active/sdd-forge-wt-phase4
+# HEAD at capture: d55ed3ef
+
+=== LEG 1: AC-015 - fresh protected-suffix check for the 2 paths T-005 writes ===
+# Re-verified at implementation time (WFI-013 discipline), not carried over from
+# investigation.md INV-018's or tasks.md's authoring-time snapshot.
+source: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+PROTECTED_GATE_SUFFIXES entries: 42
+  CHANGELOG.md: suffix-match count = 0  (NO MATCH)
+  USERGUIDE.md: suffix-match count = 0  (NO MATCH)
+TOTAL MATCHES: 0
+EXIT: 0  (0 = zero matches -> AC-015 leg satisfied for both paths)
+
+=== LEG 2: diff scope - only CHANGELOG.md and USERGUIDE.md changed ===
+$ git status --short
+ M CHANGELOG.md
+ M USERGUIDE.md
+?? specs/epic-136-phase4-mcp/verification/T-005/
+$ git diff --stat
+ CHANGELOG.md | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ USERGUIDE.md |  6 ++---
+ 2 files changed, 79 insertions(+), 3 deletions(-)
+
+=== LEG 3: no version literal changed anywhere (scripts/bump-version.sh untouched) ===
+$ git diff --name-only | grep -c 'bump-version'
+0
+# 0 = scripts/bump-version.sh not in the diff.
+$ git diff -U0 | grep -E '^[+-]' | grep -Ei 'v?[0-9]+\.[0-9]+\.[0-9]+'
+(no added/removed line contains a semver-shaped literal)
+
+=== LEG 4: the '## Unreleased' header was NOT re-created, and no released section changed ===
+$ git diff -U0 -- CHANGELOG.md | grep -E '^[+-][^+-].*## '
++### 追加
+$ git diff --numstat -- CHANGELOG.md USERGUIDE.md
+76	0	CHANGELOG.md
+3	3	USERGUIDE.md
+$ git diff -U0 -- CHANGELOG.md | grep -E '^@@'
+@@ -4,0 +5,76 @@
+# Single hunk at the top of the file: insertion sits between the existing
+# '## Unreleased' (:3) and '## v1.12.0 (2026-07-28)' headers. Every released
+# version section is byte-unchanged.
+
+=== LEG 5: post-commit-A confirmation (Commit A = d4624a0c) ===
+$ git show --stat --oneline d4624a0c
+d4624a0c docs(mcp): document unreadableContracts, hostRequiredChecks and undeterminable (#131, #132)
+ CHANGELOG.md | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ USERGUIDE.md |  6 ++---
+ 2 files changed, 79 insertions(+), 3 deletions(-)
+
+$ git show --numstat --format= d4624a0c
+76	0	CHANGELOG.md
+3	3	USERGUIDE.md
+# Commit A carries exactly the 2 documentation files and nothing else.
+
+=== LEG 6: no source, schema, dist or CI file changed by this task ===
+$ git diff --name-only d55ed3ef..d4624a0c
+CHANGELOG.md
+USERGUIDE.md
+$ git diff --exit-code d55ed3ef..d4624a0c -- mcp/ contracts/ .github/ plugins/ scripts/ ; echo EXIT: $?
+EXIT: 0  (0 = no change under any of mcp/, contracts/, .github/, plugins/, scripts/)

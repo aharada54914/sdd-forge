@@ -1,0 +1,53 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "quality-loop-fixes",
+  "run_id": "RUN-qualityloopfixes-impl-a1r1-a-seq0326",
+  "host_session_id": "SESS-impl-a1r1-a-qualityloopfixes-0326",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "3795dc6def11de32ef8fb9e79a43cf29f925b66d4c5a8c368bb50c041f77a057",
+  "previous_record_sha256": "a8ac7203004c7bc8bb360c334c3f20747d4bb4c7cab9261334d6f2e15bbb08bc",
+  "sequence": 326,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "specs/quality-loop-fixes/design.md",
+      "sha256": "7f0794f002efa2608fd10bef6a9c193d7db412571e110bc56fb52d544ac55214"
+    },
+    {
+      "path": "specs/quality-loop-fixes/ux-spec.md",
+      "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+    },
+    {
+      "path": "specs/quality-loop-fixes/frontend-spec.md",
+      "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+    },
+    {
+      "path": "specs/quality-loop-fixes/infra-spec.md",
+      "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+    },
+    {
+      "path": "specs/quality-loop-fixes/security-spec.md",
+      "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "260b19d45dfc12407d5e4c8d62527e25b6a70e78d6f436e9880fa79db381da56"
+    }
+  ]
+}

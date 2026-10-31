@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-b-seq0323",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-189-a1-project-context-0323",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/requirements.md", "sha256": "57437ee89681ce0ab37c04a1e0a30f6fbc53ef28d01ed8eb19c768e3cfc1a482"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json", "sha256": "2c35852c8ec3388b010dda98451905b20b2f3ce086b4f80fdc16024a80219ad2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-2/integrated-summary.json", "sha256": "92c995415e72277b5074b5fb97486a7382ce523e836608108a1a6a895edddb2f"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 gap (no field-level schema for sdd/approver-registry.yaml) is now closed: REQ-006 (requirements.md ~L622-648) and Field Definitions (~L1777-1791) both define contracts/approver-registry.schema.json, schema id sdd-approver-registry/v1, top-level `schema` (const) + `approvers` (array, minItems 0, each entry `{id, name}`, id immutable/unique, name a non-load-bearing display label). Independently re-derived: two_person_required's 'distinct real identities' count is unambiguous because DUPLICATE_APPROVER_REGISTRY_ID (checked at REQ-005's semantic-validation layer, AC-045) runs before the distinct-identity count (REQ-006), so by construction the registry the detector reads never contains duplicate ids. No other contracts/*.schema.json referenced in this package (project-context, provider-bindings, approval-sidecar) lacks an equivalent field-level definition on independent re-read."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between requirements, acceptance criteria, constraints, or non-goals on independent re-read. Cross-checked internally-asserted counts for consistency: REQ-007's protected-manifest total (Canonicalizer 4 + hash generator 3 + approval validator 3 + policy-weakening detector 3 + hook-activation handshake 3 + sidecar/registry/anchor data files 6 + human-copy publisher 2 = 24 concrete, plus resolver 3 + generated projection 1 = 4 reserved) sums to the stated '24 concrete + 4 reserved = 28' (L743-746), matching AC-021/TEST-021's identical figure. REQ-009's PROJECT_CONTEXT_INVALID branch (L891-921, L1836-1847) is consistently distinguished from the physical-absence compatibility-fallback branch everywhere it is referenced (REQ-009 body, AC-026, Edge Cases L2054-2067), with no location asserting the older 'treated as absent' semantics a prior draft used."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three round-1 gaps are now covered by dedicated Edge Cases bullets (L2029-2053) and acceptance criteria: zero-entry registry (AC-046/TEST-046, classified identically to a 1-identity registry, plus a separate fixture proving REQ-004/REQ-005's existing registered-id requirement structurally fail-closes signing against it), structurally malformed registry (AC-044/TEST-044, parameterized negative test per required field id/name, plus a non-array `approvers` fixture, routed through the ordinary REQ-005 schema-conformance path rather than a bespoke error class), and duplicate-id registry (AC-045/TEST-045, DUPLICATE_APPROVER_REGISTRY_ID, explicitly sequenced before the distinct-identity count). Broader re-read finds other material negative paths already covered elsewhere in the package (AC-014's six-way validator rejection matrix, AC-016's six-category N/A reporting, AC-026's PROJECT_CONTEXT_INVALID vs. physical-absence split, AC-033's crash-recovery terminal states)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Open Questions are explicitly resolved with rationale: OQ-001 (approver-registry file location) resolved by REQ-006's own definition (L2198-2199, now backed by the round-2 field-level schema); OQ-002 (array-vs-scalar shape) resolved to arrays per REQ-001; OQ-003 (tasks.md/traceability.md Phase-2 deferral) resolved by an explicit 2026-07-22 coordinator decision. The Assumptions section (L2165-2194) states re-verification points as concrete, bounded implementer actions (e.g. re-confirm PROTECTED_GATE_SUFFIXES and the guard's call-site list at task-start) rather than unresolved product decisions blocking design."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-approval/governance boundaries are squarely in scope (this package's core purpose) and are testable: the Security Boundaries table (B1-B8, L2148-2159) enumerates each trust boundary with its auth requirement; Roles and Permissions (L1908-1951) states the agent never signs or writes protected files and signing requires a human/CI principal holding SDD_CONTEXT_KEY; concrete, independently falsifiable acceptance criteria back each boundary (AC-011 staged-only signing, AC-019/AC-020 two-person and cooldown enforcement, AC-021/AC-023 protected-file registration and the 96-cell write-denial matrix, AC-033 the human-copy publisher's atomicity)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 finding (missing approver-registry schema would force the design reviewer to invent structure) is closed by the round-2 field-level schema, diagnostic, and AC/TEST additions cited above. Independent re-read of the rest of the package finds every other new file this epic introduces (project-context.schema.json, provider-bindings.schema.json, approval-sidecar.schema.json, project-context.template.yaml) already carries an equivalent field-by-field definition inline in requirements.md. References to design.md (e.g. the glob-coverage narrowing algorithm, the 12-call-site table which is itself fully enumerated in REQ-008 rather than deferred) are for implementation-architecture detail, not missing product behavior, which the calibration's False-Positive Guard states should not be required at this gate."
+    }
+  ]
+}

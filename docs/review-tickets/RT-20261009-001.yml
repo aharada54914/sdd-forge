@@ -1,0 +1,49 @@
+ticket_id: RT-20261009-001
+status: resolved
+type: defect
+severity: major
+target:
+  feature: shared-review-launch-repair
+  task: T-001
+  files:
+    - plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+    - plugins/sdd-review-loop/scripts/probe-nontty-review.py
+    - plugins/sdd-review-loop/scripts/launch-impl-review.py
+    - tests/quality-nontty-transport.tests.py
+summary: Replace model-reconstructed full-input hash commands with one pinned verifier.
+problem: >-
+  The unreserved native diagnostic reconstructs hundreds of paths and digest
+  arguments as tool input. The transport stalls before formal admission.
+  This is T-001 transport scope, not T-005 input-selection scope.
+expected_fix: >-
+  Share one compact hash-pinned verification command between diagnostic and
+  formal launch. Verify the executing verifier before execution, invocation,
+  boundary, every ordered input, receipt and safe paths. Preserve task-stage
+  normalization and exact permission restrictions. Reject mutations, missing
+  inputs and compound commands without reservation. Preserve all old evidence.
+authorization: >-
+  User explicitly approved this T-001-only repair, maintaining all-input
+  verification and sharing the hash-pinned command across both launch paths.
+  On 2026-10-10 the user additionally accepted, for this ticket only, the
+  original native failure plus explicitly retrospective old-code failure and
+  repaired-code success as substitute evidence; historical evidence is retained.
+risk: high
+baseline_head: 9ce19abe90df0cb83e385f96855e4843318a8807
+ownership: shared-review-launch-integration/sdd-forge
+existing_changes: Preserve the pre-existing tracked and untracked integration work.
+references:
+  - reports/verification/shared-launch-handoff/t005-native-transport-blocker-20261009.md
+  - reports/verification/shared-launch-handoff/t001-compact-preflight.md
+  - reports/verification/shared-launch-handoff/rt-20261009-001-substitute-evidence-approval.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
+resolution: >-
+  Resolved 2026-10-10 using the existing T-001 compact formal evaluation
+  (reports/quality-gate/20261009-shared-review-launch-repair-T-001-compact.md,
+  PASS with zero Critical/Major) and the user's ticket-only chronology exception.
+  Fresh retrospective old-code reproduction failed as expected; repaired
+  transport passed all 20 tests; contract and evidence-bundle checks passed.
+  Independent chronology review confirmed adoption without rewriting frozen
+  evidence. See the substitute-evidence approval addendum for limitations.
+  This resolves the repair ticket, not integrated CI, merge or post-merge delivery.

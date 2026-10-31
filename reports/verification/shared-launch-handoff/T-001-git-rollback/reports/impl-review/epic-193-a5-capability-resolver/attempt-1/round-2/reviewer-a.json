@@ -1,0 +1,79 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a1r2-seq0328",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-193-a5-capability-resolver-a1r2-0328",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json", "sha256": "b8591706830fc8932b9e8b64686268ea97e9a45e974ba0e0dc20105a36dc1c1d"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-1/integrated-summary.json", "sha256": "6a26542acc4f5aba4883c22288ffb8ee529f4ad51ad67132cf730e0b488771da"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's Feature Type header (lines 4-14) states this is a non-UI, backend-only deliverable: 'one new deterministic script family (resolve-project-context.{py,sh,ps1}...) plus companion validator scripts (validate-resolver-evidence.{py,sh,ps1}), one new contracts/resolver-evidence.schema.json contract, and a documented (not implemented) caller-side integration contract... No new plugin.' The ## Architecture section (lines 61-180) gives a detailed ASCII pipeline diagram naming every top-level component boundary (state derivation, canonicalize-sdd-yaml, Context Projection assembly, resolve-component-paths, Registry discovery, per-component evaluate-predicate fan-out x2, WARN check, track branch, Resolver Evidence assembly, snapshot recheck, atomic commit) and explicitly labels each boundary's integration with the existing Epic A1/A2/A3/A4 components (A1/A2/A3/A4 tags throughout the diagram, plus prose at lines 169-180 on Block/commit interaction). Technology choices per layer are given immediately adjacent, in the same document, rather than re-stated inside the Architecture prose itself: the ## Components table (lines 182-194, Technology column: Python / POSIX sh / PowerShell / JSON Schema / YAML) fixes backend+data-layer technology, and ## Layer Specifications (lines 299-306) explicitly states Frontend 'N/A -- no browser/client UI, no new runtime service' and Infrastructure 'No new runtime deployment; ten new CI test-suite pairs...'. Given this is a CLI-only feature with no UI (ux-spec.md/frontend-spec.md both confirm N/A), and the Architecture section itself goes well beyond a one-sentence description with fully-described component interactions, the three required elements are present across the Architecture/Components/Layer-Specifications sections read together. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture diagram (design.md:61-167) and Cross-Layer Dependencies (design.md:321-392) both declare a strictly one-directional dependency graph: this feature's Resolver depends on Epic A1 (canonicalize-sdd-yaml), Epic A2 (Registry schema/evaluate-predicate/generate-registry-digest/ADR-0025 discovery), Epic A3 (resolve-component-paths), and Epic A4 (three output schemas + Context Projection generation procedure); a future sdd-bootstrap-interviewer capability-interview-phase caller depends on this feature's Resolver (documented only, REQ-007). No component in this graph is declared as depending back on the Resolver or on any of A1-A4 in the reverse direction -- A1-A4 are each already Spec-Review-Status: Passed, content-frozen, upstream contracts this feature only reads (Dependencies, requirements.md; Cross-Layer Dependencies, design.md). Tracing the full edge set (Resolver -> A1, Resolver -> A2, Resolver -> A3, Resolver -> A4, interviewer -> Resolver) yields a DAG with no cycle. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md:454-696) contains all three required sub-fields explicitly. 'Data Entities:' (lines 456-665) exhaustively lists every new/read artifact: contracts/resolver-evidence.schema.json's full field set, the Epic-A4-owned facet-manifest.yaml/capability-summary.yaml/project-context.resolved.json shapes (read not redefined), the Registry Capability read set, the Context Projection read set, dependency_pointers[] derivation rules, resolver.version/rule_set_revision rules, and the invocation-start-snapshot/pre-publication-recheck/post-publication-verification rules. 'Existing Data Affected:' (line 667, this round's own added sub-field) states explicitly: 'none written; two existing artifacts read only -- the Registry Capability read set and the Context Projection read set... Neither is ever modified by this feature -- this feature's Resolver performs no write of any kind against capability-registry.json, project-context.yaml, or any other Epic A1/A2/A3/A4 artifact.' 'Migration Strategy:' (line 685) states explicitly: 'none. No database, no runtime storage, no schema migration anywhere in this feature.' All three sub-fields are present with concrete, unambiguous content -- no issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md:697-1659) fully specifies this feature's one CLI 'endpoint' equivalent: the resolve-project-context.{py,sh,ps1} CLI contract (flags, required/optional status, a 15-step normative processing order, a 16-row Block-diagnostic table each with its own trigger condition and detail, and exit-code contract 0/1/2), the new contracts/resolver-evidence.schema.json (full JSON Schema draft-07 document given verbatim, lines 1288-1421), the validate-resolver-evidence.{py,sh,ps1} contract (its own closed 12-value check-id enum and provenance-binding procedure), and the ADR-0025 Discovery contract reused for every located artifact. Request/response shape is exhaustively given for every artifact (CLI flags as request schema; the four written artifacts' governing schemas as response schema). requirements.md Non-goals (lines 695-701) explicitly states this feature edits no existing contracts/*.schema.json file, only adds its own new one -- no existing endpoint is deprecated or breaking-changed. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Security Boundaries (lines 2243-2297) and the required security-spec.md layer file both cover every element this check requires. Trust boundaries: security-spec.md's Trust Boundaries section enumerates seven named boundaries (B1-B7: canonicalizer parse boundary, publication transactional-bundle boundary, snapshot/TOCTOU-recheck boundary, validate-resolver-evidence provenance-binding boundary, canonical-diagnostic/no-upstream-stderr boundary, protected-file-reservation/approval-sidecar boundary, caller-integration anchor-fingerprint boundary) with a Mermaid diagram and a full Source/Destination/Assets/Validation/AuthN-AuthZ/REQ/AC table. Auth mechanism: security-spec.md's Authentication Flow states 'N/A... every actor is bound by the local OS-user/filesystem boundary', and its Authorization table gives a full actor/resource/action/decision-point/default matrix (implementation-phase agent vs. protected paths vs. the running Resolver process itself as sole writer). PII/data classification: security-spec.md's Data Classification and Protection table classifies every artifact as 'internal... no PII, no credential, no secret' with an explicit closing statement ('No Facet Manifest, Capability Summary, Context Projection, or Resolver Evidence field carries a credential, secret, or PII value; the schemas define none'). OWASP: security-spec.md's OWASP Mapping table addresses Injection, Software and Data Integrity Failures, Security Misconfiguration, Broken Access Control, Cryptographic Failures, and Identification/Authentication Failures, each with a concrete control and verification reference. No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is effectively cli (non-fullstack). design.md's Feature Type header (lines 4-14) describes 'one new deterministic script family (resolve-project-context.{py,sh,ps1})... plus companion validator scripts... No new plugin' with no literal enum keyword, but ux-spec.md states 'N/A -- no change: this feature has no UX surface... not an interactive human user interface' and frontend-spec.md states 'N/A -- no change: this feature introduces no browser/client UI and no new runtime service.' design.md's own Layer Specifications table (lines 299-306) confirms Frontend: 'N/A' and Design System Compliance: 'Not applicable -- no UI surface.' There is no Frontend Plan or Backend Plan section, and no frontend/backend split to reconcile -- this is a single deterministic CLI script family with no client/server boundary."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md:1661-1898) names ten concrete suites at contract level, each with exact file names (tests/*.tests.sh/.ps1), exact fixture matrices, and exact artifact/AC cross-references. Unit-level scope with mocking: item 2 and item 9(g) both specify a 'mock/spy harness on the subprocess boundary' and a 'dependency-invocation-order spy fixture' that injects a forced non-zero exit at each subprocess-call position in turn. Integration scope: item 5 (dual-runtime parity), item 6 (discovery-contract fixtures against Epic A1/A2/A4 artifacts), and item 9 (metamorphic completeness) each test cross-component boundaries. Acceptance-test approach: acceptance-tests.md maps every AC-NNN to a TEST-NNN row with an exact Test Target description naming the suite file and fixture; AC-035/036/037 additionally name the exact validator scripts run once at registration time. Concrete verification evidence: exact suite/fixture/file/diagnostic-id names throughout (e.g. the 16-row Block-diagnostic table, the 12-value validate-resolver-evidence check-id enum). End-to-end/critical-journey path: item 10 (resolve-project-context-caller-contract) is a contract test against the live sdd-bootstrap-interviewer/SKILL.md with an anchor-fingerprint drift check (AC-053), functioning as this CLI-orchestration feature's own end-to-end verification path since there is no browser UI journey to test. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has no separate Frontend Plan/Backend Plan section (non-UI feature); the applicable scope is ## Architecture and ## API / Contract Plan. Every component named in either is defined: resolve-project-context.{py,sh,ps1}, generated/project-context.resolved.json, validate-resolver-evidence.{py,sh,ps1}, specs/<feature>/facet-manifest.yaml, specs/<feature>/capability-summary.yaml, specs/<feature>/resolver-evidence.yaml, contracts/resolver-evidence.schema.json, and sdd-bootstrap-interviewer/SKILL.md are all defined in the ## Components table (design.md:182-194). Every remaining named component (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, generate-registry-digest, capability-registry.json, contracts/capability-registry.schema.json, facet-manifest.schema.json, capability-summary.schema.json, context-projection.schema.json, project-context.yaml, contracts/project-context.schema.json) is an established sibling-epic (A1/A2/A3/A4) component, each independently identifiable and citation-grounded in investigation.md (INV-004 through INV-007, INV-012). No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 394-452) lists ADR-0016, 0017, 0019, 0020, 0021, 0023, and 0025. Direct verification (ls docs/adr/ in this worktree) confirms files exist for 0016/0017/0019/0020/0021/0023, but docs/adr/0025-registry-discovery-contract.md does NOT exist in this worktree (only 0001-0024 plus README.md are present). This round's own edit (per task description) corrected this exact citation to state plainly: 'Accepted in the Epic A2 worktree, 2026-07-21; not yet present on this worktree's own docs/adr/ branch state' (design.md:411-413), matching investigation.md INV-005/INV-020/INV-021's independent, dated confirmation of the same fact. Applying the Finding Evidence Gate (reviewer-calibration.md): the concrete failure mode is thin -- design.md's own Discovery contract section (API / Contract Plan) gives a full verbatim restatement of ADR-0025's three-step discovery procedure, so no implementer needs the local file to proceed correctly; this feature's Non-goals explicitly forbid authoring a new ADR or editing docs/adr/ (out of this package's own scope to remedy); and requirements.md/design.md Assumptions already name Epic A1-A4 landing (including, implicitly, ADR-0025 via Epic A2) as a precondition re-verified before Phase-2 implementation begins, per issue #187's own stated epic sequencing. This is a verifiably-Accepted, dated, well-evidenced cross-worktree citation (not a fabricated or undefined decision), disclosed accurately rather than hidden -- recorded here as a fact for traceability, not treated as blocking under the check's own concrete-failure-mode test."
+    }
+  ]
+}

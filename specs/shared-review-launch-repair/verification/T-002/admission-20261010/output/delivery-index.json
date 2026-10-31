@@ -1,0 +1,693 @@
+{
+  "schema": "implementation-delivery-index/v1",
+  "feature": "shared-review-launch-repair",
+  "task_id": "T-002",
+  "run_id": "T-002-01a123d9-5af8-7792-94ee-f075ad481b90",
+  "session_id": "01a123d9-5af8-7792-94ee-f075ad481b90",
+  "agent_instance_id": "01a123d9-5af8-7792-94ee-f075ad481b90",
+  "task_attempt_count": 2,
+  "result": "BLOCKED",
+  "manifest": {
+    "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/manifest.json",
+    "sha256": "1ae1d3f5468a6fc8bcda3ebfd60bdd9e22133f2d250cb0cf720bff1aaf1c4865"
+  },
+  "report": {
+    "path": "work/reports/implementation/shared-review-launch-repair/T-002.md",
+    "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/implementation/shared-review-launch-repair/T-002.md",
+    "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/implementation/shared-review-launch-repair/T-002.md",
+    "sha256": "053431f3a987b7b8d832153352ef9a97d7ee9ba7c8deb23ff44f655877f80e68"
+  },
+  "evidence": [
+    {
+      "path": "work/AGENTS.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/AGENTS.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/AGENTS.md",
+      "sha256": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7"
+    },
+    {
+      "path": "work/contracts/agent-model-capabilities.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/agent-model-capabilities.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "work/contracts/agent-model-capabilities.v2.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/agent-model-capabilities.v2.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/agent-model-capabilities.v2.json",
+      "sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b"
+    },
+    {
+      "path": "work/contracts/domain-contract.v1.schema.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/domain-contract.v1.schema.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/domain-contract.v1.schema.json",
+      "sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841"
+    },
+    {
+      "path": "work/contracts/domain-contract.v2.schema.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/domain-contract.v2.schema.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "work/contracts/task-input-manifest.schema.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/task-input-manifest.schema.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "work/mcp/ci-mcp/package-lock.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/mcp/ci-mcp/package-lock.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/mcp/ci-mcp/package-lock.json",
+      "sha256": "cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f"
+    },
+    {
+      "path": "work/mcp/ci-mcp/package.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/mcp/ci-mcp/package.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/mcp/ci-mcp/package.json",
+      "sha256": "787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "fb9047658a0640644401a777100cd638970a7d9a31aba1c3d5a8bc71bbdb0f05"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291"
+    },
+    {
+      "path": "work/plugins/sdd-implementation/templates/implementation-report.template.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/templates/implementation-report.template.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/agents/evaluator.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/agents/evaluator.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "sha256": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "sha256": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330"
+    },
+    {
+      "path": "work/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "sha256": "a2df15daa4b42c582b507f17d094df14cc369c512e7ed6ac314fb24cfd85a34d"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "sha256": "992a2e8ec18512e83d1813f369e84d40ef3ec0e1d38b43fea19dbd361b34ccd6"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/references/review-context-boundary.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/references/review-context-boundary.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/references/review-context-boundary.md",
+      "sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "sha256": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
+      "sha256": "9c79ab9c9cc821a7a4a36df713633063321a34573f320c7b235d5761db89f621"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+      "sha256": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "sha256": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+      "sha256": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "sha256": "ed64eb57ca2db43810205a9b214ec2a7246cd5d6ca8d82798609c0afb5a315b3"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "sha256": "5743d637684e6d16ba452386b19fb944b00557ee3f399e3e101252e7c0d6187d"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+      "sha256": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+    },
+    {
+      "path": "work/plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd"
+    },
+    {
+      "path": "work/reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "sha256": "a2d0b04a160c198d6c45396721e07253f96191a26a5d073f717a5834e986c80f"
+    },
+    {
+      "path": "work/reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3"
+    },
+    {
+      "path": "work/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md",
+      "sha256": "33e2cc787f23b0e06af18a2e83bee5c51c309182623e9d97e33a25b6b05d7216"
+    },
+    {
+      "path": "work/reports/verification/shared-review-launch-integration.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/shared-review-launch-integration.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/reports/verification/shared-review-launch-integration.md",
+      "sha256": "91e9e12ebee94367d463b134d7f79aa8ce212d095ff8a82e1560ec5c32486829"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/acceptance-tests.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/acceptance-tests.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/authority.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/authority.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/authority.md",
+      "sha256": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/design.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/design.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/design.md",
+      "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/frontend-spec.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/frontend-spec.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/infra-spec.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/infra-spec.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/requirements.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/requirements.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/security-spec.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/security-spec.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/tasks.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/tasks.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/tasks.md",
+      "sha256": "c3dea28a9bbe10b52784536c944b89cdafb69430a9b25470e3f7030f6ecb503d"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/traceability.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/traceability.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/traceability.md",
+      "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/ux-spec.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/ux-spec.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/before-hashes.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/before-hashes.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/before-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/independent-checks.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/independent-checks.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/independent-checks.json",
+      "sha256": "ea7bfde174db9f84dee1366df3af9b603822c7855ccc304b0e1c2a3b03f94227"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/mutated-hashes.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/mutated-hashes.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/mutated-hashes.json",
+      "sha256": "f3de6ec2b675b26ad746058726281cc61a3724d53c279b51be8203d56f89f2be"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/restored-hashes.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/restored-hashes.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/restored-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/results.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/results.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/results.json",
+      "sha256": "b4b8327426981ea892fe3c4aa328736f85cbd7fff73df755c3c2f36420b27773"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/unreadable-equivalence.log",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/unreadable-equivalence.log",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/unreadable-equivalence.log",
+      "sha256": "3c3734df92ca563bf99466a9dacc639992d6fb1e04f47279bac791d939baa72c"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "sha256": "0db5fe1b86a1fa2414535b9a217d493450b8ae90860f2ee880b3961de63567e1"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/implementation-inspection-20261010.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/implementation-inspection-20261010.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/implementation-inspection-20261010.md",
+      "sha256": "9c0d0394b9baaa39a3f08f670541e1b9b64e4cc12453d83092d3a107dfe3f9d1"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/independent-diff-review-20261010.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/independent-diff-review-20261010.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/independent-diff-review-20261010.md",
+      "sha256": "fed9fdbf5a04948592cc5df588869b7fec5002afaf7b68a3b155677a0699c072"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/independent-verification-20261010.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/independent-verification-20261010.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/independent-verification-20261010.md",
+      "sha256": "14023e647a2ec3c0020fc4865d3f7883605fb0091599b49656a79a2f7c77fd07"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+      "sha256": "c32d20d4db6ce7dd1afaa91b2ae509050089824d535f114856846371d78c6fa5"
+    },
+    {
+      "path": "work/specs/workflow-state-registry.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/workflow-state-registry.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/workflow-state-registry.json",
+      "sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8"
+    },
+    {
+      "path": "work/tests/downstream-review-precheck-parity.tests.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/downstream-review-precheck-parity.tests.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/downstream-review-precheck-parity.tests.sh",
+      "sha256": "0e1f9e51f740ef6178242aee59b01bdb95ac7f60bca1dbfaabde55a7e5a75bb1"
+    },
+    {
+      "path": "work/tests/downstream-review-precheck.tests.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/downstream-review-precheck.tests.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/downstream-review-precheck.tests.sh",
+      "sha256": "a5d586e2a4ec272f962103abbcaded7cebd0c726ef90f9373e2e49da9b5047f4"
+    },
+    {
+      "path": "work/tests/host-review-preflight.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/host-review-preflight.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/host-review-preflight.tests.py",
+      "sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333"
+    },
+    {
+      "path": "work/tests/quality-nontty-transport.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/quality-nontty-transport.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/quality-nontty-transport.tests.py",
+      "sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c"
+    },
+    {
+      "path": "work/tests/review-agent-isolation.tests.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-agent-isolation.tests.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-agent-isolation.tests.sh",
+      "sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146"
+    },
+    {
+      "path": "work/tests/review-conditional-inputs.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-conditional-inputs.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-conditional-inputs.tests.py",
+      "sha256": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570"
+    },
+    {
+      "path": "work/tests/review-context-boundary.tests.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-context-boundary.tests.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-context-boundary.tests.sh",
+      "sha256": "f8d6a0835d28285e74543f587798e9e4bba73bf15ff1c97ee19ea41cca1a8cff"
+    },
+    {
+      "path": "work/tests/review-hash-normalization.tests.ps1",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-hash-normalization.tests.ps1",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-hash-normalization.tests.ps1",
+      "sha256": "5d922dca8a6d92828315c5349e4b40bd657a9ddeb0388bad77c14e41574220d1"
+    },
+    {
+      "path": "work/tests/review-investigation-completeness.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-investigation-completeness.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-investigation-completeness.tests.py",
+      "sha256": "90abc127e9961263d3ee5297e9df815588d9459cb19bb169934c9c6528b10b30"
+    },
+    {
+      "path": "work/tests/review-investigation-runtime.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-investigation-runtime.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-investigation-runtime.tests.py",
+      "sha256": "b5559a73005ab53a3ae9429388edf2140a2e2b30b84000348b8ada0efaf3a5c8"
+    },
+    {
+      "path": "work/tests/review-scratch-history.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-scratch-history.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/review-scratch-history.tests.py",
+      "sha256": "9b201b1434ba2198a51cfedb6b838ed8bb98ee2ba6983ace296b7f3566bf6cff"
+    },
+    {
+      "path": "work/tests/spec-review-verify-inputs.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/spec-review-verify-inputs.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/spec-review-verify-inputs.tests.py",
+      "sha256": "2bd313dd08284d5a7598bba5d2615c0a68ad3761091e32319ccf5c14c4d07d40"
+    },
+    {
+      "path": "work/tests/supplemental-delivery-declaration.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/supplemental-delivery-declaration.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/supplemental-delivery-declaration.tests.py",
+      "sha256": "71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0"
+    },
+    {
+      "path": "work/tests/task-structured-output.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/task-structured-output.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/task-structured-output.tests.py",
+      "sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2"
+    },
+    {
+      "path": "work/tests/traceability-freeze-contract.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/traceability-freeze-contract.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/traceability-freeze-contract.tests.py",
+      "sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7"
+    },
+    {
+      "path": "work/tests/unified-launch-order.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/unified-launch-order.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/unified-launch-order.tests.py",
+      "sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77"
+    },
+    {
+      "path": "work/tests/unified-task-launch.tests.py",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/unified-task-launch.tests.py",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/unified-task-launch.tests.py",
+      "sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e"
+    },
+    {
+      "path": "work/tests/workflow-state.tests.sh",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/workflow-state.tests.sh",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/tests/workflow-state.tests.sh",
+      "sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98"
+    },
+    {
+      "path": "work/specs/shared-review-launch-repair/verification/T-002/admission-20261010/source-modes.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/admission-20261010/source-modes.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work/specs/shared-review-launch-repair/verification/T-002/admission-20261010/source-modes.json",
+      "sha256": "2e4a9b463594336021b0830eddc9c9d384872c06a0335603bc53de7d4732cde4"
+    },
+    {
+      "path": "evidence/input-hashes.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/input-hashes.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/input-hashes.json",
+      "sha256": "d433be248849523f9b86263b18af9891cbd7dea15b691a2e7225df05c2b0fc06"
+    },
+    {
+      "path": "evidence/copy-verification.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/copy-verification.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/copy-verification.json",
+      "sha256": "6cddc6f7c153c0437e0c90be1dc2d7a448fe9a4f9a0350fb211cb04c320b87ed"
+    },
+    {
+      "path": "evidence/previous-incomplete-report.md",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/previous-incomplete-report.md",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/previous-incomplete-report.md",
+      "sha256": "c82f33515dfcfdf425543b2e67f4b7085edd438be6c0dfa64baedd585cd99bbd"
+    },
+    {
+      "path": "evidence/revalidation-status.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/revalidation-status.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/revalidation-status.json",
+      "sha256": "4f3dcbdb5551a4c412ebfcdb85c4b037488233fd2f83173816b7937c7547ae14"
+    },
+    {
+      "path": "evidence/provenance.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/provenance.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/provenance.json",
+      "sha256": "922d17df6f295480d0730a653a387cf22079ac6dcaf3e1e53abc28abd9de22a0"
+    },
+    {
+      "path": "evidence/final-integrity.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/final-integrity.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/final-integrity.json",
+      "sha256": "b33dafe67a5e6dcbc5b8678adaf7fccf8adc6a233fe3dd0bf70ae417f0e2f785"
+    },
+    {
+      "path": "evidence/report-validation.stdout.log",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.stdout.log",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.stdout.log",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "evidence/report-validation.stderr.log",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.stderr.log",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/report-validation.json",
+      "repository_relative_path": "specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.json",
+      "absolute_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/evidence/report-validation.json",
+      "sha256": "f6b3d7307613660c85b77f0f5e28c177ebaa3606137b811022479a103ee195a6"
+    }
+  ],
+  "validation": {
+    "exit_code": 0,
+    "stdout": "IMPLEMENTATION_REPORT_OK\n",
+    "stderr": "",
+    "validated_report_sha256": "053431f3a987b7b8d832153352ef9a97d7ee9ba7c8deb23ff44f655877f80e68",
+    "scope": "schema only"
+  },
+  "required_tests": "NOT RUN",
+  "blockers": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "references": [
+        "tests/review-hash-normalization.tests.ps1:27-28",
+        "tests/traceability-freeze-contract.tests.py:122",
+        "tests/downstream-review-precheck-parity.tests.sh:78",
+        "specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1:3"
+      ],
+      "reason": "not in allowed_inputs; not read or searched"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "references": [
+        "tests/downstream-review-precheck-parity.tests.sh:26"
+      ],
+      "reason": "not in allowed_inputs; not read or searched"
+    }
+  ],
+  "excluded": [
+    "delivery-index.json self hash",
+    "report self hash from report Outputs",
+    "tmp scratch metadata"
+  ],
+  "formal_quality_contract": "parent responsibility; NOT RUN",
+  "formal_verdict": "not issued",
+  "task_status_changed": false
+}

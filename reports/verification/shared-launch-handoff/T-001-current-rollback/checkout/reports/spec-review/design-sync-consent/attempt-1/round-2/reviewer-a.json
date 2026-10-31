@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncconsent-spec-a1r2-a-seq0469",
+  "host_session_id": "SESS-spec-a1r2-a-designsyncconsent-0469",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "b48646009aed973ba2c6e26e5cf951283493b5c7a0dbc9ded7fd8c963eb24290"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "612b0e6eee34393f145ecd4e851102bbe82858373947e2bd1502310861405ae0"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ (REQ-001 through REQ-008, specs/design-sync-consent/requirements.md:23-248) has one or more AC with a corresponding TEST row in acceptance-tests.md's Test Matrix (:9-60), and acceptance-tests.md:3 explicitly bounds the testing model to document-conformance assertions because the loop has no executable code path (INV-010) -- a stated, reasoned scope rather than an unstated gap. The round-2 additions (AC-026/TEST-041-043 transient decline, requirements.md:56-64; AC-027/TEST-044-045 destination binding, :66-73; AC-028/TEST-046-047 mid-session withdrawal, :75-82; AC-029/TEST-048-050 disclosure elements, :112-116) each have concrete, separately-falsifiable assertions (e.g. TEST-043 checks the decline is explicitly distinguished from AC-019 outcome 3, acceptance-tests.md:209-217). REQ-008's AC-024/AC-025 are testable even though they are designed to stay red pending a human-applied staged patch (acceptance-tests.md:189-201) -- that is a stated fail-closed condition, not an unmeasurable requirement."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three goals stated in the Overview (requirements.md:9-19) each trace to ACs: the consent-frequency/scope change traces to AC-001/AC-002 (:40-54) plus the round-2 AC-026/027/028 (:56-82); the flow-inversion and local-review-demotion change traces to AC-006-009 (:124-138); the durable-record trustworthiness question traces to AC-010-012 (:146-156). The 'consumer-visible consequence' sentence (:19) -- one egress question per feature, loss of per-payload refusal -- is covered by AC-001 branch 2 (no re-prompt) and AC-026 (a decline is per-upload only, transient). Every REQ-level goal (REQ-001 through REQ-008) has at least one AC; no stated goal in the Overview or REQ prose lacks a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria are written as document-conformance assertions against specific artifact text and structure rather than vague intent, e.g. AC-006/AC-009 are checked by parsing the ordered list's relative step positions, not by text presence (acceptance-tests.md:100-104, 'Assert the relative order of the steps... by parsing the ordered list and comparing positions, not by asserting that each step's text exists somewhere in the file'). AC-026/AC-027/AC-028 (requirements.md:56-82) each specify externally observable textual assertions with named failure shapes (e.g. TEST-043 checks for an explicit distinguishing statement, acceptance-tests.md:215) rather than asserting a topic is merely mentioned. AC-020's extensibility claim and AC-024's CI-reachability claim are both traced structurally (acceptance-tests.md:155-160, 189-201)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:250-257) is explicit and itemized: implementing #139's scan, implementing #140's setting or touching AGENTS.md, changing the pull direction (with the round-2-relevant carve-out that the disclosure must still mention pull-direction transmission per AC-029(e), :254), adding redaction/input_digest/machine-checkable consent objects, removing the egress gate, and rewriting the already-correct half of the loop. Each non-goal states its rationale and boundary rather than leaving scope to inference."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001 through BL-009 (requirements.md:280-292) state material constraints explicitly: the egress gate is not removed (BL-001), the manual fallback is behaviour-preserving (BL-002), the non-blocking invariant is preserved (BL-003), protected-file/human-copy handling for lite-spec/SKILL.md and test.yml (BL-004, BL-005), the changelog is not modified (BL-006), the seven DS-006 literals are preserved (BL-007), dual-runtime parity (BL-008), and workflow-state-registry registration (BL-009). Security/approval boundaries are stated concretely, e.g. AC-012 (requirements.md:154-156) constrains the Design-Source record to be an audit trace rather than an enforced authorization, tied to docs/THREAT-MODEL.md:12's NOT-Trusted classification of agent self-reports."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The document's highest-risk claim -- that Design-Source becomes a load-bearing but untrustworthy record (requirements.md:17, INV-011/INV-021) -- has a planned validation surface: AC-012 (:154-156) requires the record be explicitly characterised as an agent-written audit trace, not an enforced authorization, verified by TEST-018 (acceptance-tests.md:119-123). The retention risk is covered by AC-003(c)/TEST-007 (requirements.md:100, acceptance-tests.md:15-17), the authority-assumption risk by AC-029(f)/TEST-050 (requirements.md:112-116, acceptance-tests.md:243), and the pull-direction-egress risk by AC-029(e)/TEST-049 (requirements.md:93, acceptance-tests.md:242). Edge Case 4 (fabricated/copy-pasted consent record, requirements.md:264) is not resolved by a dedicated preventive AC, but its risk is addressed by the same non-enforcement disclosure obligation (AC-012) rather than left silent, and the residual redaction/integrity asymmetry versus the panelist path is explicitly recorded as a documented residual risk deferred to security-spec.md rather than silently dropped (Non-goals, requirements.md:255)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No `domain/` directory exists at the repository root or under specs/design-sync-consent/ (glob searches for domain/context-map.md and domain/** returned no results), so there is no Approved domain model and no domain-contract.json to check Bounded-Context conformance against. Per the check's explicit skip condition, this is recorded as skipped and emitted as SKIP."
+    }
+  ]
+}

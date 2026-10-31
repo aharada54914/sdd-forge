@@ -1,0 +1,2 @@
+tests/review-context-boundary.tests.sh: line 263: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh: Permission denied
+not ok: TEST-RCB-001 (bash): reservation of a fresh identity failed

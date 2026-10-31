@@ -1,0 +1,22 @@
+{
+  "task_id": "T-003",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-06-21T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-003: Caller header additions to 3 internal SKILL.md files. Docs stack; lint/typecheck/build waived.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; SKILL.md files are Markdown, no lint toolchain applies", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no typed source files in scope", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "acceptance-first workflow; Caller header addition verified by content check, not unit tests", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "no integration dependencies changed by Caller header addition", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no build step", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "plugins/sdd-implementation/skills/implement-task/SKILL.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/tasks.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "Caller header is informational; runtime behaviour unchanged", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "Caller header additions do not affect any BL baseline behaviors (BL-010/011 preserved via install.tests.sh)", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

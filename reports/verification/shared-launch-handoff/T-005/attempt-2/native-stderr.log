@@ -1,0 +1,10 @@
+Error: invalid type: string "{\"TMPDIR\":\"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp\",\"TMP\":\"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp\",\"TEMP\":\"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp\"}", expected a map
+in `shell_environment_policy.set`
+
+{"timestamp":"2026-10-08T18:16:35.552878Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:16:35.552911Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:16:36.100299Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:16:36.100316Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:21:24.134875Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:21:24.134900Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T18:27:02.505321Z","level":"ERROR","fields":{"error":"apply_patch verification failed: Failed to find context '-1,5 +1,4 @@' in /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py"},"target":"codex_core::tools::router"}

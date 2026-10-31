@@ -1,0 +1,18 @@
+T-007 placeholder-scan evidence (check-placeholders.sh)
+Captured: 2026-07-21T15:01:04Z
+
+NOTE: CHANGELOG.md is scanned via its own DIFF HUNK ONLY (git diff -U0),
+not the whole file -- a whole-file scan hits 5 unrelated, pre-existing
+findings elsewhere in CHANGELOG.md's historical prose (lines 401/402/411/
+1539/1549, describing a PAST task about the placeholder-scan feature
+itself), none of which are within this task's own insertion
+(git diff shows a single hunk: @@ -614,0 +615,32 @@ -- lines 615-646
+only). This mirrors the tool's own documented false-positive class
+(RT-20260706-001, check-placeholders.sh header comment).
+
+==== check-placeholders.sh against T-007's actual script/test files ====
+Placeholder scan passed.
+exit_code=0
+
+==== CHANGELOG.md's own new diff hunk (git diff -U0), scanned for placeholder markers ====
+no placeholder markers found in CHANGELOG.md's new lines

@@ -1,0 +1,18 @@
+test_persisted_binding_twins (__main__.TraceabilityFreezeTests.test_persisted_binding_twins) ... FAIL
+test_raw_prelaunch_binding_twins (__main__.TraceabilityFreezeTests.test_raw_prelaunch_binding_twins) ... ok
+
+======================================================================
+FAIL: test_persisted_binding_twins (__main__.TraceabilityFreezeTests.test_persisted_binding_twins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-94l7hf0y/checkout/tests/traceability-freeze-contract.tests.py", line 82, in test_persisted_binding_twins
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : workflow-state: workflow-state-integrity: stage-provenance: spec reviewer manifest input hash is stale
+not ok: valid Shell fixture failed: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.MK9LKB0Ynp/closed-statuses
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.616s
+
+FAILED (failures=1)

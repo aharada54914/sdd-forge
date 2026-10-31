@@ -1,0 +1,15 @@
+=== pre-remediation RED: Bash suite copied under a temp root with no product code ===
+ok: F1/F2 canonical target assertions (18 total)
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+25 passed, 0 failed
+FAIL: mutation survived: bash missing product contracts
+
+The proof driver exited 1 here, before its mutated-contract and PowerShell
+lanes, because the pre-remediation Bash suite incorrectly remained GREEN with
+no plugins/sdd-ship/skills/ship/SKILL.md and no PLUGIN-CONTRACTS.md.

@@ -1,0 +1,25 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-domain",
+  "risk": "medium",
+  "stack": "docs",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-07-06T17:55:13Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown templates and skill definition only, per tasks.md Global Constraints) -- no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown templates and skill definition only, per tasks.md Global Constraints) -- no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-002.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-003", "REQ-011"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-002.unit-tests.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No separate integration surface beyond what artifact-set.Tests.ps1 already covers as acceptance-tests: domain-interviewer is an internal (disable-model-invocation: true, user-invocable: false) skill with no execution path reachable except through the not-yet-public domain-model entry skill (T-004, out of scope for this task).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown templates and skill definition only, per tasks.md Global Constraints) -- no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-002.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-002.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-002.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-003", "REQ-011", "AC-002", "AC-004", "AC-013"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-002.unit-tests.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-002.regression.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-002.regression.log" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "domain-interviewer is an internal (disable-model-invocation: true, user-invocable: false) skill with no standalone entry point and no dev server/CLI binary to start; it is not wired into any invokable command surface until T-004, so there is nothing to smoke-run yet.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No prior behavior exists to diff against: domain-interviewer/SKILL.md, its seven templates, and both Pester suites are net-new files with no previous implementation or baseline output to compare.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No UI surface is introduced or touched by this task; domain-interviewer is a Markdown skill definition consumed by an LLM agent, not a rendered interface.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No UI/design-system surface is introduced or touched by this task; no design-system/ directory applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

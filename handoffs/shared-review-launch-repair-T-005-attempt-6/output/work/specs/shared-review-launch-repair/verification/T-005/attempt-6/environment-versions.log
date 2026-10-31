@@ -1,0 +1,12 @@
+{"platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O", "temporary_environment": {"TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp", "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp", "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp", "TMPPREFIX": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/zsh"}}
+{"argv": ["rtk", "proxy", "sw_vers"], "exit_code": 0, "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "uname", "-m"], "exit_code": 0, "stdout": "arm64\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "zsh", "--version"], "exit_code": 0, "stdout": "zsh 5.9 (arm64-apple-darwin26.0)\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "bash", "--version"], "exit_code": 0, "stdout": "GNU bash, version 5.3.9(1)-release (aarch64-apple-darwin25.1.0)\nCopyright (C) 2025 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "python3", "--version"], "exit_code": 0, "stdout": "Python 3.14.5\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "node", "--version"], "exit_code": 0, "stdout": "v24.13.0\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "git", "--version"], "exit_code": 0, "stdout": "git version 2.54.0 (Apple Git-157)\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "jq", "--version"], "exit_code": 0, "stdout": "jq-1.7.1-apple\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "rtk", "--version"], "exit_code": 0, "stdout": "rtk 0.42.4\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "pwsh", "-NoLogo", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"], "exit_code": 0, "stdout": "7.6.2\n", "stderr": ""}
+{"argv": ["rtk", "proxy", "claude", "--version"], "exit_code": 0, "stdout": "2.1.292 (Claude Code)\n", "stderr": ""}

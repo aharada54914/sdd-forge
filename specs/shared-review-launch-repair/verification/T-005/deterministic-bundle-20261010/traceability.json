@@ -1,0 +1,29 @@
+{
+  "feature": "shared-review-launch-repair",
+  "task": "T-005",
+  "scope": "Current local evidence only; no task transition or dependency release.",
+  "links": [
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-002"
+      ],
+      "tests": [
+        "TEST-004",
+        "TEST-005a",
+        "TEST-005b",
+        "TEST-005c",
+        "TEST-005d",
+        "TEST-005e",
+        "TEST-005f",
+        "TEST-005g",
+        "TEST-005h"
+      ],
+      "evidence": [
+        "specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/binding-summary.json",
+        "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/binding-summary.json",
+        "reports/quality-gate/20261010-shared-review-launch-repair-T-005.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+a21707b0e01f0aed31b619c93ff1289d70e3164f7d18c4b5169bc53b9453a4a0  plugins/sdd-bootstrap/.claude-plugin/plugin.json
+d13252987d50010d91cc6ad1d605a8c9a211864fbd6d6b54811a324a81a2c213  plugins/sdd-bootstrap/.codex-plugin/plugin.json
+0671706a58f7af2174a88979889671dfa64c4bc2bf78114d906fd3c04bfec3ea  plugins/sdd-domain/.claude-plugin/plugin.json
+6cc9bb09b57e816f6dbf159df906cca0caf3e7b7f5c8d7c913e79feb758bdb76  plugins/sdd-domain/.codex-plugin/plugin.json
+3960a4b94c58820652aef0ed0c73c549c02784ee11a014079a56c08770fa2f48  plugins/sdd-implementation/.claude-plugin/plugin.json
+fc89b9171fb54ea6434d0e876c654b03d21a1b13697f127ec569a84ae8caf86f  plugins/sdd-implementation/.codex-plugin/plugin.json
+9364f78ec1690d045bb2f78d0b6f28fb133aa74ead02f79e7a87587a8b3caeb0  plugins/sdd-lite/.claude-plugin/plugin.json
+ce3f1865ec1f741d72858b050036a764f8db8f8028b391451c62f7c13c366e57  plugins/sdd-lite/.codex-plugin/plugin.json
+dd557eafab37c75fb2c5dff2149198ffebe0c7b1e815b508c3081f3bb3af3b54  plugins/sdd-quality-loop/.claude-plugin/plugin.json
+1ac345593754e057e136d07134f2e0a8fa01bac9fb6e413e7ccad568ad8c5069  plugins/sdd-quality-loop/.codex-plugin/plugin.json
+2d37e47cd104eee77304efda968372e2d17a6ffd01f3a3dcd40a34c8597734ae  plugins/sdd-review-loop/.claude-plugin/plugin.json
+24eeab37148ef6cbc2190a5f37a03647de9c8781aebd86cd0fb29858c086b33e  plugins/sdd-review-loop/.codex-plugin/plugin.json
+b12437b2aab522af6356a035cc718281a93e59ec5d772aaa31700189091b99d6  plugins/sdd-ship/.claude-plugin/plugin.json
+eb2e61bddc142739de1675986757c6210f769ea352849899a015bb03b794b21e  plugins/sdd-ship/.codex-plugin/plugin.json

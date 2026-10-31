@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "80b41de351ed186fff2491f262073ba3d4950c6fb3ec8e152d28fce42dc6808a",
+  "acceptance_sha256": "d3d71347e171a691842c3227228a760676663b18b855198d63f6bee4eb16f2a5",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "b7a4300c1cc93e24bda5c4d979e69c7537181934e912a27d7dc061bf539089ee",
+  "edit_summary": "Attempt 2 round 1 の Major 2 件（reviewer A: AC-OBSERVABLE / reviewer B: EDGE-CASE-COVERAGE、同一根本原因）に対応。acceptance-tests.md のみ変更、requirements.md は無変更。(1) AC-023 を 4 fixture から 8 fixture に拡張し、REQ-002 が minLength 1 を宣言する全対象（definition / essence / responsibilities[] 要素 / evidence[] 要素 / must_not_own[] 要素 / stakeholder_perspectives[].actor / .concern / distinguished_from[].reasons[] 要素）にそれぞれ独立した空文字列負例を割り当てた。required 側と optional 配列内側を個別に踏み、validator が別ブランチ実装した場合の片側漏れを検出する。(2) coverage matrix の 3 セルから『AC-023 と同経路』表記を削除して実 AC 参照に置換し、凡例に『セルを埋める根拠として validator の内部構造に関する仮定を用いてはならない』という充足規則を明記した。(3) 負例 fixture 総数を AC 表から導出した 44 に訂正し（旧記載 35 は誤り）、内訳も明示した。",
+  "reset": false,
+  "generated_at": "2026-08-16T10:50:44Z"
+}

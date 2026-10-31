@@ -1,0 +1,39 @@
+Cycle 1 Major #2: the recorded mutation count did not reproduce (101/13 against
+a claimed 114/0). This is the gate host's own fresh run of the remediated
+harness, pinned at COLUMNS=80 -- the width at which cycle 1's PowerShell
+ConciseView wrapping produced the 13 false survivors -- followed by a
+byte-comparison against the persisted log. Only the summary and the comparison
+are kept here; the full transcript is the persisted mutation-proof.log itself.
+
+$ sh -c 
+      set -u
+      work=$(mktemp -d "${TMPDIR:-/tmp}/qg-t004-mut.XXXXXX")
+      fresh="$work/fresh.log"
+      persisted="$work/persisted.log"
+      COLUMNS=80 bash specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh > "$fresh" 2>&1
+      rc=$?
+      echo "fresh run exit status: $rc"
+      grep -E "^(CLASSIFIER-SELFTEST|MUTATION SUMMARY|MUTATION-SURVIVED)" "$fresh"
+      echo
+      grep -v "^EXIT_CODE=" specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.log > "$persisted"
+      echo "$ diff persisted-without-EXIT_CODE-line fresh-run"
+      if diff "$persisted" "$fresh" > "$work/delta" 2>&1; then
+        echo "IDENTICAL: the fresh run reproduces the persisted mutation-proof.log byte-for-byte"
+        echo "           (modulo the recorder-appended EXIT_CODE= line)"
+      else
+        echo "DIFFERS:"
+        head -20 "$work/delta"
+        rc=1
+      fi
+      rm -rf "$work"
+      exit $rc
+
+fresh run exit status: 0
+CLASSIFIER-SELFTEST: ANSI and wrapped diagnostic matched
+MUTATION SUMMARY: 116 killed, 0 survived
+
+$ diff persisted-without-EXIT_CODE-line fresh-run
+IDENTICAL: the fresh run reproduces the persisted mutation-proof.log byte-for-byte
+           (modulo the recorder-appended EXIT_CODE= line)
+
+exit status: 0

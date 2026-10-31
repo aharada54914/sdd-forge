@@ -1,0 +1,21 @@
+{
+  "task_id": "T-002",
+  "feature": "cross-model-verification",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "",
+  "created": "2026-06-15T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-002: check-cross-model deterministic gate + tests. High tier + tdd: red/green evidence required for unit-tests and acceptance-tests. Stack=shell waives lint/typecheck/build.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Shell+Markdown+JSON repo: no lint toolchain. Stack: shell waives compile-oriented checks.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No typed language in this change (shell scripts + JSON fixtures). Stack: shell waives typecheck.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No build step for a shell plugins repo. Stack: shell waives build.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-003", "REQ-004"], "red_evidence": "specs/cross-model-verification/verification/T-002.red.log", "green_evidence": "specs/cross-model-verification/verification/T-002.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-003", "REQ-004"], "red_evidence": "specs/cross-model-verification/verification/T-002.red.log", "green_evidence": "specs/cross-model-verification/verification/T-002.green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-003", "REQ-004"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

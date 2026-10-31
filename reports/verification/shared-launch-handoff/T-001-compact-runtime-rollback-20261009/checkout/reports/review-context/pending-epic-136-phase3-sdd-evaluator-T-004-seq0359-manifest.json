@@ -1,0 +1,134 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-136-phase3",
+  "task_id": "T-004",
+  "run_id": "RUN-epic-136-phase3-qg-T-004-seq0359",
+  "host_session_id": "SESS-qg-epic-136-phase3-T-004-0359",
+  "sequence": 359,
+  "previous_record_sha256": "abc0b1aadde6767a9855cff52d3b97b95b17d5c182f1109f80395a9e2eda516a",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "db665e683f002429438a32289000f680507bf9f3cc376d2b7f124b2a996e5558",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-136-phase3/T-004.md",
+      "sha256": "211732b8d131158ee3c2821c5b9de193e51494d9b80044707537481ba679ba6d"
+    },
+    {
+      "path": "specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "specs/epic-136-phase3/design.md",
+      "sha256": "326166d0efc1fd7dd9e28ccadb1f2f40a993624fb2777f533e1e8db45f28da5f"
+    },
+    {
+      "path": "specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "specs/epic-136-phase3/infra-spec.md",
+      "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+    },
+    {
+      "path": "specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "specs/epic-136-phase3/tasks.md",
+      "sha256": "200330bc3dc8ff9f548151bc674d33337bbab7bf4612033882d18a24e719de2b"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.json",
+      "sha256": "e56c64920d192d4aafa50726c1803729cdd9fcceae692ed2c563a0e84b190bce"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.md",
+      "sha256": "df4c5af9127710ba730a90a29e4023e66088b83212677917437b8fedc61cac79"
+    },
+    {
+      "path": "specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-004/bash32-workflow-scenarios.log",
+      "sha256": "b73a63eafd1e6bf78b25db9074ba80b4ec4e01f897a409e5d6a00f887a9f572b"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-004/full-regression-sweep.log",
+      "sha256": "5ac11697d068b4d264956b9ec674798fcea7d98ac5cd90620916ba428966697c"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log",
+      "sha256": "b73a63eafd1e6bf78b25db9074ba80b4ec4e01f897a409e5d6a00f887a9f572b"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-004/red-workflow-scenarios.log",
+      "sha256": "d743f303cfde8ad551c5bfaa4c4963a1b7df393377cf22f2fec1d7095135c074"
+    },
+    {
+      "path": "tests/scenario.tests.sh",
+      "sha256": "2fae4ab2b2bbb4568b41a1c8bf3d9e33153af20c69b22978798111ea440a729f"
+    },
+    {
+      "path": "tests/workflow-scenarios/brownfield-web.json",
+      "sha256": "051f26d021081d2409dae2600ce7f3620bb909bd3433a8d03c52f581d869bcac"
+    },
+    {
+      "path": "tests/workflow-scenarios/ci-token-shortage.json",
+      "sha256": "b77d339ee47d82bcb1982ac618ec4b599ec0780a9fadce5d67ce399eb236fdd9"
+    },
+    {
+      "path": "tests/workflow-scenarios/critical-cross-model-missing.json",
+      "sha256": "e29518dda4e233ebb6e7975ea1f770ef5bdea20b3c833f21f4409cc0032585b7"
+    },
+    {
+      "path": "tests/workflow-scenarios/greenfield-cli.json",
+      "sha256": "0c668dcd15a7c4d8efadb1463c2e412f5555202a18080385688c104f8de4566d"
+    },
+    {
+      "path": "tests/workflow-scenarios/huge-actions-log.json",
+      "sha256": "4df76cced279fd0ab775136de895272fc83056a9ed92a5d078e339702d2a9f33"
+    },
+    {
+      "path": "tests/workflow-scenarios/inbound-prompt-injection.json",
+      "sha256": "e9dc365f60fb79951c9162d48f2bef4be96ebb3d8bc2394551cb2d9a8bb4a55f"
+    },
+    {
+      "path": "tests/workflow-scenarios/lite-full-misclassification.json",
+      "sha256": "eb8ea290f74097b6421214d387c76aea77d7530e99195a38fe073358d2b0f122"
+    },
+    {
+      "path": "tests/workflow-scenarios/mcp-evidence-corruption.json",
+      "sha256": "c540ebd24e8d7cc95c6de8d0751bd06d33a34da5e1c2892ee05cbdf521ebabb7"
+    },
+    {
+      "path": "tests/workflow-scenarios/refactor-baseline-missing.json",
+      "sha256": "22021d60ad061fe9e248c3df3722cd1728977aa4d261639744c211fd4eb43b48"
+    },
+    {
+      "path": "tests/workflow-scenarios/scenario-schema.json",
+      "sha256": "126589802fb4a142a89f098e879681ce41e444115eb007490d1d167f5629aeeb"
+    },
+    {
+      "path": "tests/workflow-scenarios/unreadable-contract-traceability.json",
+      "sha256": "66df1b437b444ab3081223a37910ae8681f458be17d5e4cb0dd3f880cafdb22c"
+    },
+    {
+      "path": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+      "sha256": "58753624f5424ed555414305f925672a2ac18391d41a0c6c7eef745146d2c232"
+    }
+  ]
+}

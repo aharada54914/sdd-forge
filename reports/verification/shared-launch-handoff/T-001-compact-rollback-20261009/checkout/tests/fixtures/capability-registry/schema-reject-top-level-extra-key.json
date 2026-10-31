@@ -1,0 +1,6 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [],
+  "extra_top_level_key": true
+}

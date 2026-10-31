@@ -1,0 +1,38 @@
+{
+  "predicate": {
+    "all": [
+      {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "data_classification",
+            "operator": "equals",
+            "value": "public"
+          },
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "exists"
+          }
+        ]
+      },
+      {
+        "not": {
+          "scope": "affected_component",
+          "field": "characteristics.ui",
+          "operator": "equals",
+          "value": true
+        }
+      }
+    ]
+  },
+  "properties": {
+    "data_classification": "internal",
+    "artifact_kinds": [
+      "cli_tool"
+    ],
+    "characteristics": {
+      "ui": false
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+    ".github/workflows/test.yml"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:20.315574+00:00",
+  "finished_at": "2026-10-14T15:11:20.339000+00:00"
+}

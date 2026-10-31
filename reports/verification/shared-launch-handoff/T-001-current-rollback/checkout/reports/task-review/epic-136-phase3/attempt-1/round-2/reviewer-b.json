@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase3",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-b-seq0355",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0355",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/task-review/epic-136-phase3/attempt-1/round-2/integrated-summary.json",
+        "sha256": "cced71b48248d98e7b3df76e3b847523bb9c2ac5845eeef68885687246535764"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/task-review/epic-136-phase3/attempt-1/round-2/precheck-result.json",
+        "sha256": "d221799ad1138d34b6fbac7c5bbf512b6de13e2918bda0c6c930fc5982b31174"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/acceptance-tests.md",
+        "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/design.md",
+        "sha256": "326166d0efc1fd7dd9e28ccadb1f2f40a993624fb2777f533e1e8db45f28da5f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/frontend-spec.md",
+        "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/infra-spec.md",
+        "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/requirements.md",
+        "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/security-spec.md",
+        "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/tasks.md",
+        "sha256": "7840dd459ae0c2f796119b9347befdf26c9f7da9a1038de2374736c8bbc464a6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/traceability.md",
+        "sha256": "df4c5af9127710ba730a90a29e4023e66088b83212677917437b8fedc61cac79"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/ux-spec.md",
+        "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001 (tasks.md:166, Risk: medium) and T-002 (tasks.md:378, Risk: medium) touch no auth/authz/payment/PII/migration/API-contract sentinel surface -- both add NEW, unprotected test files that exercise the live sdd-hook-guard.{sh,py,ps1} binaries strictly READ-ONLY (tasks.md:179-185, 388-390; security-spec.md Boundary B1), never modifying the guard's own access-control logic, matching risk-classification-policy.md's medium tier ('normal feature or fix ... internal tooling'). T-003 (tasks.md:583, Risk: high) edits the one genuinely R-10-protected file this feature touches (.github/workflows/test.yml) via human-copy staging, with an explicit 'silent defect causes material harm' rationale (tasks.md:587-609) matching risk-classification-policy.md's high-tier catch-all clause; Required Workflow: tdd is declared (tasks.md:611), consistent with risk-gate-matrix.md. T-004 (tasks.md:818, Risk: high) is nominally test-only in file-type terms (10 new JSON fixtures + 1 driver suite, tasks.md:862-901), which could pattern-match the check's over-classification indicator ('test-only changes') on its face; however its Goal/Scope/Done-When (tasks.md:923-935, 973-1014, 1048-1057) show scenario 5 (AC-014) verifies a genuine inbound-prompt-injection security boundary (security-spec.md Boundary B2, STRIDE row) where a vacuously-true assertion would itself mask a real agent-safety vulnerability -- exactly risk-classification-policy.md's 'anything where a silent defect causes material harm' clause -- and the declared Required Workflow: tdd (tasks.md:847) with a mutation-based negative fixture (tasks.md:996-999) is the mechanism that prevents that vacuous-test failure mode, so downgrading to medium would remove necessary assurance rather than reduce wasted review effort; this is not the over-classification pattern the check targets. No under- or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. T-003 (Risk: high, tasks.md:583) Done When's final item (tasks.md:767-777) records Red-then-Green TDD evidence (RED: throwaway dropped-step fixture failing the self-check; GREEN: real staged candidate passing, re-confirmed after commit B) AND 'An independent quality-gate verdict, plus an independent review verdict distinct from the implementing agent, records PASS for this task (high-risk requirement)' -- satisfying both required Done-When evidence items. T-004 (Risk: high, tasks.md:818) Done When's final item (tasks.md:1048-1057) records the same Red/Green separation for the prompt-injection sub-scope (RED: mutated-stub fixture failing; GREEN: real sdd-bootstrap-interviewer result recorded regardless of outcome) plus the identical independent-quality-gate + independent-review-verdict-distinct-from-the-implementing-agent commitment. Neither task is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply (risk-gate-matrix.md two-person-approval/evidence-bundle-signature rows are '-' at high tier)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All 4 tasks use the repo-wide established 2-commit landing plan (tasks.md:86-98, Global Constraints) -- one coherent deliverable each: T-001 = one new suite file + its registration + its own CHANGELOG entry; T-002 = one new suite file + registration + entry; T-003 = one staged test.yml candidate + MANIFEST + entry; T-004 = one new directory (tests/workflow-scenarios/) + driver suite + entry. T-001's Done When lists 9 checkboxes (tasks.md:320-351: TEST-001..007 individually, one 'Shared legs' item, one 'Acceptance-first evidence' item), marginally above the 8-item indicator threshold, but 7 of the 9 are the direct 1:1 AC-001..AC-007-to-checkbox enumeration mandated by the WFI-014 branch-enumeration discipline requirements.md's own Risks section requires ('implemented as one large assertion ... could pass by accident on one combination while silently missing a regression in another') applied to REQ-001's own 7-AC decomposition, not task-authored scope creep -- the underlying deliverable remains one Bash file testing one dispatcher's branches, comparable in size to existing suites such as guard-cwd-bypass.tests.sh. No task's Scope spans more than 3 distinct implementation areas in substance (each Scope's sub-bullets are commit-A/commit-B facets of one file/one directory, not independent concerns), and no task title implies sequential design/implement/test phasing. No 3+ single-function-edit fragmentation cluster and no bare 'rename X to Y' task exists."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no functional (non-test, non-infrastructure) task in scope. All 4 tasks are themselves test-suite-authoring (T-001 tests/guard-dispatch-fallback.tests.sh; T-002 tests/guard-negative-corpus.tests.sh; T-004 tests/workflow-scenarios/) or CI/infrastructure human-copy staging (T-003 .github/workflows/test.yml candidate) tasks per design.md Feature Type (design.md:5: '3 independent, unblocked new-test-suite/CI-lane additions ... no in-spec dependency between streams') -- there is no task in this feature adding application/production functional behavior for this check's scope to apply to, matching reviewer-calibration.md's Cannot-Verify Handling SKIP example ('the scoped surface does not exist')."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found -- round-1's Major finding (acceptance-tests.md's 'unit (fixture-driven, real script...)' label for TEST-001..010 despite each driving 2+ real components) is resolved at the tasks.md layer this stage reviews. T-001 (tasks.md:192-206) and T-002 (tasks.md:409-418) now each carry an explicit task-level 'Test Type: integration' field: T-001's rationale states TEST-001..007 each drive 'two or more real system components (the sdd-hook-guard.sh dispatcher PLUS a directly invoked sdd-hook-guard.py or .ps1 parity reference, decisions cross-checked) ... no component is mocked' -- satisfying the Integration Tests criterion ('must involve at least two system components'); T-002's rationale states TEST-008..010 each drive 'the same payload across four real runtime surfaces (sdd-hook-guard.py, .js, .ps1, and the .sh dispatcher) ... no component is mocked', likewise satisfying the integration-tier bar. Both fields explicitly state this task-level label is the authoritative one implementers and quality-gate reviewers must apply, and transparently document that acceptance-tests.md's coarser column label is unchanged only because that document is genuinely hash-frozen by the predecessor spec-review/impl-review contracts task-review-precheck.sh re-verifies each round (confirmed: acceptance-tests.md sha256 f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66 matches precheck-result.json's acceptance_sha256, i.e. it is still pinned) -- the relabel is explicitly deferred to the next spec-reopening feature rather than silently dropped. T-003 and T-004's acceptance-tests.md rows (AC-016..020, AC-012..015) use domain-specific labels ('document/YAML conformance', 'self-check', 'non-regression', 'CI/registration conformance', or 'Blocked') rather than a mismatched 'unit' claim, so no analogous mismatch exists for those two tasks."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-003 (Risk: high) has an explicit Rollback: field (tasks.md:656-665): 'reviewed revert of this task's two commits (together) ... If the human maintainer has ALREADY applied the staged candidate by the time of a revert, a SECOND human-copy application reverting the shared candidate's restructuring portion is required ... this task's implementation report must record the exact revert boundary.' T-004 (Risk: high) has an explicit Rollback: field (tasks.md:919-921): 'reviewed revert of this task's two commits (together); nothing protected is touched (this task stages no .github/workflows/test.yml candidate at all).' Both satisfy the rollback-consideration requirement for high-risk tasks."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Shared-file edits are all independent, non-conflicting additions, not competing edits toward the same purpose: tests/run-all.sh is appended by T-001, T-002, and T-004, each adding exactly one line naming its OWN new suite's basename (tasks.md:108-115, Global Constraints; T-003 explicitly adds no line, tasks.md:110); CHANGELOG.md's '## Unreleased' section is appended by all 4 tasks, but each creates an independent entry citing a DIFFERENT issue number (#123/#124/#126/#125, tasks.md:122-127: 'no create-then-append serialization conflict exists because the ## Unreleased header itself is never (re)created by any of these 4 tasks'). No two tasks list the same primary implementation file for the same purpose: T-001 alone owns tests/guard-dispatch-fallback.tests.sh, T-002 alone owns tests/guard-negative-corpus.tests.sh, T-003 alone owns the staged specs/epic-136-phase3/human-copy/.github/workflows/test.yml candidate + MANIFEST.sha256 (T-001/T-002 explicitly never touch test.yml, staged or live, tasks.md:102-107), T-004 alone owns tests/workflow-scenarios/*. tasks.md's Global Constraints (tasks.md:154) additionally requires 'implement one task at a time', preventing concurrent uncoordinated edits to the shared append-only files."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001 and T-002 declare Blockers: None (tasks.md:361-366, 566-571) and their scopes are genuinely independent of every other task's output. T-004 declares Blockers: None / Depends On: none (tasks.md:857-860, 1081-1089), consistent with its scope (own scenario schema and fixtures, reusing only pre-existing tests/lib/loop-driver.sh and tests/loops/loop-inventory.json, neither produced by T-001/T-002/T-003). T-003 declares Blockers: T-001, T-002 (tasks.md:621-627, 795-806) with an explicit functional justification: its staged CI-step content must name T-001's and T-002's own suite basenames and must be authored after both are finalized so the batch is not built against a placeholder name -- a genuine, non-spurious dependency. No task whose scope actually consumes another task's output declares Blockers: None (T-003 is the only task with a real output dependency, and it is correctly blocked); no unnecessary/spurious blocker inflates the critical path."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 4 tasks are preventive/structural test-and-CI-hardening additions, not regression fixes: design.md Test Strategy item 1 explicitly distinguishes T-001 from a bugfix framing ('a POSITIVE claim ... not every new-suite feature is a bugfix'), requirements.md Field Definitions labels T-003's work 'preventive restructuring ... distinguished explicitly from a bugfix so ... not held to a RED-then-GREEN regression-reproduction standard', and no task's title, Goal, Scope, or Done When describes reproducing/fixing an existing defect."
+    }
+  ],
+  "findings": []
+}

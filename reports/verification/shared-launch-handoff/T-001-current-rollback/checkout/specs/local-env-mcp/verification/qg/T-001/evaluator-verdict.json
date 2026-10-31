@@ -1,0 +1,32 @@
+{
+  "schema": "evaluator-verdict/v1",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "local-env-mcp",
+  "task_id": "T-001",
+  "run_id": "qg-eval-localenvmcp-t001-20260706-7f3a",
+  "host_session_id": "hs-qg-e1-6503d1ba-0012",
+  "invocation_manifest": "specs/local-env-mcp/verification/qg/T-001/invocation-evaluator.json",
+  "verdict": "PASS",
+  "summary": "Verified all 29 manifest hashes, line-level reviewed the three production sources and three test files, and independently re-ran the T-001 surface: tsc --noEmit exit 0; 19/19 T-001 tests green with real timing evidence (timeout kill ~2006ms, concurrency 2 batches ~4010ms, output-cap ~387ms). Grepped the entire src/ tree: the only child_process usage is execFile in probe-engine.ts (every 'spawn' hit is a comment or the \"spawn-error\" contract literal), so the REQ-003 no-exec boundary (security-spec B2 chokepoint) holds at source level. Allowlist is a frozen as-const table of exactly 14 bare-binary-name CLIs; no user input reaches command/args; resources bounded by maxBuffer=8KiB, timeout=2000ms+SIGKILL, concurrency=4. Red/Green TDD evidence is genuine (compile-failure-first exit 2 -> same 19-test surface exit 0). All eight scripted-gate logs green and consistent with sources. Scope matches the approved task exactly; only non-blocking Minor observations remain.",
+  "findings": [
+    {
+      "severity": "Minor",
+      "classification": "Deferred",
+      "description": "Comment claims a 'backstop force-kill shortly after the timeout window' but no separate backstop timer is registered - only a child.on('error') handler. The kill is guaranteed by execFile's built-in timeout + killSignal:SIGKILL (independently confirmed ~2006ms). Doc/code mismatch, not a behavior defect.",
+      "location": "mcp/local-env-mcp/src/probe-engine.ts:152"
+    },
+    {
+      "severity": "Minor",
+      "classification": "Deferred",
+      "description": "A probe that exits 0 with empty/whitespace-only output is mapped to probeError='nonzero-exit' - a slight semantic imprecision; the value is a valid contract enum member and correctly yields available:false.",
+      "location": "mcp/local-env-mcp/src/probe-engine.ts:145"
+    },
+    {
+      "severity": "Minor",
+      "classification": "Deferred",
+      "description": "The verification contract's spec_revision field is empty (''); the evidence bundle carries the computed spec_revision, and the deterministic gates accept the contract. Metadata-only observation.",
+      "location": "specs/local-env-mcp/verification/T-001.contract.json:8"
+    }
+  ]
+}

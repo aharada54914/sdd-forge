@@ -1,0 +1,25 @@
+{
+  "task_id": "T-006",
+  "feature": "claude-workflow-compatibility",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "365066e9eeb2d4d69de4e8a8e988c4e75f9c23ecb448aa31196f76a0128cdb43",
+  "created": "2026-06-25T00:00:00Z",
+  "comment": "Default-FAIL contract completed with rerun shell/PowerShell denial, parity, graph, isolation, foundation, and repository validation evidence.",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"The repository has no configured linter for shell, PowerShell, Markdown, or JSON.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"The repository has no static typechecking toolchain for these scripts.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"The portable scripts and metadata require no build step.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-006.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log"},
+    {"id":"integration-tests","required":false,"passes":false,"evidence":"","waiver_reason":"No external service integration is in scope; portable host entry points are covered by acceptance tests.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-006.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log"},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-006.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-006.quality-tests.log"},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.placeholder.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.task-state.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-006.traceability.log","waiver_reason":"","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"smoke-run","required":false,"passes":false,"evidence":"","waiver_reason":"The review prechecks have no executable user-facing application surface.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"differential-baseline","required":false,"passes":false,"evidence":"","waiver_reason":"T-006 is a gate-strengthening feature, not a baseline behavior refactor or bugfix.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"ui-verification","required":false,"passes":false,"evidence":"","waiver_reason":"T-006 has no UI.","requirement_ids":["REQ-008","REQ-009"],"red_evidence":"","green_evidence":""}
+  ]
+}

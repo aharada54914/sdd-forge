@@ -1,0 +1,182 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-192-a4-facet-manifest",
+  "task_id": "T-005",
+  "run_id": "RUN-epic-192-a4-facet-manifest-qg-T-005-seq0764",
+  "host_session_id": "SESS-qg-epic-192-a4-facet-manifest-T-005-0764",
+  "sequence": 764,
+  "previous_record_sha256": "bba9de95ba6ef87adcc32159dc05d2d3731117b5a1cbe7d1c95b93ab5b483c7f",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "b35b3fb32575eff6c270e8a65c9d195b9ec483564d38d210fd92114017b172c0",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "b0db358ff2017f4b82bb60c3f6324a773ff2b034d950247d4d219b743a1aab3c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py",
+      "sha256": "e7b75cef97a477d98b1460d8f20124c144e4ecb96ea15866714e80e6d00e2f93"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "sha256": "0ece9e8ed1a0a1d2af66b54b889ece5f6234f91ab5e8080c39fb36f12b7e54a9"
+    },
+    {
+      "path": "reports/implementation/epic-192-a4-facet-manifest/T-005.md",
+      "sha256": "677757bdf7039f9311cbc87e47ff601658f7002417d40bf44c6035ed882eded4"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md",
+      "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/design.md",
+      "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/frontend-spec.md",
+      "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml",
+      "sha256": "23437fffffcf4be43734b29fc242667d8534e4b75877db789d2b1a7205615f38"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/APPLY-INSTRUCTIONS.md",
+      "sha256": "03821746c6e3f19027baa3e349aea64f83f7ca51dc477256a858284acf982ed0"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256",
+      "sha256": "15ff85f0fa35454dcc2249f1bdec050767707ed9d369b715de5313d9842874ca"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/infra-spec.md",
+      "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/requirements.md",
+      "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/security-spec.md",
+      "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/tasks.md",
+      "sha256": "5a556f9040ad7e7e5708380f269fb66a44c782e096de79d5d58bb09fe1622c45"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/traceability.md",
+      "sha256": "b3db2423b7ce5038284bbe9ed419846c063e096964a46b365f2b6098f0485b0e"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/ux-spec.md",
+      "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/gate-mutation-proof.log",
+      "sha256": "74f9f8386db9be51279d84c5518ee87da9d4a36a3b79181bb55ee334e8aad2cd"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/green-ps1.log",
+      "sha256": "364ef682901d97f913d7d25fe4d53a85cef2c3121e72bccac951429af47dc050"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/green-sh.log",
+      "sha256": "bc7a9cf16458a3ae131922e5c99a22bf8287c70badad4826554128dc24b0aaf2"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/red-ps1.log",
+      "sha256": "82e4e66d1b6e5f061f2e5417bc9e5228fc5d8bee24c06816c7050452d7327df7"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/red-sh.log",
+      "sha256": "47d918f75a2ac6167dd4e135af8fea34b6aaa7deacfd77bddb363698c7eafcd7"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-005/vendor-check.log",
+      "sha256": "d6536b0a991552d62ddccaa957641af449b05ee3332b7524f0789b6a14f9248b"
+    },
+    {
+      "path": "tests/capability-summary-schema.tests.ps1",
+      "sha256": "677c7d528de9e18f790436b8452acb3066be1590cb0cdaa82fafd3d1612af701"
+    },
+    {
+      "path": "tests/capability-summary-schema.tests.sh",
+      "sha256": "3e9ade871e5d00107fb9d96500b550068651cf9cdcc1750cf1345ef34a71c1e5"
+    },
+    {
+      "path": "tests/facet-manifest-parity.tests.ps1",
+      "sha256": "d8d22a5f95ffcacb0a0f52d9fbed8e2d727c7700d92eab27ab9893c6071e8283"
+    },
+    {
+      "path": "tests/facet-manifest-parity.tests.sh",
+      "sha256": "b770c03c6dd8ac56cac82be62a511679a84440b0ccb67dec926136e303f81ca1"
+    },
+    {
+      "path": "tests/facet-manifest-schema.tests.ps1",
+      "sha256": "49e93c6b80943efc396de2f8d1bb53cd3b1b101e0908521100a8215733f190c9"
+    },
+    {
+      "path": "tests/facet-manifest-schema.tests.sh",
+      "sha256": "844f573d618f5f5491ff662b886243e82ba0958971e6094dadeef79420531ca8"
+    },
+    {
+      "path": "tests/facet-manifest-staleness.tests.ps1",
+      "sha256": "7bb102af6fab8a55ece30e677b5029a840755429a48e20e36895447fae9d439b"
+    },
+    {
+      "path": "tests/facet-manifest-staleness.tests.sh",
+      "sha256": "c30997e97b01a47cd844e01b5ee3ee7285f1d1f023634871d519397859025c70"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/capability-summary/summary-non-utf8-bytes.bin",
+      "sha256": "9179de1bbc23cd65a65c69aa7da434936d5f8964c140630f11cd3a1f3f051a63"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/parity/provider-neutrality-clean.txt",
+      "sha256": "13dcad5272e46ea70c0e02cd4f093f63ecd30e7ec526e88efbc731e6cbbf9e9e"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/parity/provider-neutrality-dirty.txt",
+      "sha256": "75a8345e79251f1df6c640d774e2a90dd2bfcb3498269adc64740daf12fd2bd8"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/parity/provider-neutrality-lambda-dirty.txt",
+      "sha256": "afa640f2b84c30a10f10141f8bc5757123c15ee3cfe1d2b1d08e321621a25c9f"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/parity/windows-style-path.txt",
+      "sha256": "96d2179dad1363d63223cc222f6aeb6c0f6c840f99926b2f83c2704f855df8d8"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/manifest-non-utf8-bytes.bin",
+      "sha256": "1428f131fbf9f2af633dd993fbb053092a015b3da9a1043395d5b9e052fd0b61"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "526770c7fddd6eea6f55f58632bdcb892d2eb0ddde63853af5c0723b8bd45a05"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "baaecdba0c5a538d88b46943a86069bd46d696c514d0d099556b40d7f7426652"
+    }
+  ]
+}

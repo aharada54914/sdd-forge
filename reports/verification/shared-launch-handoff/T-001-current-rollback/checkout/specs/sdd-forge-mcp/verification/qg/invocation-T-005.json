@@ -1,0 +1,62 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-forge-mcp",
+  "task_id": "T-005",
+  "run_id": "qg-eval-sddforgemcp-t-005-20260705-07a",
+  "host_session_id": "hs-qg-eval-7ea701ba-107",
+  "sequence": 25,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "6b7afde646c0b21a5b5f3e5779aa04e7407ce4899754ccf78adbff54b9b8e53f",
+  "previous_record_sha256": "010b84a7d3ec03bb892687756197e49f829fb599c5c1f2684f85c984cd0cf17b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/design.md",
+      "sha256": "5b828d889bc390c724a73e760236493cc5c6aafd0ebce88bfc12fccf9af79918"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "5cf86837e43f8951072c8c8f2dfe60bec696dcdb61714566f2eb1db3ae324687"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/traceability.md",
+      "sha256": "9c317fb6da2074dee4012bdcf532b3ec25538d6ad81b36a6e0eca2ed2b0ec76c"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/ux-spec.md",
+      "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/frontend-spec.md",
+      "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/infra-spec.md",
+      "sha256": "78d7135af99a340229fe5fb82ab4fc6e7d708bab087b142923eecdcf13c64b59"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/security-spec.md",
+      "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-forge-mcp/T-005.md",
+      "sha256": "2c8b87b724cf51979281b835f3602e737083f772b3c5cf3d010f5a7ea80ce090"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{"timestamp":"2026-10-10T13:37:16.463353Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T13:37:16.463393Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T13:37:17.618118Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T13:37:17.618138Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T13:37:31.072369Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.078940Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.083881Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.088198Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.092510Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.097811Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.102759Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.106891Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.111349Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.116010Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.120091Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.124468Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.133215Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.142828Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.152199Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.158721Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.164983Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.171397Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.176587Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.182554Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.187948Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.193381Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:31.199133Z","level":"WARN","fields":{"message":"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"},"target":"codex_rollout::list"}
+{"timestamp":"2026-10-10T13:37:53.012103Z","level":"WARN","fields":{"message":"Unknown model gpt-5.4-mini is used. This will use fallback model metadata."},"target":"codex_models_manager::model_info"}
+{"timestamp":"2026-10-10T13:37:53.012433Z","level":"WARN","fields":{"message":"Unknown model gpt-5.4-mini is used. This will use fallback model metadata."},"target":"codex_models_manager::model_info"}
+{"timestamp":"2026-10-10T13:37:53.012924Z","level":"ERROR","fields":{"error":"collab spawn failed: no thread with id: 01a12608-75b3-7942-aafc-671bee098002"},"target":"codex_core::tools::router"}
+{"timestamp":"2026-10-10T13:37:53.013001Z","level":"WARN","fields":{"message":"dropping tool item analytics event: missing analytics context","thread_id":"01a12608-75b3-7942-aafc-671bee098002","turn_id":"Some(\"01a12608-75f6-73f3-af2e-ad237e045628\")","review_id":"None","item_id":"Some(\"call_oblAX2ycqPcMAq4k3jnN8BXV\")","missing_context":"thread_connection"},"target":"codex_analytics::reducer"}

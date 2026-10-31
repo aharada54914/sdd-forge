@@ -1,0 +1,5 @@
+{
+  "schema":"integrated-verdict/v1","stage":"task","feature":"sdd-domain-multitarget","run_id":"RUN-gemini-423-integrated-r2-rebind","verdict":"PASS",
+  "round":3,"attempt":2,"findings_critical":0,"findings_major":0,"findings_minor":0,
+  "reviewer_a_verdict":"PASS","reviewer_b_verdict":"PASS"
+}

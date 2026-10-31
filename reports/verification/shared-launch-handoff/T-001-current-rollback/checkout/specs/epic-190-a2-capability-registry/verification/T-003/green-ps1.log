@@ -1,0 +1,26 @@
+# GREEN evidence -- registry-discovery (pwsh)
+$ pwsh -NoProfile -File tests/registry-discovery.tests.ps1
+ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 version-mismatch: wrong schema value on the Registry fails closed
+ok: AC-027 version-mismatch: mismatched $id on the schema file fails closed
+ok: AC-027 version-mismatch: missing $schema key on the schema file fails closed
+ok: AC-027 version-mismatch: wrong schema value on the catalog fails closed
+ok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)
+ok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy
+ok: AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree
+ok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)
+ok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh
+ok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=21 fail=0 ----
+registry-discovery suite passed (21 checks)
+exit: 0

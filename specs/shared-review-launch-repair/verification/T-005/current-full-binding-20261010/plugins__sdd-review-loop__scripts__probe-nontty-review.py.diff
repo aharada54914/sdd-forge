@@ -1,0 +1,66 @@
+--- attempt6/plugins/sdd-review-loop/scripts/probe-nontty-review.py
++++ current-owner/plugins/sdd-review-loop/scripts/probe-nontty-review.py
+@@ -88,7 +88,7 @@
+             'previous_record_sha256': 'a' * 64, 'allowed_input_manifest': entries}
+     if stage == 'quality':
+         data.update(task_id=source_data['task_id'], scratch_root=source_data['scratch_root'])
+-    invocation.write_text(json.dumps(data))
++    invocation.write_text(json.dumps(data, indent=2))
+     invocation_relative = invocation.relative_to(ROOT).as_posix()
+     read_paths = transport.diagnostic_read_paths(entries, invocation_relative)
+     all_read_paths = [e['path'] for e in entries] + [invocation_relative,
+@@ -117,15 +117,10 @@
+                 (denied and 'permissionDecision":"deny' not in guarded.stdout) or
+                 (not denied and guarded.stdout)):
+             raise SystemExit('pinned guard read permission differs from exact input scope')
+-    control = transport.receipt_control(data, receipt, invocation_relative)
+-    batch_paths = [invocation_relative] + [e['path'] for e in entries] + [transport.BOUNDARY_PATH]
+-    batch_command = transport.file_hash_batch_command(batch_paths)
+-    hash_commands = [batch_command, *control['hash_commands']]
+-    raw_hashes = transport.admitted_raw_hashes(ROOT, data)
+-    batch_expected = [(invocation_relative, transport.sha(invocation))] + [
+-        (e['path'], raw_hashes[e['path']]) for e in entries] + [
+-        (transport.BOUNDARY_PATH, transport.sha(ROOT / transport.BOUNDARY_PATH))]
+-    expected_hashes = [None, control['inputs_sha256'], control['record_sha256']]
++    control = transport.receipt_control(data, receipt, invocation_relative, root=ROOT)
++    batch_command = control['compact_command']
++    hash_commands = control['hash_commands']
++    expected_hashes = [None]
+     chained_bash = batch_command + '; rtk proxy pwd'
+     role = {'description': 'Unreserved session-local tool boundary diagnostic only.',
+         'prompt': 'Perform only the requested tool calls serially: wait for each tool result before issuing the next call, then report whether each ran or was denied. If the first Bash receives the routine Fact-Forcing Gate refusal, give the requested truthful facts and immediately retry that same command byte-for-byte before call 2. Do not retry a pinned-guard denial or use another tool.',
+@@ -152,7 +147,7 @@
+     launch_result = subprocess.run(command, input=prompt, text=True, capture_output=True,
+                             cwd=ROOT, timeout=300)
+     print(json.dumps({'session': session, 'exit': launch_result.returncode,
+-                      'rate_limited': '429' in launch_result.stdout or '429' in launch_result.stderr}), flush=True)
++                      'stderr_present': bool(launch_result.stderr)}), flush=True)
+     if launch_result.returncode != 0:
+         raise SystemExit(launch_result.returncode)
+     wrapper = json.loads(launch_result.stdout)
+@@ -226,14 +221,8 @@
+                 len(hash_success) >= len(hash_commands) or
+                 command_text != hash_commands[len(hash_success)]):
+             raise SystemExit('native hash value or manifest/boundary/receipt order differs')
+-        if command_text == batch_command:
+-            transport.require_hash_batch_result(value, batch_expected)
+-            hash_success.append((command_text, None))
+-        else:
+-            expected = expected_hashes[len(hash_success)]
+-            if value.rstrip('\n') != expected + '  -' or value.count('\n') > 1:
+-                raise SystemExit('native control hash differs')
+-            hash_success.append((command_text, expected))
++        transport.require_compact_result(value, control['compact_output'])
++        hash_success.append((command_text, None))
+         if command_text == hash_commands[0]:
+             first_bash_retry_due = False
+     if hash_success != list(zip(hash_commands, expected_hashes)) or first_bash_retry_due:
+@@ -278,7 +267,7 @@
+                       'admitted_paths': [e['path'] for e in source_entries],
+                       'native_read_paths': read_paths,
+                       'guard_read_paths_verified': len(all_read_paths),
+-                      'ordered_hashes_verified': len(batch_expected) + len(control['hash_commands']),
++                      'ordered_hashes_verified': len(entries) + 4,
+                       'first_bash_retry_observed': first_bash_retry_seen,
+                       'chained_bash_pretool_denied': True,
+                       'policy_sha256': hashlib.sha256(policy_bytes).hexdigest(),

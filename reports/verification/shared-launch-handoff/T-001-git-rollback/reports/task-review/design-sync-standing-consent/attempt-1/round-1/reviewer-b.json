@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "design-sync-standing-consent",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-design-sync-standing-consent-task-task-reviewer-b-seq0556",
+  "host_session_id": "SESS-task-task-reviewer-b-design-sync-standing-consent-0556",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json",
+        "sha256": "8019359b10af97db7415c2b27f2d508429a4f9ad71a976ed264ee23acd2eac66"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+        "sha256": "9ce48d8cd60af379a3d6f988a8312969dd0cc3a6ceea5402f99f72700708ab14"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+        "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/design.md",
+        "sha256": "dd05aee2b474a3f1e330d22acd120f9c50a66a61f95ea58f44afcc8d6ba98ac5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/frontend-spec.md",
+        "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/infra-spec.md",
+        "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+        "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/security-spec.md",
+        "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/tasks.md",
+        "sha256": "907f8ee3ea010fa5a31ddc5f0c5a85efa29a05babd0b397c35281c91e2a619bb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/traceability.md",
+        "sha256": "5ed00a950c2ffb43d525493effbe46d77bdf145704535fafe15e17ff6e7ff2a1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/ux-spec.md",
+        "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (tasks.md:378, Risk: high) scopes the AGENTS.md ds_upload_consent egress-consent access-control dial (tasks.md:383-400; security-spec.md B5) and T-003 (tasks.md:501, Risk: high) scopes standing's no-prompt egress and off's persistent forbiddance (tasks.md:505-527; security-spec.md B6) \u2014 both correctly at high per the access-control sentinel surface. T-001 (tasks.md:190, medium) scopes test-authoring only, no product access-control decision (tasks.md:192-209). T-004 (tasks.md:696, medium) scopes one indirect-reference bullet with no control logic (tasks.md:698-713). T-005 (tasks.md:802, medium) scopes additive CI-registration staging touching no existing step or needs: membership (tasks.md:804-819). No low/medium task touches auth/authz, payment, PII, migration, or an external API contract directly, and no high task is UI-copy/CSS/docs/test-only. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002 Done-When (tasks.md:478-484, 488-491) records explicit RED/GREEN-separated TDD evidence and 'An independent review verdict, recorded by a named reviewer distinct from the implementing agent, plus an independent quality-gate verdict'; T-003 Done-When (tasks.md:663-668, 683-686) records the identical two items. No Risk: critical task exists in this decomposition, so the second-approver/signed-evidence-bundle requirement does not apply. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Top-level Done-When checkbox counts (grep '^- \\[ \\]' per task section): T-001=8, T-002=10, T-003=8, T-004=7, T-005=8. T-002's count of 10 is driven by two items risk-gate-matrix.md mandates for every high-risk task regardless of scope size \u2014 TDD Red/Green evidence (tasks.md:478-484) and the independent-review-verdict item (tasks.md:488-491) \u2014 not by additional implementation areas; its substantive scope remains one section addition to one file (tasks.md:439-477). Per tasks.md:111-118's own disjointness table, no task's Scope spans more than two implementation areas, no task title implies sequential design/implement/test phases, and no three-plus tasks are single-function/file-rename-shaped (each task carries 7-10 Done-When items, a Risk Rationale, and a Rollback plan). No issues found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (tasks.md:413-415) maps to AC-003's two absence branches (acceptance-tests.md:17-18, TEST-003/TEST-004) and AC-031's out-of-domain/case-variant branch (acceptance-tests.md:68-69, TEST-055/TEST-056). T-003 (tasks.md:553-558) maps to AC-011-AC-014's off-persistent-forbiddance edge cases (acceptance-tests.md:27-32, TEST-013-TEST-018) and AC-030's destination-change edge case (acceptance-tests.md:25, TEST-011). T-004 (tasks.md:727-730) maps to AC-022's literal-key-ban negative check (acceptance-tests.md:60-61, TEST-046/047) and AC-024's substring-sweep negative check (acceptance-tests.md:64, TEST-050). Every functional (non-test, non-infra) task has at least one associated error-path/edge-case AC beyond happy-path coverage. No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This feature has no executable code path (design.md:10, Architecture Overview), so acceptance-tests.md's own defined vocabulary (document conformance / regression / regression (negative) / regression (minimal diff) / external-suite regression (baseline-relative) / registration conformance / CI-registration conformance, defined at acceptance-tests.md:197) is the applicable taxonomy in place of literal unit/integration/e2e labels, matching DS-29's established precedent. Each task's declared Test Type (tasks.md:217-225 for T-001, 408-411 for T-002, 546-551 for T-003, 721-725 for T-004, 827-829 for T-005) matches its target's actual scope \u2014 including cross-file rows explicitly declared as such, e.g. TEST-018's target 'AGENTS.md + design-sync-loop/SKILL.md' (acceptance-tests.md:32). No declared type mismatches its scope. No issues found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (Risk: high, tasks.md:378) carries an explicit Rollback: field (tasks.md:419-435) analyzing direction-dependent revert consequences for standing- vs off-configured projects. T-003 (Risk: high, tasks.md:501) carries an explicit Rollback: field (tasks.md:562-581) with the same direction-dependent analysis plus partial-rollback ordering guidance relative to T-004. Both required-tier tasks have rollback evidence. No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md's Global Constraints (tasks.md:111-118) states, and each task's own Done-When confirms, that T-001 solely owns tests/design-sync-standing-consent.tests.{sh,ps1} and tests/run-all.{sh,ps1} (tasks.md:256-341); T-002 solely owns AGENTS.md (tasks.md:439-491); T-003 solely owns design-sync-loop/SKILL.md (tasks.md:583-686); T-004 solely owns claude-design-workflow.md (tasks.md:747-792); T-005 creates two new non-overlapping paths (tasks.md:855-891). No two tasks list the same primary implementation file. The one cross-feature overlap risk -- design-sync-loop/SKILL.md also edited by sibling issue #139 at step 5, a non-overlapping span from T-003's step-3/record-table edit -- is explicitly flagged with a mandatory serialization note (tasks.md:535-544), not left uncoordinated. No issues found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Blockers edge is backed by a stated functional justification in Global Constraints (tasks.md:119-153): T-002/T-003/T-004/T-005 <- T-001 (need T-001's authored assertions for TDD Red capture or path-naming, tasks.md:119-130, 145-150); T-003 <- T-002 and T-004 <- T-002 (both reference AGENTS.md's Project Settings section as an already-landed target; T-003's own Done-When explicitly requires TEST-018 passing jointly with T-002's edit, tasks.md:658-662). T-005 is correctly not blocked by T-002/T-003/T-004 since its YAML-path-naming correctness does not depend on their prose content (tasks.md:148-150). No spurious blocker and no missing blocker identified. No issues found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 through T-005 (tasks.md:182, 370, 493, 688, 794) each author new project-level configuration, skill prose, fallback prose, or test coverage; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

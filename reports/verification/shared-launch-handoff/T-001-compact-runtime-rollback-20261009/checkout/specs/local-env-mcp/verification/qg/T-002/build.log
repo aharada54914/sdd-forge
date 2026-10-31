@@ -1,0 +1,12 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-002, fresh run this session)
+$ npm run build && git diff --exit-code -- dist/
+
+> local-env-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  1.1mb ⚠️
+
+⚡ Done in 23ms
+
+exit 0

@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-20260706T0420Z-impl-reviewer-b-a2r1",
+  "host_session_id": "SESS-impl-b-sdd-domain-a2r1",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain/attempt-2/round-1/precheck-result.json", "sha256": "4892d85750403a240a963e0ddc330a7aeded67c55e4898a389dd3e6e80b22591"},
+    {"path": "reports/impl-review/sdd-domain/attempt-2/round-1/integrated-summary.json", "sha256": "3972fa7c8f4ece13fdb86f5ac476a65016bcd691a51e385aaafbcaf3b82566bc"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Architecture-level decision (seventh plugin vs. alternatives) is justified with rejected alternatives in docs/adr/0004-ddd-upstream-domain-lane.md (options B and C with reasons). design.md Assumptions section justifies the two reuse decisions (cross-model-verify input handling, c4-container template reuse) with inline file:line citations verified against actual source (plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh:27-95, plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md:1-21 -- both confirmed accurate on direct read). No inline 'We will use X' statement in design.md lacks a rationale clause. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Both OQ-001 (Conformance matching strategy) and OQ-002 (Re-approval granularity) in design.md ## Open Questions state Owner: human, Blocks Implementation: no, and a concrete Resolution Path ('confirm at task approval; revisit after first retrospective with drift metrics' / 'confirm at task approval; revisit via WFI'). No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's two non-trivial assumptions (cross-model-verify argument handling; c4-container template reusability) are each grounded with inline file:line citations against current source, verified accurate on direct read of the cited files -- a stated technical-default basis, which the check accepts as an alternative to investigation.md grounding. The third assumption (template location under plugins/sdd-domain/skills/domain-interviewer/templates/) is a trivial project-convention statement. investigation.md is absent for this feature, but the non-trivial assumptions carry their own inline empirical grounding rather than relying on investigation.md, satisfying the check's alternative basis. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a ## Constraint Compliance section (lines 152-161) addressing visibility contract (AC-001/AC-011), unidirectional flow, graceful degradation (AC-010), warn-first gates (AC-009), R-10 protected files, and human-owned judgment. Remaining requirements.md constraints not in that table row set (byte-identical outputs per AC-010/AC-016, English templates per AC-013, version-locked manifests per AC-011) are addressed elsewhere in design.md (Test Strategy lines 119-134; Deployment/CI Plan line 149-150) and in ux-spec.md/frontend-spec.md. No requirements.md constraint found unaddressed. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. The only latency-adjacent text is R-2 ('Cross-model verification at the domain gate adds cost/latency per model revision'), which is a risk note, not a numeric threshold or SLA requirement, and design.md/infra-spec.md already mitigate it (run once per review-loop PASS, not per round)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Deployment / CI Plan (lines 145-150) states deployment target (no deployed service; local execution + existing GitHub Actions validate job), CI pipeline changes (validate-repository.ps1 updated expectations plus new Pester suites), and marketplace distribution reuse. The feature has no schema changes (see MIGRATION-PLANNED), so migration-execution-order is not applicable. The feature's rollout mechanism is presence/absence of domain/ (opt-in, stated in Technical Summary line 8 and AC-010 absence-regression semantics), functioning as the equivalent of a feature-flag strategy. No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Data Plan states 'Migration Strategy: none required' and 'Existing Data Affected: none (new domain/ directory; additive Bounded-Context: field in future requirements.md files)'. Per the check's explicit rule, a Data Plan stating no data changes / no migration required yields PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "cross-model-verify (external vendor panel, GPT/Gemini) is identified in the Components table (name + purpose + 'existing sdd-quality-loop skill, reused'), given a contract reference in ## API / Contract Plan ('Verdict outputs reuse review-contract.v1 (stage: domain) and cross-model-verdict/v1 unchanged'), and given failure behaviour in Risks ('unavailable panelists fail toward requires_human_decision') and Security Boundaries (B4). Seed-URL retrieval is identified in Security Boundaries (B1, read-only/content-as-data) with failure behaviour in ux-spec.md Component States ('seed unreadable / URL unreachable' -> plain-language error); frontend-spec.md explicitly states this is harness-native fetch tooling, not a versioned third-party API, which reasonably explains the absence of an SDK/API version field. No integration mentioned only in passing without identification. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every component in design.md's Components table maps to a requirement/AC: domain-model (US-1/US-2, AC-001), domain-interviewer (AC-002), domain-reverse (US-4, AC-004), domain-review-loop (US-2, AC-005), domain-sync (US-3, AC-008), domain-reviewer-a/b agents (AC-005), check-domain-conformance (AC-009), domain-contract schema (AC-002/AC-003), hook guard extension (AC-007/AC-014), cross-model-verify reuse (AC-006/AC-017). No component, data model, or endpoint lacks a corresponding requirement. All requirements.md Goals and User Stories (US-1 through US-4) are covered by the architecture diagram and Components table. No scope creep or omission found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: authorization change (agent-cannot-self-approve hook guard, B2) and cross-service integration failure behaviour (cross-model panel, B4). design.md Test Strategy and Security Boundaries name concrete artifacts: tests/hooks/domain-approval-guard.Tests.ps1 (TEST-007, TEST-014) for the guard; tests/sdd-domain/contract-schema.Tests.ps1 (TEST-003) and tests/sdd-domain/absence-regression.Tests.ps1 (TEST-010) for contract integrity; tests/sdd-domain/cross-model-gate.Tests.ps1 (TEST-006, TEST-017) for panelist-unavailable/mismatch. Each high-risk surface has a named concrete validation path. No issues found."
+    }
+  ]
+}

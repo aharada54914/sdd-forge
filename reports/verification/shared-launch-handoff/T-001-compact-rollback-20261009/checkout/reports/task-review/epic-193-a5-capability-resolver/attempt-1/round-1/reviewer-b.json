@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a1r1-seq0338",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a1r1-0338",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "660484a1ce893e9af16b5be978da34980556b06111a05df15dd04625fbba1a32"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "72a9561bd37bf7c386041fa22983ea46e45f60b9ce0f52a0cca694c143bcedeb"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-1/precheck-result.json", "sha256": "90e0d8d4d3208d3b5faeef848ada3b5886aeacd47050d15e99526a7d0eaf1c18"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-1/integrated-summary.json", "sha256": "e871230a1230a3da9c1ada69433442803fd3820ddf072a18c6d369bf52d281ba"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (medium): schema-only work with no auth/authz/payment/PII/migration surface; its Risk Rationale directly argues against `high` by citing T-004's downstream `validate-resolver-evidence` catch, matching risk-classification-policy.md's 'silent defect causes material harm' criterion. T-002/T-003/T-004 (high): each Risk Rationale is evaluated directly against risk-classification-policy.md with specific citations (T-002: a silent Capability-match/WARN misclassification defeats decision v2 section 19's own governing 'block on ambiguity' rule; T-003: the sole task with an irreversible-filesystem-write surface, explicitly reasoned as 'high, not critical, because no financial-settlement or physical-safety surface is touched'; T-004: the provenance/tamper-evidence spoofing-prevention surface). T-005/T-006 (medium, Security-Sensitive: false): pure test-authoring tasks adding no production code path. No task shows low/medium on a modified auth/authz/payment/PII/migration/API-contract surface, and no high/critical task's scope is limited to UI copy/CSS/docs/test-only. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002, T-003, T-004 (Risk: high) each carry a final Done When item capturing RED (failing fixtures against a deliberately broken/permissive implementation) and GREEN (full suite against the correct implementation) plus 'An independent quality-gate verdict records PASS' (T-002/T-003/T-004 Done When, final bullet each), and traceability.md's Task Mapping table names concrete evidence artifacts (specs/epic-193-a5-capability-resolver/verification/{T-002,T-003,T-004}/{red,green}-sh.log plus an independent quality-gate report). No task in this package is Risk: critical, so the second-approver/signed-evidence-bundle requirement is not applicable to any task here. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002 ('Author resolve-project-context.{py,sh,ps1}'s evaluation pipeline (steps 0-13)') spans far more than three distinct implementation areas in one task: it authors three production scripts implementing 12+ distinct pipeline stages (argument validation, REQ-003 state derivation, workflow-combination validation, Project-Context canonicalization, Context Projection assembly, resolve-component-paths invocation, Registry discovery, per-Capability trigger evaluation, conditional-facet evaluation, the any-branch WARN check, the Full/Lite track branch and artifact staging, Resolver Evidence assembly, output-schema self-validation, and the pre-publication snapshot recheck), AND in the same task creates and registers five brand-new test suites with their own fixture trees (resolve-project-context-cli/-match/-lite/-discovery/-block, Planned Files list) covering twelve of REQ-002's sixteen Block diagnostics plus AC-001..AC-009/AC-016/AC-028/AC-038/AC-040/AC-041/AC-043/AC-044/AC-048/AC-052/AC-055/AC-056. This is not one coherent unit of work completable in a single focused session; by contrast T-003 and T-004 are each scoped to one cohesive mechanism. Recommend splitting T-002 so the core per-Capability evaluation/WARN/track-branch/Evidence-assembly logic is separable from its own CLI/discovery/lite-track suite authoring."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional tasks T-001/T-002/T-003/T-004 each carry extensive error-path/edge-case AC coverage beyond happy path: T-001's Done When requires fixtures per required-field-omission/wrong-type negative case (AC-018/AC-019); T-002 implements twelve of REQ-002's sixteen Block diagnostic rows (AC-010-AC-015) plus TOCTOU/staged-generation/aggregation edge cases (AC-038, AC-040, AC-041, AC-048, AC-052, AC-055, AC-056); T-003 implements the remaining four transactional Block diagnostics plus crash-recovery/rollback edge cases (AC-039, AC-047, AC-049); T-004 implements twelve provenance/structural check-ids plus two spoofing-attack provenance-binding fixture pairs (AC-050, AC-051) and a reader-side journal-check fixture (AC-054). No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This package uses a domain-specific contract-lock test-type vocabulary (e.g. 'required-flag matrix', 'discovery-contract reuse lock', 'union-match lock') rather than the generic unit/integration/e2e/acceptance taxonomy, applied consistently feature-wide. Every AC-NNN/TEST-NNN row in acceptance-tests.md maps 1:1 by row number with an explicit Test Target citing a concrete suite file and fixture, satisfying the 'must reference a specific AC-NNN' requirement for every row. Every test invokes the CLI against real or fixture-driven multi-subprocess dependencies (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, generate-registry-digest per design.md Architecture), consistent with cross-component scope; none is mislabeled as single-module-only while exercising the full pipeline. No issues found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Risk: high tasks carry an explicit Rollback field: T-002 and T-003 each state 'revert this task's two commits (B then A, or both)' plus explicit guidance on hand-reverting an already-applied human-copy candidate on the protected path; T-004 states the same revert pattern and notes 'Nothing protected is touched'. infra-spec.md's own Rollback section additionally documents the runtime-level mechanism (journaled publication transaction / crash-recovery scan, T-003's own deliverable) as the actual data-level revert path. No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every file touched by more than one task has its ordering enforced by an explicit Blockers/Depends-On chain and is named in tasks.md Global Constraints as a deliberate shared-scope case: resolve-project-context.{py,sh,ps1} is edited by exactly T-002 then T-003 (T-003 Blockers: T-002); tests/resolve-project-context-block.tests.sh/.ps1 is created by T-002 and appended-only by T-003; tests/run-all.sh/.ps1, the human-copy test.yml candidate, and human-copy/MANIFEST.sha256 are touched by T-001/T-002/T-004/T-005/T-006 in the declared serialized order, matching each task's own Blockers/Depends On edges. No two tasks claim to modify the same file for the same purpose without an enforcing Blockers relationship. No issues found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers/Depends On edge cites a concrete artifact dependency: T-002 on T-001 (step 12 schema self-validation needs T-001's schema); T-003 on T-002 (extends the same script; T-002's staged artifacts are T-003's transaction input); T-004 on T-001 (schema-invalid check) and T-003 (AC-054 needs a real TRANSACTION.json shape matching T-003's journal format); T-005/T-006 on T-002/T-003/T-004 (parity/metamorphic suites exercise the full pipeline plus validate-resolver-evidence's own triad). The six tasks form one strict topological chain (T-001->T-002->T-003->T-004->T-005/T-006), so no task's scope needs a blocker it lacks. No spurious or missing blockers found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "T-002 ('Author resolve-project-context.{py,sh,ps1}'s evaluation pipeline (steps 0-13)') spans far more than three distinct implementation areas in one task: it authors three production scripts implementing 12+ distinct pipeline stages (argument validation, REQ-003 state derivation, workflow-combination validation, Project-Context canonicalization, Context Projection assembly, resolve-component-paths invocation, Registry discovery, per-Capability trigger evaluation, conditional-facet evaluation, the any-branch WARN check, the Full/Lite track branch and artifact staging, Resolver Evidence assembly, output-schema self-validation, and the pre-publication snapshot recheck), AND in the same task creates and registers five brand-new test suites with their own fixture trees (resolve-project-context-cli/-match/-lite/-discovery/-block, Planned Files list) covering twelve of REQ-002's sixteen Block diagnostics plus AC-001..AC-009/AC-016/AC-028/AC-038/AC-040/AC-041/AC-043/AC-044/AC-048/AC-052/AC-055/AC-056. This is not one coherent unit of work completable in a single focused session; by contrast T-003 and T-004 are each scoped to one cohesive mechanism. Recommend splitting T-002 so the core per-Capability evaluation/WARN/track-branch/Evidence-assembly logic is separable from its own CLI/discovery/lite-track suite authoring."
+    }
+  ]
+}

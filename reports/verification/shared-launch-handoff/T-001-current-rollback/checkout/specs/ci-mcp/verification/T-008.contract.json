@@ -1,0 +1,102 @@
+{
+ "task_id": "T-008",
+ "feature": "ci-mcp",
+ "risk": "medium",
+ "required_workflow": "acceptance-first",
+ "stack": "code",
+ "spec_revision": "",
+ "created": "2026-07-07T17:08:04Z",
+ "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session. Medium tier per risk-gate-matrix.md omits requirement-traceability from the required set (waived below, cross-referenced instead to specs/ci-mcp/traceability.md and T-011's finalization addendum). placeholder-scan disclosure: mcp/ci-mcp/dist/index.js (this task's committed esbuild bundle) was excluded from the primary scan because it is generated/vendored build output, mirroring check-placeholders.sh's own --exclude-dir=dist convention for directory scans; a literal-file scan against dist/index.js was also run and is disclosed in qg/T-008/check-placeholders-dist-raw.log -- its 3 findings were traced to the third-party ajv dependency (node_modules/ajv/lib/compile/index.ts), not first-party src/, and are an accepted human-reviewed false positive, not this task's own code. unit-tests/acceptance-tests/regression all cite the T-008 acceptance-first red/green pair (AC-014 dist-parity had no committed bundle to diff against and the bundled server could not run pre-implementation; AC-015 Inspector smoke passes post-implementation with byte-identical 3x rebuild verification).",
+ "checks": [
+  {
+   "id": "lint",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "typecheck",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "build",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/build.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "placeholder-scan",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/check-placeholders.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "task-state-check",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/check-task-state.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "unit-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "specs/ci-mcp/verification/T-008-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-008-green.txt"
+  },
+  {
+   "id": "acceptance-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "specs/ci-mcp/verification/T-008-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-008-green.txt"
+  },
+  {
+   "id": "regression",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-008/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "specs/ci-mcp/verification/T-008-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-008-green.txt"
+  },
+  {
+   "id": "requirement-traceability",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "not tier-required at medium (risk-gate-matrix.md); AC-014/AC-015 chain is recorded in specs/ci-mcp/traceability.md (frozen, task-reviewed) and finalized in reports/implementation/ci-mcp/T-011.md's 19-row Verification Status table",
+   "requirement_ids": ["REQ-009"],
+   "red_evidence": "",
+   "green_evidence": ""
+  }
+ ]
+}

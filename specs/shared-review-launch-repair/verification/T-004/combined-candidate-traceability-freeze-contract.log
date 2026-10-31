@@ -1,0 +1,17 @@
+ok: persisted twins Planned
+ok: persisted twins In Progress
+ok: persisted twins Implementation Complete
+ok: persisted twins Done
+ok: persisted twins Blocked
+ok: persisted twins reject Delivered
+ok: persisted twins reject done
+ok: persisted twins reject Done (verified)
+ok: persisted twins reject body change
+ok: persisted twins reject Evidence change
+test_persisted_binding_twins (__main__.TraceabilityFreezeTests.test_persisted_binding_twins) ... ok
+test_raw_prelaunch_binding_twins (__main__.TraceabilityFreezeTests.test_raw_prelaunch_binding_twins) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 168.416s
+
+OK

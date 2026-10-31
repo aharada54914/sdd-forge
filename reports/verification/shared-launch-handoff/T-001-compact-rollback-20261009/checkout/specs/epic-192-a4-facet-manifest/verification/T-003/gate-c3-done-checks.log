@@ -1,0 +1,4 @@
+===== T-003 gate check-contract run: 2026-08-17T05:59:21Z =====
+----- bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-192-a4-facet-manifest/verification/T-003.contract.json -----
+Verification contract passed for task T-003.
+exit=0

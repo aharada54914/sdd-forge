@@ -1,0 +1,620 @@
+# Regression - PowerShell twin of emit-run-record-feature-scope.tests.sh,
+# equivalent in coverage. emit-run-record.ps1 must scope gate_reports and
+# review_tickets to the target feature; task IDs (T-NNN) collide across
+# features, so a repo-wide scan misattributes other features' gate reports,
+# BLOCKED verdicts, and ticket severities to the run record.
+$ErrorActionPreference = "Stop"
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$script = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/emit-run-record.ps1"
+
+$work = Join-Path ([IO.Path]::GetTempPath()) ("emit-run-record-scope-" + [Guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path $work | Out-Null
+
+$script:passCount = 0
+$script:failCount = 0
+function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
+function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
+
+try {
+    # --- Fixture repo: feat-a (target) interleaved with feat-b (excluded) ---
+    New-Item -ItemType Directory -Force -Path (Join-Path $work "specs/feat-a") | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $work "reports/quality-gate") | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $work "docs/review-tickets") | Out-Null
+
+    Set-Content -Encoding Utf8 (Join-Path $work "specs/feat-a/tasks.md") @"
+## T-001 first task
+Status: Done
+
+## T-002 second task
+Status: Done
+"@
+
+    # feat-a: T-001 gated twice (max_runs_single_task = 2), both PASS.
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/a-t001-run1.md") "Task: T-001`nFeature: feat-a`nVERDICT: PASS`n"
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/a-t001-run2.md") "Task: T-001`nFeature: feat-a`nVERDICT: PASS`n"
+
+    # feat-a: T-002 gated once, with CRLF line endings to guard the Feature-line
+    # match's trailing-whitespace tolerance.
+    [IO.File]::WriteAllText((Join-Path $work "reports/quality-gate/a-t002-run1.md"), "Task: T-002`r`nFeature: feat-a`r`nVERDICT: PASS`r`n")
+
+    # feat-b: same bare id T-002 and a BLOCKED verdict; must not touch feat-a.
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/b-t002-run1.md") "Task: T-002`nFeature: feat-b`nVERDICT: BLOCKED`nBLOCKED`n"
+
+    # feat-a: exactly one review ticket, severity major.
+    Set-Content -Encoding Utf8 (Join-Path $work "docs/review-tickets/RT-a.yml") @"
+ticket_id: RT-a
+status: open
+severity: major
+target:
+  feature: feat-a
+  task: T-002
+"@
+
+    # feat-b: a critical ticket that must not be attributed to feat-a.
+    Set-Content -Encoding Utf8 (Join-Path $work "docs/review-tickets/RT-b.yml") @"
+ticket_id: RT-b
+status: open
+severity: critical
+target:
+  feature: feat-b
+  task: T-002
+"@
+
+    # feat-a: CRLF ticket -- severity must still be counted despite `r`n endings.
+    [System.IO.File]::WriteAllText(
+        (Join-Path $work "docs/review-tickets/RT-c.yml"),
+        "ticket_id: RT-c`r`nstatus: open`r`nseverity: minor`r`ntarget:`r`n  feature: feat-a`r`n  task: T-001`r`n")
+
+    # --- Run the emitter from the fixture repo root --------------------------
+    Push-Location $work
+    try {
+        & pwsh -NoProfile -File $script -Feature feat-a -Track lite | Out-Null
+    } finally {
+        Pop-Location
+    }
+
+    $out = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-feat-a.json" | Select-Object -First 1
+    if (-not $out) {
+        Fail "emit-run-record produced no run record for feat-a"
+    } else {
+        $record = Get-Content -Raw -Encoding Utf8 $out.FullName | ConvertFrom-Json
+        $m = $record.metrics
+
+        function AssertEq($got, $expected, $label) {
+            if ("$got" -eq "$expected") { Ok "$label ($got)" }
+            else { Fail "${label}: got $got, expected $expected" }
+        }
+
+        AssertEq $m.gate_reports.total                3 "gate_reports.total counts only feat-a reports"
+        AssertEq $m.gate_reports.blocked              0 "feat-b's BLOCKED report is not counted for feat-a"
+        AssertEq $m.gate_reports.max_runs_single_task 2 "max_runs_single_task reflects feat-a T-001 gated twice"
+        AssertEq $m.first_pass_gate.passed_first_try  1 "only feat-a T-002 passed on a single gate run"
+        AssertEq $m.review_tickets.major              1 "review_tickets.major counts only feat-a tickets"
+        AssertEq $m.review_tickets.critical           0 "feat-b's critical ticket is not counted for feat-a"
+        AssertEq $m.review_tickets.minor              1 "CRLF feat-a ticket severity is counted"
+    }
+
+    # ========================================================================
+    # quality-loop-fixes T-002 (#176 / WFI-010): anchored VERDICT: blocked-count
+    # read (AC-008..012, TEST-008..012). This is a NET NEW fixture (feature
+    # feat-t002), added specifically to close the INV-010 coverage gap -- the
+    # feat-a/feat-b fixture above never exercises a same-feature,
+    # non-BLOCKED-verdict report whose BODY prose independently contains the
+    # literal substring "BLOCKED". Neither the feat-a/feat-b fixture above nor
+    # its assertions are modified for this (AC-011).
+    # ========================================================================
+    New-Item -ItemType Directory -Force -Path (Join-Path $work "specs/feat-t002") | Out-Null
+    Set-Content -Encoding Utf8 (Join-Path $work "specs/feat-t002/tasks.md") "## T-001 dummy task`nStatus: Done`n"
+
+    # t002-blocked: anchored VERDICT: BLOCKED on its own header line -- TRUE
+    # POSITIVE, same-feature, must be counted (AC-008 positive).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-blocked.md") "Task: T-001`nFeature: feat-t002`nVERDICT: BLOCKED`n"
+
+    # t002-pass / t002-needswork: ordinary non-blocked verdicts, no "BLOCKED"
+    # substring anywhere -- must never be counted (AC-008 negative).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-pass.md") "Task: T-002`nFeature: feat-t002`nVERDICT: PASS`n"
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-needswork.md") "Task: T-003`nFeature: feat-t002`nVERDICT: NEEDS_WORK`n"
+
+    # t002-noverdict: legacy report shape, no VERDICT: line at all -- must not
+    # be counted as blocked (AC-009, fail-open per OQ-4).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-noverdict.md") "Task: T-004`nFeature: feat-t002`nThis is a legacy report predating the VERDICT: convention. It has no`nverdict header line at all.`n"
+
+    # t002-bodyblocked: the AC-010/AC-011 coverage-gap-closing fixture,
+    # mirroring reports/quality-gate/T-008.md's real shape (INV-009) --
+    # VERDICT: PASS on its own header line, but BODY prose independently
+    # contains the literal substring "BLOCKED" twice. Proven RED against the
+    # pre-fix unanchored `-match "BLOCKED"` scan
+    # (specs/quality-loop-fixes/verification/qg/T-002/red.log: gate_reports.blocked
+    # wrongly read 2, not 1) before this fix landed; this assertion below runs
+    # against the fixed, anchored-read script (GREEN).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-bodyblocked.md") @"
+Task: T-005
+Feature: feat-t002
+VERDICT: PASS
+
+> Note: per this repository's policy, a BLOCKED verdict must stop the
+> pipeline immediately and no further tasks should proceed while any task
+> remains BLOCKED. This task's own verdict above is PASS, not BLOCKED.
+"@
+
+    Push-Location $work
+    try {
+        & pwsh -NoProfile -File $script -Feature feat-t002 -Track lite | Out-Null
+    } finally {
+        Pop-Location
+    }
+    $outT002 = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-feat-t002.json" | Select-Object -First 1
+    if (-not $outT002) {
+        Fail "emit-run-record produced no run record for feat-t002"
+    } else {
+        $recordT002 = Get-Content -Raw -Encoding Utf8 $outT002.FullName | ConvertFrom-Json
+        AssertEq $recordT002.metrics.gate_reports.total   1 "feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report"
+        AssertEq $recordT002.metrics.gate_reports.blocked 1 "feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded)"
+    }
+
+    # ========================================================================
+    # T-004 (#153): sdd-run-record/v2 effort attribution + degradation lock
+    # (REQ-004; AC-021..026, AC-051; security-spec.md B4). Each scenario uses
+    # its own uniquely-named feature slug so RUN-<UTC-second>-<feature>.json
+    # filenames never collide within the same second. Native ConvertFrom-Json
+    # is used throughout (not subject to the jq.exe CRLF hazard).
+    # ========================================================================
+
+    function EmitFixture([string]$Slug) {
+        New-Item -ItemType Directory -Force -Path (Join-Path $work "specs/$Slug") | Out-Null
+        Set-Content -Encoding Utf8 (Join-Path $work "specs/$Slug/tasks.md") "## T-001 only task`nStatus: Done`n"
+    }
+
+    function RunEmit {
+        param([string]$Slug, [string[]]$ExtraArgs = @())
+        EmitFixture $Slug
+        Push-Location $work
+        try {
+            $combined = & pwsh -NoProfile -File $script -Feature $Slug -Track lite @ExtraArgs 2>&1
+            $script:runExit = $LASTEXITCODE
+        } finally {
+            Pop-Location
+        }
+        $script:runOutputText = ($combined | Out-String)
+        $found = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-$Slug.json" -ErrorAction SilentlyContinue | Select-Object -First 1
+        $script:runRecord = $null
+        $script:runOutPath = $null
+        if ($found) {
+            $script:runOutPath = $found.FullName
+            $script:runRecord = Get-Content -Raw -Encoding Utf8 $found.FullName | ConvertFrom-Json
+        }
+    }
+
+    # --- AC-021 (TEST-021): schema bump + additive fields, v1 fields unchanged
+    RunEmit "feat-e021" @("-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high")
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.schema "sdd-run-record/v2" "AC-021: schema bumps to v2 when any -Effort* param bound"
+        AssertEq $runRecord.feature "feat-e021" "AC-021: v1 field feature unchanged in v2 shape"
+        AssertEq $runRecord.track "lite" "AC-021: v1 field track unchanged in v2 shape"
+        AssertEq $runRecord.model_ids.main "unknown" "AC-021: v1 field model_ids.main unchanged in v2 shape"
+        $mainKeys = ($runRecord.effort.main.PSObject.Properties.Name | Sort-Object) -join ","
+        AssertEq $mainKeys "effort_applied,effort_degraded_reason,effort_requested" "AC-021: effort.main has exactly the three subfields"
+        $reviewersKeys = ($runRecord.effort.reviewers.PSObject.Properties.Name | Sort-Object) -join ","
+        AssertEq $reviewersKeys "effort_applied,effort_degraded_reason,effort_requested" "AC-021: effort.reviewers has exactly the three subfields"
+        $hasCapability = [bool]($runRecord.PSObject.Properties.Name -ccontains "capability")
+        AssertEq $hasCapability $false "AC-033 matrix effort-only: existing v2 shape has no capability key"
+        AssertEq $runRecord.metrics.tasks.total 1 "AC-021: v1 metrics object unchanged in v2 shape"
+    } else {
+        Fail "AC-033 matrix effort-only: emitter did not produce the expected v2 record (exit=$runExit): $runOutputText"
+    }
+
+    # --- AC-022 (TEST-022): effort_requested recorded whenever its flag is
+    #     supplied, regardless of host/outcome. -------------------------------
+    RunEmit "feat-e022" @("-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high")
+    if ($runExit -eq 0 -and $runRecord -and $runRecord.effort.main.effort_requested -ceq "high") {
+        Ok "AC-022: effort_requested recorded on confirmed-applied outcome"
+    } else {
+        Fail "AC-022: effort_requested missing on confirmed-applied outcome"
+    }
+
+    RunEmit "feat-e022b" @("-EffortMain", "high", "-EffortControlMain", "frontmatter")
+    if ($runExit -eq 0 -and $runRecord -and $runRecord.effort.main.effort_requested -ceq "high") {
+        Ok "AC-022: effort_requested recorded on degraded (frontmatter) outcome"
+    } else {
+        Fail "AC-022: effort_requested missing on degraded (frontmatter) outcome"
+    }
+
+    # --- AC-023 (TEST-023): effort_applied non-null iff effort_control
+    #     resolved to flag AND application was confirmed; null otherwise. ----
+    RunEmit "feat-e023" @("-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high")
+    if ($runExit -eq 0 -and $runRecord.effort.main.effort_applied -ceq "high") {
+        Ok "AC-023 positive: effort_applied carries the confirmed value under flag control"
+    } else {
+        Fail "AC-023 positive: effort_applied did not carry the confirmed value"
+    }
+
+    foreach ($control in @("frontmatter", "none")) {
+        RunEmit "feat-e023-$control" @("-EffortMain", "high", "-EffortControlMain", $control)
+        if ($runExit -eq 0 -and $null -eq $runRecord.effort.main.effort_applied) {
+            Ok "AC-023 negative: effort_applied is null under $control control"
+        } else {
+            Fail "AC-023 negative: effort_applied is not null under $control control"
+        }
+    }
+
+    RunEmit "feat-e023-declined" @("-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "none")
+    if ($runExit -eq 0 -and $null -eq $runRecord.effort.main.effort_applied) {
+        Ok "AC-023 negative: effort_applied is null when flag control declines application (none sentinel)"
+    } else {
+        Fail "AC-023 negative: effort_applied is not null on explicit decline"
+    }
+
+    # Structural enforcement (security-spec.md B4): a caller cannot report a
+    # confirmed-applied value unless the paired control resolved to flag.
+    RunEmit "feat-e023-reject" @("-EffortMain", "high", "-EffortControlMain", "frontmatter", "-EffortAppliedMain", "high")
+    if ($runExit -ne 0 -and $runOutputText -like '*requires the paired -EffortControl* to resolve to "flag"*') {
+        Ok "AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed"
+    } else {
+        Fail "AC-023 structural: rejection diagnostic missing/unexpected (exit=$runExit): $runOutputText"
+    }
+
+    # --- AC-024 (TEST-024): effort_degraded_reason populated iff
+    #     effort_applied is null AND its role slot's flag was supplied (both
+    #     directions locked; the vacuous case must NOT populate a reason). ---
+    RunEmit "feat-e024-applied" @("-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high")
+    if ($null -eq $runRecord.effort.main.effort_degraded_reason) {
+        Ok "AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value"
+    } else {
+        Fail "AC-024 direction 1: effort_degraded_reason unexpectedly populated alongside a real effort_applied"
+    }
+
+    RunEmit "feat-e024-degraded" @("-EffortMain", "high", "-EffortControlMain", "frontmatter")
+    $reason = $runRecord.effort.main.effort_degraded_reason
+    if ($null -ne $reason -and $reason -ne "") {
+        Ok "AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied ($reason)"
+    } else {
+        Fail "AC-024 direction 2: effort_degraded_reason is empty/null despite a supplied -EffortMain flag"
+    }
+
+    RunEmit "feat-e024-vacuous" @("-EffortControlMain", "flag")
+    if ($null -eq $runRecord.effort.main.effort_requested -and $null -eq $runRecord.effort.main.effort_degraded_reason) {
+        Ok "AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot"
+    } else {
+        Fail "AC-024 vacuity: a reason was recorded despite -EffortMain never being supplied"
+    }
+
+    # --- AC-051 (TEST-051): host-independent degradation lock -- emit-run-record
+    #     has no host concept at all; a "Codex host selecting a non-flag-control
+    #     model" scenario and a "Claude Code" scenario both resolve through the
+    #     identical -EffortControl* value, proving the null+reason shape is
+    #     keyed on the resolved effort_control value, never on host identity.
+    RunEmit "feat-e051-claude" @("-EffortMain", "high", "-EffortControlMain", "frontmatter")
+    $claudeApplied = $runRecord.effort.main.effort_applied
+    $claudeReason = $runRecord.effort.main.effort_degraded_reason
+    RunEmit "feat-e051-codex" @("-EffortMain", "high", "-EffortControlMain", "frontmatter")
+    $codexApplied = $runRecord.effort.main.effort_applied
+    $codexReason = $runRecord.effort.main.effort_degraded_reason
+    if (($null -eq $claudeApplied) -and ($null -eq $codexApplied) -and ($claudeReason -ceq $codexReason)) {
+        Ok "AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ($codexReason)"
+    } else {
+        Fail "AC-051: Codex-host non-flag-control shape ($codexApplied/$codexReason) diverged from Claude Code shape ($claudeApplied/$claudeReason)"
+    }
+
+    RunEmit "feat-e051-codex-none" @("-EffortMain", "high", "-EffortControlMain", "none")
+    if (($null -eq $runRecord.effort.main.effort_applied) -and ($runRecord.effort.main.effort_degraded_reason -ceq "effort-control-none")) {
+        Ok "AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)"
+    } else {
+        Fail "AC-051: Codex-host model with effort_control none did not degrade as expected"
+    }
+
+    # PowerShell case-sensitivity twin discipline, layer 1 (ordinal HashSet
+    # entry gate) + layer 2 (-ceq branch dispatch in Resolve-EffortSlot): a
+    # mis-cased -EffortControlMain value must be rejected fail-closed, never
+    # silently aliased to its lowercase form by PowerShell's default
+    # case-insensitive comparison.
+    RunEmit "feat-e-miscased" @("-EffortControlMain", "Flag")
+    if ($runExit -ne 0 -and $runOutputText -like "*must be one of flag|frontmatter|none*") {
+        Ok "case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed"
+    } else {
+        Fail "case-sensitivity: unexpected result for mis-cased value (exit=$runExit): $runOutputText"
+    }
+
+    # --- AC-025 (TEST-025): backward compatibility -- the no-flags code path
+    #     stays byte-identical to every pre-feature invocation (v1 shape, no
+    #     "effort" key), and an EXISTING, already-committed pre-feature v1
+    #     record (never rewritten by this task) still carries schema v1. -----
+    RunEmit "feat-e025" @()
+    AssertEq $runRecord.schema "sdd-run-record/v1" "AC-033 matrix no flags: emits the unchanged v1 schema"
+    $hasEffort = [bool]($runRecord.PSObject.Properties.Name -contains "effort")
+    AssertEq $hasEffort $false "AC-033 matrix no flags: v1 shape has no effort key at all"
+    $hasCapability = [bool]($runRecord.PSObject.Properties.Name -ccontains "capability")
+    AssertEq $hasCapability $false "AC-033 matrix no flags: v1 shape has no capability key at all"
+
+    $preFeatureV1Record = Join-Path $repoRoot "reports/runs/RUN-20260705T023011Z-sdd-forge-mcp.json"
+    if (Test-Path $preFeatureV1Record) {
+        $preRecord = Get-Content -Raw -Encoding Utf8 $preFeatureV1Record | ConvertFrom-Json
+        $preHasEffort = [bool]($preRecord.PSObject.Properties.Name -contains "effort")
+        if ($preRecord.schema -ceq "sdd-run-record/v1" -and -not $preHasEffort) {
+            Ok "AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)"
+        } else {
+            Fail "AC-025: the pre-feature v1 record fixture no longer reads as schema v1"
+        }
+    } else {
+        Fail "AC-025 setup: expected pre-feature v1 record fixture not found: $preFeatureV1Record"
+    }
+
+    # --- AC-011 (TEST-011): the actual byte-identity lock. The AC-033-matrix
+    #     "no flags" case above (AssertEq, AC-025) only checks schema/key
+    #     presence -- it is structural, not byte-level, and would still pass
+    #     if the v1 output's whitespace, key order, or punctuation drifted.
+    #     This case compares the full no-flag output byte-for-byte against a
+    #     committed golden fixture, with only the two fields that are
+    #     genuinely dynamic per invocation (run_id, generated -- both derive
+    #     from wall-clock time, plugins/sdd-quality-loop/scripts/emit-run-record.ps1)
+    #     normalized to a fixed placeholder first; every other byte (quoting,
+    #     indentation, key order, spacing, trailing newline) must match
+    #     exactly. --------------------------------------------------------
+    $goldenV1Ps1 = Join-Path $repoRoot "tests/fixtures/emit-run-record/v1-no-flag.ps1.golden.json"
+    RunEmit "feat-e011" @()
+    if ($runExit -eq 0 -and $runOutPath) {
+        $rawBytes = [System.IO.File]::ReadAllBytes($runOutPath)
+        $rawText = [System.Text.Encoding]::UTF8.GetString($rawBytes)
+        $normalizedText = $rawText -replace '"run_id": ".*"', '"run_id": "TEST-011-NORMALIZED"'
+        $normalizedText = $normalizedText -replace '"generated": ".*"', '"generated": "TEST-011-NORMALIZED"'
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        $normalizedBytes = $utf8NoBom.GetBytes($normalizedText)
+        $goldenBytes = [System.IO.File]::ReadAllBytes($goldenV1Ps1)
+        # Git pins this fixture to LF, while the unchanged legacy serializer
+        # writes native newlines. Adapt only the expected fixture, never output.
+        $goldenText = [System.Text.Encoding]::UTF8.GetString($goldenBytes)
+        if ($goldenText.Contains("`r")) { throw 'The committed golden must contain LF only' }
+        $goldenBytes = $utf8NoBom.GetBytes($goldenText.Replace("`n", [Environment]::NewLine))
+        $normalizedB64 = [System.Convert]::ToBase64String($normalizedBytes)
+        $goldenB64 = [System.Convert]::ToBase64String($goldenBytes)
+        # Exercise both platform expectations on every host. Wrong line
+        # endings and a missing terminal newline must still fail byte equality.
+        foreach ($newline in @("`n", "`r`n")) {
+            $expectedText = $goldenText.Replace("`n", $newline)
+            $expectedB64 = [Convert]::ToBase64String($utf8NoBom.GetBytes($expectedText))
+            $otherNewline = if ($newline -ceq "`n") { "`r`n" } else { "`n" }
+            foreach ($mutation in @(
+                $goldenText.Replace("`n", $otherNewline),
+                $expectedText.Substring(0, $expectedText.Length - $newline.Length)
+            )) {
+                if ([Convert]::ToBase64String($utf8NoBom.GetBytes($mutation)) -cne $expectedB64) {
+                    Ok "AC-011: native newline byte guard rejects changed or missing newline (width=$($newline.Length))"
+                } else {
+                    Fail "AC-011: native newline byte guard accepted a mutation"
+                }
+            }
+        }
+        if ($normalizedB64 -ceq $goldenB64) {
+            Ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
+        } else {
+            Fail "AC-011: no-flag output diverged from the committed v1 golden byte-for-byte (normalized length=$($normalizedBytes.Length), golden length=$($goldenBytes.Length))"
+        }
+    } else {
+        Fail "AC-011 setup: emitter did not produce the expected v1 record (exit=$runExit): $runOutputText"
+    }
+
+    # ========================================================================
+    # epic-195-a7-compatibility T-009: capability run-record payload
+    # (REQ-003; AC-011, AC-012, AC-033). The two compatibility rows above
+    # cover no params and effort-only. These cases complete the matrix.
+    # ========================================================================
+
+    # Capability-only is a usage error and must not create a run record.
+    RunEmit "feat-capability-only" @("-CapabilityEnforcement", "advisory")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityEnforcement requires at least one -Effort* parameter") {
+        Ok "AC-033 matrix capability-only: exact usage error, exit 1, and no output record"
+    } else {
+        Fail "AC-033 matrix capability-only: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    # -CapabilityBlockId without -CapabilityEnforcement reaches a SECOND,
+    # distinct usage-error branch, evaluated before the capability-only check
+    # above. It is a live rejection path on a Security Boundary B2 file and was
+    # previously unasserted in both twins, so nothing detected a change to its
+    # exit status or its diagnostic. Lock both, plus the absence of any record.
+    # Asserted twice: alone, and alongside an -Effort* parameter, so the
+    # rejection is attributable to the missing -CapabilityEnforcement rather
+    # than to the v2 gate the capability-only case above already covers.
+    RunEmit "feat-capability-blockid-only" @("-CapabilityBlockId", "resolver-no-match")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityBlockId requires -CapabilityEnforcement") {
+        Ok "block-id-only: exact usage error, exit 1, and no output record"
+    } else {
+        Fail "block-id-only: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    RunEmit "feat-capability-blockid-effort" @("-EffortMain", "high", "-CapabilityBlockId", "resolver-no-match")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityBlockId requires -CapabilityEnforcement") {
+        Ok "block-id-only with an effort parameter: still the block-id diagnostic, exit 1, no output record"
+    } else {
+        Fail "block-id-only with an effort parameter: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    # Twin-divergence guard for block_id serialization. The .sh emitter escapes
+    # block_id by shelling out to jq and, before this epic's fix, interpolated
+    # the result unchecked -- a missing or failing jq wrote an invalid record
+    # and exited 0. tests/emit-run-record-feature-scope.tests.sh drives that
+    # exact failure with a stub jq on PATH. This twin has no external
+    # serializer to break: ConvertTo-Json runs in-process, so the stub-jq
+    # fixture is not merely redundant here, it is unconstructible. The
+    # equivalent guarantee is asserted at its source instead -- the .ps1
+    # emitter must invoke no external JSON tool at all. Without this the twins
+    # could silently diverge in failure mode with only the .sh side under test.
+    $emitterPs1Text = Get-Content -Raw -Encoding Utf8 $script
+    if ($emitterPs1Text -match '(?m)(^|[^\w.\-])jq([^\w.\-]|$)') {
+        Fail "block_id serialization: the .ps1 emitter invokes external jq, inheriting the .sh twin's silent-corruption exposure without the stub-jq guard that covers it"
+    } else {
+        Ok "block_id serialization: the .ps1 emitter uses no external JSON tool, so the .sh stub-jq failure mode is unreachable here"
+    }
+
+    # Both parameter families produce v2 with effort and capability siblings.
+    RunEmit "feat-capability-both" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "advisory", "-CapabilityBlockId", "resolver-no-match"
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.schema "sdd-run-record/v2" "AC-033 matrix both: schema remains v2"
+        $hasEffort = [bool]($runRecord.PSObject.Properties.Name -ccontains "effort")
+        AssertEq $hasEffort $true "AC-033 matrix both: effort sibling is present"
+        $capabilityKeys = ($runRecord.capability.PSObject.Properties.Name | Sort-Object) -join ","
+        AssertEq $capabilityKeys "block_id,enforcement" "AC-012 matrix both: capability has exactly enforcement and block_id"
+        AssertEq $runRecord.capability.enforcement "advisory" "AC-012 matrix both: enforcement is persisted"
+        AssertEq $runRecord.capability.block_id "resolver-no-match" "AC-012 matrix both: supplied block_id is persisted"
+    } else {
+        Fail "AC-033 matrix both: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # Caller-supplied identifiers must remain valid JSON and round-trip exactly
+    # in both twins, including characters that require JSON escaping.
+    $specialBlockId = 'resolver-"quoted"\path'
+    RunEmit "feat-capability-escaped" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "advisory", "-CapabilityBlockId", $specialBlockId
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.capability.block_id $specialBlockId "AC-012 block_id: JSON-sensitive characters round-trip exactly"
+    } else {
+        Fail "AC-012 block_id escaping: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # Optional block_id serializes as JSON null when omitted.
+    RunEmit "feat-capability-null" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "required"
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.capability.enforcement "required" "AC-012 optional block_id: enforcement is persisted"
+        AssertEq $runRecord.capability.block_id $null "AC-012 optional block_id: omitted value serializes as null"
+    } else {
+        Fail "AC-012 optional block_id: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # PowerShell case-sensitivity layer 1: the ordinal enum gate rejects the
+    # mis-cased form before layer-2 branch dispatch can accept it implicitly.
+    RunEmit "feat-capability-miscased" @(
+        "-EffortMain", "high", "-CapabilityEnforcement", "Advisory"
+    )
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityEnforcement must be one of disabled-legacy|advisory|required (got: Advisory)") {
+        Ok "case-sensitivity: mis-cased -CapabilityEnforcement is rejected fail-closed"
+    } else {
+        Fail "case-sensitivity: unexpected result for mis-cased capability value (exit=$runExit): $runOutputText"
+    }
+
+    # --- AC-026 (TEST-026): document conformance -- report template,
+    #     validator, and quality-gate SKILL.md all carry the Model/Effort
+    #     requirement. ----------------------------------------------------
+    $template = Join-Path $repoRoot "plugins/sdd-implementation/templates/implementation-report.template.md"
+    $validator = Join-Path $repoRoot "plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+    $gateSkill = Join-Path $repoRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+
+    $templateText = Get-Content -Raw -Encoding Utf8 $template
+    if (($templateText | Select-String -CaseSensitive -SimpleMatch '- Model: {{model}}') -and
+        ($templateText | Select-String -CaseSensitive -SimpleMatch '- Effort: {{effort}}')) {
+        Ok "AC-026: implementation-report.template.md carries the Model/Effort lines"
+    } else {
+        Fail "AC-026: implementation-report.template.md is missing the Model/Effort lines"
+    }
+
+    $validatorText = Get-Content -Raw -Encoding Utf8 $validator
+    if ($validatorText | Select-String -CaseSensitive -SimpleMatch 'top_level_label in ("Model", "Effort")') {
+        Ok "AC-026: validate-implementation-report.sh checks the Model/Effort lines"
+    } else {
+        Fail "AC-026: validate-implementation-report.sh does not check the Model/Effort lines"
+    }
+
+    $gateSkillText = Get-Content -Raw -Encoding Utf8 $gateSkill
+    if ($gateSkillText | Select-String -CaseSensitive -SimpleMatch '`- Model:` / `- Effort:`') {
+        Ok "AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction"
+    } else {
+        Fail "AC-026: quality-gate SKILL.md is missing the Model/Effort Process instruction"
+    }
+
+    $validatorFixtureDir = Join-Path $work "validator-fixtures"
+    New-Item -ItemType Directory -Force -Path $validatorFixtureDir | Out-Null
+    $validFixture = Join-Path $validatorFixtureDir "valid.md"
+    Set-Content -Encoding Utf8 $validFixture @"
+# Implementation Report: T-999
+
+- Model: anthropic/opus
+- Effort: high
+
+Report Schema: implementation-report/v2
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| ``plugins/example.md`` | ``aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`` |
+
+## Test Evidence
+
+- **Test Command**: ``bash tests/example.tests.sh``
+- **Test Result**: PASS
+- **Test Evidence Path**: ``specs/example/verification/T-999/green.log``
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-999
+- **Session ID**: session-999
+- **Agent Instance ID**: agent-999
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+"@
+
+    & bash $validator $validFixture *> $null
+    if ($LASTEXITCODE -eq 0) {
+        Ok "AC-026: validator accepts a report carrying well-formed Model/Effort lines"
+    } else {
+        Fail "AC-026: validator rejected a report with well-formed Model/Effort lines"
+    }
+
+    $missingModelFixture = Join-Path $validatorFixtureDir "missing-model.md"
+    (Get-Content -Raw -Encoding Utf8 $validFixture) -replace "(?m)^- Model: anthropic/opus\r?\n", "" |
+        Set-Content -Encoding Utf8 $missingModelFixture
+    $missingModelOutput = & bash $validator $missingModelFixture 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -and $missingModelOutput -like "*missing or invalid Model*") {
+        Ok "AC-026: validator rejects a report missing the Model line"
+    } else {
+        Fail "AC-026: validator did not reject a report missing the Model line (exit=$LASTEXITCODE): $missingModelOutput"
+    }
+
+    $missingEffortFixture = Join-Path $validatorFixtureDir "missing-effort.md"
+    (Get-Content -Raw -Encoding Utf8 $validFixture) -replace "(?m)^- Effort: high\r?\n", "" |
+        Set-Content -Encoding Utf8 $missingEffortFixture
+    $missingEffortOutput = & bash $validator $missingEffortFixture 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -and $missingEffortOutput -like "*missing or invalid Effort*") {
+        Ok "AC-026: validator rejects a report missing the Effort line"
+    } else {
+        Fail "AC-026: validator did not reject a report missing the Effort line (exit=$LASTEXITCODE): $missingEffortOutput"
+    }
+} finally {
+    Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue
+}
+
+Write-Output ""
+Write-Output "emit-run-record-feature-scope.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
+if ($script:failCount -ne 0) { exit 1 }
+exit 0

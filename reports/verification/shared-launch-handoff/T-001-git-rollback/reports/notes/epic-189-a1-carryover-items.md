@@ -1,0 +1,522 @@
+# epic-189-a1 持ち越し事項（最終フェーズで main が処理)
+
+- **WFI 候補: installed role と repo role の乖離検出** (2026-07-29,
+  task-review attempt-3 で顕在化): サブエージェントの system prompt は
+  プラグインキャッシュ（`~/.claude/plugins/cache/…`)から供給されるため、
+  repo 側で human-apply された役割ファイル改訂（WFI-018)がインストールに
+  反映されず、レビュアーが正当にも installed 版を権威として改訂規則を
+  不適用 → 2 実行が非受理となった。恒久修正候補: インストーラ/`codex-sync`
+  または review 系 precheck に「repo の役割ファイル sha256 と installed 版の
+  一致チェック（不一致なら STOP: cache sync required)」を追加。詳細:
+  `reports/notes/epic-189-a1-seq0342-nonacceptance.md` Amendment 節、
+  HUMAN-APPLY-STEPS「WFI-018 cache sync」節。
+
+- **WFI 候補: task-review-precheck の provenance-rereview 例外欠如**
+  (2026-07-29, 判断7-A 実行時に顕在化): `task-review-precheck.sh:520-533`
+  の round>1 unchanged-tasks check（前 round contract の tasks_sha256 と
+  一致なら無条件 exit 1)に `--provenance-rereview` の例外分岐がなく、
+  「frozen 無変更で re-bind する」という Post-Implementation Provenance
+  Re-Review 自身の前提と矛盾。今回は人間認可の frozen 例外（判断7=A′、
+  1行ポインタ追記)で通したが、恒久修正は precheck への例外追加
+  （gate script 変更のため WFI → human-apply 経路)。詳細:
+  `reports/notes/epic-189-a1-decision-7-task-size-resolution.md` Amendment 節。
+
+- **investigation.md の一時パス引用の恒久化** (2026-07-28, impl-review
+  attempt-3 round-2 の reviewer-b 異常報告より): `investigation.md:244-245`
+  が preserved-draft の所在としてセッション固有の scratchpad パス
+  (`/private/tmp/claude-501/...`) を引用している。設計ドラフト作成時の
+  provenance 記録で既知の由来（悪性ではない)だが、リポジトリ外の一時
+  パスはセッション終了後に無効になる。最終フェーズの docs 改訂時に、
+  permanent な記述（git 履歴のコミット参照等)へ置換するか要検討。
+  investigation.md は凍結 spec 層のため、本改訂は正規の改訂ゲートを
+  通すこと。
+- **ADR 0025 クロスブランチ番号衝突** (既知・再掲): 本ブランチの
+  `docs/adr/0025-human-copy-transactional-bundle.md` と epic-191 ブランチの
+  path-ownership ADR (0025) が衝突。マージ段で renumber
+  （design.md Design Decisions の cross-branch citation contract 参照)。
+
+- **docs 整理候補: tasks.md Lifecycle 節ヘッダーの stale 文言** (2026-07-29,
+  task-review attempt-4 round-1 reviewer-a の非ブロッキング観察): Lifecycle
+  節の「Every task below carries Approval: Draft and Status: Planned」が
+  T-001/T-002/T-004 の sudo Approved / Blocked 実態に対し stale。14 チェック
+  の defect ではない。最終フェーズの docs 改訂（正規ゲート経由)で更新検討。
+
+- **WFI 候補 + documented interim state: 実装進行に伴う tasks.md の正規 drift**
+  (2026-07-29, T-002 Done 直後の workflow-state「task plan hash is stale」で
+  顕在化): implement-task の正規ライフサイクル追記（unblock note・
+  STAGING DEFERRED note・status 遷移)は task-review contract の束縛 hash
+  （raw/normalized どちらの導出でも)を必然的に乖離させる。normalized_hash
+  の task 正規化は 3 フィールド行のマスクのみで、ライフサイクルが要求する
+  prose 追記を畳み込まない — つまり**実装フェーズ中の task-stage provenance
+  は構造的に green を維持できない**（WFI-019 は re-binding 時点の一致を
+  修復したが、その後の正規追記で再乖離する)。判断: (a)+(b) の両方 —
+  当面は「documented interim state」として許容（4bd2ec3b 以来の同族、
+  A1 実装完了時の最終 provenance re-binding で解消。check-task-state /
+  check-contract / evidence bundle は green のまま)。恒久修正は WFI として
+  最終フェーズへ: normalized_hash の task 正規化に「ライフサイクル公認の
+  追記領域（Blockers prose 以下のノート等)の畳み込み」を追加する等、
+  検証器側の設計変更（human-apply 経路)。検証器は編集しない。
+
+- **T-003 QG Minor carryover** (2026-07-30, seq0350 NEEDS_WORK 報告より):
+  ① `resolve_evidence_key` の既存 `_resolve_sudo_key` 系との**実行的**
+  パリティ証明（ソース検査を超える independent import/exercise、AC-013
+  4-case 行列)は未実施のまま — T-006 の validator 側 key 解決実装時に
+  合同で証明するのが自然な合流点。② もう 1 件の Minor は seq0350 報告書
+  （reports/quality-gate/2026-07-30T142236Z-T-003.md)参照。Major
+  （staging 経路 OSError の未分類 exit 1)は remedy 対応中で carryover
+  対象外。
+
+- **T-004 QG Minor 4件の処遇** (2026-07-30, seq0351 PASS 報告より、全て非ブロッキング):
+  ① T-004.md:101-106 の「run-all/CHANGELOG は landing 以来 unchanged」注記は
+  事実誤認（T-003 系コミットが接触。宣言 hash は live 一致で無害)—
+  **報告書は編集しない**: quality-gate SKILL 自身の規則（「record the
+  current values directly in this quality-gate report … do not edit the
+  frozen implementation report to reconcile it」)に従い、正値は QG 報告書
+  （2026-07-30T143105Z-T-004.md)が記録済み。carryover 記録のみ。
+  ② red ログが existence-based（評価者の mutation runs で束縛性補償済み)
+  — 記録のみ。③ green ログ両レーン byte-identical（区別性は red 側)—
+  記録のみ。④ **traceability.md:95 の AC-045 に split 注記なし**（AC-046
+  は 3 分割注記あり)— **T-005/T-006 への carry-forward**: T-005 は AC-046
+  verdict 半分の production check、T-006 は AC-045 の semantic-validator
+  本体 + ordering assertion の義務を実装時に明示すること。traceability.md
+  は凍結のため注記追加は最終 re-binding 時に検討。
+
+- **T-007 carry-forward: TRANSACTION.json shape の準拠義務** (2026-07-30,
+  T-005 implementer relay): `sdd/.staging/*/TRANSACTION.json` の shape
+  （`targets[]` 各 `{live_path, pre_hash, post_hash}`)は T-005 が定義した。
+  T-007（apply-human-copy)はこの shape に**準拠するか、明示的に改訂**する
+  義務がある — T-007 launch プロンプトに織り込むこと。関連記録:
+  project-context.schema.json の components[] に additionalProperties:false
+  が無い件は曖昧性源ではなかった（T-005 relay #3、記録のみ)。
+
+- **T-005 QG seq0353 の carryover 群** (2026-07-30):
+  ① **T-007 carry-forward への統合**: TRANSACTION.json shape 準拠義務に
+  加え、**shape 不一致 journal の拒否**を義務化 — 現行 reader は valid
+  JSON だが `targets` list を欠く journal で fail-OPEN
+  (detect-policy-weakening.py:201-203、L203 未実行) → T-007 の publisher/
+  recovery 実装はこの shape を強制し、不一致は fail-closed で拒否すること。
+  ② `--approved-context`（test-only flag)の不存在パス silent bootstrap
+  降格 — 記録のみ。
+  ③ **評価者 observation（finding 外・重要)**: 単一 `--approver` でも
+  `two_person_required: true` verdict を埋めた署名が成功する — tasks.md
+  T-005 Out of Scope の「T-003 already ships that behavior」は署名時点で
+  不成立。正当な置き場所は REQ-005/T-006 の
+  `validate-approval-sidecar --verify-provenance`。**T-006 が実装する義務**
+  として launch プロンプトに明記済み（gate の既強制誤認防止)。
+  ④ relay 判定の記録: #1 TRANSACTION.json shape = design-conformant、
+  #2 glob-narrowing 拡張 = 方向性 conformant（欠落はテストのみ・remedy 中)、
+  #3 additionalProperties = 非問題確定。
+
+- **T-005 QG round-2 (seq0354) carry-forward 注記 2 件** (2026-07-30):
+  (a) two_person gap は T-006 着地まで unguarded — T-006 launch プロンプト
+  義務 4b として**登録済み確認**（validate-approval-sidecar が強制点)。
+  (b) **tasks.md:1215 付近の T-005 Out of Scope 括弧書き「(T-003 already
+  ships that behavior…)」は事実不正確**（署名時点で two-person 整合は
+  未強制)— tasks.md は凍結境界のため本 note で訂正を記録し、実文修正は
+  最終 re-binding 時の候補とする（正値: 強制点は T-006 の
+  --verify-provenance / 標準検証経路)。
+
+- **T-006 implementer relay の carryover** (2026-07-30):
+  ① T-005 residual: detector の distinct-count は重複 id を silent dedupe
+  したまま（T-005 out-of-scope 記録済み)。T-006 validator 側 gate は
+  `DUPLICATE_APPROVER_REGISTRY_ID` で registry 重複自体を拒否するため
+  count 依存なしで discharge — detector 側の dedupe 挙動是正は最終フェーズ
+  検討事項として記録。
+  ② **design-vs-decomposition gap**: design.md REQ-004 文の「staged
+  (pre-publish) candidate の provenance 再導出」記述に対応する TEST id が
+  T-006 の凍結 Done-When に無く、意図的未実装（TDD 駆動不能・guess 回避)。
+  **T-007（publisher の publish 前再検証経路)の関心事の可能性** — T-007
+  実装時に design 実文と照合し、T-007 スコープ外なら residual として
+  最終 re-binding 判断へ。
+  ③ regression runner: tests/prepare-panelist.tests.sh の失敗は
+  T-006 非起因を orchestrator が独立確認（最終変更 298cf22b/2f93edd6 =
+  #108/#185 系、env -i でも再現、既知 run-all 失敗連鎖の一部)。T-006 Done
+  チェーンの regression 段は直接関連スイートの個別実行で代替記録する。
+
+- **T-006 QG seq0355 Minor carryover 2 件** (2026-07-30):
+  ① UnicodeDecodeError が INTERNAL_ERROR(90) に誤分類（意図されたカテゴリは
+  37。fail-closed は維持されており実害なし)— 将来の分類精緻化候補。
+  ② HMAC 比較が uppercase-hex を `.lower()` で受理（contract は lowercase
+  64-hex)— T-013 系の仕上げ or 最終 re-binding 時の修正候補。
+  （Major = 「同一 approver × --verify-provenance」セルの未テスト
+  (py:678 到達不能 by 標準経路 gate 3 先行遮断) は remedy 対応中で
+  carryover 対象外。評価者の好材料記録: bootstrap-downgrade 攻撃の HMAC
+  ゲート捕捉実証・key-parity 3 実装 AST 検証・hostile 20 ケース全分類。)
+
+- **T-006 QG round-2 (seq0356) carryover** (2026-07-30):
+  ① **新規 hardening 候補**: `--verify-provenance` 限定で primary_approval
+  が非 dict（例: 文字列)の two-person weakening sidecar が gate5 を回避
+  （標準経路は SIDECAR_MALFORMED(38) で捕捉・要署名鍵・全 AC/TEST 範囲外)
+  — validator hardening 候補として最終フェーズ or 将来タスクへ。
+  ② **feature 完了判定用の明示記録**: **AC-019 の generator 半分は
+  feature-wide で未充足のまま**（T-003 gap・TEST-019(a) が現挙動を
+  regression lock)。**feature 完了判定時に AC-019 を「充足」とマークしては
+  ならない** — 充足には T-003 側のクローズ判断（design/decomposition の
+  正規経路)が必要。placeholder scan がこの残余を説明する suite コメントを
+  検出する事象は qg/T-006/placeholder.log の受理注記で処理済み。
+
+- **T-007 QG seq0357 の carryover** (2026-07-30/31):
+  ① Minor 3 件（QG 報告書 2026-07-30T204328Z-T-007.md 参照): dead な
+  dev/inode 検査 + 過大なコメント主張 / ps1 コメントの誤記述 + cmdlet 残余
+  / symlink 拒否のカテゴリ混同 + unknown-flag の exit 差 — いずれも
+  非ブロッキング、最終フェーズの仕上げ候補。
+  ② **reader 耐性（T-007 スコープ外・実測済み)**: detector の journal 読取は
+  `open(..., encoding='utf-8')`（detect-policy-weakening.py:192)で、BOM 付き
+  JSON は `JSONDecodeError` になることを実測確認（`utf-8-sig` なら OK)。
+  現状この失敗は `HUMAN_COPY_PUBLISH_IN_PROGRESS` に分類され **fail-closed**
+  （安全側)だが、正当な publisher journal を「torn」と誤判定する偽陽性に
+  なりうる。T-007 Major 3（ps1 の BOM 除去)修正後は T-007 起因としては
+  moot。**reader 側の耐性強化（utf-8-sig 受理)は carryover 候補**（安全性を
+  下げない緩和 = BOM のみ許容し、それ以外の不整合は現行どおり fail-closed)。
+  detect-policy-weakening.py は T-005 の凍結成果物のため、変更は正規の
+  タスク/ゲート経路で。
+
+- **T-007 QG round-2 (seq0358) carryover** (2026-07-31):
+  ① ps1 スイートの 5 アサーション非対称（挙動自体は正・カバレッジ表現の
+  対称性課題)② backup found/not-found シグナルの不精密（機能は正)
+  ③ ADR-0025 関連 Done-When 文言との軽微な逸脱（開示済み・substance 充足)
+  — いずれも非ブロッキング、最終フェーズ仕上げ候補。
+  ④ **評価者 observation（third-state probe)**: 回復時に target が PRE でも
+  POST でもない（外部編集された)第三状態にある場合の扱いは design の
+  収束列挙（all-pre / all-post)の外だが、両レーンが同挙動 — design 明文化
+  候補として記録（現挙動の是非判断は将来の design 改訂ゲートで)。
+  （新規 Major = 空白入り path の sh IFS 構造破壊 journal は remedy-2
+  対応中で carryover 対象外。round-1 の 4 指摘は評価者の fixture 再構築 +
+  revert-mutation で全解消実証済み。)
+
+## T-007 seq0360 Minor: apply-human-copy `--help` 文書化不存在
+
+- **出所**: QG round-4（seq0360、`reports/quality-gate/2026-07-31T113826Z-T-007.md`)
+  の Minor 所見。評価者は非ブロッキングと判定。
+- **内容**: `apply-human-copy.sh` / `.ps1` に `--help`（usage 出力)が存在せず、
+  分類済み exit code 体系（特に remedy-3 で新設された
+  `UNSUPPORTED_PATH_CHARACTER` = exit 20)が CLI 上から発見できない。
+  兄弟タスクの先例（T-002 の exit 3 / T-003 の exit 16)は `--help` に記載あり。
+- **対処方針**: T-007 のフォローアップ（epic 内の後続タスクまたは別 feature)で
+  `--help` を追加し exit code 表を記載する。R-10 非対象のため通常編集で可。
+  remedy-4 のスコープには含めない（remedy-4 は seq0360 の Critical/Major のみ)。
+
+## 既存不具合: phase2-guard-invariants の pwsh レーンが macOS で 9 件失敗
+
+- **出所**: T-009 の Done チェーン生成時（コミット `2ff3e609`)に発見。当該
+  エージェントが**補足セクション**として隣接 guard スイート3種を追加実行した
+  ところ判明した。T-009 の必須 regression セット（8 スイート × 2 レーン、全
+  green)には含まれない。
+- **内容**: `pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1` が
+  **59 passed / 9 failed**（exit 1)。bash 版 `tests/phase2-guard-invariants.tests.sh`
+  は 33/0 で green。失敗 9 件はすべて TEST-013 系で、junction・保持ハンドル・
+  インベントリ外ハードリンク別名・固定のネイティブ置換 API といった
+  **Windows/NTFS 固有セマンティクス**を macOS 上で実行していることに由来する。
+- **T-009 起因ではないことの証明**: `git archive 15b53914`（T-008 の Done
+  コミット = T-009 のコミットが1つも存在しない時点)を使い捨てディレクトリへ
+  展開して再実行したところ、**バイト単位で同一の 9 件失敗**を再現（FAIL 行の
+  `diff` が空)。
+- **注意**: seq0364/seq0365 の評価者はこのスイートの **bash 版のみ**を実行して
+  いたため、この pwsh 側の失敗は QG レポートには現れていない。
+- **対処方針**: (a) 当該 9 件を非 Windows ホストで明示スキップする（他スイートの
+  `$IsWindows` 分岐の先例に倣う)か、(b) macOS でも成立する形へ書き換えるか、
+  (c) CI が Windows レーンを持つならホスト限定テストとして正式に宣言する、の
+  いずれか。**epic-189-a1 のスコープ外**（`tests/phase2-guard-invariants.tests.ps1`
+  はどのタスクの Planned Files にも含まれない)。
+
+## design 表の欠落: R-10 前置フィルタが 12 行のサーフェス表に無い
+
+- **出所**: T-010 実装者が起動時に「12 の呼び出し箇所を design 表を信用せず
+  自分で再列挙せよ」の指示に従って発見し、**再調整せず Block-And-Stop で報告**。
+  coordinator がコードで裏取り済み。
+- **事実**: `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` の
+  `_command_references_protected_path` 内 **L1348** に直接の
+  `_is_protected_gate_file(candidate)` 呼び出しがあり、design.md の 12 行表
+  （Test Strategy item 8)に含まれていない。しかも load-bearing:
+  `_shell_targets_protected_gate_file` は L1375 でこの前置フィルタを呼び、
+  **False なら L1377 で即 `return False`（拒否なし)**。つまり前置フィルタが
+  取りこぼすと、表の **row 1〜4 が依存する issue-#62 の書き込み対象解析が
+  一切走らない**。row 5〜10 は L1373 の `_shell_cwd_write_hits_protected` が
+  先に走り独立して拒否するため影響を受けない。
+- **design 表 12 行の内訳自体は正しい**（実装者の再列挙で確認): 直接 9 箇所
+  （L1125/1133/1156/1159/1230/1233/1348/1519/1534)のうち L1348 を除く 8 と、
+  `_segment_write_hits_protected` 経由の間接 4 で 4+2+4+1+1 = 12 サーフェス。
+- **人間の裁定（2026-08-03)**: **AC-023 の 96 セル（4 basename × 12 サーフェス
+  × 2 レーン)は規定どおり満たす**。前置フィルタは **AC 規定外の補足アサーション**
+  として T-010 のスイートで別途検証し、design 表の欠落は本項目として記録する。
+  凍結 spec（design.md / acceptance-tests.md)は改訂しない — 改訂すると
+  impl-review ゲートの再通過が必要になるため。
+- **将来の対処**: design.md Test Strategy item 8 の表に 13 行目として追記するか、
+  「前置フィルタであり書き込みサーフェスではない」と明示除外する旨を書き足す。
+  いずれも spec 改訂ゲートを通す前提。
+
+## 既存不具合: guards スイートが POSIX `sh` 起動時のみ 1 件失敗
+
+- **出所**: T-010 の QG（seq0366)が失敗を報告し、T-010 の Done チェーン生成時に
+  原因が特定された。**T-009 の Done チェーンは `bash` 起動で green（133/0)と
+  記録しており、一見矛盾していたが両方とも正しい。**
+- **内容**: `tests/guards.tests.sh` を **POSIX `sh` で起動すると**
+  `sh: copilot deny -> JSON deny` が失敗し、Results 行を出さずに exit 2 で中断する。
+  **`bash` で起動すると 133/0 で green**（exit 0)。
+- **紛らわしい点**: ケース名の `sh:` 接頭辞は**ガード実装の種別**（`sh:` / `py:` /
+  `node:`)を指しており、**ハーネスを起動したシェルのことではない**。
+- **T-010 起因ではないことの証明**: `git log d2f37d0e..HEAD -- tests/guards.tests.sh
+  plugins/sdd-quality-loop/scripts/` が 0 コミット。さらに `git archive d2f37d0e`
+  を使い捨てディレクトリへ展開して再実行したところ、sh レーンの出力が
+  **バイト単位で同一**（sha256 `0bdd7b37…6afb` が両側一致)。
+- **対処方針**: (a) 当該ケースを修正するか、(b) スイートに bash 必須の
+  shebang/前提を明記するか、(c) `sh` 起動時に明示スキップする。
+  **epic-189-a1 のスコープ外**（`tests/guards.tests.sh` はどのタスクの
+  Planned Files にも含まれない)。
+
+## 記述の訂正: 「run-all は prepare-panelist で中断する」はもはや事実でない
+
+- **出所**: T-010 の Done チェーン生成エージェントが、定型文を繰り返さずに
+  **自分で実測して**発見。
+- **これまでの記述**: T-006 以降の各 regression ログとコントラクトの comment に
+  「`tests/run-all.sh` は無関係な既存不具合（`tests/prepare-panelist.tests.sh`、
+  #108/#185 系)で中断するため、個別スイート実行で代替する」と繰り返し
+  記載してきた。
+- **現在の実測**: **`bash tests/prepare-panelist.tests.sh` は 32/0 で通る**（exit 0)。
+  HEAD の独立クローンに対する `bash tests/run-all.sh` は **21 スイート目の
+  `tests/turn-first-workflow.tests.sh`** で中断する（`not ok: implementation
+  report template omits: ## Output Paths And Hashes`、exit 1)。これは
+  `plugins/sdd-implementation/templates/implementation-report.template.md` に
+  対するアサーションで、epic-189-a1 のどのタスクも触れていない。
+- **結論**: 「run-all が中断するため個別実行で代替する」という**運用判断自体は
+  依然として正当**だが、**中断理由の記載が古い**。T-010 の regression ログには
+  訂正済みの理由が記録されている。以後のタスクは prepare-panelist ではなく
+  turn-first-workflow を理由として記載すること。
+- **対処方針**: turn-first-workflow のテンプレートアサーション不一致を解消すれば
+  run-all が完走する可能性がある（未確認 — 21 スイート目以降に別の失敗が
+  潜んでいる可能性は残る)。**epic-189-a1 のスコープ外**。
+
+## 記述の訂正: T-012 実装レポートの ship fidelity 記述（3点の事実誤り）
+
+- **出所**: T-012 QG round-2（seq0371、2026-08-04)の Minor 1。凍結済みレポートは
+  編集しない方針（T-004 の先例)のため、訂正をここに記録する。
+- **誤っている記述**: `reports/implementation/epic-189-a1-project-context/T-012.md:190-199`
+  が (a)「除去された 11 行はすべて同じ diff 内で再追加されている」(b)「`--full`
+  が唯一の scan bypass である段落は新設の『Compatibility fallback』節へ**移動**
+  された」(c)「唯一の実質的な書き換えは `Exit 0 with lite-eligible` の行だけ」
+  と述べている。
+- **現在の実測**: 評価者が `-` 行と `+` 行を集合比較した結果、**逐語で再追加
+  されているのは 11 行中 5 行のみ**（`Execute in this priority order (first
+  match wins):` と `--full` の 4 行項目)。残り 6 行のうち 5 行の risk-upgrade
+  段落は**その場で 6 行に書き換えられており、移動ではない**。staged 候補では
+  `### Risk-upgrade scan` が 201 行目、`### Compatibility fallback (no Project
+  Context)` が 226 行目なので、当該段落は「移動先」とされた節より**前**にある。
+- **結論**: **主張されている安全性そのものは真**（評価者が diff の逆適用 →
+  git blob OID 照合で、保護ファイルを読まずに独立実証済み)。誤っているのは
+  レポートの**要約文**であって証跡ではない。diff は永続化され `## Outputs` に
+  宣言されており、隠蔽は生じていない。実装者のトークン単位の検査自体は正しく、
+  それを行単位の再追加へ過度に一般化したことが原因。
+- **対処方針**: 訂正はこの記録をもって完了とする。以後 fidelity を主張する際は
+  「トークンが再出現する」と「行が再追加される」を区別して書くこと。
+
+## 罠: `remedy1-evidence.sh` は再実行すると固定済み成果物を上書きする
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 3。
+- **現在の実測**: `specs/epic-189-a1-project-context/verification/T-012/remedy1-evidence.sh:59-98`
+  の `emit_diff` は `OUT="$HERE"`（スクリプト自身の所在)へ書き出すため、
+  再実行すると**コミット済み・`## Outputs` 宣言済み・レビューマニフェストで
+  ハッシュ固定済み**の 2 本の diff 成果物をその場で上書きする。にもかかわらず
+  `T-012.md:907` は「再現するなら `remedy1-evidence.sh <scratch-dir>` を
+  再実行せよ」と案内しており、読み取り専用であるべき評価者がこれに従うと
+  **自分の許可入力ハッシュを自ら無効化する**。
+- **副次的な好材料**: 評価者が scratch コピー上で実測したところ、上書き後も
+  **本文はバイト同一**で、差分は `Generated at (UTC)` / `Repository HEAD` の
+  ヘッダー行と `---`/`+++` の mtime のみだった（HEAD 485d9c3e で同じハンクが
+  再導出されることの裏付けでもある)。
+- **対処方針**: 再実行するなら必ずリポジトリ外の scratch コピー上で行うこと。
+  恒久対処は `OUT` を必須引数化してスクリプト所在への既定書き出しを廃すること
+  （**epic-189-a1 のスコープ外**、T-012 は QG PASS 済み)。
+
+## 最終フェーズで直す: CHANGELOG の T-012 タリーが古い
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 4。
+- **現在の実測**: `CHANGELOG.md:646,648` は `両ランタイムとも 134/0` と記録して
+  いるが、remedy-1 後の実装は **139/0**（pair-consistency 1 + rotated-key 4 の
+  計 5 アサーション追加)。Done-When の「CHANGELOG #189 エントリ更新」自体は
+  満たしており、古いのはタリーの数値のみ。
+- **対処方針**: ユーザー常設指示「各種ドキュメントの内容、追番ももれなく改訂
+  せよ」の対象。**最終ドキュメント改訂フェーズで訂正する**（T-001 の
+  「41アサーション → 44」と同じ扱い)。QG PASS 後にマニフェスト固定ファイルを
+  編集しないため、この時点では直さない。
+
+## 強化候補: scan bypass 規則の書き換えにアサーションの錨がない
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 2。
+- **現在の実測**: `specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md:203`
+  で規範的な scan bypass 規則が「`--full` が唯一の bypass」から「解決された
+  `full` トラックが唯一の bypass」へ変更されたが、`tests/ship-track-selection-migration.tests.sh:234-247`
+  の SHIP `PRESERVED` 錨リストは bypass 条件を pin していない（pin しているのは
+  `check-risk-upgrade.sh`・4 種の Track 出力・`risk-upgrade: input unavailable`)。
+- **結論**: 評価者が 6 つの contract ケースと 4 段の fallback 経路を全て歩き、
+  **どの経路でも緩和は生じていない**ことを確認済み（FULL 解決には必ず `--full`
+  が要り、C4 `NO_OP_LITE` と `--lite`/profile 経路は従来どおり scan される。
+  唯一曖昧な経路も最も厳格なトラックへ解決するため lite 適格性 scan は結果を
+  変えない)。ゆえにセキュリティ指摘ではなく Minor。
+- **対処方針**: 将来の編集で気づかれずに緩和されうるため、bypass 条件を
+  `PRESERVED` 錨に加えるのが望ましい。**epic-189-a1 のスコープ外**。
+
+## 測定完了（T-013）: run-all.sh の中断は「1行修正」では解けない
+
+- **出所**: T-013 の実測。本ファイル上部「記述の訂正: 『run-all は
+  prepare-panelist で中断する』はもはや事実でない」の末尾が残していた
+  **未確認事項**（「テンプレートアサーション不一致を解消すれば完走する
+  可能性がある — 21 本目以降に別の失敗が潜んでいる可能性は残る」）を、
+  実測で置き換える。
+- **実測1（指示された測定）**: リポジトリ外の `git clone --local` に、
+  origin/main が既に持つ**1行だけ**
+  （`tests/turn-first-workflow.tests.sh:290` の
+  `'## Output Paths And Hashes'` → `'## Outputs'`）を適用しても、
+  **同じ 21 本目が今度は別の理由で落ちる**:
+  `IMPLEMENTATION_REPORT_FIELD: missing or invalid Model` /
+  `not ok: complete current-schema implementation report was rejected`。
+  → **1行修正は必要だが十分ではない**。マスクされていた2段目の失敗。
+- **系譜**: merge-base 時点で既にテンプレートは `## Outputs`、バリデータは
+  `Model`/`Effort` 必須だったのに、スイート内フィクスチャだけが旧 bullet
+  形式かつ `Model`/`Effort` 欠落のまま取り残されていた。upstream の
+  `6b40b6e1`（WFI-017 / PR #215、バリデータ整合）と `f2687bef`（PR #216、
+  スイート整合）が修正済みで、**どちらも本ブランチには来ていない**。
+- **実測2**: 本ブランチは `tests/turn-first-workflow.tests.sh` と
+  `plugins/sdd-implementation/scripts/validate-implementation-report.sh` の
+  **どちらにもコミットを持たない（0 commits）**ため、マージは main 版を
+  そのまま取る。両ファイルを main 版に置換すると 21 本目は **exit 0**。
+- **実測3**: その状態で `bash tests/run-all.sh` を回すと **21 → 24 本目**へ
+  進み、`tests/rollback-1.5.0.tests.sh` で中断（exit 1）。**作業ツリーが
+  完全にクリーンな pristine クローンでも同一失敗を再現**したので、これは
+  本ブランチの真の既存失敗であり使い捨てクローン固有の副作用ではない。
+  その修正 `5a9df172`（rollback TEST-006 フィクスチャを 1.5.0 リリース
+  コミットに pin）も **origin/main にあり本ブランチには無い**。
+- **実測4（全体マージのシミュレーション、決定的）**: 使い捨てクローンで
+  HEAD と origin/main の差分全件を「本ブランチにコミットが無い側は main 版
+  を採用(923 件)／main にコミットが無い側はブランチ版を維持(462 件)／
+  両側にコミットがある 21 件はコンフリクトとして記録」の規則で構成し、
+  `specs/workflow-state-registry.json` のみ**両側の追加が交わらない**
+  （ブランチ +1 件、main +5 件）ため和集合(31 件)を適用したところ、
+  `bash tests/run-all.sh` は **62 スイート全て実行して exit 0**、
+  `All POSIX regression tests passed.`、transcript 中の `not ok` は **0 件**。
+  本 epic の 13 スイートも全てその完走の中で実行されている
+  （run-all.sh はブランチ版を維持したため、本 epic の登録が使われた）。
+- **結論**: bash レーンの中断連鎖は**全て main 側に修正が存在**し、
+  **24 本目より先に隠れたテスト内容の失敗は無い**。最終フェーズに残るのは
+  「21 件の両側変更パスのコンフリクト解決」と「provenance re-binding」で
+  あって、テスト失敗の追跡ではない。
+- **主張の限界**: これはシミュレーションでありマージそのものではない。
+  21 件は全てブランチ版のまま維持しているので、実マージがそれらを別様に
+  解決すれば結果は変わりうる（特に pwsh レーンを止めている
+  `check-workflow-state` の 2 ファイルは、この 21 件に含まれる）。
+  また **pwsh レーンはこのシミュレーションでは再測定していない**。
+- **注意**: 上記の1行は**本ブランチには一切適用していない**。WFI-017 が
+  記録した「ハンク重複が無用なマージコンフリクトを生む」ハザードを避ける
+  ため、最終フェーズのマージに委ねる。
+
+## 新規発見（T-013）: `run-all.ps1` は 1 本目で中断する
+
+- **実測**: `pwsh tests/run-all.ps1` は 44 本中 **1 本目**
+  `tests/validate-repository.ps1` で exit 1。診断は
+  `workflow-state: epic-189-a1-project-context: stage-provenance: task plan hash is stale`。
+- **非帰属の証明**: **HEAD `71e0f0f2` で作業ツリーが完全にクリーンな
+  pristine クローン**で同一失敗を再現。T-013 の tasks.md 編集（Status 遷移）
+  より**前から**存在する。
+- **位置づけ**: 本ファイル上部の「WFI 候補 + documented interim state:
+  実装進行に伴う tasks.md の正規 drift」と同一事象。**main のマージでは
+  解けない** —— 最終フェーズの provenance re-binding で解消する種類のもの。
+- **記述の訂正**: これまで各タスクは「個別スイート実行で代替する」根拠に
+  bash レーンの中断だけを挙げてきたが、**pwsh レーンはそれより早く落ちる**。
+  以後は両レーンとも中断する事実を記載すること。
+
+## AC-028 の残ギャップ（T-013 実測）: 2 スイート対に自己登録アサーションが無い
+
+- **実測**: 登録そのものは全 25 件 green（`tests/run-all.sh` に 13、
+  `tests/run-all.ps1` に 12）。しかし design.md Test Strategy 項目 11 が
+  要求する「各スイートが自分の basename を run-all から grep する」自己登録
+  アサーションは、`tests/project-context-schema.tests.{sh,ps1}`（T-001）と
+  `tests/approver-registry-schema.tests.{sh,ps1}`（T-004）の**4 ファイルに
+  存在しない**（残り 10 スイート対には両レーンとも存在する）。
+- **T-013 で直さなかった理由**: T-013 の Planned Files はステージ CI 候補・
+  `MANIFEST.sha256`・run-all（監査のみ）・CHANGELOG に限られる。加えて当該
+  2 スイートは T-001/T-004 の実装レポート `## Outputs` でハッシュ固定されて
+  おり、クローズアウト監査タスクが後から編集するとその固定値を無効化する。
+  Scope が明示する「違反を修正せよ」の対象は Test Strategy 項目 12（CI 耐性）
+  であって項目 11 ではない。
+- **対処方針**: 他 10 スイートと同型の 2〜3 アサーションを追加する（正規
+  ゲート経由）。**epic-189-a1 のスコープ外**。
+
+## REQ-011 twin ギャップ（T-013 実測）: guard-staging-exemption に `.ps1` twin が無い
+
+- **実測**: `tests/guard-staging-exemption.tests.sh` は bash 版のみ。追加元は
+  `67acc6cd`（R-10 ガード修正パッケージ、T-001 実装中に発見）であり、
+  **T-001..T-012 のどの Planned Files にも属さない**。
+- **T-013 での扱い**: `tests/run-all.sh` に登録済みで実測 33/0 green のため、
+  ステージ CI 候補にも bash レーンとして登録した（登録しないままだと CI が
+  このスイートを一切走らせない）。`.ps1` twin の新規作成はクローズアウト監査の
+  範囲を超えるため行わず、本項目として記録する。
+- **対処方針**: `.ps1` twin を作るか、bash 専用であることを設計上の明示的
+  例外として宣言するか。**epic-189-a1 のスコープ外**。
+
+## 運用上の注意（T-013 実測）: run-all のスイートは作業ツリーを一時的に変更する
+
+- **実測**: `bash tests/run-all.sh` の実行中に `git status` を取ると
+  `specs/workflow-state-registry.json` が modified と表示され、
+  `specs/<fixture-name>/` と `reports/spec-review/<fixture-name>/` が
+  untracked として現れる（fixture 名はスイート進行に伴って変わる）。
+  スイート終了時に self-clean される。
+- **影響**: run-all と並行してコミットすると**テストの一時生成物を巻き込む**
+  恐れがある。`git add <path>` の明示指定を守り、コミット直前に
+  `git status` を再確認すること（T-013 はこの手順で回避した）。
+
+## 罠（再発・重要）: T-013 レポートの Test Command をそのまま実行すると固定成果物を壊す
+
+- **出所**: T-013 QG seq0372（2026-08-04)の Minor 1。**`remedy1-evidence.sh` と
+  同型の罠が、対策したはずの T-013 で再発している**。
+- **現在の実測**: `t013-evidence.sh` は `--out-dir` を必須引数化したが、
+  **必須化は上書きを防がない**。`T-013.md:138` の Test Command が
+  `--out-dir specs/epic-189-a1-project-context/verification/T-013`、すなわち
+  **コミット済みディレクトリ自身**を指しているため、レポートの手順どおりに
+  実行すると A-/B-/C-/D- 成果物が書き換わる。うち複数はレビューマニフェストで
+  ハッシュ固定された入力なので、読み取り専用であるべき評価者が従うと
+  **自分の許可入力を無効化する**。しかも `T-013.md:83-86` は「デフォルトが
+  ないので隣接する固定成果物を上書きできない」と**誤って**主張している。
+- **評価者の回避**: `--out-dir <scratch>` に振り替えて実行 → C と D は
+  コミット済みコピーとバイト同一だった（手順どおりなら破壊されていた)。
+- **対処方針**: 再実行時は必ず `--out-dir` をリポジトリ外の scratch に向ける。
+  恒久対処は Test Command の既定値を scratch にし、`T-013.md:83-86` の
+  「cannot overwrite」という記述を訂正すること。凍結レポートは編集しないため
+  訂正はここに記録する。**epic-189-a1 のスコープ外**。
+
+## 記述の訂正: 自己登録アサーション欠落は「2 ペア」ではなく 3 スイート
+
+- **出所**: T-013 QG seq0372 の Minor 3。
+- **現在の実測**: `C-registration-audit.txt:41` は
+  `guard-staging-exemption.tests.sh` も `NO_SELF_ASSERTION` と記録している
+  （評価者の独立 grep でも `run-all` の出現 0 件)。つまり design item-11 の
+  自己登録アサーションを欠くのは **13 本の `.sh` スイートのうち 3 本**。
+- **結論**: レポートと carryover の「2 スイートペア」という書き方は
+  **算術的には正確**（当該スイートは `.ps1` twin を持たないので「ペア」では
+  ない)で、証跡にも開示されているため隠蔽はない。ただし読者は「13 本中 2 本」
+  と受け取るため、実数は 3 本であることをここに明記する。
+- **対処方針**: 記録のみ。登録そのものは 25/25 で証明済み。
+
+## 記録: AC-028 の「part 3（post-copy)」は part 2 と同値
+
+- **出所**: T-013 QG seq0372 の Minor 2。
+- **現在の実測**: `t013-evidence.sh:226-227` は 226 行目で live を作業ツリーへ
+  複製した直後、227 行目で staged で上書きしているため、**226 行目は
+  dead code** であり post-copy の grep は staged バイト列を再 grep している。
+  よって "post-copy MISSING count: 0" は part 2 が通る限り**構造的に失敗し得ない**。
+- **結論**: whole-file の atomic publish では post-copy == staged が成り立つので
+  **結論自体は正しく**、レポートの散文も機構を正確に説明している。過大なのは
+  「独立した第3の証明である」という位置づけのみ。
+- **対処方針**: 記録のみ。将来 3-part 証明を強化するなら、part 3 は
+  live を複製したまま staged を適用する経路で測ること。
+
+## 記録: 自己登録スキャナの heuristic が不正確（結論には影響なし）
+
+- **出所**: T-013 QG seq0372 の Minor 4。
+- **現在の実測**: `t013-evidence.sh:189-193` は「自スイート basename の grep」と
+  ラベルされているが、実際には literal `run-all` を grep しているため、
+  コメントで run-all に言及しただけのスイートも `ASSERTS_OWN_REGISTRATION` に
+  分類され得る。
+- **結論**: 評価者が全 13 `.sh` / 12 `.ps1` に対して**本来の per-suite
+  own-basename 検査**を独立に再導出したところ、ハーネスの結果と完全一致した
+  （欠落は project-context-schema と approver-registry-schema の両レーンのみ)。
+  不正確な heuristic だが**誤った結論は生んでいない**。
+- **対処方針**: 記録のみ。

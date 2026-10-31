@@ -1,0 +1,102 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-consent",
+  "task_id": "T-001",
+  "run_id": "RUN-design-sync-consent-qg-T-001-seq0517",
+  "host_session_id": "SESS-qg-design-sync-consent-T-001-0517",
+  "sequence": 517,
+  "previous_record_sha256": "f9aba87ddee32e9bd4de5a64145b2fd80e7a56477258e8c24e2f2d5065091588",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "65c36408fdf0ae113bc227d439d58f8619be87573a9afac1d4cdc2004028cf5b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-consent/T-001.md",
+      "sha256": "23a8f4f1e37f3961978c01801a7b828b56641266ba4dacfb1f8cad3322aac5e9"
+    },
+    {
+      "path": "specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+    },
+    {
+      "path": "specs/design-sync-consent/design.md",
+      "sha256": "63ce02d71d9698f88c2cd257dc825d856ff8086b73d0bc702fba4c2a9ba67d4b"
+    },
+    {
+      "path": "specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "specs/design-sync-consent/requirements.md",
+      "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+    },
+    {
+      "path": "specs/design-sync-consent/security-spec.md",
+      "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+    },
+    {
+      "path": "specs/design-sync-consent/tasks.md",
+      "sha256": "d4e5d5ad31a14fb7c84be4c73d5d28e8ea3bc1e4361f7029cfbf2b12927ccea9"
+    },
+    {
+      "path": "specs/design-sync-consent/traceability.md",
+      "sha256": "75c69cdb8cb713cfdc7c341f9071125cd7893bfbf28d498b7f3e720f1d73e2e2"
+    },
+    {
+      "path": "specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/acceptance-mapping.md",
+      "sha256": "80ccac1aa48e01e77bc63cf0d7ead9952791ca8e2a8dacf6961458436048e906"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/fixture-vacuous-018.md",
+      "sha256": "8ef6e8a0b024e072384ac3bb30cdc22d64d080e09bfda64a672e82a3d698bd33"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/fixture-vacuous-026.md",
+      "sha256": "63a30fab919a76d434ad982b1ea7e6e54463b8fe5ea33723f79a5cb490f05707"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/fixture-well-formed-skill.md",
+      "sha256": "8e7cc5ed36872e4f134f9c51a02402d373643c9d9fe366a3733a774f7adfd302"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/load-bearing-and-case-sensitivity-evidence.log",
+      "sha256": "137a3ea5cb7b3c94a34f06d80b129b58bc6063b9097d44df33d65f15907ea7d5"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/marker-fix-evidence.md",
+      "sha256": "41d0c5c9e89fdf10854e99d62f402006258540e757158872a3131eca2fb41c80"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/red-baseline-ps1.log",
+      "sha256": "78c89933a167c795b27a653f498432733895758f84f8ddc5e0751a727f0aa65f"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/red-baseline-sh.log",
+      "sha256": "10f8071c27c239ac93b698323b59954d9c3fba791e36c8a804f2d3f733a0ce54"
+    },
+    {
+      "path": "tests/design-system-contract.tests.ps1",
+      "sha256": "1b09ec8a328fd74c0268445e10e654e2877e3c0c50d3e5548ee7d741c64ad361"
+    },
+    {
+      "path": "tests/design-system-contract.tests.sh",
+      "sha256": "6e5a65398ae48f6f6eebcfdd9905aaa6a7c214212e66b42a67c26aca98e6167d"
+    }
+  ]
+}

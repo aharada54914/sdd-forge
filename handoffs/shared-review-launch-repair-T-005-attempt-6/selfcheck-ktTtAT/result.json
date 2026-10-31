@@ -1,0 +1,39 @@
+{
+  "run": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/selfcheck-ktTtAT",
+  "files": 21,
+  "source_files": 17,
+  "history": {
+    "commits": [
+      "a745aed583291b9b4eda91237a06996896e5d5e8",
+      "1bba72f4a8b539b070956d6fe3644a8ca4aa8f3a",
+      "7df7318e73c688a85bbe29a8e7e326b41eeae4e2"
+    ],
+    "changed": [
+      "specs/agent-cost-context-isolation/verification/T-005/red.log",
+      "tests/review-agent-isolation.tests.sh"
+    ],
+    "baseline_present": [
+      "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "plugins/sdd-quality-loop/agents/evaluator.md",
+      "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "plugins/sdd-review-loop/agents/task-reviewer-b.md"
+    ],
+    "baseline_absent": [
+      "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
+    ],
+    "archive_sha256": "0a3f2382ba6778aa5d6adcb8d54ebc8c7fb1fad47f39d0fc7607bc77977e6ffc"
+  },
+  "corrupt_pack_rejected": true,
+  "external_snapshot_rejected": true,
+  "snapshot_unchanged": true,
+  "suite_status": 0,
+  "suite_signal": null
+}

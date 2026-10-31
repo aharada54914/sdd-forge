@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a1258a-7238-78c3-a0b0-a630c254f506",
+    "turn": {
+      "id": "01a12593-fbbb-7802-90b7-365df0c7d434",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0f532e3a4b7c3d45016aca22fe3e088191b981ae1c63a97d04",
+          "text": "同一実装IDで引渡しを完了しました。変更はテスト1ファイルのみで、既存8登録は保持しています。\n\n- [実装報告書](work/reports/implementation/shared-review-launch-repair/T-003.md)：validator成功\n- [delivery-index](delivery-index.json)：25ファイルのハッシュ照合済み\n- 検証：19テスト、guard-parity 110件成功。失敗コマンドも診断記録に保存済み。\n\nWindows、installed-host activation、独立レビュー、quality gate、CI、mergeは **NOT RUN**。タスク状態は変更していません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791631817,
+      "completedAt": 1791632129,
+      "durationMs": 311705
+    }
+  },
+  "emittedAtMs": 1791632129370
+}

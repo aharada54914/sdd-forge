@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a4r2-a-seq0425",
+  "host_session_id": "SESS-spec-a4r2-a-epic136phase3-0425",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-4/round-2/precheck-result.json",
+      "sha256": "5bbddda5825c57f792d447095e4c140880d0f04df6652471564e3a75ea39fff1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "92e82fc78e561f16d38e112268c18854194c8ab80998e3bbcbb1d649163e2345"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All six goals (REQ-001..REQ-006) are stated with concrete, measurable conditions: exact fallback branches and precedence order (REQ-001), a named 4-runtime x 3-tool_name-shape matrix (REQ-002), a closed-set schema field and 10 named scenario classes (REQ-003), byte-unchanged job-graph/needs: assertions (REQ-004), grep-verifiable registration (REQ-005), and grep/document checks (REQ-006). Each maps to a Test ID in acceptance-tests.md with a named test target. No in-scope requirement is stated only as intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023 (requirements.md Acceptance Criteria; acceptance-tests.md TEST-001..023 table). Every stated Goal has at least one matching AC and every AC traces back to a Goal; no orphaned goal found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify externally observable outcomes: exact branch-selection + decision-parity comparisons (AC-001..007), 12-named-combination denial/classification outcomes (AC-008..011), schema field values and scenario-id mappings (AC-012..015), byte-unchanged needs: list and step-name enumeration self-checks (AC-016..018), grep-verifiable registration and CI-step presence (AC-019..020), grep-based file-content checks (AC-021..023). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes editing the 4 R-10-protected suites directly, inventing a Stream-C vocabulary, migrating tests/scenario.tests.sh, treating Stream D as a defect fix, Phase 4/design-sync work, any test.yml human-copy batch beyond the ONE shared batch, and tasks.md/traceability artifacts. Boundaries are concrete file- and behavior-scoped, not generic."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table names 4 trust boundaries (protected-guard read-only access, inbound-injection fixture handling, test.yml human-copy-only edit path, fixture-vs-real-network isolation). Roles and Permissions and Assumptions sections state explicit human-approval gates (ADR-0010 acceptance, human-copy application) and re-verification obligations (WFI-013 discipline) for shared/mutable state (identity ledger tail, PROTECTED_GATE_SUFFIXES membership)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section ties each named risk to a concrete validation surface already present in the document: the Stream-C-blocker risk to the Stream C status record/AC-012..015, the concurrent test.yml-staging risk to the ONE-shared-batch design (Non-goals/OQ-4) and design.md Global Constraints, the 12-combination matrix risk to AC-008/009/010's explicit per-combination enumeration, and Stream D's step-drop/needs: risk to AC-017's text-marker self-check plus a named human reviewer verification step."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain/domain-contract.json is present in the allowed input manifest for this review, and requirements.md carries no Bounded-Context: field; this is test/CI-hardening work with no indication of an Approved domain model gating it. Skip condition (domain/ directory absent or model not Approved) applies."
+    }
+  ]
+}

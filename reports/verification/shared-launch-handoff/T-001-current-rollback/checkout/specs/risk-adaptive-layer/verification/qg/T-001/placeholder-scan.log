@@ -1,0 +1,3 @@
+COMMAND: bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/risk-adaptive-layer/verification/qg/T-001/unit-tests.log specs/risk-adaptive-layer/verification/qg/T-001/acceptance-tests.log
+EXIT: 0
+Placeholder scan passed.

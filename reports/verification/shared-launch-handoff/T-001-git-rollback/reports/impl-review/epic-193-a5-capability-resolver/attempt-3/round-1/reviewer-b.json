@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a3r1-seq0777",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-193-a5-capability-resolver-a3r1-0777",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "e2016b2da7101f6f0e3fd2b010db93cc1d0f821b5f9651318c4ffdb3177b6bb8"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-3/round-1/precheck-result.json", "sha256": "648ba5faeb2b83804f168c0955eb8a182a1965c3bbb7d9ca833e164e31b87508"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-3/round-1/integrated-summary.json", "sha256": "3dea2af140e94dec794cc2113caf88ca4670ed25d56c5c977b651b2ffe7df0d2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every technology/architectural decision in design.md carries an explicit rationale citing either an ADR, investigation.md INV-xxx, an upstream sibling-epic contract, or a stated soundness argument. Example: 'Design Decisions' section's union-match rule cites investigation.md INV-012 and Epic A4's own INV-019 full-input-binding precedent, with a worked PII example and an explicitly rejected alternative (conjunctive matching). 'ADR Change Log' names six new orchestration decisions and justifies each as a narrow extension of an already-fixed upstream CLI shape or ADR principle, offering to promote any to its own ADR if impl-review disagrees. No 'we will use X' statement was found without an accompanying because/since/matching clause. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section is byte-identical to the content bound by the prior attempt-2/round-2 clean PASS: none of the three amendment commits (88c3187a, 2f35de22, 3e0e72cd) touched this section (confirmed via `git show <commit> -- design.md | grep '^[+-]## '` for all three, no match). Per the TYPE-H provenance re-review convergence rule (impl-review-loop SKILL.md, 'Post-Implementation Provenance Re-Review'), a fresh-instance finding against frozen, previously-PASSed content is recorded as PASS with an advisory rather than a new FAIL. Advisory: OQ-001 and OQ-002 do not use an explicit 'Owner:'/'Blocks Implementation: yes/no'/'Resolution Path:' field format; OQ-003 is resolved in this revision with a concrete file:line anchor and a drift-check fixture (AC-053). This is carried forward unchanged from the prior PASS evidence (attempt-2/round-2, reports/impl-review/epic-193-a5-capability-resolver/attempt-2/round-2/); on a first-time review this format gap could be a Minor advisory, but it is not new to this attempt's amendments."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Assumptions' section is byte-identical to the content bound by the prior attempt-2/round-2 clean PASS (not touched by any of the three amendment commits, confirmed via git show/grep as above) -- TYPE-H convergence rule applies, no new finding on unchanged content. On the merits, all three assumptions are grounded: upstream contracts (A1-A4) landing unmodified is grounded in investigation.md INV-002 (all four already Spec-Review-Status: Passed) and mirrors Epic A4's identical assumption; the protected-suffix reservation being live is grounded in investigation.md INV-003 and issue #187's stated epic sequencing; SKILL.md's unprotected status is grounded in investigation.md INV-017. investigation.md is present (not absent), so the 'more than one non-trivial assumption with no investigation.md' trigger does not apply regardless. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (TYPE-D primary check applies). It addresses AGENTS.md rules (contract-update/no-new-ADR), this task's own hard scope boundary (no edit to plugins/**/scripts/**/.github/**/tests/**/contracts/**/docs/**, with AC-032 cross-reference), Security constraints (explicit cross-reference to Security Boundaries and Global Constraints sections, added in an impl-review round-1 remedy per its own header), and Compatibility constraints (every upstream Epic A1-A4 contract treated as content-frozen, cross-referencing ADR Change Log). Cross-checked against requirements.md's own constraint-bearing language ('never invokes a Provider API', 'never reads the clock', byte-identical/determinism guarantees, closed 16/12-value enums) -- each is discharged in design.md's Security Boundaries and Global Constraints sections, which Constraint Compliance cross-references rather than restates. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This feature is a deterministic, synchronous CLI script family with no live service, no SLA, no throughput/concurrency/response-time target; REQ-005's determinism/byte-identity guarantee is a correctness property, not a performance one. infra-spec.md's own Service Level Objectives section states this explicitly ('N/A -- no live service to hold an availability/latency SLO')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (and infra-spec.md's expansion of it) describes: deployment target (vendored contracts/resolver-evidence.schema.json copy under plugins/sdd-quality-loop/contracts/, staged human-copy for the protected script family, local dev / installed-plugin-layout / CI environments per infra-spec.md's Environments table); CI pipeline changes (ten new tests/*.tests.sh/.tests.ps1 suite registrations in tests/run-all.sh/.ps1, a staged test.yml human-copy candidate, a new vendored-copy --check drift entry); and per-task CHANGELOG discipline (REQ-008/AC-033). No feature-flag strategy is stated, but this feature has no incremental-rollout surface (a one-shot deterministic script family, not a gradually-enabled runtime feature) so the check's own conditional 'if the feature is being rolled out incrementally' does not trigger. Migration execution order relative to deployment does not apply because Data Plan explicitly states 'Migration Strategy: none' (see MIGRATION-PLANNED) -- there is no schema change requiring ordering against application deployment."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states explicitly: 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature.' It further explains why: contracts/resolver-evidence.schema.json, specs/<feature>/resolver-evidence.yaml, and the resolve-project-context script family are each a net-new, additive artifact with no prior version to migrate from, and generated/project-context.resolved.json is never a human-copy target. Per the check's own rule, 'If Data Plan states \"No data changes,\" emit PASS for this check' -- satisfied."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 'External Integrations' section correctly states 'None' -- this feature touches no third-party service or external system (no network, no credential, no Provider API, confirmed by Security Boundaries and security-spec.md's Framing). The four cross-script (same-repository, sibling-epic) dependencies this feature actually calls -- Epic A1 canonicalize-sdd-yaml, Epic A2 evaluate-predicate/generate-registry-digest/ADR-0025 discovery, Epic A3 resolve-component-paths, Epic A4's three validators/schemas -- are each explicitly named with purpose, contract version/status (Spec-Review-Status: Passed, content-frozen), and failure behaviour (a specific REQ-002 diagnostic-id per failure mode: canonicalizer-invocation-failed, dependency-output-malformed, affected-component-resolution-failed, registry-validation-failed, contract-discovery-failed, dependency-subprocess-failed) in design.md's API / Contract Plan and Cross-Layer Dependencies, and again in frontend-spec.md's own Dependencies table (name/version/purpose/alternative/license-note columns). No integration is mentioned only in passing."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every design element traces to a specific REQ-00X/AC-0XX citation; the AC-coverage sweep confirms 53 of 56 acceptance criteria are literal substrings of design.md, with the three absent ones (AC-035/036/037) being the Global-scoped, registration-commit-only criteria the AC-coverage gate itself excepts (verified: `grep AC-0NN design.md` for NN=001..056 returns a hit for every id except 035/036/037). requirements.md's Goals REQ-001 through REQ-008 are each covered by a corresponding design.md section (CLI contract/REQ-001, Block taxonomy/REQ-002, state-awareness/REQ-003, resolver-evidence.schema.json + validate-resolver-evidence/REQ-004, determinism guarantees/REQ-005, Test Strategy/REQ-006, capability interview phase design decisions/REQ-007, ADR Change Log + CHANGELOG discipline/REQ-008). Non-goals section explicitly excludes implementation, contract edits to Epic A1-A4 files, ADR authoring, and plugins/** edits, and design.md's own Constraint Compliance/Protected-File Statement confirm none of those boundaries is crossed. No design-system contract applies (backend-only feature, ux-spec.md/frontend-spec.md both state N/A -- no UI surface, matching Design System Compliance's own 'Not applicable'). No scope creep or under-scoping found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization-relevant transactional-publication atomicity, TOCTOU snapshot/recheck, provenance-binding validation, and protected-file boundary enforcement; cross-service (sibling-epic subprocess) integration failure behaviour. Each names a concrete validation path: security-spec.md's 'Security Tests' table maps every boundary (B1-B7) to a specific TEST-xxx artifact and expected result (e.g. TEST-039/artifact-publication-failed rollback lock, TEST-047/crash-recovery lock, TEST-050/TEST-051 provenance-binding locks, TEST-053 anchor-fingerprint drift lock); design.md's own Test Strategy section names all ten fixture suites and the specific AC-0NN each fixture discharges. No high-risk surface was found lacking a named acceptance-test artifact."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists at the project root (`ls domain/` -> No such file or directory), so this check does not apply."
+    }
+  ]
+}

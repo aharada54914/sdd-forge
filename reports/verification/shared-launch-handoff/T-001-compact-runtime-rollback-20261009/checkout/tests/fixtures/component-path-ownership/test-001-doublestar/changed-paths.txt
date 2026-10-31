@@ -1,0 +1,2 @@
+src/desktop/file.ts
+src/desktop/sub/deep/file.ts

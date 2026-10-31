@@ -1,0 +1,75 @@
+...FFF.FFFF.........
+======================================================================
+FAIL: test_canonical_admission_both_runtimes (__main__.Inputs.test_canonical_admission_both_runtimes) (runtime='pwsh', case='valid', reserve=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 196, in test_canonical_admission_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_canonical_admission_both_runtimes (__main__.Inputs.test_canonical_admission_both_runtimes) (runtime='pwsh', case='omit-all', reserve=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 196, in test_canonical_admission_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False : REVIEW_CONTEXT_OK 613c6852aec968bec92dfb68c4ac5e36178670439de581030c7aa62336500e68 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes
+
+
+======================================================================
+FAIL: test_canonical_admission_both_runtimes (__main__.Inputs.test_canonical_admission_both_runtimes) (runtime='pwsh', case='omit-all', reserve=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 196, in test_canonical_admission_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False : REVIEW_CONTEXT_OK 613c6852aec968bec92dfb68c4ac5e36178670439de581030c7aa62336500e68 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes
+
+
+======================================================================
+FAIL: test_historical_conditional_paths_need_exact_name_and_input_binding (__main__.Inputs.test_historical_conditional_paths_need_exact_name_and_input_binding) (runtime='pwsh', bound=True, path='domain/context-map.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 341, in test_historical_conditional_paths_need_exact_name_and_input_binding
+    self.assertEqual(result.returncode == 0, accepted, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_impl_design_system_completeness_both_runtimes (__main__.Inputs.test_impl_design_system_completeness_both_runtimes) (runtime='pwsh', case='valid', reserve=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 295, in test_impl_design_system_completeness_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : REVIEW_CONTEXT_PATH: impl-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_impl_design_system_completeness_both_runtimes (__main__.Inputs.test_impl_design_system_completeness_both_runtimes) (runtime='pwsh', case='omit-all', reserve=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 295, in test_impl_design_system_completeness_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False : REVIEW_CONTEXT_OK d2957feb5a8b1a121ebacb09cfbed3f42c31566b72c579202c814c4cd7e00bda sequence=2 previous_record_sha256=d9656a196f06bc1b4b1731c82ce19a5815f7a628d42340718ac6265e306cdc65 pre_append_tip_sequence=1 identity_unique=yes
+
+
+======================================================================
+FAIL: test_impl_design_system_completeness_both_runtimes (__main__.Inputs.test_impl_design_system_completeness_both_runtimes) (runtime='pwsh', case='omit-all', reserve=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/review-conditional-inputs.tests.py", line 295, in test_impl_design_system_completeness_both_runtimes
+    self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False : REVIEW_CONTEXT_OK d2957feb5a8b1a121ebacb09cfbed3f42c31566b72c579202c814c4cd7e00bda sequence=2 previous_record_sha256=d9656a196f06bc1b4b1731c82ce19a5815f7a628d42340718ac6265e306cdc65 pre_append_tip_sequence=1 identity_unique=yes
+
+
+----------------------------------------------------------------------
+Ran 16 tests in 20.966s
+
+FAILED (failures=7)

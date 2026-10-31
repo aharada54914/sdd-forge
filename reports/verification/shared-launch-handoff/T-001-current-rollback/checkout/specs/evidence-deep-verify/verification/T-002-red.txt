@@ -1,0 +1,50 @@
+# T-002 RED evidence — new invariant tests run BEFORE any implementation change
+#
+# Command: node --test dist-test/tests/tools/deep-verify-invariants.test.js
+# Task: T-002 / Feature: evidence-deep-verify / Run: evidence-deep-verify-T-002-run-01
+#
+# HONEST RESULT: all 15 new tests PASS on first run, none fail. T-001 (Status:
+# Implementation Complete) already implemented the three internal invariants
+# (spec_revision recompute, git_commit shape-only validation, contract/report
+# cross-binding) to T-002's acceptance criteria. Per tasks.md T-002 ("verify it
+# and complete") and the launch contract ("the new test may pass immediately —
+# record that honestly"), no implementation change to evidence.ts was required.
+#
+# Non-vacuity is proven separately by a mutation sanity check (see the report's
+# "Test Evidence" / mutation section): deliberately breaking the compiled build
+# artifact makes AC-006/007/008/009/010/019 tests FAIL, confirming the tests
+# have teeth. GREEN evidence (T-002-green.txt) is the same suite plus full
+# regression, all green, against the unmodified source.
+# ---------------------------------------------------------------------------
+✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (5.522958ms)
+✔ AC-007: a missing git_commit is shape-invalid + verdict fail (1.716167ms)
+✔ AC-007: a short git_commit is shape-invalid + verdict fail (1.842125ms)
+✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (1.860208ms)
+✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (1.781458ms)
+✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (1.683333ms)
+✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (1.728041ms)
+✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (2.326333ms)
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (2.069458ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (1.918334ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (1.983959ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (1.734ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (1.644667ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (1.653958ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (1.739459ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74.017417
+
+# ---------------------------------------------------------------------------
+# MUTATION SANITY CHECK (non-vacuity proof) — applied to the COMPILED build
+# artifact dist-test/src/tools/evidence.js ONLY (source evidence.ts untouched;
+# artifact restored afterward). Three mutations: (1) git shapeValid := true,
+# (2) specRevision.status := "match" always, (3) contract task_id check := false.
+# Result: 8 of 15 tests FAIL (AC-006, AC-007 x5, AC-009 task_id, AC-019 mismatch);
+# the 7 tests whose code paths were not mutated correctly still pass. This
+# confirms the new tests are non-vacuous and detect regressions in each invariant.

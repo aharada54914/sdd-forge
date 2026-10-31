@@ -1,0 +1,107 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-005",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "stack": "code",
+  "required_workflow": "tdd",
+  "spec_revision": "80584525647fccd41d560850d1b8dfa9a44439644047ab6540212a6bffe60348",
+  "comment": "Fresh deterministic packaging of admitted current-owner evidence. Historical attempt-2 behavioral RED is preserved separately from current GREEN. Current 620 path/hash/mode comparison and 41 evidence hashes were rechecked. Formal PASS does not release unresolved T-001 dependency or prove T-004 native/Windows/current-head CI. No status, approval, reservation or old evidence changed.",
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "waiver_reason": "Actual deterministic result is not-applicable (disabled-legacy); not a coverage PASS.",
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/component.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/ruff.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/mypy.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/shared-review-launch-repair/verification/T-005/attempt-2/coverage-gap-red.log",
+      "green_evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/build.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/placeholder.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/task-state.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/shared-review-launch-repair/verification/T-005/attempt-2/coverage-gap-red.log",
+      "green_evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/coverage.md",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/traceability.log",
+      "requirement_ids": [
+        "REQ-002"
+      ]
+    }
+  ]
+}

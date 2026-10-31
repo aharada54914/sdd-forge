@@ -1,0 +1,16 @@
+COMMAND: bash -n plugins/sdd-implementation/scripts/validate-implementation-report.sh
+RESULT: PASS
+COMMAND: bash -n tests/turn-first-workflow.tests.sh
+RESULT: PASS
+COMMAND: bash -n tests/retrospective-loop.tests.sh
+RESULT: PASS
+COMMAND: bash tests/turn-first-workflow.tests.sh
+ok: turn-first orchestration enforces three-task identity and fallback fixtures
+ok: implementation report v2 enforces complete file-backed handoff fields with legacy compatibility
+RESULT: PASS
+COMMAND: bash tests/retrospective-loop.tests.sh
+ok: retrospective fixture derives exact counts 3/2/2/2
+ok: retrospective loop prompts and templates are synchronized
+RESULT: PASS
+COMMAND: git diff --check -- <T-006 allowed tracked outputs>
+RESULT: PASS

@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "sdd-domain",
+  "attempt": 1,
+  "round": 2,
+  "reviewer_a_run_id": "RUN-20260703T1200Z-spec-reviewer-a-r2",
+  "reviewer_b_run_id": "RUN-20260703T1200Z-spec-reviewer-b-r2",
+  "reviewer_a_host_session_id": "SESS-spec-a-sdd-domain-a1r2",
+  "reviewer_b_host_session_id": "SESS-spec-b-sdd-domain-a1r2",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

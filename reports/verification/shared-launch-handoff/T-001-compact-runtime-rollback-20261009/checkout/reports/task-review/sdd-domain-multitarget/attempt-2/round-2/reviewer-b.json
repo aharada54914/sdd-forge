@@ -1,0 +1,36 @@
+{
+  "$schema":"task-reviewer-b/v1",
+  "stage":"task",
+  "role":"task-reviewer-b",
+  "feature":"sdd-domain-multitarget",
+  "attempt":2,
+  "round":2,
+  "run_id":"RUN-gemini-423-b-r2",
+  "host_session_id":"gemini-423-b-r2",
+  "manifest":{"allowed_inputs":[
+    {"path":"specs/sdd-domain-multitarget/requirements.md","sha256":"412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"},
+    {"path":"specs/sdd-domain-multitarget/acceptance-tests.md","sha256":"8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"},
+    {"path":"specs/sdd-domain-multitarget/investigation.md","sha256":"41cfa346a50c4b7d64a3d014b287ca600cc47ba8a2bec2b53698ed038e86f113"},
+    {"path":"specs/sdd-domain-multitarget/tasks.md","sha256":"d7330c004133ca96e02d0c8faabe878f61aa4d5bacbdce6a8e6cba1696d8dd89"},
+    {"path":"specs/sdd-domain-multitarget/design.md","sha256":"161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"},
+    {"path":"specs/sdd-domain-multitarget/traceability.md","sha256":"b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"},
+    {"path":"specs/sdd-domain-multitarget/ux-spec.md","sha256":"f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"},
+    {"path":"specs/sdd-domain-multitarget/frontend-spec.md","sha256":"b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"},
+    {"path":"specs/sdd-domain-multitarget/infra-spec.md","sha256":"60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"},
+    {"path":"specs/sdd-domain-multitarget/security-spec.md","sha256":"600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/sdd-domain-multitarget/attempt-2/round-2/precheck-result.json","sha256":"3b462585805c57de2e0b2652b376ad491109ce7e50538d23936c5078ddbeb70f"},
+    {"path":"reports/task-review/sdd-domain-multitarget/attempt-2/round-2/integrated-summary.json","sha256":"485d0f4eca347e1477b7b2dca44a21008f5debf152e29b9954170934f02515a1"}
+  ]},
+  "verdict":"PASS",
+  "checks":[
+    {"id":"CHK-B01","result":"PASS","severity":"Minor","summary":"The tasks are implementable in dependency order."},
+    {"id":"CHK-B02","result":"PASS","severity":"Minor","summary":"Risk and rollback handling is explicit for high-risk tasks."},
+    {"id":"CHK-B03","result":"PASS","severity":"Minor","summary":"Scope and assumptions are consistent with the approved design."},
+    {"id":"CHK-B04","result":"PASS","severity":"Minor","summary":"Acceptance tests provide observable evidence for each task."},
+    {"id":"CHK-B05","result":"PASS","severity":"Minor","summary":"Compatibility and migration boundaries are actionable."},
+    {"id":"CHK-B06","result":"PASS","severity":"Minor","summary":"Review and lifecycle states can be executed without frozen-artifact edits."},
+    {"id":"CHK-B07","result":"PASS","severity":"Minor","summary":"Provider, host, and release constraints are represented."}
+  ],
+  "findings":[]
+}

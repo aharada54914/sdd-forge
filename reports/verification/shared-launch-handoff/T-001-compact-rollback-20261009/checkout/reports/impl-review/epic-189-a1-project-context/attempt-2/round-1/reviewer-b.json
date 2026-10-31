@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-b-attempt2-seq0329",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-189-a1-project-context-attempt2-seq0329",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "3a68384e14e613e3b9e1397d5407c740b0e97dc4a840986955555c61b828ee5f"},
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-189-a1-project-context/attempt-2/round-1/precheck-result.json", "sha256": "025c64a0681757601b09ff1476eab5d65c218c4bd7b58855895dbbcbcc227442"},
+    {"path": "reports/impl-review/epic-189-a1-project-context/attempt-2/round-1/integrated-summary.json", "sha256": "42214fbb3a34f00f8c8d657ed1145a22e001df4469963bfd0cc50247d307961a"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No unjustified decisions found. design.md's 'Design Decisions' section (lines 1258-1432) states every architectural choice with an explicit 'Decided:' clause plus rejected alternatives (e.g. journal-plus-backup protocol vs. single-syscall multi-file atomic rename vs. accepting partial-publish risk; PyYAML/ruamel.yaml in strictest mode plus explicit post-parse walk vs. bare loader-flag reliance; dedicated sentinel path vs. live sidecar for the canary). frontend-spec.md's Technology Stack table has a filled 'Rationale' cell for every row. Grep for unjustified 'will use'/'We will use' patterns in design.md returned zero matches."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's single '## Open Questions' section (line 1580) states 'None blocking' and resolves OQ-001/OQ-002/OQ-003 with a named decision owner for each: OQ-001 (approver-registry location) is revisitable by 'impl-review' if it warrants its own ADR (Design Decisions, line ~1260); OQ-002 (array-vs-scalar shape) is closed outright by a stated design decision with no residual re-visitation; OQ-003 (tasks.md/traceability.md Phase-2 deferral) was 'RESOLVED by coordinator decision (2026-07-22)'. No entry blocks implementation and no entry lacks a resolution owner/path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-015, OQ-001..OQ-003) and design.md's Assumptions section (lines 1556-1578) grounds each entry: the PROTECTED_GATE_SUFFIXES/exact-match-validation assumption traces to INV-006; 'no existing approver registry/Project Context schema/canonical YAML-JCS procedure' explicitly cites 'investigation.md Assumptions'; the per-runtime tool-call-denial-signature stability assumption explicitly cites INV-015; the approved-context anchor resolution assumption is a reasonable technical default explained inline and cross-referenced to Risks. requirements.md's own Assumptions section similarly cites INV-008 and an inline verification ('verified: grep -rn approver-registry ... returns no match at investigation time')."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a '## Constraint Compliance' section (lines 1522-1554, primary TYPE-D path applies) with a 29-row table mapping each requirements.md constraint (workflow.* single-valued, distribution_channels/data_classification newly defined, component/binding id uniqueness, YAML 1.2 core-schema rejection categories, RFC 8785 JCS numeric form, no-PowerShell-native-fallback, HMAC preimage exclusion, approver-registry immutability, signer never-writes-live-path, weakening-detector anchor resolution, exact-match guard-invariants registration, CLI-flag stricter-only, PROJECT_CONTEXT_INVALID routing, all-five-consumers-migrated, hook-fail-closed, twin-pair mandate, CI resilience, etc.) to a specific design response. No requirements.md constraint (searched for 'must not'/'shall not'/'within N ms'/'maximum N'/'compliant with'/'compatible with' patterns) was found unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A targeted grep for response-time/throughput/concurrency/latency/SLA/millisecond patterns across requirements.md returned zero matches, and infra-spec.md's Service Level Objectives section explicitly states 'N/A — no live service to hold an availability/latency SLO' since every deliverable is a single, deterministic, synchronous CLI invocation with no concurrency model of its own."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1500-1520) states the deployment target ('No runtime deployment; no new plugin... New suite pairs join tests/run-all.sh/.ps1 directly'), CI pipeline changes ('each corresponding .github/workflows/test.yml step is staged via apply-human-copy'; 'generate-guard-invariants.py --check ... is the first CI signal that would catch an incomplete or out-of-order REQ-007 human-copy application'), and a rollback procedure with an explicit protected-file caveat. No incremental feature-flag rollout applies (activation is presence-based: Project Context physically present vs. absent, itself documented as the rollout gate in REQ-009's Presence/validity semantics); Data Plan's 'Migration Strategy: none' means no schema-migration execution order is applicable for this Deployment/CI Plan to omit."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states 'Migration Strategy: none. Every artifact this epic defines is wholly new; no existing schema, script, or content file is migrated in place' (line 436-437), functionally equivalent to the check's 'No data changes' pass condition. The 'Existing Data Affected' entries (guard-invariants.json, generate-guard-invariants.py, four generated files, PLUGIN-CONTRACTS.md) are code/config edits applied via the human-copy publisher's atomic-rename+journal+crash-recovery protocol (Human-copy publisher transactional bundle contract, lines 927-1016), not row/table data migrations — no relational schema or existing content-file migration is declared."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This design's Non-goals explicitly state no Provider/network integration is introduced ('no Provider integration', design.md header; security-spec.md SBOM/Supply Chain: 'No network dependency and no Provider integration'). The one genuine external-system surface — the three host runtimes (Claude Code, Codex CLI, Copilot CLI) whose PreToolUse hook dispatch REQ-010's handshake depends on — is documented per-runtime with name/purpose, an explicit contract (Claude Code's '--emit exit' deny signature; Codex CLI's plugin_hooks-gated dispatch; Copilot CLI's '--emit copilot' JSON, requirements.md REQ-010 'Redesigned protocol' subsection), and failure behavior (CAPABILITY_RUNTIME_UNAVAILABLE, fail-closed, never a silent legacy-mode fallback) — well beyond an in-passing mention."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table cites its owning REQ-00x, and every REQ-001..REQ-011 in requirements.md's Goals has a corresponding design.md section (Architecture, Components, Data Plan, API/Contract Plan, Test Strategy). Additions that could look like scope creep — contracts/project-context.template.yaml, provider-bindings.yaml's adapter_paths field, ADR-0025 — are each traced to an explicit requirements.md REQ-001/REQ-002 clause or the ADR Change Log's own justification, not introduced silently in design.md alone. No domain/ or design-system/ directory exists in this repository (verified via read-only `ls`), so the design-system-contract clause of this check does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This design's high-risk surfaces are security/authorization changes (B1-B9 in design.md's Security Boundaries) and cross-service integration failure behavior (REQ-010's handshake). Every boundary has a concrete, named verification path: B2 (write boundary) -> TEST-023's 96-assertion matrix; B3 (HMAC key custody) -> TEST-011/012/013/034/036; B4 (weakening self-approval) -> TEST-018/019/020/030/043; B7 (hook-handshake integrity) -> TEST-027/032/035; B8 (publish atomicity) -> TEST-033; B9 (publisher self-protection) -> TEST-021/023 — all cross-referenced again in security-spec.md's Security Tests table with REQ/AC citations. No PII handling or payment/externally-visible contract change is present (security-spec.md Data Classification: 'No PII ... is stored by any artifact this Epic designs')."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this repository has no `domain/` directory (verified via read-only `ls domain/` -> 'No such file or directory'), so there is no `domain/context-map.md` with `Domain-Model-Status: Approved` and no `domain-contract.json` to check against. The check's own skip condition applies."
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-cimcp-a1r1-20260706-ab74",
+  "host_session_id": "hs-impl-b-8eee4773-0006",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "9fbba826b19b0f38a940b8c335910baf6f7c42b36de8f8eef4dc99c73dd56b74"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d6fec6737e79e8c41c568a715532c83a7688a4562311c8fdb147b86002e05454"
+    },
+    {
+      "path": "reports/impl-review/ci-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "f28bdb5354654888e3d1c173cdaad146d57d3502b6099f5d32f9877ecab0a080"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. Each stated decision carries an inline rationale: esbuild single-bundle distribution ties to ADR-0003 (design.md Technical Summary); Node built-in fetch/undici chosen 'to avoid additional dependency' (frontend-spec.md Dependencies table, '追加依存なしで GET 専用アクセス'); zod chosen for 'SDK 統合性' over ajv (frontend-spec.md Dependencies, alternatives explicitly rejected with reason); tail-priority 256 KiB truncation justified because 'failure diagnosis benefits from the tail' (design.md API/Contract Plan, REQ-008); env-var token priority order justified to avoid 'GITHUB_TOKEN 高権限トークン混入リスク' (design.md OQ-004); the three-point differentiation from official github-mcp-server is explicitly reasoned (Technical Summary)."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. design.md's four Open Questions (OQ-001 through OQ-004) each state an Owner (role, e.g. '実装タスク担当 (ツール入力設計) / 承認は人間' or '製品判断(人間)' — not bare 'TBD'), a Blocks Implementation field (partial/no), and a concrete Resolution Path (e.g. OQ-001: '製品判断 → 本節と契約を更新'; OQ-004: '製品判断 → 本節と security-spec.md を更新'). None of the blocking ('partial') OQs lack a resolution path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. investigation.md is absent, but design.md's ## Assumptions section contains no ungrounded non-trivial entries: (1) it explicitly defers to requirements.md's Assumptions (github.com-first scope, user-provided read-only PAT, ADR-0006 definition of read-only — reasonable technical defaults/scoping decisions); (2) the GitHub Actions REST API GET-accessibility-under-read-scope-PAT assumption cites the basis 'public official documentation, to be reconfirmed at implementation start' (reasonable default for a stable public API); (3) the installer-mechanism-generalizes-to-ci-mcp assumption cites a verifiable basis 'install.sh:18-21', confirmed by direct inspection: install.sh lines 18 and 21 are exactly `MCP_LIST=\"sdd-forge-mcp,local-env-mcp\"` and `VALID_MCPS=\"sdd-forge-mcp local-env-mcp\"`. All entries meet category 2 (reasonable default with cited basis) or reference category-1-equivalent grounding via requirements.md."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. design.md contains a ## Constraint Compliance section (primary/Critical path applies). Cross-checked against constraint language found in requirements.md (write-operation prohibition, read-only local FS, token non-leak, upstream error normalization, job-log 256 KiB limit '上限超過...truncate', ADR-0003 distribution, install-time selectability, non-duplication with github-mcp-server): every one of these constraints has a corresponding row in the Constraint Compliance table mapping to a Design Response and AC reference. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md (no numeric latency/throughput/concurrency thresholds or SLA statements appear in requirements.md; grep for 'SLO/レスポンス/latency/throughput/concurrency/p95/秒/ms' returned no requirement-level hits). Note: infra-spec.md independently defines a Service Level Objectives table (startup <=1s, tool response p95 <=2s under fake API, job-log cap), which is design-layer elaboration, not a requirements.md-stated performance requirement, so it does not change this check's PASS outcome."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. design.md's ## Deployment / CI Plan describes: deployment target (local install via installer, repo-relative mcp/ci-mcp/dist), CI pipeline changes (test.yml gains a ci-mcp job: typecheck/test/static/dist-parity, fake GitHub API — no real network), and rollback (single revert of dist + installer changes, same PR). Feature-flag-equivalent (install-time opt-in/opt-out via `--mcp`/`--skip-mcp`) is documented in the same design.md's Constraint Compliance table ('既存 `--mcp` / `--skip-mcp` 機構に `ci-mcp` を追加'). Data Plan states 'Migration Strategy: 不要(新規 feature)' — no schema changes exist, so migration execution order relative to deployment is correctly not required (see MIGRATION-PLANNED)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan states 'Data Entities: なし(永続データを持たない)' and 'Migration Strategy: 不要(新規 feature)'. No schema changes (column/table) are declared; the feature adds no database. Per check definition, 'No data changes' statement results in PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The single external integration (GitHub Actions REST API) is explicitly identified: name/purpose in Technical Summary and Architecture diagram ('GitHub Actions REST API (api.github.com)' for CI metadata retrieval); contract version in requirements.md Assumptions ('GitHub.com REST API v3, api.github.com') referenced from design.md Assumptions; and failure behaviour fully enumerated in design.md's API/Contract Plan status-to-error-code mapping table (401→auth-missing, 403+ratelimit→rate-limited, 403 no-indicator→upstream-error, 404→not-found, 429→rate-limited, 5xx/network→upstream-error) plus Security Boundaries B2 auth mechanism."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md's Components table (index.ts, server.ts, envelope.ts, auth.ts, repo-resolve.ts, github-client.ts, tools/actions.ts, diagnostics.ts, contract schema, installer/uninstaller extensions, CI workflow extension) maps one-to-one onto requirements.md's Goals and REQ-001 through REQ-013 with no extra tools, endpoints, or data models introduced beyond the 5 specified tools. All User Stories (run-status check via list_workflow_runs, failure diagnosis via list_run_jobs+get_job_log, artifact metadata via list_run_artifacts, installer one-shot registration) are covered by corresponding design components and Main Workflows entries. No scope creep or omission identified."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. High-risk surfaces present (write-boundary/authorization enforcement, token/PII-adjacent handling, cross-service integration failure behaviour) each have a concrete validation path named in design.md's Test Strategy: static write-check (mcp/ci-mcp/tests/readonly/, TEST-007/AC-007), no-write input schema check (tests/no-write/, TEST-006/AC-006), token scrubbing canary check (tests/no-secrets/, TEST-009/AC-009), auth-missing path (tests/auth/, TEST-008/AC-008), upstream error-path fake-API tests (tests/error-paths/, TEST-010/TEST-011/AC-010/AC-011), contract validation via ajv (tests/contract/, TEST-013/AC-013), and MCP Inspector smoke test (tests/smoke/, TEST-015/AC-015). Each names a concrete test target path and AC/TEST ID pairing."
+    }
+  ]
+}

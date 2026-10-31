@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "design-sync-consent",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-design-sync-consent-task-task-reviewer-b-seq0502",
+  "host_session_id": "SESS-task-task-reviewer-b-design-sync-consent-0502",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+        "sha256": "6adc17dce47e430e65f651106d294d0b3edf8f65cd2a8984184220bed875e2a3"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+        "sha256": "ebf26b314182f69b39bf132195b3f687321b3b82b68284548a4f822ba7c62add"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+        "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+        "sha256": "63ce02d71d9698f88c2cd257dc825d856ff8086b73d0bc702fba4c2a9ba67d4b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+        "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+        "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+        "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+        "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/tasks.md",
+        "sha256": "d564c05b22d58b77add51d653b3ab1a494208ea6be3540464843a684a04852bd"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/traceability.md",
+        "sha256": "75c69cdb8cb713cfdc7c341f9071125cd7893bfbf28d498b7f3e720f1d73e2e2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+        "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks' tiers match risk-classification-policy.md:12-19. T-002 (tasks.md:321, Rationale :323-343) is high: it edits design-sync-loop/SKILL.md's actual consent-resolution control text (design.md:90-158), the policy's 'anything where a silent defect causes material harm' ground -- not over-classified since its scope is the substantive security-relevant control, not UI/docs/test-only. T-001 (tasks.md:175), T-003 (tasks.md:521) and T-004 (tasks.md:613) are medium: none implements/relaxes the consent decision itself. T-005 (tasks.md:705, Rationale :707-726) is newly re-verified on its own merits: it registers T-001's already-authored suite files into tests/run-all.{sh,ps1} (internal-tooling, observable behavior, no auth/authz/payment/PII/migration/external-API-contract surface per the proximity rule) -- medium, not low, because a newly-reachable branch is a control-flow impact the low tier excludes (T-005's own rationale states this, tasks.md:716-718); not high because the load-bearing checks TEST-018/TEST-026 are already directly exercised by T-002's Done-When independent of run-all (tasks.md:499-504), so a T-005 defect degrades local/CI reachability convenience, not this feature's own gating. No proximity-rule violation or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002 is the only high/critical task (Risk: high, tasks.md:321). Its Done-When carries both required items post-split: TDD Red->Green evidence with RED/GREEN stages explicitly separated (tasks.md:493-498) plus an independent review verdict 'recorded by a named reviewer distinct from the implementing agent' and an independent quality-gate verdict (tasks.md:508-511), matching risk-gate-matrix.md:28-30's tdd/independent-review-verdict requirements. The TDD evidence chain survives the T-001/T-005 split without a silent dependency on T-005: tasks.md:499-504 states explicitly 'Both runs invoke the suite directly ... not via tests/run-all -- this task's RED/GREEN evidence does not depend on T-005's run-all registration landing first (T-005's own Blockers is T-001 only, and T-005 may land before, after, or concurrently with this task)'. No critical task exists, so second-approver/signed-evidence-bundle does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Mechanically recounted every task's top-level '- [ ]' items via grep (tasks.md:236,250,267,286,305 / 380,396,461,485,493,505,508 / 562,568,573,577,588,594,599 / 653,661,666,676,679,684,691 / 763,766,775,781,795,801): T-001=5, T-002=7, T-003=7, T-004=7, T-005=6. All are at or under the 8-item oversized threshold (round 1's finding was T-001=19, T-002=10; both now resolved). T-001's item 2 (tasks.md:250-266) elevates TEST-018/TEST-026 to the second checkbox, no longer buried. No fragmentation indicator present either: none of the five tasks is a single-function/single-file 'rename X to Y' edit; each carries a substantive Done-When with verification evidence. TASK-SIZE is resolved."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional tasks T-002/T-003/T-004 all carry error-path/edge-case coverage beyond happy-path ACs. T-002's Requirements (tasks.md:357-361) include AC-013's capability-detection failure branches (TEST-019/020), AC-026's transient-decline path (TEST-041-043), AC-027's destination-mismatch re-gate (TEST-044/045), AC-028's mid-session withdrawal (TEST-046/047), and AC-030's four-part push-failure rule (TEST-051, tasks.md:440-446). T-003's Requirements (tasks.md:548-549) include AC-016's negative ds_profile:none leak-check (TEST-024) and AC-022's negative CHANGELOG-unmodified check (TEST-037, Done-When tasks.md:588-593). T-004's Requirements (tasks.md:639) include AC-023's negative live-file-unmodified check (TEST-038, Done-When tasks.md:666-675). No functional task is happy-path-only."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003's declared 'Test Type:' field (tasks.md:544-546) reads 'document conformance (real file reads) over three targets: sdd-bootstrap-interviewer/SKILL.md, docs/workflow-guide.md, and claude-design-workflow.md.' But T-003's own Requirements line (tasks.md:548-549, 'REQ-007 (AC-021 -- sites 3 and 4, AC-022)') and its Done-When item (tasks.md:588-593, 'is not touched by this task ... verified by diff showing zero changes to that file (BL-006, AC-022, TEST-037)') both claim T-003 delivers AC-022/TEST-037 verification over a FOURTH target, CHANGELOG.md. acceptance-tests.md:47 states TEST-037's actual type is 'regression (negative)', not 'document conformance' -- the same distinct type acceptance-tests.md:256's own Notes section calls out as one of only four exceptions to the document-conformance default. T-003's Test Type field both omits the fourth target and mislabels/omits TEST-037's per-row type, contradicting acceptance-tests.md's own typing for a Test ID the task's own Requirements/Done-When claim to cover."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002, the only high-risk task, carries an explicit Rollback field (tasks.md:365-376) stating the revert is a single-commit prose revert, flagging the revert as a security-tightening (not neutral) action, specifying the safe partial-rollback direction relative to T-003, and noting a Design-Source record written under the new model survives the revert as inert text. Satisfies the Done-When/Rollback requirement for high-risk tasks; unchanged from round 1."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Global Constraints (:113-119, 'Functional-dependency serialization') states explicitly 'T-001 is the only task that edits tests/design-system-contract.tests.{sh,ps1}; T-005 is the only task that edits tests/run-all.{sh,ps1} ... there is no shared-artifact conflict among any pair of tasks here'; the 'One commit per task' bullet (tasks.md:101-109) independently confirms T-005's single commit contains only the two run-all files; traceability.md's Task Mapping table (:84,:88) lists disjoint 'Shares' columns for T-001 and T-005. T-002 (design-sync-loop/SKILL.md only), T-003 (three named files, none shared with T-001/T-005/T-002/T-004) and T-004 (draft path + human-copy/MANIFEST.sha256 only) remain disjoint from all others and from each other. One ambiguity worth flagging as advisory, not a defect: T-005's Rollback field (tasks.md:753-759) states its mis-cased negative fixtures are 'recorded in-suite, alongside T-001's assertions, not as separate files', which reads in tension with the same field's 'Additive to two runner files' framing one sentence earlier -- but even a literal reading would fall under the check's own 'Blockers field enforces the ordering' carve-out (T-005<-T-001, tasks.md:751), not the 'uncoordinated parallel ... no blocking relationship' Major condition, so this does not rise to a FAIL."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The new T-005<-T-001 edge (tasks.md:751) is justified: T-005 registers T-001's suite files in tests/run-all.{sh,ps1} and 'needs those files to exist before it can append a reachability entry for them' (tasks.md:135-142). T-002's Blockers remains T-001 only (tasks.md:363) and is explicitly confirmed NOT to need T-005: tasks.md:499-504 states T-002's RED/GREEN evidence invokes the suite directly, 'does not depend on T-005's run-all registration landing first', and Global Constraints :139-142 states T-005 itself does not depend on T-002/T-003/T-004. T-004's Blockers T-001,T-002 (tasks.md:641) remain justified: T-001 because TEST-017/TEST-038 must exist (tasks.md:127-129), T-002 because T-004's draft candidate must match T-002's landed field-name shape to avoid an undetected mismatch (tasks.md:130-134, tasks.md:657-660 'content re-verified against T-002's landed field table'). No spurious or missing blocker found; T-002/T-003/T-005 remain uncross-blocked among themselves per tasks.md:143-147."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All five tasks (T-001 assertion-suite authoring, T-002 Loop restructuring, T-003 reconciliation edits, T-004 staged-candidate creation, T-005 run-all registration and baseline evidence) are feature/workflow-policy tasks per their titles and Goal/Scope text; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TEST-TYPE-MATCH",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "T-003's Test Type field (tasks.md:544-546) claims only 'document conformance (real file reads) over three targets' (sdd-bootstrap-interviewer/SKILL.md, docs/workflow-guide.md, claude-design-workflow.md), but T-003's own Requirements (tasks.md:548-549) and Done-When (tasks.md:588-593) claim AC-022/TEST-037 coverage against a fourth target, CHANGELOG.md, whose actual type per acceptance-tests.md:47 is 'regression (negative)', not 'document conformance'. The field both omits the fourth target and misstates/omits the differing test type for a Test ID the task claims to deliver."
+    }
+  ]
+}

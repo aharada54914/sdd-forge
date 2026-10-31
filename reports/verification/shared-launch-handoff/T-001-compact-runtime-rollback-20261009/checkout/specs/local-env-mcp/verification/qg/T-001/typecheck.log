@@ -1,0 +1,4 @@
+# collected 2026-07-05T16:35:49Z (quality-gate T-001, fresh run this session)
+$ npx tsc --noEmit
+
+TYPECHECK PASS (exit 0)

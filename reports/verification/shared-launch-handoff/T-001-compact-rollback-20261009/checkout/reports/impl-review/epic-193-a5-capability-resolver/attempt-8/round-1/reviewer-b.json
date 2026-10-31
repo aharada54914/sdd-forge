@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a8r1-seq0872",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a8r1-0872",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b80ded58f0742c5a6c9f57d18a61880a9430d9186ed3bb6b60b180ecd4d1559b"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-8/round-1/precheck-result.json", "sha256": "26c2c63792b2e81fcb9f6a1dfcdd6b56cde0202cb9db0e3801079d070cfb9386"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-8/round-1/integrated-summary.json", "sha256": "86450548e200b77669462b02b6dd38680753807d01f50faf7f84d105cee7a2c1"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every technology/architectural decision in design.md carries an explicit rationale (e.g. Components table cites 'matching canonicalize-sdd-yaml's own dispatch shape'; ADR Change Log states why no new ADR is authored; the publication-transaction design explicitly reuses Epic A1's 'design.md:927-1016' pattern isomorphically with a stated closing-the-gap rationale for each of B1/B8)."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md '## Open Questions' (lines 2996-3011) restates OQ-001 and OQ-002 from investigation.md without the required `Blocks Implementation: yes/no` and `Resolution Path:` fields, and without naming an owning role (OQ-001: 'whether some future caller ... invokes the Resolver on a fixed cadence is that caller's own contract'; OQ-002: 'Left open for a future epic (plausibly A6/A8) ... to fix'). 'a future caller'/'a future epic' is not a role-level owner, and neither entry states explicitly whether it blocks this package's own implementation. OQ-003 alone is resolved with a concrete anchor; OQ-001/OQ-002 do not meet the template's field requirements."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md '## Assumptions' (lines 2985-2994) restates requirements.md's assumptions, each grounded either in investigation.md (Epic A1-A4 Spec-Review-Status: Passed content-freeze, guard-invariants.json reservation) or in a stated, re-verifiable technical default (SKILL.md's unprotected status re-verified at future task start, investigation.md INV-017). investigation.md is present with INV-001..INV-020, satisfying the grounding requirement."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md directly contradicts the current, frozen (2026-09-03, ruling (F), human-approved) requirements.md text on Resolver Evidence's always-emitted guarantee. requirements.md's own 'Ruling Annotations' rule (requirements.md:928-949) now states as authoritative that AC-012/REQ-002's Evidence-write rule has a THIRD, non-diagnostic no-write condition (ruling (a), 2026-08-28: an Evidence target that does not resolve inside its own specs/<feature> directory writes no Evidence at all) in addition to the two named diagnostic-id exceptions (requirements.md:386-398, :447-453, :928-949, :965). design.md never states or references this third condition anywhere (grep for 'uncontained'/'containment'/'non-diagnostic'/'escape' in design.md returns no hits), and instead makes the now-superseded absolute claim explicitly TWICE: design.md:2433 ('one of AC-012's two exceptions, which writes nothing at all') and design.md:2870 ('except the two REQ-002 names — fully written'). Unlike requirements.md's own parallel 'two exception' sentences, which now all carry the document-wide bounding annotation directing the reader to rulings (a)/(A)/(B), design.md's occurrences carry no such qualifier, so a reader of design.md alone (the API/Contract Plan a future implementer or auditor would consult) is told an exception count the currently-authoritative requirements.md text no longer asserts unconditionally. This is a direct textual contradiction on a security/audit-relevant behavioral guarantee, not merely an omission, and falls outside the amendment-supersession suppression rule (reviewer-calibration.md 'Amendment Re-Review Context': 'the amended design's activation predicate contradicts a requirement ... These stand on their own defect')."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (no numeric latency/throughput/concurrency/SLA thresholds located by keyword scan of requirements.md)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment / CI Plan' (lines 2913-2946) names concrete deployment mechanics: vendoring of the new schema into plugins/sdd-quality-loop/contracts/ with a --check drift comparison, CI registration of new tests/*.tests.sh/.ps1 suites into the existing test.yml workflow, human-copy staging discipline for the eventual CI-registration commit (Protected-File Statement), and a per-task CHANGELOG.md discipline (REQ-008/AC-033). No feature-flag rollout is applicable (this is an internal deterministic CLI script family, not a user-facing incremental rollout; the disabled-legacy/advisory/required state derivation via ADR-0016 serves the analogous purpose and is documented in REQ-003/API Contract Plan). No database migration-execution-order statement is required or present because this feature declares no database schema change (see MIGRATION-PLANNED)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Data Plan' (from line 464) declares only new JSON-Schema contract files and new file-based output artifacts (resolver-evidence.schema.json, facet-manifest.yaml, capability-summary.yaml, project-context.resolved.json, resolver-evidence.yaml) — no database table or column change of any kind. The check's schema-change/rollback/data-volume triggers (column or table changes) do not apply to this feature; there is no database in scope."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## External Integrations' states 'None' with justification (all I/O repository-local). The feature's four intra-repository CLI dependencies (Epic A1 canonicalize-sdd-yaml, Epic A2 evaluate-predicate/generate-registry-digest, Epic A3 resolve-component-paths) are each identified with purpose, invocation contract, and explicit per-dependency failure behaviour via REQ-002's diagnostic-id table (requirements.md) and design.md's API / Contract Plan (canonicalizer-invocation-failed, dependency-subprocess-failed, dependency-output-malformed, contract-discovery-failed, affected-component-resolution-failed rows), satisfying the check's intent even though these are internal rather than third-party integrations."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md's Components/API-Contract-Plan/Data-Plan map tightly to requirements.md's REQ-001 through REQ-008 with no unrequested component introduced (Non-goals section and repeated 'this feature does not X' statements throughout requirements.md/design.md bound scope explicitly), and each Goal (REQ-001..REQ-008) has corresponding design.md coverage (CLI contract, Block taxonomy, state-awareness, Resolver Evidence schema, determinism, test strategy, caller integration, versioning/changelog)."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The path-containment write-escape refusal for resolver-evidence.yaml (ruling (a)/(F), a Security-Sensitive surface per security-spec.md's boundary framing) is a high-risk design claim with no named verification path in design.md. design.md '## Test Strategy' item 2 (lines 1846-1855) enumerates exactly 'sixteen total' REQ-002 diagnostic-id fixtures and names no fixture for the non-diagnostic containment condition; no other Test Strategy item (1-10) names one either. Since design.md nowhere states this condition exists (see NO-REQ-CONTRADICTION), it correspondingly names no command, CI job, or fixture that would validate it."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory present at the repository root, so the Approved-domain-model precondition for this check does not hold."
+    }
+  ]
+}

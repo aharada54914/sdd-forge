@@ -1,0 +1,12 @@
+{
+  "feature": "sdd-forge-refactor",
+  "exitCode": 1,
+  "fileNotFound": false,
+  "ownFailureMessages": [
+    "T-001 evidence bundle failed validation: specs/sdd-forge-refactor/verification/T-001.evidence.json",
+    "T-002 evidence bundle failed validation: specs/sdd-forge-refactor/verification/T-002.evidence.json",
+    "T-003 evidence bundle failed validation: specs/sdd-forge-refactor/verification/T-003.evidence.json",
+    "T-004 evidence bundle failed validation: specs/sdd-forge-refactor/verification/T-004.evidence.json",
+    "T-005 evidence bundle failed validation: specs/sdd-forge-refactor/verification/T-005.evidence.json"
+  ]
+}

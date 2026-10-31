@@ -1,0 +1,121 @@
+T-003 REQ-002 pattern ANCHOR regression -- GREEN verification log
+================================================================
+
+Pristine-tree run of tests/sdd-domain/contract-v2-schema.Tests.ps1 with the
+anchor-regression checks in place and both validator twins UNMODIFIED.
+
+Toolchain: pwsh 7.6.2, Pester 4.10.1, macOS (darwin 25.5.0).
+Command:  pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 4.10.1; Invoke-Pester -Script "tests/sdd-domain/contract-v2-schema.Tests.ps1"'
+
+Windows PowerShell 5.1 could NOT be exercised here (this host is macOS); the
+5.1 leg of the .ps1 twin is unverified by this run.
+
+Twin hashes at the time of this run (unchanged from before the work):
+  4613aacd33ed9c30956f218374a300503e25ddfa936e478759ca2a1253e152e4  plugins/sdd-domain/scripts/validate-domain-contract.sh
+  8410894d3d4dd26b0d46b99e60e4de1e96bfa733c14949c503cb9be2c75a9eac  plugins/sdd-domain/scripts/validate-domain-contract.ps1
+
+Counts
+------
+  before this change   269 passed / 0 failed / 0 skipped
+  after  this change   287 passed / 0 failed / 0 skipped
+  delta                +18 checks, all new, none pre-existing
+
+The matching RED log (anchor-regression-red.log) records the two mutation
+runs that prove these 18 checks can fail: reverting either twin's anchors to
+^ ... $ turns 6 of them red.
+
+Allocation assertions -- UNCHANGED
+----------------------------------
+The new checks live in their own Describe blocks with their own fixture list,
+deliberately OUTSIDE tasks.md's `## Negative Fixture Allocation` table,
+following the RT-20260819-001 precedent. Every allocation assertion still
+reports its original value:
+
+  [+] contributes exactly 62 negative fixtures
+  [+] allocates 3 fixtures to AC-018 (pattern)
+  [+] contributes exactly 8 negative fixtures
+  [+] T-002 contributes exactly 3 negative fixtures (AC-017 x2, AC-012 x1)
+  [+] T-003 contributes exactly 62 and T-004 contributes exactly 8 (restated here for the sum below)
+  [+] the full negative corpus totals exactly 73 fixtures -- a divergence means a fixture was dropped or duplicated
+  [+] the full corpus totals 78 fixtures (5 positive families + 73 negative fixtures)
+  [+] the corpus holds exactly 16 classes -- 13 that must reject, 3 that must stay accepted
+
+  AC-018 = 3, T-003 structural total = 62, T-004 = 8, T-002 = 3,
+  negative grand total = 73 (3 + 62 + 8), AC-013 parity corpus = 78.
+
+The 18 new checks (all green)
+-----------------------------
+  Describing T-003 REQ-002 anchor regression fixture integrity (non-vacuity for the anchor checks below)
+    [+] the block holds exactly 3 cases -- one per REQ-002 pattern field -- with distinct field paths
+    [+] each rejecting body carries the newline as a two-character JSON escape and holds no raw 0x00-0x1F byte
+    [+] each rejecting body really decodes to a value ending in a real newline, and its control does not
+  Describing T-003 REQ-002 anchor regression -- newline-free values stay accepted (this block must not pass by rejecting everything)
+    [+] ps1 twin accepts the newline-free control for concepts[0].id
+    [+] sh twin accepts the newline-free control for concepts[0].id [SKIPPED when bash/python3 is absent from PATH]
+    [+] ps1 twin accepts the newline-free control for concepts[0].name
+    [+] sh twin accepts the newline-free control for concepts[0].name [SKIPPED when bash/python3 is absent from PATH]
+    [+] ps1 twin accepts the newline-free control for concepts[0].context
+    [+] sh twin accepts the newline-free control for concepts[0].context [SKIPPED when bash/python3 is absent from PATH]
+  Describing T-003 REQ-002 anchor regression -- a trailing newline is rejected by both twins (draft-07 pattern is non-multiline ECMA-262)
+    [+] ps1 twin rejects a trailing newline in concepts[0].id -- FAILS if \A ... \z is reverted to ^ ... $
+    [+] sh twin rejects a trailing newline in concepts[0].id -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+    [+] both twins agree byte for byte on the trailing newline in concepts[0].id [SKIPPED when bash/python3 is absent from PATH]
+    [+] ps1 twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \z is reverted to ^ ... $
+    [+] sh twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+    [+] both twins agree byte for byte on the trailing newline in concepts[0].name [SKIPPED when bash/python3 is absent from PATH]
+    [+] ps1 twin rejects a trailing newline in concepts[0].context -- FAILS if \A ... \z is reverted to ^ ... $
+    [+] sh twin rejects a trailing newline in concepts[0].context -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+    [+] both twins agree byte for byte on the trailing newline in concepts[0].context [SKIPPED when bash/python3 is absent from PATH]
+
+Fixture design notes
+--------------------
+* Each rejecting fixture is ONE single-point mutation of the same base
+  contract the structural pass already proves is accepted at exit 0, expanded
+  through New-StructuralFixtureJson -- the expander T-003 already authored --
+  so a rejection cannot be attributed to anything but the value under test.
+* Each is PAIRED with an otherwise byte-identical control carrying no
+  newline, which must still be ACCEPTED at exit 0. Those controls are the
+  non-vacuity guard: the block cannot pass by rejecting everything. The two
+  bodies of a pair differ by exactly 2 characters, asserted directly.
+* The trailing newline is carried as the two-character JSON escape \n inside
+  the string value, NEVER as a raw 0x0A byte. A raw control byte inside a
+  JSON string is invalid JSON and would be rejected at the PARSE step, which
+  would exercise V2-PARSE instead of the anchors. This was confirmed at the
+  byte level before the tests were written (0 raw 0x0A bytes, 1 backslash-n
+  sequence per fixture) and is now pinned by two corpus-integrity checks: one
+  asserts no byte below 0x20 is present, the other decodes the fixture and
+  asserts the field value ends in a real newline character.
+* Fixtures are ephemeral (DD-5, INV-006): each is written to a per-test
+  temporary file removed again in a finally block. No permanent fixture
+  directory is added, and no fixture FILE NAME contains a byte in 0x00-0x1F.
+* concepts[0].id retargets CONTEXTS to CONTEXTS_PLAIN for BOTH members of its
+  pair, so mutating the id cannot also dangle the terms[].concept_id link and
+  report a second, unrelated violation. This mirrors the existing AC-018 (1)
+  fixture.
+* No credential, token, personal, or customer-derived string appears in any
+  fixture; all vocabulary is the synthetic Purchase / Fulfillment domain
+  nouns the surrounding suite already uses (security-spec.md).
+
+Observed twin output for the three rejecting fixtures (byte-identical across
+both twins, one V2-PATTERN line each; the control character is folded to a
+space by each twin's message sanitiser, so the one-violation-per-line
+contract holds):
+
+  V2-PATTERN: concepts[0].id: value CONCEPT-ORDER  does not match ^CONCEPT-[A-Z][A-Z0-9-]*$
+  V2-PATTERN: concepts[0].name: value Order  does not match ^[A-Z][A-Za-z0-9]*$
+  V2-PATTERN: concepts[0].context: value order-taking  does not match ^[a-z][a-z0-9]*(-[a-z0-9]+)*$
+
+Note the message still quotes the DECLARED ^ ... $ source text back to the
+author -- that is the schema's own ECMA-262 text and is correct. Only the
+COMPILED form uses \A ... \Z / \A ... \z. The new checks assert both halves:
+the field-path prefix and the declared-pattern tail.
+
+Untouched by this change
+------------------------
+  plugins/sdd-domain/scripts/validate-domain-contract.sh    (byte-identical)
+  plugins/sdd-domain/scripts/validate-domain-contract.ps1   (byte-identical)
+  contracts/*.schema.json
+  tests/sdd-domain/contract-schema.Tests.ps1                (still 8 passed / 0 failed)
+  specs/sdd-domain-concept-contract/tasks.md
+  traceability.md
+  the allocated structural fixture table and every existing assertion

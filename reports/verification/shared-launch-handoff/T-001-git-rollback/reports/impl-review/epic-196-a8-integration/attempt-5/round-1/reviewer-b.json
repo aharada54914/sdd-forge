@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196a8integration-impl-a5r1-b-seq0778",
+  "host_session_id": "SESS-impl-a5r1-b-epic196a8integration-0778",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-5/round-1/integrated-summary.json", "sha256": "fca4b73b4e24e2e7648adc859fa38dde8a8c3366f2fa57f2dd7781b400dd4cfc"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-5/round-1/precheck-result.json", "sha256": "657c3f7fbbbc9e61613d4c3ad01927a56340f8d30170b408dc162feaeaa5143c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Design decisions throughout design.md carry explicit rationale (e.g. Global Constraints' 'no new CI topology' with cited precedent; Design Decisions section's OQ-001/OQ-002 resolutions each stating 'because'/'matching X precedent'; ADR-0028's Ed25519 choice is scoped and cross-referenced to an ADR record per ADR-0008's established bar, not asserted bare). No inline technology/architecture choice found without a stated 'because'/'resolves'/'matching precedent' clause. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Open Questions' (lines 1647-1660) carries OQ-001 and OQ-002. OQ-002 is explicitly 'resolved' with its own normative Coverage Scope table cited. OQ-001 is explicitly non-blocking ('deferred to Phase 2/3 by design... slots directly into the automated-classified path with no further design change' — Design Decisions section) with a named owner role (Phase 2/3 implementer, used consistently throughout the document) and a concrete resolution mechanism (empirical confirmation of each CLI's headless contract, named per-row in the Classification Table's Gating fact/reason column). The literal field labels 'Blocks Implementation:'/'Resolution Path:' are not used verbatim, but the substantive content the check requires is present and unambiguous, so no concrete failure mode for a downstream implementer exists. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (hash-verified). design.md's '## Assumptions' (lines 1621-1646) grounds each assumption: the Epic A1 assumption is explicitly marked superseded with a verifiable fact (Epic A1 merged 2026-08-08) and cross-referenced to the SKIP Allowlist Activation Gate/Deployment-CI-Plan/Risks sections; the Epic A5/A7-unmerged assumption cites INV-008/INV-009 and investigation.md's Safety constraints; the decision-doc/ADR-0019/installer-stability assumption is a reasonable technical default carried from requirements.md. investigation.md's own Amendment Re-Review Context confirms this Assumptions-grounding gap was the subject of, and was remediated by, a prior round's ASSUMPTIONS-VALID Major finding. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a '## Constraint Compliance' section (line 1599), so the Primary/TYPE-D path applies. It addresses CI resilience conventions, and both B1/B2 constraints from requirements.md's Security Boundaries table, with cross-reference to the '## Security Boundaries' section as the normative mechanism source. No other explicit constraint keywords ('must not'/'shall not'/numeric SLA/'compliant with'/'compatible with') were found unaddressed in requirements.md (grep confirmed only REQ-007's placeholder-label prohibition, which design.md's Technical Summary explicitly addresses). The previously-blocking AC-006/AC-015/AC-016 SKIP-predicate contradiction (attempt 3's Critical, per investigation.md's Amendment Re-Review Context commit 43b237fa) is resolved: design.md's SKIP Allowlist Activation Gate section now conforms AC-015/AC-016 to requirements.md's single-clause language (requirements.md:389, :536) exactly, and reasons through AC-006's underspecified case (which requirements.md never states a mechanical hard-failure trigger for) rather than contradicting explicit requirements text. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (grep for response-time/throughput/concurrency/latency/SLA/numeric-threshold keywords returned no matches)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment / CI Plan' (line 1566) names the deployment target (existing .github/workflows/test.yml 3-OS matrix, INV-014), concrete CI pipeline changes (new steps registered into the existing cli-hook-enforcement/main test job pattern, per REQ), and the migration-order question is not applicable since Data Plan states 'No migration required' (no schema changes). Feature-flag strategy is not applicable given the package's nature (test-infrastructure verification surfaces gated by validate-live-host-proof as a Done/release gate, not an incrementally-rolled-out user-facing feature) and this is stated consistently across infra-spec.md's Deployment Topology/CI-CD Sequence. No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states 'Migration Strategy: No migration required. Every data entity named above is a net-new file with no prior version to migrate from; the one write this package performs against existing data ... is additive metadata on an already-append-only structure ..., not a schema migration.' This is the functional equivalent of 'No data changes' and satisfies the check's PASS condition; infra-spec.md's Data Residency and Rollback sections corroborate no migration/rollback-order concern exists."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## External Integrations' (line 1556) names Claude Code CLI/Codex CLI/Copilot CLI (purpose: read-only session launch/observation) and states no new network calls beyond the existing installer path. Contract status for each CLI is explicitly tracked (confirmed/unconfirmed) via OQ-001 and the Automated/Manual Classification Table's 'Gating fact / reason' column, with failure/fallback behaviour concretely specified (falls back to manual-required with a fortified evidence record). frontend-spec.md's Dependencies table additionally identifies every internal cross-file dependency (Epic A1 handshake script, install/uninstall scripts, hook config files, .gitattributes) with status, purpose, and no-write-back statement. No integration is mentioned only in passing without this detail. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table traces to REQ-001 through REQ-006, and REQ-007's process-integrity discipline is explicitly addressed without introducing a new artifact (Technical Summary, infra-spec.md CI/CD Sequence). requirements.md's Goals (REQ-001-REQ-007) and User Stories are each covered by a named Architecture subgraph/Test Strategy item. No component, data model, or endpoint was found without requirement grounding; no design-system contract applies (no UI). No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (B1 live-host session authenticity, B3 SKIP-governance integrity, B4 nonce/signing forgery-resistance, B5 classification-mismatch/synthetic-substitution) each name a concrete validation path: the `validate-live-host-proof.{sh,ps1}` aggregate check with an enumerated set of named error codes (API/Contract Plan), the AC-027 classification-mismatch static check (Test Strategy item 8), and security-spec.md's Security Tests table naming expected results and evidence per boundary. These are wired as CI Done/release gates (Deployment/CI Plan). No applicable high-risk surface was found lacking a named validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in the repository (confirmed via `ls domain` returning 'No such file or directory'), so the Approved-domain-model precondition this check requires is absent."
+    }
+  ]
+}

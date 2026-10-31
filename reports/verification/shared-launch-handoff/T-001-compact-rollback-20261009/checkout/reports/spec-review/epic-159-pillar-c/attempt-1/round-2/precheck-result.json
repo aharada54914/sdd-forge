@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-c",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "edc9cf2ecc7141cf9a6004b77ec563bbf74cdc6f14fd278ab666cd8d22348ecf",
+  "acceptance_sha256": "e994ed038cdd066d9f6ea175133c4eacfa9369826299b18883da1faf08c8210c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "426f62be07f550e6bdaefef1ef9790862327fae1ea254c6d85ab890bec546d89",
+  "edit_summary": "Resolved reviewer-B round-1 Majors: defined the effort-resolution priority order (requested>risk-matrix>role-default>model-default; role_defaults' effort component structurally inert under welded policy, preserving the byte-identical golden), expanded effort_source to 5 attributed values, rewrote AC-011/AC-012 accordingly, and added AC-051 (Codex-host degradation via effort_control, host-agnostic) and AC-052 (argv-composition rejects out-of-vocabulary model/effort values, giving Security Boundary B3 an executable verification surface).",
+  "reset": false,
+  "generated_at": "2026-07-16T15:07:13Z"
+}

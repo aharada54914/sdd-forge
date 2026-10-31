@@ -1,0 +1,72 @@
+ticket_id: RT-20260826-002
+status: open
+type: cross-model-consensus
+severity: major
+requires_human_decision: true
+target:
+  feature: epic-193-a5-capability-resolver
+  task: T-003
+  files:
+    - specs/epic-193-a5-capability-resolver/verification/T-003.cross-model.json
+    - specs/epic-193-a5-capability-resolver/verification/T-003.panelist-openai.verdict.json
+    - specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+summary: >-
+  The fresh, human-ordered cross-model panel for T-003 (digest ab3589c7,
+  both vendors blind) did not reach consensus: anthropic PASS (2 Minor),
+  openai (gpt-5.6) NEEDS_WORK with 2 Majors; aggregate FAIL. Both Majors
+  are real and both are closable only through the frozen-document
+  amendment route this feature has so far declined. T-003 cannot go Done
+  until the human either opens that amendment or records a valid
+  Cross-Model-Waiver.
+problem: |
+  openai Major 1 — Registry read-binding gap (route (b) reopened it):
+  step 5 reads the Registry document; step 6's generate-registry-digest
+  independently re-discovers and re-reads it; steps 7-9 evaluate from the
+  step-5 document. A swap in the step5->step6 window publishes
+  capability_evaluations computed from OLD bytes under a registry_digest
+  describing NEW bytes — and the step-13 pre-publication recheck compares
+  the fresh digest against step-6's digest, so this window is invisible
+  to it. This is the same gap the 2026-08-24 panel's step 6.5 targeted;
+  route (b) (RT-20260826-001) removed that recheck to restore
+  frozen-document conformance, and a fresh independent panelist has now
+  rediscovered the gap. The gate's route-(b) rebuttal ("end-state safety
+  lives at step 13") holds for stale-publication but NOT for this
+  provenance-misattribution window — conceded on re-analysis.
+
+  openai Major 2 — projection_components fail-open on an affected
+  component absent from the Context Projection: evaluated against an
+  empty properties document instead of failing closed. Known since gate
+  cycle 1 (recorded finding), disclosed in the implementation report's
+  Unresolved Items; unfixable without a requirements amendment because
+  REQ-002's diagnostic enum is closed at sixteen.
+
+  Both closures require frozen-document changes: (1) sanction a Registry
+  snapshot binding (e.g. reinstate a step-6.5-style detection recheck
+  with proper spec text, or bind digest computation to the step-5 bytes),
+  and (2) define the absent-component fail-closed semantics. Neither can
+  be done by the gate (auto-fix-policy forbids requirement changes).
+decision_needed: |
+  Choose one:
+  (a) OPEN THE AMENDMENT (the route (a) this feature previously declined,
+      now motivated by two independent panel rounds converging on the
+      same gap): human ruling amends design.md/requirements.md (and
+      tasks.md fixture allocation if a fixture returns), code follows,
+      then the amendment cascade (spec->impl->task re-reviews), re-gate,
+      re-panel. Most integrity; largest cost.
+  (b) RECORD A Cross-Model-Waiver ON T-003 (ship rule: valid only with a
+      co-located human approval mark naming a second distinct approver):
+      T-003 goes Done against its quality-gate PASS with the two gaps
+      documented and deferred to a planned amendment. Fastest; the risk
+      window (mid-pipeline Registry swap during a resolver run, and
+      absent-component evaluation) is accepted explicitly.
+  (c) HOLD T-003 at Implementation Complete until (a) lands.
+notes: |
+  Context that stays valid regardless of the choice: T-003's quality-gate
+  is PASS (cycle 3/3, seq 0784) with a verified evidence bundle;
+  workflow-state is green (attempt-8 rebind); the anthropic panelist
+  passed the same bundle. The panel infrastructure itself was repaired
+  this session (arg drift + async stdin loss, human-applied; a third
+  defect — the runner's greedy JSON extractor vs modern codex exec
+  streaming output — is still open and the openai verdict was collected
+  manually from the runner-identical invocation, field-validated before
+  persisting).

@@ -1,0 +1,12 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "data_classification",
+    "operator": "in",
+    "value": [
+      "internal",
+      "public"
+    ]
+  },
+  "properties": {}
+}

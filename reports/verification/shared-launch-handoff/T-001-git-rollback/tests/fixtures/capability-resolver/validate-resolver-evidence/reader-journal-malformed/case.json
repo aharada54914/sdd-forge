@@ -1,0 +1,10 @@
+{
+  "description": "Major 4: a LIVE in-progress journal carrying a correct schema token and status but a malformed targets[] entry. This validator cannot know whether that journal names the path it is about to read, so it must REFUSE rather than skip the entry and read on",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "resolver-publication-in-progress"
+  ],
+  "forbidden_strings": []
+}

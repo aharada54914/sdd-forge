@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a2r1-seq0761",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a2r1-0761",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "80b41de351ed186fff2491f262073ba3d4950c6fb3ec8e152d28fce42dc6808a"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "98db8b7bd041ffe285bac4cc0c050239f1e5ecbc2f4c52c309d7752236577e4f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-1/precheck-result.json",
+      "sha256": "9ac771684e55331d2bce1d5c70213855a2e79b5ff1a118947c50cab750b03579"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-1/integrated-summary.json",
+      "sha256": "ee10133d8ca761b10c70dcf4a082f37f9f09556f1d160941086445c3dd6ab452"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md gives concrete, testable patterns/definitions for every concept field (id `^CONCEPT-[A-Z][A-Z0-9-]*$`, name PascalCase pattern with explicit APIOrder/consecutive-uppercase carve-out, context kebab-case pattern with explicit empty-segment/leading-trailing-hyphen exclusion, minLength 1 on all free-text fields at lines 113-117 and repeated in the Field Definitions table lines 159-169), and acceptance-tests.md explicitly disambiguates the error-path taxonomy that would otherwise be ambiguous (key-absence AC-014/021 vs empty-array AC-016/019 vs empty-string AC-023 vs pattern-violation AC-018 vs dangling-reference AC-007/008/009, each AC stating in prose why it is a 'different path' from its neighbors, e.g. AC-014: '値が不正な場合...とは検査経路が異なることを、キー欠落側のエラー文言で区別する'). Edge Cases in requirements.md resolve the remaining candidate ambiguities explicitly (same-name-concept-across-contexts valid vs within-context invalid; must_not_own absent is valid; self-referencing distinguished_from is invalid and folded into AC-008's fixture set which states '自分自身への参照ケースを含む'). No term, actor, state, input, or output surface was found where two implementers reading requirements.md + acceptance-tests.md together would reasonably build different observable validator behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked Goals/Non-goals/Roles-and-Permissions/Edge-Cases/Acceptance-Criteria for direct conflicts: REQ-007's 'existing 11 suites unchanged' does not conflict with REQ-006 adding a 12th (new) suite; the Non-goals statement on `meta.status` Approved enforcement is restated consistently (not contradicted) in Roles and Permissions; the single-context-membership rule (REQ-002 line 118) does not conflict with AC-005's cross-context same-name-concept fixture (different concepts, different ids, each single-context). No requirement, acceptance criterion, constraint, or non-goal was found asserting mutually exclusive behavior for the same input. (The Negative-path coverage matrix's 'AC-023 と同経路' rows and its '負例 fixture の総数は 35 件' tally do not sum correctly against the AC table's own stated per-AC fixture counts (7+7+1+2+3+3+4+7+2+4=40, not 35) — this is reported under EDGE-CASE-COVERAGE as a missing-test-link/documentation-reliability issue rather than here, because it is a test-plan completeness gap, not two requirements or acceptance criteria asserting opposite system behavior.)"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:113-117 states 'すべての string 値（`definition`、`essence`、`responsibilities[]` / `evidence[]` / `must_not_own[]` / `reasons[]` の各要素、`stakeholder_perspectives[].actor` / `.concern`）は minLength 1 とし、空文字列は invalid とする', repeated per-field in the Field Definitions table (lines 165-167: must_not_own[], stakeholder_perspectives, distinguished_from). But AC-023 — the only AC exercising minLength violations — states (acceptance-tests.md line 32): '4 fixture — (1) `definition` が空文字列、(2) `essence` が空文字列、(3) `responsibilities[]` の要素が空文字列、(4) `evidence[]` の要素が空文字列', omitting must_not_own[], stakeholder_perspectives.actor/.concern, and distinguished_from.reasons[]. The Negative-path coverage matrix nonetheless marks all three omitted field-rows' 空文字列 column 'AC-023 と同経路' (lines 53, 54, 56), and the matrix's own explanatory note (lines 63-65) concedes this label means only that the fields 'share the minLength 1 declaration' and that AC-023's 4 fixtures prove the check path is non-vacuous — not that these three fields are independently exercised by any fixture. Downstream failure mode: because REQ-004(c) specifies a hand-rolled (non-schema-library) validator (INV-005) where required-vs-optional and top-level-vs-nested-array fields are typically separate code branches, an implementation could enforce minLength on the 4 AC-023 fields while omitting it on must_not_own[]/stakeholder actor,concern/distinguished_from.reasons[], and no acceptance test would catch that divergence; a task author trusting the matrix's stated exhaustiveness claim (lines 36-37: 'requirements.md が宣言するすべての制約 × その制約を破る様態の直積であり、AC 表の網羅性はこの表の空白セルが無いことで判定する') would treat these cells as already proven and add no fixture. This belongs to spec review because it is a gap between a declared requirements.md constraint and its acceptance-test link, not an implementation defect. Severity Major per calibration ('missing observable acceptance criterion... high-risk claim with no planned validation surface'): not Critical since no unsafe/contradictory boundary results, not Minor since a shipped validator could silently accept invalid (empty-string) contract data for three declared-required constraints without any test failing. Corroborating evidence that the matrix's completeness claim is unreliable: its Notes section (line 75) states '負例 fixture の総数は 35 件', but summing the AC table's own stated per-AC counts (AC-006..012: 1 each = 7; AC-014: 7; AC-016: 1; AC-017: 2; AC-018: 3; AC-019: 3; AC-020: 4; AC-021: 7; AC-022: 2; AC-023: 4) totals 40, not 35."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's four Open Questions each carry a concrete proposal and an explicit disposition already reflected in the operative requirements text, satisfying the 'explicitly marked as decision, or resolved' bar: OQ-003 (essence required) is adopted into REQ-002/Field Definitions line 163 ('Yes ... OQ-003 提案: required'); OQ-004 (validator v2-only) is adopted into REQ-004(b) and the Edge Cases explicit-error-message spec (requirements.md lines 207-208); OQ-002 (no CI/run-all registration) states 'Status: Open（提案どおりなら追加作業なし）' with the status-quo default already assumed throughout REQ-006/AC-013; OQ-001 (v1 schema file's ultimate disposition) is explicitly deferred to a future Phase 3 decision and requirements.md's Non-goals/Assumptions confirm Phase 0 keeps v1 untouched regardless of that future decision, so it does not block Phase 0 design or task decomposition. The Assumptions section's remaining item ('後続 Phase は本 feature の schema/validator を変更せずに積み上げる') carries its own explicit fallback ('変更が必要になった場合は当該 Phase で本契約の改版を明示的に扱う'), leaving no unresolved assumption that would leave an implementer guessing."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "requirements.md Non-goals explicitly excludes '`meta.status` の `Approved` 書込に対する機械的強制機構（hook-guard 保護パスへの登録、承認 sidecar 等）の新設', and Roles and Permissions restates the same decision with rationale: 'hook-guard の保護パス一覧には `contracts/domain-contract.*` が含まれず（INV-008）...承認境界は人間のレビュー運用のみが担保し...承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は別 feature として起票する'. This is a deliberate, explicitly documented decision (backed by investigation.md INV-008) to keep governance/approval enforcement out of scope for this feature rather than a silently missing boundary, so the check's explicit skip condition ('no such boundary is in scope') applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Field Definitions table (requirements.md lines 157-169) gives a concrete type/pattern/required flag for every concept and term field; REQ-004(a)-(i) enumerates the validator's exact check list; Security Boundaries specifies the execution model concretely (read-only, no network access, no external deps beyond python3 stdlib json / ConvertFrom-Json — design.md DD-4 referenced but not required at this gate); Roles and Permissions specifies who edits/executes and confirms no hook-guard protection applies. A design reviewer handed this spec would not need to invent product behavior for schema shape, validator checks, or fixture composition. The one product-behavior gap found (three minLength-bearing fields lacking a dedicated negative fixture despite the coverage matrix's claim) is a missing acceptance-test link already captured under EDGE-CASE-COVERAGE, not an instance of the design reviewer having to invent missing requirements."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records: 'sdd-forge 自身に `domain/` ディレクトリは存在せず（ルート直下確認）'. Per the check's explicit skip condition (domain/ absent, or context-map/domain-contract not present/Approved), this check is recorded as skipped."
+    }
+  ]
+}

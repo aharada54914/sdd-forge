@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase3-impl-a3r1-b-seq0438",
+  "host_session_id": "SESS-impl-a3r1-b-epic136phase3-0438",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/integrated-summary.json",
+      "sha256": "ce3dfba528e5fddc005e1b3c5444324e91d7399052969c3b3971778893075034"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+      "sha256": "00bc99c212f5855b84ab1247116ec177e922a6b9a54ba392d0a18c81c6cf71c4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "08242bc809e10a277f94efee0bd48e56f0143fd204ad9a2379236522fc01f2b7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "e46998906497e7c9b94cd4b009ac9c99ac92f190db9d7f1031dae171465c1dfd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "66bec9fad6f97ebbd40b95e3f64dcf4f141197915d3d988788f419f0092a3520"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline decision in design.md carries a rationale. E.g. Design Decisions section: 'WHETHER Stream B's triple-quote and task-id-collision corpora are net-new payload sets or reuses... Decided: NEW for both... prepare-panelist-input.sh's triple-quote fix operates on an environment-carried HMAC-key field, a structurally different injection surface from a PreToolUse command string' (design.md:505-512) and 'WHETHER Stream A's PowerShell-variant stubs are real interpreters or thin forwarding shims. Decided: thin forwarding shims... this keeps the decision-under-test genuine' (design.md:513-519). OQ-5's job-count-preserving choice states its rationale explicitly ('blast radius: toolchain setup re-run per new job per OS', design.md:488-499). No 'we will use X' statement lacking a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section (line 627) contains zero entries: 'None blocking for any stream. All investigation.md OQ-1..OQ-6 are resolved above with design decisions.' Stream C's one externally-owned precondition (ADR-0010 approval) is explicitly stated as discharged ('that condition has been met', design.md:635). No entry exists that lacks an owner, a Blocks-Implementation statement, or a Resolution Path, so the check has nothing to fail against."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (specs/epic-136-phase3/investigation.md, INV-001..INV-031), so the investigation-absent Major-finding rule does not trigger. design.md's Assumptions section (line 613-625) is carried verbatim from requirements.md's Assumptions and cites the concrete grounding for each: registration-gap state (Re-verification note finding 2 / investigation.md INV-006), PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership (investigation.md INV-024), identity-ledger tail sequence 337 (Re-verification note finding 1), ADR-0010's Status (superseded, now Accepted, commit 67015a5), loop-driver.sh's stage-\"spec\"-only scope (investigation.md INV-016), and the collection-layer.tests.sh PATH technique (investigation.md INV-005). Every assumption is grounded in an INV-xxx citation or a re-verified requirements.md fact, not an ungrounded guess."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (design.md:598-611) with 10 rows. Cross-checked against every explicit constraint in requirements.md (BL-001 preservation, bash 3.2 set -u safety, .ps1 ASCII/BOM/exit-N, CHANGELOG discipline citing #123/#124/#125/#126, sibling-workflow isolation, read-only guard-exercise boundary B1, protected-file carve-out B3, doc-following, version-bump-via-script-only, ADR-0010 dependency) -- all 10 are addressed with a specific Design Response. requirements.md's Security Boundaries B2 (fixture issue body vs. reading agent) and B4 (fixture world vs. real state) are not given dedicated rows inside Constraint Compliance, but both are addressed verbatim, in identical language to requirements.md, in design.md's own '## Security Boundaries' section (design.md:554-563, e.g. 'the fixture's adversarial instruction-shaped text is synthetic, mktemp-scoped, never a real network-fetched issue body' for B2; 'no suite in this feature reserves a real identity-ledger record or invokes the real gh CLI against a real issue' for B4), which immediately precedes the Constraint Compliance table in the same document. No requirement is contradicted or left unaddressed in design.md as a whole."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A targeted grep of requirements.md for response-time/throughput/concurrency/latency/SLA/numeric-threshold language returned zero matches; this is test/CI-hardening work (4 new test suites + a CI step-name restructuring), and design.md's Test Strategy item 4 and infra-spec.md's 'Runtime Budget' section both explicitly state no runtime-budget assertion is needed, consistent with the absence of any SLA in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (design.md:574-596) states the deployment target ('No runtime deployment'; local + 3-OS GitHub Actions CI matrix per infra-spec.md Environments table), describes the exact CI pipeline change (3 new steps + step-prefix restructuring staged as ONE human-copy batch, with the fail-closed red-until-applied state named explicitly), and describes rollback per stream including the note that whichever stream lands last in the shared batch must record the exact revert boundary. No feature-flag strategy is required or claimed since this is not an incrementally-flagged rollout. Data Plan states no schema changes exist (see MIGRATION-PLANNED), so the migration-execution-order sub-requirement does not apply and its absence is not a defect."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' (design.md:198-212) states: 'Data Entities: none new for Streams A, B, D... Existing Data Affected: none... Migration Strategy: none. No schema changes to any existing artifact.' Stream C's scenario-schema.json is a new test-fixture JSON schema, not a database/application data-store schema change (no column or table is touched). Per the check's explicit rule, a Data Plan stating no data changes earns a PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has a dedicated '## External Integrations' section (design.md:565-572) stating 'None. All 4 streams operate entirely on repository-local files... no new network call, external API, or credential is introduced,' and explicitly confirms Stream C's scenario-5 fixture never performs a real `gh issue view` network call (cross-referenced against Security Boundaries B4). No external system, third-party service, or cross-service API call is mentioned in passing anywhere else in design.md without this section's coverage."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table (design.md:176-185) maps every REQ-001..REQ-006 to specific design elements and AC-001..023, and the Components table (design.md:110-120) introduces only the four new test-suite/schema artifacts and the one staged test.yml edit that requirements.md's Goals/Main Workflows name for Streams A-D -- no additional component, data model, or endpoint appears. Design System Compliance states 'N/A -- ds_profile: none' (design.md:169-172), matching ux-spec.md/frontend-spec.md's own N/A stance, so no UI library is introduced outside a sanctioned contract. Conversely, every requirements.md Goal (REQ-001..006) and User Story (Stream A-D) has a corresponding design element; no capability described in requirements.md's Goals or User Stories is missing from design.md."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: (1) security-relevant inbound prompt-injection assertion (B2, Stream C) -- design.md API/Contract Plan and security-spec.md's Security Tests table both name the concrete validation path 'TEST-014' in `tests/workflow-scenarios/workflow-scenarios.tests.sh`, described as an explicit RED/GREEN-paired proxy harness with a defect-count pinned against a named allowlist (design.md:357-370, security-spec.md Security Tests row TEST-014). (2) CI-gate/branch-protection-adjacent change (B3, Stream D) -- design.md names 'TEST-017' as the concrete self-check validation path (design.md Test Strategy item 3, design.md:435-441) plus a human-reviewer verification step for GitHub's actual required-status-check configuration (Deployment / CI Plan, design.md:585-588). Both applicable high-risk surfaces have a concrete, named validation artifact in design.md, not merely an assertion of safety."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists at the project root (verified: `ls domain/` returns no such directory in /Users/jrmag/Projects/active/sdd-forge-wt-phase4). The check's stated skip condition ('When the project has no domain/ directory... record the check as skipped') applies directly."
+    }
+  ]
+}

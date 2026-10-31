@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f545c01f4996c16971ba11d75be5bcccd826a1bff44102241010a0ebd5719b4d",
+  "acceptance_sha256": "47624c4a190fb3c503c491a6e8b8c641452dda11b2c392a83644af168ea46f62",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "81e3cc87dba9138b09362c340c24204ee97f2900e09d50a44aa244887106a235",
+  "edit_summary": "Round 1 NEEDS_WORK resolved: REQ-004 now names Security-Sensitive:true as the explicit cross-model trigger and binds Cross-Model-Waiver: validity to a co-located human Approval:Approved mark (second distinct approver) so it is inert when agent-written; added Field Definitions; reworded AC-008/AC-009; added AC-014 for the no-PR vacuous-pass path.",
+  "reset": false,
+  "generated_at": "2026-07-11T14:35:36Z"
+}

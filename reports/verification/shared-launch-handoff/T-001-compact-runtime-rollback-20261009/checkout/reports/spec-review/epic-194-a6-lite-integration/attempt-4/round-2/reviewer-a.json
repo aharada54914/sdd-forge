@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a4-r2-reviewer-a-seq777",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a4-r2-reviewer-a-777",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "eeda7a2304bd7f91889b83c23a67ff7bd11726fe225ae3e61f07600ce7cbfab7"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-2/precheck-result.json", "sha256": "0321b60a5b49a0fee25df90922b9f7a12b5b8c52dc57b6df0bb850fa307060dc"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-006 each carry detailed, measurable Acceptance Criteria (AC-001..AC-031) with concrete pass/fail conditions (exit codes, byte-identical output, schema shapes); the small design-content-review subset (AC-020/022/029) is explicitly justified in acceptance-tests.md's Manual Review Record."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-006 goal has at least one matching AC; acceptance-tests.md's own AC-022/TEST-022 cross-check confirms coverage against the Test Strategy items."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable behavior (exit codes, triggers= ordering, VERDICT: FAIL conditions, schema validity) rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (as remediated this round) explicitly and accurately bounds contracts/**, plugins/**/scripts/**/tests/**/.github/**/docs/**, the A5 combination-invalid Block, DSL/Resolver reimplementation, catalog seed size, and the projection generator, each with citations verified against investigation.md."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:972-986 (Roles and Permissions, 'Epic A2's own Phase 2 implementer' bullet) names four target files in its intro sentence (contracts/capability-registry.schema.json, contracts/capability-registry.json, contracts/lite-check-catalog.json, contracts/lite-upgrade-reason-catalog.json) but its protection-status accounting covers only 'three paths' -- two already-protected (naming only the schema file and the reason-catalog) plus one needing new registration (lite-check-catalog.json) -- and never states contracts/capability-registry.json's protection status at all. This directly contradicts the Non-goals bullet in the same document (requirements.md:683-694, this same round's remediation), which explicitly lists contracts/capability-registry.json as one of exactly three R-10-protected contracts/ paths, grounded in the same investigation.md Amendment Re-Review Context (third entry, 2026-08-25) citation confirming all three -- capability-registry.schema.json, capability-registry.json, and lite-upgrade-reason-catalog.json -- are listed in guard-invariants.json's protected_gate_suffixes and phase2_human_copy_targets. Downstream failure mode: the Epic A2 Phase 2 implementer -- the role this bullet is written for -- cannot determine from this section alone whether contracts/capability-registry.json needs human-copy staging, fresh registration, or is out of scope, and would reasonably drop it from applied scope, contradicting Non-goals elsewhere in the same reviewed package. This belongs to spec review because it is a Phase-1 internal-consistency defect within requirements.md itself. Calibrated Major rather than Critical because the correct fact is fully recoverable from Non-goals in the same document and does not fall into spec-review-calibration.md's narrower Critical categories (contradictory goals / impossible AC / unsafe workflow boundary / missing approval boundary)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims (A5's Pending status and field-naming/aggregation-rule dependency, the eleven-category-to-token mapping, the three-token catalog seed) each have an explicit Risks-section validation surface with citations."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (verified via Glob domain/context-map.md and Glob domain/*, both returned no files) -- the check's own skip condition applies."
+    }
+  ]
+}

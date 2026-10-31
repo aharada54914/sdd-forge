@@ -1,0 +1,102 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-b",
+  "task_id": "T-001",
+  "run_id": "RUN-epic159pillarb-qg-T-001-seq0247",
+  "host_session_id": "SESS-qg-epic159pillarb-T-001-0247",
+  "sequence": 247,
+  "previous_record_sha256": "3b998758f75d211ebc640864ec4fcf23a52897d83e71946caf0c68ca03984d31",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "3fda9e468d9151142e713f753dae4df3d0436f83e0c0e1a2eaa28430f4e46f60",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/tasks.md",
+      "sha256": "b85eeed5df6d2fe656c3034cffba99581eda5e167b7cfec64b1503c0f0e0115b"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.md",
+      "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.json",
+      "sha256": "ebc32a8d7630e01084c279050032ab40935115349768c4fab2aca391744bd7dc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-159-pillar-b/T-001.md",
+      "sha256": "69437df0a81bf66f4cea1ef997204f02ebde7b33dc0792ca2d894849299dac91"
+    },
+    {
+      "path": "scripts/bump-version.sh",
+      "sha256": "4999f5d1c1dd143570548d0913e2c16c2e2bc27c166f7da736199a1649180b47"
+    },
+    {
+      "path": "tests/bump-version-gate.tests.sh",
+      "sha256": "fbcd6a5545a40003d2678d66c5e3fc5fbcab7c1e3e40509e001b47fc46f3d152"
+    },
+    {
+      "path": "tests/bump-version-gate.tests.ps1",
+      "sha256": "6d6ac190703d36e1aa0cff635be774bca0218541a57a0866b88dd2a0538e05f9"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/red-sh.log",
+      "sha256": "65885832e2dcc3f11e9f3b5524728e28af7dfa995a3596030e0da7ed9d6b8e03"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/red-ps1.log",
+      "sha256": "7ca34e1b1af6e49af3ec0a651235f91895f2e5ca1082df4cbba683e5531313ab"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/red-sh-macos-native.log",
+      "sha256": "b666281baca7948a339805fed224224bf1d36dda57c1fae06d1540133597d67c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/red-ps1-macos-native.log",
+      "sha256": "039d0dd544a2ea0de604251657fd8ed8ea31bde24600e630f273bdb47d40ec7c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/green-sh.log",
+      "sha256": "f22b6438906a93f66bf2979f7811393b2411f209a883222c42a992b823242a6c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/green-ps1.log",
+      "sha256": "31f0b71164bf9067b769629481f53683bced3374d3fb9f8d50385b57ae7c54df"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/green-sh-macos-native.log",
+      "sha256": "473382146614a269932c96544526f18d8e2dd0ac6bd606f86fca69ed02f12cbb"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001/green-ps1-macos-native.log",
+      "sha256": "b7729b642dcb20ed38a72483bcdb870eadab38b660c0fc2b6282568a8acfef68"
+    }
+  ]
+}

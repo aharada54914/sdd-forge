@@ -1,0 +1,23 @@
+$ for plugin in plugins/*; do claude plugin validate "$plugin"; done
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-bootstrap/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-implementation/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-lite/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-review-loop/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-ship/.claude-plugin/plugin.json
+
+✔ Validation passed
+$ pwsh -NoProfile -File tests/claude-registration.tests.ps1
+ok: Claude registration installs sdd-bootstrap:run and sdd-ship:run plugins
+ok: Claude manifest validation fails before marketplace registration
+ok: RequireClaude fails closed when Claude CLI is absent

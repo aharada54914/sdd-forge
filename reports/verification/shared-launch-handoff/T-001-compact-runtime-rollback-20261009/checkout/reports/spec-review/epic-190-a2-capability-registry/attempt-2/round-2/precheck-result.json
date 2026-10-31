@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "05b4ca2b6e59d376d658a791fa93d3ea5d5619638366bc561cdf062ebbee734b",
+  "acceptance_sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "3f22db1a94550310382c175a6ee7e971febc681e0adf0f90b7577cfc515e3d3d",
+  "edit_summary": "Made the DSL's operator vocabulary an explicit closed 8-token enum in REQ-002 and added AC-040/TEST-040 asserting a forbidden operator token (e.g. regex/jsonpath) is rejected as PREDICATE_SCHEMA_ERROR, independent of AC-011's field-allowlist check.",
+  "reset": false,
+  "generated_at": "2026-07-21T16:57:06Z"
+}

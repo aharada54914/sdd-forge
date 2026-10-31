@@ -1,0 +1,62 @@
+test_canonical_preview_rejection_and_all_callers_wired (__main__.HostReviewPreflightTests.test_canonical_preview_rejection_and_all_callers_wired) ... ok
+test_cli_help_flags_and_unsupported_argument (__main__.HostReviewPreflightTests.test_cli_help_flags_and_unsupported_argument) ... ok
+test_impl_and_task_use_stage_precheck_before_preview (__main__.HostReviewPreflightTests.test_impl_and_task_use_stage_precheck_before_preview) ... ok
+test_nonobject_and_scratch_alias_reject (__main__.HostReviewPreflightTests.test_nonobject_and_scratch_alias_reject) ... ok
+test_pin_missing_input_outside_and_changed_scratch_reject (__main__.HostReviewPreflightTests.test_pin_missing_input_outside_and_changed_scratch_reject) ... ok
+test_powershell_selects_existing_precheck_and_validator (__main__.HostReviewPreflightTests.test_powershell_selects_existing_precheck_and_validator) ... ok
+test_spec_and_quality_normal_preview_never_reserve (__main__.HostReviewPreflightTests.test_spec_and_quality_normal_preview_never_reserve) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.036s
+
+OK
+test_batch_hash_proof_requires_every_ordered_raw_digest (__main__.QualityTransport.test_batch_hash_proof_requires_every_ordered_raw_digest) ... ok
+test_diagnostic_reads_are_representative_not_all_inputs (__main__.QualityTransport.test_diagnostic_reads_are_representative_not_all_inputs) ... ok
+test_invocation_raw_hash_is_required_by_formal_transport (__main__.QualityTransport.test_invocation_raw_hash_is_required_by_formal_transport) ... ok
+test_large_quality_control_hash_pipeline_has_exact_permissions (__main__.QualityTransport.test_large_quality_control_hash_pipeline_has_exact_permissions) ... ok
+test_quality_case_alias_and_symlink_inputs_stop_before_reservation (__main__.QualityTransport.test_quality_case_alias_and_symlink_inputs_stop_before_reservation) ... ok
+test_quality_dependency_drift_never_reserves (__main__.QualityTransport.test_quality_dependency_drift_never_reserves) ... ok
+test_quality_identity_requires_task_and_scratch (__main__.QualityTransport.test_quality_identity_requires_task_and_scratch) ... ok
+test_quality_incomplete_native_proof_never_reserves (__main__.QualityTransport.test_quality_incomplete_native_proof_never_reserves) ... ok
+test_quality_model_conflict_stops_before_output_or_reservation (__main__.QualityTransport.test_quality_model_conflict_stops_before_output_or_reservation) ... ok
+test_quality_native_failure_never_reserves (__main__.QualityTransport.test_quality_native_failure_never_reserves) ... ok
+test_quality_plaintext_postflight_requires_identity_and_checked (__main__.QualityTransport.test_quality_plaintext_postflight_requires_identity_and_checked) ... ok
+test_quality_preview_and_preflight_leave_ledger_unchanged (__main__.QualityTransport.test_quality_preview_and_preflight_leave_ledger_unchanged) ... ok
+test_quality_scratch_failure_precedes_output_and_reservation (__main__.QualityTransport.test_quality_scratch_failure_precedes_output_and_reservation) ... ok
+test_quality_shared_tail_order_in_synthetic_role (__main__.QualityTransport.test_quality_shared_tail_order_in_synthetic_role) ... ok
+test_quality_stale_external_pin_precedes_manifest_read_and_output (__main__.QualityTransport.test_quality_stale_external_pin_precedes_manifest_read_and_output) ... ok
+test_scratch_record_and_read_hash_only_permissions (__main__.QualityTransport.test_scratch_record_and_read_hash_only_permissions) ... ok
+test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag (__main__.QualityTransport.test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag) ... ok
+test_task_normalized_input_allows_lifecycle_only_not_body_edits (__main__.QualityTransport.test_task_normalized_input_allows_lifecycle_only_not_body_edits) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.447s
+
+OK
+test_normalized_delegation_and_raw_observation (__main__.TaskHashes.test_normalized_delegation_and_raw_observation) ... ok
+test_other_stage_cannot_normalize (__main__.TaskHashes.test_other_stage_cannot_normalize) ... ok
+test_rejects_canonical_failure_and_concurrent_change (__main__.TaskHashes.test_rejects_canonical_failure_and_concurrent_change) ... ok
+test_task_receipt_uses_canonical_six_field_record (__main__.TaskHashes.test_task_receipt_uses_canonical_six_field_record) ... ok
+test_task_full_order_and_replay (__main__.TaskOrder.test_task_full_order_and_replay) ... ok
+test_task_pre_reservation_failures_leave_ledger_unchanged (__main__.TaskOrder.test_task_pre_reservation_failures_leave_ledger_unchanged) ... ok
+test_task_reservation_failure_prevents_launch (__main__.TaskOrder.test_task_reservation_failure_prevents_launch) ... ok
+test_canonical_a_and_b_output (__main__.TaskOutputIdentity.test_canonical_a_and_b_output) ... ok
+test_cross_role_wrong_stage_and_session_rejected (__main__.TaskOutputIdentity.test_cross_role_wrong_stage_and_session_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.161s
+
+OK
+test_common_rejection_stops_every_stage_before_mutation (__main__.LaunchOrderTests.test_common_rejection_stops_every_stage_before_mutation) ... ok
+test_conditional_input_is_not_silently_skipped (__main__.LaunchOrderTests.test_conditional_input_is_not_silently_skipped) ... ok
+test_design_system_is_only_an_impl_dependency (__main__.LaunchOrderTests.test_design_system_is_only_an_impl_dependency) ... ok
+test_failures_before_reservation (__main__.LaunchOrderTests.test_failures_before_reservation) ... ok
+test_required_set_follows_stage_role_and_precheck (__main__.LaunchOrderTests.test_required_set_follows_stage_role_and_precheck) ... ok
+test_reservation_failure_never_launches (__main__.LaunchOrderTests.test_reservation_failure_never_launches) ... ok
+test_strict_prompt_carries_revalidated_absent_domain_without_shell_probe (__main__.LaunchOrderTests.test_strict_prompt_carries_revalidated_absent_domain_without_shell_probe) ... ok
+test_success_order_and_no_replay (__main__.LaunchOrderTests.test_success_order_and_no_replay) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.199s
+
+OK

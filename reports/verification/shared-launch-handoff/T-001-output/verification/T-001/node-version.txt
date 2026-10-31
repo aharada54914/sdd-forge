@@ -1,0 +1,3 @@
+COMMAND: ['rtk', 'proxy', 'node', '--version']
+EXIT: 0
+v24.13.0

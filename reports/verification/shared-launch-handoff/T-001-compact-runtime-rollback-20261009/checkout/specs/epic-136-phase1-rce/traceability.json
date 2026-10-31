@@ -1,0 +1,37 @@
+{
+  "feature": "epic-136-phase1-rce",
+  "generated_by": "T-001 quality-gate machine-readable companion; frozen traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001"],
+      "tests": ["TEST-001"],
+      "evidence": ["specs/epic-136-phase1-rce/verification/qg/T-001/syntax-and-source.log", "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log"]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-002", "AC-003", "AC-006"],
+      "tests": ["TEST-002", "TEST-003", "TEST-006"],
+      "evidence": ["specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log"]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-004"],
+      "tests": ["TEST-004"],
+      "evidence": ["specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log"]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-006", "AC-007"],
+      "tests": ["TEST-006", "TEST-007"],
+      "evidence": ["specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log"]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-005"],
+      "tests": ["TEST-005"],
+      "evidence": ["specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log"]
+    }
+  ]
+}

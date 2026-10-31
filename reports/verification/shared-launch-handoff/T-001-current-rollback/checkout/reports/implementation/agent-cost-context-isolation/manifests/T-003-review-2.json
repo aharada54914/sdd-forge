@@ -1,0 +1,38 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-003",
+  "run_id": "agent-cost-context-isolation-T-003-review-run-02",
+  "session_id": "agent-cost-context-isolation-T-003-review-session-02",
+  "agent_instance_id": "T-003-independent-reviewer-round-2",
+  "model_tier": "standard",
+  "provider": "openai",
+  "model": "gpt-5.1-codex",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-06-30T08:53:35Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {"path": "reports/implementation/agent-cost-context-isolation/manifests/T-003-attempt-2.json", "sha256": "24734183f7f0390fdb873a06bb6280cff9770216f54fc805d93a748e005314ba"},
+    {"path": "specs/agent-cost-context-isolation/requirements.md", "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+    {"path": "specs/agent-cost-context-isolation/design.md", "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+    {"path": "specs/agent-cost-context-isolation/acceptance-tests.md", "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+    {"path": "specs/agent-cost-context-isolation/security-spec.md", "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+    {"path": "specs/agent-cost-context-isolation/tasks.md", "sha256": "e55c67a1690dcdd949ec4638677e3dca1fa1352637be7afddd1abc84656566f9"},
+    {"path": "contracts/task-input-manifest.schema.json", "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"},
+    {"path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh", "sha256": "c5127c08c9ab251d13d390695b60e868560ba5ea00c4f4790584bfea531dfc93"},
+    {"path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1", "sha256": "74c2cd878ea95ea4eb43c4eba6f3b09bbc6392b341c454ff631611ddc345ef21"},
+    {"path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh", "sha256": "917f29dca2e2d96856a33c426320e9bf9a6b8cc71d8fa6a2603a44252e8e9f30"},
+    {"path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1", "sha256": "d911bff3e812efe5c040af284687fde08a138c2da888a1f315ad0f5dcb3651aa"},
+    {"path": "tests/task-context-isolation.tests.sh", "sha256": "0813ce453e0431b4795244049a40e1b2afa94b68e46cd2914dc65ad1d00c2f3c"},
+    {"path": "tests/task-context-isolation.tests.ps1", "sha256": "2de4f74b70be8b08e6225675fe774cd338ee350e1e4ebb8a85ab66a9108c66b1"},
+    {"path": "specs/agent-cost-context-isolation/verification/T-003/red.log", "sha256": "9ac862c8e2e4f28d5cabad906e3a9b10204f6cfde5cdadafc50638827092692e"},
+    {"path": "specs/agent-cost-context-isolation/verification/T-003/green.log", "sha256": "83c90144ca570eb9ca57d01afd5462e5ab915ec9acb221f33c538d350d4405bc"},
+    {"path": "reports/implementation/agent-cost-context-isolation/T-003.md", "sha256": "11264377619be2f8dbdc763e5922a2dc783e727e8ef82790283fa00530e2a1fa"},
+    {"path": "reports/implementation/agent-cost-context-isolation/T-003-review.md", "sha256": "8d7c477a6e43f1377c86876b867ed052fd51f7f762b36c417fec850c9ed650cb"}
+  ],
+  "allowed_outputs": [
+    "reports/implementation/agent-cost-context-isolation/T-003-review-2.md"
+  ]
+}

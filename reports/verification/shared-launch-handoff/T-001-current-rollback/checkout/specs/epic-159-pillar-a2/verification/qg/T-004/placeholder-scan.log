@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-placeholders.sh /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 /Users/jrmag/Projects/active/sdd-forge/tests/guard-ps1-ascii.tests.sh
+== start: 2026-07-16T04:17:12Z ==
+Placeholder scan passed.
+== end: 2026-07-16T04:17:12Z ==
+EXIT_CODE: 0

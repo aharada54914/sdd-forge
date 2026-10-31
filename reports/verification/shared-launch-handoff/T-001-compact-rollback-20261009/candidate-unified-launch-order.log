@@ -1,0 +1,157 @@
+FFFF.....FF..
+======================================================================
+FAIL: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', case='authorized')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 320, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(stage='spec', validator_runtime=runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 236, in exercise
+    self.assertEqual(launcher.launch(root, root / 'invocation.json', output, pin), {'delivery': 'ok'})
+                     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', failure='receipt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 326, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(failure, 'spec', runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 217, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', failure='proof-order')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 326, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(failure, 'spec', runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 217, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', failure='conditional-presence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 326, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(failure, 'spec', runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 217, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_reservation_failure_never_launches (__main__.LaunchOrderTests.test_reservation_failure_never_launches) (runtime='powershell', stage='spec')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 315, in test_reservation_failure_never_launches
+    self.assertNotIn('wrapper.json', self.exercise('postappend-receipt', stage, runtime))
+                                     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 217, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+======================================================================
+FAIL: test_reservation_failure_never_launches (__main__.LaunchOrderTests.test_reservation_failure_never_launches) (runtime='powershell', stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 315, in test_reservation_failure_never_launches
+    self.assertNotIn('wrapper.json', self.exercise('postappend-receipt', stage, runtime))
+                                     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 217, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 334, in launch
+    preview = run(root, check, output / 'preview.txt')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/checkout/tests/unified-launch-order.tests.py", line 159, in run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : REVIEW_CONTEXT_PATH: impl-reviewer-a contains a real but role-unlisted path: domain/context-map.md
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 10.266s
+
+FAILED (failures=6)

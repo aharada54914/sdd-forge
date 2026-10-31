@@ -1,0 +1,11 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:20.339132+00:00",
+  "finished_at": "2026-10-14T15:11:50.698290+00:00"
+}

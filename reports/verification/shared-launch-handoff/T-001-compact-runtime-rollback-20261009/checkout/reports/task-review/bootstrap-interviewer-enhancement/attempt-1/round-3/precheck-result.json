@@ -1,0 +1,12 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 3,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "9dbb8ff2b1efd22d3918bbf85832ce6e226d1432136ab3d0b13e246ed11e34a0",
+  "requirements_sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+  "acceptance_sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "generated_at": "2026-06-29T14:11:37Z"
+}

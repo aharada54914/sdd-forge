@@ -1,0 +1,47 @@
+--- a/plugins/sdd-quality-loop/scripts/check-contract.py
++++ b/plugins/sdd-quality-loop/scripts/check-contract.py
+@@ -19,6 +19,7 @@
+ import hashlib
+ import json
+ import os
++import re
+ import sys
+ 
+ # R-01: __file__-relative import so the module is found regardless of cwd.
+--- a/plugins/sdd-quality-loop/scripts/check-contract.py
++++ b/plugins/sdd-quality-loop/scripts/check-contract.py
+@@ -142,6 +142,34 @@
+         evidence = _str_field(check, "evidence")
+         waiver_reason = _str_field(check, "waiver_reason")
+ 
++        # Per-check execution record (design.md section 2). Optional -- the
++        # contracts shipped before this field set omit them and stay valid --
++        # but format-checked when present, so a contract cannot feed the
++        # bundle's checks[] telemetry a value the schema does not permit.
++        if check.get("command") is not None:
++            command = check.get("command")
++            if not isinstance(command, str) or not command.strip():
++                failures.append(
++                    f"check '{cid}' has invalid command: expected a non-empty string"
++                )
++        if check.get("exit_code") is not None:
++            exit_code = check.get("exit_code")
++            if isinstance(exit_code, bool) or not isinstance(exit_code, int):
++                failures.append(
++                    f"check '{cid}' has invalid exit_code: expected an integer"
++                )
++        for _ts_field in ("started_at", "finished_at"):
++            if check.get(_ts_field) is None:
++                continue
++            _ts = check.get(_ts_field)
++            if not isinstance(_ts, str) or re.fullmatch(
++                r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", _ts
++            ) is None:
++                failures.append(
++                    f"check '{cid}' has invalid {_ts_field}: expected ISO-8601 UTC "
++                    f"(YYYY-MM-DDTHH:MM:SSZ)"
++                )
++
+         if not required and not passes:
+             if not waiver_reason:
+                 failures.append(

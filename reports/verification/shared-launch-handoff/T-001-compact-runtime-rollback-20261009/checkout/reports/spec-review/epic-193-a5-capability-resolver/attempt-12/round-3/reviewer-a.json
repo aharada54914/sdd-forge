@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a12r3-seq0867",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a12r3-0867",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "fa3c54bd6d25479715718a3eec228c4e683a626d4814763d49e9b3b88f9dabde"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "6efd627c45119f7aaacbb1959020732f734cd8883fa20061738e34f90bc6901e"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-3/precheck-result.json", "sha256": "59147f9bc48a08f665d765f62fbe2adfdc0bfc227ab0e9a31ffed7d5d0c9afda"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-008 each state concrete, machine-checkable procedures (e.g. REQ-001's lettered processing steps, REQ-002's sixteen-row diagnostic table, REQ-004's exact-set/cardinality/bidirectional-consistency rules) with matching fixture-level AC/TEST rows. The round-3 Ruling Annotations text (requirements.md:928-948) states rulings (a)/(A)/(B) in specific, testable terms (symlinked target PRE = ABSENT restored by unlink; POSIX-only directory-fsync barriers, Windows retains per-file fsync/journal ordering) so a downstream implementer can still derive concrete pass/fail behavior from the frozen text plus this preamble."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001..REQ-008) has one or more matching Acceptance Criteria (AC-001..AC-059), cross-referenced by requirements.md's own 'Requirement' column and acceptance-tests.md's 1:1 AC-NNN&lt;-&gt;TEST-NNN mapping preamble (acceptance-tests.md:3-61). The new AC-038..AC-059 rows are each traced to a REQ and to their originating adversarial-review/ruling finding."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable file-write/exit-code/schema-validation outcomes (e.g. AC-011 'no facet-manifest.yaml/... is written or left partially written', AC-012 'writes a full Resolver Evidence record ... except ...'). The round-3 markers ('bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above') point to a single, concretely-worded preamble rather than leaving the exception vague, so observability of the row's own substantive behavior is preserved."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (:849-901) explicitly excludes building the Resolver itself, editing sibling-epic schemas, implementing check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness's caller, computing the full v2 §10 effective-enforcement formula, editing SKILL.md, authoring a new ADR, and running spec/impl-review or authoring tasks.md/traceability.md from this package."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "All twelve round-3 amendment sites in requirements.md (Ruling Annotations block :928-948; AC-011 :963; AC-012 :964; AC-039 :991; AC-047 :999; AC-049 :1001; REQ-002 closing paragraph :448-449; REQ-004 footnote :648-649; Field Definitions 'Block' entry :1054-1056; Edge Cases :1290-1291; Security Boundaries :1383 and :1397) cite investigation.md's ruling (F), dated 2026-09-03, as the human-approved authorization for amending this frozen document. investigation.md's own `### Ruling (F)` section (:2777-2809 -- the final entry in `## Amendment Re-Review Context`; the file ends at :2810 immediately after it) states in its own 'Scope of this ruling' paragraph that only THREE sites are amended: 'requirements.md's REQ-002 exception-count sentence and acceptance-tests.md's AC-012 and AC-047 rows' -- not the twelve sites the current text actually carries the marker at. Unlike every other ruling entry in the same section (e.g. rulings A(1)/B(1) with commit hashes and per-document SHA-256 at :800-834, the bf618824 remediation's SHA-256 table at :2533-2539), ruling (F) records no amendment-commit hash and no SHA-256 of the amended requirements.md/acceptance-tests.md at all; grepping investigation.md for the manifest's own current hashes (requirements.md fa3c54bd...dabde, acceptance-tests.md 72ddc013...4de7b) returns zero matches. Per plugins/sdd-review-loop/references/spec-review-calibration.md's 'Amendment Re-Review Context' evidence bar, items 1 (full commit hash) and 2 (per-document SHA-256 as of that commit) are therefore unmet for this specific amendment, so per that section's own rule ('the declaration does not apply ... with no benefit of the doubt') the nine sites beyond ruling F's own recorded three-site scope -- all of which are only meaningful by reference to rulings (A)/(B), which are themselves grounded in implementation-phase facts this same investigation.md records (Python `_live_bytes`/`_fsync_directory` behavior, mutation-tested code, Task-Review-Status: Passed at :2542) -- must be judged as an unsafe/unauthorized workflow-boundary reference into a still-`Spec-Review-Status: Pending` document (requirements.md:3). Downstream failure: a future auditor cannot verify from investigation.md's own citable approval record which commit produced the twelve-site amendment, nor confirm the owner approved amending nine of the twelve passages actually marked, since the ruling's own recorded scope names only three. This is the calibration's own worked 'NOT suppressed (other defect)' class ('the cited implementation artifact does not actually contain what the amendment claims it contains') and belongs to spec review because it concerns whether this Phase-1 document's own frozen-text amendment is adequately evidenced before any further review proceeds. Severity Critical per the calibration's own severity table ('missing approval boundary that makes the specification unreviewable')."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (:1480-1580) names five high-risk claims (Lite-track required-enforcement Block rate, the new multi-component/facet-aggregation orchestration decisions, the A2/A4 addendum gaps, transactional implementation complexity, and anchor-fingerprint drift) each with a concrete validation surface: an owned Epic A2 prerequisite (Dependencies), explicit spec-review evaluation of the new orchestration rules, named future-addendum recommendations, a cited reference implementation, and AC-053's deferred fixture plus the recorded sha256/ordinal pair."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/context-map.md` exists in the repository (checked via glob), so the domain-model precondition for this check is absent; recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

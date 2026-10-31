@@ -1,0 +1,10 @@
+{
+  "schema": "capability-registry-parity-runtime/v1",
+  "runtime": "claude-code",
+  "description": "Simulated Claude Code installed-plugin context (TEST-033, AC-033). Reuses T-003's TEST-027 installed-layout pattern: the packaged copy at the script-relative offset plugins/sdd-quality-loop/contracts/ is the only artifact source, there is no monorepo checkout, no reachable .git, and no runtime environment variable is set by the harness for any runtime.",
+  "install_root_segments": ["home", ".claude", "plugins", "sdd-forge"],
+  "entry_root_segments": ["home", ".claude", "plugins", "sdd-forge"],
+  "entry_via_symlink": false,
+  "host_marker_path": ".claude-plugin/plugin.json",
+  "host_marker_content": "{\"name\": \"sdd-forge\"}\n"
+}

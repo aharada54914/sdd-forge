@@ -1,0 +1,26 @@
+[
+  {
+    "label": "before-hash-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/review-hash-normalization.tests.ps1"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-94l7hf0y/checkout",
+    "exit_code": 0
+  },
+  {
+    "label": "before-traceability",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "tests/traceability-freeze-contract.tests.py"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-94l7hf0y/checkout",
+    "exit_code": 1
+  }
+]

@@ -1,0 +1,5487 @@
+{
+  "conclusion": "success",
+  "headSha": "9b16ffba39a090cd3cf2305e986341e24096b835",
+  "jobs": [
+    {
+      "completedAt": "2026-10-11T23:52:04Z",
+      "conclusion": "success",
+      "databaseId": 114606976887,
+      "name": "loops-routing (windows-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:57Z",
+          "conclusion": "success",
+          "name": "Test template-validator parity (bash)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:58Z",
+          "conclusion": "success",
+          "name": "Test template-validator parity (pwsh)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:08Z",
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (bash)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:14Z",
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (pwsh)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:01Z",
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (bash)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:10Z",
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:48:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:52Z",
+          "conclusion": "success",
+          "name": "Test loop consistency suite (bash)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:48:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:59Z",
+          "conclusion": "success",
+          "name": "Test loop consistency suite (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:49:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "success",
+          "name": "Test loop escalation suite (bash)",
+          "number": 11,
+          "startedAt": "2026-10-11T23:50:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "success",
+          "name": "Test loop escalation suite (pwsh)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "skipped",
+          "name": "Test agent-model-capabilities v2 registry parity lock (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "success",
+          "name": "Test agent-model-capabilities v2 registry parity lock (pwsh)",
+          "number": 14,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "skipped",
+          "name": "Test render-agent-frontmatter suite (bash)",
+          "number": 15,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:37Z",
+          "conclusion": "success",
+          "name": "Test render-agent-frontmatter suite (pwsh)",
+          "number": 16,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:37Z",
+          "conclusion": "skipped",
+          "name": "Test turn-first agent-model routing suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:51:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:39Z",
+          "conclusion": "success",
+          "name": "Test turn-first agent-model routing suite (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:51:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:39Z",
+          "conclusion": "success",
+          "name": "Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:51:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:46Z",
+          "conclusion": "success",
+          "name": "Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:51:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:48Z",
+          "conclusion": "success",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (bash)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:51:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:49Z",
+          "conclusion": "success",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (pwsh)",
+          "number": 22,
+          "startedAt": "2026-10-11T23:51:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:50Z",
+          "conclusion": "success",
+          "name": "Test check-placeholders brownfield behavior lock (bash)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:51:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:51Z",
+          "conclusion": "success",
+          "name": "Test check-placeholders brownfield behavior lock (pwsh)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:51Z",
+          "conclusion": "skipped",
+          "name": "Test run-panelist-effort suite (bash)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:51:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:01Z",
+          "conclusion": "success",
+          "name": "Test run-panelist-effort suite (pwsh)",
+          "number": 26,
+          "startedAt": "2026-10-11T23:51:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:02Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 52,
+          "startedAt": "2026-10-11T23:52:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:02Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 53,
+          "startedAt": "2026-10-11T23:52:02Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606976887"
+    },
+    {
+      "completedAt": "2026-10-11T23:58:01Z",
+      "conclusion": "success",
+      "databaseId": 114606976978,
+      "name": "POSIX unwired shard (1)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:59Z",
+          "conclusion": "success",
+          "name": "Run POSIX inventory shard",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:59Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "startedAt": "2026-10-11T23:57:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:59Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-11T23:57:59Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606976978"
+    },
+    {
+      "completedAt": "2026-10-12T00:00:07Z",
+      "conclusion": "success",
+      "databaseId": 114606976983,
+      "name": "test-windows-heavy",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:11Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test A7 byte-identical compatibility (pwsh)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:22Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 4,
+          "startedAt": "2026-10-11T23:53:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:07Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test portable review-loop prechecks",
+          "number": 5,
+          "startedAt": "2026-10-11T23:55:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:38Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-model gate",
+          "number": 6,
+          "startedAt": "2026-10-11T23:56:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:22Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test hook guards",
+          "number": 7,
+          "startedAt": "2026-10-11T23:57:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:08Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test panelist-input consent gate",
+          "number": 8,
+          "startedAt": "2026-10-11T23:58:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:09Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime handoff fixture (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:59:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:04Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test installed-plugin drift check (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:59:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:06Z",
+          "conclusion": "success",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 20,
+          "startedAt": "2026-10-12T00:00:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:06Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-10-12T00:00:06Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606976983"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:39Z",
+      "conclusion": "success",
+      "databaseId": 114606976984,
+      "name": "POSIX unwired shard (2)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:37Z",
+          "conclusion": "success",
+          "name": "Run POSIX inventory shard",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:37Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "startedAt": "2026-10-11T23:51:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:37Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-11T23:51:37Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606976984"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:12Z",
+      "conclusion": "success",
+      "databaseId": 114606977011,
+      "name": "version-gates-windows-bump",
+      "startedAt": "2026-10-11T23:46:59Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:10Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:07Z",
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:09Z",
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:51:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:11Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "startedAt": "2026-10-11T23:51:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:11Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-11T23:51:11Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977011"
+    },
+    {
+      "completedAt": "2026-10-11T23:53:08Z",
+      "conclusion": "success",
+      "databaseId": 114606977019,
+      "name": "complete POSIX regression inventory",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Test required-checks POSIX failure propagation",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Install pinned RTK",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:38Z",
+          "conclusion": "success",
+          "name": "Test evaluator scratch isolation (Bash and PowerShell)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:42Z",
+          "conclusion": "success",
+          "name": "Test shared quality non-TTY transport contracts",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:52Z",
+          "conclusion": "success",
+          "name": "Check shared launch Python and FilesOnly distribution",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:37Z",
+          "conclusion": "success",
+          "name": "Test traceability freeze normalization",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:44Z",
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 9,
+          "startedAt": "2026-10-11T23:48:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:28Z",
+          "conclusion": "success",
+          "name": "Test shared review launch and conditional input contracts",
+          "number": 10,
+          "startedAt": "2026-10-11T23:48:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:46Z",
+          "conclusion": "success",
+          "name": "Test guard dispatch fallback",
+          "number": 11,
+          "startedAt": "2026-10-11T23:52:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:00Z",
+          "conclusion": "success",
+          "name": "Test guard negative corpus",
+          "number": 12,
+          "startedAt": "2026-10-11T23:52:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:01Z",
+          "conclusion": "success",
+          "name": "Test deterministic lane coverage",
+          "number": 13,
+          "startedAt": "2026-10-11T23:53:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:01Z",
+          "conclusion": "success",
+          "name": "Test workflow scenarios",
+          "number": 14,
+          "startedAt": "2026-10-11T23:53:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:02Z",
+          "conclusion": "success",
+          "name": "Test design system contract (Bash)",
+          "number": 15,
+          "startedAt": "2026-10-11T23:53:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:03Z",
+          "conclusion": "success",
+          "name": "Test design system contract (PowerShell)",
+          "number": 16,
+          "startedAt": "2026-10-11T23:53:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:04Z",
+          "conclusion": "success",
+          "name": "Test design sync standing consent (Bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:53:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:06Z",
+          "conclusion": "success",
+          "name": "Test design sync standing consent (PowerShell)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:53:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 36,
+          "startedAt": "2026-10-11T23:53:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:07Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 37,
+          "startedAt": "2026-10-11T23:53:06Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977019"
+    },
+    {
+      "completedAt": "2026-10-11T23:58:33Z",
+      "conclusion": "success",
+      "databaseId": 114606977025,
+      "name": "version-gates (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:05Z",
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:05Z",
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (pwsh)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (bash)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:07Z",
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:08Z",
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (bash)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:47:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:10Z",
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:47:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:10Z",
+          "conclusion": "success",
+          "name": "Test approver-registry-schema suite (bash)",
+          "number": 11,
+          "startedAt": "2026-10-11T23:47:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:12Z",
+          "conclusion": "success",
+          "name": "Test approver-registry-schema suite (pwsh)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:47:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:17Z",
+          "conclusion": "success",
+          "name": "Test canonicalize-sdd-yaml suite (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:47:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:52Z",
+          "conclusion": "success",
+          "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+          "number": 14,
+          "startedAt": "2026-10-11T23:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:58Z",
+          "conclusion": "success",
+          "name": "Test generate-approval-sidecar suite (bash)",
+          "number": 15,
+          "startedAt": "2026-10-11T23:47:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:09Z",
+          "conclusion": "success",
+          "name": "Test generate-approval-sidecar suite (pwsh)",
+          "number": 16,
+          "startedAt": "2026-10-11T23:47:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:14Z",
+          "conclusion": "success",
+          "name": "Test detect-policy-weakening suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:48:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:28Z",
+          "conclusion": "success",
+          "name": "Test detect-policy-weakening suite (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:48:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:37Z",
+          "conclusion": "success",
+          "name": "Test validate-approval-sidecar suite (bash)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:48:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:59Z",
+          "conclusion": "success",
+          "name": "Test validate-approval-sidecar suite (pwsh)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:48:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:18Z",
+          "conclusion": "success",
+          "name": "Test apply-human-copy publisher suites (POSIX parallel)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:48:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:21Z",
+          "conclusion": "success",
+          "name": "Test hook-activation handshake suite (bash)",
+          "number": 22,
+          "startedAt": "2026-10-11T23:50:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:39Z",
+          "conclusion": "success",
+          "name": "Test hook-activation handshake suite (pwsh)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:50:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:40Z",
+          "conclusion": "success",
+          "name": "Test epic-a1 guard-invariants registration (bash)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:50:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:41Z",
+          "conclusion": "success",
+          "name": "Test epic-a1 guard-invariants registration (pwsh)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:50:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:48Z",
+          "conclusion": "success",
+          "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+          "number": 26,
+          "startedAt": "2026-10-11T23:50:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:58Z",
+          "conclusion": "success",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+          "number": 27,
+          "startedAt": "2026-10-11T23:50:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:58Z",
+          "conclusion": "success",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+          "number": 28,
+          "startedAt": "2026-10-11T23:50:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:02Z",
+          "conclusion": "success",
+          "name": "Test plugin-contracts track-selection contract (bash)",
+          "number": 29,
+          "startedAt": "2026-10-11T23:52:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:06Z",
+          "conclusion": "success",
+          "name": "Test plugin-contracts track-selection contract (pwsh)",
+          "number": 30,
+          "startedAt": "2026-10-11T23:53:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:12Z",
+          "conclusion": "success",
+          "name": "Test ship track-selection migration (bash)",
+          "number": 31,
+          "startedAt": "2026-10-11T23:53:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:17Z",
+          "conclusion": "success",
+          "name": "Test ship track-selection migration (pwsh)",
+          "number": 32,
+          "startedAt": "2026-10-11T23:53:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:18Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-schema suite (bash)",
+          "number": 33,
+          "startedAt": "2026-10-11T23:53:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:18Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-schema suite (pwsh)",
+          "number": 34,
+          "startedAt": "2026-10-11T23:53:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:21Z",
+          "conclusion": "success",
+          "name": "Test evaluate-predicate suite (bash)",
+          "number": 35,
+          "startedAt": "2026-10-11T23:53:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:44Z",
+          "conclusion": "success",
+          "name": "Test evaluate-predicate suite (pwsh)",
+          "number": 36,
+          "startedAt": "2026-10-11T23:53:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:45Z",
+          "conclusion": "success",
+          "name": "Test registry-discovery suite (bash)",
+          "number": 37,
+          "startedAt": "2026-10-11T23:53:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:46Z",
+          "conclusion": "success",
+          "name": "Test registry-discovery suite (pwsh)",
+          "number": 38,
+          "startedAt": "2026-10-11T23:53:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:47Z",
+          "conclusion": "success",
+          "name": "Test validate-capability-registry suite (bash)",
+          "number": 39,
+          "startedAt": "2026-10-11T23:53:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:53Z",
+          "conclusion": "success",
+          "name": "Test validate-capability-registry suite (pwsh)",
+          "number": 40,
+          "startedAt": "2026-10-11T23:53:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:56Z",
+          "conclusion": "success",
+          "name": "Test generate-registry-digest suite (bash)",
+          "number": 41,
+          "startedAt": "2026-10-11T23:53:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:05Z",
+          "conclusion": "success",
+          "name": "Test generate-registry-digest suite (pwsh)",
+          "number": 42,
+          "startedAt": "2026-10-11T23:53:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:07Z",
+          "conclusion": "success",
+          "name": "Test generate-gate-capabilities suite (bash)",
+          "number": 43,
+          "startedAt": "2026-10-11T23:54:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:11Z",
+          "conclusion": "success",
+          "name": "Test generate-gate-capabilities suite (pwsh)",
+          "number": 44,
+          "startedAt": "2026-10-11T23:54:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:19Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-parity suite (bash)",
+          "number": 45,
+          "startedAt": "2026-10-11T23:54:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:28Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-parity suite (pwsh)",
+          "number": 46,
+          "startedAt": "2026-10-11T23:54:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:32Z",
+          "conclusion": "success",
+          "name": "Test component-path-resolver suite (bash)",
+          "number": 47,
+          "startedAt": "2026-10-11T23:54:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:19Z",
+          "conclusion": "success",
+          "name": "Test component-path-resolver suite (pwsh)",
+          "number": 48,
+          "startedAt": "2026-10-11T23:54:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:21Z",
+          "conclusion": "success",
+          "name": "Test component-path-diff-basis suite (bash)",
+          "number": 49,
+          "startedAt": "2026-10-11T23:55:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:39Z",
+          "conclusion": "success",
+          "name": "Test component-path-diff-basis suite (pwsh)",
+          "number": 50,
+          "startedAt": "2026-10-11T23:55:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:42Z",
+          "conclusion": "success",
+          "name": "Test ownership-digest suite (bash)",
+          "number": 51,
+          "startedAt": "2026-10-11T23:55:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:12Z",
+          "conclusion": "success",
+          "name": "Test ownership-digest suite (pwsh)",
+          "number": 52,
+          "startedAt": "2026-10-11T23:55:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:17Z",
+          "conclusion": "success",
+          "name": "Test check-component-coverage suite (bash)",
+          "number": 53,
+          "startedAt": "2026-10-11T23:56:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:04Z",
+          "conclusion": "success",
+          "name": "Test check-component-coverage suite (pwsh)",
+          "number": 54,
+          "startedAt": "2026-10-11T23:56:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:14Z",
+          "conclusion": "success",
+          "name": "Test component-path-ownership parity suite (bash)",
+          "number": 55,
+          "startedAt": "2026-10-11T23:57:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:24Z",
+          "conclusion": "success",
+          "name": "Test component-path-ownership parity suite (pwsh)",
+          "number": 56,
+          "startedAt": "2026-10-11T23:57:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:41Z",
+          "conclusion": "success",
+          "name": "Test human-copy-runner-contract suite (bash)",
+          "number": 57,
+          "startedAt": "2026-10-11T23:57:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:56Z",
+          "conclusion": "success",
+          "name": "Test human-copy-runner-contract suite (pwsh)",
+          "number": 58,
+          "startedAt": "2026-10-11T23:57:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:57Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+          "number": 59,
+          "startedAt": "2026-10-11T23:57:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:03Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+          "number": 60,
+          "startedAt": "2026-10-11T23:57:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:03Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+          "number": 61,
+          "startedAt": "2026-10-11T23:58:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:05Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+          "number": 62,
+          "startedAt": "2026-10-11T23:58:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:06Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+          "number": 63,
+          "startedAt": "2026-10-11T23:58:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:21Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+          "number": 64,
+          "startedAt": "2026-10-11T23:58:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:21Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+          "number": 65,
+          "startedAt": "2026-10-11T23:58:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:23Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+          "number": 66,
+          "startedAt": "2026-10-11T23:58:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:23Z",
+          "conclusion": "success",
+          "name": "Test lite-spec-capability-block suite (bash)",
+          "number": 67,
+          "startedAt": "2026-10-11T23:58:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:25Z",
+          "conclusion": "success",
+          "name": "Test lite-spec-capability-block suite (pwsh)",
+          "number": 68,
+          "startedAt": "2026-10-11T23:58:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:28Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-consumption suite (bash)",
+          "number": 69,
+          "startedAt": "2026-10-11T23:58:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:29Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-consumption suite (pwsh)",
+          "number": 70,
+          "startedAt": "2026-10-11T23:58:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:29Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent suite (bash)",
+          "number": 71,
+          "startedAt": "2026-10-11T23:58:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:29Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent suite (pwsh)",
+          "number": 72,
+          "startedAt": "2026-10-11T23:58:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:29Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-invalid suite (bash)",
+          "number": 73,
+          "startedAt": "2026-10-11T23:58:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:30Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-invalid suite (pwsh)",
+          "number": 74,
+          "startedAt": "2026-10-11T23:58:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:30Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+          "number": 75,
+          "startedAt": "2026-10-11T23:58:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:31Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+          "number": 76,
+          "startedAt": "2026-10-11T23:58:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:31Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+          "number": 77,
+          "startedAt": "2026-10-11T23:58:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:31Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+          "number": 78,
+          "startedAt": "2026-10-11T23:58:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:32Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 156,
+          "startedAt": "2026-10-11T23:58:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:32Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 157,
+          "startedAt": "2026-10-11T23:58:32Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977025"
+    },
+    {
+      "completedAt": "2026-10-11T23:48:26Z",
+      "conclusion": "success",
+      "databaseId": 114606977037,
+      "name": "version-gates-windows-lanes (lite)",
+      "startedAt": "2026-10-11T23:47:14Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:15Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:22Z",
+          "conclusion": "success",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:25Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:25Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:25Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977037"
+    },
+    {
+      "completedAt": "2026-10-12T00:03:01Z",
+      "conclusion": "success",
+      "databaseId": 114606977041,
+      "name": "test (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:30Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:08Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:47:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:47Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate repository",
+          "number": 11,
+          "startedAt": "2026-10-11T23:48:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:27Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:48:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:43Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 13,
+          "startedAt": "2026-10-11T23:49:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:59Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 14,
+          "startedAt": "2026-10-11T23:51:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:10Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 15,
+          "startedAt": "2026-10-11T23:53:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:21Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 16,
+          "startedAt": "2026-10-11T23:54:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:32Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:54:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:10Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:54:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:09Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:55:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:09Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:57:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:10Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:57:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:38Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test hook guards",
+          "number": 22,
+          "startedAt": "2026-10-11T23:57:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:03Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:57:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:03Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:58:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:03Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:58:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:11Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 26,
+          "startedAt": "2026-10-11T23:58:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:11Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 27,
+          "startedAt": "2026-10-11T23:58:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:29Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 28,
+          "startedAt": "2026-10-11T23:58:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:35Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 29,
+          "startedAt": "2026-10-11T23:58:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:01:00Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 30,
+          "startedAt": "2026-10-11T23:58:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:53Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 31,
+          "startedAt": "2026-10-12T00:01:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:55Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 32,
+          "startedAt": "2026-10-12T00:02:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:55Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 33,
+          "startedAt": "2026-10-12T00:02:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:59Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 34,
+          "startedAt": "2026-10-12T00:02:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:59Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 35,
+          "startedAt": "2026-10-12T00:02:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:59Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Upload test logs",
+          "number": 36,
+          "startedAt": "2026-10-12T00:02:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:59Z",
+          "conclusion": "success",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 72,
+          "startedAt": "2026-10-12T00:02:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:02:59Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 73,
+          "startedAt": "2026-10-12T00:02:59Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977041"
+    },
+    {
+      "completedAt": "2026-10-11T23:49:42Z",
+      "conclusion": "success",
+      "databaseId": 114606977043,
+      "name": "installers (windows-latest / clients)",
+      "startedAt": "2026-10-11T23:47:34Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:36Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:45Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:47Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:47Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:47:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:08Z",
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:14Z",
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:38Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:40Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:40Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:49:40Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977043"
+    },
+    {
+      "completedAt": "2026-10-11T23:48:36Z",
+      "conclusion": "success",
+      "databaseId": 114606977047,
+      "name": "loops-routing (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Test template-validator parity (bash)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:53Z",
+          "conclusion": "success",
+          "name": "Test template-validator parity (pwsh)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (bash)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (pwsh)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:58Z",
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (bash)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:46:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:21Z",
+          "conclusion": "success",
+          "name": "Test loop consistency suite (bash)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:45Z",
+          "conclusion": "success",
+          "name": "Test loop consistency suite (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:47:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:46Z",
+          "conclusion": "success",
+          "name": "Test loop escalation suite (bash)",
+          "number": 11,
+          "startedAt": "2026-10-11T23:47:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:49Z",
+          "conclusion": "success",
+          "name": "Test loop escalation suite (pwsh)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:47:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:49Z",
+          "conclusion": "success",
+          "name": "Test agent-model-capabilities v2 registry parity lock (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:47:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:50Z",
+          "conclusion": "success",
+          "name": "Test agent-model-capabilities v2 registry parity lock (pwsh)",
+          "number": 14,
+          "startedAt": "2026-10-11T23:47:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:51Z",
+          "conclusion": "success",
+          "name": "Test render-agent-frontmatter suite (bash)",
+          "number": 15,
+          "startedAt": "2026-10-11T23:47:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:59Z",
+          "conclusion": "success",
+          "name": "Test render-agent-frontmatter suite (pwsh)",
+          "number": 16,
+          "startedAt": "2026-10-11T23:47:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:12Z",
+          "conclusion": "success",
+          "name": "Test turn-first agent-model routing suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:47:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:13Z",
+          "conclusion": "success",
+          "name": "Test turn-first agent-model routing suite (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:48:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:13Z",
+          "conclusion": "success",
+          "name": "Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:48:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:15Z",
+          "conclusion": "success",
+          "name": "Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:48:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:16Z",
+          "conclusion": "success",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (bash)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:48:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:16Z",
+          "conclusion": "success",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (pwsh)",
+          "number": 22,
+          "startedAt": "2026-10-11T23:48:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:16Z",
+          "conclusion": "success",
+          "name": "Test check-placeholders brownfield behavior lock (bash)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:48:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:17Z",
+          "conclusion": "success",
+          "name": "Test check-placeholders brownfield behavior lock (pwsh)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:48:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:23Z",
+          "conclusion": "success",
+          "name": "Test run-panelist-effort suite (bash)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:48:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:34Z",
+          "conclusion": "success",
+          "name": "Test run-panelist-effort suite (pwsh)",
+          "number": 26,
+          "startedAt": "2026-10-11T23:48:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 52,
+          "startedAt": "2026-10-11T23:48:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 53,
+          "startedAt": "2026-10-11T23:48:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977047"
+    },
+    {
+      "completedAt": "2026-10-12T00:06:52Z",
+      "conclusion": "success",
+      "databaseId": 114606977051,
+      "name": "test (macos-latest)",
+      "startedAt": "2026-10-11T23:46:49Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:18Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:25Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:48:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:53Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate repository",
+          "number": 11,
+          "startedAt": "2026-10-11T23:49:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:06Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:50:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:14Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 13,
+          "startedAt": "2026-10-11T23:52:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:09Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 14,
+          "startedAt": "2026-10-11T23:55:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:17Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 15,
+          "startedAt": "2026-10-11T23:57:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:25Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 16,
+          "startedAt": "2026-10-11T23:57:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:32Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:57:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:57:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:56Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:57:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:56Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:59:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:57Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:59:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:25Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test hook guards",
+          "number": 22,
+          "startedAt": "2026-10-11T23:59:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:50Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 23,
+          "startedAt": "2026-10-12T00:00:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:51Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 24,
+          "startedAt": "2026-10-12T00:00:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:00:51Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 25,
+          "startedAt": "2026-10-12T00:00:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:01:03Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 26,
+          "startedAt": "2026-10-12T00:00:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:01:04Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 27,
+          "startedAt": "2026-10-12T00:01:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:01:32Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 28,
+          "startedAt": "2026-10-12T00:01:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:01:42Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 29,
+          "startedAt": "2026-10-12T00:01:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:38Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 30,
+          "startedAt": "2026-10-12T00:01:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:38Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 31,
+          "startedAt": "2026-10-12T00:04:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:41Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 32,
+          "startedAt": "2026-10-12T00:06:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:42Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 33,
+          "startedAt": "2026-10-12T00:06:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:47Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 34,
+          "startedAt": "2026-10-12T00:06:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:48Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 35,
+          "startedAt": "2026-10-12T00:06:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:48Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Upload test logs",
+          "number": 36,
+          "startedAt": "2026-10-12T00:06:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:49Z",
+          "conclusion": "success",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 72,
+          "startedAt": "2026-10-12T00:06:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:06:50Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 73,
+          "startedAt": "2026-10-12T00:06:49Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977051"
+    },
+    {
+      "completedAt": "2026-10-12T00:04:36Z",
+      "conclusion": "success",
+      "databaseId": 114606977059,
+      "name": "test (windows-latest)",
+      "startedAt": "2026-10-11T23:48:29Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:48:31Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:48:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:42Z",
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:48:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:44Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:48:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:44Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:48:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:44Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:48:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:44Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:45Z",
+          "conclusion": "success",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:45Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:48:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:51Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:48:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:51Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:49:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:03Z",
+          "conclusion": "success",
+          "name": "[deterministic] Validate repository",
+          "number": 11,
+          "startedAt": "2026-10-11T23:49:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:03Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:51:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:03Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 13,
+          "startedAt": "2026-10-11T23:51:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:03Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 14,
+          "startedAt": "2026-10-11T23:51:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:18Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 15,
+          "startedAt": "2026-10-11T23:51:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:32Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 16,
+          "startedAt": "2026-10-11T23:51:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:09Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:51:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:09Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:52:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:09Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:52:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:38Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:52:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:38Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:52:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:38Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test hook guards",
+          "number": 22,
+          "startedAt": "2026-10-11T23:52:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:12Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:52:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:12Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:53:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "success",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:53:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 26,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 27,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 28,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 29,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 30,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 31,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 32,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 33,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 34,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 35,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:31Z",
+          "conclusion": "skipped",
+          "name": "[deterministic] Upload test logs",
+          "number": 36,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:34Z",
+          "conclusion": "success",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 72,
+          "startedAt": "2026-10-12T00:04:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:04:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 73,
+          "startedAt": "2026-10-12T00:04:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977059"
+    },
+    {
+      "completedAt": "2026-10-11T23:52:19Z",
+      "conclusion": "success",
+      "databaseId": 114606977063,
+      "name": "installers (windows-latest / core)",
+      "startedAt": "2026-10-11T23:48:38Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:48:40Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:48:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:51Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:48:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:53Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:48:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:53Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:48:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:53Z",
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:48:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:53Z",
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:16Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:18Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:52:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:18Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:52:18Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977063"
+    },
+    {
+      "completedAt": "2026-10-11T23:50:33Z",
+      "conclusion": "success",
+      "databaseId": 114606977072,
+      "name": "installers (macos-latest / all)",
+      "startedAt": "2026-10-11T23:46:48Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:58Z",
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:48Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:01Z",
+          "conclusion": "success",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:48:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:12Z",
+          "conclusion": "success",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:49:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:22Z",
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:49:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:16Z",
+          "conclusion": "success",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:49:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:21Z",
+          "conclusion": "success",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:50:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:29Z",
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:50:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:29Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:50:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:30Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:50:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:31Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:50:30Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977072"
+    },
+    {
+      "completedAt": "2026-10-11T23:46:57Z",
+      "conclusion": "success",
+      "databaseId": 114606977081,
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:53Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:53Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:55Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:46:55Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977081"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:47Z",
+      "conclusion": "success",
+      "databaseId": 114606977083,
+      "name": "version-gates-windows-lanes (capability)",
+      "startedAt": "2026-10-11T23:47:12Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:15Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:31Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:43Z",
+          "conclusion": "success",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:45Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "startedAt": "2026-10-11T23:51:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:45Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-10-11T23:51:45Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977083"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:23Z",
+      "conclusion": "success",
+      "databaseId": 114606977087,
+      "name": "installers (windows-latest / mcp)",
+      "startedAt": "2026-10-11T23:48:39Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:48:41Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:48:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:48:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:56Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:48:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:56Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:48:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:56Z",
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:48:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:56Z",
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:13Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:13Z",
+          "conclusion": "skipped",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:50:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "success",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:50:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:19Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:21Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:51:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:22Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:51:21Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977087"
+    },
+    {
+      "completedAt": "2026-10-11T23:52:58Z",
+      "conclusion": "success",
+      "databaseId": 114606977096,
+      "name": "POSIX unwired shard (3)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:57Z",
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:56Z",
+          "conclusion": "success",
+          "name": "Run POSIX inventory shard",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:56Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "startedAt": "2026-10-11T23:52:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:56Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-11T23:52:56Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977096"
+    },
+    {
+      "completedAt": "2026-10-11T23:47:36Z",
+      "conclusion": "success",
+      "databaseId": 114606977097,
+      "name": "mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:45Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:46Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:59Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:00Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:32Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:33Z",
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:33Z",
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:33Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:47:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:47:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:33Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:47:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977097"
+    },
+    {
+      "completedAt": "2026-10-11T23:48:55Z",
+      "conclusion": "success",
+      "databaseId": 114606977099,
+      "name": "installers (ubuntu-latest / all)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:46Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:54Z",
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:59Z",
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:59Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:46:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:01Z",
+          "conclusion": "success",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:13Z",
+          "conclusion": "success",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:48:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:21Z",
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:48:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:45Z",
+          "conclusion": "success",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:48:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:47Z",
+          "conclusion": "success",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:48:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:52Z",
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:48:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:52Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:48:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:48:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:48:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977099"
+    },
+    {
+      "completedAt": "2026-10-11T23:50:28Z",
+      "conclusion": "success",
+      "databaseId": 114606977100,
+      "name": "installers (windows-latest / context)",
+      "startedAt": "2026-10-11T23:47:39Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:41Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:52Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:54Z",
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:54Z",
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:47:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:54Z",
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:54Z",
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:36Z",
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:58Z",
+          "conclusion": "success",
+          "name": "Test uninstaller (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:49:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:58Z",
+          "conclusion": "skipped",
+          "name": "Test Claude registration (pwsh)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:49:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:23Z",
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:49:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:23Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 11,
+          "startedAt": "2026-10-11T23:50:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:23Z",
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 12,
+          "startedAt": "2026-10-11T23:50:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:23Z",
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:50:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:23Z",
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 14,
+          "startedAt": "2026-10-11T23:50:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:26Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 28,
+          "startedAt": "2026-10-11T23:50:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:50:26Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-11T23:50:26Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977100"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:32Z",
+      "conclusion": "success",
+      "databaseId": 114606977106,
+      "name": "POSIX unwired shard (0)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:30Z",
+          "conclusion": "success",
+          "name": "Run POSIX inventory shard",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:30Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "startedAt": "2026-10-11T23:51:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:30Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-11T23:51:30Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977106"
+    },
+    {
+      "completedAt": "2026-10-11T23:59:03Z",
+      "conclusion": "success",
+      "databaseId": 114606977112,
+      "name": "version-gates (macos-latest)",
+      "startedAt": "2026-10-11T23:46:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:52Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:18Z",
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:19Z",
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:19Z",
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (pwsh)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:20Z",
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (bash)",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:21Z",
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (pwsh)",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:22Z",
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (bash)",
+          "number": 9,
+          "startedAt": "2026-10-11T23:47:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:26Z",
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (pwsh)",
+          "number": 10,
+          "startedAt": "2026-10-11T23:47:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:26Z",
+          "conclusion": "success",
+          "name": "Test approver-registry-schema suite (bash)",
+          "number": 11,
+          "startedAt": "2026-10-11T23:47:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:28Z",
+          "conclusion": "success",
+          "name": "Test approver-registry-schema suite (pwsh)",
+          "number": 12,
+          "startedAt": "2026-10-11T23:47:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:40Z",
+          "conclusion": "success",
+          "name": "Test canonicalize-sdd-yaml suite (bash)",
+          "number": 13,
+          "startedAt": "2026-10-11T23:47:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:22Z",
+          "conclusion": "success",
+          "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+          "number": 14,
+          "startedAt": "2026-10-11T23:47:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:32Z",
+          "conclusion": "success",
+          "name": "Test generate-approval-sidecar suite (bash)",
+          "number": 15,
+          "startedAt": "2026-10-11T23:48:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:48Z",
+          "conclusion": "success",
+          "name": "Test generate-approval-sidecar suite (pwsh)",
+          "number": 16,
+          "startedAt": "2026-10-11T23:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:56Z",
+          "conclusion": "success",
+          "name": "Test detect-policy-weakening suite (bash)",
+          "number": 17,
+          "startedAt": "2026-10-11T23:48:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:14Z",
+          "conclusion": "success",
+          "name": "Test detect-policy-weakening suite (pwsh)",
+          "number": 18,
+          "startedAt": "2026-10-11T23:48:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:28Z",
+          "conclusion": "success",
+          "name": "Test validate-approval-sidecar suite (bash)",
+          "number": 19,
+          "startedAt": "2026-10-11T23:49:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:59Z",
+          "conclusion": "success",
+          "name": "Test validate-approval-sidecar suite (pwsh)",
+          "number": 20,
+          "startedAt": "2026-10-11T23:49:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:37Z",
+          "conclusion": "success",
+          "name": "Test apply-human-copy publisher suites (POSIX parallel)",
+          "number": 21,
+          "startedAt": "2026-10-11T23:49:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:42Z",
+          "conclusion": "success",
+          "name": "Test hook-activation handshake suite (bash)",
+          "number": 22,
+          "startedAt": "2026-10-11T23:52:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:01Z",
+          "conclusion": "success",
+          "name": "Test hook-activation handshake suite (pwsh)",
+          "number": 23,
+          "startedAt": "2026-10-11T23:52:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:03Z",
+          "conclusion": "success",
+          "name": "Test epic-a1 guard-invariants registration (bash)",
+          "number": 24,
+          "startedAt": "2026-10-11T23:53:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:05Z",
+          "conclusion": "success",
+          "name": "Test epic-a1 guard-invariants registration (pwsh)",
+          "number": 25,
+          "startedAt": "2026-10-11T23:53:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:11Z",
+          "conclusion": "success",
+          "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+          "number": 26,
+          "startedAt": "2026-10-11T23:53:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:21Z",
+          "conclusion": "success",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+          "number": 27,
+          "startedAt": "2026-10-11T23:53:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:42Z",
+          "conclusion": "success",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+          "number": 28,
+          "startedAt": "2026-10-11T23:53:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:47Z",
+          "conclusion": "success",
+          "name": "Test plugin-contracts track-selection contract (bash)",
+          "number": 29,
+          "startedAt": "2026-10-11T23:54:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:51Z",
+          "conclusion": "success",
+          "name": "Test plugin-contracts track-selection contract (pwsh)",
+          "number": 30,
+          "startedAt": "2026-10-11T23:54:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:54:57Z",
+          "conclusion": "success",
+          "name": "Test ship track-selection migration (bash)",
+          "number": 31,
+          "startedAt": "2026-10-11T23:54:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:02Z",
+          "conclusion": "success",
+          "name": "Test ship track-selection migration (pwsh)",
+          "number": 32,
+          "startedAt": "2026-10-11T23:54:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:02Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-schema suite (bash)",
+          "number": 33,
+          "startedAt": "2026-10-11T23:55:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:03Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-schema suite (pwsh)",
+          "number": 34,
+          "startedAt": "2026-10-11T23:55:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:05Z",
+          "conclusion": "success",
+          "name": "Test evaluate-predicate suite (bash)",
+          "number": 35,
+          "startedAt": "2026-10-11T23:55:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:22Z",
+          "conclusion": "success",
+          "name": "Test evaluate-predicate suite (pwsh)",
+          "number": 36,
+          "startedAt": "2026-10-11T23:55:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:23Z",
+          "conclusion": "success",
+          "name": "Test registry-discovery suite (bash)",
+          "number": 37,
+          "startedAt": "2026-10-11T23:55:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:25Z",
+          "conclusion": "success",
+          "name": "Test registry-discovery suite (pwsh)",
+          "number": 38,
+          "startedAt": "2026-10-11T23:55:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:26Z",
+          "conclusion": "success",
+          "name": "Test validate-capability-registry suite (bash)",
+          "number": 39,
+          "startedAt": "2026-10-11T23:55:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:30Z",
+          "conclusion": "success",
+          "name": "Test validate-capability-registry suite (pwsh)",
+          "number": 40,
+          "startedAt": "2026-10-11T23:55:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:33Z",
+          "conclusion": "success",
+          "name": "Test generate-registry-digest suite (bash)",
+          "number": 41,
+          "startedAt": "2026-10-11T23:55:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:43Z",
+          "conclusion": "success",
+          "name": "Test generate-registry-digest suite (pwsh)",
+          "number": 42,
+          "startedAt": "2026-10-11T23:55:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:46Z",
+          "conclusion": "success",
+          "name": "Test generate-gate-capabilities suite (bash)",
+          "number": 43,
+          "startedAt": "2026-10-11T23:55:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:49Z",
+          "conclusion": "success",
+          "name": "Test generate-gate-capabilities suite (pwsh)",
+          "number": 44,
+          "startedAt": "2026-10-11T23:55:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:55:57Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-parity suite (bash)",
+          "number": 45,
+          "startedAt": "2026-10-11T23:55:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:05Z",
+          "conclusion": "success",
+          "name": "Test capability-registry-parity suite (pwsh)",
+          "number": 46,
+          "startedAt": "2026-10-11T23:55:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:11Z",
+          "conclusion": "success",
+          "name": "Test component-path-resolver suite (bash)",
+          "number": 47,
+          "startedAt": "2026-10-11T23:56:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:39Z",
+          "conclusion": "success",
+          "name": "Test component-path-resolver suite (pwsh)",
+          "number": 48,
+          "startedAt": "2026-10-11T23:56:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:43Z",
+          "conclusion": "success",
+          "name": "Test component-path-diff-basis suite (bash)",
+          "number": 49,
+          "startedAt": "2026-10-11T23:56:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:57Z",
+          "conclusion": "success",
+          "name": "Test component-path-diff-basis suite (pwsh)",
+          "number": 50,
+          "startedAt": "2026-10-11T23:56:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:01Z",
+          "conclusion": "success",
+          "name": "Test ownership-digest suite (bash)",
+          "number": 51,
+          "startedAt": "2026-10-11T23:56:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:21Z",
+          "conclusion": "success",
+          "name": "Test ownership-digest suite (pwsh)",
+          "number": 52,
+          "startedAt": "2026-10-11T23:57:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:27Z",
+          "conclusion": "success",
+          "name": "Test check-component-coverage suite (bash)",
+          "number": 53,
+          "startedAt": "2026-10-11T23:57:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:57:57Z",
+          "conclusion": "success",
+          "name": "Test check-component-coverage suite (pwsh)",
+          "number": 54,
+          "startedAt": "2026-10-11T23:57:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:04Z",
+          "conclusion": "success",
+          "name": "Test component-path-ownership parity suite (bash)",
+          "number": 55,
+          "startedAt": "2026-10-11T23:57:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:12Z",
+          "conclusion": "success",
+          "name": "Test component-path-ownership parity suite (pwsh)",
+          "number": 56,
+          "startedAt": "2026-10-11T23:58:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:21Z",
+          "conclusion": "success",
+          "name": "Test human-copy-runner-contract suite (bash)",
+          "number": 57,
+          "startedAt": "2026-10-11T23:58:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:30Z",
+          "conclusion": "success",
+          "name": "Test human-copy-runner-contract suite (pwsh)",
+          "number": 58,
+          "startedAt": "2026-10-11T23:58:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:31Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+          "number": 59,
+          "startedAt": "2026-10-11T23:58:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:34Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+          "number": 60,
+          "startedAt": "2026-10-11T23:58:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:35Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+          "number": 61,
+          "startedAt": "2026-10-11T23:58:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:36Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+          "number": 62,
+          "startedAt": "2026-10-11T23:58:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:37Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+          "number": 63,
+          "startedAt": "2026-10-11T23:58:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:47Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+          "number": 64,
+          "startedAt": "2026-10-11T23:58:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:47Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+          "number": 65,
+          "startedAt": "2026-10-11T23:58:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:48Z",
+          "conclusion": "success",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+          "number": 66,
+          "startedAt": "2026-10-11T23:58:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:49Z",
+          "conclusion": "success",
+          "name": "Test lite-spec-capability-block suite (bash)",
+          "number": 67,
+          "startedAt": "2026-10-11T23:58:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:50Z",
+          "conclusion": "success",
+          "name": "Test lite-spec-capability-block suite (pwsh)",
+          "number": 68,
+          "startedAt": "2026-10-11T23:58:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:51Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-consumption suite (bash)",
+          "number": 69,
+          "startedAt": "2026-10-11T23:58:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:52Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-consumption suite (pwsh)",
+          "number": 70,
+          "startedAt": "2026-10-11T23:58:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:52Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent suite (bash)",
+          "number": 71,
+          "startedAt": "2026-10-11T23:58:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:52Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent suite (pwsh)",
+          "number": 72,
+          "startedAt": "2026-10-11T23:58:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:52Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-invalid suite (bash)",
+          "number": 73,
+          "startedAt": "2026-10-11T23:58:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:53Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-invalid suite (pwsh)",
+          "number": 74,
+          "startedAt": "2026-10-11T23:58:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:53Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+          "number": 75,
+          "startedAt": "2026-10-11T23:58:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:53Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+          "number": 76,
+          "startedAt": "2026-10-11T23:58:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:53Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+          "number": 77,
+          "startedAt": "2026-10-11T23:58:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:54Z",
+          "conclusion": "success",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+          "number": 78,
+          "startedAt": "2026-10-11T23:58:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:58:54Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 156,
+          "startedAt": "2026-10-11T23:58:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:59:01Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 157,
+          "startedAt": "2026-10-11T23:58:54Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977112"
+    },
+    {
+      "completedAt": "2026-10-11T23:48:36Z",
+      "conclusion": "success",
+      "databaseId": 114606977133,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "startedAt": "2026-10-11T23:47:20Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:47:21Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:47:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:32Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:47:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:48Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:47:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:20Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:47:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:22Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:48:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:32Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:48:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:32Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:32Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:32Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:48:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:48:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977133"
+    },
+    {
+      "completedAt": "2026-10-11T23:47:17Z",
+      "conclusion": "success",
+      "databaseId": 114606977137,
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:45Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:16Z",
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "startedAt": "2026-10-11T23:47:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:16Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-10-11T23:47:16Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977137"
+    },
+    {
+      "completedAt": "2026-10-11T23:53:31Z",
+      "conclusion": "success",
+      "databaseId": 114606977143,
+      "name": "version-gates-windows-lanes (governance)",
+      "startedAt": "2026-10-11T23:49:45Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:49:46Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:49:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:57Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:49:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:27Z",
+          "conclusion": "success",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "startedAt": "2026-10-11T23:49:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:29Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "startedAt": "2026-10-11T23:53:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:29Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-10-11T23:53:29Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977143"
+    },
+    {
+      "completedAt": "2026-10-11T23:47:11Z",
+      "conclusion": "success",
+      "databaseId": 114606977144,
+      "name": "cli-hook-enforcement (macos-latest)",
+      "startedAt": "2026-10-11T23:46:49Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:59Z",
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:04Z",
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:04Z",
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:08Z",
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:09Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "startedAt": "2026-10-11T23:47:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:09Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-10-11T23:47:09Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977144"
+    },
+    {
+      "completedAt": "2026-10-11T23:47:32Z",
+      "conclusion": "success",
+      "databaseId": 114606977145,
+      "name": "mcp-tests (macos-latest)",
+      "startedAt": "2026-10-11T23:46:49Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:50Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:56Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:58Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:01Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:28Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:47:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:28Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:28Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:29Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:47:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:29Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:47:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:30Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:47:29Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977145"
+    },
+    {
+      "completedAt": "2026-10-11T23:47:09Z",
+      "conclusion": "success",
+      "databaseId": 114606977157,
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-11T23:46:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:46:46Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:46:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:51Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:46:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:53Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:57Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:46:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:46:57Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:46:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:05Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:46:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:47:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:06Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:07Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:47:07Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:47:07Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977157"
+    },
+    {
+      "completedAt": "2026-10-11T23:53:02Z",
+      "conclusion": "success",
+      "databaseId": 114606977172,
+      "name": "version-gates-windows-lanes (ownership)",
+      "startedAt": "2026-10-11T23:49:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:49:43Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:49:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:49:52Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:49:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:58Z",
+          "conclusion": "success",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "startedAt": "2026-10-11T23:49:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:01Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "startedAt": "2026-10-11T23:52:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:01Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-10-11T23:53:01Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977172"
+    },
+    {
+      "completedAt": "2026-10-11T23:53:02Z",
+      "conclusion": "success",
+      "databaseId": 114606977176,
+      "name": "mcp-tests (windows-latest)",
+      "startedAt": "2026-10-11T23:50:33Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:50:38Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:50:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:11Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:50:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:23Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:51:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:39Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:51:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:40Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:51:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:57Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:51:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:57Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:52:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:57Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:52:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:57Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:52:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:00Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:52:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:53:00Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:53:00Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977176"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:49Z",
+      "conclusion": "success",
+      "databaseId": 114606977183,
+      "name": "local-env-mcp-tests (macos-latest)",
+      "startedAt": "2026-10-11T23:51:20Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:51:21Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:51:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:51:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:29Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:33Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:51:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:34Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:51:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:43Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:51:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:43Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:51:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:43Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:51:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:44Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:51:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:45Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:51:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:47Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:51:45Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977183"
+    },
+    {
+      "completedAt": "2026-10-11T23:52:34Z",
+      "conclusion": "success",
+      "databaseId": 114606977194,
+      "name": "ci-mcp-tests (windows-latest)",
+      "startedAt": "2026-10-11T23:51:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:51:52Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:51:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:04Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:51:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:10Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:52:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:24Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:52:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:26Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:52:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:31Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:52:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:31Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:52:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:31Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:52:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:31Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:52:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:52:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:52:33Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:52:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977194"
+    },
+    {
+      "completedAt": "2026-10-11T23:56:56Z",
+      "conclusion": "success",
+      "databaseId": 114606977218,
+      "name": "cli-hook-enforcement (windows-latest)",
+      "startedAt": "2026-10-11T23:56:15Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:56:16Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:56:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:56:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:36Z",
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "startedAt": "2026-10-11T23:56:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:43Z",
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "startedAt": "2026-10-11T23:56:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:49Z",
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "startedAt": "2026-10-11T23:56:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:53Z",
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "startedAt": "2026-10-11T23:56:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:55Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "startedAt": "2026-10-11T23:56:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:56:55Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-10-11T23:56:55Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977218"
+    },
+    {
+      "completedAt": "2026-10-11T23:51:44Z",
+      "conclusion": "success",
+      "databaseId": 114606977274,
+      "name": "ci-mcp-tests (macos-latest)",
+      "startedAt": "2026-10-11T23:51:24Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-11T23:51:25Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-11T23:51:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:31Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "startedAt": "2026-10-11T23:51:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:34Z",
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "startedAt": "2026-10-11T23:51:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:38Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-10-11T23:51:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:38Z",
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "startedAt": "2026-10-11T23:51:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:41Z",
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "startedAt": "2026-10-11T23:51:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:41Z",
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "startedAt": "2026-10-11T23:51:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:41Z",
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "startedAt": "2026-10-11T23:51:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:41Z",
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "startedAt": "2026-10-11T23:51:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:41Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "startedAt": "2026-10-11T23:51:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-11T23:51:42Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-11T23:51:41Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114606977274"
+    },
+    {
+      "completedAt": "2026-10-12T00:12:56Z",
+      "conclusion": "success",
+      "databaseId": 114610680064,
+      "name": "required-checks",
+      "startedAt": "2026-10-12T00:12:52Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-12T00:12:54Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-12T00:12:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:12:54Z",
+          "conclusion": "success",
+          "name": "Check all required tests passed",
+          "number": 2,
+          "startedAt": "2026-10-12T00:12:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-12T00:12:54Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 3,
+          "startedAt": "2026-10-12T00:12:54Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821/job/114610680064"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38185550821"
+}

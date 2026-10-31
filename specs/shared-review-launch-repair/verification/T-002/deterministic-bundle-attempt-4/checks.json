@@ -1,0 +1,150 @@
+[
+  {
+    "check": "ruff",
+    "command": [
+      "rtk",
+      "proxy",
+      "/tmp/shared-launch-static-20261008/bin/ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "rtk",
+      "proxy",
+      "/tmp/shared-launch-static-20261008/bin/mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+  },
+  {
+    "check": "build",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/shared-launch-build.tests.py",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "db975f852e59e53d089d92764f7f1ef1334895e2bf6dedb8d328ca88f25aee3e"
+  },
+  {
+    "check": "placeholder",
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+      "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  {
+    "check": "risk",
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "specs/shared-review-launch-repair/tasks.md"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "476b82b0108c876d6bcb8025355dd2862790b4805c38d91ae8850145fe5457b1"
+  },
+  {
+    "check": "task-state",
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/shared-review-launch-repair/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation",
+      "."
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "3a16dd5381125ed075d1e04410261bfad70aa66cf4deb0a1f3c57eb59bfe5ca4"
+  },
+  {
+    "check": "component",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "--repo-root",
+      "."
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+  },
+  {
+    "check": "traceability",
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.json",
+      ".",
+      "require-evidence"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "559f6aff9bb40053c7c73cb80f8777bdd5b9153f0dc66c174831b9d81a9fee7f"
+  },
+  {
+    "check": "report",
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/implementation/shared-review-launch-repair/T-002.md"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+    "exit_code": 0,
+    "log_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+  }
+]

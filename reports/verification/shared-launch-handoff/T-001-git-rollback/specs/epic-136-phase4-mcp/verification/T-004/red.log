@@ -1,0 +1,1562 @@
+==============================================================================
+T-004 RED EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29T12:21:16Z
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+Base commit at capture time: e85fcf79f73acf83250b4a3a60e22b6509d4212d
+  ("docs(sdd): record T-003 verification evidence and implementation report")
+
+STAGE: RED. Captured BEFORE any edit to mcp/sdd-forge-mcp/src/. Red and Green
+are SEPARATE files; green is in
+specs/epic-136-phase4-mcp/verification/T-004/green.log.
+
+At this moment exactly two tracked files are modified, and NEITHER is under
+src/ or dist/ (the git status / git diff --stat proof is reproduced verbatim
+below):
+  M contracts/sdd-forge-mcp-tools.v1.schema.json    (+ "undeterminable" in
+                                                     $defs.evidenceMissingData's
+                                                     `required` array, nothing
+                                                     else)
+  M mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+
+T-004's Scope names TWO independent RED proofs. Both are below.
+
+  (a) SCHEMA-FIRST. `"undeterminable"` is appended to
+      $defs.evidenceMissingData's `required` array while no `properties`
+      entry for it exists yet, so every ok `evidence_find_missing` response
+      matches no `data.oneOf` branch. Captured by `npm test`.
+
+  (b) ASSERTION-LEVEL. TEST-007's scan-failure assertion and the union-form
+      parity assertion are written against a field that does not exist, and
+      their failure is recorded.
+
+--- AN HONEST NOTE ON HOW (a) MANIFESTS, AND WHY (b) IS CAPTURED SEPARATELY ---
+
+The RED of proof (a) turned out to be SHARPER than the "no oneOf branch
+matches" wording anticipated, and this is stated plainly rather than glossed.
+`tests/evidence/test-helpers.ts:78` constructs ajv as
+`new Ajv2020({ strict: true })`, and ajv's `strict: true` DOES enable
+`strictRequired`. So the schema does not merely fail to validate — it fails to
+COMPILE:
+
+  Error: strict mode: required property "undeterminable" is not defined at
+  "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#"
+  (strictRequired)
+
+`getEnvelopeValidator()` therefore THROWS, and every one of the 70 failing
+tests below fails with that identical error — including all 4 of T-004's new
+runtime cases, whose first statement inside `callFindMissing` is the
+`getEnvelopeValidator()` call.
+
+The consequence must be named: proof (a) MASKS proof (b). In this `npm test`
+run the 4 new runtime cases are red because the ajv validator cannot compile,
+NOT because they observed a missing `undeterminable` field. Their
+field-level expectations were never reached. Presenting this single run as
+evidence that "TEST-007's assertion failed against the absent field" would be
+an overclaim, so it is not presented that way.
+
+Proof (b) is therefore captured independently, in the third command below: a
+scratchpad script (NOT a tracked file; the working tree is not modified to
+produce it) imports the already-compiled `evidenceFindMissing` and
+`parseTaskState` from dist-test/ and calls them against the same
+scan-failure fixture shape TEST-007 uses. It records, at runtime and without
+ajv in the path, that:
+  * `Object.keys(result.data)` is
+    ["kind","feature","taskId","required","present","missing"] --
+    `"undeterminable" in result.data` is FALSE;
+  * `quality-gate-report-pass` is in `missing` for a directory-scan FAILURE,
+    which is precisely the conflation issue #132 reports;
+  * `parseTaskState` reports `done-quality-gate-report-missing` for the same
+    task -- the right-hand side of the parity biconditional.
+That is the genuine, unmasked assertion-level RED.
+
+--- THE 5 NEW CASES, AND WHETHER ANY IS GREEN-BY-CONSTRUCTION ---
+
+NONE of the 5 is green-by-construction in RED. All 5 are observed failing in
+the `npm test` capture below. Stated per case, with the mechanism of each
+failure named honestly:
+
+  1. "TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts
+     quality-gate-report-pass in undeterminable and in NEITHER present NOR
+     missing"
+     -> FAILS. Mechanism in this run: the ajv compile throw (proof (a)).
+        Its field-level expectation is separately shown unsatisfiable by
+        proof (b).
+  2. "TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that
+     really holds a VERDICT: PASS report is undeterminable, not missing"
+     -> FAILS. Same mechanism. (Skips itself on win32 and on uid 0; this host
+        is neither, so it genuinely executed and genuinely failed -- the run
+        below records `skipped 0`.)
+  3. "TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/
+     parseTaskState parity holds over `missing u undeterminable` on both
+     fixtures"
+     -> FAILS. Same mechanism.
+  4. "TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is
+     pinned"
+     -> FAILS. Same mechanism.
+  5. "TEST-009 leg (AC-009): the v1 contract requires undeterminable on
+     evidenceMissingData, and all 3 of this feature's new fields are
+     simultaneously required"
+     -> FAILS with a REAL AssertionError, not the ajv throw, because its
+        schema-structure assertions run before it touches the validator:
+          AssertionError [ERR_ASSERTION]: Expected values to be strictly equal
+          + undefined
+          - 'array'
+        i.e. `$defs.evidenceMissingData.properties.undeterminable?.type` is
+        `undefined`. This is the one new case whose RED is directly
+        field-level in this run.
+
+Additionally, the pre-existing `evidence_find_missing` cases that were
+EXTENDED with `undeterminable` assertions (AC-012 leg) are red here too, and
+the TEST-008 regression fixture at evidence.test.ts:403 is red for the same
+ajv reason -- its own two original assertions are unmodified.
+
+--- SCOPE OF THE 70 FAILURES ---
+
+70 of 232 tests fail. That is far more than T-004's own cases: the schema is a
+single shared artifact and `getEnvelopeValidator()` is a module-level cached
+singleton, so an uncompilable schema takes down every suite that validates any
+envelope at all -- core tools, resources, deep-verify conformance, and the
+evidence suites alike. This is expected for a schema-first RED and matches the
+red state T-001 and T-002 recorded for their own schema hunks. It is recorded
+as a fact of this RED, not as a defect.
+
+--- BASELINE ---
+
+232 tests here = 227 baseline + 5 new cases. The 227/227/0 baseline is the
+measurement recorded at the T-003 landed state (this task's HEAD, e85fcf79) in
+specs/epic-136-phase4-mcp/verification/T-003/green.log:48 and :325-332. It is
+cited as a prior observation and was NOT re-measured by this run, because
+re-measuring it would require reverting the RED edits that are deliberately
+already in the working tree.
+
+--- RED TOTALS ---
+  npx tsc -p tsconfig.test.json  -> EXIT 0 (the new assertions are
+                                    type-correct; the RED here is behavioral
+                                    and schema-level, not a compile abort --
+                                    unlike T-003's)
+  npm test                       -> EXIT 1, tests 232 / pass 162 / fail 70 /
+                                    skipped 0
+  node <scratchpad>/red-probe.mjs-> EXIT 0, printing the absent field
+                                    (proof (b); a probe, not a test -- exit 0
+                                    means the probe ran, not that anything
+                                    passed)
+==============================================================================
+
+=== PROOF THAT src/ AND dist/ ARE UNTOUCHED AT CAPTURE TIME ===
+--- git status --short, whole tree ---
+ M contracts/sdd-forge-mcp-tools.v1.schema.json
+ M mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+
+--- git status --short -- mcp/sdd-forge-mcp/src/ mcp/sdd-forge-mcp/dist/ ---
+(above is empty => src/ and dist/ untouched at capture time)
+
+--- git diff --stat -- mcp/sdd-forge-mcp/src/ mcp/sdd-forge-mcp/dist/ ---
+(above is empty => no src/ or dist/ change)
+
+--- git diff --stat, whole tree ---
+ contracts/sdd-forge-mcp-tools.v1.schema.json      |   2 +-
+ mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts | 426 +++++++++++++++++++++-
+ 2 files changed, 422 insertions(+), 6 deletions(-)
+
+--- HEAD ---
+e85fcf79f73acf83250b4a3a60e22b6509d4212d
+e85fcf79 docs(sdd): record T-003 verification evidence and implementation report (#132)
+--- host ---
+Darwin 25.5.0
+arm64
+v24.13.0
+11.6.2
+2026-07-29T12:21:16Z
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npx tsc -p tsconfig.test.json   (the pretest compile) ===
+pretest tsc EXIT: 0
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm test   [PROOF (a), schema-first] ===
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✖ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (120.933625ms)
+✖ get_spec_status: schema-valid, reports artifact existence and review-status headers (36.7225ms)
+✖ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (25.520584ms)
+✖ get_task_state: not-found for a feature whose tasks.md does not exist (28.463916ms)
+✖ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (34.276167ms)
+✖ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (63.439125ms)
+✖ list_review_tickets: schema-valid, includes the seeded RT ticket (37.247125ms)
+✖ get_quality_gate_summary: schema-valid, includes the seeded PASS report (38.171208ms)
+✖ get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority (32.019709ms)
+✖ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (66.258375ms)
+✔ every tool's input schema never declares a root parameter (11.570584ms)
+✖ invalid feature argument shape is rejected as invalid-input (51.258917ms)
+✔ AC-004: an artifact absent on disk is classified missing without throwing (verdict fail) (8.575542ms)
+✔ AC-005: an oversize artifact is too-large and an allowlist-escaping path is path-denied (no throw) (6.449958ms)
+✔ AC-017: a non-64-hex recorded sha is invalid-recorded-sha (not mismatch) even when the file exists (4.994417ms)
+✔ AC-017: a malformed recorded sha co-occurring with a missing file still converges to invalid-recorded-sha + fail (3.915833ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (6.0095ms)
+✔ accepts a file exactly at the 2 MiB limit (4.842458ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.589542ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (0.65075ms)
+✔ isSddRoot is true for a properly-shaped SDD root (2.823542ms)
+✖ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (132.610542ms)
+✖ evidence_get_bundle: synthetic, echoes signature value without verifying it (53.332542ms)
+✖ evidence_get_bundle: not-found for a task with no evidence.json (54.076458ms)
+✖ evidence_get_bundle: invalid-input for a malformed taskId (76.212708ms)
+✖ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (25.981417ms)
+✖ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (49.7325ms)
+✖ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (50.201042ms)
+✖ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (23.758292ms)
+✖ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (71.905584ms)
+✖ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (32.745916ms)
+✖ TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing (25.773792ms)
+✖ TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing (53.411208ms)
+✖ TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures (22.667125ms)
+✖ TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure (16.086208ms)
+✖ TEST-009 leg (AC-009): the v1 contract requires undeterminable on evidenceMissingData, and all 3 of this feature's new fields are simultaneously required (1.743541ms)
+✖ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (45.987542ms)
+✖ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (14.041417ms)
+✖ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (30.463583ms)
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (238.755042ms)
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (14.4915ms)
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (15.441209ms)
+✖ evidence_compare_to_traceability: not-found when traceability.md does not exist (14.230625ms)
+✖ TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches (21.696542ms)
+✖ TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable (12.725167ms)
+✖ TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id (10.304792ms)
+✖ every evidence tool rejects a malformed feature argument as invalid-input (12.337542ms)
+✔ AC-012: consistent bundle -- check-evidence-bundle.sh and evidence_deep_verify both pass (447.057625ms)
+✔ AC-012: tampered on-disk artifact -- check-evidence-bundle.sh and evidence_deep_verify both fail (455.467ms)
+✔ AC-012: spec drift on a high-risk bundle -- check-evidence-bundle.sh and evidence_deep_verify both fail (331.339ms)
+✔ AC-012: tampered recorded artifact hash -- check-evidence-bundle.sh and evidence_deep_verify both fail (238.128208ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (8374.689042ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (617.481416ms)
+✖ phase1-not-started: requirements.md does not exist (94.548458ms)
+✖ spec-review: requirements.md exists but Spec-Review-Status is not Passed (56.992417ms)
+✖ spec-review: requirements.md has no Spec-Review-Status header at all (21.952291ms)
+✖ impl-review: design.md exists but Impl-Review-Status is not Passed (32.959417ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (3.38625ms)
+✖ phase2-not-started: design.md Passed but tasks.md does not exist (37.600083ms)
+✖ task-review: tasks.md exists but Task-Review-Status is not Passed (27.938458ms)
+✖ approval-gate: Task-Review-Status Passed but every task is Draft (34.37275ms)
+✖ implementation: an Approved task is Planned (39.208041ms)
+✖ implementation: an Approved task is In Progress (33.723542ms)
+✖ quality-gate: every Approved task is Implementation Complete (46.562583ms)
+✖ done: every Approved task is Done (29.425833ms)
+✖ blocked: a Blocked task takes priority even when another task is Planned/Approved (23.60225ms)
+✔ cannot-determine: malformed feature name is rejected before any file access (2.078167ms)
+✖ auto-select: exactly one active feature -> resolved without a feature argument (23.347041ms)
+✔ auto-select: zero active features -> cannot-determine naming none-active (4.654791ms)
+✔ auto-select: multiple active features -> cannot-determine naming all candidates (3.435167ms)
+✖ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (476.577167ms)
+✔ AC-011: signature is echoed as present/verified:false without reading any signing key (6.717875ms)
+✔ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (5.7655ms)
+✔ AC-011: a thrown path (unreadable bundle) never carries the canary key value (6.169041ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (7.534791ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (3.265792ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (2.979708ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (3.172541ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (4.5925ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (21.855291ms)
+✔ Done with evidence.json but missing contract.json fails (29.968708ms)
+✔ Done with an empty contract.json fails (3.661166ms)
+✔ Done with a contract.json whose task_id does not match fails (8.509ms)
+✔ Done with no quality-gate report mentioning the task id fails (4.533666ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (10.056875ms)
+✔ Implementation Complete without a matching implementation report fails (1.89925ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (5.542958ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (6.107959ms)
+✔ critical Done without a distinct Second Approval fails (3.260708ms)
+✔ critical Done where both approvals are the same person fails (3.92975ms)
+✔ critical Done where either approver is 'sudo' fails (8.518875ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (6.699625ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (3.887916ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (5.065333ms)
+✔ critical risk Done bundle without a signature object fails (5.388167ms)
+✔ duplicate task ids are reported and the verdict is fail (45.464041ms)
+✔ an invalid Status value is reported and the verdict is fail (3.884166ms)
+✔ a missing Approval line is reported and the verdict is fail (2.242416ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (1.956167ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (1.087542ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (3.309875ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (1.014416ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (0.702208ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (3.482625ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (2.542959ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (6.351334ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (1.327625ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (1.113708ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (1.335375ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (2.848208ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (3.239042ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (16.385458ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (1.613666ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (2.497625ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (2.728084ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (1.306917ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (7.654083ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (2.748375ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (2.288333ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (2.297584ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (1.47775ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (1.826333ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (0.347208ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (1.738417ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (5.349791ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (3.136ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (3.079333ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (2.0625ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (2.144542ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (0.945459ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (28.382625ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (22.267167ms)
+✔ synthetic: well-formed report with all fields parses every value (5.660167ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (1.424542ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (3.916792ms)
+✔ listQualityReports aggregates reports and failures across a directory (5.504334ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (5.878583ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (7.619459ms)
+✔ synthetic: well-formed ticket parses all optional fields (3.775708ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (1.344625ms)
+✔ cannot-parse: invalid YAML syntax (1.239833ms)
+✔ cannot-parse: missing required fields (1.477625ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (1.048916ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (4.859083ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (1.934208ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (1.877208ms)
+✔ denies reads under a .git/ directory (1.176667ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (6.349833ms)
+✔ denies .env files reached via an allowlisted directory (1.206792ms)
+✔ never includes file contents or the offending value in the denial message or details (0.935333ms)
+✔ TEST-005 sub-case (a) (AC-005): a genuinely empty, readable allowlisted directory returns { files: [], errors: [] } (11.972541ms)
+✔ TEST-005 sub-case (b1) (AC-005): a relDir that does not exist returns files: [] plus the not-found guard reason (2.144125ms)
+✔ TEST-005 sub-case (b2) (AC-005, security-spec B3): a READABLE, NON-EMPTY directory outside the allowlist is denied BEFORE any walk-level readdirSync (9.083292ms)
+✔ TEST-005 sub-case (b3) (AC-005, security-spec B3): a denylisted directory reached through an allowlisted parent is denied BEFORE any walk-level readdirSync (1.215708ms)
+✔ TEST-005 sub-case (c1) (AC-005): a mid-walk statSync failure is reported while every readable sibling is still collected (5.108959ms)
+✔ TEST-005 sub-case (c2) (AC-005): a mid-walk readdirSync failure is reported while siblings both before and after it are still collected (5.727375ms)
+✔ TEST-005 (AC-005): the three sub-cases are distinguishable by errors.length and never collapse into one another (3.033583ms)
+✔ TEST-006 (AC-006): quality-report.ts's own aggregation fixture lists byte-identically through both functions (6.391709ms)
+✔ TEST-006 (AC-006): review-ticket.ts's own aggregation fixture lists byte-identically through both functions (1.460084ms)
+✔ TEST-006 (AC-006): report-lookup.ts's nested reports-directory scan shape lists byte-identically through both functions (1.547375ms)
+✔ TEST-006 (AC-006): the real repository directories the 3 call sites scan list byte-identically through both functions (14.143458ms)
+✔ TEST-006 (AC-006): every guard-failure class still collapses to [] for the legacy function (1.863ms)
+✔ TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed to opt into the diagnostics function (0.20775ms)
+✔ rejects a relative path containing a parent traversal segment (1.391458ms)
+✔ rejects an absolute path argument outright (0.784583ms)
+✔ rejects an empty path as invalid input (0.685167ms)
+✔ rejects a path argument containing backslashes (2.563916ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (4.424834ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (1.760959ms)
+✔ allows a legitimate allowlisted file to be read (2.425084ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (55.863792ms)
+✔ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (2.834542ms)
+✔ src/tools/evidence.ts reaches the disk only through path-guard's guarded helpers (0.241458ms)
+✔ src/ contains no filesystem write API references (6.984334ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (2.197292ms)
+✔ resources/list + resources/templates/list together expose all 5 sdd:// resources (29.220583ms)
+✖ sdd://active-specs matches list_active_specs exactly (117.661583ms)
+✖ sdd://spec/{feature} matches get_spec_status exactly (86.371959ms)
+✖ sdd://tasks/{feature} matches get_task_state exactly (30.792291ms)
+✖ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (49.851834ms)
+✖ sdd://review-tickets matches list_review_tickets exactly (23.988458ms)
+✖ sdd://quality-reports matches get_quality_gate_summary exactly (84.794875ms)
+✔ resolved root is frozen and immutable after construction (4.219708ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (2.969667ms)
+✔ changing cwd after resolution does not affect the already-resolved root (0.98825ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.65775ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (0.714958ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.771292ms)
+✔ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (631.465084ms)
+✔ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (287.949084ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (469.153584ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (1870.715709ms)
+✖ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (137.028417ms)
+✖ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (27.62525ms)
+✖ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (15.941417ms)
+✖ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (17.2145ms)
+✖ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (33.412875ms)
+✔ TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures (17.199208ms)
+✖ TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks (18.674416ms)
+✖ TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks (58.805042ms)
+✔ TEST-009 leg (AC-009): the schema requires hostRequiredChecks and pins its nested shape (2.444083ms)
+✖ TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation (25.490333ms)
+✔ TEST-016 (AC-016): the schema description is verbatim requirements.md's CONFIRMED literal (2.361917ms)
+✖ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (13.635916ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two calls, same connection (26.024833ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two independently seeded, independently connected servers (5.854583ms)
+✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (3.48925ms)
+✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (10.99225ms)
+✔ AC-007: a missing git_commit is shape-invalid + verdict fail (3.132375ms)
+✔ AC-007: a short git_commit is shape-invalid + verdict fail (2.731667ms)
+✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (2.281084ms)
+✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (1.953208ms)
+✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (2.031375ms)
+✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (2.69925ms)
+✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (5.097ms)
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (3.536875ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (2.854583ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (3.907542ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (6.233375ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (3.005625ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (2.454208ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.12ms)
+✔ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (39.685708ms)
+✖ error envelope: an invalid taskId maps to invalid-input through the tool (50.735ms)
+✖ error envelope: an invalid feature maps to invalid-input through the tool (28.83925ms)
+✖ error envelope: a missing bundle maps to not-found through the tool (15.625667ms)
+✖ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (20.243083ms)
+✔ AC-001: a fully consistent bundle verifies as pass with no failures (11.534667ms)
+✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (6.060958ms)
+✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (8.29675ms)
+✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (4.859625ms)
+✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (5.365708ms)
+ℹ tests 232
+ℹ suites 0
+ℹ pass 162
+ℹ fail 70
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9055.603792
+
+✖ failing tests:
+
+test at dist-test/tests/core-tools/core-tools.test.js:13:1
+✖ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (120.933625ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:32:1
+✖ get_spec_status: schema-valid, reports artifact existence and review-status headers (36.7225ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:59:1
+✖ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (25.520584ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:78:1
+✖ get_task_state: not-found for a feature whose tasks.md does not exist (28.463916ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:94:1
+✖ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (34.276167ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:113:1
+✖ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (63.439125ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:132:1
+✖ list_review_tickets: schema-valid, includes the seeded RT ticket (37.247125ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:147:1
+✖ get_quality_gate_summary: schema-valid, includes the seeded PASS report (38.171208ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:163:1
+✖ get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority (32.019709ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:181:1
+✖ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (66.258375ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/core-tools/core-tools.test.js:211:1
+✖ invalid feature argument shape is rejected as invalid-input (51.258917ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:37:1
+✖ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (132.610542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:64:1
+✖ evidence_get_bundle: synthetic, echoes signature value without verifying it (53.332542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:89:1
+✖ evidence_get_bundle: not-found for a task with no evidence.json (54.076458ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:106:1
+✖ evidence_get_bundle: invalid-input for a malformed taskId (76.212708ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:124:1
+✖ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (25.981417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:151:1
+✖ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (49.7325ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:257:1
+✖ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (50.201042ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:285:1
+✖ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (23.758292ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:321:1
+✖ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (71.905584ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:349:1
+✖ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (32.745916ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:376:1
+✖ TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing (25.773792ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:396:1
+✖ TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing (53.411208ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:431:1
+✖ TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures (22.667125ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:491:1
+✖ TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure (16.086208ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:517:1
+✖ TEST-009 leg (AC-009): the v1 contract requires undeterminable on evidenceMissingData, and all 3 of this feature's new fields are simultaneously required (1.743541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'array'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:534:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'array',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:569:1
+✖ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (45.987542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:596:1
+✖ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (14.041417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:615:1
+✖ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (30.463583ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:634:1
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (238.755042ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:662:1
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (14.4915ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:687:1
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (15.441209ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:724:1
+✖ evidence_compare_to_traceability: not-found when traceability.md does not exist (14.230625ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:901:1
+✖ TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches (21.696542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:944:1
+✖ TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable (12.725167ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:958:1
+✖ TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id (10.304792ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/evidence/evidence.test.js:990:1
+✖ every evidence tool rejects a malformed feature argument as invalid-input (12.337542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:50:1
+✖ phase1-not-started: requirements.md does not exist (94.548458ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:61:1
+✖ spec-review: requirements.md exists but Spec-Review-Status is not Passed (56.992417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:74:1
+✖ spec-review: requirements.md has no Spec-Review-Status header at all (21.952291ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:86:1
+✖ impl-review: design.md exists but Impl-Review-Status is not Passed (32.959417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:116:1
+✖ phase2-not-started: design.md Passed but tasks.md does not exist (37.600083ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:130:1
+✖ task-review: tasks.md exists but Task-Review-Status is not Passed (27.938458ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:145:1
+✖ approval-gate: Task-Review-Status Passed but every task is Draft (34.37275ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:164:1
+✖ implementation: an Approved task is Planned (39.208041ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:183:1
+✖ implementation: an Approved task is In Progress (33.723542ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:198:1
+✖ quality-gate: every Approved task is Implementation Complete (46.562583ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:220:1
+✖ done: every Approved task is Done (29.425833ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:254:1
+✖ blocked: a Blocked task takes priority even when another task is Planned/Approved (23.60225ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:291:1
+✖ auto-select: exactly one active feature -> resolved without a feature argument (23.347041ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/next-command/next-command.test.js:380:1
+✖ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (476.577167ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:27:1
+✖ sdd://active-specs matches list_active_specs exactly (117.661583ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:42:1
+✖ sdd://spec/{feature} matches get_spec_status exactly (86.371959ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:59:1
+✖ sdd://tasks/{feature} matches get_task_state exactly (30.792291ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:76:1
+✖ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (49.851834ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:96:1
+✖ sdd://review-tickets matches list_review_tickets exactly (23.988458ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/resources/resources.test.js:110:1
+✖ sdd://quality-reports matches get_quality_gate_summary exactly (84.794875ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:109:1
+✖ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (137.028417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:128:1
+✖ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (27.62525ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:166:1
+✖ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (15.941417ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:183:1
+✖ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (17.2145ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:201:1
+✖ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (33.412875ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:258:1
+✖ TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks (18.674416ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:276:1
+✖ TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks (58.805042ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:320:1
+✖ TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation (25.490333ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:369:1
+✖ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (13.635916ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:65:1
+✖ error envelope: an invalid taskId maps to invalid-input through the tool (50.735ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:82:1
+✖ error envelope: an invalid feature maps to invalid-input through the tool (28.83925ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:99:1
+✖ error envelope: a missing bundle maps to not-found through the tool (15.625667ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:117:1
+✖ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (20.243083ms)
+  Error: strict mode: required property "undeterminable" is not defined at "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json#" (strictRequired)
+      at checkStrictMode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/util.js:174:15)
+      at Object.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/vocabularies/validation/required.js:33:48)
+      at keywordCode (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:464:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:222:17
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+      at CodeGen.block (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:568:18)
+      at iterateKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:219:9)
+      at groupKeywords (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:200:13)
+      at /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/validate/index.js:192:13
+      at CodeGen.code (/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/node_modules/ajv/dist/compile/codegen/index.js:439:13)
+npm test EXIT: 1
+
+=== COMMAND: node <scratchpad>/red-probe.mjs   [PROOF (b), assertion-level, no tracked file modified] ===
+(source of the probe is reproduced after its output)
+
+evidenceFindMissing(root, 'demo', 'T-001') ->
+{
+  "ok": true,
+  "data": {
+    "kind": "evidence-missing",
+    "feature": "demo",
+    "taskId": "T-001",
+    "required": [
+      "evidence-bundle",
+      "verification-contract",
+      "quality-gate-report-pass"
+    ],
+    "present": [
+      "evidence-bundle",
+      "verification-contract"
+    ],
+    "missing": [
+      "quality-gate-report-pass"
+    ]
+  }
+}
+
+Object.keys(result.data)                  = ["kind","feature","taskId","required","present","missing"]
+"undeterminable" in result.data           = false
+result.data.undeterminable                = undefined
+result.data.missing                       = ["quality-gate-report-pass"]
+
+--- the conflation issue #132 reports, shown directly ---
+quality-gate-report-pass is in `missing`   = true
+  (a directory-scan FAILURE, reported as if the evidence were simply absent)
+
+--- the parity side (parsers/task-validation.ts, unchanged) ---
+parseTaskState done-quality-gate-report-missing for T-001 = true
+
+=> RED: `undeterminable` does not exist, so TEST-007's
+   `assert.deepEqual(data.undeterminable, ['quality-gate-report-pass'])`
+   and the union-form parity assertion cannot hold at this commit.
+EXIT: 0
+
+--- probe source (scratchpad only; never added to the repository) ---
+/**
+ * RED proof (b), captured WITHOUT modifying any tracked file.
+ *
+ * Calls the compiled `evidenceFindMissing` directly against the same
+ * scan-failure fixture shape TEST-007 uses, and prints its raw response, to
+ * show that at this commit the `undeterminable` field does not exist at all
+ * (so TEST-007's and the parity assertion's expectations cannot hold).
+ */
+import { mkdtempSync, mkdirSync, writeFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createHash } from "node:crypto";
+
+const BASE = "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp";
+const { evidenceFindMissing } = await import(`${BASE}/dist-test/src/tools/evidence.js`);
+const { parseTaskState } = await import(`${BASE}/dist-test/src/parsers/tasks.js`);
+
+const sha256 = (s) => createHash("sha256").update(s, "utf-8").digest("hex");
+const write = (dir, rel, contents) => {
+  const full = join(dir, rel);
+  mkdirSync(join(full, ".."), { recursive: true });
+  writeFileSync(full, contents, "utf-8");
+};
+
+const dir = mkdtempSync(join(tmpdir(), "t004-red-probe-"));
+mkdirSync(join(dir, "specs"), { recursive: true });
+mkdirSync(join(dir, "reports"), { recursive: true });
+writeFileSync(join(dir, "AGENTS.md"), "# AGENTS\n", "utf-8");
+const root = Object.freeze({ path: realpathSync(dir), source: "cwd" });
+
+write(
+  dir,
+  "specs/demo/tasks.md",
+  [
+    "# Tasks: demo",
+    "",
+    "Task-Review-Status: Passed",
+    "",
+    "## T-001",
+    "",
+    "Approval: Approved (alice 2026-01-01T00:00:00Z)",
+    "Status: Done",
+    "Risk: low",
+    "",
+  ].join("\n"),
+);
+const investigation = "# Investigation: demo\n\nBody.\n";
+write(dir, "specs/demo/investigation.md", investigation);
+const contract = JSON.stringify({
+  task_id: "T-001",
+  feature: "demo",
+  risk: "low",
+  required_workflow: "tdd",
+  checks: [{ id: "unit-tests", required: true, passes: true, evidence: "specs/demo/investigation.md" }],
+});
+write(dir, "specs/demo/verification/T-001.contract.json", contract);
+const qgReport = ["# Quality Gate - T-001", "", "Task ID: T-001", "", "VERDICT: PASS", ""].join("\n");
+write(
+  dir,
+  "specs/demo/verification/T-001.evidence.json",
+  JSON.stringify({
+    task_id: "T-001",
+    feature: "demo",
+    risk: "low",
+    required_workflow: "tdd",
+    quality_report: "reports/quality-gate/demo-T-001.md",
+    verification_contract: "specs/demo/verification/T-001.contract.json",
+    git_commit: "a".repeat(40),
+    git_generated_dirty: false,
+    artifacts: [{ path: "specs/demo/investigation.md", sha256: sha256(investigation) }],
+  }),
+);
+
+// The TEST-007 scan-failure shape: reports/quality-gate is a REGULAR FILE.
+writeFileSync(join(dir, "reports", "quality-gate"), qgReport, "utf-8");
+
+const result = evidenceFindMissing(root, "demo", "T-001");
+console.log("evidenceFindMissing(root, 'demo', 'T-001') ->");
+console.log(JSON.stringify(result, null, 2));
+console.log("");
+console.log("Object.keys(result.data)                  = " + JSON.stringify(Object.keys(result.data)));
+console.log('"undeterminable" in result.data           = ' + ("undeterminable" in result.data));
+console.log("result.data.undeterminable                = " + String(result.data.undeterminable));
+console.log("result.data.missing                       = " + JSON.stringify(result.data.missing));
+console.log("");
+console.log("--- the conflation issue #132 reports, shown directly ---");
+console.log(
+  'quality-gate-report-pass is in `missing`   = ' + result.data.missing.includes("quality-gate-report-pass"),
+);
+console.log("  (a directory-scan FAILURE, reported as if the evidence were simply absent)");
+console.log("");
+
+const state = parseTaskState(root, "demo", "specs/demo/tasks.md");
+const reportsFailure =
+  state.ok &&
+  state.data.failures.some((f) => f.taskId === "T-001" && f.rule === "done-quality-gate-report-missing");
+console.log("--- the parity side (parsers/task-validation.ts, unchanged) ---");
+console.log("parseTaskState done-quality-gate-report-missing for T-001 = " + reportsFailure);
+console.log("");
+console.log("=> RED: `undeterminable` does not exist, so TEST-007's");
+console.log("   `assert.deepEqual(data.undeterminable, ['quality-gate-report-pass'])`");
+console.log("   and the union-form parity assertion cannot hold at this commit.");
+
+rmSync(dir, { recursive: true, force: true });

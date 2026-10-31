@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-impl-a1r3-b-seq0489",
+  "host_session_id": "SESS-impl-a1r3-b-mcpreadonlypreflight-0489",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-3/integrated-summary.json",
+      "sha256": "84f99a45d2646a13670ba8fcba3addb38f0e0a88cbb2d25e7d3107c15e50110f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-3/precheck-result.json",
+      "sha256": "018081f6be91fc17aff27f14f1af0b4dfe43b6f3f419b7d572f54ca358828327"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+      "sha256": "228f3fa39a289cc87ba28e8f2730b8fb043caf153a0948f49f593614fd275239"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Resolved decisions in design.md:110-116 carry explicit 'Forced by' rationale: D-001 (design.md:112, forced by REQ-003 + INV-002 -- both registration surfaces exist and differ), D-002 (design.md:114, forced by REQ-006 + ADR-0006 precedent :67-69), D-003 (design.md:116, forced by PROTECTED_GATE_SUFFIXES membership, guard_invariants.py:4 / INV-010). The attempt-and-degrade instruction shape (design.md:61-66) states its rationale directly and cites an established repository precedent. grep for unjustified decision phrasing ('we will use'/'we chose'/'we select') against design.md returned zero matches. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no literal '## Open Questions' heading (confirmed by heading grep); the functional equivalent is '## Design Decisions (Resolving Open Questions)' (design.md:106) with an '### Escalated -- human decision required before implementation' table (design.md:118-131) covering OQ-001..OQ-010 (OQ-005 resolved, the other nine live). Owner: explicitly 'human decision required' per the section header (design.md:118), not TBD. Resolution path: the table's 'Repository-derived constraint the answer must satisfy' column gives a concrete constraint per OQ (e.g. OQ-008 row: 're-derive the next free [ADR] number; docs/adr/ has duplicate 0002/0003/0004'). Blocking status is stated in prose rather than a literal field but is unambiguous: design.md:17 names OQ-001 and OQ-007 as 'load-bearing for the component design'; design.md:53 states 'The skills cannot be written until [OQ-001] the set is fixed'; design.md:133 clarifies 'OQ-005 was the one that should block. The others narrow an implementation' (i.e. gate specific tasks, not spec validity, and OQ-005 itself is already resolved per requirements.md REQ-005). No open question is left with an unidentified owner or an unstated resolution path. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains zero occurrences of 'assum*' (grep confirmed) -- it introduces no new unstated assumptions of its own, instead escalating every unresolved item to the Open Questions table rather than assuming an answer. The feature's substantive Assumptions content lives in requirements.md:266-270 (3 entries), each grounded: 'sdd-forge-mcp's fourteen tools are all read-only' cites INV-006 (requirements.md:268); 'Both registration mechanisms are current' cites INV-002 (requirements.md:269); 'Re-verify every file:line...at implementation start' cites the WFI-011 recorded recurring-defect class plus the live INV-003 instance (requirements.md:270). investigation.md is present (not absent), so the investigation-absent Major-finding trigger does not apply. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no literal '## Constraint Compliance' section (confirmed by heading grep), so the fallback applies. Keyword scan of requirements.md found one 'must not' hit outside AC/criterion retirement text: requirements.md:64, 'The probe step must not be inserted inside that range [tests/workflow-documentation.tests.sh:65-68]' -- addressed in design.md's Components table (design.md:23, 'must not land inside the sed range...(INV-013)') and the OQ-002 escalation row (design.md:123). requirements.md's Baseline Constraints (BL-001..BL-005, requirements.md:272-278) are each addressed verbatim in design.md's '## Global Constraints' (design.md:194-203): BL-001 (design.md:29-32 Components table, :196), BL-002 (design.md:11, :197), BL-003 (design.md:13,75-77, :198, and R-6 risk :213), BL-004 (design.md:116 D-003, :199), BL-005 (design.md:28, :192, :200). No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Keyword scan (response time, throughput, concurrency, latency, 'within N ms', 'maximum N', SLA, milliseconds, requests-per-second) against requirements.md returned zero matches. The feature is a Markdown instruction/documentation change with no runtime service component (frontend-spec.md:5, infra-spec.md:22-24 both confirm 'nothing is deployed')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:181-192 '## Deployment and CI Plan' states: no CI file edited / no new CI step and cites the protected-suffix reason (design.md:183); existing suite obligations that must stay green unedited (design.md:185, AC-027); conditional new-suite registration convention if OQ-009 resolves toward one (design.md:186); no dist rebuild / no package-lockfile changes (design.md:187-188); the human-copy two-commit leg with an explicitly-expected-red interim state if OQ-007 resolves toward staging (design.md:190); and registry registration as a merge-blocking same-change prerequisite (design.md:192, BL-005). Data Plan (design.md:81,87) declares no schema/no migration, so the migration-execution-order sub-requirement does not apply. No incremental rollout is described, so feature-flag strategy is not applicable here -- the change is additive prose taking effect on merge. infra-spec.md:22-49 supplies the deployment-target detail consistent with and not contradicting design.md."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:81 states 'No persistent data, no schema, no migration.' and design.md:87 states 'Migration Strategy: no migration required -- there is no schema and no persisted state to migrate.' Per the check's explicit rule, a Data Plan stating no data changes emits PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:36-49 '## API and Contract Plan' is a dedicated section identifying the probe's MCP tool integrations: name/purpose and exact server.ts line for get_task_state and get_next_sdd_command (design.md:44-47 table), contract version (contracts/sdd-forge-mcp-tools.v1.schema.json, v1, design.md:40), and failure behaviour via the attempt-and-degrade instruction shape (design.md:61-64: 'attempt the tool; if it is unavailable or the call fails, continue with the file-based flow below'). ci-mcp's external github.com egress is explicitly named and ruled out of scope for this feature's probe set (security-spec.md:43), so it is not an unaddressed passing-mention integration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md has no literal '## Goals' or '## User Stories' heading (confirmed by heading grep); REQ-001..REQ-011 serve as the functional requirement set. design.md's Components table (design.md:21-34) and body sections trace to every REQ (REQ-001 bootstrap probe; REQ-002 ship probe/OQ-007; REQ-003 runtime-agnostic wording :57-68; REQ-004 fallback :61-66; REQ-005 outcome equality + divergence :103-104; REQ-006 no write capability, D-002 :114; REQ-007 dual-runtime, Test Strategy :157-160; REQ-008/REQ-009 policy statement :70-77; REQ-010 staged candidate :27,190; REQ-011 existing consumers :34,183-185). Every 'Untouched' Components-table row (mcp/*, install.sh, interviewer skill) is affirmatively tied to a Non-goal in requirements.md:246-254, so no scope creep is introduced. No design-system/ directory exists in the repository (confirmed), so the UI component-library risk does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present and each has a named concrete validation path in design.md's Test Strategy coverage table (design.md:139-169): (1) authorization/elevation-of-privilege risk -- the probe being treated as authoritative (security-spec.md B2, design.md:103) -- validated by TEST-012/TEST-013 differential outcome-equality tests (design.md:152-153); (2) cross-service integration failure behaviour (probe unavailable / call fails) -- validated by TEST-008..TEST-011 (design.md:148-151); (3) protected-file authorization boundary (ship/SKILL.md) -- validated by TEST-003/TEST-026 (design.md:142,166); (4) probe/file divergence reporting (REQ-005, AC-027a/b) -- validated by TEST-027a/TEST-027b (design.md:168-169). All four are named acceptance-test artifacts cross-referenced in security-spec.md's Security Tests table (security-spec.md:73-83), not vague or unnamed plans."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists at the repository root (confirmed), so the Approved-model precondition for this check (domain/context-map.md with Domain-Model-Status: Approved plus a schema-valid domain-contract.json) is absent. Per the check's own skip condition, this is recorded as skipped."
+    }
+  ]
+}

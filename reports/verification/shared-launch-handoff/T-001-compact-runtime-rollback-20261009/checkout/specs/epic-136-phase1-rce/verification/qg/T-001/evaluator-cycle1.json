@@ -1,0 +1,16 @@
+{
+  "run_id": "qg-eval-epic136rce-t001-20260711-0016",
+  "host_session_id": "hs-qg-eval-epic136rce-0145",
+  "cycle": 1,
+  "verdict": "NEEDS_WORK",
+  "critical": 0,
+  "major": 4,
+  "minor": 0,
+  "findings": [
+    { "severity": "Major", "summary": "Bash real-HMAC cases lacked bundle/no-bundle assertions." },
+    { "severity": "Major", "summary": "TEST-001 and hostile HMAC operand coverage were incomplete." },
+    { "severity": "Major", "summary": "Overlong TTL and PowerShell no-bundle assertions were absent." },
+    { "severity": "Major", "summary": "The allowlisted green artifact was only a result summary, not deterministic command output." }
+  ],
+  "disposition": "Auto-fixed under auto-fix-policy.md: clear missing regression tests and deterministic evidence."
+}

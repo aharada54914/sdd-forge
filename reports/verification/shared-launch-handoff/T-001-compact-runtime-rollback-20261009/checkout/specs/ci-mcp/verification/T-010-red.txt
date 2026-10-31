@@ -1,0 +1,74 @@
+T-010 uninstall(uninstall.sh / uninstall.ps1): ci-mcp 登録解除 + 配置削除 — RED evidence
+Required Workflow: tdd
+
+Deviation disclosure
+---------------------
+Same disclosure as T-009-red.txt: the uninstall.sh / uninstall.ps1 source
+edits (VALID_MCPS / MCP_LIST += ci-mcp) were authored before the extended
+uninstall test scenarios in the same working session. To produce GENUINE red
+evidence, uninstall.sh / uninstall.ps1 were reverted to their last-committed
+(pre-ci-mcp) content via `git show HEAD:uninstall.sh > uninstall.sh` /
+`git show HEAD:uninstall.ps1 > uninstall.ps1` (non-destructive; ci-mcp-edited
+versions backed up first and restored immediately after this red capture —
+see T-010-green.txt), while the NEW test content (seed_installed_mcps /
+New-InstalledManagedMcpsLayout extended to 3 MCPs including ci-mcp Codex
+marker block + Cursor/VS Code entries, --mcp "sdd-forge-mcp,local-env-mcp,
+ci-mcp" invocations, ci-mcp-specific removal assertions in scenarios (o)/(p))
+was kept in place.
+
+=== bash: tests/uninstall.tests.sh (against reverted uninstall.sh) ===
+Command: bash tests/uninstall.tests.sh
+Exit code: 1 (non-zero — genuine failure)
+
+FAIL: Cursor/VSCode (o): uninstaller exited non-zero
+FAIL: Cursor (o): managed sdd-forge-mcp key not removed
+FAIL: Cursor (o): managed local-env-mcp key not removed
+FAIL: Cursor (o): managed ci-mcp key not removed
+FAIL: VSCode (o): managed sdd-forge-mcp key not removed
+FAIL: VSCode (o): managed local-env-mcp key not removed
+FAIL: VSCode (o): managed ci-mcp key not removed
+FAIL: both-MCP removal (p): uninstaller exited non-zero
+FAIL: both-MCP removal (p): sdd-forge-mcp payload not removed
+FAIL: both-MCP removal (p): local-env-mcp payload not removed
+FAIL: both-MCP removal (p): ci-mcp payload not removed
+FAIL: both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked
+FAIL: both-MCP removal (p): claude mcp remove local-env-mcp not invoked
+FAIL: both-MCP removal (p): claude mcp remove ci-mcp not invoked
+FAIL: both-MCP removal (p): sdd-forge-mcp Codex block not removed
+FAIL: both-MCP removal (p): local-env-mcp Codex block not removed
+FAIL: both-MCP removal (p): ci-mcp Codex block not removed
+FAIL: corrupt JSON (q): uninstaller exited non-zero instead of continuing
+FAIL: corrupt JSON (q): no invalid-JSON error notice was emitted
+FAIL: corrupt JSON (q): VS Code managed key not removed (client continuation failed)
+FAIL: absent Cursor/VSCode dir (r): uninstaller exited non-zero
+FAIL: absent Cursor/VSCode dir (r): install root not removed
+
+Results: 20 passed, 22 failed.
+SH_EXIT:1
+
+Root cause of every failure: scenarios (o)/(p)/(q)/(r) now invoke
+`--mcp "sdd-forge-mcp,local-env-mcp,ci-mcp"`. Against the reverted
+uninstall.sh, "ci-mcp" is not in VALID_MCPS, so the uninstaller rejects the
+whole invocation immediately (non-zero exit) before any cleanup runs — hence
+the entire scenario fails, not just the ci-mcp-specific assertions. This is
+expected and correctly demonstrates the missing VALID_MCPS/MCP_LIST entry.
+All 20 still-passing scenarios (a-n, plus the single-MCP scenarios not using
+the 3-name list) are unaffected, confirming no regression in existing
+sdd-forge-mcp / local-env-mcp uninstall behavior.
+
+=== pwsh: tests/uninstall.tests.ps1 (against reverted uninstall.ps1) ===
+Command: pwsh -NoProfile -NonInteractive -File tests/uninstall.tests.ps1
+Exit code: 1 (non-zero — genuine failure; fails fast on first throw)
+
+... (scenarios a through n1-n3 pass; failure at scenario (o)) ...
+Exception: /Users/jrmag/Projects/active/sdd-forge-p4/tests/uninstall.tests.ps1:542
+Line |
+ 542 |     if ($oFailed) { throw "Cursor/VSCode (o): uninstaller threw" }
+     |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Cursor/VSCode (o): uninstaller threw
+PS1_EXIT:1
+
+Same root cause as the sh run: -Mcp @("sdd-forge-mcp", "local-env-mcp",
+"ci-mcp") is rejected by the ValidateSet (ci-mcp not yet a member against the
+reverted uninstall.ps1), so the uninstaller throws before scenario (o) can
+verify anything.

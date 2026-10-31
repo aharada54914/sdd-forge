@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "suite": "host-review-preflight",
+      "exit_code": 0
+    },
+    {
+      "suite": "spec-review-verify-inputs",
+      "exit_code": 0
+    },
+    {
+      "suite": "review-conditional-inputs",
+      "exit_code": 0
+    },
+    {
+      "suite": "review-context-boundary",
+      "exit_code": 0
+    },
+    {
+      "suite": "supplemental-delivery-declaration",
+      "exit_code": 0
+    },
+    {
+      "suite": "review-agent-isolation",
+      "exit_code": 0
+    }
+  ],
+  "compared_rows_stable": true,
+  "ledger_before_sha256": "767cb5fd9c4d909e5cf19beb34266cf1ffc7aea6819b0de1bf368f9abbb42c21",
+  "ledger_after_sha256": "767cb5fd9c4d909e5cf19beb34266cf1ffc7aea6819b0de1bf368f9abbb42c21",
+  "ledger_unchanged": true,
+  "historical_execution_is_owner_execution": false,
+  "formal_gate": "NOT RUN",
+  "native": "NOT RUN",
+  "windows": "NOT RUN",
+  "ci": "NOT RUN"
+}

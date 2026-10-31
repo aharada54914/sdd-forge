@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase2-gates",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "7d869ad2bee5848be0aa71252a4bcf52823ad487f4392eb61ad089c9391abe92",
+  "acceptance_sha256": "3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "2814079cf3ccd1e9f4eecf6794d347fd641a3170c3a12704205a41d24af4157d",
+  "edit_summary": "Added fixed-index mid-rename prefix-state and complete rollback acceptance",
+  "reset": false,
+  "generated_at": "2026-07-13T23:48:38Z"
+}

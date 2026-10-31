@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 6,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "6567b5033ae1f56700e5756e81e15e530cde62ea054ab0b8fc40012a5da355fa",
+  "acceptance_sha256": "820ee5f6a522c213bc42731376cfe073e7e741128fcbb9bf26906ab394c58492",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "f6af26903348bc12bb06f3f8b99423e64f40113519b5cbcef895a864df1d3dd0",
+  "edit_summary": "Human ruling D(2) (2026-08-27): the round-1 CONTRADICTION finding refuted the premise the 2026-08-27 option-4 ruling had been given on, so commit c44d056d reverts fa1ad0e0 in full. requirements.md, acceptance-tests.md and design.md return byte-for-byte to the bytes attempt 5 reviewed and PASSED; no third Evidence exception exists anywhere in this package, REQ-004 keeps its sole-exception sentence, Security Boundaries keeps its every-path guarantee, and the diagnostic-id enum stays closed at sixteen rows. The behaviour moves to Phase 2, where T-007 writes minimal Resolver Evidence directly on that Block as Main Workflows 4 already specifies. The same commit completes rulings C(1)/C(2)'s propagation, which both reviewers found half-landed: AC-057 and AC-058 gain their rows in requirements.md's Acceptance Criteria table, acceptance-tests.md loses the stray blank line that had put those two rows outside its table, and its preamble inventory reads AC-038 through AC-058. Commit d30409ef then records rulings D(1)/D(2) in investigation.md with verbatim dated approvals, full commit hashes and per-document SHA-256, closing the approval-record findings.",
+  "reset": false,
+  "generated_at": "2026-08-27T13:20:29Z"
+}

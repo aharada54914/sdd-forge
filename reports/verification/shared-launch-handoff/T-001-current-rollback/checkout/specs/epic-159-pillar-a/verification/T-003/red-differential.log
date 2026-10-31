@@ -1,0 +1,14 @@
+# RED differential: tests/loop-consistency.tests.sh --leg impl-round-2
+# Procedure: design.md Test Strategy item 2 / tasks.md T-003 Scope
+# Pre-fix worktree: git worktree add <tmp>/pre-fix 2d8c6a5^  (detached, HEAD 2f93edd)
+# Command: SDD_LOOP_REPO_ROOT=<pre-fix worktree> bash tests/loop-consistency.tests.sh --leg impl-round-2
+# Date: 2026-07-14T17:09:39Z
+
+== RED (pre-fix parent 2d8c6a5^, commit 2f93edd) ==
+REVIEW_CONTEXT_PATH: impl-reviewer-a contains a real but role-unlisted path: reports/impl-review/loop-consistency-red-42092/attempt-1/round-1/integrated-summary.json
+--leg impl-round-2: round 2 failed (RED)
+exit code: 1
+
+== GREEN (HEAD, no SDD_LOOP_REPO_ROOT override) ==
+--leg impl-round-2: round 2 succeeded (GREEN)
+exit code: 0

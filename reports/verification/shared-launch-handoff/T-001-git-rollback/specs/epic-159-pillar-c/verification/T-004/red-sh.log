@@ -1,0 +1,12 @@
+=== RED: emit-run-record.sh rejects new --effort-* flags (pre-implementation baseline) ===
+$ sh emit-run-record.sh feat-red --track lite --effort-main high
+emit-run-record: unknown argument: --effort-main
+EXIT:1
+
+$ sh emit-run-record.sh feat-red --track lite --effort-reviewers medium
+emit-run-record: unknown argument: --effort-reviewers
+EXIT:1
+
+$ sh emit-run-record.sh feat-red --track lite --effort-control-main flag
+emit-run-record: unknown argument: --effort-control-main
+EXIT:1

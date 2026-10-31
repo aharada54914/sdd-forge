@@ -1,0 +1,15 @@
+TARGET_YML=/Users/jrmag/Projects/active/sdd-forge/.github/workflows/self-improvement.yml
+GUARD_SH=/Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh
+
+FAIL: TEST-010: id-token: write is present but unused (claude_code_oauth_token auth, no federation) -- AC-010
+ok: TEST-010: retains used permission 'contents: write'
+ok: TEST-010: retains used permission 'pull-requests: write'
+ok: TEST-010: retains used permission 'issues: write'
+FAIL: TEST-011: workflow has no self-improvement-pr-guard.sh guard step -- AC-011
+FAIL: TEST-011: violating diff should exit 1, got 127 -- AC-011
+FAIL: TEST-011: guard did not list both violating paths (output: bash: /Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh: No such file or directory)
+FAIL: TEST-011: compliant diff should exit 0, got 127 (output: bash: /Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh: No such file or directory) -- AC-011
+FAIL: TEST-014: empty file should exit 0, got 127 (output: bash: /Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh: No such file or directory) -- AC-014
+FAIL: TEST-014: absent file should exit 0, got 127 (output: bash: /Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh: No such file or directory) -- AC-014
+
+TEST-010/011/014 results: 3 passed, 7 failed

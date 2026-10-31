@@ -1,0 +1,86 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-mcp",
+  "task_id": "T-003",
+  "run_id": "qg-eval-cimcp-t003-20260708-e2a",
+  "host_session_id": "hs-qg-eval-cimcp-0106",
+  "sequence": 106,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "aa9d97dc77f40f085c7a852cb4f0fa6c36df4411f6a0483218b9ad29d6fcfa8e",
+  "previous_record_sha256": "951e808875a9e5f7f25e2197b863b1f49d82fa788c3b03403d66cb45b538e126",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/ci-mcp/T-003.md",
+      "sha256": "ee701b10db141e4e2a88f5a8ce18de766ccdedceef84983c101ad3e4d1a20223"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "54cd5709161e7817832d9a34453890d6a70a32ca76d92dd4cf299fde93542df5"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.json",
+      "sha256": "6f06c5691978c25ba88e16ee1d2978611e0922fc42925277c7726cb6ec1d7e2b"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "mcp/ci-mcp/src/auth.ts",
+      "sha256": "d9c98796282df43b78b500a77233ec4135c8ab89b33d81463b9b98aa339f301d"
+    },
+    {
+      "path": "mcp/ci-mcp/src/diagnostics.ts",
+      "sha256": "2bc46044a2525d6b507c9dcdbff1eb7b9d5d71e924e3023538953f31c10bca96"
+    },
+    {
+      "path": "mcp/ci-mcp/src/index.ts",
+      "sha256": "22873cbab38617dbdb94818e0a53840ba6cd2f7da63640891722d97e2a1e07b2"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/auth/auth.test.ts",
+      "sha256": "2935327114fb38305fd8558d25c0031e04686be494076f3fc83bbb8ae00b59b6"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-secrets/canary.test.ts",
+      "sha256": "3f9037331c43c90a95f18960fc4b9b3ffa7e6c8af3b40120ca016d362e474f50"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-secrets/diagnostics.test.ts",
+      "sha256": "418d1560550f582e22e7ae6a5a65e19a39bcb1710793b8654861f0e4a6e639bd"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-003-red.txt",
+      "sha256": "637b5b6e34264cb8b79878b2eed76a3e94cf468665289dc67230f36812960546"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-003-green.txt",
+      "sha256": "c5e978d6e4c177ea8a3dca0fdef26aa9796ca08fe02bd15063acbb18de071ddf"
+    }
+  ]
+}

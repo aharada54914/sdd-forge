@@ -1,0 +1,18 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "collision-gate-a",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-registered.py"
+    },
+    {
+      "id": "collision-gate-b",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-registered.py"
+    }
+  ],
+  "capabilities": []
+}

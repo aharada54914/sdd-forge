@@ -1,0 +1,6 @@
+Focused evidence:
+- tests/prepare-panelist.tests.sh: PASS (28 passed, 0 failed)
+- powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File tests/prepare-panelist.tests.ps1: PASS (26 passed, 0 failed)
+
+Repository aggregate evidence:
+- tests/run-all.sh exceeded 120 seconds in tests/install.tests.sh and was terminated; no failure result was emitted.

@@ -1,0 +1,515 @@
+{
+  "run_id": "T-005-01a11cbb-3dd3-7d92-9a8f-68016108fe85",
+  "task_attempt_count": 2,
+  "manifest_sha256": "347c102120352a273c7f83cb1785824ed1cd53837bf451c958a76b9cbcf09218",
+  "commands": [
+    {
+      "label": "baseline-boundary",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-boundary rtk proxy bash tests/review-context-boundary.tests.sh",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "bash",
+        "tests/review-context-boundary.tests.sh"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.254613+00:00",
+      "ended_at": "2026-10-08T18:25:12.266147+00:00",
+      "summary": [
+        "ok: review-context-boundary citations match the validator (32 anchors verified)",
+        "Ran 3 tests in 0.001s",
+        "PASS: 116; FAIL: 0",
+        "PASS: 84; FAIL: 0",
+        "PASS: 84; FAIL: 0"
+      ]
+    },
+    {
+      "label": "baseline-conditional",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-conditional rtk proxy python3 -B tests/review-conditional-inputs.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/review-conditional-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.245538+00:00",
+      "ended_at": "2026-10-08T18:22:46.368944+00:00",
+      "summary": [
+        "Ran 16 tests in 28.876s"
+      ]
+    },
+    {
+      "label": "baseline-host-preflight",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-host-preflight rtk proxy python3 -B tests/host-review-preflight.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.254675+00:00",
+      "ended_at": "2026-10-08T18:22:17.737307+00:00",
+      "summary": [
+        "Ran 7 tests in 0.080s"
+      ]
+    },
+    {
+      "label": "baseline-launch",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-launch rtk proxy python3 -B tests/unified-launch-order.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:19:02.898665+00:00",
+      "ended_at": "2026-10-08T18:19:03.374991+00:00",
+      "summary": [
+        "Ran 8 tests in 0.196s"
+      ]
+    },
+    {
+      "label": "baseline-permissions",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-permissions rtk proxy python3 -B tests/quality-nontty-transport.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.257602+00:00",
+      "ended_at": "2026-10-08T18:22:18.517153+00:00",
+      "summary": [
+        "Ran 19 tests in 0.854s"
+      ]
+    },
+    {
+      "label": "baseline-spec-inputs",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-spec-inputs rtk proxy python3 -B tests/spec-review-verify-inputs.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/spec-review-verify-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.246612+00:00",
+      "ended_at": "2026-10-08T18:22:34.081920+00:00",
+      "summary": [
+        "Ran 2 tests in 16.562s"
+      ]
+    },
+    {
+      "label": "baseline-task-launch",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-task-launch rtk proxy python3 -B tests/unified-task-launch.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.251770+00:00",
+      "ended_at": "2026-10-08T18:22:17.904725+00:00",
+      "summary": [
+        "Ran 9 tests in 0.260s"
+      ]
+    },
+    {
+      "label": "baseline-task-structured",
+      "outer_command": "rtk proxy python3 -B scratch/run.py baseline-task-structured rtk proxy python3 -B tests/task-structured-output.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/task-structured-output.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:22:17.246713+00:00",
+      "ended_at": "2026-10-08T18:22:17.975919+00:00",
+      "summary": [
+        "Ran 13 tests in 0.333s"
+      ]
+    },
+    {
+      "label": "coverage-gap-green",
+      "outer_command": "rtk proxy python3 -B scratch/run.py coverage-gap-green rtk proxy python3 -B ../scratch/gap_red.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/gap_red.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:25:58.190847+00:00",
+      "ended_at": "2026-10-08T18:26:10.665151+00:00",
+      "summary": []
+    },
+    {
+      "label": "coverage-gap-red",
+      "outer_command": "rtk proxy python3 -B scratch/run.py coverage-gap-red rtk proxy python3 -B ../scratch/gap_red.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/gap_red.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 1,
+      "started_at": "2026-10-08T18:20:03.607333+00:00",
+      "ended_at": "2026-10-08T18:20:03.860478+00:00",
+      "summary": [
+        "FAIL: test_reservation_failure_runs_canonical_validator (__main__.ActualReservationCoverage.test_reservation_failure_runs_canonical_validator)"
+      ]
+    },
+    {
+      "label": "environment",
+      "outer_command": "rtk proxy python3 -B scratch/run.py environment rtk proxy python3 -B ../scratch/environment.py",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/environment.py"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:28:05.685263+00:00",
+      "ended_at": "2026-10-08T18:28:06.198195+00:00",
+      "summary": []
+    },
+    {
+      "label": "final-boundary",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-boundary rtk proxy bash tests/review-context-boundary.tests.sh",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "bash",
+        "tests/review-context-boundary.tests.sh"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.296479+00:00",
+      "ended_at": "2026-10-08T18:30:36.062255+00:00",
+      "summary": [
+        "ok: review-context-boundary citations match the validator (32 anchors verified)",
+        "Ran 3 tests in 0.002s",
+        "PASS: 116; FAIL: 0",
+        "PASS: 84; FAIL: 0",
+        "PASS: 84; FAIL: 0"
+      ]
+    },
+    {
+      "label": "final-conditional",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-conditional rtk proxy python3 -B tests/review-conditional-inputs.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/review-conditional-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.285154+00:00",
+      "ended_at": "2026-10-08T18:28:10.537559+00:00",
+      "summary": [
+        "Ran 16 tests in 30.946s"
+      ]
+    },
+    {
+      "label": "final-host-preflight",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-host-preflight rtk proxy python3 -B tests/host-review-preflight.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.293786+00:00",
+      "ended_at": "2026-10-08T18:27:39.800014+00:00",
+      "summary": [
+        "Ran 7 tests in 0.085s"
+      ]
+    },
+    {
+      "label": "final-launch",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-launch rtk proxy python3 -B tests/unified-launch-order.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.286951+00:00",
+      "ended_at": "2026-10-08T18:28:05.486938+00:00",
+      "summary": [
+        "Ran 9 tests in 25.765s"
+      ]
+    },
+    {
+      "label": "final-permissions",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-permissions rtk proxy python3 -B tests/quality-nontty-transport.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.298659+00:00",
+      "ended_at": "2026-10-08T18:27:40.529532+00:00",
+      "summary": [
+        "Ran 19 tests in 0.771s"
+      ]
+    },
+    {
+      "label": "final-spec-inputs",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-spec-inputs rtk proxy python3 -B tests/spec-review-verify-inputs.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/spec-review-verify-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.286772+00:00",
+      "ended_at": "2026-10-08T18:27:57.516795+00:00",
+      "summary": [
+        "Ran 2 tests in 17.950s"
+      ]
+    },
+    {
+      "label": "final-task-launch",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-task-launch rtk proxy python3 -B tests/unified-task-launch.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.301266+00:00",
+      "ended_at": "2026-10-08T18:27:40.050439+00:00",
+      "summary": [
+        "Ran 9 tests in 0.299s"
+      ]
+    },
+    {
+      "label": "final-task-structured",
+      "outer_command": "rtk proxy python3 -B scratch/run.py final-task-structured rtk proxy python3 -B tests/task-structured-output.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/task-structured-output.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:39.290346+00:00",
+      "ended_at": "2026-10-08T18:27:40.107736+00:00",
+      "summary": [
+        "Ran 13 tests in 0.397s"
+      ]
+    },
+    {
+      "label": "focused-green-iteration1",
+      "outer_command": "rtk proxy python3 -B scratch/run.py focused-green-iteration1 rtk proxy python3 -B tests/unified-launch-order.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 1,
+      "started_at": "2026-10-08T18:24:53.673478+00:00",
+      "ended_at": "2026-10-08T18:25:15.952921+00:00",
+      "summary": [
+        "Ran 9 tests in 21.999s"
+      ]
+    },
+    {
+      "label": "focused-green-iteration2",
+      "outer_command": "rtk proxy python3 -B scratch/run.py focused-green-iteration2 rtk proxy python3 -B tests/unified-launch-order.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:25:57.041302+00:00",
+      "ended_at": "2026-10-08T18:26:18.947450+00:00",
+      "summary": [
+        "Ran 9 tests in 21.655s"
+      ]
+    },
+    {
+      "label": "observed-postappend",
+      "outer_command": "rtk proxy python3 -B scratch/run.py observed-postappend rtk proxy python3 -B ../scratch/observe_receipts.py",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/observe_receipts.py"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:26:18.622193+00:00",
+      "ended_at": "2026-10-08T18:26:30.479880+00:00",
+      "summary": []
+    },
+    {
+      "label": "preflight-mismatch-corrected-red",
+      "outer_command": "rtk proxy python3 -B scratch/run.py preflight-mismatch-corrected-red rtk proxy python3 -B ../scratch/preflight_mismatches.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/preflight_mismatches.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 1,
+      "started_at": "2026-10-08T18:22:10.306517+00:00",
+      "ended_at": "2026-10-08T18:22:10.552820+00:00",
+      "summary": [
+        "Ran 3 tests in 0.002s"
+      ]
+    },
+    {
+      "label": "preflight-mismatch-red",
+      "outer_command": "rtk proxy python3 -B scratch/run.py preflight-mismatch-red rtk proxy python3 -B ../scratch/preflight_mismatches.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "../scratch/preflight_mismatches.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 1,
+      "started_at": "2026-10-08T18:20:03.327462+00:00",
+      "ended_at": "2026-10-08T18:20:03.571539+00:00",
+      "summary": [
+        "Ran 3 tests in 0.002s"
+      ]
+    },
+    {
+      "label": "rollback-unified-launch-order",
+      "outer_command": "rtk proxy python3 -B scratch/run.py rollback-unified-launch-order rtk proxy python3 -B tests/unified-launch-order.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:21.610519+00:00",
+      "ended_at": "2026-10-08T18:27:22.107610+00:00",
+      "summary": [
+        "Ran 8 tests in 0.235s"
+      ]
+    },
+    {
+      "label": "rollback-unified-task-launch",
+      "outer_command": "rtk proxy python3 -B scratch/run.py rollback-unified-task-launch rtk proxy python3 -B tests/unified-task-launch.tests.py -v",
+      "inner_command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+      "returncode": 0,
+      "started_at": "2026-10-08T18:27:21.610320+00:00",
+      "ended_at": "2026-10-08T18:27:22.076309+00:00",
+      "summary": [
+        "Ran 9 tests in 0.199s"
+      ]
+    }
+  ],
+  "spec_revision": {
+    "specs/shared-review-launch-repair/requirements.md": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+    "specs/shared-review-launch-repair/design.md": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+    "specs/shared-review-launch-repair/tasks.md": "1a6b36bdc946724ee24bd6e77b7af98f9f6c167d8d736397f41b9f5d6dbfb898",
+    "specs/shared-review-launch-repair/acceptance-tests.md": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+    "specs/shared-review-launch-repair/traceability.md": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+    "specs/shared-review-launch-repair/ux-spec.md": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+    "specs/shared-review-launch-repair/frontend-spec.md": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+    "specs/shared-review-launch-repair/infra-spec.md": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+    "specs/shared-review-launch-repair/security-spec.md": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+    "specs/shared-review-launch-repair/authority.md": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0"
+  },
+  "formal_quality_gate": "NOT RUN",
+  "independent_review": "NOT RUN",
+  "ci": "NOT RUN",
+  "native_model_launch": "NOT RUN",
+  "owner_apply": "NOT RUN",
+  "windows_execution": "NOT RUN"
+}

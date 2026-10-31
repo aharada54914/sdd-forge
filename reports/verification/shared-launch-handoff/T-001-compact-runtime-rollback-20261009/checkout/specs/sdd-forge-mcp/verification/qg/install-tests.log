@@ -1,0 +1,63 @@
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.rC7ZAD8nvT/installed
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.rC7ZAD8nvT/installed
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.Jy4OZtS2kX/installed
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.xbzr9dJgll/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.A586mNzPiL/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.k7QoGCLRRe/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.JwsJRuKymf/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.QbjF3Lqaq6/installed
+Plugin registration was skipped because --target=FilesOnly.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.YmI4LV5c9A/installed
+ok: default install places and registers the MCP server
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.5aFvYF9M2j/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.Ocj4FI60LB/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+
+Results: 30 passed, 0 failed.

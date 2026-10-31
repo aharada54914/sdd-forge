@@ -1,0 +1,25 @@
+{
+  "scenario_id": "ci-token-shortage",
+  "class_number": 7,
+  "class_name": "CI token shortage",
+  "class_name_source": "issue #125 body (代表10種 item 7: \"CI token 不足\"); investigation.md INV-017 row 7",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": ".github/workflows/self-improvement.yml",
+      "line": "74-87",
+      "note": "Preflight - verify required secrets: fail-fast on a missing CLAUDE_CODE_OAUTH_TOKEN / warn on a missing SDD_SESSION_PR_TOKEN."
+    },
+    {
+      "path": ".github/workflows/self-improvement.yml",
+      "line": "163-201",
+      "note": "needs-ci safety-net label applied when a session PR carries no verifying CI run (issue #173 remedy c)."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Bash"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Logic exists inline in workflow YAML; no dedicated regression test found (investigation.md INV-017 row 7). workflow-scenarios.tests.sh's TEST-012 confirms self-improvement.yml exists and both cited step/label markers (\"Preflight - verify required secrets\", \"needs-ci\") are still present verbatim, plus TEST-013's PreToolUse-shape drive builds a representative Bash/exec_command payload for a synthetic gh secret list check. This scenario intentionally does not re-run self-improvement.yml itself (no live workflow execution in a test suite)."
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase4-mcp",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase4-mcp-task-task-reviewer-b-seq0452",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-mcp-0452",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-mcp/attempt-2/round-1/integrated-summary.json",
+        "sha256": "6947f039a004bb45539fdc076bcf49ec84ce27c4172ea37ad56a3a3e825d559c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-mcp/attempt-2/round-1/precheck-result.json",
+        "sha256": "71b1f2b8f4978108c2e950a32a688cfe46c09352982152d6ca5aa7bbc1fba891"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+        "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+        "sha256": "fb50896916fc130021b7c80088f4b494d4209f013d6ea0f3143e125751501c41"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+        "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+        "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+        "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+        "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/tasks.md",
+        "sha256": "adeb0eaea3300dbef8b539427674b8511ecc6ce0fd0e95e7b2ec2ff566dd11fd"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/traceability.md",
+        "sha256": "3fb25f19703b477b5017bab556cb770b92f2bad069cba3ae7050e26f1a268906"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+        "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:163) and T-002 (tasks.md:425) are Risk: high; both add `required` properties to `contracts/sdd-forge-mcp-tools.v1.schema.json`, an externally-visible API contract (policy sentinel: 'public API contracts'), rationale cites BL-004's PRE-change-strict-consumer consequence. T-003 (tasks.md:687) is Risk: high on the policy's 'access control' surface -- it rewrites `path-guard.ts`'s `listGuardedFiles` body (the single filesystem-read choke point, security-spec.md B3), a defensible sentinel-surface classification, not a generic refactor label. T-004 (tasks.md:954) is Risk: high on 'silent defect causes material harm' (Done-transition gate integrity, security-spec.md B4) plus the same schema-contract ground. T-005 (tasks.md:1275) is Risk: low and its scope is confirmed doc-only (CHANGELOG.md/USERGUIDE.md prose, tasks.md:1315-1321) with no source/schema/test/dist touch -- correctly not over-classified. No task shows a high/critical tier over UI-copy/CSS/docs-only scope, and no sentinel-surface task is under-classified at low/medium."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 4 Risk: high tasks carry both required Done When items. T-001 (tasks.md:382-394): 'TDD Red -> Green evidence is recorded...' and 'An independent review verdict, recorded by a named reviewer distinct from the implementing agent, plus an independent quality-gate verdict...'. T-002: identical pair at tasks.md:642-652. T-003: identical pair at tasks.md:906-917. T-004: identical pair at tasks.md:1218-1232. No task in this feature carries Risk: critical, so the second-approver/signed-evidence-bundle requirement is not triggered for any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done-When item counts: T-001 = 7 (tasks.md:350-394), T-002 = 7 (602-652), T-003 = 7 (873-917, TEST-005's 3 sub-cases counted individually), T-004 = 6 (1181-1232), T-005 = 4 (1391-1410) -- none exceeds the 8-item oversizing threshold. Each task's Scope section (T-001: 314-346; T-002: 566-600; T-003: 830-869; T-004: 1138-1177) covers one coherent field/function addition; the schema+src+dist+tests grouping is the project's own documented single-commit convention (Global Constraints, tasks.md:66-78), not unrelated concerns bundled together. No fragmentation: no 3+ tasks are single-function/file edits without integration concern (T-003's `path-guard.ts` addition explicitly analyzes and pins byte-identical behavior for 3 downstream consumers, tasks.md:749-766, 891-896), and no task is a bare rename."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001: AC-001 is an explicit error-path scenario (missing/unparsable contract.json, requirements.md:251-256), plus AC-017's non-Done/no-contract edge case (requirements.md:355-361), alongside AC-002's happy path. T-002: AC-018 sub-cases (a) no signature block and (b) non-40-hex git_commit are dedicated edge-case fixtures (requirements.md:362-372) distinct from AC-003/004's pass/fail pair. T-003: AC-005 sub-cases (b) guard-validation failure and (c) mid-walk readdirSync/statSync failure are explicit error paths (requirements.md:271-277), distinct from sub-case (a)'s happy path. T-004: AC-007 is the directory-scan-failure error path (requirements.md:286-289) paired with AC-008's regression-pinned happy path. Every functional task (T-001..T-004) has at least one dedicated error/edge AC beyond happy-path coverage; T-005 is documentation-only and not in this check's functional-task scope."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Test Type (tasks.md:195-210) declares integration and justifies it concretely: a real MCP client/server pair over InMemoryTransport plus real parsers plus the real ajv validator -- 3+ real components, satisfying the integration bar. T-002 (453-466) and T-004 (987-999) give the same multi-component justification for their integration-tier fields, while T-002 separately and correctly scopes TEST-016 as document/schema-content conformance (not ajv) since JSON Schema cannot constrain `description` text (acceptance-tests.md:72-79). T-003 (721-734) declares unit and justifies it as calling `path-guard.ts`'s own exports directly against fixtures, matching the single-module-boundary definition. T-005 (1298-1301) declares 'document conformance (review)', matching acceptance-tests.md's own TEST-013/014 label and citing exact files/sections per reviewer-calibration's docs-only allowance. No declared type contradicts its described scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field describing a same-commit reviewed revert as the recovery mechanism: T-001 (tasks.md:251-256), T-002 (513-517), T-003 (778-784, additionally noting T-004 revert-ordering if T-004 has landed), T-004 (1063-1067, noting T-003 revert-ordering). Each cites design.md Deployment/CI Plan's purely-additive-schema rollback rationale (no partial-revert hazard since schema+impl+dist land together)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared files are named explicitly in Global Constraints (tasks.md:82-107): `mcp/sdd-forge-mcp/dist/index.js` (rewritten by T-001..T-004), `contracts/sdd-forge-mcp-tools.v1.schema.json` (T-001, T-002, T-004), and `mcp/sdd-forge-mcp/src/tools/evidence.ts` (T-001, T-002, T-004). Every one of these tasks is chained via a linear Blockers relationship -- T-002 blocked by T-001 (tasks.md:670-675), T-003 blocked by T-002 (935-942), T-004 blocked by T-003 (1255-1262), T-005 blocked by T-004 (1427-1433) -- so no two tasks touching the same file can execute in parallel; the ordering is enforced transitively across the full chain, satisfying the legitimate-scope-sharing exception."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers are honestly labeled by kind, not inflated. T-002<-T-001 and T-003<-T-002 are explicitly documented as shared-artifact-serialization-only edges, not functional ones (Global Constraints, tasks.md:101-107; T-002 Depends On at 474-478 states 'evidenceDeepVerify consumes nothing T-001 produces'; T-003 Depends On at 740-745 states 'listGuardedFilesWithDiagnostics consumes nothing T-001 or T-002 produces'), and exist specifically to prevent the same-file concurrent-edit conflicts SCOPE-DISJOINT would otherwise flag -- a genuine, stated engineering reason, not a spurious blocker. T-004<-T-003 is a genuine functional dependency (`anyFileContainingWithDiagnostics` is built directly on `listGuardedFilesWithDiagnostics`, which does not exist until T-003 lands, tasks.md:1008-1012) and is correctly declared. T-005<-T-004 is a genuine functional dependency for content correctness (doc-follow describes the final landed field shapes, tasks.md:1306-1310) and is correctly declared. No task's scope depends on another's output without a declared Blockers entry."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 5 tasks are titled and scoped as additive capability work ('Add unreadableContracts...', 'Add top-level hostRequiredChecks...', 'Add listGuardedFilesWithDiagnostics...', 'Route evidence_find_missing's failed quality-gate scan to a new undeterminable field', 'Doc-follow...') rather than bugfix/regression-fix/debugging/incident-remediation. acceptance-tests.md explicitly disclaims the bugfix framing for the RED-demonstrable proofs: 'a \"the assertion has never been possible to make\" RED state ... not a bugfix reproducing a previously-observable wrong value' (acceptance-tests.md:49-57). T-001 and T-004 voluntarily include 'Reproduction and Root Cause' sections (tasks.md:268-283, 1077-1095) as good practice, but this does not convert them into bugfix-scoped tasks under this check's title/Goal/Scope trigger."
+    }
+  ],
+  "findings": []
+}

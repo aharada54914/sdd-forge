@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a12r3-seq0868",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a12r3-0868",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "fa3c54bd6d25479715718a3eec228c4e683a626d4814763d49e9b3b88f9dabde"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "6efd627c45119f7aaacbb1959020732f734cd8883fa20061738e34f90bc6901e"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-3/precheck-result.json", "sha256": "59147f9bc48a08f665d765f62fbe2adfdc0bfc227ab0e9a31ffed7d5d0c9afda"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-3/integrated-summary.json", "sha256": "10827c6635b62497681aacefa501102df3a1a5b2d2714b43366685ca14391f87"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the CONTRADICTION finding below, terms/states/inputs are exhaustively disambiguated (16-row diagnostic-id enum, explicit Field Definitions for Resolver/Affected component/Matched Capability/Block/Resolver Evidence, and a document-wide 'Ruling Annotations' interpretive rule in requirements.md that explicitly extends even to unmarked rows). No independent ambiguity beyond the sibling-document contradiction found under CONTRADICTION."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's own Acceptance Criteria table rows AC-011, AC-039, and AC-049 (lines 963, 991, 1001) were amended this round to read '... bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F))', propagating investigation.md's Ruling (A) (2026-08-29: a target that was a SYMLINK before publication rolls back to ABSENT, not to byte-identical PRE bytes -- an owner-accepted deviation from the literal 'restored to its own PRE-transaction state'/'never a bare unlink' wording) and Ruling (B) (POSIX-only durability barriers). acceptance-tests.md's matching rows for the identical acceptance criteria -- AC-011 ('post-publication-generation-mismatch's own journal-restored PRE state', line 75), AC-039 ('rolled back to its own PRE-transaction live bytes via the transaction's own journal -- never a bare `unlink` with no restore', line 100), and AC-049 ('rolled back to its own PRE-transaction state via the journal ... never a bare `unlink`', line 110) -- were left unamended: they carry no reference to rulings (A)/(B)/(F) and acceptance-tests.md has no document-wide interpretive rule of its own to fall back on (only requirements.md's Ruling Annotations block exists, and it is scoped to 'this document', i.e. requirements.md). Only acceptance-tests.md's AC-012, AC-040, and AC-047 rows were amended this round (matching investigation.md's Ruling (F) scope statement, which names only 'acceptance-tests.md's AC-012 and AC-047 rows'); AC-011/AC-039/AC-049 were missed even though requirements.md's Field Definitions 'Block' entry (lines 1043-1058) explicitly states both AC-039's and AC-049's own governing diagnostics (artifact-publication-failed, post-publication-generation-mismatch) are the two transaction-phase Blocks Ruling (A)'s symlink-ABSENT exception applies to. A future test-registration task author building TEST-039/TEST-049 fixtures directly from acceptance-tests.md's own text (its preamble states TEST IDs map 1:1 to requirements.md's ACs by row number, i.e. acceptance-tests.md is the authoritative test-authoring source) would write a literal byte-identical-PRE-restoration assertion for a symlinked publication target that contradicts the disclosed, owner-approved implementation behavior recorded in investigation.md Ruling (A) and now stated correctly in requirements.md's own sibling rows. This is squarely a spec-review-stage defect: it is a live textual conflict between two Phase-1 artifacts describing the identical acceptance criteria, not a downstream implementation or task-decomposition question, and it is exactly the amendment-propagation defect class (partial fix leaving sibling rows contradicting) that motivated Ruling (F) itself and that round 2 of this same attempt already found once before -- Critical because it directly parallels the Critical the owner and both round-3 reviewers already assigned to the identical defect pattern in AC-012/AC-047 before this round's fix (investigation.md Ruling (F): 'Both blind reviewers independently raised the same Critical: the frozen AC-012/AC-047 text contradicts the owner-ruled reality this file records')."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md and requirements.md's Edge Cases section cover zero-affected-component resolution, any-branch WARN (matched/unmatched-trigger and conditional-facet), same-facet-name aggregation (cross- and same-Capability), source-rev==target-rev delegation, registry-digest-changed-but-match-unchanged, pre-publication and post-publication TOCTOU races, crash-between-renames recovery (with symlink and Windows-durability qualifiers), and the two amended REQ-002 sub-triggers (AC-057/AC-058, registry-swap and absent-component). This is a materially complete negative/boundary/failure-mode set for the described pipeline."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section names three assumptions (sibling-contract stability, guard-invariants reservation timing, SKILL.md protection-status snapshot), each paired with an explicit fallback/re-verification procedure for the future implementation task if the assumption fails to hold, rather than leaving them open as undecided design questions."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Security Boundaries and AC-059/TEST-059 (ruling E) lock a testable deny-list boundary (no write to *.approval.json, sdd/.approved-context/, or guard-invariants.json) scoped to the Resolver alone, with an explicit, evidence-cited scope correction (attempt-11 DEPENDENCY-OVERLAP / attempt-6 VERIFICATION-PATH-CONCRETE) narrowing the scanned set to what T-007 itself can verify at its own gate. This is a concrete, testable approval/governance boundary, not a SKIP condition."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Outside the CONTRADICTION finding above, the package gives a design reviewer a fully normative processing order (steps 0/a-m), a closed 16-row diagnostic taxonomy, closed field/array shapes for a new schema (REQ-004), and explicit citations to every upstream sibling contract it reuses -- it does not require inventing missing product behavior. The one unresolved item (acceptance-tests.md's un-propagated AC-011/039/049 rows) is captured and scored under CONTRADICTION rather than duplicated here."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the repository root (confirmed via glob for `domain/context-map.md`, no match), so the DOMAIN-CONFORMANCE precondition (a `domain/context-map.md` recording `Domain-Model-Status: Approved` plus a schema-valid `domain/domain-contract.json`) is absent. Skipped per the calibration's own skip condition for this check."
+    }
+  ]
+}

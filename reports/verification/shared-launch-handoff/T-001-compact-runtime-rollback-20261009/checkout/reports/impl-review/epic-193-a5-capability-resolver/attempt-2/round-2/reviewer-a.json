@@ -1,0 +1,79 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a2r2-seq0334",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-193-a5-capability-resolver-a2r2-0334",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "363da3362f0967e951003f18990936711f9261c72984ef429f550c638a8afb58"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-2/round-2/precheck-result.json", "sha256": "fc375cbe05436808d8c318cff00e8c677ca5cfa5303806ac251d5415945521f3"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-2/round-1/integrated-summary.json", "sha256": "ef4a6e625f26c48147c312f97d0c56c8a4fd448a106fa74b679f3a98056f0a9c"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` gives a multi-stage pipeline diagram covering top-level component boundaries, integration with existing components (named subprocess calls to Epic A1/A2/A3), and technology choices per layer via the `## Components` table and frontend-spec.md's Technology Stack table."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "An explicit directed dependency list exists in `## Cross-Layer Dependencies`: this feature depends on Epic A1/A2/A3/A4 (already-Passed, content-frozen); Epic A6 is named as a future downstream consumer. A strict DAG with no back-edge; no cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` states all three required sub-fields explicitly: Data Entities, Existing Data Affected ('none written; two existing artifacts read only'), Migration Strategy ('none... no schema migration anywhere in this feature')."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## API / Contract Plan` lists the full CLI contract, the resolver-evidence.schema.json JSON Schema, the validate-resolver-evidence CLI contract, and the Discovery contract. No breaking change to any upstream contract - the new Compatibility constraints bullet in Constraint Compliance and Cross-Layer Dependencies both state this explicitly."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` names every trust boundary this feature crosses and the authorization mechanism at the boundary that has one. security-spec.md expands into a full Trust Boundaries/Authorization/Data Classification/OWASP Mapping table set. All four SECURITY-COVERAGE sub-requirements addressed."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type header describes a CLI-only script family with no UI/runtime service; ux-spec.md/frontend-spec.md both state 'N/A - no UX surface.'"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` names ten concrete suite pairs with unit-level mocking (subprocess spy/mock harness), integration-level scope (Resolver against real Epic A1/A2/A3/A4 sibling scripts), and a 1:1 AC-NNN<->TEST-NNN mapping. Suite 10 (caller-contract) supplies an end-to-end verification path for the one real cross-system integration."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in Architecture/API-Contract-Plan is defined in `## Components` or is an already-established sibling-epic component confirmed via investigation.md INV-002/INV-005/INV-006/INV-007. No undefined reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## ADR Change Log` states no new ADR is authored, lists seven already-Accepted ADRs this design implements, and transparently names six new orchestration decisions with citation-grounded rationale for why none needs its own ADR, plus a low-cost follow-up escape hatch."
+    }
+  ]
+}

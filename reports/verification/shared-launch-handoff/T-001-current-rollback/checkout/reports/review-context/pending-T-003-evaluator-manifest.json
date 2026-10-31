@@ -1,0 +1,58 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-domain",
+  "task_id": "T-003",
+  "run_id": "RUN-20260707T0000Z-sdd-evaluator-T-003",
+  "host_session_id": "SESS-quality-sdd-domain-T-003",
+  "sequence": 23,
+  "previous_record_sha256": "49a7b8e19ab88e3db7e3cfa59a5777c7fd8ef457d348593ea779af3418defc3c",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "4e3dea786b35de336597d4fc1557ec0e72014982ddd418595a878fb28ac86de7",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "7dbbedf363567fb35cc4a626f260149343a5e8539ddc2c296424bc5368cad06d"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.json",
+      "sha256": "68011f26c5eadb8ee27aea8c581ced46077b4ff64e5bd6e21611fec117701064"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-domain/T-003.md",
+      "sha256": "218eb946fa9a3199156e667063857dfadcbfde77f8b9f2c441ca8cdb6181cc3d"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "sha256": "c959011d28676a883d3c8fbe1b6a4f0b14d9124b83bb72a24bca8cd732e985ab"
+    },
+    {
+      "path": "tests/sdd-domain/reverse-seed.Tests.ps1",
+      "sha256": "f70fcbe780faa59aeb1657a23da3de9d24245ecfcaf3ed966a72a639b36d366b"
+    }
+  ]
+}

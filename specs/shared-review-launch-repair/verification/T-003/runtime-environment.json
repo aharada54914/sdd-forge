@@ -1,0 +1,58 @@
+{
+  "platform": "Darwin",
+  "machine": "arm64",
+  "executions": [
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+      "exit": 0,
+      "stdout": "Python 3.14.5\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "node",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+      "exit": 0,
+      "stdout": "v24.13.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "pwsh",
+        "-NoProfile",
+        "-Command",
+        "$PSVersionTable.PSVersion.ToString()"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+      "exit": 0,
+      "stdout": "7.6.2\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "bash",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+      "exit": 0,
+      "stdout": "GNU bash, version 5.3.9(1)-release (aarch64-apple-darwin25.1.0)\nCopyright (C) 2025 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+      "stderr": ""
+    }
+  ],
+  "native_windows": "NOT RUN",
+  "installed_host_activation": "NOT RUN"
+}

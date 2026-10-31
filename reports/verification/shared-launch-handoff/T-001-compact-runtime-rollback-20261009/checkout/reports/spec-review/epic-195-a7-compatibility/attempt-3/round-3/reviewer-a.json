@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0769",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0769",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-3/precheck-result.json",
+      "sha256": "b46d9ce543aef40a605afc5d13519c5c03fd297476769f3037c83b95e9554e1b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fc5f9ffe66edb9c94c865193e8bca9565eb24e91e7fcf55dba354e883106a505"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each fix a precise, measurable completion condition rather than an intent statement: REQ-001 anchors to a canonical target inventory with exact capture formats (AC-038), REQ-003 anchors to a versioned `compatibility-event-trace/v1` schema with per-kind producer/ordering/normalization rules (AC-022-027), REQ-006 fixes exact script names, manifest fields, and a pinned merge-base SHA (AC-018), and REQ-007 fixes a machine-evaluable `merged()`/`fingerprint_match()` grammar (AC-034/AC-035). A downstream implementer or verifier has a concrete, checkable definition for each requirement's completion condition."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal REQ-001-REQ-007 has multiple acceptance criteria citing it in acceptance-tests.md's Requirement column: REQ-001->AC-002/003/004/038; REQ-002->AC-005/006/007/030/031/042/043; REQ-003->AC-008-012, AC-022-027, AC-032/033/036/037/039; REQ-004->AC-013/017/029; REQ-005->AC-014/015/019-021/028; REQ-006->AC-001/018/040/041; REQ-007->AC-016/034/035. No goal is left untraced."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior rather than intent: AC-002/AC-003 name byte-for-byte diff outcomes across two invocations under a fixed environment; AC-009/AC-036 fix exact sha256 function-body hash values as the binding pass/fail condition; AC-022-027 fix named event-kind producers checked against a recorded golden trace; AC-040 is a literal text scan of a committed workflow file. All are mechanically checkable by a future verifier."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals lists six explicit exclusions bounding this package precisely: not implementing Epics A1-A6, not authoring test code/fixtures/registry edits, not registering a new loop-inventory id, not re-specifying Epic A5's own deferred suite in full, and no changes to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/**. The boundary is explicit rather than left to expand implicitly."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's Overview retains its original, unedited sentence 'tasks.md and traceability.md follow in a later phase once this package passes spec-review-loop' directly beneath a 2026-08-23 blockquote 'Amendment note' that self-declares 'human-approved' status and asserts 'tasks.md and traceability.md exist' and 'the epic's implementation phase has since run' (T-005/T-006 already complete), citing only the bare path `specs/epic-195-a7-compatibility/tasks.md` -- a file outside this review's allowed input manifest and given with no file:line, no sha256 fingerprint, no PR/commit reference, and no ledger record. This is a materially lower evidence bar than the document applies to itself everywhere else for a 'checkable factual claim about current repository behavior' (AC-017/INV-019, WFI-011): cross-epic citations elsewhere in this same file (e.g. FP-A5-CALLER-CONTRACT-10, FP-A5-BLOCK-REQ002, FP-A5-DISABLED-LEGACY-ROW) each carry an exact line window and a recomputable sha256 digest specifically because a prior bare line-number citation was found to have drifted (NEW-001, investigation.md INV-016). The document's header still reads 'Spec-Review-Status: Pending' and this is round 3 of attempt 3 of spec-review-loop for this same requirements.md, so the amendment's claim that Phase 2/3 has already completed for part of this still-Pending Phase 1 package is exactly the kind of self-asserted approval/workflow-state claim that needs citable evidence, not adjectives. Downstream failure mode: a task author cannot determine, from this package alone, whether to author a fresh tasks.md once this document reaches Passed status (per the retained, unedited primary Overview sentence) or to treat an already-existing, already-Done tasks.md as ground truth requiring no new Phase 2/3 tasks for AC-009 (per the amendment) -- the identical ambiguity recurs in the parallel Non-goals bullet ('Those are Phase 2/3 deliverables of a later task once this package passes spec-review-loop/impl-review-loop' followed by a footnote claiming they 'have since been produced'). A quality-gate verifier checking AC-009 likewise cannot tell whether the T-005/T-006 cycle it narrates in the past tense is a real, already-executed, independently verifiable event or a forward-looking placeholder reusing past tense narratively. This belongs to spec review because it is a self-contained approval/evidence-boundary contradiction inside requirements.md's own Overview and Non-goals sections (Phase 1 artifacts), not a design, task-decomposition, or quality-gate-evidence question. Severity is Critical per this gate's own calibration, which names 'missing approval boundary that makes the specification unreviewable' as a Critical criterion: the specification's own claimed authority for asserting a contradictory temporal/workflow state is unverifiable from the reviewable artifacts and inconsistent with the citation rigor (AC-017) the document imposes on every other factual claim."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's Critical/High/Medium entries each name a concrete validation surface rather than only naming the risk: the Critical cross-epic-drift risk is mitigated by AC-034/AC-035's fingerprint-drift hard-fail; the High shared-surface-blast-radius risk is mitigated by fixing exact field names/shapes in design.md before Phase 2/3 starts; the Medium check-sdd-structure.sh deviation risk names an explicit closing signal (Phase 2's first commit, Main Workflows step 1). No high-risk claim is left without a planned validation surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Checked for `domain/context-map.md` and `domain/domain-contract.json` in the target repository (/Users/jrmag/Projects/active/sdd-forge-wt-epic-195); neither path exists. Per the check's own skip condition, no `domain/` directory with an Approved domain model is present, so DOMAIN-CONFORMANCE is recorded as skipped rather than evaluated."
+    }
+  ]
+}

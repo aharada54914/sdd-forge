@@ -1,0 +1,17 @@
+{
+  "schema": "review-context-invocation/v2",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "feature": "shared-review-launch-repair",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "d0a354eb-516a-4fdd-a85c-2272f5630d92",
+  "host_session_id": "d0a354eb-516a-4fdd-a85c-2272f5630d92",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "97fdfb3a72276dc8141abca03dfd9ccd477c6ed2f5893cf34ea38de302ddee26",
+  "allowed_input_manifest": [
+    {"path": "specs/shared-review-launch-repair/requirements.md", "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"},
+    {"path": "specs/shared-review-launch-repair/acceptance-tests.md", "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"}
+  ]
+}

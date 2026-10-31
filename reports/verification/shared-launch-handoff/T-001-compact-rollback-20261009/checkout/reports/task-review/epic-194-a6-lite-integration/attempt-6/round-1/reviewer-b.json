@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 6,
+  "round": 1,
+  "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-b-attempt6r1-seq0908",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-194-a6-lite-integration-0908",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-1/integrated-summary.json",
+        "sha256": "88794569879aff8c6a2a676a8b3b60297a9ddee854d8cdacfd944c066a2d541c"
+      },
+      {
+        "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-1/precheck-result.json",
+        "sha256": "27f63e74983470a5e7016da5462d17803c7e3554187ab90dc29cfc605f739cf5"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+        "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/design.md",
+        "sha256": "559622b69879a0628f3accc7ed3d6564863a61be895287431b3cdbf3699af781"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+        "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+        "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/requirements.md",
+        "sha256": "e0867913178a6129877623940331d04bf06e3dfa0608fb7b9ff2cc7c53e38200"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+        "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/tasks.md",
+        "sha256": "cd3905c1f893d35b810c62b9cdf60540a23ea269285a95eb61d49a0cbd933857"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/traceability.md",
+        "sha256": "05ea256df88b1c4a94bb099efc349577db76ab5cfaf378453b5809768fe9770f"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+        "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+      }
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four tasks' Risk: high declarations match sentinel-surface scope per risk-classification-policy.md: T-001 (protected-file application runner, access-control/tamper-evidence surface), T-002/T-003 (the Lite/Full risk-upgrade decision gate, an access-control-like surface), T-004 (the post-implementation enforcement Gate turning full_upgrade_required/unmapped check-ids into blocking VERDICT: FAIL). None touches payment/physical-safety/regulated surfaces, so none is under- or over-classified to critical, and none is UI-copy/docs/test-only work mis-tagged high. Consistent with the prior attempt's persisted task-review PASS evidence for this same tasks.md content (provenance re-review, TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-004 (Risk: high, Status: Done) contains a self-contradiction in its own Done When section that leaves the required independent-review-verdict evidence unresolved. tasks.md's T-004 Done-When list item '[~] TDD evidence' states verbatim: 'An independent quality-gate verdict has not yet been recorded \u00e2\u0080\u0094 QG delegation is held per main's own instruction... This bullet is not fully satisfied until that verdict lands.' This is the literal, load-bearing Done-When text for a high-risk task now marked Status: Done. A separate, earlier 'Quality-Gate Addendum' block (before the Goal/Scope/Done-When sections) claims an evaluator run (seq0329) recorded VERDICT: PASS and explicitly states 'Status is deliberately NOT set to Done by this addendum \u00e2\u0080\u0094 that remains main's own decision,' but that addendum is not itself part of the Done When section and names no reviewer by name (only a run id), unlike T-001/T-002/T-003's Done-When TDD-evidence bullets, which each explicitly commit to 'a named second reviewer distinct from the implementing agent.' Because the Done When section's own governing checkbox for this exact evidence requirement is checked '[~]' (partial) and its own text asserts the requirement is not yet satisfied, while Status independently reads Done, a downstream implementer or quality gate cannot determine from this task's own Done When text whether the HIGH-CRITICAL-EVIDENCE bar (Red\u00e2\u0086\u0092Green + a named independent review verdict) was actually met before Done was recorded. This is a TYPE-D check, not subject to the provenance re-review TYPE-H convergence suppression, and is not owned by precheck (which validates hashes/format only) or by any of reviewer A's listed checks (PREREQ-AC-IDS, BLOCKERS-FORMAT, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK, ORPHAN-TEST, INITIAL-STATE, RISK-WORKFLOW-FORMAT, NO-DUPLICATE-AC, DEPENDENCY-COMPLETE, DEPENDENCY-CYCLE, SINGLE-CONCERN, OBSERVABLE-DONE, TRACEABILITY-SYNC), none of which examine high/critical evidentiary sufficiency. Failure mode: a Risk: high task's Done state is not traceable to unambiguous, internally consistent evidence text, which is exactly the hard-policy gap HIGH-CRITICAL-EVIDENCE exists to block."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001..T-004 is one coherent unit scoped to a single file/skill edit (T-001: one new runner script; T-002: one script pair + policy doc; T-003: one skill file; T-004: one skill file, Step 2a+2b as a single coupled Process extension). Done-When bullet counts are 5 (T-001), 6 (T-002), 6 (T-003), 6 (T-004) \u00e2\u0080\u0094 none exceeds eight. No task title implies multiple sequential design/implement/test phases beyond the uniform two-commit convention Global Constraints fixes for every task. No fragmentation pattern (no trio of single-function-edit tasks, no bare rename-only task). Consistent with the prior attempt's persisted task-review PASS evidence for this same decomposition (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task's Done-When/Scope cites acceptance criteria with explicit error-path coverage, not only happy-path: T-001 cites AC-031's exact-set/hash/post-copy contract (fixture list explicitly names payload-set-mismatch, hash-mismatch, control-file-miscounted, and post-copy-corruption fixtures); T-002 cites AC-027 (fragment fail-closed) and AC-028 (ineligible-with-no-reasons synthetic token); T-003 cites AC-019 plus the defense-in-depth companion fixture (ship-time recheck still Blocks when intake-time evaluation missed the component); T-004 cites AC-012 (schema-invalid Summary), AC-016 (unmapped check-id, reversed to FAIL not N/A), AC-026 (full_upgrade_required backstop), AC-030 (absent-Summary under active enforcement), and the NEW-01 negative fixtures (grammar-failing/`../`/symlink/single-runtime-member ids). No functional task is left with only happy-path acceptance criteria. Consistent with the prior attempt's persisted PASS evidence (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Planned test suites named in each task's Planned Files/Scope match their stated scope: script/function-boundary suites (e.g. tests/check-risk-upgrade-byte-identical, tests/check-risk-upgrade-fragment-fail-closed) exercise a single script's I/O contract, matching unit-level scope; multi-component suites (tests/lite-spec-capability-block, which invokes A2's evaluate-predicate CLI and the extended check-risk-upgrade contract; tests/human-copy-runner-contract, which exercises the runner against staged fixture trees) span more than one component, matching integration-level scope; design-content-review items (e.g. T-003's AC-020 evidence, T-004's AC-013 static-review fixture) are explicitly framed as design-content review rather than mislabeled as executable acceptance/e2e tests. No suite's declared scope contradicts its stated test type. Consistent with the prior attempt's persisted PASS evidence (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit `Rollback:` field: T-001 ('revert this task's two commits... a revert PR states explicitly whether an already-human-applied protected-file change... should also be hand-reverted'); T-002 and T-003 (near-identical: revert two commits, staged human-copy change is never applied directly, revert PR states whether an already-human-applied change should also be hand-reverted, and by whom); T-004 ('revert this task's commits... this is a direct edit \u00e2\u0080\u0094 both commits land directly on the real lite-gate/SKILL.md path, no human-copy staging or apply step is needed'). Each names the specific revert mechanism appropriate to its own application path (human-copy vs. direct edit). Consistent with the prior attempt's persisted PASS evidence (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002/T-003/T-004 all touch shared files (tests/run-all.sh/.ps1, CHANGELOG.md, specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml staged candidate, human-copy/MANIFEST.sha256), but tasks.md's Global Constraints fix a serialized append order (T-001 -> T-002 -> T-003 -> T-004, 'the same no two tasks' staged candidates race discipline') and each task's own Blockers field enforces that ordering (T-002 Blockers: T-001; T-003 Blockers: T-001, T-002; T-004 Blockers: T-003) \u00e2\u0080\u0094 the legitimate 'creates then extends, ordering enforced by Blockers' pattern, not uncoordinated parallel overlap. No two tasks claim the same primary implementation file for the same purpose with no blocking relationship. Consistent with the prior attempt's persisted PASS evidence (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (Blockers: None) is genuinely self-contained (synthetic fixtures only). T-002 (Blockers: T-001) and T-003 (Blockers: T-001, T-002) each state precisely which part of the blocker is functional (T-001's runner, used by each task's own HUMAN APPLY STEP Done-When item) versus purely registration-order coordination (T-003's blocker on T-002 is explicitly 'not functionally dependent... serialized after T-002 for the shared tests/run-all.sh/.ps1 array... registration order'). T-004 (Blockers: T-003) is likewise explicitly 'not a functional dependency,' serialized 'SOLELY for the shared tests/run-all.sh/.ps1 array and .github/workflows/test.yml staging.' Because each task explicitly documents its own shared-mutable-file-append rationale for a non-functional blocker, none of these is a spurious blocker with no logical basis \u00e2\u0080\u0094 the logical basis is coordination on a shared, append-order-sensitive artifact, not fabricated. No task's scope depends on another's output without a declared Blockers entry. Consistent with the prior attempt's persisted PASS evidence (TYPE-H convergence) \u00e2\u0080\u0094 no new finding basis."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All four tasks (T-001..T-004) are net-new feature/extension work (a new human-copy runner, two protected-file extensions, one direct-edit skill extension) per requirements.md REQ-002/003/004/005/006 \u00e2\u0080\u0094 none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": "T-004",
+      "finding": "T-004 (Risk: high, Status: Done) has a Done-When TDD-evidence item marked '[~]' whose own text states 'An independent quality-gate verdict has not yet been recorded... This bullet is not fully satisfied until that verdict lands,' while Status independently reads Done. The earlier 'Quality-Gate Addendum' narrative block (outside the Done When section, before Goal/Scope) claims an evaluator run (seq0329) recorded VERDICT: PASS but names no specific reviewer (only a run id), unlike T-001/T-002/T-003's Done-When bullets which each commit to 'a named second reviewer distinct from the implementing agent.' The task's own governing Done-When evidence item for the required independent-review-verdict is therefore internally self-contradictory and, taken literally, unsatisfied for a task now marked Done."
+    }
+  ]
+}

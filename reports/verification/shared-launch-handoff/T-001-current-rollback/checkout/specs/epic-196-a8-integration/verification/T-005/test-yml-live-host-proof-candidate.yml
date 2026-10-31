@@ -1,0 +1,14 @@
+# T-005 non-protected review draft.
+# Append these steps to the main cross-platform `test` job after the other
+# epic-196 deterministic suite steps. The caller prohibited writes under
+# `specs/*/human-copy/`, so this file is not an apply-ready human-copy asset
+# and deliberately has no MANIFEST.sha256 entry.
+
+- name: Test live-host proof validator suite (bash)
+  if: runner.os != 'Windows'
+  shell: bash
+  run: bash ./tests/validate-live-host-proof.tests.sh
+
+- name: Test live-host proof validator suite (pwsh)
+  shell: pwsh
+  run: ./tests/validate-live-host-proof.tests.ps1

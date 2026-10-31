@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncstandingconsent-spec-a1r1-a-seq0542",
+  "host_session_id": "SESS-spec-a1r1-a-designsyncstandingconsent-0542",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "b24381db1f36615df56ad8e7151a8e3757fc4098759eccc5a951b4ba3451ca79"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "7b2ea3f5cde2e18f245a56afdbeafdfa632902098a28cc5698fc9e40f31f5399"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6f18019d3e171a40eaf7af6f3c0c895fbf39a4841655c4b61ccd1e338913d897"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "specs/design-sync-standing-consent/requirements.md:23-224 states REQ-001..REQ-010 as document-conformance claims, each decomposed into named ACs (AC-001..AC-030) that are individually mapped in specs/design-sync-standing-consent/acceptance-tests.md:13-65 (TEST-001..TEST-053) plus the deferred TEST-054 (acceptance-tests.md:71-75) to a concrete grep/text-presence assertion against AGENTS.md, design-sync-loop/SKILL.md, or claude-design-workflow.md. Even the 'live-read' requirement (REQ-007, requirements.md:139-151) is reduced to a checkable text comparison (AC-020/TEST-044, acceptance-tests.md:56, 149-151: 'this resolution' vs 'previous resolution' phrasing), consistent with the document-conformance pattern investigation.md:10-16 (INV-301) confirms DS-29 already established. No in-scope requirement lacks a stated observable check."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal named in the Overview (requirements.md:9-19: three-valued setting, standing-skip-with-audit, off-forbids-persistently, per-feature-unchanged-default, host independence, three new audit fields, live re-read, fallback indirect reference) is restated as a REQ (requirements.md:23,43,57,83,103,111,139,153,173,193) and each REQ carries at least one AC (e.g. REQ-003 -> AC-007..AC-010, AC-030 at requirements.md:63-81; REQ-008 -> AC-022..AC-024 at requirements.md:161-171). No goal sentence in the Overview is left without a corresponding REQ/AC pair."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:13-65's Test Matrix column 'Assertion in one line' ties every AC to a concrete externally-checkable text state, e.g. TEST-046 (acceptance-tests.md:58): 'the file contains no occurrence of the literal identifier ds_upload_consent anywhere' (a grep-checkable absence), and TEST-002 (acceptance-tests.md:14): 'a ## Project Settings heading exists and the ds_upload_consent key is named in a table row under it' (a structural presence check, explicitly not heading-only per acceptance-tests.md:83-85). No AC in the matrix rests on unverifiable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:205-212 (## Non-goals) explicitly excludes implementing sibling feature #139/design-sync-scan, touching plugins/sdd-lite/skills/lite-spec/SKILL.md, touching contracts/design-system.contract.v1.schema.json, adding a protected-file guard for AGENTS.md, and adding a docs/THREAT-MODEL.md entry, each with a stated reason. requirements.md:212 additionally freezes DS-29's own per-feature/session scope, decline-transience, mid-session-withdrawal, and push-failure rules as out of scope for re-litigation. The boundary against the concurrently-reviewed sibling feature (design-sync-scan) is explicit and non-overlapping (requirements.md:5, 207)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:234-241 (## Baseline Constraints, BL-001..BL-006) states compatibility (DS-29's step 3(a)/(b)/(c) and five field names unmodified), data-domain (Egress-Consent's three-valued domain frozen), security (the fallback's zero-upload and no-'consent'-substring invariants must survive, explicitly called out as the constraint round-1's own draft violated per the Critical finding at requirements.md:157), protected-file boundary (BL-004: no protected file touched), and migration (BL-005: workflow-state-registry.json entry; BL-006: AGENTS.md Active Spec Directories update) constraints explicitly and individually, each tied to the REQ/AC that enforces it."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The document names two high-risk claims explicitly. (1) 'standing... removes the one bounded moment of live human attention DS-29's entire design exists to defend' (requirements.md:13) has a stated validation surface: the mandatory one-time audit write is enforced by AC-008/AC-009/AC-016/AC-029 (requirements.md:69-73, 119-137) and checked by TEST-009/TEST-010/TEST-026-028/TEST-040-043 (acceptance-tests.md:21-22, 38-40, 52-55). (2) 'An agent can write ds_upload_consent: standing into AGENTS.md... nothing... distinguishes a human deliberately configured this from an agent wrote a line' (requirements.md:15) is explicitly named as the feature's principal residual risk and pointed to a dedicated manual-inspection target, security-spec.md (requirements.md:210, Non-goals bullet 'Adding a protected-file guard...'), satisfying the check's 'manual inspection target' branch even though security-spec.md's content itself sits outside this review's allowed-input manifest and was not read."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: domain/context-map.md and domain/domain-contract.json are not present in this review's allowed_input_manifest (reports/review-context/design-sync-standing-consent-spec-a1r1-a-invocation.json:9-30 lists only requirements.md, acceptance-tests.md, investigation.md, spec-review-calibration.md, and precheck-result.json), so under this role's read boundary no domain contract file can be inspected to confirm an Approved domain model exists; per instruction this is recorded as skipped and emitted as SKIP rather than inferred."
+    }
+  ]
+}

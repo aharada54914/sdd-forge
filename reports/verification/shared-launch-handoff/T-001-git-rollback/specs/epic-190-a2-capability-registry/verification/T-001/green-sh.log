@@ -1,0 +1,4 @@
+# GREEN evidence -- capability-registry-schema (bash)
+$ bash tests/capability-registry-schema.tests.sh
+capability-registry-schema: 6 accept + 16 reject fixtures pass; canonical instance valid.
+exit: 0

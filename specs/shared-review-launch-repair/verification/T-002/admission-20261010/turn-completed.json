@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a123d9-5af8-7792-94ee-f075ad481b90",
+    "turn": {
+      "id": "01a123d9-5c1b-7b50-ab19-8c9ecf5d80eb",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_04548fac973553a2016ac9b19bfc0c819192893e5b17969ded",
+          "text": "報告書と証跡を保存しました。必須入力不足により再検証はブロックしています。\n\n- [実装報告書](work/reports/implementation/shared-review-launch-repair/T-002.md)\n- [delivery-index.json](delivery-index.json)\n- 入力98件のハッシュ一致、Outputs 106件を照合。\n- 報告書validator：exit 0、`IMPLEMENTATION_REPORT_OK`。\n\nmanifestに不足する入力：\n\n- `plugins/sdd-review-loop/scripts/task-review-precheck.ps1`\n- `plugins/sdd-review-loop/references/spec-review-calibration.md`\n\n必須4検証は未実施です。ソース・凍結成果物・旧報告書は変更していません。形式検証の成功は正式PASS／Doneを意味しません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791602809,
+      "completedAt": 1791603104,
+      "durationMs": 294485
+    }
+  },
+  "emittedAtMs": 1791603104373
+}

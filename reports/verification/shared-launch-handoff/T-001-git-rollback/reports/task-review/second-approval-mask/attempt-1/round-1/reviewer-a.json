@@ -1,0 +1,140 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-second-approval-mask-task-task-reviewer-a-seq0178",
+  "host_session_id": "SESS-task-task-reviewer-a-second-approval-mask-0178",
+  "manifest": [
+    {
+      "path": "specs/second-approval-mask/requirements.md",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+    },
+    {
+      "path": "specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "specs/second-approval-mask/design.md",
+      "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+    },
+    {
+      "path": "specs/second-approval-mask/tasks.md",
+      "sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5"
+    },
+    {
+      "path": "specs/second-approval-mask/traceability.md",
+      "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+    },
+    {
+      "path": "specs/second-approval-mask/security-spec.md",
+      "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+    },
+    {
+      "path": "specs/second-approval-mask/infra-spec.md",
+      "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "74d63c6b7bab409bbc5bb2d4e5829995609b135979f1b0bbf7f1a58a0f966f50"
+    },
+    {
+      "path": "reports/task-review/second-approval-mask/attempt-1/round-1/dependency-graph.json",
+      "sha256": "79beb82ddfc562de7571aae4362dbc428916a65e86ead0a4e7aecac3f2f235aa"
+    }
+  ],
+  "verdict": "PASS",
+  "findings": [],
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001's Requirements field lists only REQ-001 (no AC-NNN there). Done When items cite AC-001 through AC-005; all five resolve to real criteria in acceptance-tests.md. No dangling AC references."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md '### Blockers' section contains the literal value 'None' for T-001, matching precheck-result.json's blockers_format_valid: true. Single-task feature, no dependency IDs to validate."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md defines exactly REQ-001. tasks.md T-001 'Requirements: REQ-001' covers it."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md defines AC-001..AC-005. T-001 Done When explicitly cites each: (AC-001)..(AC-005, gate phase). All five traced."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 references REQ-001 in its Requirements field. Not orphaned."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001's title contains no test/spec/verify substring and its scope is not exclusively test-file changes (Planned Files includes the two protected twins). No orphaned test task exists."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 1 round 1: T-001 has 'Approval: Draft' and 'Status: Planned', matching the round-1 requirement exactly."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 declares 'Risk: high' and 'Required Workflow: tdd'; high->tdd per the risk-gate-matrix, matching precheck workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Only one task exists; each of AC-001..AC-005 appears once in its Done When list. No duplicate primary-AC claims across tasks."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001's Blockers field is 'None'. dependency-graph.json nodes [T-001], edges [] confirms no dangling references."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "dependency-graph.json has a single node T-001 and zero edges; no cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Scope's 'and' connects the two required validator twins of the SAME single fix with mandated cross-twin parity (AC-004); the twins cannot be decoupled. run-all registration is housekeeping tied to the same corpus."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 9 Done When items name concrete inspectable outcomes ('workflow-state: ok', stale-hash diagnostic, byte-identical hashing, run-all registration line, live==staged SHA-256 gate evidence, Red->Green evidence, suite/gate exit, quality-gate verdict record, cross-model consensus record). No vague verbs."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 appears in traceability.md's Task Map referencing REQ-001; cited layer anchors (security-spec.md#trust-boundaries, #stride-analysis, infra-spec.md#ci-cd-sequence) resolve to real headings; UX/Frontend are reasoned N/A."
+    }
+  ]
+}

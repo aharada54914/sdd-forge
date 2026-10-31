@@ -1,0 +1,276 @@
+T-009 blast-radius regression: plugins/sdd-quality-loop/scripts/emit-run-record.{sh,ps1}
+is a cross-epic shared surface (Security Boundary B2, third named B2 file).
+Suite list: T-009's own suite plus every suite that invokes emit-run-record.sh
+(grep -l emit-run-record tests/*.tests.sh).
+
+tests/effort-policy-flip.tests.sh is DELIBERATELY EXCLUDED from this list and
+the finding is disclosed rather than hidden: it matches the grep because its
+own TEST-044 shells out to emit-run-record.sh, but TEST-044 is skipped by
+design in this run (SDD_ALLOW_REAL_CODEX_SMOKE not set), so emit-run-record.sh
+is never actually exercised. A first pass DID include it and observed exactly
+one failure: 'not ok: TEST-046: current branch (feature/epic-195-a7-compatibility)
+does not look T-007-scoped -- cannot confirm PR separation' -- a branch-naming
+self-check that TEST-046 (epic-159-pillar-c T-007's own release-PR-separation
+proxy, tests/effort-policy-flip.tests.sh:268-277, last touched by commit
+eea908c1, an unrelated prior feature) applies to whatever branch the suite
+happens to run on. It fails on ANY branch that is not literally named for
+T-007 -- including this worktree's own feature/epic-195-a7-compatibility --
+and is unrelated to T-009's own emit-run-record.sh/.ps1 or
+tests/emit-run-record-feature-scope.tests.{sh,ps1} changes.
+
+run-all.sh/.ps1 is not used here for the same reason T-004's own
+qg-cycle2/T-004/regression.log records: the deterministic-lane self-check
+fails closed until a human applies the staged human-copy CI patch.
+Bash only, per that same precedent.
+
+==========================================================
+[RUN] tests/emit-run-record-feature-scope.tests.sh
+==========================================================
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (.metrics.gate_reports.total = 1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text "BLOCKED" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded (.metrics.gate_reports.blocked = 1)
+ok: AC-021: schema bumps to v2 when any --effort-* flag supplied (.schema = sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (.feature = feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (.track = lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (.model_ids.main = unknown)
+ok: AC-021: effort.main has exactly the three subfields ((.effort.main | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: effort.reviewers has exactly the three subfields ((.effort.reviewers | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-033 matrix effort-only: existing v2 shape has no capability key (has("capability") = false)
+ok: AC-021: v1 metrics object unchanged in v2 shape (.metrics.tasks.total = 1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: --effort-applied-main with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when --effort-main itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ({
+  "effort_applied": null,
+  "effort_degraded_reason": "effort-control-frontmatter"
+})
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased --effort-control-main value is rejected fail-closed
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (.schema = sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (has("effort") = false)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (has("capability") = false)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record
+ok: AC-033 matrix both: schema remains v2 (.schema = sdd-run-record/v2)
+ok: AC-033 matrix both: effort sibling is present (has("effort") = true)
+ok: AC-012 matrix both: capability has exactly enforcement and block_id (((.capability // {}) | keys | sort) == (["block_id","enforcement"] | sort) = true)
+ok: AC-012 matrix both: enforcement is persisted (.capability.enforcement = advisory)
+ok: AC-012 matrix both: supplied block_id is persisted (.capability.block_id = resolver-no-match)
+ok: AC-012 block_id: JSON-sensitive characters round-trip exactly (.capability.block_id = resolver-"quoted"\path)
+ok: AC-012 optional block_id: enforcement is persisted (.capability.enforcement = required)
+ok: AC-012 optional block_id: omitted value serializes as null (.capability.block_id = null)
+ok: case-sensitivity: mis-cased --capability-enforcement is rejected fail-closed
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.sh: 50 passed, 0 failed
+[tests/emit-run-record-feature-scope.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/check-component-coverage.tests.sh
+==========================================================
+=== TEST-026: applicability derived from capability_enforcement, never manifest presence ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy, manifest never consulted
+=== TEST-027: disabled-legacy truthful non-evaluation ===
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2), distinct from exit 1 (an ordinary Fail trigger)
+ok: TEST-028.2: --facet-manifest omitted entirely in advisory/required state is also a hard error
+=== TEST-029: --diagnose never Gate-invoked ===
+ok: TEST-029.1: --diagnose emits its own distinct schema, never the Gate's check-component-coverage-verdict/v1
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only, never Fail-4
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only, never Fail-2
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger (real runtime path, not only a resolver-level test)
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match against an EXCLUSIVE-owned path triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible', never silently passing
+ok: TEST-034.1: absent sdd/provider-bindings.yaml records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing from the manifest triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: python: a post-parse config structural error (empty include list) is a hard error, exit 2
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: python: capability_enforcement: Required (capital) is NOT matched as required (case-sensitive), derives disabled-legacy
+=== TEST-059: omitting both --changed-paths-file and --target-rev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no --changed-paths-file/--target-rev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage
+ok: TEST-036.3: live check-contract.{py,ps1} registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact, not the superseded unconditional candidate)
+ok: TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.py fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055) ===
+ok: TEST-055.1: the LIVE, applied check-contract.py REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (AC-054 negative clause / AC-055 — the delivered tamper-evidence rejection, proven against real check-component-coverage.py bytes)
+ok: TEST-055.2: the LIVE, applied check-contract.py PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the producer-digest pass is not stuck shut)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in tests/run-all.sh and .ps1
+
+Results: 46 passed, 0 failed.
+[tests/check-component-coverage.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/loop-escalation.tests.sh
+==========================================================
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.sh escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.sh escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.sh reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: assert_terminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.sh denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.sh permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+ok: TEST-018.2: temp copy mutation removed the word-boundary flag from grep
+ok: TEST-018.3 (negative self-check): the substring-grep mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.sh accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: python3-absent degradation (restricted PATH) ===
+ok: TEST-013.0: python3 is present under this suite's normal PATH (the restricted-PATH legs below are a deliberate simulation, not an accidental gap)
+SKIP: TEST-013.1: check-terminal-tier-resume.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation, rc=1
+SKIP: TEST-013.2: select-agent-model.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.sh: 22 passed, 0 failed, 1s elapsed
+[tests/loop-escalation.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/run-panelist-effort.tests.sh
+==========================================================
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-035 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/stub-feat/verification/T-035.panelist-openai.verdict.json
+ok: TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex (task=T-035b feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/stub-feat/verification/T-035b.panelist-openai.verdict.json
+ok: TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.sh threads --effort onto a second stdout line, verbatim
+ok: TEST-036: omitting --effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex --effort medium (task=T-036 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/stub-feat/verification/T-036.panelist-openai.verdict.json
+ok: TEST-036: the value threaded by prepare-panelist-input.sh reaches run-panelist-gpt's assembled codex argv unchanged
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-037-sdd-evaluator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/stub-feat/verification/T-037-sdd-evaluator.panelist-openai.verdict.json
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex-mini --effort low (task=T-037-sdd-investigator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/stub-feat/verification/T-037-sdd-investigator.panelist-openai.verdict.json
+ok: TEST-037: select-agent-model --host codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model --host claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-052-control feature=f)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.0KHx7s8BXp/specroot/f/verification/T-052-control.panelist-openai.verdict.json
+ok: TEST-052 positive control: a well-formed --model/--effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the run_gpt() wrapper, which unconditionally overrides PATH to the stub codex (7 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+---- summary: pass=28 fail=0 ----
+ok: run-panelist-effort suite passed (28 checks)
+[tests/run-panelist-effort.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/validate-capability-registry.tests.sh
+==========================================================
+ok: TEST-028: plugins/sdd-capability/ does not exist
+ok: TEST-028: every REQ-002..005 script/reference file lives under plugins/sdd-quality-loop/
+ok: TEST-014: gate-id-duplicate detected
+ok: TEST-015: implementation-ref-missing (field absent) detected
+ok: TEST-015: implementation-ref-missing (path does not exist) detected
+ok: TEST-016/017: unregistered check-*.py master flagged
+ok: TEST-017(i): a properly-referenced master is not flagged
+ok: TEST-017(ii): a script outside the scan root is never flagged
+ok: TEST-017(iv): a non-check-* script under the scan root is never scanned
+ok: TEST-016(1): a non-.py implementation_ref does not register its .py master
+ok: TEST-016(2): a gate referencing a symlinked entry point correctly registers the real master
+ok: TEST-016(3): two gates resolving to the identical master are a gate-implementation-collision
+ok: TEST-016(3): collision diagnostic names both colliding gate ids
+ok: TEST-018: stage-missing re-asserted independent of schema
+ok: TEST-019: pack-owned gates.yaml detected repository-wide
+ok: TEST-020: provider-name-detected fires on a real provider term
+ok: TEST-020: provider-neutral vocabulary (durable_workflow) is not a false positive
+ok: TEST-021: dangling-gate-reference detected
+ok: TEST-022: unknown-upgrade-reason fails closed against the real catalog
+ok: TEST-039: capability-id-duplicate detected
+ok: TEST-039: combined fixture -- gate-id-duplicate surfaces
+ok: TEST-039: combined fixture -- capability-id-duplicate surfaces (neither masks the other)
+ok: fully-clean fixture: all 9 checks pass on valid input (negative proof)
+ok: self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh
+ok: self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=27 fail=0 ----
+validate-capability-registry suite passed (27 checks)
+[tests/validate-capability-registry.tests.sh] exit=0
+
+overall exit status: 0

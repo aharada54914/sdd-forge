@@ -1,0 +1,74 @@
+FAIL: TEST-044 positive fixture (id+name+registered_at) validates: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 91, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+FAIL: TEST-044 deleting required field /approvers/*/id is rejected: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 110, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+FAIL: TEST-044 deleting required field /approvers/*/name is rejected: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 110, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+FAIL: TEST-044 non-array 'approvers' value is rejected: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 101, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+FAIL: TEST-044 zero-entry 'approvers: []' fixture validates: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 91, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+FAIL: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent): Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 91, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+FAIL: TEST-046 zero-identity 'approvers: []' fixture validates against the schema: Traceback (most recent call last):
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 135, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 91, in main
+    schema = load_json(argv[2])
+  File "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/approver-registry-test-620346bf4f7643faa678c959391431b8/ar_validator.py", line 81, in load_json
+    with open(path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/contracts/approver-registry.schema.json'
+PASS: 1
+FAIL: 7
+red exit=1

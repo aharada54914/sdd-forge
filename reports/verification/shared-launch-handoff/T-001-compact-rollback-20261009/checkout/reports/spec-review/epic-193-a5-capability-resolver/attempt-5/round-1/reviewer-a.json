@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a5r1-seq0793",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a5r1-0793",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "1028bf2c256f337971c7bb669133209fe96550bbcdc7d8460710d9d9a2bda0af"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-5/round-1/precheck-result.json",
+      "sha256": "6e036497fa428c530531c02be7c7172bd93488504492ff16c06ea6507cae5440"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "In-scope requirements (REQ-001 through REQ-008, including the C(1)/C(2)-amended REQ-002 rows) are each anchored to concrete, fixture-level observable evidence: fixed exit codes, a closed sixteen-value diagnostic-id enum, schema-conformance checks, byte-identity comparisons, and named fixture files (e.g. registry-swapped-during-validation, affected-component-absent-from-context). No in-scope requirement lacks an observable/measurable validation path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-008 goal has multiple mapped Acceptance Criteria in requirements.md's own AC table and acceptance-tests.md. The two new C(1)/C(2) REQ-002 sub-triggers are traced to dedicated AC-057/AC-058 rows in both requirements.md and acceptance-tests.md (TEST-057/TEST-058), with consistent trigger descriptions across both documents."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable behavior throughout: exit codes, presence/absence/content of specific output files, schema-validation pass/fail, and specific field values (e.g. AC-057's empty capability_evaluations array, AC-058's Block before any predicate evaluation). No AC in the reviewed package states only vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes implementation of the scripts themselves, editing any sibling epic's frozen contracts, adding a Registry schema field, re-specifying check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness's caller, computing the full effective-enforcement formula, and editing SKILL.md directly -- each with a stated owner/rationale."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries, Assumptions, Roles and Permissions, and Dependencies sections state material constraints explicitly: no Provider API/credential access, no writes outside a named path set, single-writer assumption, protected-path human-copy boundary, and dated human-approval gates for the amendments themselves."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section ties each high-risk claim (Lite-track required-enforcement blocking, the new multi-component/facet-aggregation orchestration rules, transactional-publication complexity, the protected-suffix reservation timing, and the anchor-fingerprint maintenance burden) to a concrete validation surface -- named ACs, the Test Strategy, or an explicitly owned future prerequisite."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain/domain-contract.json exists in this repository (confirmed via glob), so the Approved-domain-model precondition for this check is absent; skipped per the check's own skip condition."
+    }
+  ]
+}

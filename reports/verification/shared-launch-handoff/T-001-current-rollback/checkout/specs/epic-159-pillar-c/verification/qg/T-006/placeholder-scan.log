@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1 plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 tests/run-panelist-effort.tests.sh tests/run-panelist-effort.tests.ps1
+== start: 2026-07-18T05:52:07Z ==
+Placeholder scan passed.
+== end: 2026-07-18T05:52:07Z ==
+EXIT_CODE: 0

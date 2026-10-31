@@ -1,0 +1,164 @@
+{
+  "task_id": "T-007",
+  "feature": "epic-189-a1-project-context",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-01T11:56:43Z",
+  "comment": "Default-FAIL verification contract for T-007 (critical, tdd) - the ONLY critical-risk task in epic-189-a1 (every prior task was high). Populated after the quality gate reran the publisher suite in BOTH lanes (bash tests/apply-human-copy.tests.sh 218 passed / 0 failed; pwsh -NoProfile -File tests/apply-human-copy.tests.ps1 146 passed / 0 failed; 364 PASS lines with ZERO skip lines, so every assertion genuinely executed on this platform; specs/epic-189-a1-project-context/verification/qg/T-007/focused-tests.log) and the epic-189-a1 six-suite regression set via INDIVIDUAL runs, both lanes, all green (project-context-schema 41/41 x2, approver-registry-schema 8/8 x2, canonicalizer 80/80 + 77/77, signer 59/59 + 57/57, detector 60/60 + 59/59, validator 40/40 + 39/39; all twelve runs exit=0; specs/epic-189-a1-project-context/verification/qg/T-007/regression.log). Individual-suite mode is used because tests/run-all.sh aborts at tests/prepare-panelist.tests.sh, whose failure PRE-DATES this task (content last touched by 298cf22b/2f93edd6, #108/#185-era; part of the known run-all failure chain) - NOT attributable to T-007, and recorded in the regression log's own header so the exclusion is transparent rather than silent. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-007/placeholder.log: 'Placeholder scan passed.' over both production scripts and both suites - plugins/sdd-quality-loop/scripts/apply-human-copy.sh, apply-human-copy.ps1, tests/apply-human-copy.tests.sh, tests/apply-human-copy.tests.ps1). Task-state (13 tasks passed, with T-002..T-006 contracts and evidence bundles revalidated in the same run; specs/epic-189-a1-project-context/verification/qg/T-007/task-state.log) and scripted requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-007/traceability.log; REQ-007 -> AC/TEST-033 chain verified directly against requirements.md, traceability.md, acceptance-tests.md and both suites) are both green; the traceability log additionally records two facts the gate observed rather than adjudicated - docs/adr/0025-human-copy-transactional-bundle.md exists but was committed by e28ba891 rather than by this task's implementation commit, and the critical-risk second-approver signature on the evidence bundle remains an outstanding HUMAN action. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set, permitted at critical risk on a non-code stack per the risk-gate matrix). TDD red = the FINAL (round-6 / remedy5) Red run of the complete test set against the pre-remedy HEAD scripts: specs/epic-189-a1-project-context/verification/T-007/remedy5-red-sh.log (200 passed / 18 failed) with its twin specs/epic-189-a1-project-context/verification/T-007/remedy5-red-ps1.log (129 / 17); green = specs/epic-189-a1-project-context/verification/T-007/remedy5-green-sh.log (218 / 0) with its twin specs/epic-189-a1-project-context/verification/T-007/remedy5-green-ps1.log (146 / 0), commit 3f507907. The earlier rounds' pairs (red-*, remedy-*, remedy2-*, remedy3-*, remedy4-*) remain on disk as the round-by-round history; the remedy5 pair is the one cited here because it is the pair that matches the shipped scripts. Independent skeptical evaluation ran SIX rounds: seq0357 (2026-07-30T204328Z), seq0358 (213553Z), seq0359 (224124Z), seq0360 (2026-07-31T113826Z) and seq0361 (141033Z) all NEEDS_WORK - seq0361 returned 1 Critical (a first-ever-publish recovery brick introduced by round 4's own remedy) plus 3 Major, which is why that remedy was human-authorized and escalated - then seq0362 PASS (reports/quality-gate/2026-08-01T114342Z-T-007.md, 0 Critical / 0 Major / 5 Minor recorded). The passing evaluation independently re-ran both suites, executed all four AC-033 crash-injection scenarios itself in both runtimes across both axis variants (16 runs, every crash exit 137, every converged run journals=0), performed a parent-commit differential against 3f507907^ reproducing the round-5 brick, and mutation-tested detection power in scratch copies (Critical journal-keyed probe reverted -> 11 failures; confirmation pass deleted -> 5; ASCII case fold removed -> 2). Evidence-bundle generation and signing are deliberately NOT performed by this chain-authoring session: critical risk requires a DISTINCT human approver to generate and sign the bundle from a clean working tree.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-007/remedy5-red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-007/remedy5-green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-007's scope; apply-human-copy is a standalone filesystem CLI exercised end-to-end by its own suite (in-repo dispatch and scratch-directory fixtures only).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-007/remedy5-red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-007/remedy5-green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-007/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the CLI is smoke-exercised by every suite invocation recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-007 is net-new work, not a refactor/bugfix. The seq0362 evaluation performed a parent-commit differential against 3f507907^ in its place, recorded in reports/quality-gate/2026-08-01T114342Z-T-007.md.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-007's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

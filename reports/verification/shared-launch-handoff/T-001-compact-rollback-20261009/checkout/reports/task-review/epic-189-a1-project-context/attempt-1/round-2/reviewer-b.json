@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt1-seq0333",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt1-seq0333",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+      {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+      {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "d46874550250fed89bc2d70dd415f7b566a7ef64488903c67b04aa32c865978b"},
+      {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "5a7ff75b9a1462b779dd4113a6a07b83cf25f44446820492a6de3f66d7c6426b"},
+      {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+      {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+      {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+      {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+      {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json", "sha256": "202309e716deafa4141a66f8cd34bfde19d017d1ad1262014e00c6bac8a821fe"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/integrated-summary.json", "sha256": "d7713f36a720390c1f8f0d75a3d57b5bc232ee9fd26f4cc75093ce415a8c53bb"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-011's Risk:high/Required Workflow:tdd/Security-Sensitive:true are internally consistent and its Risk Rationale explicitly justifies the round-1 medium-to-high correction by parity with T-012's identical ADR-0023 four-case-rule decision logic. Re-checked all 13 tasks for renumbering side effects: T-001 (medium) confirmed correct — security-spec.md:118 states sdd/provider-bindings.yaml carries 'no secrets', and design.md:1531/558-559 show credentials/state_authority as untyped `{\"type\":\"object\"}` skeletons with no secret-handling logic (the real secret, SDD_CONTEXT_KEY, is scoped to T-003, high). T-010 (high, test-only scope per its own 'Breaking API: no; test-only task, no production code edited' line) is defensible, not over-classification: its sole purpose is proving denial of writes to protected security files across 96 assertions, matching risk-classification-policy.md:16's 'access control ... anything where a silent defect causes material harm', consistent with this task being unflagged for RISK-APPROPRIATE under its prior numbering (old T-009) in round 1. No task is under- or over-classified as a side effect of the T-004/T-005 split or the T-006..T-013 shift."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 10 high/critical tasks (T-002..T-012 minus medium T-001/T-013) carry a Done When item with named-second-reviewer independent quality-gate verdict plus TDD Red\u2192Green evidence (e.g. T-011: 'Red: fixture assertions against the CURRENT, unmigrated live text ...; Green: against the revised text ... an independent quality-gate verdict (a named second reviewer, not the implementing agent) records PASS'). The two critical tasks (T-007, T-009) additionally carry 'a second, distinct named approver additionally reviews and signs the evidence bundle (Risk: critical, risk-classification-policy.md:17)'. No required evidence item is missing on any high/critical task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Programmatically counted Done-When items: T-004=6 (schema only: TEST-044/045/046 + registration + CHANGELOG + TDD/review), T-005=9 (detector only: TEST-016/017/018/030/031/046 + registration + CHANGELOG + TDD/review). Both are single-artifact, single-Goal tasks (T-004: contracts/approver-registry.schema.json; T-005: detect-policy-weakening.{py,sh,ps1}), each with a coherent one-Commit-A/one-Commit-B Scope and a Blockers/Out-of-Scope section that cleanly delineates the boundary the round-1 finding said was missing. Neither is orphaned: T-005 and T-006 both declare a functional Depends On T-004, T-009's own text explains why T-004 is legitimately excluded from its Blockers (schema is not itself a protected-file registration target), and traceability.md's AC-046 row documents the three-way T-004/T-005/T-006 split explicitly. T-005's 9-item count is not evidence of the bundling defect the round-1 finding described (a declarative schema improperly combined with an algorithmically-distinct detector) — it matches the item-count profile of sibling single-artifact security tasks T-002/T-003/T-006 (also 9 each), reflecting the acceptance-proof density inherent to one TDD'd security algorithm, not a scope-boundary or sequencing ambiguity for an implementer."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's AC-001..AC-046 include explicit rejection/negative/boundary criteria paired to essentially every functional task's happy-path criteria: AC-001/003/044 parameterized-field-deletion rejection, AC-005 four-category rejection lock, AC-014 six-way negative proof, AC-019/020 two-person/cooldown refusal paths, AC-023 96-assertion denial matrix, AC-026 PROJECT_CONTEXT_INVALID explicit-stop distinct from compatibility fallback, AC-030(4) NO_APPROVED_CONTEXT_ANCHOR fail-closed case, AC-033 crash-recovery injection points, AC-037 accepted-domain boundary vectors, AC-040/045 duplicate-id semantic rejection, AC-043 underapproval rejection, AC-046 zero-identity boundary. No functional task's Done When relies on happy-path-only acceptance criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column uses a domain-specific proof taxonomy (e.g. 'parameterized schema conformance', 'six-way negative proof', 'multi-runtime hash-equality + dispatch proof') rather than the generic unit/integration/e2e labels, but every TEST-NNN maps 1:1 to a specific AC-NNN (acceptance-tests.md header: 'TEST IDs ... map 1:1 to AC-001..AC-046'), and every task's Done When item cites the matching AC-NNN explicitly, satisfying the acceptance test-type rule ('must reference a specific AC-NNN'). Multi-component proofs are correctly scoped: TEST-009 (4-runtime dispatch parity), TEST-013 (byte-parity against an existing mechanism), TEST-019/020/043 (generator+validator+registry interplay) genuinely involve 2+ system components, consistent with their integration-level scope. No test task's declared scope mismatches a unit/integration/e2e/acceptance boundary."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every high/critical task (T-002 through T-012) carries an explicit Rollback: field. Where a task's own agent-authored commit revert cannot automatically undo an already-human-applied protected-file change (T-009, T-012), the Rollback text explicitly states the revert PR must call out whether a human should also hand-revert the human-copy application — a concrete, inspectable rollback consideration, not an omission."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Extracted every task's Planned Files programmatically: the only files claimed by more than one task are tests/run-all.sh/.ps1, the staged .github/workflows/test.yml candidate, MANIFEST.sha256, and CHANGELOG.md \u2014 all four are the documented shared-file group governed by the Global Constraints' numeric-order Blockers chain. No other production file (schema, script, or protected-file candidate) is claimed by more than one task. Verified this holds for both new T-004/T-005 and renumbered T-006..T-013, not just the tasks named in round 1's finding."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Computed the full transitive closure of Blockers for T-001..T-012 programmatically: T-002's closure covers {T-001}; T-003 covers {T-001,T-002}; T-004 covers {T-001..T-003}; T-005 covers {T-001..T-004}; T-006 covers {T-001..T-005}; T-007 covers {T-001..T-006}; T-008 covers {T-001..T-007}; T-009 covers {T-001..T-008}; T-010 covers {T-001..T-009}; T-011 covers {T-001..T-010}; T-012 covers {T-001..T-011} \u2014 every task's closure includes every lower-numbered task in the group with zero gaps, confirming the shared-file serialization chain is unbroken end-to-end including at the T-004/T-005 split point and across the T-006..T-013 renumbering. Every declared Blocker also traces to either an explicit functional dependency (T-003\u2192T-002 canonicalizer; T-005\u2192T-002 canonicalizer, T-004 registry schema; T-006\u2192T-003/T-004/T-005; T-011\u2192T-001 schema, T-006 validator, T-008 handshake) or an explicitly-labeled shared-file serialization need (e.g. T-007's Depends On text: 'only for this task list's mandatory shared-file numeric-order append serialization ... has no code dependency on T-002..T-006's own artifacts') \u2014 none are unexplained/spurious. No missing functional blocker was found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. Confirmed via direct grep across tasks.md for bugfix/regression/debug/flaky/incident/root-cause language \u2014 zero matches. All 13 tasks are Author/Register/Verify/Revise/Migrate/Close-out tasks building new capability, none scoped as a fix to a pre-existing defect."
+    }
+  ],
+  "findings": []
+}

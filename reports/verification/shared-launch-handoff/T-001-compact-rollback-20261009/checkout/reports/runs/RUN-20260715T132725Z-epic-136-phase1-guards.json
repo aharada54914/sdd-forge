@@ -1,0 +1,19 @@
+{
+  "schema": "sdd-run-record/v1",
+  "run_id": "20260715T132725Z-epic-136-phase1-guards",
+  "generated": "2026-07-15T13:27:25Z",
+  "feature": "epic-136-phase1-guards",
+  "track": "full",
+  "model_ids": {
+    "main": "unknown",
+    "reviewers": "unknown"
+  },
+  "plugin_version": "unknown",
+  "active_wfis": ["WFI-008"],
+  "metrics": {
+    "tasks": {"done": 6, "blocked": 0, "total": 6},
+    "first_pass_gate": {"passed_first_try": 6, "total": 6},
+    "gate_reports": {"total": 6, "blocked": 0, "max_runs_single_task": 1},
+    "review_tickets": {"critical": 0, "major": 3, "minor": 0}
+  }
+}

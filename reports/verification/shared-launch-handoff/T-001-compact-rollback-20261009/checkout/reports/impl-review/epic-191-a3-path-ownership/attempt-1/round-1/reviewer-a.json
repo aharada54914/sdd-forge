@@ -1,0 +1,78 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-a-seq0326",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-191-a3-path-ownership-0326",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "39210f8caba790ee84ad372521deae322c142286f16d54bb8f17d8ad2d877e05"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-1/precheck-result.json", "sha256": "3ca25a8a10182afbd1877260acd6d29f1191c758d5410608c76853ae0f345cf4"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "deterministic CLI/script tooling + Implementation Gate check + reference documentation (resolve-component-paths, check-component-coverage, git-diff collector, ownership_digest emitter) - no UI, no HTTP API, no runtime service (design.md Feature Type header; ux-spec.md/frontend-spec.md both N/A)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` (lines 55-130) gives a detailed pipeline diagram (project-context.yaml -> resolve-component-paths.py -> git-diff collector (T-002) -> ownership_digest emitter (T-003) -> check-component-coverage (T-004) -> quality-gate `## Process` + check-contract's required-check-set) with clear component boundaries and interaction arrows, not a one-sentence description. Integration with existing components is explicit and concrete: `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`'s existing `## Process` section (direct edit, INV-005), `check-contract`'s existing protected required-check-set (INV-017), and existing `guard-invariants.json`/`generate-guard-invariants.py` (human-copy staged). Technology per layer is traceable: backend = Python master + sh/ps1 wrappers (file-extension-explicit in the Architecture diagram itself, e.g. `resolve-component-paths.py`, and made literal in the adjacent `## Components` table's Technology column, lines 134-157); data = `project-context.yaml` (YAML, Epic A1 schema, consumed not redefined); infra = GitHub Actions `test.yml` (`## Deployment / CI Plan`, lines 821-830); frontend is explicitly and correctly N/A for this CLI-only feature (Layer Specifications table line 259-260; ux-spec.md/frontend-spec.md both state no UI exists). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The `## Architecture` diagram (design.md lines 57-130) defines an explicit, strictly directional dependency chain with no back-edges: project-context.yaml -> resolve-component-paths.py -> git-diff collector -> ownership_digest emitter -> check-component-coverage -> quality-gate `## Process`/check-contract. `resolve-component-paths --diagnose` (T-004 diagnostic mode), the cross-epic seed-inventory validation (T-005), and the dual-runtime parity harness (T-006) are each explicitly described as 'independent of the pipeline above' (lines 110, 113, 123) rather than looping back into it. The `## Components` table (lines 132-157) lists only downstream consumption relationships (e.g. check-contract/risk-gate-matrix.md consuming check-component-coverage's registration), never an upstream dependency back onto resolve-component-paths.py or the git-diff collector. No cycle exists. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's `## Data Plan` (lines 341-402) contains a `Data Entities:` sub-field (component path config, resolver output, `ownership_digest`, Gate verdict/evidence record, `human-copy/` staged files) and an `Existing Data Affected:` sub-field (guard-invariants.json, generate-guard-invariants.py + siblings, check-contract.*, test.yml — read but never written), but contains no `Migration Strategy:` sub-field anywhere in the document (verified: `grep -in migration specs/epic-191-a3-path-ownership/design.md` returns zero matches across the entire file, not just the Data Plan section). This feature genuinely introduces new data shapes (a new resolver-output JSON structure, a new `ownership_digest` field populating ADR-0021's `context_binding` block, and a new `check-component-coverage-verdict/v1` evidence-record schema consumed by `quality-gate`'s evidence bundle) so the 'No data changes' exemption does not apply, and no equivalent 'no migration required, because ...' statement is present to close the gap explicitly. Concrete failure mode: a downstream implementer authoring these new record/evidence shapes has no design-level guidance on whether any existing `quality-gate` evidence-bundle consumer needs compatibility handling, or whether any rollout/versioning discipline beyond the bare `schema` field value applies — left implicit rather than stated, unlike the other two Data Plan sub-fields which are explicit. This is not owned by precheck (precheck-result.json only records hash/status/legacy-design metadata, not Data Plan sub-field completeness)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## API / Contract Plan` (lines 404-495) is non-empty and enumerates every new/changed CLI entry point this feature ships, in CLI-equivalent-of-HTTP-method/path/request/response-schema form appropriate to a script-only feature (requirements.md itself states, line 135-137, this is 'script/gate/test-infrastructure...work with no GUI entry point'): `resolve-component-paths.sh`/`.ps1` invocation shape + exit-code contract (lines 406-420), `resolve-component-paths --diagnose` (lines 422-427), `check-component-coverage.sh`/`.ps1` invocation shape + all three derived-state response contracts (lines 429-459, cross-referencing the full JSON response shape in `## Data Plan`'s 'Gate verdict / evidence record' entity, lines 372-391), and the exact field-level edits to `guard-invariants.json` and `generate-guard-invariants.py` (lines 461-476). Existing-endpoint impact is addressed implicitly-but-clearly throughout as additive-only ('No other key in the file changes', line 467; 'No other constant in this file changes', line 476) with no deprecation or breaking change asserted or evidenced anywhere in the reviewed package. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Security Boundaries` (lines 796-813) explicitly delegates to requirements.md's own `## Security Boundaries` section (lines 1302-1349), which names every trust boundary the feature crosses (protected-Gate-script content boundary, required-check-set reachability boundary, producer-digest tamper-evidence boundary, submodule/symlink reference-only boundary, Fail-6 credential exclusion, and applicability-derivation trust) and states the mechanism at each (human-copy + MANIFEST.sha256 + human cp; check-contract's independent sha256 recompute; ADR-0016-derived state, never file presence). security-spec.md (the responsible layer specification, treated as a normative refinement per instructions) further expands this into a full Trust Boundaries table with a mermaid diagram (B1-B5), a STRIDE Analysis table, an Authorization table, a Data Classification and Protection table (explicitly marks all entities 'internal', with no PII present in this feature and that absence stated with rationale, e.g. 'never embeds raw file contents from a changed path'), and an OWASP Mapping table covering Broken Access Control, Software and Data Integrity Failures, Security Misconfiguration, and explicitly-scoped N/A entries (with rationale) for Cryptographic Failures and Identification/Authentication Failures. No PII keyword surface exists in requirements.md's User Stories (the feature's actors are agents/maintainers/CI, not end users with credentials). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is a CLI/script-tooling feature, functionally equivalent to the enumerated `cli`/`library` skip categories. design.md's Feature Type header (line 4-7) reads 'deterministic script + Implementation Gate check + reference documentation'; the Layer Specifications table (lines 259-260) marks both UX and Frontend rows 'N/A — no user-facing surface' / 'N/A — no browser/frontend surface'; ux-spec.md states 'this feature has no UX surface... not an interactive human user interface'; frontend-spec.md states 'this feature introduces no browser/client UI and no new runtime service' and its Component Tree/State/Routes/API-client sections are all explicitly N/A; requirements.md's own closing note (line 135-139) states this is 'script/gate/test-infrastructure and reference-documentation work with no GUI entry point.' No frontend/backend consistency surface exists to check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Test Strategy` (lines 497-596) covers unit-level scope per suite (glob semantics/classification in `component-path-resolver.tests.sh`/`.ps1`; git-diff basis in `component-path-diff-basis.tests.sh`/`.ps1`), integration-level scope (`check-component-coverage.tests.sh`/`.ps1` exercises the Gate against real Facet Manifest fixtures and cross-boundary reachability via `check-contract`'s producer-digest check), and an explicit AC-NNN-to-suite-behavior mapping for essentially every acceptance criterion (AC-001 through AC-055 are each cited by ID against a specific test-suite behavior). Concrete planned verification evidence is named throughout: exact suite filenames (`tests/component-path-resolver.tests.sh`/`.ps1`, etc.), registration surfaces (`tests/run-all.sh`/`.ps1`, `.github/workflows/test.yml` via human-copy), and CI resilience conventions (`set -u` safety, `pwd -P`, `tr -d '\\r'`, lines 591-595). This is a non-fullstack CLI feature so no E2E/user-journey path is required; the dual-runtime parity harness (`component-path-ownership-parity.tests.sh`/`.ps1`) is the closest analog and is itself concretely specified (canonical normalized stdout JSON form, lines 572-581). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in `## Architecture` and `## API / Contract Plan` is defined in the `## Components` table (lines 132-157): `resolve-component-paths.py`/`.sh`/`.ps1`, `resolve-component-paths --diagnose`, `check-component-coverage.py`/`.sh`/`.ps1`, `guard-invariants.json`, `generate-guard-invariants.py` + generated siblings, `risk-gate-matrix.md`, `check-contract.{sh,ps1,py}`, `quality-gate/SKILL.md`, the fixture tree, all five test-suite pairs, `tests/run-all.sh`/`.ps1`, `.github/workflows/test.yml`, and the new ADR. External systems referenced but not defined here (Epic A1's canonicalizer, Epic A1's `project-context.yaml` schema, Epic A4's Facet Manifest) are correctly treated as established forward/external dependencies per requirements.md Dependencies and investigation.md (INV-002, INV-003), not undefined local components. No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## ADR Change Log` (lines 293-339) references a new, provisionally-numbered ADR (`docs/adr/0025-component-path-ownership-resolver-semantics.md`) that does not yet exist on disk (verified: `ls docs/adr/` currently tops out at `0024-workflow-state-vs-project-context.md`, no `0025-*` file present). This is not a structural defect: this is a spec-phase design document (Impl-Review-Status: Pending, `tasks.md`/Phase 2 deliberately deferred per investigation.md INV-012) reviewed by impl-review-loop before Phase 2 implementation begins, and design.md's own 'Drafting ownership' subsection (lines 335-339) explicitly assigns authorship to 'the Phase 2 task that implements T-001, in the same commit that adds resolve-component-paths.py', with an explicit re-verify/renumber-at-drafting-time fallback (mirrored in `## Risks`, lines 862-868). This exact pattern is the repository's own established, working precedent: `specs/epic-159-pillar-c/design.md`'s ADR-0012 was referenced identically (a provisional number, explicit Phase-2 drafting-ownership assignment, re-verify-at-drafting-time fallback) while `docs/adr/0012-effort-tier-decoupling.md` did not yet exist at design-review time; that feature has since progressed to `Impl-Review-Status: Passed` and `docs/adr/0012-effort-tier-decoupling.md` now exists in the repository, confirming the pattern is accepted by this exact review gate and reliably produces the referenced ADR once Phase 2 implementation lands. No new architectural decision is introduced without a named ADR plan. No issues found."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 4,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26",
+  "requirements_sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348",
+  "acceptance_sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5",
+  "design_sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5",
+  "traceability_sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4",
+  "layer_sha256": {"ux-spec.md":"b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6","frontend-spec.md":"4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8","infra-spec.md":"759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0","security-spec.md":"3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+  "input_sha256": "92abd787a710be3232f64280c82cae4abc13cf8283e40b4dd7928ce42df3e8aa",
+  "generated_at": "2026-08-09T04:25:49Z"
+}

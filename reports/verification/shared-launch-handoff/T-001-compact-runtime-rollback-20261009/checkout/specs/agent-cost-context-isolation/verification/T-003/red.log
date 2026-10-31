@@ -1,0 +1,19 @@
+T-003 Red Evidence
+
+Baseline:
+8f6b090279903fb722873b8087b6f8e7ab4c2798
+
+Method:
+Export the baseline commit to an isolated temporary directory, overlay only
+`tests/task-context-isolation.tests.sh` and
+`tests/task-context-isolation.tests.ps1`, then run:
+
+bash tests/task-context-isolation.tests.sh
+
+Result: FAIL (exit 1)
+
+Output:
+not ok: missing script: <isolated-root>/plugins/sdd-implementation/scripts/validate-task-input-manifest.sh
+
+The task manifest validator and snapshot implementation are intentionally
+absent from this test-first commit.

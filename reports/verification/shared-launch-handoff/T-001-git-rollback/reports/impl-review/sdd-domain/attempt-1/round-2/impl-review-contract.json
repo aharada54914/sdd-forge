@@ -1,0 +1,122 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-domain",
+  "run_id": "RUN-20260703T1015Z-sdd-domain-host",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "framework plugin",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20",
+  "acceptance_sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7",
+  "design_sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac",
+  "layer_sha256": {
+    "ux-spec.md": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466",
+    "frontend-spec.md": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39",
+    "infra-spec.md": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a",
+    "security-spec.md": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-20260706T0333Z-impl-reviewer-a-r2",
+      "host_session_id": "SESS-impl-a-sdd-domain-a1r2",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-domain/requirements.md",
+          "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+        },
+        {
+          "path": "specs/sdd-domain/acceptance-tests.md",
+          "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+        },
+        {
+          "path": "specs/sdd-domain/design.md",
+          "sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac"
+        },
+        {
+          "path": "specs/sdd-domain/ux-spec.md",
+          "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"
+        },
+        {
+          "path": "specs/sdd-domain/frontend-spec.md",
+          "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"
+        },
+        {
+          "path": "specs/sdd-domain/infra-spec.md",
+          "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"
+        },
+        {
+          "path": "specs/sdd-domain/security-spec.md",
+          "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain/attempt-1/round-2/precheck-result.json",
+          "sha256": "23517636e8b158969e98d824ba68b48ee72752a9240dbd67065c0b9c1f7d91c6"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-20260706T0345Z-impl-reviewer-b-r2",
+      "host_session_id": "SESS-impl-b-sdd-domain-a1r2",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-domain/requirements.md",
+          "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+        },
+        {
+          "path": "specs/sdd-domain/acceptance-tests.md",
+          "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+        },
+        {
+          "path": "specs/sdd-domain/design.md",
+          "sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac"
+        },
+        {
+          "path": "specs/sdd-domain/ux-spec.md",
+          "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"
+        },
+        {
+          "path": "specs/sdd-domain/frontend-spec.md",
+          "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"
+        },
+        {
+          "path": "specs/sdd-domain/infra-spec.md",
+          "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"
+        },
+        {
+          "path": "specs/sdd-domain/security-spec.md",
+          "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain/attempt-1/round-2/precheck-result.json",
+          "sha256": "23517636e8b158969e98d824ba68b48ee72752a9240dbd67065c0b9c1f7d91c6"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain/attempt-1/round-2/integrated-summary.json",
+          "sha256": "cad8d01ef06197ebfcdb17cbd0941406012c232d77cb74e73239a51b2a3c817b"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Rewrote design.md Assumptions section with inline file:line evidence citations for the two non-trivial claims (cross-model-verify script argument handling, c4-container template genericity), plus an explicit human-accepted residual-risk statement for the consent-gate mismatch.",
+  "timestamp": "2026-07-06T03:42:34Z"
+}

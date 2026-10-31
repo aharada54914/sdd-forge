@@ -1,0 +1,36 @@
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+FAIL: TEST-005 (AC-005): .github/workflows/model-freshness-check.yml does not exist
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+ok: TEST-006 (AC-006, both-fail): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, both-fail): zero issue-create calls
+ok: TEST-006 (AC-006, both-fail): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, anthropic-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, anthropic-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, anthropic-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, openai-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, openai-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, openai-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+=== TEST-007 (AC-007): divergence detected + dedup ===
+ok: TEST-007 (AC-007): exactly one issue-create call recorded
+ok: TEST-007 (AC-007): create call carries the [model-freshness-divergence] marker and workflow-improvement label
+ok: TEST-007 (AC-007): the genuinely-new token model-gamma-3 appears in the create call
+ok: TEST-007 (AC-007, dedup): zero additional issue-create calls when a matching open issue already exists
+=== TEST-009 (AC-009): self-registration ===
+FAIL: TEST-009 (AC-009): NOT registered in tests/run-all.ps1
+FAIL: TEST-009 (AC-009): NOT registered in tests/run-all.sh
+FAIL: TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* pattern (real -like glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+FAIL: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh does not exist
+ok: TEST-016 (AC-016): tests/model-freshness-check.tests.sh exists (suite twin pair)
+FAIL: TEST-016 (AC-016): one or both twins are NOT registered in tests/run-all.sh/.ps1
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+ok: TEST-020 (AC-020): zero gh invocations of any kind recorded
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+ok: TEST-021 (AC-021): the allowlist-validated missing token model-delta-4 is present in the issue body
+ok: TEST-021 (AC-021): no adversarial fixture substring reached the issue body verbatim
+
+model-freshness-check.tests.ps1: 20 passed, 6 failed

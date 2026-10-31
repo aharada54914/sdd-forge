@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/shared-review-launch-repair/T-002.md"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/work",
+  "exit_code": 0,
+  "stdout_path": "evidence/report-validation.stdout.log",
+  "stderr_path": "evidence/report-validation.stderr.log",
+  "stdout": "IMPLEMENTATION_REPORT_OK\n",
+  "stderr": "",
+  "environment_overrides": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/tmp",
+    "TMPPREFIX": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-20261010/output/tmp/zsh",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "scope": "report schema validation only; not native regression or formal evaluation"
+}

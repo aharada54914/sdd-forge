@@ -1,0 +1,24 @@
+{
+  "task_id": "T-009",
+  "feature": "sdd-domain",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-07-06T08:57:31Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints; contract stack=docs): every file this task touches is Markdown (SKILL.md, retrospective-report.template.md) or a PowerShell Pester test file - no compiled/linted-language toolchain applies. Waivable per check-contract.py COMPILE_CHECKS + NONCODE_STACKS logic when stack=docs.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints; contract stack=docs): no typed-language toolchain applies to Markdown/PowerShell-test files touched by this task. Waivable per check-contract.py COMPILE_CHECKS + NONCODE_STACKS logic when stack=docs.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": false, "passes": true, "evidence": "specs/sdd-domain/verification/T-009.unit-tests.log", "waiver_reason": "Downgraded from required:true per RISK_TIERS['low'] (check-contract.py), which does not mandate unit-tests at low risk. Not a waived/skipped check: a real Invoke-Pester run against tests/sdd-domain/drift-metrics.Tests.ps1 was executed with authorized -ExecutionPolicy Bypass and genuinely passed 18/18 (see evidence log).", "requirement_ids": ["REQ-010", "AC-012"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-009.unit-tests.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "Not applicable at low risk tier; workflow-retrospective's aggregation is agent-driven (no invocable end-to-end integration surface beyond the unit-level structural/fixture tests already run).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints; contract stack=docs): no build step exists for Markdown/JSON/PowerShell-test files. Waivable per check-contract.py COMPILE_CHECKS + NONCODE_STACKS logic when stack=docs.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-009.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-009.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No dev server/CLI binary/Docker entry point exists for this task's artifacts; workflow-retrospective is an agent-invoked skill with no standalone runnable process to smoke-test.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "Not applicable: no prior numeric baseline exists for domain-drift metrics (this task introduces the metric); nothing to diff against.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No UI surface is touched by this task (Markdown skill/template edits and a Pester test file only).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system-governed UI surface is touched by this task.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "regression", "required": false, "passes": true, "evidence": "specs/sdd-domain/verification/T-009.regression.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-009.regression.log" }
+  ]
+}

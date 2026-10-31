@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 2,
+  "round": 3,
+  "verdict": "BLOCKED",
+  "warningCount": 0,
+  "reviewer_a_run_id": "RUN-epic-194-a6-spec-review-a2-r3-reviewer-a-seq769",
+  "reviewer_a_host_session_id": "SESS-epic-194-a6-spec-review-a2-r3-reviewer-a-769",
+  "reviewer_b_run_id": "RUN-epic-194-a6-spec-review-a2-r3-reviewer-b-seq770",
+  "reviewer_b_host_session_id": "SESS-epic-194-a6-spec-review-a2-r3-reviewer-b-770",
+  "finding_counts": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+  }
+}

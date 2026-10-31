@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 12,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a2d14f7fd832ae90b08bf8f12dceee08d2338607b99af9c561aaad8a669a19ca",
+  "acceptance_sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "8c63dd9da9651af093e84201470a41a3669a307e56ce50e808c0c52f08b75228",
+  "edit_summary": "Owner ruling (F) (2026-09-03, 凍結文書の修正を承認): requirements.md REQ-002 exception-count sentence and acceptance-tests.md AC-012/AC-047 rows amended in the documents established annotation style to mirror rulings (a), (A) and (B) verbatim by reference. No behavioral requirement changed; both round-1 Criticals (the identical CONTRADICTION both blind reviewers raised) are addressed at their stated sites.",
+  "reset": false,
+  "generated_at": "2026-09-03T03:46:31Z"
+}

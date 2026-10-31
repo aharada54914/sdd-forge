@@ -1,0 +1,106 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-136-phase3",
+  "task_id": "T-003",
+  "run_id": "RUN-epic-136-phase3-qg-T-003-seq0362",
+  "host_session_id": "SESS-qg-epic-136-phase3-T-003-0362",
+  "sequence": 362,
+  "previous_record_sha256": "01487898cc3df663b584e048474ce8a7f7ab16d4a5d8034fd01f15fb91e91e73",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e7f44d1c8ad95237df22be6e87b196df1364cb55c5904f73769e9c43e67d25c5",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "422d3c0f988454fa4f0642bab5e219b35ca7c3ba9f15e2d7e9427f939fe7fee9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-136-phase3/T-003.md",
+      "sha256": "faf5749d2a5c4b7da0095b070ea4c075870e7201934a3c3caeb431675b17afd3"
+    },
+    {
+      "path": "specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "c9dabdd1260e432e8300235668663f1d92ec95e19e1fa1e29c423121e5e3fc31"
+    },
+    {
+      "path": "specs/epic-136-phase3/design.md",
+      "sha256": "326166d0efc1fd7dd9e28ccadb1f2f40a993624fb2777f533e1e8db45f28da5f"
+    },
+    {
+      "path": "specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "specs/epic-136-phase3/human-copy/MANIFEST.sha256",
+      "sha256": "d451e22ffaae84ebcb03a4e832ae303e7de6b4863eead0773c9b730cd0d76d7b"
+    },
+    {
+      "path": "specs/epic-136-phase3/infra-spec.md",
+      "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+    },
+    {
+      "path": "specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "specs/epic-136-phase3/tasks.md",
+      "sha256": "200330bc3dc8ff9f548151bc674d33337bbab7bf4612033882d18a24e719de2b"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.json",
+      "sha256": "e56c64920d192d4aafa50726c1803729cdd9fcceae692ed2c563a0e84b190bce"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.md",
+      "sha256": "df4c5af9127710ba730a90a29e4023e66088b83212677917437b8fedc61cac79"
+    },
+    {
+      "path": "specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/bash32-run.log",
+      "sha256": "4580e5bec037364047b37390de796479605483fa568cc93502e85645a01a3145"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/build-candidate.py",
+      "sha256": "739a8d147b0b504a7c530f4267a92d9e1aa0e233a9e780ae25685a511dfef633"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/post-apply-sim.log",
+      "sha256": "c05e9a4c0e0b3b10185930edbf80056fe5f4f00fe53eda518379a6627d8917ae"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/red-green-evidence.log",
+      "sha256": "b1908f5398281a0d0ccd156ce4e90794ee017198f42a199e92d9a12a027afa24"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/selfcheck-run.log",
+      "sha256": "d419d4e3408610181ce2f25aa385ef07590f0e1972c395342a1597d21ef51a3f"
+    },
+    {
+      "path": "specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml",
+      "sha256": "7284c79e732ed6d26dbb70f547b9ed442a3229dbcc04eb33f432454f7c4a68f4"
+    },
+    {
+      "path": "tests/deterministic-lane-selfcheck.tests.sh",
+      "sha256": "d66b0db7f246641261b3d8e5a723fa5a9904ae403d1052d2660f56f00bc8e810"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "7f2f15ce646ea92b3202b50706089dd33c6ef2dc320912909745df79eeaa02e3"
+    }
+  ]
+}

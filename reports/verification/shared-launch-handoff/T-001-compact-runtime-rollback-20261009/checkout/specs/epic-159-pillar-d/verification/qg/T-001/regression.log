@@ -1,0 +1,138 @@
++ epic-159-pillar-d cross-suite regression set (agent-model-routing, agent-capabilities-v2, model-freshness-check; both bash and pwsh lanes where twins exist)
+== start: 2026-07-19T09:26:57Z ==
+###### bash tests/agent-model-routing.tests.sh ######
+ok: turn-first model routing structure is defined
+EXIT: 0
+
+###### pwsh -NoProfile -File tests/agent-model-routing.tests.ps1 ######
+Risk check passed for 1 task(s).
+Risk check FAILED:
+ - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)
+ok: turn-first model routing structure is defined (PowerShell twin)
+EXIT: 0
+
+###### bash tests/agent-capabilities-v2.tests.sh ######
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6cc5a9dbefaee26a887900520e8e7274c361550f07289605a7ac76a4db85da1c)
+---- summary: pass=10 fail=0 ----
+ok: agent-capabilities-v2 suite passed (10 checks)
+EXIT: 0
+
+###### pwsh -NoProfile -File tests/agent-capabilities-v2.tests.ps1 ######
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6CC5A9DBEFAEE26A887900520E8E7274C361550F07289605A7AC76A4DB85DA1C)
+
+agent-capabilities-v2.tests.ps1: 10 passed, 0 failed
+EXIT: 0
+
+###### bash tests/model-freshness-check.tests.sh ######
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+ok: TEST-005 (AC-005): schedule: trigger with a cron: entry present
+ok: TEST-005 (AC-005): workflow_dispatch: trigger present
+ok: TEST-005 (AC-005): runs-on: ubuntu-latest present
+ok: TEST-005 (AC-005): permissions: block contains ONLY contents: read and issues: write
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+ok: TEST-006 (AC-006, both-fail): main exits 0
+ok: TEST-006 (AC-006, both-fail): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, both-fail): zero issue-create calls
+ok: TEST-006 (AC-006, both-fail): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, anthropic-only-fails): main exits 0
+ok: TEST-006 (AC-006, anthropic-only-fails): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, anthropic-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, anthropic-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, openai-only-fails): main exits 0
+ok: TEST-006 (AC-006, openai-only-fails): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, openai-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, openai-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+=== TEST-007 (AC-007): divergence detected + dedup ===
+ok: TEST-007 (AC-007): main exits 0 on the divergence-detected branch
+ok: TEST-007 (AC-007): exactly one issue-create call recorded
+ok: TEST-007 (AC-007): create call carries the [model-freshness-divergence] marker and workflow-improvement label
+ok: TEST-007 (AC-007): the genuinely-new token model-gamma-3 appears in the create call
+ok: TEST-007 (AC-007, dedup): main exits 0
+ok: TEST-007 (AC-007, dedup): zero additional issue-create calls when a matching open issue already exists
+=== TEST-009 (AC-009): CI resilience + self-registration ===
+ok: TEST-009 (AC-009, CI-resilience): fixture-root normalization uses pwd -P
+ok: TEST-009 (AC-009, CI-resilience): this suite declares no bash array anywhere -- no possibly-empty array can be expanded under set -u
+ok: TEST-009 (AC-009, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-009 (AC-009, CI-resilience): this suite drives no real validator (non-use declaration)
+ok: TEST-009 (AC-009): registered in tests/run-all.sh
+ok: TEST-009 (AC-009): registered in tests/run-all.ps1
+FAIL: TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* case pattern (real glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh exists
+ok: TEST-016 (AC-016): tests/model-freshness-check.tests.ps1 exists (suite twin pair)
+ok: TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+ok: TEST-020 (AC-020): main exits 0
+ok: TEST-020 (AC-020): zero gh invocations of any kind recorded
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+ok: TEST-021 (AC-021): main exits 0
+ok: TEST-021 (AC-021): the allowlist-validated missing token model-delta-4 is present in the issue body
+ok: TEST-021 (AC-021): no adversarial fixture substring reached the issue body verbatim
+---- summary: pass=39 fail=1 ----
+not ok: model-freshness-check suite FAILED (1 failures)
+EXIT: 1
+
+###### pwsh -NoProfile -File tests/model-freshness-check.tests.ps1 ######
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+ok: TEST-005 (AC-005): schedule: trigger with a cron: entry present
+ok: TEST-005 (AC-005): workflow_dispatch: trigger present
+ok: TEST-005 (AC-005): runs-on: ubuntu-latest present
+ok: TEST-005 (AC-005): permissions: block contains ONLY contents: read and issues: write
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+ok: TEST-006 (AC-006, both-fail): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, both-fail): zero issue-create calls
+ok: TEST-006 (AC-006, both-fail): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, anthropic-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, anthropic-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, anthropic-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, openai-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, openai-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, openai-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+=== TEST-007 (AC-007): divergence detected + dedup ===
+ok: TEST-007 (AC-007): exactly one issue-create call recorded
+ok: TEST-007 (AC-007): create call carries the [model-freshness-divergence] marker and workflow-improvement label
+ok: TEST-007 (AC-007): the genuinely-new token model-gamma-3 appears in the create call
+ok: TEST-007 (AC-007, dedup): zero additional issue-create calls when a matching open issue already exists
+=== TEST-009 (AC-009): self-registration ===
+ok: TEST-009 (AC-009): registered in tests/run-all.ps1
+ok: TEST-009 (AC-009): registered in tests/run-all.sh
+FAIL: TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* pattern (real -like glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh exists
+ok: TEST-016 (AC-016): tests/model-freshness-check.tests.sh exists (suite twin pair)
+ok: TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+ok: TEST-020 (AC-020): zero gh invocations of any kind recorded
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+ok: TEST-021 (AC-021): the allowlist-validated missing token model-delta-4 is present in the issue body
+ok: TEST-021 (AC-021): no adversarial fixture substring reached the issue body verbatim
+
+model-freshness-check.tests.ps1: 28 passed, 1 failed
+EXIT: 1
+== end: 2026-07-19T09:27:21Z ==

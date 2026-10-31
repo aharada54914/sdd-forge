@@ -1,0 +1,68 @@
+# RED evidence -- evaluate-predicate (pwsh), against a deliberately permissive STUB implementation
+$ pwsh -NoProfile -File tests/evaluate-predicate.tests.ps1
+not ok: TEST-007 predicate-fail-closed-equals-missing: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-equals-missing: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-equals-missing: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-equals-missing: evidence conforms
+not ok: TEST-007 predicate-fail-closed-equals-null: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-equals-null: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-equals-null: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-equals-null: evidence conforms
+not ok: TEST-007 predicate-fail-closed-not-equals-missing: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-not-equals-missing: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-not-equals-missing: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-not-equals-missing: evidence conforms
+not ok: TEST-007 predicate-fail-closed-not-equals-null: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-not-equals-null: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-not-equals-null: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-not-equals-null: evidence conforms
+not ok: TEST-007 predicate-fail-closed-contains-missing: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-contains-missing: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-contains-missing: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-contains-missing: evidence conforms
+not ok: TEST-007 predicate-fail-closed-contains-null: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-contains-null: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-contains-null: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-contains-null: evidence conforms
+not ok: TEST-007 predicate-fail-closed-in-missing: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-in-missing: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-in-missing: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-in-missing: evidence conforms
+not ok: TEST-007 predicate-fail-closed-in-null: result=false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 predicate-fail-closed-in-null: evidence[0].outcome=warn: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-007 predicate-fail-closed-in-null: evidence[0].reason populated: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+ok: TEST-013 predicate-fail-closed-in-null: evidence conforms
+not ok: TEST-007 equals-type-mismatch: warn/type-mismatch: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 not-equals-type-mismatch: warn (never a true match on type mismatch): assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 contains-nonarray: warn: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-007 in-malformed-value: warn/malformed-value-array: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-008 exists present-with-null: match (true), no type inspection: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-008 exists present-with-value: match (true): assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-008 exists absent: false + WARN: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-009 all-empty: true (vacuous): assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-009 all-true: true, 2 children recorded: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-009 all-false: false, both children recorded (no short-circuit): assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-009 any-empty: false (vacuous): assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-009 any-mixed: true, all 3 children recorded despite match on child 2: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-009 any-false: false, both children recorded: assertion failed -- actual: {"result": true, "evidence": []}
+ok: TEST-010: trigger-context and when-context produce byte-identical evidence (single shared evaluator)
+not ok: TEST-011: field outside allowlist rejected as PREDICATE_SCHEMA_ERROR: expected non-zero exit for PREDICATE_SCHEMA_ERROR, got 0
+ok: TEST-011: drift-check passes against a matching Project Context fixture
+not ok: TEST-011: drift-check wrongly passed against a diverging fixture
+not ok: TEST-012: not with zero children is PREDICATE_SCHEMA_ERROR: expected non-zero exit for PREDICATE_SCHEMA_ERROR, got 0
+not ok: TEST-012: not with two children is PREDICATE_SCHEMA_ERROR: expected non-zero exit for PREDICATE_SCHEMA_ERROR, got 0
+not ok: TEST-012: not(child=true) -> false: assertion failed -- actual: {"result": true, "evidence": []}
+not ok: TEST-012: not(child=false) -> true: assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-012: not(child=warn) -> false (not naive negation), child WARN preserved: assertion failed -- actual: {"result": true, "evidence": []}
+ok: TEST-013: every non-error fixture's evidence conforms to the Evidence JSON Schema
+ok: TEST-013: nested all/any/not tree produces byte-identical, stably-ordered evidence across repeated runs
+not ok: TEST-013: nested tree depth-first order (all[0]=any, all[1]=not): assertion raised an exception (unexpected shape) -- actual: {"result": true, "evidence": []} -- Index was outside the bounds of the array.
+not ok: TEST-040: 'regex' operator token rejected as PREDICATE_SCHEMA_ERROR: expected non-zero exit for PREDICATE_SCHEMA_ERROR, got 0
+not ok: TEST-040: 'jsonpath' operator token rejected as PREDICATE_SCHEMA_ERROR: expected non-zero exit for PREDICATE_SCHEMA_ERROR, got 0
+not ok: self-registration: evaluate-predicate.tests.sh NOT registered in tests/run-all.sh
+not ok: self-registration: evaluate-predicate.tests.ps1 NOT registered in tests/run-all.ps1
+not ok: human-copy: staged workflow candidate missing this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=13 fail=50 ----
+evaluate-predicate suite FAILED (13 passed, 50 failed)
+exit: 1

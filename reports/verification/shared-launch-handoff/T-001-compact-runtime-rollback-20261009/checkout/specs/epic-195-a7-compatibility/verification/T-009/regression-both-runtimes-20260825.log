@@ -1,0 +1,57 @@
+T-009 blast-radius regression re-run, both runtimes, captured 2026-08-25 against the current
+tree including this session's emit-run-record.sh jq-guard change.
+
+Enumeration re-derived, not copied: grep -lE 'emit-run-record\.(sh|ps1)' across tests/*.tests.sh
+and tests/*.tests.ps1 now returns six paths -- one more than the 2026-08-20 log's pass
+(tests/loop-escalation.tests.sh). Manual inspection confirms that new match is a comment at
+that file's own line 197, not an invocation, so the genuine-invoker set is unchanged:
+  .sh  : emit-run-record-feature-scope, effort-policy-flip (TEST-044 SKIPs unless
+         SDD_ALLOW_REAL_CODEX_SMOKE=1, so the emitter is not actually exercised there --
+         disclosed, not excluded), run-panelist-effort
+  .ps1 : emit-run-record-feature-scope, run-panelist-effort (effort-policy-flip.tests.ps1
+         always Skips TEST-044 and defers to the .sh twin; run below anyway for parity)
+
+PRE-EXISTING FAILURE, DISCLOSED RATHER THAN OMITTED: effort-policy-flip fails one case in
+both runtimes --
+  not ok: TEST-046: current branch (feature/epic-195-a7-compatibility) does not look
+          T-007-scoped -- cannot confirm PR separation
+That assertion reads the checked-out git branch name and has nothing to do with
+emit-run-record. It fails for every session on this feature branch, is unrelated to this
+task's surface, and is not introduced by this session's change. Recorded so no downstream
+reader has to rediscover it, and so this log is not quietly filtered to look green.
+
+$ TZ=UTC LC_ALL=C bash tests/emit-run-record-feature-scope.tests.sh
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.sh: 54 passed, 0 failed
+
+$ TZ=UTC LC_ALL=C bash tests/effort-policy-flip.tests.sh
+not ok: TEST-046: current branch (feature/epic-195-a7-compatibility) does not look T-007-scoped -- cannot confirm PR separation
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh (the separate release is the caller's own, later step)
+---- summary: pass=11 fail=1 skip=1 ----
+not ok: effort-policy-flip suite FAILED (1 failures, 1 skipped)
+
+$ TZ=UTC LC_ALL=C bash tests/run-panelist-effort.tests.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+---- summary: pass=28 fail=0 ----
+ok: run-panelist-effort suite passed (28 checks)
+
+$ TZ=UTC LC_ALL=C pwsh -NoProfile -File tests/emit-run-record-feature-scope.tests.ps1
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.ps1: 54 passed, 0 failed
+
+$ TZ=UTC LC_ALL=C pwsh -NoProfile -File tests/run-panelist-effort.tests.ps1
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+
+run-panelist-effort.tests.ps1: 28 passed, 0 failed
+
+$ TZ=UTC LC_ALL=C pwsh -NoProfile -File tests/effort-policy-flip.tests.ps1
+not ok: TEST-046: current branch (feature/epic-195-a7-compatibility) does not look T-007-scoped -- cannot confirm PR separation
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh
+---- summary: pass=11 fail=1 skip=1 ----
+not ok: effort-policy-flip suite FAILED (1 failures, 1 skipped)

@@ -1,0 +1,132 @@
+[
+  {
+    "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+    "before": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+    "after": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "before": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8",
+    "after": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "before": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963",
+    "after": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "before": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca",
+    "after": "0f57f0cdce58ad4150f19dceeb354a2e9555d56a15d37e3f376ce246235715aa"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "before": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20",
+    "after": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "before": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "after": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "before": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+    "after": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "before": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "after": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    "before": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+    "after": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+  },
+  {
+    "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+    "before": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd",
+    "after": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "before": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+    "after": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+    "before": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b",
+    "after": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "before": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d",
+    "after": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d"
+  },
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "before": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+    "after": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333"
+  },
+  {
+    "path": "tests/quality-nontty-transport.tests.py",
+    "before": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8",
+    "after": "a1955452366bd71f789b727974c20196d4ce7517173c2e4b11854131dacb1490"
+  },
+  {
+    "path": "tests/unified-task-launch.tests.py",
+    "before": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+    "after": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e"
+  },
+  {
+    "path": "tests/unified-launch-order.tests.py",
+    "before": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+    "after": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "before": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39",
+    "after": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "before": "f739742b5e3e87db4856ee4aa4ec2f80fcc3aeeb99a60326f6ae04dbc1d7f257",
+    "after": "f739742b5e3e87db4856ee4aa4ec2f80fcc3aeeb99a60326f6ae04dbc1d7f257"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+    "before": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7",
+    "after": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+    "before": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057",
+    "after": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+    "before": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d",
+    "after": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+    "before": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+    "after": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "before": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+    "after": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+    "before": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+    "after": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+    "before": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d",
+    "after": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+  }
+]

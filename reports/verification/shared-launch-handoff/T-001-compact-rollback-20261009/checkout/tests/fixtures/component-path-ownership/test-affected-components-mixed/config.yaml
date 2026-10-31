@@ -1,0 +1,13 @@
+components:
+  - id: alpha
+    paths:
+      include:
+        - "alpha-only/**"
+  - id: beta
+    paths:
+      include:
+        - "beta-only/**"
+shared_paths:
+  - pattern: "shared/**"
+    components:
+      - beta

@@ -1,0 +1,13 @@
+# T-012 GREEN — stack tests run WITH check-contract.sh stack logic
+date(UTC): 2026-06-14T02:16:07Z
+$ bash tests/gates.tests.sh   (T-012 lines + summary)
+=== T-012: stack descriptor (compile-check applicability) ===
+ok: T-012.1: stack docs waives compile checks with reasons → passes
+ok: T-012.2: absent stack (=code) keeps build mandatory (backward compat)
+ok: T-012.3: stack docs cannot waive unit-tests (abuse blocked)
+ok: T-012.4: stack docs waiver still requires waiver_reason
+ok: T-012.5: explicit stack code keeps build mandatory
+ok: T-012.6: invalid stack value fails correctly
+ok: T-012.7: stack shell at high+tdd tier waives compile checks → passes
+PASS: 109
+FAIL: 0

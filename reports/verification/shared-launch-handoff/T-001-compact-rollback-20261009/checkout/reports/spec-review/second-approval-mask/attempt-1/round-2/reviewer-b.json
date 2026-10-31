@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-b-seq0173",
+  "host_session_id": "SESS-spec-spec-reviewer-b-second-approval-mask-0173",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/precheck-result.json",
+      "sha256": "f9d8b364ccfffbf4b2e2f33fb8fd939e023638719feea8a4a18518a888dd513a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/integrated-summary.json",
+      "sha256": "c9655565de5685540f2691eb190a15f3f154f4024f098281acdb011310bebd35"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Deletion semantics (whole line + terminator, any field value, LF/CRLF, task-stage-only scope) are stated in exact operational language; round-2 added an explicit non-oracle note for the Doc Status column (acceptance-tests.md line 20), removing the prior ambiguity."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001's freeze goal and the Non-goal 'No retroactive re-hashing of existing task-review contracts' are consistent: frozen tasks.md never contains a Second Approval line at freeze time, so deletion is a no-op under old and new normalization alike. AC/TEST map 1:1; no direct conflict found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Edge Cases states multiple Second Approval lines (one per critical task) are all deleted, and Source Issues names the motivating scenario as 'epic-136-phase1-guards T-001/T-002' (two critical tasks in one tasks.md). acceptance-tests.md TEST-001..004 exercise only a single-line fixture per case \u2014 no AC/TEST-ID covers 2+ lines in one file, leaving the actual originating multi-critical-task scenario unverified end-to-end."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both assumptions (pwsh 7.x, --registry entry point) are anchored to existing repo facts; Open Questions explicitly closed with inline justification."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-only authorship of the field is correctly scoped as unchanged; the human-only delivery boundary is now testable via the round-2 AC-005/TEST-005 SHA-256 live-vs-staged-MANIFEST gate evidence."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Exact algorithmic behavior, enumerated edge cases, security-boundary reasoning, roles/permissions, and workflow sequencing are all present; the one residual gap is a test-completeness issue captured under EDGE-CASE-COVERAGE, not missing behavior."
+    }
+  ]
+}

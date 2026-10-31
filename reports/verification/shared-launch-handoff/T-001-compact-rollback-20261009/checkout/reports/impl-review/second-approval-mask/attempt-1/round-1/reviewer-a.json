@@ -1,0 +1,104 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-second-approval-mask-impl-impl-reviewer-a-seq0176",
+  "host_session_id": "SESS-impl-impl-reviewer-a-second-approval-mask-0176",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/design.md",
+      "sha256": "b5d31a152a2df552d9b63a1287d4fe8c69b274f09453765f74c12b027127eae4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/security-spec.md",
+      "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/infra-spec.md",
+      "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/frontend-spec.md",
+      "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/ux-spec.md",
+      "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "11337cc58358ab8e182d71bdba0d034d5be6f706a92520c2a57e713a00c4c6c8"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "unspecified",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 5-19) describes component boundaries via an explicit diagram (tasks.md -> normalized_hash()/Get-NormalizedHash(stage=task) -> mask/delete rules -> sha256 -> compare with task-review contract tasks_sha256), integration into the existing pipeline ('one deletion rule executed alongside the existing three value masks'), and implicit sh/ps1 technology naming consistent with ## Components' sed/regex specifics; frontend and data layers are explicitly N/A per frontend-spec.md and ux-spec.md. Not a one-sentence description. Minor internal-consistency note: Architecture states 'No new components, files' while ## Components adds a new test file (tests/second-approval-mask.tests.sh) -- a test artifact, not a production component, so this does not defeat coverage."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. The described pipeline (tasks.md -> normalization function -> sha256 -> contract compare) is linear with no cycle."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field ## Data Plan absent; legacy design.md predates this template requirement. Substantively, the feature introduces no new/modified data entities: it changes only the hash-normalization treatment of a tasks.md line, and requirements.md Non-goals explicitly excludes retroactive re-hashing of existing task-review contracts."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 41-49) is present and explicitly states 'No interface change: both twins keep their CLI ([--feature <f>], [--registry <path>]), exit codes, and diagnostic format,' satisfying the 'no API changes' bar, and confirms existing task-review contracts stay valid (backward compatibility addressed)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 64-71) names the freeze-vs-lifecycle-field trust boundary, states the authorization mechanism at each boundary (hook guard denies agent writes, fail-closed, not sudo-bypassable; check-task-state requires distinct-approver value at critical Done), and is refined by security-spec.md's B1/B2/B3 trust boundaries and STRIDE analysis. No new PII is introduced; field-content handling is explicitly Non-goal/unchanged per requirements.md."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type header absent in design.md, but frontend-spec.md ('N/A -- the feature modifies two CLI validator scripts... no browser or frontend bundle') and ux-spec.md ('N/A -- no user-facing UI') establish this as a CLI-only feature. No ## Frontend Plan or ## Backend Plan section exists to reconcile."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 51-62) covers unit/fixture-level RED-then-GREEN verification (recorded as red.log), integration-level full-registry gate regression against named existing suites (tests/workflow-state-parity.tests.sh, workflow-state-ci-integration, workflow-state-registry), and acceptance-level verification explicitly mapped to TEST-001..004/AC-001..004 in acceptance-tests.md (parity, CRLF corpus). Concrete artifacts and command targets are named; E2E/user-journey path is not required as the feature is not fullstack."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components referenced in ## Architecture/## Components/## API Contract Plan -- check-workflow-state.sh/.ps1, tests/second-approval-mask.tests.sh, tests/run-all.sh, tests/workflow-state-parity.tests.sh, the task-review contract/tasks_sha256, check-task-state, and the hook guard -- are either defined in ## Components or grounded as pre-existing established components via requirements.md context; existence of the named files spot-verified read-only."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No ## Architecture Decision Records section is present and none is required: the feature is a narrow line-deletion technique addition within the already-established workflow-state-integrity architecture (docs/adr/0002-repository-workflow-state-integrity.md), introducing no new technology, integration pattern, or architectural departure."
+    }
+  ]
+}

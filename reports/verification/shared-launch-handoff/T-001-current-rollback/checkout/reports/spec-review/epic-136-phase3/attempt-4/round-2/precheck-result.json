@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 4,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "92e82fc78e561f16d38e112268c18854194c8ab80998e3bbcbb1d649163e2345",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "a0a26c1aefe5d6d22676c1dd793b22a5f584e4ca46bd67288483c7198e248ec3",
+  "edit_summary": "Round 1's Critical CONTRADICTION addressed: the Re-verification note (which sits above the Stream C status record and so fell outside its 'every passage below' promise) is now labelled a spec-authoring-time snapshot in full, with its two superseded entries flagged inline; the status record's scope was widened to govern the whole document, above and below, and to cover existence claims rather than only 'Blocked pending' instructions; and the same present-tense existence claim in the Problem statement (INV-012) was moved to past tense.",
+  "reset": false,
+  "generated_at": "2026-08-01T23:07:39Z"
+}

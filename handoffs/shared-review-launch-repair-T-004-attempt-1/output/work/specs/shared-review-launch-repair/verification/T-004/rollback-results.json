@@ -1,0 +1,96 @@
+{
+  "scope": "T-004 source rollback only; combined T001-T005 rollback NOT RUN",
+  "root": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+  "changed_source": ".github/workflows/test.yml",
+  "before": {
+    "sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "mode": 420
+  },
+  "candidate": {
+    "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mode": 420
+  },
+  "restored": {
+    "sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "mode": 420
+  },
+  "restored_admitted_hashes": 62,
+  "commands": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+        "."
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS consuming-install\nPASS ci-direct-transport\nPASS ci-traceability\nPASS bash-transport\nPASS bash-traceability\nPASS bash-python-execution\nPASS powershell-transport\nPASS powershell-hash-parity\nPASS powershell-python-execution\nPASS registry-full-profile\nPASS bash-review-conditional-inputs\nPASS ci-review-conditional-inputs\nPASS bash-spec-review-verify-inputs\nPASS ci-spec-review-verify-inputs\nPASS bash-host-review-preflight\nPASS ci-host-review-preflight\nPASS bash-unified-launch-order\nPASS ci-unified-launch-order\nPASS bash-unified-task-launch\nPASS ci-unified-task-launch\nPASS bash-task-structured-output\nPASS ci-task-structured-output\nPASS bash-supplemental-delivery-declaration\nPASS ci-supplemental-delivery-declaration\nPASS bash-t001-evaluation-preparation\nPASS ci-t001-evaluation-preparation\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+        "."
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+      "exit": 1,
+      "expected_exit": 1,
+      "stdout": "FAIL consuming-install\nPASS ci-direct-transport\nPASS ci-traceability\nPASS bash-transport\nPASS bash-traceability\nPASS bash-python-execution\nPASS powershell-transport\nPASS powershell-hash-parity\nPASS powershell-python-execution\nPASS registry-full-profile\nPASS bash-review-conditional-inputs\nPASS ci-review-conditional-inputs\nPASS bash-spec-review-verify-inputs\nPASS ci-spec-review-verify-inputs\nPASS bash-host-review-preflight\nPASS ci-host-review-preflight\nPASS bash-unified-launch-order\nPASS ci-unified-launch-order\nPASS bash-unified-task-launch\nPASS ci-unified-task-launch\nPASS bash-task-structured-output\nPASS ci-task-structured-output\nPASS bash-supplemental-delivery-declaration\nPASS ci-supplemental-delivery-declaration\nPASS bash-t001-evaluation-preparation\nPASS ci-t001-evaluation-preparation\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+        ".",
+        "--registrations-only"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS ci-direct-transport\nPASS ci-traceability\nPASS bash-transport\nPASS bash-traceability\nPASS bash-python-execution\nPASS powershell-transport\nPASS powershell-hash-parity\nPASS powershell-python-execution\nPASS registry-full-profile\nPASS bash-review-conditional-inputs\nPASS ci-review-conditional-inputs\nPASS bash-spec-review-verify-inputs\nPASS ci-spec-review-verify-inputs\nPASS bash-host-review-preflight\nPASS ci-host-review-preflight\nPASS bash-unified-launch-order\nPASS ci-unified-launch-order\nPASS bash-unified-task-launch\nPASS ci-unified-task-launch\nPASS bash-task-structured-output\nPASS ci-task-structured-output\nPASS bash-supplemental-delivery-declaration\nPASS ci-supplemental-delivery-declaration\nPASS bash-t001-evaluation-preparation\nPASS ci-t001-evaluation-preparation\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py",
+        "ProtectedEntrypointTests.test_013_ci_transport_registration"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.044s\n\nOK\n"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "--check"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-source-rollback",
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

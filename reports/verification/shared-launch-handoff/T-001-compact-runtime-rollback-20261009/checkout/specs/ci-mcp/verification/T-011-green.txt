@@ -1,0 +1,54 @@
+=== T-011 doc-verification audit (test-after; no red file — informational grep/tool re-run, not a red/green TDD pair) ===
+Run: 2026-07-07T16:52:11Z
+
+--- 1. Tool names (5) referenced in docs match src/server.ts registerTool() calls ---
+list_workflow_runs : server.ts=1 docs=2
+get_workflow_run : server.ts=1 docs=2
+list_run_jobs : server.ts=1 docs=2
+list_run_artifacts : server.ts=1 docs=2
+get_job_log : server.ts=1 docs=3
+
+--- 2. Token env var names referenced in docs match auth.ts TOKEN_ENV_PRIORITY ---
+27:export const TOKEN_ENV_PRIORITY = ["CI_MCP_GITHUB_TOKEN", "GH_READONLY_TOKEN", "GITHUB_TOKEN"] as const;
+28-
+--
+39:  for (const name of TOKEN_ENV_PRIORITY) {
+40-    const value = env[name];
+CI_MCP_GITHUB_TOKEN : USERGUIDE=2 README=1 install.sh=1
+GH_READONLY_TOKEN : USERGUIDE=2 README=1 install.sh=1
+GITHUB_TOKEN : USERGUIDE=3 README=1 install.sh=1
+
+--- 3. CI_MCP_REPO env var referenced consistently ---
+repo-resolve.ts=7 USERGUIDE=6 README=1
+
+--- 4. Error codes (10) referenced in docs match envelope.ts ErrorCode union ---
+cannot-parse : envelope.ts=1 USERGUIDE=2
+cannot-determine : envelope.ts=1 USERGUIDE=2
+not-found : envelope.ts=1 USERGUIDE=4
+path-denied : envelope.ts=1 USERGUIDE=2
+not-sdd-root : envelope.ts=1 USERGUIDE=2
+too-large : envelope.ts=1 USERGUIDE=3
+invalid-input : envelope.ts=1 USERGUIDE=5
+upstream-error : envelope.ts=1 USERGUIDE=2
+rate-limited : envelope.ts=1 USERGUIDE=2
+auth-missing : envelope.ts=1 USERGUIDE=3
+
+--- 5. Entry-point path used in registration snippets matches package.json build output ---
+11:    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
+USERGUIDE dist/index.js refs: 3
+
+--- 6. Client registration mechanism names match install.sh functions ---
+register_claude_mcp : install.sh=2
+register_codex_mcp : install.sh=3
+register_cursor_mcp : install.sh=2
+register_vscode_mcp : install.sh=2
+
+--- 7. Full mcp/ci-mcp suite re-run (confirms no code was touched by this docs-only task) ---
+ℹ tests 137
+ℹ suites 0
+ℹ pass 137
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 494.537709

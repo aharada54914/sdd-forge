@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-159-pillar-c",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c",
+  "acceptance_sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d",
+  "design_sha256": "765e55773376c6c3e3a6cb17b916610da261589e362424461ecfd0a88c44079b",
+  "tasks_sha256": "47a4753cac72c7a0d3cd88559b3142c950676f039ea34567c7777dffc94415e9",
+  "traceability_sha256": "66dfd81f07a0fcfd92750ba102b872b46c9be1a066e73ba0a8ade130e954e244",
+  "layer_sha256": {
+    "ux-spec.md": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11",
+    "frontend-spec.md": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093",
+    "infra-spec.md": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8",
+    "security-spec.md": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "",
+  "prior_round_contract_sha256": "",
+  "pass_type": "none",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-c-task-task-reviewer-a-seq0294",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-c-0294",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+          "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+          "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+          "sha256": "765e55773376c6c3e3a6cb17b916610da261589e362424461ecfd0a88c44079b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/tasks.md",
+          "sha256": "47a4753cac72c7a0d3cd88559b3142c950676f039ea34567c7777dffc94415e9"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/traceability.md",
+          "sha256": "66dfd81f07a0fcfd92750ba102b872b46c9be1a066e73ba0a8ade130e954e244"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+          "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+          "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+          "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+          "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+          "sha256": "1b9ca59d17f91d4cea7ef36ac14e45fff38fbed32e097f67061887a14eb995ae"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/dependency-graph.json",
+          "sha256": "82dcdde81a7be7c677a69f017065c306702a797aa0a11cda9a241b337746a2b1"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-c-task-task-reviewer-b-seq0295",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-c-0295",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+          "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+          "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+          "sha256": "765e55773376c6c3e3a6cb17b916610da261589e362424461ecfd0a88c44079b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/tasks.md",
+          "sha256": "47a4753cac72c7a0d3cd88559b3142c950676f039ea34567c7777dffc94415e9"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/traceability.md",
+          "sha256": "66dfd81f07a0fcfd92750ba102b872b46c9be1a066e73ba0a8ade130e954e244"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+          "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+          "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+          "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+          "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+          "sha256": "1b9ca59d17f91d4cea7ef36ac14e45fff38fbed32e097f67061887a14eb995ae"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+          "sha256": "7530d4351bc0df57da916a48bd9e0c69e2928c66da860571a8b61339d7b20955"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-epic159pillarc-a1r1",
+  "timestamp": "2026-07-16T17:17:31Z"
+}

@@ -1,0 +1,43 @@
+UTC start: 2026-09-22T04:59:06Z
+ok: rollback contract and paired transactions pass success, tamper, dirty, validator, and partial-apply cases
+
+PowerShell rollback:
+ok: PowerShell-native rollback integration passed
+
+Bash repository validator:
+workflow-state: epic-196-a8-integration: stage-provenance-tolerated: specs/epic-196-a8-integration/investigation.md (spec stage) recorded 2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57, now 117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939 (amendment-record growth only)
+workflow-state: epic-196-a8-integration: stage-provenance-tolerated: specs/epic-196-a8-integration/investigation.md (spec stage) recorded 2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57, now 117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939 (amendment-record growth only)
+workflow-state: epic-195-a7-compatibility: stage-provenance-tolerated: specs/epic-195-a7-compatibility/investigation.md (spec stage) recorded d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3, now 3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d (amendment-record growth only)
+workflow-state: epic-195-a7-compatibility: stage-provenance-tolerated: specs/epic-195-a7-compatibility/investigation.md (spec stage) recorded d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3, now 3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d (amendment-record growth only)
+workflow-state: ok
+OK: plugins/sdd-quality-loop/agents/evaluator.md
+OK: .codex/agents/sdd-evaluator.toml
+OK: plugins/sdd-bootstrap/agents/investigator.md
+OK: .codex/agents/sdd-investigator.toml
+OK: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+OK: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/impl-reviewer-b.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-b.md (protected, read-only)
+---- check summary: 10 targets, 0 drift ----
+Repository validation passed.
+
+PowerShell repository validator:
+workflow-state: epic-196-a8-integration: stage-provenance-tolerated: specs/epic-196-a8-integration/investigation.md (spec stage) recorded 2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57, now 117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939 (amendment-record growth only)
+workflow-state: epic-196-a8-integration: stage-provenance-tolerated: specs/epic-196-a8-integration/investigation.md (spec stage) recorded 2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57, now 117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939 (amendment-record growth only)
+workflow-state: epic-195-a7-compatibility: stage-provenance-tolerated: specs/epic-195-a7-compatibility/investigation.md (spec stage) recorded d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3, now 3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d (amendment-record growth only)
+workflow-state: epic-195-a7-compatibility: stage-provenance-tolerated: specs/epic-195-a7-compatibility/investigation.md (spec stage) recorded d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3, now 3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d (amendment-record growth only)
+workflow-state: ok
+OK: plugins/sdd-quality-loop/agents/evaluator.md
+OK: .codex/agents/sdd-evaluator.toml
+OK: plugins/sdd-bootstrap/agents/investigator.md
+OK: .codex/agents/sdd-investigator.toml
+OK: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+OK: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/impl-reviewer-b.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-b.md (protected, read-only)
+---- check summary: 10 targets, 0 drift ----
+Repository validation passed.

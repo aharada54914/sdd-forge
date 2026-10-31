@@ -1,0 +1,52 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-localenvmcp-a1r1-20260705-3ba3",
+  "host_session_id": "hs-spec-a-6503d1ba-0001",
+  "allowed_input_manifest": [
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "b195a38347a6a08b8d5cf3f3b07fedf1077e65c4026103ea52a31dd8a97f1a68" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md", "sha256": "73cacf502da64422d56fc6f79f11c295d7dd9efae5858be11f3eb580aeaa754e" }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope REQ (requirements.md REQ-001 through REQ-012) states a checkable decision procedure: REQ-003 fixes the probe allowlist (node/npm/pnpm/yarn/bun/deno/git/gh/python3/go/rustc/cargo/java/docker), timeout (2s), output cap (8 KiB), parallelism (4), and execFile-only invocation; REQ-005 fixes the non-leakage target list and version-string normalization (first line, max 200 chars); REQ-006 fixes the dist bundle path and CI dist-parity check. Each REQ maps to a concrete Test ID in acceptance-tests.md (e.g., REQ-003 -> TEST-002/TEST-003/TEST-004, REQ-006 -> TEST-008), giving an implementer/verifier a checkable artifact rather than an aspiration."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Goals in requirements.md (read-only env info, zero-execution safety, installer distribution/registration) trace to acceptance-tests.md ACs: read-only info -> AC-001/AC-002; zero-execution safety -> AC-003/AC-006; installer distribution -> AC-009 through AC-013 and AC-015. Cross-checking the AC table's Requirement column confirms REQ-001 through REQ-012 all appear at least once (e.g., REQ-001 in AC-006/AC-007, REQ-011 in AC-014, REQ-012 has no dedicated AC row but is a testing-methodology requirement covered by calibration's exclusion of test-command evidence from this gate)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md ACs specify externally observable outcomes rather than vague intent: AC-004 names exact thresholds (2s timeout, 8 KiB cap) and the required per-entry failure reporting; AC-005 specifies a canary env var value that must not appear in response or stderr; AC-010/AC-011 specify idempotent upsert with preservation of pre-existing unrelated entries verified via HOME-isolated installer harness; AC-008 specifies a CI-verifiable rebuild-vs-committed-dist match. None of the 15 ACs rely on subjective or unmeasurable language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals section explicitly excludes six expansion-prone areas: install/execution tooling, environment mutation, environment-variable value exposure, repository filesystem reading (deferred to sdd-forge-mcp), VS Code Insiders/Cursor nightly channels, and knowledge-mcp/ci-mcp (deferred to a later phase/issue). This closes off the most likely scope-creep vectors for an environment-probing MCP server."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Security Boundaries table states auth/authz (none, delegated to OS user boundary), PII/data classification (internal, probe output treated as untrusted), and regulatory constraints (none) for all three trust boundaries B1-B3. REQ-006 states the Node.js >= 20 runtime constraint explicitly. REQ-005 states the exact secret/PII non-leakage constraint (env values, username, hostname, home path, PATH). REQ-003 states the execFile-only (no shell) sandboxing constraint. These are the material constraints implied by an environment-probing MCP server and are all explicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Risks section lists three risks, each connected to a validation surface: allowlist design flaw / arbitrary-execution risk -> AC-003 (input schema static check) and AC-006 (static grep for exec/eval/fs-write absence); IDE config file corruption risk -> AC-010/AC-011 (idempotent upsert, other-entries-preserved tests) and AC-015 (corrupted-JSON error path test); PATH binary spoofing risk -> explicitly documented as an accepted STRIDE-classified threat mitigated by treating probe output as untrusted data never executed or evaluated, which AC-006's static check on exec/eval absence validates. No high-risk claim lacks a planned validation surface."
+    }
+  ]
+}

@@ -1,0 +1,557 @@
++ epic-159-pillar-a2 regression set (shared across T-001..T-004)
+== start: 2026-07-16T04:15:23Z ==
+
+###### bash tests/loop-inventory.tests.sh ######
+=== TEST-001: inventory schema + registration forcing ===
+ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge/tests/loops/loop-inventory.json
+ok: TEST-001.1: schema field is loop-inventory/v1
+ok: TEST-001.2: inventory carries exactly eight loop entries
+ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-a maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-b maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-a maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-b maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-a maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-b maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair quality:sdd-evaluator maps to inventory entry quality-gate
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-a maps to inventory entry domain-review
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-b maps to inventory entry domain-review
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-task-state.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-implementation/scripts/select-agent-model.sh
+ok: TEST-001.6 (negative self-check): removing a registered entry turns registration validation red
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+ok: TEST-002.1: spec-review cap value greps to its driver source's limit
+ok: TEST-002.1: domain-review cap value greps to its driver source's limit
+ok: TEST-002.1: quality-gate cap value greps to its driver source's limit
+ok: TEST-002.2: terminal-tier is cap_kind:state and excluded from the numeric grep
+ok: TEST-002.3: exactly one cap_kind:state entry exists in the inventory
+ok: TEST-002.4 (negative self-check): a mutated cap value turns the drift lock red
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+ok: TEST-003.1: impl-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: task-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: wfi-audit carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: hitl-diagnosis carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.2: wfi-audit carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.2: hitl-diagnosis carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.3: every fixture_profiles value is greenfield or brownfield
+ok: TEST-003.4: every entry declares a non-empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+ok: TEST-004.1: loop-inventory.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-inventory.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-driver.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-driver.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-consistency.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-consistency.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-escalation.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-escalation.tests.ps1 is registered in run-all.ps1 and test.yml
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.sh: 49 passed, 0 failed, 0s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-inventory.tests.ps1 ######
+=== TEST-001: inventory schema + registration forcing ===
+ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge/tests/loops/loop-inventory.json
+ok: TEST-001.1: schema field is loop-inventory/v1
+ok: TEST-001.2: inventory carries exactly eight loop entries
+ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-a maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-b maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-a maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-b maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-a maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-b maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair quality:sdd-evaluator maps to inventory entry quality-gate
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-a maps to inventory entry domain-review
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-b maps to inventory entry domain-review
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-task-state.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-implementation/scripts/select-agent-model.sh
+ok: TEST-001.6 (negative self-check): removing a registered entry turns registration validation red
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+ok: TEST-002.1: spec-review cap value greps to its driver source's limit
+ok: TEST-002.1: domain-review cap value greps to its driver source's limit
+ok: TEST-002.1: quality-gate cap value greps to its driver source's limit
+ok: TEST-002.2: terminal-tier is cap_kind:state and excluded from the numeric grep
+ok: TEST-002.3: exactly one cap_kind:state entry exists in the inventory
+ok: TEST-002.4 (negative self-check): a mutated cap value turns the drift lock red
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+ok: TEST-003.1: impl-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: task-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: wfi-audit carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: hitl-diagnosis carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.2: wfi-audit carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.2: hitl-diagnosis carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.3: every fixture_profiles value is greenfield or brownfield
+ok: TEST-003.4: every entry declares a non-empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+ok: TEST-004.1: loop-inventory.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-inventory.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-driver.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-driver.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-consistency.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-consistency.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-escalation.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-escalation.tests.ps1 is registered in run-all.ps1 and test.yml
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.ps1: 49 passed, 0 failed, 1s elapsed
+---- exit: 0 ----
+
+###### bash tests/loop-driver.tests.sh ######
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.xgNFJw) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.sh: 22 passed, 0 failed, 1s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-driver.tests.ps1 ######
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.bcddbac5f12e46ba8cce5240712a3196) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.ps1)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+REVIEW_CONTEXT_OK f4484276660baf6c48e5099bca5c9a2f91d7a3c79d47d9ac4c4b54262cd6cc5f
+REVIEW_CONTEXT_OK 489c2bc4859b58e0d8a0d91e51851221f046f2f6871366f9ab159cff2a0f4640
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+REVIEW_CONTEXT_OK 57aa0b7f47b6168d61f73cc7ca1389c9e70618900b86d945eb4573ad0ceb2d65
+REVIEW_CONTEXT_OK 43f527c7e6160c0729fc22ab315190ce9bf6dbc25e196273399706c6cb55fda0
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+REVIEW_CONTEXT_OK 34bbcfe959cb0c2c059c45aa4da0d37fcf05f98cdec83b0d80acf97a76d3be9f
+REVIEW_CONTEXT_OK 400cd7fdf9893c3b799c34246530649c22ee81d93082f29beb7cb90783944153
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.ps1: 22 passed, 0 failed, 2s elapsed
+---- exit: 0 ----
+
+###### bash tests/loop-consistency.tests.sh ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, PASS/Minor-only) green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)
+NOTE: TEST-008.14: domain-review-precheck.ps1 now exists upstream -- tests/loop-consistency.tests.ps1's named SKIP self-heals; no action needed here.
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LOOP_FIXTURE_ROOT
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-75064/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.sh: 27 passed, 0 failed, 13s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-consistency.tests.ps1 ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK ad36474f86d509245f28b97530ed93820b30212fcb40fdb3d5dc2e1abb35437e
+REVIEW_CONTEXT_OK a7eb8e2c3879afe55a5fe85474b739bcd45f5cf35df459ccbdabb575bf30a787
+REVIEW_CONTEXT_OK eb06b044f44428bfc47f2b75f3f10661bc5778cecb51e0e0164eadb8de606102
+REVIEW_CONTEXT_OK 257e1e01ef42f7dad0dca4ffe7f1bf84472dc4c56e6b80add22cf69a931b0907
+REVIEW_CONTEXT_OK e75b9b1b19d656667d3d24cbd2fce18300c89ff3796cd2b713873fac248c5084
+REVIEW_CONTEXT_OK f9f86dc4dfcd4bd75efbe1fe24c9fd9dbf54ad8ee57c0dc549a484d6a40272e6
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK 46508532fd487270681255aa632fd713450a536da333b3dcb1db990b52718d02
+REVIEW_CONTEXT_OK f5d9890898ebf0598c26699ae3845f707143d0e826589abdb19c63eb10cdb208
+REVIEW_CONTEXT_OK 7199a6a9307df2392e3d9b53dadb1cc5b648f58bafda3929ce1b21a15332e6b5
+REVIEW_CONTEXT_OK 7ab2e362f5f7f3cd8c6a818eedbac948faa00c432cd0c1ec2f7798b4e71732fe
+REVIEW_CONTEXT_OK 6f5ac9325a4fe35b7ad4b2d23bbb73f8c9d09311cd66f01771eb6cbf8ff79774
+REVIEW_CONTEXT_OK 6adb825e613fcc302bc107ee902001d1142bd1115c67f8c9300399d427db9796
+REVIEW_CONTEXT_OK 686ea32b8dc4362f0f7ac302e18cc58392cea0a3dcc674f582ca5de853c65b43
+REVIEW_CONTEXT_OK 408329eed33cb903a1b57946f949c8c8928cf2ec92794939d769a06d00fa48c3
+REVIEW_CONTEXT_OK 0ecf4e85d2211c131aa76aa1efdb3af746fb57aaa01914886750484700b95bc9
+REVIEW_CONTEXT_OK 1d8b75b32976081441a4c8b11e40b35b442f7e68ed59f76c9a97e618ee80340d
+REVIEW_CONTEXT_OK 3815aa4a7f450e50a2f7fbab983e2ba8f43147b3489785133447a5c5ad1d1c96
+REVIEW_CONTEXT_OK 119814523c20a4615d3a94a07cccf6af87834cc7dc758cd225c102f30cb75826
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK c4f6bc1e05679a867000acaaed9ab0e2cfc4744ba63e12a77ed7e8d9b7099941
+REVIEW_CONTEXT_OK 35a40c6c960b68008248c7d915de7efa9ab6efac0103a906aa56db901a9f9d7a
+REVIEW_CONTEXT_OK d17760bdb70fc9a8c1307b481f4d34130710c6983e0c636d1e648a0578e906fa
+REVIEW_CONTEXT_OK ead40930d716818eccadf3523fe94e497e788d105f3ddf98f162bef8e87c3969
+REVIEW_CONTEXT_OK 10c29f43156aa907141d17b32936c32ae8f94985cb93a1e0220f1c7bfee58222
+REVIEW_CONTEXT_OK 64f4fe7e561b1508c7d453c93bb9b8409d18404bb414005619501bd025e12ef6
+REVIEW_CONTEXT_OK 487cb210e155ce64693791badda5f89c2579a6f6616dadd23080c6413facc7ef
+REVIEW_CONTEXT_OK 3312a1030d400d09403b2d1a67d7f74d072dadbbc9469c97d5ed2a5d634379bf
+REVIEW_CONTEXT_OK 3758cf28c31685e42158805663c95cf7d2dc7c9dd6b60c0ad9dac64ccfd08407
+REVIEW_CONTEXT_OK c374dd15161d1d97cec92eb6258c12238c770006b7d2debe9ac0ec48bddc8caa
+REVIEW_CONTEXT_OK 06be7c9a8a9fc2fdad6469612bf657a275d4fcae28c620eb3c3863f7844aa83a
+REVIEW_CONTEXT_OK 09ce3891ad12ac3f626e44719e6fb122a41b71310839d3546581466b9492c558
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 6bf4e61c0ede913362332a4965ccdfcf9c4ceaf03d2fcda02b64db1ad874c367
+REVIEW_CONTEXT_OK d90589211ca13d1a9173c2a94daa0a323169a4927a54ec93aa0cd8eef32d032f
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK cbeca074c6067235c1acddeee5907c0aaf5a219cfe55a2ab4de2bba6614c60fb
+REVIEW_CONTEXT_OK 88058ee7f385221df968bded3c8401e743665b3c2a219abf2dba4d98e89ea012
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK bb9b43a14d76da018c39965d5980653314457cf7921c30079768979da7a7c0d7
+REVIEW_CONTEXT_OK ce9a4aba5484419b804c7bd860bbfc9b4d82fc18b543530563e417257ab9cdf5
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+REVIEW_CONTEXT_OK 764b2099f1fdbd6e41ecf708d943f2dd2e33c1a24149b13307c065a6acc562d5
+REVIEW_CONTEXT_OK ebab1fdfb411edb00391d350d148c21f3c92d4e7b56dc9483a65d457af8cdbce
+REVIEW_CONTEXT_OK 60fc080ad6c184749e2bad663d22ee04cbb2dc4bb836a0b47e15c5de759f4ad6
+REVIEW_CONTEXT_OK f2dddf314c9674cb8419d5246f4281a84b88c646340313dab9e5af7739147585
+REVIEW_CONTEXT_OK 876a5e17d31ffeae08bda32a8c655bb1cb1115718fb8ef3decb71c009e623e64
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK f1b711ab4eedde753d752d3c57d24e9b9803afaf3b7d78fba7b788be5832eb1f
+REVIEW_CONTEXT_OK 692dc2e8b6c7169f22674bc0170d7d7a7a782987cbc4cd86803a8606b6d30d8a
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK 6d14f0a2c93d229ecf052f43353d549c1f3f716d6ad9fc829376976a6397575c
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 4a674a3d5d81a01040f91cc8d3c931b41fe3370be0a06fb4f22a3de1c0d6d4ee
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f93e64442fcfcbfc252dd69a5477741f567e63c079a7bd5df1cc4267227fbec6
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-86376/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 27 passed, 0 failed, 21s elapsed
+---- exit: 0 ----
+
+###### bash tests/loop-escalation.tests.sh ######
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.sh escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.sh escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.sh reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: assert_terminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.sh denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.sh permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+ok: TEST-018.2: temp copy mutation removed the word-boundary flag from grep
+ok: TEST-018.3 (negative self-check): the substring-grep mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.sh accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: python3-absent degradation (restricted PATH) ===
+ok: TEST-013.0: python3 is present under this suite's normal PATH (the restricted-PATH legs below are a deliberate simulation, not an accidental gap)
+SKIP: TEST-013.1: check-terminal-tier-resume.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation, rc=1
+SKIP: TEST-013.2: select-agent-model.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.sh: 22 passed, 0 failed, 0s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-escalation.tests.ps1 ######
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.ps1 escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.ps1 escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.ps1 reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: Test-LoopTerminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.ps1 denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.ps1 permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+ok: TEST-018.2: temp copy mutation replaced the word-boundary pattern with a plain substring match
+ok: TEST-018.3 (negative self-check): the substring-match mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.ps1 accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: deterministic-runtime-unavailable degradation ===
+SKIP: TEST-013.1: check-terminal-tier-resume.ps1 has no external deterministic-runtime dependency (pure PowerShell reimplementation) -- INV-017 cites only check-terminal-tier-resume.sh:29-32; this leg does not apply on the pwsh lane
+SKIP: TEST-013.2: select-agent-model.ps1 reports deterministic-runtime-unavailable when its deterministic-runtime command is unavailable (INV-017 analogue); recorded degradation
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.ps1: 21 passed, 0 failed, 2s elapsed
+---- exit: 0 ----
+
+###### bash tests/check-placeholders.tests.sh ######
+=== CP-001: dirty file is flagged ===
+ok: CP-001a: dirty file exits 1
+ok: CP-001b: dirty file reports FAILED
+=== CP-002: clean file passes ===
+ok: CP-002a: clean file exits 0
+ok: CP-002b: clean file reports passed
+=== CP-003: real grep error fails closed (issue #127) ===
+ok: CP-003a: missing path exits >=2 (got 2)
+ok: CP-003b: missing path prints a FATAL diagnostic
+ok: CP-003c: missing path does not report a false 'passed'
+=== CP-004: recursive directory scan still works ===
+ok: CP-004: directory with a nested marker exits 1
+
+Results: 8 passed, 0 failed
+---- exit: 0 ----
+
+###### bash tests/template-validator-parity.tests.sh ######
+ok: impl-report template: heading line matches the evaluator boundary
+ok: validator pin: heading rule still present in launch boundary
+ok: impl-report template: '- Task ID:' line present
+ok: validator pin: Task ID rule still present in launch boundary
+ok: impl-report template: Outputs table row parses via the evaluator's declared-output rule
+ok: validator pin: Outputs-section parser still present in launch boundary
+ok: quality-report template: single Feature: line with the contract feature value
+ok: validator pin: Feature rule still present in evidence-bundle validator
+ok: quality-report template: Task ID line present
+ok: quality-report template: VERDICT line present
+
+template-validator-parity.tests.sh: 10 passed, 0 failed
+---- exit: 0 ----
+
+###### bash tests/crlf-parity.tests.sh ######
+=== CRLF-1: check-risk with CRLF tasks.md ===
+ok: CRLF-1.1: high task with CRLF endings passes check-risk (exit 0)
+ok: CRLF-1.2: fixture file confirmed to contain CR bytes (not already stripped)
+=== CRLF-2: check-risk with LF tasks.md (control) ===
+ok: CRLF-2.1: high task with LF endings passes check-risk (control)
+=== CRLF-3: check-risk critical+CRLF ===
+ok: CRLF-3.1: critical task with CRLF endings passes check-risk
+=== CRLF-4: check-risk CRLF bad-value still fails ===
+ok: CRLF-4.1: CRLF file with invalid Risk value still fails correctly (gate not neutered)
+=== CRLF-5: check-task-state with CRLF tasks.md ===
+ok: CRLF-5.1: Approved In-Progress task with CRLF endings passes check-task-state
+=== CRLF-6: check-task-state with LF tasks.md (control) ===
+ok: CRLF-6.1: LF tasks.md passes check-task-state (control)
+=== CRLF-7: check-task-state CRLF Draft+InProgress still fails ===
+ok: CRLF-7.1: CRLF Draft+InProgress still fails check-task-state (gate not neutered)
+
+Results: 8 passed, 0 failed.
+---- exit: 0 ----
+
+###### bash tests/constant-parity.tests.sh ######
+ok: BASELINE_IDS: sh and ps1 are identical (       6 entries)
+ok: RISK_TIERS tier:id pairs: sh and ps1 are identical (      31 pairs)
+
+constant-parity.tests.sh: 2 passed, 0 failed
+---- exit: 0 ----
+
+###### bash tests/guard-ps1-ascii.tests.sh ######
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+---- exit: 0 ----
+
+###### bash tests/second-approval-mask.tests.sh ######
+# second-approval-mask suite (CWS_SH=/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-workflow-state.sh)
+--- sanity: base provenance fixture ---
+ok: SANITY unmutated frozen validates [sh] (0|)
+ok: SANITY unmutated frozen validates [ps1] (0|)
+ok: SANITY unmutated frozen validates [parity sh==ps1] (0|)
+--- TEST-001 (AC-001): post-freeze Second Approval normalizes to ok ---
+ok: TEST-001 base add [sh] (0|)
+ok: TEST-001 base add [ps1] (0|)
+ok: TEST-001 base add [parity sh==ps1] (0|)
+ok: TEST-001 base add: sh/ps1 normal forms byte-identical
+ok: TEST-001 value edit [sh] (0|)
+ok: TEST-001 value edit [ps1] (0|)
+ok: TEST-001 value edit [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence [sh] (0|)
+ok: TEST-001 multi-occurrence [ps1] (0|)
+ok: TEST-001 multi-occurrence [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence: sh/ps1 normal forms byte-identical
+--- TEST-002 (AC-002): negative controls stay fail-closed (RED and GREEN) ---
+ok: TEST-002a arbitrary line [sh] (1|stage-provenance)
+ok: TEST-002a arbitrary line [ps1] (1|stage-provenance)
+ok: TEST-002a arbitrary line [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [sh] (1|stage-provenance)
+ok: TEST-002b checkbox flip [ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [sh] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [parity sh==ps1] (1|stage-provenance)
+--- TEST-003 (AC-003): CRLF parity + byte-identical normal forms ---
+ok: TEST-003 CRLF base add [sh] (0|)
+ok: TEST-003 CRLF base add [ps1] (0|)
+ok: TEST-003 CRLF base add [parity sh==ps1] (0|)
+ok: TEST-003 CRLF base add: sh/ps1 normal forms byte-identical
+ok: TEST-003 CRLF tamper [sh] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [ps1] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [parity sh==ps1] (1|stage-provenance)
+ok: TEST-003 CRLF final-line-no-newline [sh] (0|)
+ok: TEST-003 CRLF final-line-no-newline [ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline: sh/ps1 normal forms byte-identical
+ok: TEST-003 LF final-line-no-newline [sh] (0|)
+ok: TEST-003 LF final-line-no-newline [ps1] (0|)
+ok: TEST-003 LF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 LF final-line-no-newline: sh/ps1 normal forms byte-identical
+--- TEST-004 (AC-004): suite registered in tests/run-all.sh ---
+ok: TEST-004 registered in tests/run-all.sh
+---- summary: pass=39 fail=0 skip=0 ----
+ok: second-approval-mask suite passed (39 checks, 0 skipped)
+---- exit: 0 ----
+
+###### bash tests/validate-repository.sh ######
+workflow-state: ok
+Repository validation passed.
+---- exit: 0 ----
+
+NOTE: tests/gates.tests.sh NOT run in this regression set -- pre-existing
+local evidence-key failure documented in this feature's T-001/T-002
+implementation reports (same event as wave-1 epic-159-pillar-a T-001
+report); out of scope for this deterministic-phase gate, recorded only.
+
+TOTAL_FAILED_SUITES: 0
+== end: 2026-07-16T04:16:23Z ==
+EXIT_CODE: 0
+
+###### post-fix-cycle addendum (HEAD 69cda39): tests/validate-repository.sh re-check ######
++ bash tests/validate-repository.sh
+== start: 2026-07-16T05:30:16Z ==
+workflow-state: ok
+Repository validation passed.
+== end: 2026-07-16T05:30:18Z ==
+EXIT_CODE: 0
+NOTE: shared regression set (loop-inventory/loop-driver/loop-consistency/loop-escalation
+sh+ps1, check-placeholders.tests.sh, template-validator-parity.tests.sh, crlf-parity,
+constant-parity, guard-ps1-ascii, second-approval-mask, validate-repository) is otherwise
+unchanged from the full run above -- loop-driver.tests.ps1 and loop-consistency.tests.ps1
+were already re-run at HEAD 69cda39 in this task's own focused-tests.log (0 SKIP, 0 FAIL
+both lanes), and the fix commits (2a7eef5, 69cda39) touch only
+spec-review-precheck.ps1/domain-review-precheck.ps1, outside every other suite's target set.
+
+###### post-fix-cycle-3 addendum (HEAD b5eba54): tests/validate-repository.sh re-check ######
++ bash tests/validate-repository.sh
+== start: 2026-07-16T06:07:03Z ==
+workflow-state: ok
+Repository validation passed.
+== end: 2026-07-16T06:07:05Z ==
+EXIT_CODE: 0
+NOTE: shared regression set (loop-inventory/loop-driver/loop-consistency/loop-escalation
+sh+ps1, check-placeholders.tests.sh, template-validator-parity.tests.sh, crlf-parity,
+constant-parity, guard-ps1-ascii, second-approval-mask, validate-repository) is otherwise
+unchanged from the full run above -- loop-driver.tests.ps1 and loop-consistency.tests.ps1
+were already re-run at HEAD b5eba54 in this task's own focused-tests.log (0 SKIP, 0 FAIL
+both lanes), and the cycle-2/cycle-3 fix commits (19cfb75, b5eba54) touch only
+spec-review-precheck.ps1/domain-review-precheck.ps1, outside every other suite's target set.

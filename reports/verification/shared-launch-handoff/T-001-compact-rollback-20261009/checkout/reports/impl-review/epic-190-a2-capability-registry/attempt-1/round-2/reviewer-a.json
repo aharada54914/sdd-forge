@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-r2-seq0335",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-r2-0335",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "80c138e0667d671f0da1aca50378db6318384ddc1a7f982567bf525858e66a47"},
+    {"path": "specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-1/round-2/precheck-result.json", "sha256": "484912ffd34698e1d87073a03c771ba5581974a61e8c9b977a44df14aaca7a0d"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-1/round-1/integrated-summary.json", "sha256": "61d8d041fb36ba70a7361277b1e7f74cdabfa8cdc75ad6f51a1a199924191b85"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "new machine-readable contract (Capability Registry schema + instance, plus a versioned lite-upgrade-reason catalog) plus four deterministic scripts (Predicate DSL evaluator, Registry validator, registry_digest generator, projection generator) added to the existing plugins/sdd-quality-loop/ plugin, their protected-file/CI wiring, and a package-relative Registry discovery contract for standalone installs",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` (lines 28-77) gives a directed diagram of every new contract file and script, each annotated with its function and REQ mapping (lines 30-56), states integration with the existing `sdd-quality-loop` plugin explicitly ('No new plugin is introduced... already carries a complete, working 3-environment manifest', lines 73-77), and fully specifies the Registry discovery contract's fallback/fail-closed chain (lines 58-71). Technology choices per layer are covered across Architecture + Components (Python master / sh+ps1(+js) wrapper convention, JSON Schema draft-07) and the Layer Specifications table (lines 229-234), which cross-references infra-spec.md and security-spec.md and explicitly states UX/Frontend are N/A (no UI surface, confirmed independently by ux-spec.md and frontend-spec.md). This is far beyond a one-sentence description naming components without interactions; all three required elements are present with evidence."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture (design.md lines 30-71) and Cross-Layer Dependencies (lines 249-267) declare a strict DAG: contracts/*.json -> {validate-capability-registry.py, evaluate-predicate.py, generate-registry-digest.py, generate-gate-capabilities.py} -> generated/gate-capabilities.json -> sdd-quality-loop's Implementation Gate (external consumer, one-way). registry_digest depends on Epic A1's canonicalizer (upstream); Epic A5's Resolver depends on Epic A2's evaluator/digest/Registry (downstream). No component depends back on any component that (transitively) depends on it; no cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (lines 307-322) identifies every new data entity (`contracts/capability-registry.json`, `contracts/lite-upgrade-reason-catalog.json`, generated `gate-capabilities.json` plus vendored copies) with its authoring/generation model; explicitly states no existing data is affected ('No data is deleted or migrated; this is a net-new contract with no prior version') and that no migration is required, with rationale ('No database, no migration, no runtime storage' — net-new contract). The section uses prose bullets rather than the literal `Data Entities:`/`Existing Data Affected:`/`Migration Strategy:` labels, but all three required elements are unambiguously present in substance with no concrete implementation-alignment gap."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## API / Contract Plan` (lines 324-667) lists every new script/contract surface (Registry schema, Predicate DSL evaluator CLI, Registry validator CLI, `registry_digest` generator CLI, projection generator CLI, Registry discovery contract) with an explicit invocation signature, path, request shape, and response/output schema for each. No existing endpoint is deprecated or changed — confirmed net-new tooling (Non-goals/AC-034: no file under `plugins/`/`scripts/`/`contracts/`/`tests/`/`.github/` exists yet). The section lacks one explicit standalone 'no deprecations' sentence, but this creates no concrete ambiguity given the feature's confirmed net-new nature, so it does not rise to a finding."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` (lines 925-942) names four trust boundaries (B1 Provider-neutrality, B2 No-dynamic-evaluation, B3 Protected-file integrity, B4 Discovery fail-closed) with enforcement mechanisms. security-spec.md (normative refinement per review instructions) expands each into a Trust Boundaries table with explicit AuthN/AuthZ ('None — OS/filesystem user boundary only; this Epic defines no authentication mechanism', consistent for B1-B4), a Data Classification and Protection table confirming no PII/credentials exist in any artifact, and a full OWASP Mapping table (Injection, Broken Access Control, Security Misconfiguration, Software and Data Integrity Failures, Cryptographic Failures N/A with rationale, Identification/Auth Failures N/A with rationale). All four required sub-items are covered across design.md + security-spec.md with no contradiction between the two documents."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's `Feature Type:` field (lines 4-9) is a non-canonical freeform string ('new machine-readable contract... plus four deterministic scripts... added to the existing plugins/sdd-quality-loop/ plugin...'), not literally one of api-only/frontend-only/cli/library, but design.md's Technical Summary ('no new UI, no new UX surface, and no new runtime service'), ux-spec.md ('N/A — no change: this Epic has no UX surface'), and frontend-spec.md ('N/A — no change: this Epic introduces no browser/client UI') unanimously confirm zero frontend surface exists — functionally equivalent to a cli/library feature type. No `## Frontend Plan` section exists to check for consistency against; the scoped surface for this check does not exist."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` (lines 669-777) covers unit scope (item 1 evaluate-predicate per-operator/edge-case fixtures, item 5 schema-conformance, item 6 provider-name-contamination), integration scope (item 2 validator exercised against fixture Registries covering all nine REQ-003 checks together, item 4 generate-gate-capabilities --check against a real fixture Registry+projection pair, item 8 Registry discovery across installed-layout fixtures), acceptance-criteria verification (acceptance-tests.md's full AC-NNN <-> TEST-NNN 1:1 mapping), and concrete planned evidence (named suite files, e.g. `tests/evaluate-predicate.tests.sh`/`.ps1`, `tests/validate-capability-registry.tests.sh`/`.ps1`, CI wiring into `.github/workflows/test.yml` via human-copy, Deployment/CI Plan). Items 7 (3-runtime parity) and 8 (installed-layout discovery) serve as this non-UI feature's end-to-end/critical-path verification across all three supported host runtimes."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in Architecture (design.md lines 28-77) and API / Contract Plan (lines 324-667) — the four scripts, three contract files, and the generated projection — has its own defining bullet in `## Components` (lines 79-186). References to pre-existing, established system components (`sdd-quality-loop`'s Implementation Gate, `generate-guard-invariants.py`/`guard_invariants.py`, `check-sdd-structure.sh`, `scripts/bump-version.sh`, Epic A1's canonicalizer, Epic A5's Resolver) are each independently grounded in investigation.md (INV-006, INV-009, INV-012, INV-014) or requirements.md Dependencies as externally-established components this spec consumes, not components this spec must itself define. No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's `## ADR Change Log` (lines 269-305) references ADR-0017, 0018, 0020, 0021, 0022, all confirmed present at docs/adr/ (verified by directory listing). However, this same section names two mechanisms the spec's own text repeatedly calls its 'own proposal, not found verbatim in decision v2 or an ADR' — the Registry discovery contract (REQ-005: script-relative -> git-root -> fail-closed, per-artifact version check, release-gating vendored-copy drift check) and the Gate implementation identity mechanism (REQ-003(c)) — and states 'No new ADR is proposed by this spec' for either. The round-2 edit adds a rationale (both single-Epic-scoped today; promotion deferred until a second real consumer, e.g. Epic A5, adopts the pattern) and a matching Risks entry, but design.md's own Cross-Layer Dependencies (lines 262-267) and Risks (lines 1113-1127) already name Epic A5's Resolver as a specific, anticipated future consumer of the identical discovery pattern, and the Risks entry itself states the unmitigated consequence plainly: 'if Epic A5 instead designs its own, materially different discovery convention, the two Epics would carry two undocumented, divergent patterns for the same problem with no ADR recording either as canonical.' This is precisely the architectural-departure-with-no-ADR condition this check flags — a self-acknowledged, concrete implementation-misalignment risk, not a hypothetical one. This repository's own convention formalizes comparable cross-cutting/reusable mechanisms as ADRs (e.g. ADR-0011 backs the human-copy protected-file pattern this same spec itself reuses, docs/adr/0011-phase2-handle-relative-protected-copy.md), which weighs against treating a deliberately-reusable discovery contract as adequately covered by an unpromoted, single-document design decision. The Gate implementation identity mechanism is comparatively more defensible as a non-ADR decision since no other Epic is named as a consumer of that specific mechanism (its scan-root literal is scoped only to this Epic's own validator), but the Registry discovery contract's named cross-Epic exposure is not resolved by the added rationale alone. Recommend: either author a lightweight ADR now for the Registry discovery contract, or have Epic A5's own spec explicitly commit to adopting it verbatim before Epic A5's design is approved, so the 'two divergent patterns' risk design.md's own Risks section names does not remain open indefinitely."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped per this check's own rule: no `design-system/` directory exists anywhere in this repository (verified via `ls design-system` -> 'No such file or directory'), and design.md's `## Design System Compliance` section states 'Not applicable — no UI surface' (line 247), consistent with the skip condition. Recorded as skipped; emitting PASS per the check definition's explicit instruction for this case."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped per this check's own rule: no `domain/` directory exists anywhere in this repository (verified via `ls domain` -> 'No such file or directory'), so no `domain/context-map.md` with `Domain-Model-Status: Approved` and no `domain/domain-contract.json` exist either. Recorded as skipped; emitting PASS per the check definition's explicit instruction for this case."
+    }
+  ]
+}

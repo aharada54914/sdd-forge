@@ -1,0 +1,132 @@
+{
+  "task_id": "T-006",
+  "feature": "workflow-state-integrity",
+  "risk": "medium",
+  "stack": "spec",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+  "created": "2026-06-29T00:00:00Z",
+  "comment": "Default-FAIL contract for synchronized v1.3.0 release metadata.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No configured lint command applies to release JSON and Markdown metadata.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Release metadata has no static typecheck target; repository validation parses every manifest.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "This repository ships source plugins without a build step.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-006.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-006.green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-006.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-006.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-006.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-006.green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-006.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Installer integration tests are the executable smoke surface; no service or UI exists.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The isolated 1.2.0 rollback worktree provides the required version-consistency differential.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI is changed.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

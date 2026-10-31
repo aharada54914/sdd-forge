@@ -1,0 +1,25 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-046",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "BLOCKED",
+  "critical_count": 2,
+  "major_count": 6,
+  "minor_count": 3,
+  "failed_check_ids": [
+    "IMPACT-PROPORTIONATE",
+    "META-CHANGE-ANTI-GOODHART",
+    "VERIFICATION-COMPLETE",
+    "SCOPE-PROPORTIONAL",
+    "RISK-IDENTIFIED",
+    "ROLLBACK-VIABLE",
+    "BLAST-RADIUS-BOUNDED",
+    "DRIFT-INVARIANT-TESTABLE",
+    "EFFECT-CONSISTENT-WITH-EVIDENCE",
+    "ALTERNATIVES-CONSIDERED",
+    "CHANGE-INSTRUCTION-APPLYABLE"
+  ],
+  "summary": "The proposed change has provably zero behaviour impact. It cannot fix the bypass it targets. _shell_targets_protected_gate_file has a second early return immediately after the short-circuit: `if not has_write: return False` (py:1464, js:618, ps1:968). The short-circuit's third clause IS `not has_write`, so its guarded set is a strict subset — a disqualifier added there alone changes no verdict. Verified three ways: patched scratch copies of both the .py and .js leave both bypass probes at exit 0; deleting the branch outright produces 0 verdict differences over a 67-command corpus. The Expected Effect's central claim (2 to 0) is therefore false as specified, and because the metric is the return value of the very function being changed, nothing in the plan would have caught it. Measurement also falsifies plan step 2: under the corrected placement process substitution flips to deny, but bare & and physical newline stay allowed, because the fail-closed analysis triggers only on write-target tokens. Additionally: & over-triggers on 5 legitimate test invocations; all four target files are themselves write-protected so both apply and revert need the human-copy route; the sibling change touched 14 files not 4; and the drift invariant is untestable in a black-box exit-code harness because the approval gate masks the write-protection verdict.",
+  "generated_at": "2026-08-23T15:20:00Z"
+}

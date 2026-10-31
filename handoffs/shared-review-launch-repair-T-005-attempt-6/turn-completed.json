@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11dad-e8e2-7e30-b591-b1d3909325e4",
+    "turn": {
+      "id": "01a11db0-4491-7f41-91cd-36961bc84146",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0ec3809fd1df0b20016ac81ccedef08191acc5f95fa5c817cf",
+          "text": "実際の sandbox 拒否が発生したため、指示どおり停止しました。\n\n```text\nzsh:1: can't create temp file for here document: operation not permitted\n```\n\n読取コマンドで heredoc を使用し、`output/tmp` を明示する前に一時ファイル作成が拒否されました。終了コードは `1` です。\n\n未実施：manifest ハッシュ検証、準備ヘルパー実行、全テスト、報告書生成。成果物はありません。  \nsnapshot・製品コード・タスク状態は変更していません。今回の再検証結果は未確定です。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791499453,
+      "completedAt": 1791499474,
+      "durationMs": 20664
+    }
+  },
+  "emittedAtMs": 1791499474270
+}

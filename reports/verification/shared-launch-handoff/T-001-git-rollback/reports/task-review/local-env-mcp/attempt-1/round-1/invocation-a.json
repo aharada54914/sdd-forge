@@ -1,0 +1,49 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "local-env-mcp",
+  "run_id": "task-a-localenvmcp-a1r1-20260705-a175",
+  "host_session_id": "hs-task-a-6503d1ba-0005",
+  "sequence": 37,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a6c83e3d879f9d672da47771a4028955b4f53db8c1cd76f6e92164b21f421fed",
+  "previous_record_sha256": "1042abec3b7719572e3e9296b9dded9c1466536721fb8698df3aa548779713f1",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "specs/local-env-mcp/design.md",
+      "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"
+    },
+    {
+      "path": "specs/local-env-mcp/tasks.md",
+      "sha256": "ff842ef9335dc6f7262ed7179b9d7cd858d4e1f212917874fc4afcaf954bb58f"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.md",
+      "sha256": "5d4ebf6859ee7b253c5f750399181273b863532ae32b88c3edab1b14643c285a"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/local-env-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "7f053005d5cda2505f1e6cca888549b4446d49b86d83bee1f6d9e9bfb7c9660f"
+    },
+    {
+      "path": "reports/task-review/local-env-mcp/attempt-1/round-1/dependency-graph.json",
+      "sha256": "b2e97a607b96fb7ce9ca668c0dde862283e5f0e590e99ef7674e62e758b757b3"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0321",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0321",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md", "sha256": "42c17ec95ddbd0ef8de46b558c0f3755e5dd5b8df2afee754e7ea4ec469337a7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "62f27d36122b4bcceb67ed1f4a9b7d665d25a734ddbbeb0abbeb9c7a305af66b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json", "sha256": "748916d347e9bd2fcf27fa10945407aec885ca24c5c6c05dceb51cdd9c899876"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/integrated-summary.json", "sha256": "37c4a4b2a6bc2bf54a09b3da8830db1928d8c6ec5856297fba6dd01ea2e500e2"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions precisely pins each fixture state (Context-absent, Context-absent-lite, Context-present-advisory/required, Context-present-invalid variant); REQ-005/AC-028/AC-029 require an exhaustive, mutually-exclusive observable x fixture-state classification ('no observable is ever eligible for both simultaneously', 'never a cell-level label spanning two ACs with different gating states'); every factual claim is file:line cited (WFI-011, AC-017). No term, actor, state, or output was found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements, ACs, constraints, and non-goals. The document explicitly documents and resolves prior-draft contradictions in its own text (AC-005's F2 track correction, AC-029's byte/event/structural correction, AC-027's unique assignment of PROJECT_CONTEXT_INVALID to skip-stop-message 'never to quality-gate-outcome... resolving an earlier draft's dual-kind ambiguity', INV-016/NEW-001's citation-drift fix), and REQ-005's F1-F8 count is independently corroborated by INV-011's own citation of decision doc section 6."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance tests cover material negative/failure paths for the compatibility-suite's own logic: AC-002 (mutated-fixture negative self-check), AC-004/AC-021 (Resolver-absence spy), AC-019-AC-021 (PROJECT_CONTEXT_INVALID stop event, non-reachability of the compatibility fallback, Resolver non-invocation), AC-033 (all four emit-run-record.sh flag combinations including a golden negative usage-error test), AC-035 (three independently hard-failing negative self-checks: dependency-present SKIP, unknown SKIP, fingerprint drift), and AC-040 (CI-workflow negative scan). This is a broad, deliberately-designed negative-path surface."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three listed Assumptions are either given an explicit resolution mechanism (Epic A1/A3/A5 unmerged-status drift is explicitly mitigated by AC-035's fingerprint-drift hard-fail, 'not merely tolerate') or are foundational, program-level assumptions this package cannot unilaterally resolve (decision-doc/ADR authority; jq/bash/PowerShell runtime). All three Open Questions (OQ-001, OQ-002, OQ-003) are explicitly marked '(resolved)' with a citation to where each decision now lives, leaving no open assumption requiring design-time invention."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Roles and Permissions states: 'promote-golden-baseline.sh itself refuses to run whenever the CI environment variable is set or when no --approved-by <human-identifier> flag is supplied ..., and AC-040's static check independently verifies CI's own .github/workflows/test.yml never references either mutation-capable command' -- explicitly framing the script's own runtime guard as a second, distinct enforcement mechanism alongside AC-040. Scanning all 40 AC/TEST rows in acceptance-tests.md, none exercises this runtime refusal (CI env var set, or --approved-by omitted, producing non-zero exit / no canonical write); AC-018/TEST-018 and AC-040/TEST-040 are both 'static / doc-review' checks of the manifest contract and the CI workflow text, not of the script's own fail-closed behavior. A task author decomposing Phase 2/3 tasks therefore has no acceptance criterion committing anyone to test this specific irreversible-change safety guard (canonical golden-baseline mutation, Security Boundaries B1), so a future edit that silently drops the guard from the script would go undetected by every currently-enumerated AC/TEST. This is a spec-review-scoped completeness gap in the AC list (not an implementation detail, since the guard's existence/behavior is already asserted as fact in requirements.md) with a high-risk claim (irreversible baseline-canonicalization boundary) and no planned validation surface, hence Major per calibration ('missing observable acceptance criterion... high-risk claim with no planned validation surface'); it stops short of Critical because the surrounding process (AC-018 human-reviewed-PR requirement, AC-040 CI-workflow scan) still makes most of the boundary testable and reviewable."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC (AC-001-AC-040) has exactly one corresponding placeholder Test ID with no gaps, and the footnote at the end of acceptance-tests.md explicitly disambiguates package-level placeholder IDs from real per-suite-file case numbers (e.g. TEST-018/TEST-019) so no row is identifier-ambiguous. Main Workflows gives a numbered, unambiguous Phase 2/3 implementation sequence (steps 1-7), and forward-looking design decisions are consistently and explicitly deferred to design.md (a sibling Phase-1 artifact reviewed under a separate gate) rather than left unassigned. Aside from the single APPROVAL-BOUNDARY gap noted above, the package hands off cleanly without requiring a downstream reviewer to invent missing product behavior."
+    }
+  ]
+}

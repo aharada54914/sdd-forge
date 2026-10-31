@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh docs/contributor/workflow-detail.md docs/agent-capability-matrix.md
+== start: 2026-07-19T09:24:59Z ==
+Placeholder scan passed.
+== end: 2026-07-19T09:24:59Z ==
+EXIT_CODE: 0

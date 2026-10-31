@@ -1,0 +1,1 @@
+ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges

@@ -1,0 +1,426 @@
+==> tests/install.tests.sh
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.UBigxUebFx/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.UBigxUebFx/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.SrKTSo0vh7/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.lmpdShcpQv/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OLh2ihbTqJ/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.9lJAnhE9zb/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.h1KhLuqP5v/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.zVQcFijuJ9/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.n6B3Aj3PF0/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.uxPkVGVVRv/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.3YsdbnkM0S/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+
+Results: 35 passed, 0 failed.
+==> tests/uninstall.tests.sh
+ok: full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents
+ok: --keep-files preserves installed files while unregistering
+ok: --skip-agent-uninstall preserves shipped agent role files
+ok: subset --plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: --skip-plugin-uninstall proceeds when CLI is absent
+ok: idempotency: second uninstall exits 0
+ok: invalid plugin name rejected
+ok: invalid --target rejected
+ok: empty --install-root rejected
+ok: filesystem root rejected as --install-root
+ok: home directory rejected as --install-root
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+
+Results: 24 passed, 0 failed.
+==> tests/guards.tests.sh
+ok: sh: edit adds approval -> deny (exit 2)
+ok: sh: status-only change -> allow (exit 0)
+ok: sh: malformed payload -> deny (exit 2)
+ok: sh: copilot deny -> JSON deny, exit 0
+ok: sh: Write nonexistent tasks.md with approval -> deny
+ok: sh: Write content extra headerless approval -> deny
+ok: sh: Write content same approval count -> allow
+ok: sh: Write per-task swap (constant total) -> deny
+ok: sh: Write agent role without developer_instructions -> deny (exit 2)
+ok: sh: Write agent role with developer_instructions -> allow (exit 0)
+ok: sh: Write to non-agent path -> allow (exit 0)
+ok: sh: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: sh: apply_patch Delete File agent role -> deny (exit 2)
+ok: sh: apply_patch Update File agent role -> deny (exit 2)
+ok: sh: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: sh: shell read agent role path -> allow (exit 0)
+ok: sh: shell heredoc with developer_instructions -> deny (exit 2)
+ok: sh: no runtime available -> deny (exit 2)
+ok: sh sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: sh sudo: expired epoch + approval increase -> deny (exit 2)
+ok: sh sudo: malformed flag + approval increase -> deny (exit 2)
+ok: sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)
+ok: sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)
+ok: py sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: py sudo: expired epoch + approval increase -> deny (exit 2)
+ok: py sudo: malformed flag + approval increase -> deny (exit 2)
+ok: py sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: py sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: node sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: node sudo: expired epoch + approval increase -> deny (exit 2)
+ok: node sudo: malformed flag + approval increase -> deny (exit 2)
+ok: node sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: node sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: sh: valid signed token -> approval bypassed (allow)
+ok: py: valid signed token -> approval bypassed (allow)
+ok: node: valid signed token -> approval bypassed (allow)
+ok: sh: wrong sig -> sudo inactive -> approval denied
+ok: py: wrong sig -> sudo inactive -> approval denied
+ok: node: wrong sig -> sudo inactive -> approval denied
+ok: sh: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: py: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: node: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: sh: missing sig field -> sudo inactive -> approval denied
+ok: py: missing sig field -> sudo inactive -> approval denied
+ok: node: missing sig field -> sudo inactive -> approval denied
+ok: sh: kill-switch absent -> 0
+ok: sh: kill-switch present -> 2
+ok: sh: kill-switch dual-path: cwd has AGENT_STOP -> 2
+ok: sh: kill-switch dual-path: CLAUDE_PROJECT_DIR has AGENT_STOP -> 2
+ok: py: edit adds approval -> deny (exit 2)
+ok: py: other file -> allow (exit 0)
+ok: py: malformed -> deny (exit 2)
+ok: py: copilot deny -> JSON deny, exit 0
+ok: py: TTY guard with empty stdin (/dev/null) does not hang -> deny (exit 2)
+ok: py: kill-switch in cwd -> deny (exit 2)
+ok: py: Write agent role without developer_instructions -> deny (exit 2)
+ok: py: Write agent role with developer_instructions -> allow (exit 0)
+ok: py: Write to non-agent path -> allow (exit 0)
+ok: py: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: py: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: py: apply_patch Delete File agent role -> deny (exit 2)
+ok: py: apply_patch Update File agent role -> deny (exit 2)
+ok: py: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: py: shell read agent role path -> allow (exit 0)
+ok: py: shell heredoc with developer_instructions -> deny (exit 2)
+ok: node: edit adds approval -> deny (exit 2)
+ok: node: other file -> allow (exit 0)
+ok: node: Write agent role without developer_instructions -> deny (exit 2)
+ok: node: Write agent role with developer_instructions -> allow (exit 0)
+ok: node: Write to non-agent path -> allow (exit 0)
+ok: node: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: node: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: node: apply_patch Delete File agent role -> deny (exit 2)
+ok: node: apply_patch Update File agent role -> deny (exit 2)
+ok: node: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: node: shell read agent role path -> allow (exit 0)
+ok: node: shell heredoc with developer_instructions -> deny (exit 2)
+ok: check-task-state.sh header-only exits 1
+ok: check-task-state.sh header-only produces per-field errors (not 'no tasks found')
+ok: check-placeholders.sh: lowercase todo passes (prose, RT-20260706-001)
+ok: check-placeholders.sh: uppercase TODO flagged
+ok: sh: relative write after cd into agent role directory -> deny (exit 2)
+ok: py: relative write after cd into agent role directory -> deny (exit 2)
+ok: node: relative write after cd into agent role directory -> deny (exit 2)
+ok: sh: cp into agent role directory -> deny (exit 2)
+ok: py: cp into agent role directory -> deny (exit 2)
+ok: node: cp into agent role directory -> deny (exit 2)
+ok: sh: Write full-replace Draft→Approved -> deny (exit 2)
+ok: sh: Write preserving Approved state -> allow (exit 0)
+ok: sh: Write introducing new Approved task -> deny (exit 2)
+ok: py: Write full-replace Draft→Approved -> deny (exit 2)
+ok: py: Write preserving Approved state -> allow (exit 0)
+ok: py: Write introducing new Approved task -> deny (exit 2)
+ok: node: Write full-replace Draft→Approved -> deny (exit 2)
+ok: node: Write preserving Approved state -> allow (exit 0)
+ok: node: Write introducing new Approved task -> deny (exit 2)
+ok: sh: net-zero approval transfer (delete old, add new) -> deny (exit 2)
+ok: sh: Approved→Draft deletion only -> allow (exit 0)
+ok: sh: Write to SDD_SUDO -> deny even without sudo (exit 2)
+ok: sh: shell write to SDD_SUDO -> deny (exit 2)
+ok: sh sudo: missing issued-epoch -> sudo inactive, approval denied (exit 2)
+ok: sh sudo: TTL > 24h -> sudo inactive (exit 2)
+ok: sh: kill-switch found in ancestor directory -> 2
+ok: sh: WFI Edit Status: Approved -> deny (exit 2)
+ok: sh: WFI Edit Status: Applied -> allow (exit 0)
+ok: sh: Status: Approved in non-WFI path -> allow (exit 0)
+ok: sh: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: sh sudo: WFI Status: Approved denied even with valid sudo (exit 2)
+ok: py: WFI Edit Status: Approved -> deny (exit 2)
+ok: py: WFI Edit Status: Applied -> allow (exit 0)
+ok: py: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: py sudo: WFI approval denied even with valid sudo (exit 2)
+ok: node: WFI Edit Status: Approved -> deny (exit 2)
+ok: node: WFI Edit Status: Applied -> allow (exit 0)
+ok: node: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: node sudo: WFI approval denied even with valid sudo (exit 2)
+ok: sh: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: sh: Write content adds Second Approval -> deny (exit 2)
+ok: sh: bash writes Second Approval to tasks.md -> deny (exit 2)
+ok: sh: apply_patch adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh: primary Approval without sudo -> deny (exit 2)
+ok: sh sudo: primary Approval WITH valid sudo -> allow (exit 0) — primary guard behavior unchanged
+ok: sh: Second Approval edit denied (not bypassed by primary guard)
+ok: py: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: py sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: py sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: py: Second Approval edit denied (not bypassed by primary guard)
+ok: node: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: node sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: node sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: node: Second Approval edit denied (not bypassed by primary guard)
+
+Results: 133 passed, 0 failed.
+==> tests/approval-boundary.tests.sh
+ok: implement-task selects only Approved + Planned tasks
+ok: implement-task explicitly rejects non-Approved tasks
+ok: python denies Draft-to-Approved without authorization
+ok: node denies Draft-to-Approved without authorization
+ok: Draft task is ineligible for implement-task
+ok: human-approved Planned task is eligible
+ok: python accepts active signed sudo
+ok: node accepts active signed sudo
+ok: active-sudo-approved Planned task is eligible
+ok: python rejects expired signed sudo
+ok: node rejects expired signed sudo
+ok: expired-sudo Draft task remains ineligible
+ok: python rejects invalid signed sudo
+ok: node rejects invalid signed sudo
+ok: invalid-sudo Draft task remains ineligible
+ok: baseline Draft-rejection assertion exits 0
+
+TEST-016 results: 16 passed, 0 failed
+==> tests/gates.tests.sh
+=== C-06: Contract Type Strictness ===
+ok: C-06.1: reject string 'true' for required field
+ok: C-06.2: reject numeric 1 for passes field
+ok: C-06.3: reject directory as evidence
+ok: C-06.4: reject empty (0-byte) evidence file
+ok: C-06.5: valid contract with boolean types passes
+=== C-07: Done State Strictness ===
+ok: C-07.1: reject Done without contract.json
+ok: C-07.2: reject Done with empty contract.json
+ok: C-07.3: reject Done with mismatched contract task_id
+=== C-05: Sudo Approval Format ===
+ok: C-05.1: valid sudo format Approved (sudo ISO8601) passes
+ok: C-05.2: any Approved (...) annotation accepted (relaxed format)
+ok: C-05.3: sudo-format Approved allows Done status
+=== H-02: Evidence Bundle Round-Trip + git_commit Binding ===
+ok: H-02.1a: generate-evidence-bundle succeeds
+ok: H-02.1b: bundle file created at expected path
+ok: H-02.1c: check-evidence-bundle passes on generated bundle
+ok: H-02.1d: cross-feature PASS report is rejected
+ok: H-02.1e: empty bundle feature is rejected when contract has a feature
+ok: H-02.1f: bundle and contract feature mismatch is rejected
+ok: H-02.1g: duplicate quality report features are rejected
+ok: H-02.1h: incorrectly cased quality report feature is rejected
+ok: H-02.2: tampered artifact → check fails with sha256 mismatch
+ok: H-02.3: bogus git_commit → check-evidence-bundle fails
+ok: H-02.4: missing git_commit → check-evidence-bundle fails
+ok: H-02.5: bundle with ancestor git_commit still passes check
+=== T-002: check-risk ===
+ok: T-002.1: valid task with Risk: high and Rationale passes
+ok: T-002.2: missing Risk line fails
+ok: T-002.3: invalid Risk value fails
+ok: T-002.4: placeholder Risk: {{risk}} fails
+ok: T-002.5: empty Risk Rationale fails
+ok: T-002.6: missing Risk Rationale line fails
+ok: T-002.7: two valid tasks pass
+ok: T-002.8: two tasks, one invalid fails
+ok: T-002.9: nonexistent file fails with correct message
+ok: T-002.10: task-id arg selects one valid section
+ok: T-002.11: valid Risk: low passes
+ok: T-002.12: valid Risk: medium passes
+ok: T-002.13: valid Risk: critical passes
+ok: T-002.14: filter task-id not found fails closed
+ok: T-002.15: high risk without Required Workflow fails
+ok: T-002.16: high risk with acceptance-first fails (must be tdd)
+ok: T-002.17: critical risk without Required Workflow fails
+ok: T-002.18: high risk with Required Workflow: tdd passes
+ok: T-002.19: critical risk with Required Workflow: tdd passes
+ok: T-002.20: medium risk without Required Workflow passes (not over-enforced)
+=== T-003: risk-aware check-contract ===
+ok: T-003.1: LEGACY (no risk field) with baseline set passes
+ok: T-003.2: risk: low with required set passes (unit-tests optional)
+ok: T-003.3: risk: low with build required:false fails correctly
+ok: T-003.4: risk: medium missing acceptance-tests fails correctly
+ok: T-003.5: risk: medium with full required set passes
+ok: T-003.6: risk: high missing requirement-traceability fails correctly
+ok: T-003.7: risk: high with full required set passes
+ok: T-003.8: risk: critical with full required set passes
+ok: T-003.9: risk: 'severe' (invalid) fails correctly
+=== T-012: stack descriptor (compile-check applicability) ===
+ok: T-012.1: stack docs waives compile checks with reasons → passes
+ok: T-012.2: absent stack (=code) keeps build mandatory (backward compat)
+ok: T-012.3: stack docs cannot waive unit-tests (abuse blocked)
+ok: T-012.4: stack docs waiver still requires waiver_reason
+ok: T-012.5: explicit stack code keeps build mandatory
+ok: T-012.6: invalid stack value fails correctly
+ok: T-012.7: stack shell at high+tdd tier waives compile checks → passes
+=== T-004: Red→Green evidence enforcement ===
+ok: T-004.1: LEGACY (no risk, no required_workflow) passes without red/green
+ok: T-004.2: required_workflow: test-after (low) passes without red/green
+ok: T-004.3: required_workflow: tdd with valid red+green evidence passes
+ok: T-004.4: missing red_evidence fails with correct message
+ok: T-004.5: non-existent red_evidence file fails correctly
+ok: T-004.6: risk high with wrong required_workflow fails
+ok: T-004.7: risk high full tier set with tdd red+green passes
+=== T-005: check-traceability ===
+ok: T-005.1: valid traceability (req+acs+tests, no evidence) passes
+ok: T-005.2: empty acs array fails with correct message
+ok: T-005.3: empty tests array fails with correct message
+ok: T-005.4: missing evidence file fails correctly
+ok: T-005.5: evidence file present and non-empty passes
+ok: T-005.6: require-evidence mode without evidence fails correctly
+ok: T-005.7: require-evidence mode with evidence passes
+ok: T-005.8: invalid JSON fails with correct message
+ok: T-005.9: nonexistent file fails with correct message
+ok: T-005.10: empty links array fails with correct message
+ok: T-005.11: require-evidence + empty array fails closed
+=== T-006: evidence provenance ===
+ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
+ok: T-006.1b: legacy bundle file created at expected path
+ok: T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)
+ok: T-006.2a: generated bundle contains 'risk' field
+ok: T-006.2b: generated bundle contains 'spec_revision' field
+ok: T-006.2c: generated bundle contains 'build_env' field
+ok: T-006.2d: generated bundle contains 'builder' field
+ok: T-006.2e: generated bundle contains 'review_verdict' field
+ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
+ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
+ok: T-006.3c: spec_revision is valid 64-char hex
+ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
+ok: T-006.5: high bundle with empty spec_revision fails check
+ok: T-006.6: risk mismatch (bundle vs contract) fails check
+ok: T-006.7: emptied bundle risk vs high contract fails closed
+=== T-007a: evidence bundle signing (critical risk) ===
+ok: T-007a.1a: generate-evidence-bundle succeeds for critical with key
+ok: T-007a.1b: critical bundle file created
+ok: T-007a.1c: critical bundle contains signature field
+ok: T-007a.1d: check-evidence-bundle passes on critical with matching key
+ok: T-007a.2: critical bundle without signature fails check
+ok: T-007a.3: tampered git_commit fails HMAC check
+ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails
+ok: T-007a.5: sigstore with SIGSTORE_VERIFIED env passes
+FAIL: T-007a.6: should fail without key. Got: Verification contract passed for task T-200.
+WARNING: evidence bundle for task T-200 was generated with a dirty working tree
+Evidence bundle FAILED for task T-200:
+ - critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)
+ - critical bundle signature is invalid (HMAC mismatch)
+ok: T-007a.7: critical with dirty tree fails
+FAIL: T-007a.8: generate critical without key should fail
+ok: T-007a.9: high-risk bundle without signature still passes
+ok: T-007a.10: legacy bundle without risk field still passes
+=== T-007b: Two-Person Approval (Critical Risk) ===
+ok: T-007b.1: critical Done without Second Approval fails with correct message
+ok: T-007b.2: critical Done with bare primary Approval fails (needs named)
+ok: T-007b.3: critical Done with same approver fails
+ok: T-007b.4: critical Done with sudo primary approver fails
+ok: T-007b.5: critical Done with alice + bob passes two-person rule
+ok: T-007b.6: non-critical Done without Second Approval passes (no enforcement)
+ok: T-007b.7: named Approval format accepted (not invalid)
+ok: T-007b.8: sudo Approval format still accepted (backward compat)
+=== T-003-CM: cross_model descriptor ===
+ok: CM.1: critical cross_model:required with passing check → passes
+ok: CM.2: cross_model:required missing cross-model-verification fails
+ok: CM.3: critical with cross_model absent (legacy) → passes (backward compat)
+ok: CM.4: critical cross_model:waived with waiver_reason → passes
+ok: CM.5: cross_model:bogus (invalid) fails correctly
+=== sdd-lite: check-task-state-lite ===
+ok: L1: Done with impl report + VERDICT:PASS report passes (no evidence.json required)
+ok: L2: Done with Approval: Draft fails (Approval required)
+ok: L3: Done with VERDICT: FAIL in quality-gate report fails
+ok: L4: Done with no impl report fails
+ok: L5: Duplicate task ID T-001 fails
+ok: L6: CRLF tasks.md with valid Done passes (CRLF parity)
+ok: R04-1: check-contract.sh exits 1 (fail-closed) when check-contract.py is missing
+
+====== Test Summary ======
+PASS: 124
+FAIL: 2
+==========================

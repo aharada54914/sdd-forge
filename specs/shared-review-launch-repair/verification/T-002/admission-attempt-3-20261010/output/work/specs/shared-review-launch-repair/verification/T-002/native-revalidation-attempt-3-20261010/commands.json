@@ -1,0 +1,122 @@
+[
+  {
+    "label": "runtime-versions",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-Command",
+      "$PSVersionTable | ConvertTo-Json -Depth 4"
+    ],
+    "command": "rtk proxy pwsh -NoProfile -Command '$PSVersionTable | ConvertTo-Json -Depth 4'",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:41:39.012478+00:00",
+    "finished_at": "2026-10-10T03:41:39.820877+00:00",
+    "exit_code": 0,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/runtime-versions.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/runtime-versions.stderr.log"
+  },
+  {
+    "label": "hash-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/review-hash-normalization.tests.ps1"
+    ],
+    "command": "rtk proxy pwsh -NoProfile -File tests/review-hash-normalization.tests.ps1",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:41:39.821223+00:00",
+    "finished_at": "2026-10-10T03:41:40.425356+00:00",
+    "exit_code": 0,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/hash-parity.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/hash-parity.stderr.log"
+  },
+  {
+    "label": "traceability-freeze",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/traceability-freeze-contract.tests.py"
+    ],
+    "command": "rtk proxy python3 -B tests/traceability-freeze-contract.tests.py",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:41:40.425604+00:00",
+    "finished_at": "2026-10-10T03:41:42.206262+00:00",
+    "exit_code": 1,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze.stderr.log"
+  },
+  {
+    "label": "traceability-freeze-retry-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/traceability-freeze-contract.tests.py"
+    ],
+    "command": "rtk proxy python3 -B tests/traceability-freeze-contract.tests.py",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:42:10.135059+00:00",
+    "finished_at": "2026-10-10T03:42:27.167979+00:00",
+    "exit_code": 0,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze-retry-1.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze-retry-1.stderr.log"
+  },
+  {
+    "label": "downstream-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "tests/downstream-review-precheck-parity.tests.sh"
+    ],
+    "command": "rtk proxy bash tests/downstream-review-precheck-parity.tests.sh",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:42:27.168272+00:00",
+    "finished_at": "2026-10-10T03:42:36.428408+00:00",
+    "exit_code": 0,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/downstream-parity.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/downstream-parity.stderr.log"
+  },
+  {
+    "label": "unreadable-equivalence",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+      "-Root",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+      "-FixtureDirectory",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/tmp/unreadable-equivalence"
+    ],
+    "command": "rtk proxy pwsh -NoProfile -File specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1 -Root /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work -FixtureDirectory /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/tmp/unreadable-equivalence",
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+    "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+    "shell_login": false,
+    "started_at": "2026-10-10T03:42:36.428731+00:00",
+    "finished_at": "2026-10-10T03:42:37.022064+00:00",
+    "exit_code": 0,
+    "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/unreadable-equivalence.stdout.log",
+    "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/unreadable-equivalence.stderr.log"
+  }
+]

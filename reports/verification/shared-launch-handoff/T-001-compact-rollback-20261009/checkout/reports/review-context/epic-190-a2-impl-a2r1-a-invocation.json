@@ -1,0 +1,27 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "epic-190-a2-capability-registry",
+  "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-a2r1-seq0339",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-a2r1-0339",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "7b6722134181e4d01944ef87597af43c005ecea35a1ebf9bfa23b8dd72c18a0f",
+  "previous_record_sha256": "36162cc264bdeebfaf7334cde669e8c5eb3900013a7e99ad1d77285a68b0147d",
+  "sequence": 339,
+  "allowed_input_manifest": [
+    {"path":"specs/epic-190-a2-capability-registry/requirements.md","sha256":"8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path":"specs/epic-190-a2-capability-registry/acceptance-tests.md","sha256":"591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path":"specs/epic-190-a2-capability-registry/design.md","sha256":"b7f2f8f414867c58601f1582e10c856b2dc4366fb97e95889aec7489d9b50958"},
+    {"path":"specs/epic-190-a2-capability-registry/investigation.md","sha256":"b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path":"specs/epic-190-a2-capability-registry/ux-spec.md","sha256":"da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path":"specs/epic-190-a2-capability-registry/frontend-spec.md","sha256":"84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path":"specs/epic-190-a2-capability-registry/infra-spec.md","sha256":"513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path":"specs/epic-190-a2-capability-registry/security-spec.md","sha256":"e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/impl-review/epic-190-a2-capability-registry/attempt-2/round-1/precheck-result.json","sha256":"2395c04dcc8543ed86b99393bec10c2f51cc330c9a8771c662f44204a78370e6"}
+  ]
+}

@@ -1,0 +1,15 @@
+✔ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (209.945958ms)
+✔ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (199.53475ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (391.522833ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (774.425333ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two calls, same connection (11.377625ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two independently seeded, independently connected servers (5.603208ms)
+✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (2.187333ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1609.15525

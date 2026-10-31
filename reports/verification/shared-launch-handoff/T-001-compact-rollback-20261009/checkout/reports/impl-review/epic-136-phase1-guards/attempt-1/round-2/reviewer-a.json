@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-epic136guards-a1r2-20260712-a3b4",
+  "host_session_id": "hs-impl-a-epic136guards-0158",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "ed82a3f73a999be7e8a32fde259e4588d5216233fd687fc2cbe7ff7a17a516f4"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/ux-spec.md",
+      "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+      "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-2/precheck-result.json",
+      "sha256": "db834e6f4e3367a00aa279d2c650a294dbfa200a65c600aaae0b0fb65b9edf63"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d894470aa7e98308f676471b4d8ac7bf28826d6a372b0e45200f3b2f5c612eb9"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "security hardening / workflow enforcement (mixed fix + feat)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "## Architecture names top-level boundaries and integration with existing hook configs; ## Components states technology per component; Frontend/Data N/A with rationale, consistent with ux/frontend specs."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit dependency declarations; the routing flow graph (A->HK->twins->D; SH->CYC/XV; CI->PRG) has no back-edges."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan states all three sub-fields explicitly (Data Entities: none; Existing Data Affected: none persisted; Migration Strategy: none)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan states no change to existing protocols/schemas, defines the cycle-limit script internal contract and the two new tasks.md fields, and addresses breaking-change status (existing consumers ignore unknown fields)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries names B1/B2/B3 with auth/authz, data classification, and OWASP concerns, cross-referenced to security-spec."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no frontend surface (ux/frontend specs N/A; Layer Specifications Frontend N/A; no ## Frontend Plan / ## Backend Plan)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (7 items) covers unit, integration, and acceptance scope with named commands and named test files, each mapped to AC IDs; workflow walk-through serves the equivalent of an E2E path for this CLI/CI feature."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components in ## Architecture are defined in ## Components; copilot-hooks.json is an established existing repo file referenced in AC-012/013, qualifying under the existing-component carve-out."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## ADR Change Log states no new ADR with rationale; every REQ ports/extends/corrects an established pattern; the new External Integrations section documents an already-in-use pinned action, not a new decision. PASS condition 3."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Design System Compliance records exactly 'N/A - ds_profile: none'; no design-system/ directory; check skipped -> PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory and no Domain-Model-Status: Approved; check skipped -> PASS."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+=== Step 1: independently invoke detect-policy-weakening.py directly on the candidate ===
+{
+  "categories": {
+    "capability_enforcement_weakened": "weakened",
+    "capability_removed": "n/a",
+    "component_path_narrowed": "not_weakened",
+    "criticality_lowered": "n/a",
+    "production_write_path_changed": "n/a",
+    "provider_allowlist_widened": "n/a",
+    "public_distribution_descoped": "n/a",
+    "required_gate_removed": "n/a",
+    "spec_profile_full_to_lite": "not_weakened"
+  },
+  "cooldown_hours": 24,
+  "policy_weakening": true,
+  "two_person_required": false
+}
+direct invocation exit code: 0
+
+=== Step 2: sign the candidate via generate-approval-sidecar.py (non-bootstrap: --live-sidecar present) ===
+staged: stage-out
+nonce: 9654facc176ae55f60e29538a763c0a438d51ff691ee50bceeccadd657cd3b9f
+generate-approval-sidecar exit code: 0
+
+=== Step 3: the staged sidecar's embedded weakening_verdict (should match Step 1's verdict exactly) ===
+{
+  "categories": {
+    "capability_enforcement_weakened": "weakened",
+    "capability_removed": "n/a",
+    "component_path_narrowed": "not_weakened",
+    "criticality_lowered": "n/a",
+    "production_write_path_changed": "n/a",
+    "provider_allowlist_widened": "n/a",
+    "public_distribution_descoped": "n/a",
+    "required_gate_removed": "n/a",
+    "spec_profile_full_to_lite": "not_weakened"
+  },
+  "cooldown_hours": 24,
+  "policy_weakening": true,
+  "two_person_required": false
+}
+
+predecessor_context_sha256: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+approval_epoch: 2
+
+=== Step 4: confirm WEAKENING_DETECTOR_UNAVAILABLE does not appear anywhere above (grep check) ===
+CONFIRMED: no WEAKENING_DETECTOR_UNAVAILABLE anywhere -- the diagnostic no longer fires for this fixture

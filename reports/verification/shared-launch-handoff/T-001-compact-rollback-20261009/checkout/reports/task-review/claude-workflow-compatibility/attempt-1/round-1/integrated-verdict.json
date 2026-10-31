@@ -1,0 +1,11 @@
+{
+  "schema": "integrated-verdict/v1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

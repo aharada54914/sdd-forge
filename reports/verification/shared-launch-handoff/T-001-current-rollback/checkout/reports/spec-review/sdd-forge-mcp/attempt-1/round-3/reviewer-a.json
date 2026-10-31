@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-sddforgemcp-a1r3-20260704-a9d2",
+  "host_session_id": "hs-spec-a-7ea701ba-0006",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "981965b3a5b5fcaa908c7e79abd2108dffc4095944aebb33437b12be6a672a94"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+      "sha256": "0066d8409e13d47c6468fa139e720411236433ea50deaf677a67c5ca2f5a8469"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..011 each specify measurable behavior (bundling, tool/resource counts, golden-test equivalence, allowlist/denylist enforcement, CI matrix, installer flags) with corresponding AC-001..017 evidence targets in acceptance-tests.md."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Acceptance Criteria section and acceptance-tests.md Requirement column jointly map every REQ-001..011 to at least one AC-001..017 (e.g., REQ-005->AC-001/AC-002, REQ-006->AC-003/AC-004, REQ-009->AC-007/AC-008/AC-009, REQ-011->AC-012)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each AC in acceptance-tests.md names a concrete observable outcome: exact error codes (not-found, cannot-parse, not-sdd-root, too-large), exit-code/message equivalence with check-task-state.sh, schema conformance, file mtime invariance, and install/uninstall file-presence checks."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes knowledge-mcp/local-env-mcp, all write tools (Approval changes, SDD_SUDO, tasks.md transitions), Cursor/VS Code connection work, CI artifact retrieval via gh, npm registry publish, and evidence signature verification execution."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-3 edit resolves the prior round-2 contradiction: Edge Cases now states the file size limit as a fixed 2 MiB value ('design.md Data Plan と同値') with the too-large error code named, matching AC-017's '2 MiB' threshold verbatim, so the constraint is a spec-approved constant rather than a design-deferred parameter. Path allowlist/denylist, root-fixation precedence (REQ-007), Node>=20, and bash 3.2 compatibility are also explicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's high-risk claim (parser misjudgment causing quality-gate false pass) has an explicit validation surface: golden-test equivalence against check-task-state.sh (REQ-005, AC-001, TEST-001) enforced in CI per acceptance-tests.md Notes."
+    }
+  ]
+}

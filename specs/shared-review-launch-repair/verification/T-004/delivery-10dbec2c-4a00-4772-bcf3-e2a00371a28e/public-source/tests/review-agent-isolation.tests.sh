@@ -1,0 +1,1092 @@
+#!/usr/bin/env bash
+# T-005: every reviewer/evaluator launch has a sequential, persisted boundary.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE_GIT_ROOT="${T005_SOURCE_GIT_ROOT:-$ROOT}"
+AGENTS="$ROOT/plugins/sdd-review-loop/agents"
+EVALUATOR="$ROOT/plugins/sdd-quality-loop/agents/evaluator.md"
+QUALITY_GATE="$ROOT/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+VALIDATOR_SH="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+VALIDATOR_PS1="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
+fail() { printf 'not ok: %s\n' "$1" >&2; exit 1; }
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
+  else shasum -a 256 "$1" | awk '{print $1}'; fi
+}
+
+for stage in spec impl task; do
+  skill="$ROOT/plugins/sdd-review-loop/skills/${stage}-review-loop/SKILL.md"
+  [[ -f "$skill" ]] || fail "missing ${stage} review skill"
+  grep -Fq 'validate-review-context-set' "$skill" ||
+    fail "${stage} review skill must invoke the deterministic launch boundary"
+  grep -Fq -- '--reserve' "$skill" ||
+    fail "${stage} review skill must reserve identity before each launch"
+  for reviewer in a b; do
+    file="$AGENTS/${stage}-reviewer-${reviewer}.md"
+    [[ -f "$file" ]] || fail "missing ${stage} reviewer ${reviewer}"
+    grep -Fq "name: ${stage}-reviewer-${reviewer}" "$file" || fail "wrong name in ${file##*/}"
+    grep -Fq 'disallowedTools: Write, Edit, NotebookEdit' "$file" || fail "${file##*/} must be read-only"
+    tr '\n' ' ' < "$file" | grep -Eqi 'fresh.*context|never share context' || fail "${file##*/} must require a fresh independent context"
+    grep -Fq 'review-context-invocation/v2' "$file" || fail "${file##*/} must require the sequential invocation contract"
+    grep -Fq 'canonical identity ledger' "$file" || fail "${file##*/} must require persisted identity history"
+  done
+done
+
+[[ -f "$EVALUATOR" && -f "$QUALITY_GATE" ]] || fail "evaluator isolation artifacts are missing"
+grep -Fq 'review-context-invocation/v2' "$EVALUATOR" ||
+  fail 'evaluator must require the sequential invocation contract'
+grep -Fq 'canonical identity ledger' "$EVALUATOR" ||
+  fail 'evaluator must require persisted identity history'
+grep -Fq 'broad repository namespaces are not an' "$EVALUATOR" ||
+  fail 'evaluator must reject namespace-only input authorization'
+grep -Fq -- '--reserve' "$QUALITY_GATE" ||
+  fail 'quality gate must reserve evaluator identity before launch'
+grep -Fq "implementation report's \`## Outputs\` table" "$QUALITY_GATE" ||
+  fail 'quality gate must bind evaluator inputs to the task output set'
+grep -Fq 'No same-session fallback is permitted for the evaluator.' "$QUALITY_GATE" ||
+  fail "quality gate must fail closed instead of using evaluator fallback"
+[[ -x "$VALIDATOR_SH" && -f "$VALIDATOR_PS1" ]] ||
+  fail "paired deterministic review-context validators are missing"
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+implementation_identity() {
+  local repository=$1
+  printf 'Run ID: fixture-task-run\n'
+  printf '%s\n' '- **Run ID**: fixture-task-run' '- **Session ID**: fixture-task-session'
+  printf 'Input manifest: `handoffs/fixture-task/manifest.json`, SHA-256 `%s`\n\n' \
+    "$(sha256 "$repository/handoffs/fixture-task/manifest.json")"
+}
+
+make_repository() {
+  local repository=$1
+  mkdir -p \
+    "$repository/specs/f" "$repository/handoffs/fixture-task" \
+    "$repository/plugins/sdd-review-loop/references" \
+    "$repository/plugins/sdd-quality-loop/references" \
+    "$repository/reports/spec-review/f/attempt-1/round-1" \
+    "$repository/reports/impl-review/f/attempt-1/round-1" \
+    "$repository/reports/task-review/f/attempt-1/round-1" \
+    "$repository/reports/implementation/f" \
+    "$repository/reports/review-context" \
+    "$repository/plugins/internal" \
+    "$repository/plugins/task" \
+    "$repository/private"
+  printf 'requirements\n' > "$repository/specs/f/requirements.md"
+  printf 'acceptance\n' > "$repository/specs/f/acceptance-tests.md"
+  printf 'design\n' > "$repository/specs/f/design.md"
+  printf 'tasks\n' > "$repository/specs/f/tasks.md"
+  printf 'traceability\n' > "$repository/specs/f/traceability.md"
+  printf 'calibration\n' > "$repository/plugins/sdd-review-loop/references/spec-review-calibration.md"
+  printf 'calibration\n' > "$repository/plugins/sdd-review-loop/references/reviewer-calibration.md"
+  printf 'calibration\n' > "$repository/plugins/sdd-quality-loop/references/quality-gate-calibration.md"
+  printf '{}\n' > "$repository/reports/spec-review/f/attempt-1/round-1/precheck-result.json"
+  printf '{}\n' > "$repository/reports/impl-review/f/attempt-1/round-1/precheck-result.json"
+  printf '{}\n' > "$repository/reports/task-review/f/attempt-1/round-1/precheck-result.json"
+  printf 'authorized output\n' > "$repository/plugins/task/authorized-output.txt"
+  printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
+  local authorized_output_hash
+  authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
+  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",
+    run_id:"fixture-task-run",session_id:"fixture-task-session"}' \
+    > "$repository/handoffs/fixture-task/manifest.json"
+  {
+    printf '# Implementation Report: T-001\n\n'
+    implementation_identity "$repository"
+    printf '## Task\n\n'
+    printf '%s\n\n' '- Task ID: T-001'
+    printf '## Outputs\n\n'
+    printf '| Path | SHA-256 |\n'
+    printf '|---|---|\n'
+    printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$authorized_output_hash"
+  } > "$repository/reports/implementation/f/T-001.md"
+  printf 'secret\n' > "$repository/private/arbitrary-existing.txt"
+
+  local first_hash
+  first_hash="$(printf '%s' '1|implementation|implementer|implementation-run|implementation-session|' |
+    { if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi; } | awk '{print $1}')"
+  jq -n --arg hash "$first_hash" '{
+    schema:"review-identity-ledger/v1",
+    records:[{
+      sequence:1,
+      stage:"implementation",
+      role:"implementer",
+      run_id:"implementation-run",
+      host_session_id:"implementation-session",
+      previous_record_sha256:"",
+      record_sha256:$hash
+    }]
+  }' > "$repository/reports/review-context/identity-ledger.json"
+}
+
+input_for_role() {
+  case "$1" in
+    spec-reviewer-a|spec-reviewer-b) printf '%s\n' 'specs/f/requirements.md' ;;
+    impl-reviewer-a|impl-reviewer-b) printf '%s\n' 'specs/f/design.md' ;;
+    task-reviewer-a|task-reviewer-b) printf '%s\n' 'specs/f/tasks.md' ;;
+    sdd-evaluator) printf '%s\n' 'reports/implementation/f/T-001.md' ;;
+    *) fail "unknown fixture role: $1" ;;
+  esac
+}
+
+stage_for_role() {
+  case "$1" in
+    spec-reviewer-*) printf '%s\n' spec ;;
+    impl-reviewer-*) printf '%s\n' impl ;;
+    task-reviewer-*) printf '%s\n' task ;;
+    sdd-evaluator) printf '%s\n' quality ;;
+    *) fail "unknown fixture role: $1" ;;
+  esac
+}
+
+make_manifest() {
+  local repository=$1 role=$2 output=$3
+  local ledger="$repository/reports/review-context/identity-ledger.json"
+  local path stage ledger_hash previous sequence input_hash implementation_hash=''
+  path="$(input_for_role "$role")"
+  stage="$(stage_for_role "$role")"
+  if [[ "$role" == "sdd-evaluator" ]]; then
+    implementation_hash="$(sha256 "$repository/handoffs/fixture-task/manifest.json")"
+    local implementation_report="$repository/reports/implementation/f/T-001.md"
+    if ! grep -Fq '**Scratch Root**:' "$implementation_report"; then
+      printf '%s\n' '- **Scratch Root**: /tmp/implementation-f' >> "$implementation_report"
+    fi
+  fi
+  ledger_hash="$(sha256 "$ledger")"
+  previous="$(jq -r '.records[-1].record_sha256' "$ledger")"
+  sequence="$(jq '.records[-1].sequence + 1' "$ledger")"
+  input_hash="$(sha256 "$repository/$path")"
+  jq -n \
+    --arg stage "$stage" --arg role "$role" --arg path "$path" \
+    --arg ledger_hash "$ledger_hash" --arg previous "$previous" \
+    --arg implementation_hash "$implementation_hash" \
+    --arg input_hash "$input_hash" --argjson sequence "$sequence" '({
+      schema:"review-context-invocation/v2",
+      stage:$stage,
+      role:$role,
+      feature:"f",
+      run_id:($role + "-run"),
+      host_session_id:($role + "-session"),
+      read_only:true,
+      input_mode:"file-manifest",
+      fallback_mode:"none",
+      identity_ledger_path:"reports/review-context/identity-ledger.json",
+      identity_ledger_sha256:$ledger_hash,
+      previous_record_sha256:$previous,
+      sequence:$sequence,
+      allowed_input_manifest:[{path:$path,sha256:$input_hash}]
+    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f",
+      implementation_manifest:{path:"handoffs/fixture-task/manifest.json",sha256:$implementation_hash}}
+      else {} end)) |
+    if $role == "sdd-evaluator" then .allowed_input_manifest += [.implementation_manifest] else . end' > "$output"
+}
+
+run_bash() {
+  local manifest=$1 repository=$2
+  shift 2
+  "$VALIDATOR_SH" "$manifest" "$repository" "$@"
+}
+run_pwsh() {
+  local manifest=$1 repository=$2
+  shift 2
+  if [[ ${1:-} == --reserve ]]; then
+    pwsh -NoLogo -NoProfile -File "$VALIDATOR_PS1" \
+      -Manifest "$manifest" -RepositoryRoot "$repository" -Reserve
+  else
+    pwsh -NoLogo -NoProfile -File "$VALIDATOR_PS1" \
+      -Manifest "$manifest" -RepositoryRoot "$repository"
+  fi
+}
+
+assert_rejected_both() {
+  local name=$1 manifest=$2 repository=$3 expected=$4
+  local bash_output pwsh_output bash_category pwsh_category
+  if bash_output=$(run_bash "$manifest" "$repository" 2>&1); then
+    fail "Bash accepted invalid invocation: $name"
+  fi
+  bash_category="${bash_output%%:*}"
+  [[ "$bash_category" == "$expected" ]] ||
+    fail "unexpected Bash category for $name: $bash_category"
+  if command -v pwsh >/dev/null 2>&1; then
+    if pwsh_output=$(run_pwsh "$manifest" "$repository" 2>&1); then
+      fail "PowerShell accepted invalid invocation: $name"
+    fi
+    pwsh_category="${pwsh_output%%:*}"
+    [[ "$pwsh_category" == "$bash_category" ]] ||
+      fail "validator diagnostic mismatch for $name: Bash=$bash_category PowerShell=$pwsh_category"
+  fi
+}
+
+assert_reservation_preserves_foreign_lock_both() {
+  local manifest=$1 repository=$2
+  local lock="$repository/reports/review-context/identity-ledger.json.lock"
+  local expected='foreign reservation owner'
+  printf '%s\n' "$expected" > "$lock"
+  local bash_output pwsh_output
+  if bash_output=$(run_bash "$manifest" "$repository" --reserve 2>&1); then
+    fail 'Bash acquired a reservation lock owned by another process'
+  fi
+  [[ "${bash_output%%:*}" == REVIEW_CONTEXT_IDENTITY ]] ||
+    fail "unexpected Bash category for foreign reservation lock: ${bash_output%%:*}"
+  [[ -f "$lock" && "$(<"$lock")" == "$expected" ]] ||
+    fail 'Bash removed or changed a reservation lock it did not own'
+  if command -v pwsh >/dev/null 2>&1; then
+    if pwsh_output=$(run_pwsh "$manifest" "$repository" --reserve 2>&1); then
+      fail 'PowerShell acquired a reservation lock owned by another process'
+    fi
+    [[ "${pwsh_output%%:*}" == REVIEW_CONTEXT_IDENTITY ]] ||
+      fail "validator diagnostic mismatch for foreign reservation lock: Bash=${bash_output%%:*} PowerShell=${pwsh_output%%:*}"
+    [[ -f "$lock" && "$(<"$lock")" == "$expected" ]] ||
+      fail 'PowerShell removed or changed a reservation lock it did not own'
+  fi
+}
+
+assert_missing_manifest_both() {
+  local missing="$tmp/does-not-exist.json"
+  local bash_output pwsh_output
+  if bash_output=$(run_bash "$missing" "$bash_repository" 2>&1); then
+    fail 'Bash accepted a missing invocation manifest'
+  fi
+  [[ "${bash_output%%:*}" == REVIEW_CONTEXT_MANIFEST ]] ||
+    fail "unexpected Bash category for missing manifest: ${bash_output%%:*}"
+  if command -v pwsh >/dev/null 2>&1; then
+    if pwsh_output=$(run_pwsh "$missing" "$bash_repository" 2>&1); then
+      fail 'PowerShell accepted a missing invocation manifest'
+    fi
+    [[ "${pwsh_output%%:*}" == REVIEW_CONTEXT_MANIFEST ]] ||
+      fail "validator diagnostic mismatch for missing manifest: ${pwsh_output%%:*}"
+  fi
+}
+
+# Tests are strengthened before implementation: the committed Red test was
+# introduced by a745aed directly on top of the pre-implementation baseline.
+red_commit="$(git -C "$SOURCE_GIT_ROOT" rev-parse a745aed^{commit})"
+red_parent="$(git -C "$SOURCE_GIT_ROOT" rev-parse a745aed^)"
+[[ "$red_commit" == a745aed* ]] || fail 'cannot resolve committed Red test'
+[[ "$red_parent" == 1bba72f* ]] || fail 'Red test does not precede implementation baseline'
+git -C "$SOURCE_GIT_ROOT" diff-tree --no-commit-id --name-only -r "$red_commit" |
+  grep -Fxq 'tests/review-agent-isolation.tests.sh' ||
+  fail 'a745aed did not commit the failing isolation test'
+
+bash_repository="$tmp/bash-repository"
+make_repository "$bash_repository"
+valid="$tmp/valid.json"
+make_manifest "$bash_repository" spec-reviewer-a "$valid"
+run_bash "$valid" "$bash_repository" >/dev/null ||
+  fail 'Bash rejected a valid sequential invocation'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$valid" "$bash_repository" >/dev/null ||
+    fail 'PowerShell rejected a valid sequential invocation'
+fi
+
+assert_missing_manifest_both
+candidate="$tmp/candidate.json"
+jq '.run_id = "   "' "$valid" > "$candidate"
+assert_rejected_both whitespace-run-id "$candidate" "$bash_repository" REVIEW_CONTEXT_IDENTITY
+jq '.host_session_id = "\t"' "$valid" > "$candidate"
+assert_rejected_both whitespace-session-id "$candidate" "$bash_repository" REVIEW_CONTEXT_IDENTITY
+jq '.allowed_input_manifest = .allowed_input_manifest[0]' "$valid" > "$candidate"
+assert_rejected_both object-valued-allowed-input-manifest "$candidate" "$bash_repository" REVIEW_CONTEXT_CONTRACT
+jq '.sequence |= tostring' "$valid" > "$candidate"
+assert_rejected_both string-valued-invocation-sequence "$candidate" "$bash_repository" REVIEW_CONTEXT_CONTRACT
+jq '.allowed_input_manifest[0] = {
+  path:"private/arbitrary-existing.txt",
+  sha256:"'"$(sha256 "$bash_repository/private/arbitrary-existing.txt")"'"
+}' "$valid" > "$candidate"
+assert_rejected_both arbitrary-existing-unlisted-file "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+jq '.allowed_input_manifest[0].sha256 = ("b" * 64)' "$valid" > "$candidate"
+assert_rejected_both hash-mismatch "$candidate" "$bash_repository" REVIEW_CONTEXT_HASH
+jq '.input_mode = "chat-only"' "$valid" > "$candidate"
+assert_rejected_both chat-only "$candidate" "$bash_repository" REVIEW_CONTEXT_CONTRACT
+jq '.read_only = false' "$valid" > "$candidate"
+assert_rejected_both writable-context "$candidate" "$bash_repository" REVIEW_CONTEXT_CONTRACT
+jq '.fallback_mode = "same-session-file-reload"' "$valid" > "$candidate"
+assert_rejected_both fallback-enabled "$candidate" "$bash_repository" REVIEW_CONTEXT_CONTRACT
+jq '.identity_ledger_sha256 = ("b" * 64)' "$valid" > "$candidate"
+assert_rejected_both stale-ledger "$candidate" "$bash_repository" REVIEW_CONTEXT_IDENTITY
+ln -s requirements.md "$bash_repository/specs/f/investigation.md"
+jq '.allowed_input_manifest[0] = {
+  path:"specs/f/investigation.md",
+  sha256:"'"$(sha256 "$bash_repository/specs/f/requirements.md")"'"
+}' "$valid" > "$candidate"
+assert_rejected_both symlink-input "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+# Restore the fixture: this invalid evidence must not contaminate later reservations.
+rm "$bash_repository/specs/f/investigation.md"
+
+evaluator_manifest="$tmp/evaluator-valid.json"
+make_manifest "$bash_repository" sdd-evaluator "$evaluator_manifest"
+jq --arg hash "$(sha256 "$bash_repository/plugins/internal/arbitrary-existing.txt")" \
+  '.allowed_input_manifest[0] = {
+    path:"plugins/internal/arbitrary-existing.txt",
+    sha256:$hash
+  }' "$evaluator_manifest" > "$candidate"
+assert_rejected_both missing-task-implementation-report "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+jq --arg hash "$(sha256 "$bash_repository/plugins/task/authorized-output.txt")" \
+  '.allowed_input_manifest += [{
+    path:"plugins/task/authorized-output.txt",
+    sha256:$hash
+  }]' "$evaluator_manifest" > "$candidate"
+run_bash "$candidate" "$bash_repository" >/dev/null ||
+  fail 'Bash rejected an implementation-report-listed evaluator input'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$candidate" "$bash_repository" >/dev/null ||
+    fail 'PowerShell rejected an implementation-report-listed evaluator input'
+fi
+jq --arg hash "$(sha256 "$bash_repository/plugins/internal/arbitrary-existing.txt")" \
+  '.allowed_input_manifest += [{
+    path:"plugins/internal/arbitrary-existing.txt",
+    sha256:$hash
+  }]' "$evaluator_manifest" > "$candidate"
+assert_rejected_both unrelated-real-plugin-file "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+
+cp "$bash_repository/reports/implementation/f/T-001.md" \
+  "$bash_repository/reports/implementation/f/T-999.md"
+jq '
+  .allowed_input_manifest[0].path = "reports/implementation/f/T-999.md"
+' "$evaluator_manifest" > "$candidate"
+candidate_report_hash="$(sha256 "$bash_repository/reports/implementation/f/T-999.md")"
+jq --arg hash "$candidate_report_hash" \
+  '.allowed_input_manifest[0].sha256 = $hash' "$candidate" > "$tmp/wrong-task.json"
+mv "$tmp/wrong-task.json" "$candidate"
+assert_rejected_both wrong-task-report "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+
+cp "$bash_repository/reports/implementation/f/T-001.md" "$tmp/canonical-report.md"
+sed 's/ |$/ | extra-column/' "$tmp/canonical-report.md" \
+  > "$bash_repository/reports/implementation/f/T-001.md"
+make_manifest "$bash_repository" sdd-evaluator "$candidate"
+jq --arg hash "$(sha256 "$bash_repository/plugins/task/authorized-output.txt")" \
+  '.allowed_input_manifest += [{
+    path:"plugins/task/authorized-output.txt",
+    sha256:$hash
+  }]' "$candidate" > "$tmp/malformed-output-row.json"
+assert_rejected_both malformed-output-extra-column "$tmp/malformed-output-row.json" "$bash_repository" REVIEW_CONTEXT_PATH
+cp "$tmp/canonical-report.md" "$bash_repository/reports/implementation/f/T-001.md"
+
+# --- Outputs-row annotation tolerance -------------------------------------
+# The workflow expects a report to say when a row was added, drifted, or is
+# a shared append-only file, so evaluator_output_is_declared must authorize
+# a row's exact (path, hash) pair regardless of annotation text around
+# either backtick-quoted cell -- not force every annotated row into
+# REVIEW_CONTEXT_PATH. The authorization property itself must not weaken:
+# path and hash still have to match in full, a differently-hashed row for
+# the same path is still refused, an undeclared path is still refused, a
+# longer/shorter sibling path is still refused, and a forged 64-hex string
+# sitting inside annotation text must never authorize anything the row does
+# not genuinely declare.
+annot_repository="$tmp/annotation-repository"
+make_repository "$annot_repository"
+
+annot_plain_path='plugins/task/authorized-output.txt'
+annot_plain_hash="$(sha256 "$annot_repository/$annot_plain_path")"
+
+printf 'trailing-annotation candidate\n' > "$annot_repository/plugins/task/trailing.txt"
+annot_trailing_path='plugins/task/trailing.txt'
+annot_trailing_hash="$(sha256 "$annot_repository/$annot_trailing_path")"
+
+printf 'leading-annotation candidate\n' > "$annot_repository/plugins/task/leading.txt"
+annot_leading_path='plugins/task/leading.txt'
+annot_leading_hash="$(sha256 "$annot_repository/$annot_leading_path")"
+
+printf 'commit-annotated candidate\n' > "$annot_repository/plugins/task/commit-annotated.txt"
+annot_commit_path='plugins/task/commit-annotated.txt'
+annot_commit_hash="$(sha256 "$annot_repository/$annot_commit_path")"
+
+printf 'similar-prefix candidate\n' > "$annot_repository/plugins/task/similar.txt"
+printf 'similar-prefix candidate, longer sibling name\n' > "$annot_repository/plugins/task/similar.txt.bak"
+annot_similar_path='plugins/task/similar.txt'
+annot_similar_hash="$(sha256 "$annot_repository/$annot_similar_path")"
+annot_similar_bak_hash="$(sha256 "$annot_repository/$annot_similar_path.bak")"
+
+annot_wrong_hash="$(printf '%064d' 0 | tr '0' 'd')"
+
+{
+  printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$annot_repository"
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Outputs\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `%s` | `%s` |\n' "$annot_plain_path" "$annot_plain_hash"
+  printf '| `%s` | `%s` (**added** -- registered by this task) |\n' \
+    "$annot_trailing_path" "$annot_trailing_hash"
+  printf '| `%s` (added) | `%s` |\n' "$annot_leading_path" "$annot_leading_hash"
+  printf '| `%s` | `%s` (drifted -- extended by `%s`) |\n' \
+    "$annot_commit_path" "$annot_commit_hash" 'a1b2c3d'
+  printf '| `%s` | `%s` (see also `%s`, an unrelated hash) |\n' \
+    "$annot_similar_path" "$annot_similar_hash" "$annot_wrong_hash"
+} > "$annot_repository/reports/implementation/f/T-001.md"
+
+annot_manifest="$tmp/annot-evaluator.json"
+make_manifest "$annot_repository" sdd-evaluator "$annot_manifest"
+
+annot_add_input() {
+  # annot_add_input <out> <path> <hash>
+  local output=$1 path=$2 hash=$3
+  jq --arg p "$path" --arg h "$hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$annot_manifest" > "$output"
+}
+
+# ANNOT-01: unannotated row, exactly as today.
+annot_add_input "$tmp/annot-plain.json" "$annot_plain_path" "$annot_plain_hash"
+run_bash "$tmp/annot-plain.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-01: Bash rejected an unannotated Outputs row'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-plain.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-01: PowerShell rejected an unannotated Outputs row'
+fi
+
+# ANNOT-02: annotation after the hash cell.
+annot_add_input "$tmp/annot-trailing.json" "$annot_trailing_path" "$annot_trailing_hash"
+run_bash "$tmp/annot-trailing.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-02: Bash rejected annotation after the hash cell'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-trailing.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-02: PowerShell rejected annotation after the hash cell'
+fi
+
+# ANNOT-03: annotation between the path cell and the column separator.
+annot_add_input "$tmp/annot-leading.json" "$annot_leading_path" "$annot_leading_hash"
+run_bash "$tmp/annot-leading.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-03: Bash rejected annotation between the path cell and the separator'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-leading.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-03: PowerShell rejected annotation between the path cell and the separator'
+fi
+
+# ANNOT-04: annotation containing its own backtick-quoted commit id.
+annot_add_input "$tmp/annot-commit.json" "$annot_commit_path" "$annot_commit_hash"
+run_bash "$tmp/annot-commit.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-04: Bash rejected annotation containing a backtick-quoted commit id'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-commit.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-04: PowerShell rejected annotation containing a backtick-quoted commit id'
+fi
+
+# TEST-080: a 64-hex string embedded inside annotation text must never be
+# treated as the row's hash. Only the real hash -- the first backtick pair
+# immediately after the column separator -- authorizes; the forged one
+# sitting in the annotation must not, and the real one must still work on
+# the very same row.
+annot_add_input "$tmp/annot-forged-hex-rejected.json" "$annot_similar_path" "$annot_wrong_hash"
+assert_rejected_both ANNOT-05a-forged-hex-in-annotation-does-not-authorize \
+  "$tmp/annot-forged-hex-rejected.json" "$annot_repository" REVIEW_CONTEXT_PATH
+annot_add_input "$tmp/annot-forged-hex-real.json" "$annot_similar_path" "$annot_similar_hash"
+run_bash "$tmp/annot-forged-hex-real.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-05b: Bash rejected the real hash despite a forged hex string in annotation'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-forged-hex-real.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-05b: PowerShell rejected the real hash despite a forged hex string in annotation'
+fi
+
+# ANNOT-06: same path, wrong hash is still refused even on an annotated row.
+annot_add_input "$tmp/annot-wrong-hash.json" "$annot_trailing_path" "$annot_wrong_hash"
+assert_rejected_both ANNOT-06-annotated-row-same-path-wrong-hash-still-refused \
+  "$tmp/annot-wrong-hash.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
+# ANNOT-07: a path not declared anywhere in the table is still refused.
+annot_add_input "$tmp/annot-undeclared.json" 'plugins/internal/arbitrary-existing.txt' \
+  "$(sha256 "$annot_repository/plugins/internal/arbitrary-existing.txt")"
+assert_rejected_both ANNOT-07-undeclared-path-still-refused \
+  "$tmp/annot-undeclared.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
+# ANNOT-08: prefix confusion. The table declares plugins/task/similar.txt,
+# never plugins/task/similar.txt.bak. The declared row must not satisfy a
+# manifest requesting the longer sibling path, even at a hash that is
+# byte-correct for that longer path's own real content.
+annot_add_input "$tmp/annot-prefix-confusion.json" "$annot_similar_path.bak" "$annot_similar_bak_hash"
+assert_rejected_both ANNOT-08-prefix-confusion-longer-sibling-path-refused \
+  "$tmp/annot-prefix-confusion.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
+lock_repository="$tmp/lock-repository"
+make_repository "$lock_repository"
+make_manifest "$lock_repository" spec-reviewer-a "$candidate"
+assert_reservation_preserves_foreign_lock_both "$candidate" "$lock_repository"
+
+malformed_ledger_repository="$tmp/malformed-ledger-repository"
+make_repository "$malformed_ledger_repository"
+malformed_ledger="$malformed_ledger_repository/reports/review-context/identity-ledger.json"
+make_manifest "$malformed_ledger_repository" spec-reviewer-a "$candidate"
+jq '.records = .records[0]' "$malformed_ledger" > "$tmp/malformed-ledger.json"
+mv "$tmp/malformed-ledger.json" "$malformed_ledger"
+jq --arg hash "$(sha256 "$malformed_ledger")" \
+  '.identity_ledger_sha256 = $hash' "$candidate" > "$tmp/malformed-ledger-manifest.json"
+mv "$tmp/malformed-ledger-manifest.json" "$candidate"
+assert_rejected_both object-valued-ledger-records "$candidate" "$malformed_ledger_repository" REVIEW_CONTEXT_IDENTITY
+
+string_sequence_repository="$tmp/string-sequence-repository"
+make_repository "$string_sequence_repository"
+string_sequence_ledger="$string_sequence_repository/reports/review-context/identity-ledger.json"
+make_manifest "$string_sequence_repository" spec-reviewer-a "$candidate"
+jq '.records[0].sequence |= tostring' "$string_sequence_ledger" > "$tmp/string-sequence-ledger.json"
+mv "$tmp/string-sequence-ledger.json" "$string_sequence_ledger"
+jq --arg hash "$(sha256 "$string_sequence_ledger")" \
+  '.identity_ledger_sha256 = $hash' "$candidate" > "$tmp/string-sequence-manifest.json"
+mv "$tmp/string-sequence-manifest.json" "$candidate"
+assert_rejected_both string-valued-ledger-sequence "$candidate" "$string_sequence_repository" REVIEW_CONTEXT_IDENTITY
+
+# Reserve one invocation, then prove omission is impossible: reuse is detected
+# from the canonical ledger even though the next manifest contains no caller-
+# supplied reserved-ID array.
+run_bash "$valid" "$bash_repository" --reserve >/dev/null ||
+  fail 'Bash could not reserve a valid reviewer identity'
+make_manifest "$bash_repository" spec-reviewer-b "$candidate"
+jq '.run_id = "spec-reviewer-a-run"' "$candidate" > "$tmp/reused-run.json"
+assert_rejected_both reused-prior-run "$tmp/reused-run.json" "$bash_repository" REVIEW_CONTEXT_IDENTITY
+jq '.host_session_id = "implementation-session"' "$candidate" > "$tmp/reused-session.json"
+assert_rejected_both reused-implementation-session "$tmp/reused-session.json" "$bash_repository" REVIEW_CONTEXT_IDENTITY
+
+# Every future role can be launched in chronological order; no future context
+# is required at the first boundary.
+for role in spec-reviewer-b impl-reviewer-a impl-reviewer-b task-reviewer-a task-reviewer-b sdd-evaluator; do
+  make_manifest "$bash_repository" "$role" "$candidate"
+  run_bash "$candidate" "$bash_repository" --reserve >/dev/null ||
+    fail "Bash rejected sequential launch for $role"
+done
+[[ "$(jq '.records | length' "$bash_repository/reports/review-context/identity-ledger.json")" -eq 8 ]] ||
+  fail 'Bash did not persist the complete chronological identity chain'
+
+if command -v pwsh >/dev/null 2>&1; then
+  ps_repository="$tmp/ps-repository"
+  make_repository "$ps_repository"
+  for role in spec-reviewer-a spec-reviewer-b impl-reviewer-a impl-reviewer-b task-reviewer-a task-reviewer-b sdd-evaluator; do
+    make_manifest "$ps_repository" "$role" "$candidate"
+    run_pwsh "$candidate" "$ps_repository" --reserve >/dev/null ||
+      fail "PowerShell rejected sequential launch for $role"
+  done
+  [[ "$(jq '.records | length' "$ps_repository/reports/review-context/identity-ledger.json")" -eq 8 ]] ||
+    fail 'PowerShell did not persist the complete chronological identity chain'
+fi
+
+# Issue #143: impl-reviewer-a must be authorized to read the previous round's
+# integrated-summary.json. impl-review-precheck.sh requires reviewer-a's manifest
+# to carry it when round > 1, but this validator previously authorized the
+# summary for reviewer-b only, so every round > 1 impl review was rejected with
+# REVIEW_CONTEXT_PATH and impl-review could never pass past round 1.
+issue143_repository="$tmp/issue143-repository"
+make_repository "$issue143_repository"
+issue143_summary='reports/impl-review/f/attempt-1/round-1/integrated-summary.json'
+printf '{"schema":"integrated-summary/v1"}\n' > "$issue143_repository/$issue143_summary"
+make_manifest "$issue143_repository" impl-reviewer-a "$candidate"
+jq --arg path "$issue143_summary" \
+   --arg hash "$(sha256 "$issue143_repository/$issue143_summary")" \
+  '.allowed_input_manifest += [{path:$path,sha256:$hash}]' "$candidate" > "$tmp/issue143.json"
+run_bash "$tmp/issue143.json" "$issue143_repository" >/dev/null ||
+  fail 'issue #143: Bash rejected impl-reviewer-a previous-round integrated summary'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/issue143.json" "$issue143_repository" >/dev/null ||
+    fail 'issue #143: PowerShell rejected impl-reviewer-a previous-round integrated summary'
+fi
+
+# Round consistency: a manifest must not freeze a hash that disagrees with the
+# hash the same round's precheck-result.json pinned. That disagreement means the
+# document changed between the precheck and this reservation, so the round's two
+# reviewers would judge different text. Observed for real on epic-136-phase4-docs
+# at ledger sequences 395 and 407: both were burned reservations, and one round's
+# contract briefly recorded a hash neither reviewer had seen.
+roundcheck_repository="$tmp/roundcheck-repository"
+make_repository "$roundcheck_repository"
+roundcheck_ok_precheck='reports/impl-review/f/attempt-1/round-2/precheck-result.json'
+roundcheck_drift_precheck='reports/impl-review/f/attempt-1/round-3/precheck-result.json'
+mkdir -p "$roundcheck_repository/$(dirname "$roundcheck_ok_precheck")" \
+         "$roundcheck_repository/$(dirname "$roundcheck_drift_precheck")"
+design_hash="$(sha256 "$roundcheck_repository/specs/f/design.md")"
+
+# Two separate round directories, both written before either manifest is built,
+# so neither manifest can go stale while the other case runs.
+jq -n --arg h "$design_hash" '{
+  schema:"impl-review-precheck/v1", feature:"f", attempt:1, round:2, design_sha256:$h
+}' > "$roundcheck_repository/$roundcheck_ok_precheck"
+jq -n '{
+  schema:"impl-review-precheck/v1", feature:"f", attempt:1, round:3,
+  design_sha256:"0000000000000000000000000000000000000000000000000000000000000000"
+}' > "$roundcheck_repository/$roundcheck_drift_precheck"
+
+make_manifest "$roundcheck_repository" impl-reviewer-a "$candidate"
+for variant in ok drift; do
+  case "$variant" in
+    ok)    rc_path=$roundcheck_ok_precheck ;;
+    drift) rc_path=$roundcheck_drift_precheck ;;
+  esac
+  # The manifest pins the precheck file at its true hash, so the only possible
+  # discrepancy is the design.md hash the precheck pinned. Without that, a HASH
+  # rejection would masquerade as a round-consistency rejection and this case
+  # would pass even with the check removed.
+  jq --arg path "$rc_path" --arg hash "$(sha256 "$roundcheck_repository/$rc_path")" \
+    '.allowed_input_manifest += [{path:$path,sha256:$hash}]' "$candidate" \
+    > "$tmp/roundcheck-$variant.json"
+done
+
+run_bash "$tmp/roundcheck-ok.json" "$roundcheck_repository" >/dev/null ||
+  fail 'round consistency: Bash rejected a manifest whose hashes agree with the round precheck'
+
+roundcheck_err="$(run_bash "$tmp/roundcheck-drift.json" "$roundcheck_repository" 2>&1 >/dev/null || true)"
+case "$roundcheck_err" in
+  REVIEW_CONTEXT_ROUND:*) ;;
+  '') fail 'round consistency: Bash accepted a manifest whose design.md hash disagrees with the round precheck' ;;
+  *)  fail "round consistency: Bash rejected for the wrong reason, so the case proves nothing: $roundcheck_err" ;;
+esac
+
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/roundcheck-ok.json" "$roundcheck_repository" >/dev/null ||
+    fail 'round consistency: PowerShell rejected an agreeing manifest'
+  roundcheck_ps_err="$(run_pwsh "$tmp/roundcheck-drift.json" "$roundcheck_repository" 2>&1 >/dev/null || true)"
+  case "$roundcheck_ps_err" in
+    *REVIEW_CONTEXT_ROUND*) ;;
+    '') fail 'round consistency: PowerShell accepted a mid-round hash drift' ;;
+    *)  fail "round consistency: PowerShell rejected for the wrong reason: $roundcheck_ps_err" ;;
+  esac
+fi
+
+# WFI-036: an in-gate fix produces bytes the frozen implementation report can
+# never describe, so the very evaluator that must review the fix cannot
+# authorize the artifact under review. The validator therefore consults a
+# SECOND declaration channel: a gate report the manifest names explicitly and
+# pins by SHA-256. Every case below exists because this WFI WIDENS an
+# authorization set, and an unverified widening is indistinguishable from
+# removing the check: the source must be named rather than discovered, the
+# source must be hash-verified before a single row is read from it, and rows
+# must be hash-checked exactly as the implementation report's rows are.
+wfi036_repository="$tmp/wfi036-repository"
+make_repository "$wfi036_repository"
+mkdir -p "$wfi036_repository/reports/quality-gate" "$wfi036_repository/plugins/gate-fix"
+printf 'bytes produced by an in-gate fix\n' \
+  > "$wfi036_repository/plugins/gate-fix/post-fix-output.txt"
+wfi036_fix_path='plugins/gate-fix/post-fix-output.txt'
+wfi036_fix_hash="$(sha256 "$wfi036_repository/$wfi036_fix_path")"
+wfi036_unlisted_path='plugins/internal/arbitrary-existing.txt'
+wfi036_unlisted_hash="$(sha256 "$wfi036_repository/$wfi036_unlisted_path")"
+wfi036_wrong_hash="$(printf '%064d' 0 | tr '0' 'c')"
+
+wfi036_write_gate_report() {
+  # wfi036_write_gate_report <relative-path> <declared-path> <declared-hash>
+  # An empty <declared-path> writes a gate report carrying no post-fix table.
+  local relative=$1 declared_path=$2 declared_hash=$3
+  {
+    printf '# Quality Gate Report\n\n'
+    printf 'Task ID: T-001\n\n'
+    printf '## Decision\n\nPASS\n\n'
+    if [[ -n "$declared_path" ]]; then
+      printf '## Post-Fix Artifacts\n\n'
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `%s` | `%s` |\n' "$declared_path" "$declared_hash"
+      printf '\n'
+    fi
+  } > "$wfi036_repository/$relative"
+}
+
+wfi036_gate='reports/quality-gate/20260819T110000Z.md'
+wfi036_gate_no_table='reports/quality-gate/20260819T120000Z.md'
+wfi036_gate_wrong_row='reports/quality-gate/20260819T130000Z.md'
+wfi036_gate_naming_a_gate='reports/quality-gate/20260819T140000Z.md'
+wfi036_write_gate_report "$wfi036_gate" "$wfi036_fix_path" "$wfi036_fix_hash"
+wfi036_write_gate_report "$wfi036_gate_no_table" '' ''
+wfi036_write_gate_report "$wfi036_gate_wrong_row" "$wfi036_fix_path" "$wfi036_wrong_hash"
+wfi036_write_gate_report "$wfi036_gate_naming_a_gate" "$wfi036_gate_no_table" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+wfi036_gate_hash="$(sha256 "$wfi036_repository/$wfi036_gate")"
+
+# A document that is NOT a gate report but carries a correct post-fix row for a
+# real artifact. Its only defect is that it lives outside the gate's own report
+# namespace, which is exactly what the namespace requirement must catch.
+mkdir -p "$wfi036_repository/reports/notes"
+wfi036_forged='reports/notes/forged-declaration.md'
+{
+  printf '# Not a gate report\n\n'
+  printf '## Post-Fix Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `%s` | `%s` |\n' "$wfi036_fix_path" "$wfi036_fix_hash"
+} > "$wfi036_repository/$wfi036_forged"
+
+wfi036_evaluator="$tmp/wfi036-evaluator.json"
+make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
+
+wfi036_manifest() {
+  # wfi036_manifest <out> <gate-path|-> <gate-sha|-> <extra-path> <extra-sha>
+  local output=$1 gate_path=$2 gate_hash=$3 extra_path=$4 extra_hash=$5
+  local program='.allowed_input_manifest += [{path:$p, sha256:$h}]'
+  if [[ "$gate_path" != - ]]; then
+    program="${program} | .gate_report_declaration = {path:\$gp, sha256:\$gh}"
+  fi
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+     --arg gp "$gate_path" --arg gh "$gate_hash" \
+     "$program" "$wfi036_evaluator" > "$output"
+}
+
+# Happy path: the artifact an in-gate fix produced, declared in the gate report
+# the manifest names and pins, at its true hash, IS authorized. Before WFI-036
+# this exact manifest was rejected as role-unlisted and the cycle could not
+# review its own fix.
+wfi036_manifest "$tmp/wfi036-happy.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+run_bash "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash rejected a post-fix artifact declared in the named gate report'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell rejected a post-fix artifact declared in the named gate report'
+fi
+
+# Negative control (WFI-036 Verification Plan 1). A real, existing file that is
+# in NEITHER the implementation report nor the named gate report is still
+# role-unlisted. If this case ever passes, the channel removed the boundary.
+wfi036_manifest "$tmp/wfi036-negative.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_unlisted_path" "$wfi036_unlisted_hash"
+assert_rejected_both wfi036-declared-in-neither-document \
+  "$tmp/wfi036-negative.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# Positive control (WFI-036 Verification Plan 2), both polarities of a wrong
+# row hash, plus a stale declaration source.
+#  (a) the gate report's row hash disagrees with the manifest: no row matches,
+#      so the path is never authorized in the first place.
+wfi036_manifest "$tmp/wfi036-row-disagrees.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-row-hash-disagrees-with-manifest \
+  "$tmp/wfi036-row-disagrees.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+#  (b) row and manifest agree on a hash the file on disk does not have: the row
+#      authorizes, and the live-bytes check must still reject.
+wfi036_manifest "$tmp/wfi036-row-wrong.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_wrong_hash"
+assert_rejected_both wfi036-gate-row-hash-does-not-match-disk \
+  "$tmp/wfi036-row-wrong.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+#  (c) the declaration source itself is stale or forged: refused on the
+#      document's own hash, before any row is read from it.
+wfi036_manifest "$tmp/wfi036-stale-source.json" \
+  "$wfi036_gate" "$wfi036_wrong_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-stale-gate-report-declaration \
+  "$tmp/wfi036-stale-source.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+
+# The source is named, never discovered. With no declaration, and with a
+# different real gate report named, the same declared artifact stays refused --
+# the validator does not scan reports/quality-gate/ for a matching row.
+wfi036_manifest "$tmp/wfi036-unnamed.json" - - "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-report-not-named \
+  "$tmp/wfi036-unnamed.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-other-report.json" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-other-gate-report-named \
+  "$tmp/wfi036-other-report.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The declaration source must be a gate report, and no gate report authorizes
+# another gate report: an evaluator must not be handed a prior verdict.
+# Discriminating on purpose: the named document carries a correct post-fix row
+# for a real artifact, so the ONLY thing that can reject this manifest is the
+# requirement that a declaration source be a gate report. Drop that requirement
+# and this manifest validates.
+wfi036_manifest "$tmp/wfi036-foreign-source.json" \
+  "$wfi036_forged" "$(sha256 "$wfi036_repository/$wfi036_forged")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-declaration-source-outside-quality-gate \
+  "$tmp/wfi036-foreign-source.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-gate-authorizes-gate.json" \
+  "$wfi036_gate_naming_a_gate" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_naming_a_gate")" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+assert_rejected_both wfi036-gate-report-cannot-authorize-a-gate-report \
+  "$tmp/wfi036-gate-authorizes-gate.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The field is quality-only, and adding it never weakens the frozen-report
+# channel it sits beside.
+make_manifest "$wfi036_repository" spec-reviewer-a "$tmp/wfi036-spec-base.json"
+jq --arg gp "$wfi036_gate" --arg gh "$wfi036_gate_hash" \
+  '.gate_report_declaration = {path:$gp, sha256:$gh}' \
+  "$tmp/wfi036-spec-base.json" > "$tmp/wfi036-spec-stage.json"
+assert_rejected_both wfi036-gate-declaration-on-a-reviewer-stage \
+  "$tmp/wfi036-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
+wfi036_manifest "$tmp/wfi036-report-channel.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" 'plugins/task/authorized-output.txt' \
+  "$(sha256 "$wfi036_repository/plugins/task/authorized-output.txt")"
+run_bash "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash implementation-report channel regressed while a gate report was named'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
+fi
+
+# WFI-034: the evaluator scratch root must not equal, contain, or be contained
+# by the implementation root. The same manifest drives both validators.
+implementation_report="$wfi036_repository/reports/implementation/f/T-001.md"
+awk '{
+  if ($0 == "- **Scratch Root**: /tmp/implementation-f") {
+    print "- **Scratch Root**: /tmp/wfi034/implementation/task"
+    next
+  }
+  print
+}' "$implementation_report" > "$tmp/wfi034-report.md"
+mv "$tmp/wfi034-report.md" "$implementation_report"
+make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
+
+wfi034_manifest() {
+  local output=$1 scratch=$2
+  jq --arg scratch "$scratch" '.scratch_root = $scratch' "$wfi036_evaluator" > "$output"
+}
+
+wfi034_manifest "$tmp/wfi034-distinct.json" /tmp/wfi034/evaluator
+run_bash "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-034: Bash rejected distinct evaluator and implementation roots'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-034: PowerShell rejected distinct evaluator and implementation roots'
+fi
+
+for case_name in equal ancestor descendant; do
+  case "$case_name" in
+    equal) scratch=/tmp/wfi034/implementation/task ;;
+    ancestor) scratch=/tmp/wfi034/implementation ;;
+    descendant) scratch=/tmp/wfi034/implementation/task/child ;;
+  esac
+  wfi034_manifest "$tmp/wfi034-$case_name.json" "$scratch"
+  assert_rejected_both "wfi034-$case_name-root" \
+    "$tmp/wfi034-$case_name.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+done
+
+jq --arg scratch /tmp/wfi034/evaluator '.scratch_root = $scratch' \
+  "$tmp/wfi036-spec-base.json" > "$tmp/wfi034-spec-stage.json"
+assert_rejected_both wfi034-scratch-root-on-a-reviewer-stage \
+  "$tmp/wfi034-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
+
+# Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
+# Files introduced after that commit must be deleted, and all surviving files
+# must be byte-identical to the archived baseline.
+rollback_baseline="$tmp/rollback-baseline"
+rollback_target="$tmp/rollback-target"
+mkdir -p "$rollback_baseline" "$rollback_target"
+boundary_paths=(
+  plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+  plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+  plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+  plugins/sdd-quality-loop/agents/evaluator.md
+  plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+  plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+  plugins/sdd-review-loop/skills/task-review-loop/SKILL.md
+  plugins/sdd-review-loop/agents/spec-reviewer-a.md
+  plugins/sdd-review-loop/agents/spec-reviewer-b.md
+  plugins/sdd-review-loop/agents/impl-reviewer-a.md
+  plugins/sdd-review-loop/agents/impl-reviewer-b.md
+  plugins/sdd-review-loop/agents/task-reviewer-a.md
+  plugins/sdd-review-loop/agents/task-reviewer-b.md
+)
+baseline_paths=()
+for path in "${boundary_paths[@]}"; do
+  if git -C "$SOURCE_GIT_ROOT" cat-file -e "7df7318:$path" 2>/dev/null; then
+    baseline_paths+=("$path")
+  fi
+done
+rollback_archive="$tmp/rollback-baseline.tar"
+git -C "$SOURCE_GIT_ROOT" archive --output="$rollback_archive" 7df7318 "${baseline_paths[@]}" ||
+  fail 'archive export for pinned baseline 7df7318 failed'
+[[ -s "$rollback_archive" ]] || fail 'archive export for pinned baseline 7df7318 produced no tarball'
+tar -xf "$rollback_archive" -C "$rollback_baseline" ||
+  fail 'archive extraction for pinned baseline 7df7318 failed'
+for path in "${boundary_paths[@]}"; do
+  if [[ -f "$ROOT/$path" ]]; then
+    mkdir -p "$rollback_target/$(dirname "$path")"
+    cp "$ROOT/$path" "$rollback_target/$path"
+  fi
+done
+for path in "${boundary_paths[@]}"; do
+  if [[ -f "$rollback_baseline/$path" ]]; then
+    mkdir -p "$rollback_target/$(dirname "$path")"
+    cp "$rollback_baseline/$path" "$rollback_target/$path"
+  else
+    rm -f "$rollback_target/$path"
+  fi
+done
+for path in "${boundary_paths[@]}"; do
+  if [[ -f "$rollback_baseline/$path" ]]; then
+    cmp -s "$rollback_baseline/$path" "$rollback_target/$path" ||
+      fail "rollback differs from pinned baseline: $path"
+  else
+    [[ ! -e "$rollback_target/$path" ]] ||
+      fail "rollback retained post-1.4.0 file: $path"
+  fi
+done
+find "$rollback_target" -depth -type d -empty -delete
+diff -qr "$rollback_baseline" "$rollback_target" >/dev/null ||
+  fail 'restored reviewer/evaluator boundary is not equal to baseline 7df7318'
+
+# WFI-017 ratified the legacy `## Output Paths And Hashes` bullet section on the
+# implementation-report contract ("retained solely so previously committed
+# bullet-only and dual-form v2 reports remain valid") but never taught this
+# authorization boundary to read it. A report the repository considers valid
+# could therefore declare artifacts the evaluator could not be given, and the
+# task became ungateable through no fault of its own. These cases pin the
+# boundary to the SAME grammar validate-implementation-report.sh enforces --
+# no looser, and no artifact the table form would not have admitted.
+legacy_repository="$tmp/legacy-declaration-repository"
+make_repository "$legacy_repository"
+legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
+legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
+legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+
+# Rewrite the fixture's report so the artifact is declared ONLY in the legacy
+# section -- no `## Outputs` table at all, which is the shape of the historical
+# reports WFI-017 exists to keep valid.
+{
+  printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$legacy_repository"
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
+    "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+
+legacy_manifest_for() {
+  # legacy_manifest_for <out> <extra-path> <extra-sha>
+  local output=$1 extra_path=$2 extra_hash=$3
+  local base="$tmp/legacy-base.json"
+  make_manifest "$legacy_repository" sdd-evaluator "$base"
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$base" > "$output"
+}
+
+# Positive: an artifact declared only in the ratified legacy section IS
+# authorized. Before this change the identical manifest was role-unlisted.
+legacy_manifest_for "$tmp/legacy-happy.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+run_bash "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+  fail 'WFI-017 boundary: Bash rejected an artifact declared in the ratified legacy section'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+    fail 'WFI-017 boundary: PowerShell rejected an artifact declared in the ratified legacy section'
+fi
+
+# Negative control: a real file the legacy section does not name is still
+# role-unlisted. If this ever passes, the change removed the boundary.
+legacy_manifest_for "$tmp/legacy-negative.json" \
+  'plugins/internal/arbitrary-existing.txt' "$legacy_unlisted_hash"
+assert_rejected_both wfi017-legacy-path-not-declared \
+  "$tmp/legacy-negative.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The legacy row is hash-checked exactly as a table row is: a manifest naming
+# the declared path under a different hash matches no row.
+legacy_manifest_for "$tmp/legacy-wrong-hash.json" \
+  'plugins/task/authorized-output.txt' "$legacy_wrong_hash"
+assert_rejected_both wfi017-legacy-row-hash-mismatch \
+  "$tmp/legacy-wrong-hash.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The grammar is the ratified one, not "any bullet mentioning a path and a
+# hash". A report using a near-miss serialization authorizes nothing, so this
+# change cannot be mistaken for a licence to invent further formats.
+{
+  printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$legacy_repository"
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+legacy_manifest_for "$tmp/legacy-nearmiss.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+assert_rejected_both wfi017-legacy-unratified-serialization \
+  "$tmp/legacy-nearmiss.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# WFI-038 third target: the control whose absence let the drift happen.
+#
+# WFI-017 taught validate-implementation-report.sh a second declaration grammar
+# and nothing taught this boundary. The result was a report the repository
+# formally accepts whose declared artifacts the evaluator could not be given --
+# reported as `role-unlisted` on a path that was, in fact, listed. Neither
+# validator was wrong on its own; what was missing was anything asserting that
+# the two agree.
+#
+# This block is driven BY the report validator's own declaration, not by a list
+# maintained here. It extracts the section names that script consults for the
+# outputs contract and requires the boundary to read every one. Add a third
+# grammar there without teaching the boundary and this goes red, naming the
+# grammar -- which is the failure mode WFI-038 documents.
+report_validator="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+[[ -f "$report_validator" ]] || fail 'declaration-grammar parity: report validator is missing'
+ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$report_validator" |
+  sed -E 's/.*sections\.get\("([^"]+)".*/\1/' | sort -u)"
+[[ -n "$ratified_grammars" ]] ||
+  fail 'declaration-grammar parity: extracted no ratified grammar -- the report validator changed shape, so this control is no longer measuring anything'
+
+parity_repository="$tmp/grammar-parity-repository"
+make_repository "$parity_repository"
+parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
+
+# Emit the declaration row shape for one ratified section name. A section this
+# does not know how to write is an unteachable grammar -- fail rather than
+# silently skip, because skipping is exactly how the boundary fell behind.
+write_declaration() {
+  local section=$1
+  printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$parity_repository"
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## %s\n\n' "$section"
+  case "$section" in
+    'Outputs')
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+      ;;
+    'Output Paths And Hashes')
+      printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' "$parity_hash"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+# Collect into an array BEFORE iterating. A `while read ... done <<HEREDOC`
+# loop hands its stdin to every command in the body, and pwsh binds inherited
+# stdin as pipeline input -- it then fails with "the input object cannot be
+# bound to any parameters" while the suite still exits 0, so the PowerShell leg
+# would silently not be exercised. Observed here before this was fixed.
+parity_grammars=()
+while IFS= read -r grammar; do
+  [[ -n "$grammar" ]] && parity_grammars+=("$grammar")
+done <<PARITY_GRAMMARS
+$ratified_grammars
+PARITY_GRAMMARS
+[[ ${#parity_grammars[@]} -gt 0 ]] ||
+  fail 'declaration-grammar parity: no grammar collected'
+
+for grammar in "${parity_grammars[@]}"; do
+  write_declaration "$grammar" > "$parity_repository/reports/implementation/f/T-001.md" ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but this suite cannot write it -- teach both the boundary and this control, do not delete the case"
+  make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+  jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+    "$tmp/parity-base.json" > "$tmp/parity-manifest.json"
+  run_bash "$tmp/parity-manifest.json" "$parity_repository" >/dev/null ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the Bash boundary cannot read it"
+  if command -v pwsh >/dev/null 2>&1; then
+    run_pwsh "$tmp/parity-manifest.json" "$parity_repository" >/dev/null </dev/null ||
+      fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the PowerShell boundary cannot read it"
+  fi
+done
+
+# Non-vacuity: the loop above only proves acceptance. A section name the report
+# validator does NOT ratify must not be readable by the boundary either, or the
+# parity claim is satisfied by a boundary that reads everything.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Declared Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+} > "$parity_repository/reports/implementation/f/T-001.md"
+make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+  '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+  "$tmp/parity-base.json" > "$tmp/parity-unratified.json"
+assert_rejected_both wfi038-unratified-section-name \
+  "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
+
+printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'
+
+# Feature-wide scratch-root regression is mandatory, including PowerShell.
+python3 "$ROOT/tests/review-scratch-history.tests.py" --repo "$ROOT"

@@ -1,0 +1,25 @@
+{
+  "task_id": "T-004",
+  "feature": "sdd-domain",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-07-06T08:55:40Z",
+  "stack": "docs",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown SKILL.md + PowerShell Pester test files) per Global Constraints 'Non-code stack' descriptor in specs/sdd-domain/tasks.md; no lint toolchain is configured for this file set. Waived via stack: docs per risk-gate-matrix.md (compile-oriented checks waivable on non-code stacks).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown + PowerShell Pester scripts); there is no compiled/typed language toolchain applicable to this task's files. Waived via stack: docs per risk-gate-matrix.md (compile-oriented checks waivable on non-code stacks).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-004.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "AC-001", "AC-016"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integration-test layer exists for this feature; domain-model's mode routing is validated via the structural/fixture Pester suites covering unit-tests, acceptance-tests, and regression instead.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown SKILL.md + PowerShell Pester test files) per Global Constraints 'Non-code stack' descriptor; there is no build/compile step for this file set. Waived via stack: docs per risk-gate-matrix.md (compile-oriented checks waivable on non-code stacks).", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-004.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-004.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "domain-model is an agent-driven Claude Code skill (mode-routing prose plus a human-in-the-loop update algorithm), not a startable process, dev server, or CLI binary; there is nothing to smoke-run. Behavior is covered by the acceptance-tests and regression checks instead.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-004 is a net-new skill (domain-model/SKILL.md did not exist before this task) with no baseline-behavior.md; differential-test-policy.md applies only to refactor/bugfix tasks with a documented baseline, which does not apply here.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No browser-renderable UI surface is touched by this task; domain-model is a CLI/skill-invocation entry point (Markdown + frontmatter), not a rendered screen or DOM.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "The repository's design-system/ contract governs UI-layer (rendered/visual) files; this task touches only a skill's Markdown documentation and PowerShell test fixtures, not UI-layer files, so design-system conformance does not apply.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-004.unit-tests.log", "waiver_reason": "", "requirement_ids": ["AC-001", "AC-016"], "red_evidence": "", "green_evidence": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-004.regression.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

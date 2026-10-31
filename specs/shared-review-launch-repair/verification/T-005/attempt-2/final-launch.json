@@ -1,0 +1,26 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/unified-launch-order.tests.py",
+    "-v"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work",
+  "started_at": "2026-10-08T18:27:39.286951+00:00",
+  "environment": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp",
+    "HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/home",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/cache",
+    "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/home/config",
+    "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/home/data",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPYCACHEPREFIX": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/cache/pycache",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/home"
+  },
+  "returncode": 0,
+  "ended_at": "2026-10-08T18:28:05.486938+00:00"
+}

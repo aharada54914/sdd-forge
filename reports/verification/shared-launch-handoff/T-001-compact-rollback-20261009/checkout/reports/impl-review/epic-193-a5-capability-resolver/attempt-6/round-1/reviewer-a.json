@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a6r1-seq0849",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a6r1-0849",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/precheck-result.json", "sha256": "a1993837b3b50cc64c43cc9f476a1a783e315876d035530d83620ecfadcf7824"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "fullstack",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:61-187 Architecture describes top-level component boundaries (a labeled pipeline diagram from project-context.yaml through state derivation, canonicalization, Context Projection assembly, resolve-component-paths, Registry discovery, per-component evaluate-predicate fan-out, WARN check, track branch, Resolver Evidence assembly, snapshot recheck, and atomic commit), integration with existing components (each stage names its owning upstream Epic: A1/A2/A3/A4), and technology choices per Components table (design.md:189-201: Python master + sh/ps1 dispatchers, JSON Schema, YAML). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Cross-Layer Dependencies (design.md:328-402) states a strictly one-directional dependency graph: this feature depends on Epic A1/A2/A3/A4 (already Passed, content-frozen), and is itself a dependency of future Epic A6/A8 consumers. No component in Architecture or Components declares a dependency back onto this feature from any of A1-A4. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:464-729 Data Plan states Data Entities (new resolver-evidence.schema.json, facet-manifest.yaml/capability-summary.yaml/resolver-evidence.yaml instances, and several derivation rules), Existing Data Affected (explicitly 'none written; two existing artifacts read only', design.md:701-717), and Migration Strategy ('none... no schema migration anywhere in this feature', design.md:719-729). All three required sub-fields present with explicit rationale. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:731-1834 API / Contract Plan fully specifies the resolve-project-context CLI contract (flags, request/response shapes via staged artifact schemas), the sixteen-row REQ-002 Block/diagnostic taxonomy as the feature's error-contract, and the validate-resolver-evidence companion CLI contract. No prior endpoints are deprecated (feature introduces new deterministic CLI scripts only, no HTTP/RPC surface, consistent with the CLI-only Feature Type declared at design.md:4-14). No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:2742-2895 Security Boundaries names every trust boundary this feature crosses (CLI-misuse/disabled-legacy guard; staged-artifact-to-live-path publication boundary; protected-file/approval-sidecar non-participation boundary; dependency-subprocess-stderr leak boundary), states the mechanism at each (fail-closed Block, journaled atomic commit, guard-invariants.json suffix reservation, canonical-detail construction), addresses data classification (no credential/PII ever read; explicit no-clock/no-network/no-Provider-API statement) and OWASP-adjacent concerns (injection via raw stderr text forbidden, M8; path-traversal/protected-write via guard-invariants.json suffix match). The one substantive content change under review on its merits -- the AC-059 approval-surface write-scope lock and its 2026-08-28 sequencing correction (design.md:2764-2795) -- is internally sound: it correctly identifies that T-007 (owner) authors only resolve-project-context.* while validate-resolver-evidence.* is authored by the downstream T-008, and resolves this by splitting discharge into (a) T-007 registering and running the grep over the scripts that exist at its own gate, and (b) relying on the registered check being CI-gated (re-executed on every subsequent commit, not a one-shot verification) to automatically cover the second glob once T-008's files land -- a mechanism already established and previously passed for AC-025 (identical grep, same script set, same cadence), so no new suite or task obligation is introduced (design.md:2775-2777, matching acceptance-tests.md AC-059/TEST-059 and requirements.md AC-059 verbatim). This reasoning is corroborated by investigation.md's 'Ruling E's own repair' section, which records the same fix with commit 94704f9c and matches the current design.md digest. One minor imprecision noted, not blocking: design.md:2792 analogizes the mechanism to 'AC-032/AC-033/AC-034 bind[ing] every task's commits without per-task re-verification', but AC-032 (requirements.md:950) is a one-time constraint on this Phase-1 spec package's own already-closed commits and AC-033 (requirements.md:951) explicitly requires each future task to carry its own CHANGELOG entry (i.e. is per-task-verified, not exempt from re-verification) -- only AC-034's repository-wide grep is a true structural analogue. This does not undermine the correction's core claim, which rests on AC-025's own already-passed identical mechanism, not on the AC-032/033 citations."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type header (design.md:4-14) declares a deterministic CLI script family with no UI and no plugin, and Layer Specifications (design.md:306-323) records both UX and Frontend as 'N/A -- no user-facing surface' / 'N/A -- no browser/client UI'. This is a CLI-type feature in substance (no Feature Type enum literal was used, but no frontend surface exists to check for consistency against the API / Contract Plan)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1834-2180 Test Strategy defines ten independently-invocable suites (resolve-project-context-cli/-block/-match/-lite/-parity/-discovery, resolver-evidence-schema, validate-resolver-evidence, -metamorphic, -caller-contract) covering unit-level dependency-subprocess fixtures, integration-level cross-Epic-A1/A2/A3/A4 fixtures, and explicit AC-NNN-to-fixture mapping throughout (e.g. AC-001, AC-006, AC-040, AC-047-AC-058). Concrete artifact names (tests/*.tests.sh/.tests.ps1, tests/fixtures/capability-resolver/) and CI registration paths are given (design.md:2902-2936). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture (design.md:61-187) is either defined in the Components table (design.md:189-201: resolve-project-context.{py,sh,ps1}, validate-resolver-evidence.*, contracts/resolver-evidence.schema.json, generated/project-context.resolved.json, facet-manifest.yaml, capability-summary.yaml, resolver-evidence.yaml, SKILL.md) or is an established upstream component identified via investigation.md (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, capability-registry.json -- each cited with its owning Epic A1/A2/A3). No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ADR Change Log (design.md:404-463) states no new ADR is authored and cites seven existing ADRs. Verified all seven referenced ADR slugs exist on disk under docs/adr/: 0016-workflow-axes-separation.md, 0017-gate-stage-model.md, 0019-approval-sidecar-protection.md, 0020-conditional-predicate-dsl.md, 0021-context-projection-staleness.md, 0023-track-selection-contract-migration.md, 0025-registry-discovery-contract.md (design.md itself notes this last one was not yet present on the worktree at design-authoring time but has since landed, consistent with investigation.md INV-005/INV-020/INV-021). The six new orchestration decisions design.md records (union-match, facet-name aggregation, WARN scope, staged-generation/atomic-commit, track-exclusive publication, provenance canonicalization) are explicitly framed as narrow mechanical extensions of already-fixed upstream ADR principles, not new architectural axes, with an explicit self-invitation for impl-review to promote any to its own ADR if it disagrees (design.md:452-462). No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP (recorded as PASS per instructions): the target repository has no design-system/ directory at its root. design.md:324-326 records 'Not applicable -- no UI surface,' consistent with this being a CLI-only feature with no frontend/UI layer."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP (recorded as PASS per instructions): the target repository has no domain/ directory at its root, so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist. This check does not apply."
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a2-task-task-reviewer-b-seq0221",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-a2-0221",
+  "feature": "epic-159-pillar-a2",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "PASS",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-159-pillar-a2/requirements.md",
+        "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+        "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/design.md",
+        "sha256": "3b63c5f8c33018919fce66ef3550a0bdb5fcfee33e48f61a731b9684fab8c105"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/tasks.md",
+        "sha256": "a4622936aa84c043bd3ede0abe07795a9d6ed31107828383951f206a591a2cf6"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/traceability.md",
+        "sha256": "130278dce748abd258f8b865671f5b52a8f3a7fc788eec3d6f54556640e0ea7a"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/ux-spec.md",
+        "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+        "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/infra-spec.md",
+        "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+      },
+      {
+        "path": "specs/epic-159-pillar-a2/security-spec.md",
+        "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/epic-159-pillar-a2/attempt-1/round-2/precheck-result.json",
+        "sha256": "32b35b69325d8850b154e5ad7c4c932f81bece6bedc615466ea8804b78998d00"
+      },
+      {
+        "path": "reports/task-review/epic-159-pillar-a2/attempt-1/round-2/integrated-summary.json",
+        "sha256": "e6c8b5343029e82dd343923414c36f59a0f407d9789e182a23c77b6e7cad4a1a"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (Risk: medium; tasks.md:99) and T-002 (Risk: medium; tasks.md:260) create new test-infrastructure suites/fixtures with no authentication, authorization-of-users, payment, PII, data-migration, or externally-visible API-contract surface in Scope/Done When/Goal — medium fits the policy's 'normal feature, no sensitive surface' tier. T-003 (tasks.md:428) and T-004 (tasks.md:587) author new plugins/**/*.ps1 precheck scripts gating the internal SDD review-loop; the round-2 Risk Rationale (tasks.md:430-445, 589-604) now names three cited grounds for medium: (1) explicitly a MECHANICAL full-parity port of an unedited .sh original with no behavior change, distinguished by name from the high-classified precedent specs/workflow-state-integrity/tasks.md:23-26 (high because it CHANGED review-gate validation logic); (2) TEST-013/TEST-016 give an externally observable correctness signal (real wave-1 suites driving the port to green) independent of the task's own assertions; (3) TEST-011/TEST-014 Done-When bullets (tasks.md:528-537, 689-700) now assert explicit reject-path parity (exit code + error message) against the .sh original, directly mitigating the security-spec.md B2 'weakened port' threat this task itself documents. These scripts are internal CI/test-harness gates, not user-facing auth/payment/PII/migration/public-API surfaces, and the 'mechanical translation, behavior preserved' framing matches risk-classification-policy.md's own medium example ('Refactor an internal helper, behavior preserved'). The Rationale requirement (name the sensitive surface/reason for tier) is satisfied with specific citations. No over-classification found either."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No task in tasks.md carries Risk: high or Risk: critical -- T-001..T-004 are all Risk: medium (tasks.md:99, 260, 428, 587). The scoped risk surface this check requires is absent, so per reviewer-calibration.md Cannot-Verify Handling this is SKIP, not FAIL."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001's Done When list (tasks.md:195-235) now totals exactly 8 top-level bullets (TEST-001..006 individually, one consolidated 'Cross-cutting shares' bullet naming TEST-017/018/019 individually and independently verifiable, and one acceptance-first-evidence bullet) -- at, not over, the >8-item Major threshold, remedying round-1's oversizing without deleting content. T-002 (8 items; tasks.md:369-402), T-003 (6 items; tasks.md:526-560), and T-004 (6 items; tasks.md:687-723) are within the threshold. No Scope section spans more than three genuinely distinct implementation areas structured as sequential phases (T-002's four Scope bullets are facets of one issue-#146 deliverable). No fragmentation pattern: 4 tasks total, none scoped as a single-function/file rename."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001: AC-002/TEST-002 (tasks.md:201-204) is a dedicated negative-branch canary paired with AC-001's happy path; AC-003/TEST-003 (tasks.md:205-209) embeds its own threshold-mutation negative self-check. T-002: AC-008/TEST-008 (positive) and AC-009/TEST-009 (negative, full-directory exit 1 detecting both markers) form an explicit pair (tasks.md:377-382). T-003/T-004: the round-2 correction added explicit reject-path Done-When bullets for TEST-011 (tasks.md:528-537: out-of-range Round, non-empty -EditSummary at round 1, exit-code/message parity asserted) and TEST-014 (tasks.md:689-700: same two plus a --reset precondition violation citing spec-review-precheck.sh:40-44), concretizing AC-011/AC-014's 'implements every precondition' language at the task level with named error-path scenarios. acceptance-tests.md's AC-011/AC-014 rows correctly remain generic since tasks.md now supplies the associated error-path test-task concretization the check's alternate clause allows. No functional task is left with only-happy-path coverage."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every TEST-NNN in acceptance-tests.md carries its own AC-NNN column and a test-type label consistent with actual scope: TEST-001/TEST-010 are explicitly labeled 'integration' and each drives >=2 real components (test harness + hitl-loop.template.sh; test harness + loop-driver + spec-review-precheck chain); TEST-011/012/014/015 ('port completeness'/'hygiene') are scoped to a single new script/file, matching unit-level granularity even though not literally labeled 'unit'; TEST-013/016 ('self-healing, external observable') genuinely span multiple existing suites (tests/loop-consistency.tests.ps1, tests/loop-driver.tests.ps1) plus the loop-driver dispatch chain, matching a multi-component claim. No test task mislabels a single-module check as end-to-end or a multi-suite check as unit."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No task carries Risk: high or Risk: critical (all four are medium; tasks.md:99, 260, 428, 587), so the Rollback-field mandate does not apply. (Observationally, all four tasks include a Rollback: field anyway -- tasks.md:134-136, 314-315, 476-478, 636-638 -- exceeding what medium risk requires, but this is not required evidence for this check.)"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-2 correction added an explicit CHANGELOG.md '## Unreleased' sharing rule to Global Constraints (tasks.md:55-68): all four tasks append self-contained, issue-numbered blocks; within each serialization chain (T-001->T-002 via tasks.md:416 Blockers; T-003->T-004 via tasks.md:736 Blockers) collisions are structurally excluded, and cross-chain collisions are bounded to a mechanical rebase with no content duplication or overwrite, since each block cites only its own issue number -- a legitimate append-only sharing pattern, not an uncoordinated overlapping edit. The same paragraph extends the rule to the conditionally-touched docs/troubleshooting.md. The remaining shared files -- tests/run-all.sh/.ps1, .github/workflows/test.yml (T-001/T-002) and tests/guard-ps1-ascii.tests.sh (T-003/T-004) -- are disjoint, additive entries with explicit Blockers-enforced serialization, matching the check's legitimate-sharing exception."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's Blockers entry (T-001, tasks.md:416) and T-004's Blockers entry (T-003, tasks.md:736) are each explicitly scoped in the task body as commit-serialization guards against a same-array merge collision on shared additive files, not a functional-artifact dependency -- both tasks state 'Depends On: none materially' (tasks.md:277-280, 614-618) citing investigation.md INV-033/INV-034, following the design.md-documented wave-1 T-004 precedent for this exact pattern. This is a narrowly-scoped, justified sequencing constraint, not a spurious blocker inflating the critical path (T-001<->T-002 and T-003<->T-004 remain logically parallel; only the shared-file commit lands in order). No missing blocker found: T-003/T-004 are mutually independent scripts beyond the declared TARGETS-array serialization; T-001/T-002 share no code/test file (tasks.md:63-64)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001..T-004 are all net-new feature/test-infrastructure deliverables (new suite, new fixture+lock suite, two new precheck-script ports); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": []
+}

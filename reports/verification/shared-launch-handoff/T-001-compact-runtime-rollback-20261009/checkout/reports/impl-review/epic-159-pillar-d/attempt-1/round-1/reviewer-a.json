@@ -1,0 +1,106 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-d-impl-impl-reviewer-a-seq0290",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-d-0290",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture mermaid diagram (lines 42-76) names top-level component boundaries per task (WD/ACM for T-001; MFC/SCR/MFT/FIX/HC/TY/RA for T-003; V2/POP/PAR for T-002), shows integration edges to existing components (PTM -.-> RT assert_literal check, HC -.-> TY human-copy, RA --> MFT, C1 --> V2 external Pillar C dependency), and states technology inline (SCR labeled 'bash-only', MFC->SCR edge labeled 'ubuntu-latest') reinforced immediately by the ## Components table's Technology column and the Layer Specifications table's explicit 'Frontend | N/A ... Markdown/Bash/PowerShell/YAML/JSON only' line. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Traced the explicit dependency edges declared in ## Architecture / ## Components: WD/ACM independent leaves; MFC -> SCR -> {ANT, OAI, V2, CMT, ISS}; MFT -> {SCR, FIX}; HC -> TY; RA -> MFT; TY -> MFT; C1 -> V2 -> POP <- PAR. All edges point outward/downward with no back-edge to an ancestor node; the graph is a DAG. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 176-202) contains all three required sub-fields: Data Entities (contracts/agent-model-capabilities.v2.json's models[] array, fields named), Existing Data Affected (v1 registry stays byte-for-byte frozen per AC-013; docs/agent-capability-matrix.md table rows gain two trailing columns, no existing cell changed), and Migration Strategy ('none' with explicit rationale: schema owned by Pillar C's C1, T-002 only populates data within it). No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 204-438) enumerates every new/changed surface per task: T-001's doc insertion point and table-column addition; T-003's full model-freshness-check.yml YAML (schedule/workflow_dispatch triggers, permissions scope) and check-model-freshness.sh's function-level design (fetch_source_or_unavailable, compute_divergence, file_or_dedupe_issue) including the gh issue create/comment request-shape equivalents (title marker, label, allowlist-validated body); T-002's v2 registry data-field update scope. Sufficiently concrete for this CI/docs/data feature with no REST endpoints. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 582-591) names four trust boundaries (B1 external-fetch vs repo state, B2 freshness-check job vs registry/release surfaces, B3 protected test.yml vs agent-direct edits, B4 fixture world vs real state), states the auth/authz mechanism at each (charset-allowlist validation, no write scope beyond issues:write, human-copy MANIFEST.sha256, mktemp/pwd -P isolation), addresses data classification per row ('public vendor documentation only, no credentials', 'internal source', 'synthetic fixtures only'), and maps explicit OWASP concerns per boundary (Untrusted Input Handling, Broken Access Control, Security Misconfiguration, Supply Chain / Test Isolation). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's declared Feature Type ('contributor-process documentation + weekly CI freshness-check automation + registry data population') is not literally one of the four enumerated skip values, but ux-spec.md and frontend-spec.md both explicitly state 'N/A -- no change: no GUI... no browser or frontend application exists' -- the scoped frontend/backend surface this check verifies does not exist for this feature, matching the calibration's SKIP condition for a non-existent scoped surface."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 440-487) covers unit-level fixture-driven function testing (mocked gh wrapper, injectable fixture files exercising fetch/compute/file-or-dedupe functions), integration-level testing driving the real check-model-freshness.sh, explicit AC-NNN-to-TEST-NNN mapping via the Cross-Layer Dependencies table and item 2/6 narrative, concrete named verification commands ('bash tests/run-all.sh', 'pwsh tests/run-all.ps1'), and a named manual/E2E-equivalent verification path (AC-008/TEST-008: one-time workflow_dispatch run against a fixture branch, recorded in the implementation report). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in ## Architecture and ## API / Contract Plan is defined in design.md: primary components in the ## Components table (lines 78-97); read-only real surfaces (tests/agent-model-routing.tests.sh, tests/agent-capabilities-v2.tests.sh/.ps1, self-improvement-pr-guard.sh, self-improvement.yml) in the 'Real surfaces exercised READ-ONLY' paragraph immediately below; the human-copy staging artifact in the Protected-File Statement section. C1/Pillar C is an established external component identifiable from investigation.md (INV-003/INV-005/INV-013) and requirements.md. No undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 166-174) references no ADR and states this feature introduces no new vocabulary, schema, or architectural pattern, reusing epic-159-pillar-b's text-marker CI-content-assertion technique and epic-136-phase2-gates' human-copy procedure verbatim. Independent review found no undisclosed novel architectural departure requiring a new ADR. docs/adr/ currently contains 0001-0011 with no 0012 present; since Pillar D reserves no ADR number, no numbering-collision risk exists against Pillar C's planned 0012-effort-tier-decoupling.md."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c475ba2bbfce03dd5279cdd1f1a1aca4affc8c7ff1a666817174b34a0058d5b4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "95dfd0ab0a75d887da9d803bbc293bd32c202a03b00d79c82cf10cdaaa977d27"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/design.md",
+      "sha256": "6aa704f8e01eba15dcf4a52f1ae2c483ea0fe12b9a2f7055ca91bd7b4ad14d01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/ux-spec.md",
+      "sha256": "068445c632103f85e92a8674c335037ae7d1d60156c7a4c5d05d49ae38c47153"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/frontend-spec.md",
+      "sha256": "9f88e8206a2da16fda80764a8135455f5041038ea0fa5d355d07f588abe52837"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/infra-spec.md",
+      "sha256": "a8645f6f2d7b0b06e10c5c97274310643b2ab7c7be3eae31f711205471e72a90"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/security-spec.md",
+      "sha256": "59f5b92e879ec8e1a8cbfa5ed46e4ce72d88e90ec4f2c21fb0dbc58998f4bfa5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/impl-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "39b6b634b8dd74e64c7baa3749e18ac59ab1fb579c7b940c465a22c32088caaf"
+    }
+  ]
+}

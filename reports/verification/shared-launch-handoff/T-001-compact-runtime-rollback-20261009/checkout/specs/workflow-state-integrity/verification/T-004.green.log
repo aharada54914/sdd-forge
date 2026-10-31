@@ -1,0 +1,42 @@
+T-004 GREEN verification
+Date: 2026-06-28
+Result: PASS
+
+Environment:
+- Darwin 25.5.0 arm64
+- GNU bash 5.3.9
+- PowerShell 7.6.2
+- baseline_commit: 0369c8c96de2eb3179868d1949d66644488f65aa
+- spec_revision: 7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c
+
+Commands:
+- PASS pwsh -NoProfile -File tests/workflow-state-repository-integration.tests.ps1
+- PASS bash tests/workflow-state-ci-integration.tests.sh
+- PASS pwsh -NoProfile -File tests/validate-repository.ps1
+- PASS bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+- PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+- PASS bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/workflow-state-integrity/tasks.md T-004
+- PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-risk.ps1 -TasksPath specs/workflow-state-integrity/tasks.md -TaskId T-004
+- PASS Bash changed-line placeholder scan for tracked integration files plus complete scans of new integration tests
+- PASS PowerShell changed-line placeholder scan for tracked integration files plus complete scans of new integration tests
+- PASS bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/workflow-state-integrity/traceability.json . require-evidence
+- PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-traceability.ps1 -TracePath specs/workflow-state-integrity/traceability.json -RepoRoot . -RequireEvidence
+- PASS git diff --check
+
+Integration and test SHA-256:
+- 52199edc0c34268b5b4056f450abc2c58fe28500a427d099a5d5a94701857f03  tests/validate-repository.ps1
+- e0a7bc36ef9af93ca7677a23abc5b95286c297a7b6c07b0577e135323d9ea917  .github/workflows/test.yml
+- 0c236c7b9ac8b2f230e8ac6606811a83cbede922a7703fc82fceffd23877d807  tests/workflow-state-repository-integration.tests.ps1
+- 18815663a5300afd321a32a8e29a2d89efde2db078aa4cc314ba37849c4e23b5  tests/workflow-state-ci-integration.tests.sh
+
+Coverage:
+- AC-009 invalid persisted state fails repository validation before packaging success
+- Every OS-matrix host invokes the PowerShell adapter before repository validation
+- macOS/Linux also invoke the Bash adapter before repository validation
+- Both CI commands reject the isolated invalid-state registry with registry-dangling
+- Repository packaging requires both adapters, the schema, and the registry
+
+Rollback exercise:
+- PASS the RED baseline contained neither repository nor CI call site.
+- The isolated invalid-state fixture was therefore rejected by the integration
+  assertion until both canonical call sites were restored.

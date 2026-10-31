@@ -1,0 +1,1 @@
+{"schema":"cross-model-verdict/v1","task_id":"T-003","feature":"epic-193-a5-capability-resolver","vendor":"openai","model":"gpt-5.6-sol","verdict":"PASS","findings":[],"blind":true,"input_digest":"c81dc4d346ec1ee497c5e9728bbb769007add3cf65087d7ead5aca111bcecd40","consent":{"kind":"human-flag","ref":"tasks.md: T-003 Cross-Model: enabled"}}

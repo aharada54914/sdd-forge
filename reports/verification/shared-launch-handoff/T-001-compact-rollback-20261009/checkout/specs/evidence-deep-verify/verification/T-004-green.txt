@@ -1,0 +1,13 @@
+✔ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (10.706792ms)
+✔ error envelope: an invalid taskId maps to invalid-input through the tool (32.78125ms)
+✔ error envelope: an invalid feature maps to invalid-input through the tool (2.354167ms)
+✔ error envelope: a missing bundle maps to not-found through the tool (2.07325ms)
+✔ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (2.102416ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.12075

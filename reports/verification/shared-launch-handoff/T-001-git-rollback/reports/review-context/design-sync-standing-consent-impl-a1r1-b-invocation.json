@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "design-sync-standing-consent",
+  "run_id": "RUN-designsyncstandingconsent-impl-a1r1-b-seq0552",
+  "host_session_id": "SESS-impl-a1r1-b-designsyncstandingconsent-0552",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "1e16c38cd2e7087048d0a8d6f2811e422f6ade33b92c867a8e2d55ff27857437",
+  "previous_record_sha256": "bad48f0748abed0cf3417e1c34a88e6a08b21e8c339e7bea3ce93c757032a6af",
+  "sequence": 552,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/design.md",
+      "sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "f4b0a163808eb171fc666b4d1e642d43dfde5f294e8ab4113b770ec1c3259c20"
+    },
+    {
+      "path": "reports/impl-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "84ad5dd421ec4e263deed077fdae61b592978de9b80f5309ab4d5cbd0246dd71"
+    }
+  ]
+}

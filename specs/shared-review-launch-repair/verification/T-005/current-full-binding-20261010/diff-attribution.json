@@ -1,0 +1,44 @@
+[
+  {
+    "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "historical_sha256": "180259940e5cb050f95cfde64e1557faf57cb1b64202a6873fd171a157659775",
+    "current_sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+    "diff": "plugins__sdd-review-loop__scripts__launch-impl-review.py.diff",
+    "classification": "production-source"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "historical_sha256": "13b20038c62d67a63d90b7c7fbbcb15f87b69f6789e0d9984dc5b08a17d263f9",
+    "current_sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+    "diff": "plugins__sdd-review-loop__scripts__probe-nontty-review.py.diff",
+    "classification": "production-source"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "historical_sha256": "a6c7c49fe568b7fbd539a23a03e9ab591844dae201dbb2120bb27f09183036f1",
+    "current_sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+    "diff": "plugins__sdd-review-loop__scripts__validate-nontty-spec-launch.py.diff",
+    "classification": "production-source"
+  },
+  {
+    "path": "tests/quality-nontty-transport.tests.py",
+    "historical_sha256": "7099669122c1715a1a9900f784fa4090777d72777c8234ae2a30e5ffcace1c51",
+    "current_sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c",
+    "diff": "tests__quality-nontty-transport.tests.py.diff",
+    "classification": "test-only"
+  },
+  {
+    "path": "tests/task-structured-output.tests.py",
+    "historical_sha256": "70fc6a773aeec37ccbd91f35b9d9e26fdb86b0557f8dccba4f34e8c9b8a2a789",
+    "current_sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+    "diff": "tests__task-structured-output.tests.py.diff",
+    "classification": "test-only"
+  },
+  {
+    "path": "tests/unified-launch-order.tests.py",
+    "historical_sha256": "612c0b9194c014bf4cb07d8ac13d551c1243b2ade2b268c7c28be6d7e1aba50e",
+    "current_sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+    "diff": "tests__unified-launch-order.tests.py.diff",
+    "classification": "test-only"
+  }
+]

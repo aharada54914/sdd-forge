@@ -1,0 +1,114 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-009",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-009-c1-seq0817",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-009-c1-0817",
+  "sequence": 817,
+  "previous_record_sha256": "3650183ad01fe11f8bcc3eb9d18cbd929e9281b7f8e5d32cd01d922ca60c7ef9",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "146ea7e63085d31ec6075f650a819a2961788de06680f5267e4c0059f1903da0",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "4a38b30b3b917d4dfea11c1be971e4f23e9482002fdf565ce0b6bf6d4f94a641"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-009.contract.json",
+      "sha256": "bc367566d61f341791458f0eeff131d859e1afef3e7a971b456c9213ad5a2bed"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-009.md",
+      "sha256": "ce52b2e115d1dc6359cf3176c78beb046f09c4370338e0417e8ddb3970343507"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-009/focused-tests-ps1.log",
+      "sha256": "bbadcf4ad9d2d5dc5fdceec43a87e17372662577c62999ca4e5989769615c6d1"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-009/focused-tests-sh.log",
+      "sha256": "d7cc05dc90b46ab96deadef77efca65b47e3a339cc860d598ea637c7bd2315e9"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-009/placeholder-scan.log",
+      "sha256": "6484bef8317e959c377ab4ab2e021b8b5b7131b429cf67f862a782b3f04f50ce"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-009/regression.log",
+      "sha256": "61ecae9f0e7c71714a3c28141051bbadd3eba08bda564e6077b9ccd84341efa6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-009/task-state.log",
+      "sha256": "be3720c8967a2054159d665ea787a3f5e45b8f8ce42ef3ce471092a8ce821638"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-009/green-ps1.log",
+      "sha256": "65cb82e6f123b37141009acbc2eb3a6ed6952b7c43daadfcc088c811abe6b203"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-009/green-sh.log",
+      "sha256": "45db08bcdd14646eb8ddcbd25a2f4e7f091bdef95d951f5de8ef813ea3c6b06e"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-009/mutation-captures.log",
+      "sha256": "36a9701bbfd4240f75cd644c56bdd1d1e723ed41140cb6675192a0d3a9fa87a1"
+    },
+    {
+      "path": "tests/resolve-project-context-parity-check.py",
+      "sha256": "313ae402de83f21c51da01d4abc793d3be2b4865649751c082d893c2c59686f0"
+    },
+    {
+      "path": "tests/resolve-project-context-parity.tests.sh",
+      "sha256": "95bad95595729f7e95c9bbfdd4c46adeee4bf90999344cdfa270be556157062c"
+    },
+    {
+      "path": "tests/resolve-project-context-parity.tests.ps1",
+      "sha256": "a600e95e0accf4d4206906f5841bc740df911265204124255d26317123d383df"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/stable-sort-registry-reordered/capability-registry.json",
+      "sha256": "fd63081bf1536797279764ba07db490e34ccd23ce5f69759a1c42998ec4bb0f6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/nondeterminism-dirty.py.txt",
+      "sha256": "414aab389c59fc0ab8f6af41cd306d182abc10a565f5a7b15ec9838c0b5736a4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/nondeterminism-clean.py.txt",
+      "sha256": "5ef18775827e91d667a5dd3f631391ec1380730562b43d4c94024be59e950b4b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/provider-term-dirty.txt",
+      "sha256": "39b70371099480df949055bb3137a813a1bab8fd6abf64a4a486dec2d547dd43"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/provider-term-clean.txt",
+      "sha256": "e98e8d0af67d46a3f4ce409d440014adcf600750e9109450eec9a039b3668c44"
+    }
+  ]
+}

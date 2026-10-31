@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a2r1-a-seq0344",
+  "host_session_id": "SESS-spec-a2r1-a-epic136phase3-0344",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-2/round-1/precheck-result.json",
+      "sha256": "0a541d389a8efe5872934779bb43ceb4789d2edd2ba1ff205fed574d7481ff53"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "aca0ad29f0cf629cdb23674f9a12d864ae78e1eb210fc0aa932ec60787925979"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All six goals (requirements.md:196-271) decompose into enumerable, fixture-checkable branches rather than vague intent. REQ-001's fallback chain is split into 5 PATH-availability combinations + 1 precedence-order case (AC-001..006, requirements.md:347-369), each additionally cross-multiplied by 2 emit modes (AC-007, :370-374; acceptance-tests.md:21 confirms '8 named sub-cases'). REQ-002's 3-class x 4-runtime x 3-tool_name-shape matrix is enumerated as 12 named fixture+assertion pairs per class (AC-008..010, requirements.md:375-396; acceptance-tests.md:49-52 tallies '36 total leaf assertions'). REQ-004's preservation claim is verified via a text-marker self-check enumerating every pre-change step name (AC-017, requirements.md:443-452; acceptance-tests.md:31 flags it explicitly RED-then-GREEN demonstrable). Even Stream C's Blocked REQ-003 (AC-012..015, requirements.md:402-434) states measurable target conditions (a closed-set schema field, 10 mapped scenario ids, both tool_name families) rather than an intention, matching the calibration doc's guidance that Blocked/Planned status is acceptable at Phase 1. No in-scope requirement was found stated only as an aspiration without an attached observable branch or matrix. Minor, non-blocking note: AC-010 (requirements.md:389-396) does not itself mention the '1 control sub-case' acceptance-tests.md's TEST-010 (:24) adds ('PLUS 1 control sub-case proving the numeric substring alone... never triggers a false DENY'); this is an enrichment of the matrix, not a narrowing or contradiction, so it does not block task authoring."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ in Goals (requirements.md:196-271) is explicitly parenthetically tied to its Stream/issue and a named AC range, and acceptance-tests.md's table (:13-37) confirms 1:1 REQ<->AC<->TEST correspondence: REQ-001->AC-001..007/TEST-001..007; REQ-002->AC-008..011/TEST-008..011; REQ-003->AC-012..015/TEST-012..015 (Blocked but still traced, not silently dropped from the table, acceptance-tests.md:26-29); REQ-004->AC-016..018/TEST-016..018; REQ-005->AC-019..020/TEST-019..020; REQ-006->AC-021..023/TEST-021..023. The Overview's per-stream goal statements (requirements.md:103-127) and User Stories (:319-338) map onto this same AC set with no orphaned goal found -- e.g. Overview's Stream D description ('job-count-preserving lane marking... job graph and required-checks' needs: list byte-unchanged', :120-127) reappears verbatim as testable AC-016/017/018 (:435-457)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC (requirements.md:347-489) and its acceptance-tests.md TEST-ID counterpart (:15-37) specifies an externally observable artifact, decision, or file state rather than an intention. AC-001..004 name a specific selected branch plus a decision-parity comparison against a direct invocation (requirements.md:351-360); AC-005 names two independently required, separately-checked sub-cases (exit code 2 vs. a copilot-shaped deny JSON, :361-364); AC-016 names the exact staged-candidate path and requires the live file confirmed unmodified (:435-442, acceptance-tests.md:30); AC-017 is explicitly called out as 'RED-demonstrable' via an intentionally-dropped step name in a throwaway fixture (acceptance-tests.md:31, requirements.md:443-452). Stream C's Blocked ACs (AC-012..015) still specify observable target shapes (a closed-set schema field, a named cross-reference comment in both files) even though no suite exists yet to execute them, which the calibration doc permits at Phase 1."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:273-317) is thorough: excludes direct edits to the 4 R-10-protected suites (:275-278), excludes inventing a fixture vocabulary ahead of ADR-0010 (:279-284), excludes migrating tests/scenario.tests.sh (:285-288), explicitly reclassifies Stream D as preventive-not-a-fix (:289-292), excludes epic #136 Phase 4/design-sync work (:293-297), and bounds test.yml human-copy staging to exactly 'the ONE shared staged batch' (:298-308). I re-verified this ONE-shared-batch boundary is stated identically at every location this review was asked to check: Main Workflows item 2 (Stream B, :578-582, '...in the ONE shared staged batch this feature produces (Non-goals; the batch count is decided at this spec level...exactly as stated for Stream D in item 4 below)'), Main Workflows item 4 (Stream D, :601-604, '...together with Stream A's and Stream B's CI-step additions -- design.md decides only the internal ordering of edits WITHIN that single reviewed diff, not the batch count'), Non-goals itself (:298-308), OQ-4 (:733-742, 'RESOLVED (moot, re-verified)... The batch COUNT is decided at this spec level'), and the Risks Medium bullet (:771-780, 'The batch count is settled at this spec level (the ONE shared staged batch, Non-goals/OQ-4)'). No location in requirements.md or acceptance-tests.md restates a two-batch or per-stream-batch framing -- the boundary is consistent document-wide, confirming this attempt's remediation held."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly rather than left implicit. The Security Boundaries table (requirements.md:657-664) names 4 trust boundaries (B1..B4) with concrete auth/data-classification/regulatory columns (none blank, regulatory column explicitly 'none identified' rather than omitted). Roles and Permissions (:540-563) states the approval boundary explicitly: 'Human maintainer... validates and applies the staged...candidate(s)... separately, decides when ADR-0010 moves to Status: Accepted... this decision is NOT made by this spec or by any agent session' (:554-559). REQ-006 (:256-271) states concrete compatibility constraints (bash-3.2 `declare -A`/`set -u` safety; PowerShell ASCII/no-BOM/LF-only/`exit N`) inherited from an existing suite's convention. I also re-verified this attempt's other targeted property -- REQ-004/Stream D's job-count-preserving, needs:-byte-unchanged constraint -- holds identically everywhere specified: Overview (:120-127), REQ-004 itself (:231-244), Non-goals (:289-292), Main Workflows item 4 (:595-607), OQ-5 (:743-752), and AC-016/017/018 plus acceptance-tests.md TEST-016/017/018 (requirements.md:435-457, acceptance-tests.md:30-32). No location suggests a job split or a needs: list change, so the compatibility/migration boundary this feature must not cross is unambiguous document-wide."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims are present, so this check does not SKIP, and each carries an explicit validation surface. The High risk (Stream C's ADR-0010 dependency, requirements.md:764-770) is bounded by OQ-2's Blocked status plus the Assumptions section's explicit re-verification instruction ('RE-VERIFY the ADR's Status: line directly before treating Stream C as unblocked at any later point', :690-694). The first Medium risk (concurrent test.yml staging, :771-780) is mitigated by the ONE-shared-batch decision plus a named design.md internal-ordering rule. The second Medium risk (Stream B's 12-combination matrix silently under-asserting, :781-787) names its own validation surface directly: 'mitigated by AC-008/009/010's explicit per-combination enumeration...and acceptance-tests.md's TEST-ID table making each combination's coverage independently traceable.' The Low-Medium risk (Stream A PATH-stub false pass, :788-794) points to the Edge Cases requirement that each fixture assert genuine tool absence/presence before asserting on the guard's decision (:621-627). The Low risk (Stream D silently dropping a step or editing needs:, :795-807) is mitigated by AC-017's enumerate-and-confirm self-check plus an explicit human-reviewer branch-protection verification step named in the same bullet. Every risk row resolves to a concrete acceptance-criterion or human-review validation path rather than a bare deferral."
+    }
+  ]
+}

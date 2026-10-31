@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r1-b-seq0472",
+  "host_session_id": "SESS-spec-a2r1-b-mcpreadonlypreflight-0472",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-1/integrated-summary.json",
+      "sha256": "724165b6735a1512fa5ebf8dd7c035895953d626616e912e145529fa1e91c592"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-1/precheck-result.json",
+      "sha256": "042115d3afc4a86484b58e3072f50d77ac8e34da3cb6296c455a00d46ddb1949"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "7ae4ea198ab5d972f3bcbe6a636e2076c9984d9c14e732af6b9b64e8e35657e0"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Binding criteria use concrete, separately-verifiable elements rather than vague prose. requirements.md:58-64 (AC-001) requires three distinct, independently-asserted elements (named tool identifier, explicit 'read-only' statement, explicit advisory/non-deciding statement) and explicitly rules out weaker readings ('not by asserting a section heading... not by asserting only (a)'). The newly added divergence criteria are similarly concrete: AC-027a (requirements.md:148-151) requires two separately-asserted elements ('states that a disagreement occurred' AND 'names which source it acted on'), and AC-027b (requirements.md:153-156) pins the authoritative source to 'the file-based one' and explicitly forecloses the 'warn, then follow the probe' misreading. Actor/term usage ('operator' at requirements.md:144 vs 'user' elsewhere, e.g. requirements.md:108) is a minor synonym variance but both clearly denote the human running bootstrap/ship and no requirement implies distinct actors, so it does not rise to a downstream-mismatch-causing ambiguity."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:21 asserts, in present tense, 'This specification deliberately leaves ten Open Questions unresolved... OQ-005 in particular... is the difference between a specifiable feature and an unspecifiable one.' This directly conflicts with requirements.md:142-146, which states 'Divergence handling was OQ-005. It was answered by the human on 2026-08-04 and is now decided here... Resolution: warn-on-divergence.' The Edge Cases section was not updated to match: requirements.md:258 still reads 'OQ-005 -- and REQ-005 guarantees only that the outcome is unaffected, not that the disagreement is reported' -- the literal opposite of what AC-027a (requirements.md:148-151) now requires (the disagreement IS reported). investigation.md:213-214 independently reinforces the stale state, still listing OQ-005 as unresolved ('An advisory layer whose divergence handling is unspecified is not yet specifiable'), with no addendum noting the 2026-08-04 resolution. Downstream failure mode: a task-decomposition author or design reviewer reading the Overview, Edge Case #3, or investigation.md in isolation would reasonably conclude that divergence-reporting is still an open, undecided product question and either treat AC-027a/AC-027b as provisional or independently invent a divergence-handling behavior that could conflict with the now-binding AC-027a/AC-027b. This is an internal-consistency defect within the Phase 1 artifacts themselves and must be caught before design/task decomposition inherits the conflicting signal, which is exactly spec-review's responsibility. Severity is Major rather than Critical because the conflict is a documentation-consistency defect, not a safety or workflow-authority conflict -- all three passages agree the file-based conclusion remains authoritative; what conflicts is only whether the reporting obligation is already settled."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:18-21 (TEST-008..TEST-011) cover the full 2x2 fallback grid (no-MCP-registered vs registered-but-call-fails, crossed with bootstrap/ship) implied by REQ-004's two issue-named unavailability conditions. acceptance-tests.md:38-39 (TEST-027a/TEST-027b) now cover the divergence edge case newly introduced by OQ-005's resolution, testing both that the disagreement is surfaced and that the file-based conclusion is the one acted on. Remaining un-covered branches are explicitly named as deferred rather than silently omitted: the error-envelope condition is recorded as OQ-010 with no AC/TEST 'by decision' (acceptance-tests.md:54, requirements.md:128), the empty-feature-directory and no-specs-at-all cases are recorded as OQ-003/OQ-004 in Edge Cases 1-2 (requirements.md:256-257,260), and the stale-registered-server case (Edge Case 4, requirements.md:259) is explicitly flagged as 'not caught by any fallback branch in REQ-004' rather than hidden. Per the calibration False-Positive Guard, explicit, named deferral of an undecided branch is not a coverage hole."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All ten open questions are explicitly enumerated as decisions needed in investigation.md:197-231 rather than silently assumed, and requirements.md's binding ACs are written to hold under every unresolved question's possible resolution (e.g., requirements.md:56 'AC-001 asserts only the properties that hold under every resolution of those questions'; requirements.md:76 'Whichever artifact OQ-007 selects... this criterion's two halves are both verifiable'). For claims about shared, git-tracked state: the PROTECTED_GATE_SUFFIXES membership table carries an explicit re-verification instruction at requirements.md:44-46 ('At spec-review time, the reviewer must re-derive this table by reading guard_invariants.py:4...'), and the docs/adr/ next-free-number claim carries its own explicit re-verification instruction at investigation.md:225 ('the next free 4-digit number in docs/adr/ must be re-derived at drafting time and not taken from this document'). The remaining shared-state-adjacent claim -- 'sdd-forge-mcp's fourteen tools are all read-only' (requirements.md:266) -- is not left as a static assumption for task decomposition to trust: AC-014 (requirements.md:171) and TEST-014 (acceptance-tests.md:24, elaborated at :116-118) require the check to be 'Asserted against the registered tool set, not against prose,' which functions as the re-verification mechanism for that specific claim. No bare unconditional claim about shared mutable state lacks a re-verification path."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A genuine human-approval/governance boundary is in scope: plugins/sdd-ship/skills/ship/SKILL.md is a protected gate file that an agent cannot write (requirements.md:19,25-34, BL-004 at requirements.md:275), requiring a human-applied patch. This boundary is made testable rather than merely asserted: AC-025/AC-026 (requirements.md:233-237) and TEST-025/TEST-026 (acceptance-tests.md:35-36, detailed at :146-154) require hash-conformance between a staged candidate and its MANIFEST.sha256 entry, and require the live protected file's unmodified state be asserted 'without opening the live protected path for write,' modeled directly on an existing conformant suite (tests/quality-gate-cycle-limit.tests.sh:363-378 per acceptance-tests.md:154). AC-002's second half (requirements.md:74-76) and TEST-003 (acceptance-tests.md:13,70-76) similarly make the 'not produced by an agent write to the live protected path' guarantee independently verifiable. Not SKIP because this boundary is squarely in scope for the feature."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The nine remaining open questions (OQ-001..OQ-004, OQ-006..OQ-010) are each explicitly recorded with the specific decision they defer (investigation.md:201-231), consistent with the cited SDD interviewer principle that 'unknown product decisions are recorded, not invented' (requirements.md:21). The specification's currently-binding acceptance criteria do not require a design reviewer to invent missing product behavior: AC-001/AC-002 are written to hold under every resolution of OQ-001/OQ-002/OQ-007 (requirements.md:56,76), REQ-002/AC-002/REQ-010 give concrete, testable handling for the staging branch of OQ-007 (requirements.md:229-237), and the newly-added AC-027a/AC-027b give concrete, unambiguous divergence-handling behavior that closes what the Overview itself called the load-bearing gap (requirements.md:148-158). The stale cross-references identified under CONTRADICTION (requirements.md:21,258; investigation.md:213-214) are a documentation-consistency risk that could momentarily mislead a reader, but they do not remove the unambiguous, separately-stated AC-027a/AC-027b language a design/implementation-policy reviewer would actually rely on, so they do not independently block handoff."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain/ directory exists under specs/mcp-readonly-preflight/ (directory listing of specs/mcp-readonly-preflight/ returns only investigation.md, design.md, ux-spec.md, frontend-spec.md, infra-spec.md, security-spec.md, acceptance-tests.md, requirements.md -- no domain/ subdirectory). This feature has no domain model in scope for this check, so it is recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

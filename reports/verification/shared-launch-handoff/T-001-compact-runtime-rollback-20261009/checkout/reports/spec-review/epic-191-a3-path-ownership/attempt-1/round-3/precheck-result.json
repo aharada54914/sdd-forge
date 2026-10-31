@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "4d366a371d43f8a7fa6b1290251dafeaa3d706022948bedae63ca66f9bee6ce4",
+  "acceptance_sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "6ece02b276e93e1ff3a19d8a3a1df471ae0dd587fd192db2b35411913db657de",
+  "edit_summary": "Clarified requirements.md's Dependencies and Open Questions citations of OQ-001 to state that REQ-004's Fail-condition definitions and AC-033 (not investigation.md's restated prose) are the current normative Fail-6 trigger rule, closing the contradiction both reviewers found in round 2; investigation.md's own OQ-001 text is corrected to match in a follow-up commit.",
+  "reset": false,
+  "generated_at": "2026-07-21T22:18:19Z"
+}

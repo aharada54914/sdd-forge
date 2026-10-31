@@ -1,0 +1,66 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+index 5c3b6921..c32bcb49 100644
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@ -129,24 +128,0 @@ foreach ($task in $allTasks) {
+-        # Two-person approval enforcement for critical Done tasks
+-        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
+-        if ($taskRisk -eq "critical") {
+-            $primId = Get-ApproverId -s $a
+-            $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
+-            $secId = Get-ApproverId -s $secValue
+-
+-            if ($primId -eq "") {
+-                $failures += "$task is critical Done but primary Approval lacks a named approver (need 'Approved (<id> <ISO>)')"
+-            }
+-            if ($primId.ToLower() -eq "sudo") {
+-                $failures += "$task is critical Done but primary approver is 'sudo'; critical requires a named human approver"
+-            }
+-            if ($secValue -eq "" -or $secId -eq "") {
+-                $failures += "$task is critical Done but Second Approval is missing or not a named 'Approved (<id> <ISO>)'"
+-            }
+-            if ($secId.ToLower() -eq "sudo") {
+-                $failures += "$task is critical Done but Second Approval approver is 'sudo'; critical requires a named human second approver"
+-            }
+-            if ($primId -ne "" -and $primId.ToLower() -eq $secId.ToLower()) {
+-                $failures += "$task is critical Done but both approvals are by the same approver '$primId'; two distinct approvers required"
+-            }
+-        }
+-
+@@ -167,0 +144 @@ foreach ($task in $allTasks) {
++        $contractRisk = ""
+@@ -179,0 +157,8 @@ foreach ($task in $allTasks) {
++                    } else {
++                        if ($null -ne $contract.risk -and ($contract.risk -is [string])) {
++                            $contractRisk = ([string]$contract.risk).Trim().ToLower()
++                        }
++                        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
++                        if ($taskRisk -ne "" -and $contractRisk -ne "" -and $taskRisk -ne $contractRisk) {
++                            $failures += "$task contract risk '$contractRisk' does not match tasks.md risk '$taskRisk'"
++                        }
+@@ -185,0 +171,25 @@ foreach ($task in $allTasks) {
++
++        # Two-person approval enforcement for critical Done tasks
++        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
++        $effectiveRisk = if ($contractRisk -ne "") { $contractRisk } else { $taskRisk }
++        if ($effectiveRisk -eq "critical") {
++            $primId = Get-ApproverId -s $a
++            $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
++            $secId = Get-ApproverId -s $secValue
++
++            if ($primId -eq "") {
++                $failures += "$task is critical Done but primary Approval lacks a named approver (need 'Approved (<id> <ISO>)')"
++            }
++            if ($primId.ToLower() -eq "sudo") {
++                $failures += "$task is critical Done but primary approver is 'sudo'; critical requires a named human approver"
++            }
++            if ($secValue -eq "" -or $secId -eq "") {
++                $failures += "$task is critical Done but Second Approval is missing or not a named 'Approved (<id> <ISO>)'"
++            }
++            if ($secId.ToLower() -eq "sudo") {
++                $failures += "$task is critical Done but Second Approval approver is 'sudo'; critical requires a named human second approver"
++            }
++            if ($primId -ne "" -and $primId.ToLower() -eq $secId.ToLower()) {
++                $failures += "$task is critical Done but both approvals are by the same approver '$primId'; two distinct approvers required"
++            }
++        }

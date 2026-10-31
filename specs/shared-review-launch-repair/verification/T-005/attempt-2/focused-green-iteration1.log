@@ -1,0 +1,70 @@
+test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) ... 
+  test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='bash', failure='conditional-presence') ... ERROR
+  test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', failure='conditional-presence') ... ERROR
+test_common_rejection_stops_every_stage_before_mutation (__main__.LaunchOrderTests.test_common_rejection_stops_every_stage_before_mutation) ... ok
+test_conditional_input_is_not_silently_skipped (__main__.LaunchOrderTests.test_conditional_input_is_not_silently_skipped) ... ok
+test_design_system_is_only_an_impl_dependency (__main__.LaunchOrderTests.test_design_system_is_only_an_impl_dependency) ... ok
+test_failures_before_reservation (__main__.LaunchOrderTests.test_failures_before_reservation) ... ok
+test_required_set_follows_stage_role_and_precheck (__main__.LaunchOrderTests.test_required_set_follows_stage_role_and_precheck) ... ok
+test_reservation_failure_never_launches (__main__.LaunchOrderTests.test_reservation_failure_never_launches) ... ok
+test_strict_prompt_carries_revalidated_absent_domain_without_shell_probe (__main__.LaunchOrderTests.test_strict_prompt_carries_revalidated_absent_domain_without_shell_probe) ... ok
+test_success_order_and_no_replay (__main__.LaunchOrderTests.test_success_order_and_no_replay) ... ok
+
+======================================================================
+ERROR: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='bash', failure='conditional-presence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 311, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(failure, 'spec', runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 215, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 349, in launch
+    native = run(root, ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)], output / 'native.jsonl')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 172, in run
+    domain.mkdir()
+    ~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpionaojz4/domain'
+
+======================================================================
+ERROR: test_canonical_admission_and_preappend_failures (__main__.LaunchOrderTests.test_canonical_admission_and_preappend_failures) (runtime='powershell', failure='conditional-presence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 311, in test_canonical_admission_and_preappend_failures
+    events = self.exercise(failure, 'spec', runtime)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 215, in exercise
+    launcher.launch(root, root / 'invocation.json', output, pin)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 349, in launch
+    native = run(root, ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)], output / 'native.jsonl')
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/tests/unified-launch-order.tests.py", line 172, in run
+    domain.mkdir()
+    ~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp93iwhqtd/domain'
+
+----------------------------------------------------------------------
+Ran 9 tests in 21.999s
+
+FAILED (errors=2)

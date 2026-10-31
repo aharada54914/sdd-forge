@@ -1,0 +1,47 @@
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "epic-192-a4-facet-manifest",
+  "affected_components": [
+    "cli-core",
+    "desktop-client"
+  ],
+  "required_facets": [
+    "backend-patterns",
+    "cli-patterns"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "ui-patterns",
+      "applied": false,
+      "reason": "no UI surface in this feature",
+      "evidence": [
+        {
+          "operator": "exists",
+          "path": "/components/desktop-client/ui_layer",
+          "outcome": "no-match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "task-review",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "schema-validation"
+  ],
+  "capability_minimum_enforcement": "required",
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "missing-security-spec"
+    ]
+  },
+  "resolver": {
+    "version": "1.1.0",
+    "rule_set_revision": "sha256:d9936cb3465e938615802f6e14265c46e1833b1f77cb851466c9c356892c592b"
+  }
+}

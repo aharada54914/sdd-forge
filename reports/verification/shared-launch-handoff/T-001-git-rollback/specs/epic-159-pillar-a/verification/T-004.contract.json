@@ -1,0 +1,142 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-159-pillar-a",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "8bdd1656a085e06458e927d62989b02f9ad4578272c8546b877b20dd760ad58f",
+  "created": "2026-07-14T18:55:07Z",
+  "comment": "Default-FAIL verification contract for T-004 (medium, acceptance-first). Populated after the quality gate reran tests/loop-escalation.tests.sh/.ps1 (bash 22/22, pwsh 21/21 with a named permanent SKIP for check-terminal-tier-resume.ps1's TEST-013 leg, which has no python3 dependency to restrict) and the epic-159-pillar-a regression set (4 loop suites + template-validator-parity + crlf-parity + constant-parity + guard-ps1-ascii + validate-repository, all green). Shell stack waives the three compile-oriented checks (lint/typecheck/build); this task ships only new tests/ suite files with no compiled toolchain.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a/verification/qg/T-004/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The suite drives the real quality-gate escalation chain scripts (cycle-limit, select-agent-model, terminal-tier-resume) and the real validate-review-context-set.sh parity extension against isolated mktemp fixtures; no separate service-integration surface exists beyond what unit/acceptance already exercise.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a/verification/qg/T-004/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a/verification/qg/T-004/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a/verification/qg/T-004/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a/verification/qg/T-004/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a/verification/qg/T-004/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds only test-infrastructure (the escalation-chain suite plus a template-parity extension), fully covered by the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only tests/loop-escalation.tests.{sh,ps1}.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

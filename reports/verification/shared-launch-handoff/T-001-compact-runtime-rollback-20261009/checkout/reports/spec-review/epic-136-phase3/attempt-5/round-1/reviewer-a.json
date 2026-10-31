@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a5r1-a-seq0433",
+  "host_session_id": "SESS-spec-a5r1-a-epic136phase3-0433",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-5/round-1/precheck-result.json",
+      "sha256": "1953c4389d207554416a97ee36594bc39cd7fdfe759309d47712956e0b8d6448"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "efdee4ee7d03e67bf2f4554493a2e1157b0d7b6cbd52190389dc894ec0b6fc8a"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope Goal (REQ-001..REQ-006, requirements.md '## Goals') states concrete, checkable conditions: REQ-001 names the exact suite file, the six PATH-availability/precedence branches, and both --emit modes; REQ-002 names the exact 3-class x 4-runtime x 3-tool_name-shape matrix; REQ-003 names the closed greenfield|brownfield field and the 10 mapped scenario classes; REQ-004 names the byte-unchanged required-checks needs: list and the [deterministic] prefix convention; REQ-005 names the exact registration files (run-all.sh/.ps1, test.yml via human-copy); REQ-006 names concrete bash-3.2/ps1-ASCII hygiene rules and per-issue CHANGELOG entries. A downstream task author or verifier can validate each without further clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal has a 1:1-labeled acceptance-criterion block: REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023 (requirements.md '## Acceptance Criteria', each line ends with its owning '(REQ-NNN)' tag). acceptance-tests.md's table mirrors AC-NNN 1:1 as TEST-NNN with no gaps or extra unmapped rows."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outcomes rather than intent: AC-005's exit 2 / copilot-shaped deny JSON, AC-006's marker-writing-stub precedence proof, AC-011's explicit cross-runtime decision-agreement check, AC-017's text-marker self-check enumerating every pre-change step name against the staged candidate, AC-019/AC-020's grep-based registration self-checks, and AC-022's CHANGELOG-entry-count check. Each names a concrete artifact, exit code, or comparison a verifier can execute without inferring intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md '## Non-goals' is explicit and specific: excludes direct edits to the 4 genuinely R-10-protected suites, inventing a new fixture-profile vocabulary instead of ADR-0010's, migrating/renaming tests/scenario.tests.sh, treating Stream D as a fix for a currently-mixed lane, anything in epic #136 Phase 4 (#128-#135) or the design-sync issues (#138-#140), any test.yml human-copy staging beyond the ONE shared batch this feature produces, and tasks.md/traceability.md/traceability.json. Each boundary is tied to a concrete file or issue-number scope, not left implicit."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The human-copy staging/approval-boundary constraint for the ONE shared test.yml batch is stated with a real internal contradiction. Six passages state the batch carries all FOUR streams' edits: AC-020 ('the ONE shared batch, Streams A + B + C + D'), Non-goals ('Stream C registers its runner via the same explicit-step rule, inside this ONE shared batch'), Main Workflows item 3 (Stream C: 'stage its CI step via human-copy -- inside this feature's ONE shared staged batch'), the CI role description ('the ONE shared staged test.yml candidate (Streams A + B + C + D)'), Assumptions ('Streams A/B/C/D's test.yml edits'), and OQ-4 ('the ONE shared staged batch ... carries Streams A/B/C/D's test.yml edits'). But three other passages were not swept to match: the Roles and Permissions Agent bullet describes the batch as only 'Stream A's and Stream B's new CI steps plus Stream D's step-prefix lane marking' (Stream C omitted); the Security Boundaries table's B3 row repeats the identical 3-stream description ('the ONE shared staged batch (Streams A's/B's new CI steps and Stream D's step-prefix lane marking)'); and the Risks section's Medium intra-batch risk states 'Streams A, B, and D all stage edits to the SAME protected .github/workflows/test.yml file' and requires the design to 'carry all three streams' edits coherently' -- while citing '(Non-goals/OQ-4)' as its own source, even though Non-goals/OQ-4 both actually describe FOUR streams. Downstream failure mode: this Risks paragraph is the passage that motivates design.md's Global Constraints to name 'the exact internal ordering of edits within that one reviewed diff' (Main Workflows item 4); if a design author trusts this paragraph's own stream count, Stream C's CI-step edit position within the shared candidate could be left unordered/unaddressed, reintroducing the exact intra-batch merge hazard the paragraph exists to close. This is specification review's responsibility because it is a plain textual contradiction discoverable by reading requirements.md alone, before any design or task-decomposition work begins -- exactly the residue this attempt's stated 'four consistency edits' were supposed to eliminate. Major (not Critical) because the contradiction is confined to 3 narrative/supporting passages against 6 unambiguous authoritative ones (including the binding AC-020), so the document is not unreviewable as a whole, but a task/design author relying specifically on the Risks or Roles-and-Permissions passage would be missing load-bearing scope detail."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every risk in requirements.md '## Risks' ties to a planned validation surface: the retired ADR-0010 risk cites the Stream C status record as its resolution evidence; the Medium intra-batch risk cites design.md's Global Constraints as the planned ordering mechanism; the Stream B 12-combination risk cites AC-008/009/010's explicit per-combination enumeration and acceptance-tests.md's TEST-ID traceability table; the Low-Medium PATH-stub false-pass risk cites the Edge Cases requirement that each fixture assert genuine tool absence/presence before asserting on the guard decision; the Low Stream D step-drop/needs-list risk cites AC-017's text-marker self-check plus an explicit human reviewer verification step before the candidate is applied."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "requirements.md carries no 'Bounded-Context:' field, and this role's allowed-input manifest does not include domain/context-map.md or domain/domain-contract.json, so no evidence of a domain/ directory with an Approved domain model applying to this feature is available within this review's read set. Per the calibration rule, when there is no evidence of an Approved domain model this check is recorded as skipped and SKIP is emitted."
+    }
+  ]
+}

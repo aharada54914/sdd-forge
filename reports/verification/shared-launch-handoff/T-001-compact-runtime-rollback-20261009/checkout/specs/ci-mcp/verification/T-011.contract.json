@@ -1,0 +1,102 @@
+{
+ "task_id": "T-011",
+ "feature": "ci-mcp",
+ "risk": "low",
+ "required_workflow": "test-after",
+ "stack": "docs",
+ "spec_revision": "",
+ "created": "2026-07-07T17:08:04Z",
+ "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session. Stack is docs (README.md/USERGUIDE.md + the T-011 traceability addendum); no compile toolchain applies to the changed files themselves (lint/typecheck/build waived per risk-gate-matrix.md low/docs, mirroring specs/knowledge-mcp/verification/T-009.contract.json). Unlike a pure compile-check waiver, T-011's Done When explicitly requires the full npm test suite to stay green (confirming no code was touched) and a doc-content cross-check against mcp/ci-mcp/src/ and install.sh, so unit-tests/acceptance-tests/regression carry real green evidence (shared CI tests.log, 137/137, copied verbatim) rather than a pure waiver -- same 'green-but-not-tier-required' treatment as the knowledge-mcp T-009 reference. required_workflow is test-after: only green_evidence is populated for the test-type checks; there is no T-011-red.txt and none is expected (test-after has no red phase) -- T-011-green.txt is itself the grep-based doc-verification cross-check plus the full re-run of npm test. requirement-traceability is also not tier-required at low; T-011's core purpose IS finalizing the REQ->AC->TEST->Task chain (19/19 rows Verified in reports/implementation/ci-mcp/T-011.md), so that addendum plus T-011-green.txt is recorded as its evidence rather than re-running check-traceability.sh (specs/ci-mcp/traceability.md/.json are frozen post-review per WFI-004 and were not re-validated by this task).",
+ "checks": [
+  {
+   "id": "lint",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "docs stack: no compile toolchain for README.md/USERGUIDE.md/the T-011 addendum report; content verified against Done When and cross-checked (grep-based) against mcp/ci-mcp/src/ and install.sh in T-011-green.txt",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "typecheck",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "docs stack: no compile toolchain for README.md/USERGUIDE.md/the T-011 addendum report; content verified against Done When and cross-checked (grep-based) against mcp/ci-mcp/src/ and install.sh in T-011-green.txt",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "build",
+   "required": false,
+   "passes": false,
+   "evidence": "",
+   "waiver_reason": "docs stack: no compile toolchain for README.md/USERGUIDE.md/the T-011 addendum report; content verified against Done When and cross-checked (grep-based) against mcp/ci-mcp/src/ and install.sh in T-011-green.txt",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "placeholder-scan",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-011/check-placeholders.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "task-state-check",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-011/check-task-state.log",
+   "waiver_reason": "",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "unit-tests",
+   "required": false,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-011/tests.log",
+   "waiver_reason": "not tier-required at low/test-after (risk-gate-matrix.md) for a docs-only change to README.md/USERGUIDE.md; run anyway via ci-mcp's shared repo-wide CI evidence (137/137) and stayed green -- no code was touched by this task",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": "specs/ci-mcp/verification/T-011-green.txt"
+  },
+  {
+   "id": "acceptance-tests",
+   "required": false,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-011/tests.log",
+   "waiver_reason": "not tier-required at low/test-after (risk-gate-matrix.md) for a docs-only change to README.md/USERGUIDE.md; run anyway via ci-mcp's shared repo-wide CI evidence (137/137) and stayed green -- no code was touched by this task",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": "specs/ci-mcp/verification/T-011-green.txt"
+  },
+  {
+   "id": "regression",
+   "required": false,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-011/tests.log",
+   "waiver_reason": "not tier-required at low/test-after (risk-gate-matrix.md) for a docs-only change to README.md/USERGUIDE.md; run anyway via ci-mcp's shared repo-wide CI evidence (137/137) and stayed green -- no code was touched by this task",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": "specs/ci-mcp/verification/T-011-green.txt"
+  },
+  {
+   "id": "requirement-traceability",
+   "required": false,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/T-011-green.txt",
+   "waiver_reason": "not tier-required at low (risk-gate-matrix.md); T-011's core purpose is finalizing the REQ->AC->TEST->Task chain, so the 19/19-row Verification Status table in reports/implementation/ci-mcp/T-011.md plus T-011-green.txt's cross-check is recorded as evidence rather than re-running check-traceability.sh against the frozen traceability.md/.json",
+   "requirement_ids": ["REQ-012"],
+   "red_evidence": "",
+   "green_evidence": ""
+  }
+ ]
+}

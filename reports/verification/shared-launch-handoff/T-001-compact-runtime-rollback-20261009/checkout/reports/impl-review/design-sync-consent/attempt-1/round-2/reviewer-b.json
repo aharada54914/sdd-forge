@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-designsyncconsent-impl-a1r2-b-seq0486",
+  "host_session_id": "SESS-impl-a1r2-b-designsyncconsent-0486",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+      "sha256": "90aaba5daf0f9ccc4ca072e21382e0720b8f20156b0534b5462e6db2cd861804"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "9cd6b2b9a9eba8b265f3d77f0ac0ce9cd726b0f9efe0442b81a9d48b0bc907e8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+      "sha256": "4693e65e7b57edce7bfe576c7802b5ad43572e24d3ca667cce42e45bf8c14807"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+      "sha256": "63254ac7a73ebbf98e6e61c3d4330af8265cf0674d8e581adeee3f7b5cf6e3ba"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every decision I can find in design.md carries an explicit rationale. Architecture Overview (design.md:41-47) justifies the 3-stage split with 'Each split earns its keep' plus a stated rejected alternative ('keep one step and add a conditional... It fails REQ-006 on both counts'). Design Decisions section (design.md:246-251) gives a 'because'/'otherwise' clause for each of the 4 design-owned items, including the new round-2 item 'Push failure does not revoke consent (decided 2026-08-05)' at design.md:251, justified by 'Consent is bound to scope, not to upload success (R-OQ-1 / R-OQ-3); treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model'. No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 finding verified fixed, not merely claimed fixed. security-spec.md:185-187 now reads 'Resolved 2026-08-04 -- see requirements.md -> Resolutions (R-OQ-1/2/3)' for OQ-1/2/3 (previously stale). infra-spec.md:119 states OQ-8 'Resolved 2026-08-04 -- existing contract suite; registered in run-all; CI registration staged separately'. ux-spec.md:31 states OQ-1 'Resolved 2026-08-04 -- feature and session (R-OQ-1); the prompt can be written'. design.md's own Open Questions section (design.md:360-382) restates each of OQ-1/2/3/8 with owner, resolution, and rationale; requirements.md:298-309's table carries the same Owner/Blocks/Status columns. A grep for 'OQ-1|OQ-2|OQ-3|OQ-8' across all five specs found no remaining stale 'still open/blocking' language outside investigation.md (which is explicitly the pre-resolution historical record, dated 2026-08-04, and requirements.md:296 states plainly it is 'carried from investigation.md' and resolved downstream -- not a live design assertion). The four still-open, non-blocking items (OQ-6/7/9/10, design.md:389-394) each name a role owner (implementer/product/product-security/maintainers) and a non-blocking status stated at the section header ('Still open -- none blocking', design.md:389); their resolution-path text is terse for OQ-7/9/10 but per this check's own carve-out that is at most a Minor note, not a Major finding, since each has a stated owner and non-blocking status."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present. design.md's Assumptions section (design.md:349-354) has 4 entries, each grounded: file:line re-verification is grounded in INV-002 (design.md:351); protected-file/CI-registration shared-state re-verification is grounded in requirements.md's Assumptions plus guard_invariants.py citations (design.md:352); DesignSync tool semantics are explicitly bounded rather than assumed (design.md:353); 'the loop has never run here' is grounded in INV-010 (design.md:354). No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No '## Constraint Compliance' section exists in design.md (fallback applies). Scanned requirements.md for 'must not'/'shall not' constraints: 'must not re-prompt for further uploads inside that scope' (requirements.md:25) is addressed by design.md:96-101 (step 3's three outcomes); 'disclosure must not overstate its own completeness' (requirements.md:96) is addressed by design.md:128 (the OQ-6 bullet) and AC-005/TEST-009; 'consent prompt must not appear where the loop does not run' (requirements.md:265) is addressed by design.md:158 ('Consent resolution is after capability detection'); 'must not introduce a step that blocks' on a DesignSync-absent host (requirements.md:266) is addressed the same way; the BL-001..BL-009 Baseline Constraints (requirements.md:280-292) are mirrored almost 1:1 in design.md's Global Constraints (design.md:337-347). No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Grep across requirements.md for response-time/throughput/concurrency/latency/SLA/ms/load-test keywords returned zero matches, consistent with this being a document-conformance-only skill-prose feature with no executable code path (design.md:6-8, acceptance-tests.md:3)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment and CI Plan' (design.md:328-336) states the deployment target by reference to infra-spec.md's Deployment Topology table (infra-spec.md:7-19: shipped inside the plugin, no build step) and states CI pipeline changes required in detail: one certain human-copy staging round for lite-spec/SKILL.md (design.md:333-334, infra-spec.md:23-47), test-suite registration in tests/run-all.{sh,ps1} (infra-spec.md:51-68), and a separately staged CI-workflow patch (infra-spec.md:45, R-OQ-8 part c). No schema changes exist (Data Plan, design.md:192-194: 'No data model, no persistence, no migration'), so migration-execution-order is correctly inapplicable. Feature-flag strategy is not discussed but this is a direct skill-text change with no incremental-rollout mechanism in this repository, so the conditional bullet does not apply."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' (design.md:192-194) states 'No data model, no persistence, no migration' -- functionally equivalent to the check's stated pass condition 'No data changes.' The two on-disk artifacts touched (Design-Source section shape, the mockups directory) are explicitly additive/unchanged-in-shape (design.md:198-201), not schema changes."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 finding verified fixed. The claude.ai/design integration (via the DesignSync tool) is identified with name/purpose in design.md's Security Boundaries table (design.md:209-214, B1 row: 'outbound to claude.ai/design (write_files, finalize_plan)... Retention and downstream handling are outside this repository's control') and security-spec.md's 'What Leaves The Machine' table (security-spec.md:11-20) and Trust Boundaries table (security-spec.md:79-84). Contract is honestly bounded rather than overclaimed: design.md's Assumptions (design.md:353) state 'DesignSync tool semantics are outside this repository... does not assume anything about finalize_plan beyond its call position', consistent with AC-005/OQ-6's explicit treatment of that gap. Failure behaviour -- the missing element flagged in round 1 -- is now stated concretely at design.md:137-145 (Loop step 6): push failure (network error, timeout, auth expiry, service outage) does not change consent state, the agent reports the failure, and a same-scope retry resumes at step 5 with no re-prompt."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md has no '## Goals'/'## User Stories' headers (it uses REQ-001..REQ-008 instead, per this repository's convention for document-conformance features); design.md's Test Strategy coverage table (design.md:267-297) maps every AC-001..AC-029 to its REQ and delivering design element with no gaps, and the Components table (design.md:49-67) introduces no component, data model, or endpoint beyond the four edit surfaces requirements.md names (loop SKILL.md, reconciliation sites, protected lite-spec staging, verification suites). Design System Compliance is correctly N/A (design.md:78-82, ds_profile: none) with no UI library introduced. No scope creep or omitted capability found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The new push-in-flight-failure decision (design.md:137-145, Loop step 6: 'Push failure... does NOT change consent state... A retry within the same scope resumes at step 5 with NO re-prompt... Decided 2026-08-05') is exactly the cross-service integration failure-behaviour category this check names as high-risk, and it has zero concrete validation path anywhere in the artifact set. Grep across acceptance-tests.md, requirements.md, security-spec.md, ux-spec.md and infra-spec.md for 'push fail', 'retry', 'network error', 'auth expiry', 'service outage', 'resume', 'step 6' and 'Decided 2026-08-05' returns no matches outside design.md itself. design.md's own Test Strategy coverage table (design.md:267-297), which the document itself holds up as the completeness check ('If an AC has no row here, the plan is incomplete; that is the check', design.md:261), has no row for this behaviour because it maps to no AC-*. security-spec.md's STRIDE Analysis (security-spec.md:118-129) and Security Tests table (security-spec.md:155-167) likewise have no row for it, despite covering every other B1 behaviour in comparable granularity. Concrete failure mode: an implementer could omit this handling from the live SKILL.md, or implement the opposite (re-prompting on retry, or treating push failure as an implicit revocation), and no acceptance test, STRIDE row, or CI gate would catch the deviation, because none exists. This is a genuinely new normative claim added in this round with no downstream propagation into any verifiable artifact, unlike every other decision in this document."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in the repository root (verified via directory listing), so the Domain-Model-Status precondition for this check is absent and the check does not apply."
+    }
+  ]
+}

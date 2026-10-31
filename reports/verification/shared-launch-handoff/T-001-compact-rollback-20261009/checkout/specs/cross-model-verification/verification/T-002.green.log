@@ -1,0 +1,49 @@
+=== BASH GREEN ===
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel → exit 1 (diversity fail)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel → exit 0 (diversity satisfied)
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel → pass (non_anthropic≥1, distinct≥2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS, no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel PASS → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches all → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+
+Results: 18 passed, 0 failed
+
+=== PWSH GREEN ===
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel fails (diversity)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel passes diversity
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel passes (non_anthropic>=1, distinct>=2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+
+Results: 18 passed, 0 failed

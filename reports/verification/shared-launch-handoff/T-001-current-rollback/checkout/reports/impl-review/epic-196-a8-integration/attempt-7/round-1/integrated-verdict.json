@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "run_id": "impl-orch-epic196a8integration-a7r1",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 7,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

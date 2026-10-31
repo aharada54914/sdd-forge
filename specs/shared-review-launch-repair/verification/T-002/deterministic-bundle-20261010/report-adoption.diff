@@ -1,0 +1,18 @@
+--- native-report
++++ canonical-report
+@@ -7,6 +7,7 @@
+ Report Schema: implementation-report/v2
+ Run ID: T-002-01a123e4-c500-7902-8fd5-6093b848c705
+ Task Attempt Count: 3
++Input manifest: `specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/manifest.json`, SHA-256 `8967a982af35b8ea99fa2c6285bcf4d4f3706a26c4b0f66080fd8e9cd5ecf564`
+ 
+ **Snapshot Notice**: This report records the admitted attempt-3 snapshot and this native revalidation run only. It does not certify current owner-tree state, historical chronology beyond admitted records, or a quality-gate verdict. Parent-owned independent evaluation is authoritative for gate-time acceptance.
+ 
+@@ -403,3 +404,7 @@
+ - **Unresolved Items**: Parent formal evidence acceptance, continuity disposition, independent review/evaluation and T-004 integrated delivery; no missing admitted input or remaining failing behavioral suite.
+ 
+ This handoff status describes remaining formal workflow, not a write to tasks.md. Only quality-gate may set Done.
++
++## Parent adoption provenance
++
++The owner adopted the unchanged attempt-3 native report (SHA-256 `ba1047c55439396823eb8ae46ebfe411bbd3dc645f6bb6ec266ce69a74c9c1be`) with the machine-readable Input manifest line above and this provenance note. The native report remains in the admission output directory. The prior canonical report is preserved as `specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/old-incomplete-report.md` (SHA-256 `c82f33515dfcfdf425543b2e67f4b7085edd438be6c0dfa64baedd585cd99bbd`). All promoted work evidence hashes matched the native delivery index. Compaction and historical RED limitations remain disclosed; this adoption does not create a review verdict, grant the RT-20261009-001 exception to T-002, or change task status.

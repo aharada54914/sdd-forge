@@ -1,0 +1,71 @@
+ticket_id: RT-20260821-016
+status: open
+type: defect
+severity: critical
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-007"
+  files:
+    - "reports/implementation/agent-cost-context-isolation/T-007.md"
+    - "specs/agent-cost-context-isolation/verification/T-007/green.log"
+    - "tests/run-all.sh"
+summary: >-
+  T-007's sole evidence file has drifted, its outputs sit under non-canonical
+  headings so the task cannot authorize its own deliverables in any cycle, and
+  attempt 3 turned TEST-005 green by de-registering the failing suite
+problem: |
+  QG evaluator (seq 0829, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T080000Z.md) accepted one Critical, eight
+  Majors and three Minors - the worst result of the 2026-08-21 sweep.
+
+  Critical: verification/T-007/green.log backs all ten exit-0 rows of the
+  Tests table and has drifted (declared 1b9d45cc..., measured 8268e280...).
+  Nothing else owns that path - it is T-007's own verification directory - so
+  this is not collateral drift. With five of six declared artifacts drifted
+  and zero readable, the evidence base collapses to calibration ladder item 5,
+  which never supports PASS by itself.
+
+  Major 1 (structural, blocks every future cycle): outputs are declared under
+  "## Attempt-3 outputs" / "## Attempt-2 outputs". Measured: grep -c for the
+  canonical "## Outputs" heading = 0 and for the ratified legacy
+  "## Output Paths And Hashes" = 0. The WFI-036/038 declaration reader
+  therefore sees zero declared outputs, so T-007 cannot authorize its own
+  deliverables into ANY manifest until the heading is fixed.
+
+  Major 2 (completion-faking shape): attempt 3's entire remediation was
+  de-registering tests/rollback-1.5.0.tests.sh from tests/run-all.sh so
+  TEST-005 turns green. The exculpatory claim ("only the T-008 registration
+  line was removed") is the claim most needing verification and has none -
+  run-all.sh is unauthorized and drifted. The sequencing rationale is
+  coherent and impropriety is NOT asserted; what is recorded is that the most
+  fake-prone claim in the report has zero available evidence. run-all.sh is
+  also outside T-007's Planned Files and inside T-008's Done-When.
+
+  Remaining Majors: isolation mode says fresh-agent / fallback none while the
+  text three lines later describes an orchestrator finalizing a file-backed
+  handoff after a quota interruption (the same-session-file-reload path,
+  which must record a fallback marker and reload evidence hash); REQ-011's
+  release surface is ~21 of ~23 paths undeclared (zero manifests, zero
+  marketplaces, no README, no CHANGELOG); "Failure class:
+  acceptance-test-not-green" is not in the closed enum {test, lint,
+  typecheck, build, review-major, review-critical}; the report says "Ready
+  for independent review" while tasks.md already says Implementation
+  Complete; attempt 3's own green.log is undeclared and there is no attempt-1
+  section at all; and .github/workflows/test.yml was edited with zero CI
+  evidence though design.md conditions the release on seven passing jobs.
+
+  The escalation ARITHMETIC does cohere and is not disputed - only the
+  off-enum label is wrong.
+expected_fix:
+  - "Rename the outputs heading to the canonical '## Outputs' and publish ONE complete table covering all attempts, so the task can authorize its deliverables through the normal channel - this is the prerequisite for every other fix"
+  - "Re-run and re-persist verification/T-007/green.log as real captured output under the corrected declaration, and declare every release surface REQ-011 names (18 host manifests, both marketplaces, README, CHANGELOG, version validator)"
+  - "Substantiate or reverse the run-all.sh de-registration: show the diff, confirm T-001..T-006 registrations remain, and record why a T-008-owned file was edited by T-007"
+  - "Correct 'Failure class' to a member of the closed enum, record the same-session-file-reload fallback marker and reload evidence hash, and reconcile the report's declared status with tasks.md"
+  - "Supply CI evidence for the seven required jobs, then re-launch the gate with a manifest that actually carries the artifacts"
+references:
+  - "reports/quality-gate/20260821T080000Z.md"
+  - "specs/agent-cost-context-isolation/design.md"
+  - "specs/agent-cost-context-isolation/requirements.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

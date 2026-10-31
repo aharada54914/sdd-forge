@@ -1,0 +1,30 @@
+ticket_id: RT-20260807-001
+status: resolved
+resolved: 2026-08-08
+resolution: "re-gate (seq 0575) PASS 0C/0M/0m — TEST-004(c2) の re-check 分岐実効性 (gpt/gemini 対称 mutant 3/3) と atomic status publication (hazard 再現) を evaluator が独立実証、suite 70/0。人間承認のうえ quality-gate が Status: Done を記録 (QG report 20260808T075711Z)"
+type: test-gap
+severity: major
+target:
+  feature: "epic-136-phase4-docs"
+  task: "T-001"
+  files:
+    - "tests/cross-model.tests.sh"
+    - "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh"
+    - "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh"
+summary: "T-001 の QG cycle 上限 (3) 到達。残 Major への救済 (TEST-004(c2) + atomic publish) は verdict 後に実装済みのため、fresh-session での再ゲート 1 サイクルが必要"
+problem: |
+  cycle 3 (seq 0539, report reports/quality-gate/20260807T125911Z-epic-136-phase4-docs-T-001.md) は
+  5 findings 中 4 件の解消を実測確認したが、「TEST-004(c) が post-deadline
+  re-check 分岐を通る」という report 主張が偽である Major 1 件を残した
+  (分岐は通常 poll に先取りされ、branch-deletion mutant が suite を生存)。
+  救済は evaluator 自身が実証した位相整列方式で verdict 後に実装済み:
+  TEST-004(c2) (start 位相を 0.10 に整列 + STUB_DELAY=3.5、6/6 pass、
+  再チェック経路のみで成立、mutant 死亡 3/3) と atomic status publication
+  (temp+rename)。cycle 上限のため本セッションでは Done 化せず
+  Implementation Complete を維持。
+proposed_resolution: |
+  fresh session で T-001 の evaluator を 1 サイクル予約・起動し、
+  TEST-004(c2) の branch-exercising 性 (mutation 含む) と atomic publish を
+  検証のうえ PASS なら quality-gate として Status: Done を記録する。
+requires_human_decision: false
+created: 2026-08-07

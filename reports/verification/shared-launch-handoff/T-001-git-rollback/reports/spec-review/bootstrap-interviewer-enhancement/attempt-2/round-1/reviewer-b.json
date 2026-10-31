@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-run-20260629T1324Z",
+  "host_session_id": "spec-b-attempt2-20260629T1324Z",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "8735ce63ff443b548f37a33fd79cb9e2c1086cfb6d9f2250269d3e251520d32c"},
+    {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "116b990c425f83dfe247cba96772b3045c0ee8e2700a944f7dc2152e5c174f90"},
+    {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-2/round-1/precheck-result.json", "sha256": "d3df2e94107b55a18c39654bb2acf4f007304b2607aa107eb147977404c05e77"},
+    {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-2/round-1/integrated-summary.json", "sha256": "6d25a5ad3d439108a31cd62e15272d2c9b25bb0a7934109168cd6a8adb260a72"},
+    {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "FAIL", "severity": "Major", "finding": "REQ-010 requires the question bank to add bilingual layer-specific probes across eight categories, while AC-006 specifies only preservation of existing Japanese questions plus at least three English probes per category. It is not deterministic whether every category needs new Japanese and English probes or translation pairs."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "The requirements, acceptance criteria, non-goals, workflow ordering, LITE exclusion, explicit full-profile validation mode, and approval boundary do not directly conflict."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "The acceptance tests and behavioral contracts cover missing and complete inventories, every individually absent file, invalid and traversal-like selectors, existing-file preservation, LITE exclusion, legacy compatibility, absent visual input, unaffected layers, manifest tampering, invalid traceability values, Draft rejection, and authorized approval."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "The validated decisions resolve renderer behavior, review-stage extension, release baseline, and version selection; open questions explicitly records no unresolved decisions."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "REQ-017 and AC-016 make the governance boundary observable: tasks remain Draft after task review, implement-task rejects Draft tasks, and only a human edit or active signed sdd-sudo transition can approve selected tasks."},
+    {"id": "DOWNSTREAM-READINESS", "result": "FAIL", "severity": "Major", "finding": "REQ-010 and AC-006 leave the bilingual-content contract unresolved, so downstream design and task authors must invent whether Japanese coverage is required in each category and whether probes must be translation pairs."}
+  ]
+}

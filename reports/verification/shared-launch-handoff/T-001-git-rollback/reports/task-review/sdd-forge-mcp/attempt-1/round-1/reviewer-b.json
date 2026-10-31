@@ -1,0 +1,98 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-sddforgemcp-a1r1-20260704-d6c1",
+  "host_session_id": "hs-task-b-7ea701ba-0013",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "450e25d7e1bbb11b0e26b9f9e2d6c841356077630bdaf74f4e69da0e9cf2bcdd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d38c56e6cfeb34f1299835720cf00478f66cd992597b0480743eb2b8479f1c3c"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "90cd03b5b4721b621385fa4482080106b9180d04fb2a416071a33c3b02603d0f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. T-001..T-005 (high) touch sentinel surfaces per risk-classification-policy.md (access-control chokepoint; quality-gate verdict inputs; public API contract + read-only guarantee; Done-transition evidence). T-006/T-007 (medium) are recoverable installer/CI config writes. T-008 (low) is documentation-only, correctly not over-classified."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. All five Risk: high tasks include both Red->Green evidence and independent-review-verdict-recorded Done When items. No task is Risk: critical, so second-approver/signed-bundle does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004 (tasks.md lines 116-154) is oversized: its Scope spans four distinct implementation areas (server/index assembly, 8 core tools, 5 resources, next-command decision mapping) exceeding the more-than-three indicator, and its Done When list has 11 distinct verifiable items exceeding the more-than-eight threshold. This risks overrunning a single focused implementation session and diluting TDD/review evidence. T-001 (9 Done When items) is a secondary, less severe instance worth flagging during rework."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Each functional task cites specific error-path AC IDs alongside happy paths (T-001 AC-003/004/017-partial; T-002 AC-002; T-003 cannot-parse fixtures; T-004 AC-012 cannot-determine + AC-017 not-found; T-005 AC-014 missing/mismatch detection; T-006 AC-008 invalid-name and AC-009 best-effort). T-008 is documentation-only and exempt."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. acceptance-tests.md test types align with scope: unit tests target single module boundaries, integration tests involve two or more components, TEST-005 e2e smoke traverses a complete MCP client workflow. All TEST rows map to a specific AC."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 through T-005 (all Risk: high) contain no Rollback: field and no Done When item addressing how their changes are reverted if a defect surfaces post-merge. infra-spec.md's Rollback section documents a feature-level strategy (uninstall or git revert including dist/), but it is never referenced from within the five high-risk tasks' own sections. Absence of any in-task rollback consideration for T-001-T-005 is a gap per the ROLLBACK-PLAN check."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Each task's Scope lists non-overlapping primary implementation files (T-001 root/path-guard/envelope; T-002 parsers/tasks.ts; T-003 five peripheral parsers; T-004 server/tools-core/resources/next-command; T-005 tools/evidence.ts; T-006 installers; T-007 workflow yml only; T-008 docs). No two tasks claim the same primary file."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md line 12 declares a strict prose execution order with genuine code dependencies (T-004 consumes T-001's path-guard/root/envelope and T-002/T-003 parsers; T-005 depends on T-003 parsers; T-007 dist-parity bundles T-001..T-005 outputs), yet every task declares Blockers: None (dependency-graph.json: 8 nodes, 0 edges). Nothing in the task-state machine prevents implement-task from starting T-004 before T-001..T-003 exist. The dependencies must be declared as Blockers so the state machine enforces order."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks are feature-implementation tasks for a new MCP server."
+    }
+  ]
+}

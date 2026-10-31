@@ -1,0 +1,26 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "workflow": {
+    "track": "full"
+  },
+  "shared_paths": [],
+  "source_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "components": {
+    "svc-a": {
+      "artifact_kinds": [
+        "durable_workflow"
+      ],
+      "characteristics": {
+        "pii": true
+      }
+    },
+    "svc-b": {
+      "artifact_kinds": [
+        "service"
+      ],
+      "characteristics": {
+        "pii": false
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 2,
+  "round": 2,
+  "verdict": "PASS",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS"},
+    {"id":"BLOCKERS-FORMAT","result":"PASS"},
+    {"id":"REQ-COVERAGE","result":"PASS"},
+    {"id":"AC-COVERAGE","result":"PASS"},
+    {"id":"ORPHAN-TASK","result":"PASS"},
+    {"id":"ORPHAN-TEST","result":"PASS"},
+    {"id":"INITIAL-STATE","result":"PASS"},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS"},
+    {"id":"NO-DUPLICATE-AC","result":"PASS"},
+    {"id":"DEPENDENCY-COMPLETE","result":"PASS"},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS"},
+    {"id":"SINGLE-CONCERN","result":"PASS"},
+    {"id":"OBSERVABLE-DONE","result":"PASS"},
+    {"id":"TRACEABILITY-SYNC","result":"PASS"}
+  ]
+}

@@ -1,0 +1,13 @@
+# SUPERSEDED — DO NOT COPY OR APPLY THE EPIC-136 WORKFLOW SNAPSHOT.
+#
+# The former deployable checksum and human-copy instructions were retired on
+# 2026-08-15 because the snapshot predates landed CI coverage and still selects
+# Node 20. It remains under verification/T-003 only as a historical contract-
+# test fixture. Applying it wholesale would remove current workflow steps.
+#
+# For the current Node runtime and CI-reachability update, use only the
+# base-commit-bound patch and digest verification documented at:
+#   docs/ci-staging/node22-runtime-baseline.md
+#
+# This file intentionally contains no checksum entry, so `shasum -c` cannot
+# authorize the retired candidate for application.

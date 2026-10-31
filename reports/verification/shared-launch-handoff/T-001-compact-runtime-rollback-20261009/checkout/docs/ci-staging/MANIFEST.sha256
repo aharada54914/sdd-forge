@@ -1,0 +1,5 @@
+# SUPERSEDED — NO DEPLOYABLE CHECKSUM.
+#
+# test-yml-combined-candidate.yml is a stale historical snapshot. Its checksum
+# was intentionally removed so this manifest cannot authorize replacement of
+# the live workflow. Use docs/ci-staging/node22-runtime-baseline.md instead.

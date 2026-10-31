@@ -1,0 +1,302 @@
+{
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "7bf1a5cd01d61c3568574de58c705b844d42ba9cd66309f10fe688da6d99d95d"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-001.md",
+      "sha256": "c01f9faa6cb8ac9911f4a0bc03e8819ef5f7668d6c4a306eebc1e10fb46a7661"
+    },
+    {
+      "path": "docs/adr/0027-component-path-ownership-resolver-semantics.md",
+      "sha256": "121f3e6cd4400eff7de679e4f48a20cbd9eb2929d2cc57f7bcebbdee9d0d91d6"
+    },
+    {
+      "path": "docs/adr/README.md",
+      "sha256": "4d842334be77573a95cfd72945d873cc4113972d47b724770514a76f0956bace"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "sha256": "ac49ac2b328e09eb8b4023103f214fafe510821f306294311aacef24e685d96a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "e6d50cd2a97697d3edba83f5d766518ec6ef82658a7dc45088717e538a2044a6"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.sh",
+      "sha256": "b0bb12327d54bcf7a4f4fb2c0636faf5651bff299aff8c8e27602e472438f6e9"
+    },
+    {
+      "path": "tests/component-path-resolver.tests.ps1",
+      "sha256": "6220383131ea15d68f6885cd1ed866882f02c572def5e42a06582ca763023a2d"
+    },
+    {
+      "path": "tests/component-path-resolver.tests.sh",
+      "sha256": "ab03017f92884b2211bfac8241909f9d177064732179c931d78c806b0e40edeb"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/base-tree/changed-paths.txt",
+      "sha256": "a6102ef342e4f1ea6136c8b283ba105af9c95106cb38a91180c64450901e1c34"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/base-tree/config.yaml",
+      "sha256": "e72c0269f4056ee20d4e5959541d4eb950c18f8560a4f15d0e9e50b48901a696"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-001-doublestar/changed-paths.txt",
+      "sha256": "94da5116bdc9d29e4493ffbc7c0f61d697c328c9c88070294cbda3e4aec746c8"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-001-doublestar/config.yaml",
+      "sha256": "47f47df2a3d97d070693a489a07040ffe1efb97d0e90578896d087d70fe55abe"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-002-singlestar/changed-paths.txt",
+      "sha256": "0ab5c0c5a6705a21e3daa5dc8e32fd3edab6cc6067d74b84f04c26b44590dd21"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-002-singlestar/config.yaml",
+      "sha256": "8f447a8fd8d766b62d6d306f97160e2d590120a98b6872cb87da468e4d40a396"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-003-backslash/changed-paths.txt",
+      "sha256": "51fb751813eaef748d18f4bd06fc23cf97d5ad8ebaea1a498a75edcd3b2c2b6b"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-003-backslash/config.yaml",
+      "sha256": "b8082fd83423e242221f5923cfa94ebbd02fe2c29e3423b0008b3aff9228c96f"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-004-nfc-match/changed-paths.txt",
+      "sha256": "0556aa779c32977caec195ab089457461d64afce5e5b8051355eaf36a92aa3a5"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-004-nfc-match/config.yaml",
+      "sha256": "b4a075c6ac7d237e633c3004973314e28d8c59e1fe4dc988cd9f153f9cf1abf7"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-005-case-sensitive/changed-paths.txt",
+      "sha256": "c9e44b6080ca54f80d5a45a574d4428c1db8376d9aa41db888e3a57f0e6e36cc"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-005-case-sensitive/config.yaml",
+      "sha256": "606c9dba570758be07ceb3a7f1e8b1448a79cd822979d5587508b56c0df3e947"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-006-unsupported-metachar/config.yaml",
+      "sha256": "6933daa6798f6a498959693bf1415dadc5b8c4cbc0cf7ca8824693a06fd672fa"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-007-zero-segment/changed-paths.txt",
+      "sha256": "213c46bf8b20233640899b71d2d95ae8521efd40c07c8d3807e19d4934cc4604"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-007-zero-segment/config.yaml",
+      "sha256": "41856a315a7fad1f61976ad48ca96b73da6b095d16768e410455a51cee3ecb42"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-008-empty-include/config.yaml",
+      "sha256": "64aa8ff5cf0678b253ae4204794dba1b49ed96f83486ef7000f92a1bbdfb1e96"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-008-empty-sets/changed-paths.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-008-empty-sets/config.yaml",
+      "sha256": "fa3b4b91bc8715cc437a9a3d82678580328428f854670d17998bde1f044909d7"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-009-shared-zero-match/changed-paths.txt",
+      "sha256": "2f7274c3df26378638b4db42a0e43d453491a2a7802c17105251b6819a30d110"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-009-shared-zero-match/config.yaml",
+      "sha256": "0a2d313699c6d6bd688de24a1cd9d9161f66caba731dbc2cb7dff356c8649d15"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-010-nfc-collision/changed-paths.txt",
+      "sha256": "366ae5aa1aec61225fa137115b3b9ec1c9b7ed2c6558eb61ca07213b5b52e1fb"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-010-nfc-collision/config.yaml",
+      "sha256": "793226f26928fd0d880d10dbb7558f15e2e574f70d1cd3a2f7f2a50562b81c21"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-010b-stable-sort/changed-paths.txt",
+      "sha256": "2751d048c451c6217b6a4ec1370ad0307a3e1d134931cc31ccdd571b330995c4"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-010b-stable-sort/config.yaml",
+      "sha256": "793226f26928fd0d880d10dbb7558f15e2e574f70d1cd3a2f7f2a50562b81c21"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-002b-star-one-segment/changed-paths.txt",
+      "sha256": "af82f23e053ce5c6a0a6247d9ce3806ba8e99a5447abd7ed6e65c40e9c2c7b92"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-002b-star-one-segment/config.yaml",
+      "sha256": "5d358f9736646b84ff8cd775d11ef7a7121d404d0e123d522424215fb8448d8d"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-affected-components-mixed/changed-paths.txt",
+      "sha256": "21e7b9f3d33b3a0a326012f64d0324c0703e63df284f116e38ccb7f34c2824d1"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-affected-components-mixed/config.yaml",
+      "sha256": "c0597f71ee298f7640b067ac4434f16c9df7954190defa1e2fe4f71a15ad59c6"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-012-exclusive/changed-paths.txt",
+      "sha256": "526670f1dcb21f6b86fc0ccab4435daf10f80119b963026bcf13b04da5d3f523"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-012-exclusive/config.yaml",
+      "sha256": "30be7e6cc271b66a662c56a7ccee35e435b3ddcacc9fa34590b82a80c8fa357e"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-013-014-exclude-invariant/changed-paths.txt",
+      "sha256": "5257de8383779abef51dc5af27229e296d88b6dfb84ad433a8425e6637ccefc7"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-013-014-exclude-invariant/config.yaml",
+      "sha256": "56636067e35828ee9be7862ce4274c2f7717a357db47f9441e1def81523f1558"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-015-unowned/changed-paths.txt",
+      "sha256": "da06d264f65162cd6edeb5146e744ad35d1eea4f733aa0fbc2d18aa4907c7c14"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-015-unowned/config.yaml",
+      "sha256": "30be7e6cc271b66a662c56a7ccee35e435b3ddcacc9fa34590b82a80c8fa357e"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt",
+      "sha256": "91f740617b20a259bbb5ccda4cbd6113a6f09a1df9d8cb8c1ac59c07e9badd0c"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-016-overlap/config.yaml",
+      "sha256": "4dba43ee360a5cc52695eac7098838d5d62acf08346a282067c914c18430f348"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-017-shared-exempt/changed-paths.txt",
+      "sha256": "e8bc791a3fc60f61c6818ecabff152792ea8bd665b51d90089de1f76655e4fba"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-017-shared-exempt/config.yaml",
+      "sha256": "d8d93d3f156cd74044c99f1fbbc83431392f1803438e5c1ffcd6ee5df61e3213"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-001/component-path-resolver.RED.log",
+      "sha256": "456008d70e3cba9f26fa681dfc8cf1073d041ae292cd5e011b99ee3ccac16528"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-001/unblock-schema.RED.md",
+      "sha256": "c20ebd6702b0d7d270c3943b49c92523fb29b6c6a87d8ef002bc997fb231f7bf"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "0470072a0df6bd31f9ce81bbc3953ed09ee682072ab7fa797909abdd98f75ff8"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-018-shared-shape-error/config-both.yaml",
+      "sha256": "d833ccf0ed9d4de093329c3c5ecb5ca421a22bb6caab9179dc3215296186e7b8"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-018-shared-shape-error/config-miscased-classification.yaml",
+      "sha256": "56a4e61dce512fe85e3478b71756627bc0d186392f47c4d0ae776004bb70ce9e"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-018-shared-shape-error/config-miscased-components.yaml",
+      "sha256": "9e01bd549a5e9186f7f043a0252b5c3e6681c48c1315061aa53c54c414972387"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-018-shared-shape-error/config-neither.yaml",
+      "sha256": "60e138ea0e6527e6bf75bfe195d7af9d28786df42918fbae1887a2ec3ff3175f"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "b69e36da97e1ab87c6d2709557c69327274af11ee484f5f46adb2d91fc7d5a75"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "274d8d537fdd86ed7f40718da8ccaa68162c5cdebba09e306ff46507b279c473"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml",
+      "sha256": "1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "sha256": "942918f91b6bc76cae79eb0321bf07c839fd5b40fe4bd309d7a586b1472d117b"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST-NOTES.md",
+      "sha256": "def216687cf8d97e046dd7071dec819fd6a459622b1cbb4d8b38973ab72bb7c8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-001/component-path-resolver.GREEN.log",
+      "sha256": "082f6d0c0422e3ddf982cbf22131ba5fb6cafbb3eb57d81c90861a33b46686f0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-001/component-path-resolver-ps1.GREEN.log",
+      "sha256": "152160e44cba364f53a826eca348756c222e762da617a3eeec0de1ba8615d0fe"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-001/unblock-schema.GREEN.md",
+      "sha256": "ff6cdd4308ae308aca9f1dbbe900f8635aad0d0c61839588b98c6f63752011cd"
+    }
+  ],
+  "fallback_mode": "none",
+  "feature": "epic-191-a3-path-ownership",
+  "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-001-0660",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e9443d6fd9c9106a971814f29bf6394e4661a904b01643b5eab8d84f989e61b6",
+  "input_mode": "file-manifest",
+  "previous_record_sha256": "a6eea29ae9ffa8e76eaa16aa8fa736d3987ad74a4097f4127332043a01b26856",
+  "read_only": true,
+  "role": "sdd-evaluator",
+  "run_id": "RUN-epic-191-a3-path-ownership-qg-T-001-seq0660",
+  "schema": "review-context-invocation/v2",
+  "sequence": 660,
+  "stage": "quality",
+  "task_id": "T-001"
+}

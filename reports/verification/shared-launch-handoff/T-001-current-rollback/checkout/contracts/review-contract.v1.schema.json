@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/review-contract.v1.schema.json",
+  "title": "Review contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "stage",
+    "feature",
+    "attempt",
+    "round",
+    "input_sha256",
+    "run_id",
+    "verdict"
+  ],
+  "properties": {
+    "schema": { "const": "review-contract/v1" },
+    "stage": { "enum": ["spec", "impl", "task"] },
+    "feature": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "round": { "type": "integer", "minimum": 1 },
+    "input_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+    "run_id": { "type": "string", "pattern": ".*\\S.*" },
+    "verdict": { "const": "PASS" }
+  }
+}

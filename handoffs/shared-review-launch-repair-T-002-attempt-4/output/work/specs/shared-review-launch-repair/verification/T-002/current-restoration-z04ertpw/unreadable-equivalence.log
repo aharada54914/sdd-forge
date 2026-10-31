@@ -1,0 +1,4 @@
+ok: shared impl/task reviewed-hash recipe matches baseline for CRLF, case, and invalid inputs
+Get-BaselineReviewedHash rejected existing unreadable regular file: System.IO.IOException
+Get-ReviewedHash rejected existing unreadable regular file: System.IO.IOException
+ok: existing regular file denied identically under exclusive FileStream lock; reads recover after release; bytes unchanged

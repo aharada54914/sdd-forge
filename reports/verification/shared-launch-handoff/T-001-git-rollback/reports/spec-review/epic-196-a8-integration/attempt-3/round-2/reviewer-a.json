@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-a-a3r2-seq787",
+  "host_session_id": "SESS-spec-a-epic-196-a8-integration-a3r2-seq787",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "598dcf737dc2544fc81b59e84a0b1ad201ee4201d03edc38ef9f21b068cd29cf"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "0324cdaa476f9657a5380fdfe788d156d62640bd74c409c05e8d4b5b41b074ad"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "883d6045437377b56dee4631b82ebc458365c57a3fcc7704c97925da80845852"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json",
+      "sha256": "4add6b63b8b302d3ffcf8bb2f72a0e59003267bd492fc2788ef30980f0c25d4b"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-006 (lines 303-307) states the hook-activation canary probe's presence case is 'Named SKIP (citing Epic A1's tracking issue) until Epic A1 merges' — textually the same 'until Epic A1 merges' trigger AC-015 uses. AC-015 (lines 381-410) explicitly makes its own post-merge SKIP a hard failure ('a SKIP surviving validate-live-host-proof after Epic A1 merges is a non-zero-exit hard failure, never a passing state'), and the Assumptions section's amended 'Epic A1 — superseded' bullet (lines 744-758) explicitly extends that same hard-failure activation to AC-016 too ('AC-015/AC-016's own un-skip trigger is crossed ... activated now') — but conspicuously omits AC-006 from that activation list, even though Main Workflows item 7 (lines 689-694, 'a follow-up task un-skips AC-006/AC-015/AC-016') groups all three together as things that get un-skipped once Epic A1 merges. AC-028's validate-live-host-proof aggregate gate (lines 547-562) is explicitly scoped only to 'the five [live-host matrix] cells' underlying AC-015, so it does not cover AC-006 either. acceptance-tests.md's TEST-006 (line 10) still reads 'named SKIP until Epic A1 merges' with no activation note, unlike TEST-015/TEST-016 which at least inherit AC-015's explicit hard-failure language. A Phase 2/3 implementer or quality-gate verifier cannot determine from this package whether AC-006's SKIP is now also required to be un-skipped with an enforced hard-failure gate (as AC-015/AC-016 are), or whether it may legitimately remain SKIP with no enforcement mechanism at all — an ambiguity this package's own repeated 'never a silently-passing gap' standard (e.g. AC-013, AC-014, AC-023) would otherwise forbid. This is a specification-completeness gap in the acceptance criteria/assumptions text itself (not a missing design decision), so it belongs to spec review rather than a later gate; severity is Major because it is an ambiguous, unenforced acceptance criterion rather than a contradiction that makes the whole package unreviewable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "This reviewer's allowed input manifest contains no domain/ artifacts (domain/context-map.md, domain/domain-contract.json are not listed), so the presence of an Approved domain model cannot be verified from within this role's manifest; requirements.md also carries no 'Bounded-Context:' field. Per the skip condition, this check is recorded as skipped."
+    }
+  ]
+}

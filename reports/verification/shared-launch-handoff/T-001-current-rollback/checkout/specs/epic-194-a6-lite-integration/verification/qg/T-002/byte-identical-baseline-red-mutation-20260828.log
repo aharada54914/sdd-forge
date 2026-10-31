@@ -1,0 +1,26 @@
+# command: python3 <scratchpad>/bi-mutation-proof.py
+# captured-utc: 2026-08-28T11:02:31Z
+# cwd: /Users/jrmag/Projects/active/sdd-forge-wt-e194done
+# branch: epic-194/qg-20260828
+# HEAD: 02a679f50bc258a0d59c024bb41e4f2fd6a8e868
+# note: mutation: every occurrence of the trigger token full-required in a scratchpad COPY of each live script replaced with full-REQUIRED-mutated; scratchpad copies of both suites pointed at the mutants; the repository tree is untouched. Expected: both twins red (10 passed, 6 failed). The proof harness itself exits 0 exactly when both twins failed as required.
+
+== sh: exit=1
+   FAIL: TEST-007-auth: stdout differs. live=[full-REQUIRED-mutated: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY] baseline=[full-required: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY]
+   FAIL: TEST-007-token: stdout differs. live=[full-REQUIRED-mutated: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL] baseline=[full-required: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL]
+   FAIL: TEST-007-mcp: stdout differs. live=[full-REQUIRED-mutated: MCP; triggers=MCP] baseline=[full-required: MCP; triggers=MCP]
+   FAIL: TEST-007-api: stdout differs. live=[full-REQUIRED-mutated: EXTERNAL_API; triggers=EXTERNAL_API] baseline=[full-required: EXTERNAL_API; triggers=EXTERNAL_API]
+   FAIL: TEST-007-secret: stdout differs. live=[full-REQUIRED-mutated: SECRET; triggers=SECRET] baseline=[full-required: SECRET; triggers=SECRET]
+   FAIL: TEST-007-github-actions: stdout differs. live=[full-REQUIRED-mutated: GITHUB_ACTIONS; triggers=GITHUB_ACTIONS] baseline=[full-required: GITHUB_ACTIONS; triggers=GITHUB_ACTIONS]
+   Results: 10 passed, 6 failed
+== ps1: exit=1
+   FAIL: TEST-007-auth: stdout differs. live=[full-REQUIRED-mutated: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY] baseline=[full-required: AUTH_BOUNDARY; triggers=AUTH_BOUNDARY]
+   FAIL: TEST-007-token: stdout differs. live=[full-REQUIRED-mutated: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL] baseline=[full-required: TOKEN_CREDENTIAL; triggers=TOKEN_CREDENTIAL]
+   FAIL: TEST-007-mcp: stdout differs. live=[full-REQUIRED-mutated: MCP; triggers=MCP] baseline=[full-required: MCP; triggers=MCP]
+   FAIL: TEST-007-api: stdout differs. live=[full-REQUIRED-mutated: EXTERNAL_API; triggers=EXTERNAL_API] baseline=[full-required: EXTERNAL_API; triggers=EXTERNAL_API]
+   FAIL: TEST-007-secret: stdout differs. live=[full-REQUIRED-mutated: SECRET; triggers=SECRET] baseline=[full-required: SECRET; triggers=SECRET]
+   FAIL: TEST-007-github-actions: stdout differs. live=[full-REQUIRED-mutated: GITHUB_ACTIONS; triggers=GITHUB_ACTIONS] baseline=[full-required: GITHUB_ACTIONS; triggers=GITHUB_ACTIONS]
+   Results: 10 passed, 6 failed
+MUTATION PROOF: RED as required
+
+proof-harness exit: 0 (0 = both twins went red as required)

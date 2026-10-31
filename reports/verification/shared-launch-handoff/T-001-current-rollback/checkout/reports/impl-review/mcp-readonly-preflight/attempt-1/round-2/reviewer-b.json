@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-impl-a1r2-b-seq0485",
+  "host_session_id": "SESS-impl-a1r2-b-mcpreadonlypreflight-0485",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-2/integrated-summary.json",
+      "sha256": "d65a4eaa91cf7a322f509c0bb5ed64d7f4efee5200da0778e8e3348e08dfff52"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-2/precheck-result.json",
+      "sha256": "2a94e96e0fba2bda9b910e971ea5eca6c57e89302b075e8937056c8cc3f30159"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+      "sha256": "a7ca862eac2fa516522ea6c8bb6c167faf82cd1ffd6e7ab888e6eef5e21cbd28"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural decision carries explicit rationale. D-001 (design.md:110) is 'Forced by REQ-003 plus INV-002'; D-002 (design.md:112) is 'Forced by REQ-006 and ADR-0006's precedent (:67-69)'; D-003 (design.md:114) is 'Forced by PROTECTED_GATE_SUFFIXES membership (guard_invariants.py:4, INV-010), which is a mechanical fact about the guard, not a judgement.' Round-1's finding (REQ-014 cited 3x where REQ-006 was meant) is resolved: grep for 'REQ-014' in design.md returns zero matches; REQ-006 now appears correctly at design.md:55, 99, 112, each tied to a stated rationale (D-002's forcing argument, the write-tool-escalation guarantee, and the tool-set constraint). No bare 'we will use X' statement without a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 finding resolved: design.md no longer presents OQ-005 as unresolved/blocking. design.md:124 marks it 'Resolved. Answered by the human on 2026-08-04: warn-on-divergence ... Recorded in requirements.md REQ-005 / AC-027a / AC-027b'; design.md:131 states 'It was resolved by the human on 2026-08-04 ... and no longer blocks'; design.md:206 retires Risk R-1 on the same basis; design.md:17 corrects the escalated count to 'Nine of the ten Open Questions ... remain unresolved.' For the remaining 9 escalated OQs (design.md:104-129), owner is stated as a role ('the human', design.md:106 and the section heading 'Escalated -- human decision required before implementation', design.md:116) rather than TBD; blocking status is stated collectively via that same heading (all nine block implementation); and each row's 'Repository-derived constraint the answer must satisfy' column (design.md:118-129) gives a concrete resolution constraint (e.g. OQ-007's three named options with stated consequences). This narrative format (owner/blocking/resolution-path expressed in prose and a table rather than literal template fields) is acceptable under legacy_design:true (precheck-result.json:7) per the calibration doc's legacy-compatibility rule, which treats absent literal template fields as non-blocking when the substance is present."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (read in full), so the 'investigation.md absent + >1 non-trivial assumption' Major trigger does not apply. design.md's decisions are grounded throughout in explicit INV citations: INV-002 (design.md:59,84,110), INV-006 (design.md:53,55,99,112), INV-010 (design.md:24,100), INV-011 (design.md:27,100), INV-013 (design.md:23,64,121), INV-014 (design.md:28,190). requirements.md's own Assumptions section (requirements.md:266-270) grounds each entry either in an INV citation (INV-006 at :268, INV-002 at :269) or in the WFI-011 recurring-defect pattern with a concrete live instance (issue #129's own USERGUIDE.md:27 citation, requirements.md:270). No ungrounded non-trivial assumption was found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no section literally titled '## Constraint Compliance' (its heading list shows '## Global Constraints' instead), so the Fallback (Major) path applies. requirements.md's Baseline Constraints BL-001..BL-005 (requirements.md:274-278) are each mirrored and addressed in design.md's Global Constraints section (design.md:194-198). The other explicit constraint-keyword hits in requirements.md -- the sed-range insertion-point 'must not' (requirements.md:64) and the AC-003 retirement 'must not be reused' (requirements.md:88) -- are addressed at design.md:23 (Components table, bootstrap row) and design.md:141 (AC-003 marked 'intentionally vacant'). Round-1's finding (zero AC-027a/AC-027b occurrences, false 'no coverage gap' framing) is resolved: design.md:169 now states 'Twenty-eight live ACs, twenty-nine TEST rows, no AC without a row and no row without an AC,' independently verified against acceptance-tests.md, whose Test Matrix contains exactly 29 distinct TEST-ID rows (TEST-001..027 plus TEST-027a/TEST-027b, confirmed by direct count). ux-spec.md:20-30 and security-spec.md:39,57 now correctly frame OQ-005/AC-027a/AC-027b as resolved rather than stale, closing the propagation cited in round 1."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment and CI Plan' (design.md:179-190) states no CI file is edited and why (design.md:181,183-186), and that registry registration 'is a merge-blocking prerequisite, not a follow-up ... must exist in the same change as the directory' (design.md:190) -- the closest analogue to migration-execution ordering this schema-free feature has. infra-spec.md:22-49 supplies the deployment target ('Nothing is deployed... no service, no container, no IaC resource', infra-spec.md:24) and the two-commit staging sequence with explicit gate-state expectations (infra-spec.md:40-45, 'The red between the two commits is the correct state, not a blocker'). No schema change exists (design.md Data Plan, design.md:81), so the migration-execution-order-for-schema-changes trigger is vacuous. No incremental rollout is described, so feature-flag strategy does not apply."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan states 'No persistent data, no schema, no migration.' (design.md:81), which is the check's explicit stated PASS condition. The only durable artifacts added (design.md:87-92) are a two-key workflow-state-registry.json entry and a conditional staged human-copy candidate -- neither is a column/table schema change."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## API and Contract Plan' (design.md:36-68) is the dedicated section naming the integration: purpose and identity (get_task_state at server.ts:89, get_next_sdd_command at server.ts:141, design.md:44-47), contract version ('contracts/sdd-forge-mcp-tools.v1.schema.json already describes both named tools ... No contract change is required or permitted', design.md:40), and failure behaviour (the permitted attempt-and-degrade shape, design.md:61-64, backed by REQ-004/AC-008-011). ci-mcp's pre-existing GitHub API call is disclosed with explicit exclusion rationale ('not part of any probe set under consideration', security-spec.md:43) rather than being an integration this feature adds or uses in passing."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every row in design.md's Components table (design.md:19-34) traces to a requirement (REQ-001/REQ-002/REQ-006/REQ-008/REQ-009/REQ-010/BL-005), and REQ-001 through REQ-011 are each addressed somewhere in design.md (probe steps: design.md:23-24; REQ-003 runtime-agnostic: design.md:57-68; REQ-004/REQ-005: design.md:9-11,94-102; REQ-006: design.md:29-31,99,112; REQ-007: design.md:155-158; REQ-008/REQ-009: design.md:70-77; REQ-010: design.md:27,42-49 infra-spec; REQ-011/AC-027: design.md:34,183). The mcp trees, install.sh/install.ps1, and the interviewer skill are explicitly marked Untouched (design.md:29-33), matching requirements.md's Non-goals (requirements.md:248-254). No new component, data model, or endpoint lacks a requirement basis."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's finding (no validation path named for divergence reporting) is resolved: design.md:166-167 maps AC-027a/AC-027b to TEST-027a/TEST-027b in the coverage table, and security-spec.md's Security Tests table (security-spec.md:71-81) names TEST-012/TEST-013 plus (via the B2 EoP row, security-spec.md:39) TEST-027a/TEST-027b as the check closing the elevation-of-privilege threat this feature creates. Other high-risk surfaces are likewise mapped to named tests in the same table: protected-file boundary -> TEST-003/TEST-026 (security-spec.md:79); DoS/unavailability -> TEST-008/TEST-010 and TEST-009/TEST-011 (security-spec.md:77-78); documentation false-assurance -> TEST-021/TEST-023 and TEST-022/TEST-024 (security-spec.md:80-81). The one disclosed-but-unclosed surface (hung-server timeout) is stated as an explicit, rationale-bearing residual risk rather than a silent gap ('Not closed by this specification, and not silently omitted either', security-spec.md:89)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in the repository root (confirmed via directory listing), so the Domain-Model-Status: Approved precondition for this check is absent."
+    }
+  ]
+}

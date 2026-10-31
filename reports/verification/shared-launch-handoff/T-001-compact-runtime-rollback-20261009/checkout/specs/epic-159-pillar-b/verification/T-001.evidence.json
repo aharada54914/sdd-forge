@@ -1,0 +1,55 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-159-pillar-b",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "08a7daae8948fc6aac3835b4ec2e2dfbb4c7594088cf5302bb27872015bd3597",
+  "quality_report": "reports/quality-gate/2026-07-16T135510Z-epic-159-pillar-b-T-001.md",
+  "verification_contract": "specs/epic-159-pillar-b/verification/T-001.contract.json",
+  "git_commit": "e85c31635b90ca33d81ecd154ba6cae4f9eb736b",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-001.contract.json",
+      "sha256": "aef2a16331236789a065d472c31846ce8d7f59a606f72dc1097200995de3c9b7"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-16T135510Z-epic-159-pillar-b-T-001.md",
+      "sha256": "287f62ac4a571fc0f5d722d10d47bc5bd547cba2adeedd341bc46422da03cb29"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/qg/T-001/focused-tests.log",
+      "sha256": "0ca92bd8870a089ba5a7d29ff910c91e12ea6e262f911aa5557d2e49c47c634d"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/qg/T-001/placeholder-scan.log",
+      "sha256": "707f27677bf7938a460ede297ee8cb758b732df70747baf9f2a25d4783942e97"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/qg/T-001/regression.log",
+      "sha256": "21c136b66306df29489a2d5d3b04806b7f32d68453bdd48ec8b72296c83f53d0"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/qg/T-001/task-state.log",
+      "sha256": "39c46c03f78381ebb01dd33533ed7066a6c251ea0aa66f1744d97d26baeb1b81"
+    }
+  ]
+}

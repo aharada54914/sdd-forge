@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-a1r1-seq0342",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-a1r1-0342",
+  "manifest": [
+    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"},
+    {"path": "specs/epic-190-a2-capability-registry/tasks.md", "sha256": "50d7806f1f1473546b2b741c1eff3ac28e5bfe791461d0f05f3b25e1ea2c7a07"},
+    {"path": "specs/epic-190-a2-capability-registry/traceability.md", "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"},
+    {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "8aca75feeccadadbbefec4d5efa52b8c6fe4c7c6063e60e7fea2e15fb86ec6e3"},
+    {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/dependency-graph.json", "sha256": "b9c794641cd9fc709b53157febdac5850adf80ccec02908e038485e2301d3efd"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in a tasks.md Requirements field resolves to a real criterion in acceptance-tests.md: T-001 cites AC-001..AC-006, AC-037, AC-038; T-002 cites AC-007..AC-013, AC-040; T-003 cites AC-027; T-004 cites AC-014..AC-022, AC-039; T-005 cites AC-023, AC-024, AC-032; T-006 cites AC-025, AC-026, AC-029, AC-030; T-007 cites AC-031, AC-033. All resolve to real rows in acceptance-tests.md's table. No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: None; T-002: T-001; T-003: T-001, T-002; T-004: T-001, T-002, T-003; T-005: T-001, T-002, T-003, T-004; T-006: T-001, T-002, T-003, T-004, T-005; T-007: T-002, T-003, T-004, T-005, T-006. All either the literal 'None' or comma-separated T-\\d{3} entries; no range notation, no prose. Matches precheck-result.json's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md's REQ-001..REQ-006 each appear in at least one task's Requirements field: REQ-001->T-001, REQ-002->T-002, REQ-003->T-004, REQ-004->T-005, REQ-005->T-003/T-004(share)/T-006, REQ-006->T-001..T-007 (share). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-033 and AC-037..AC-040 are each claimed by exactly one task's Requirements field (see PREREQ-AC-IDS). AC-034, AC-035, AC-036 are recorded in traceability.md's 'Deferred / Non-Task Acceptance Criteria' table with stated rationale (AC-034: satisfied at the spec-authoring commit per acceptance-tests.md's Manual Review Record; AC-035: satisfied during Phase 1 spec-review; AC-036: satisfied by traceability.md itself). No uncovered AC lacking a deferral rationale."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-007 references at least one REQ-NNN in its Requirements field (T-001: REQ-001/REQ-006; T-002: REQ-002/REQ-006; T-003: REQ-005/REQ-006; T-004: REQ-003/REQ-005/REQ-006; T-005: REQ-004/REQ-006; T-006: REQ-005/REQ-006; T-007: REQ-006). No orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test'/'spec'/'verify'. Only T-007 ('Author the cross-script parity and installed-layout invocation harness') has scope exclusively test-file changes (Planned Files limited to tests/capability-registry-parity.tests.{sh,ps1}, tests/fixtures/, tests/run-all.{sh,ps1} registration, the staged human-copy/.github/workflows/test.yml candidate, and MANIFEST.sha256; its own Breaking API line states 'it modifies no production script'). T-007's Requirements field cites AC-031, AC-033. No orphaned test task."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 1, round 1 (pre-implementation; no post-implementation provenance re-review was declared for this invocation). Every task T-001..T-007 carries 'Approval: Draft' and 'Status: Planned' exactly."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every task declares Risk and Required Workflow, and each pairing matches the risk-gate-matrix: T-001 medium/acceptance-first, T-002 high/tdd, T-003 high/tdd, T-004 high/tdd, T-005 medium/acceptance-first, T-006 high/tdd, T-007 medium/acceptance-first. Consistent with precheck-result.json's workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each AC-NNN cited across all tasks' Requirements fields (enumerated in PREREQ-AC-IDS) appears under exactly one task; no AC-NNN is claimed as the primary test target by two tasks' Requirements fields."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers field (T-001..T-006) exists both as a task heading in tasks.md and in dependency-graph.json's nodes array (['T-001',...,'T-007'])."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. Following dependency-graph.json's 20 edges (from->to = 'from must wait for to'), the graph is a strict DAG respecting increasing task-number order (T-002->T-001; T-003->{T-001,T-002}; T-004->{T-001..T-003}; T-005->{T-001..T-004}; T-006->{T-001..T-005}; T-007->{T-002..T-006}); no back-edge exists and no node is revisited on any path. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Borderline 'and'-titles reviewed: T-001's 'schema, instance, and lite-upgrade-reason catalog' are the three artifacts of one REQ-001 contract package (design.md Components groups all three under one API/Contract Plan). T-003's 'discovery contract and the vendored-copy packaging step' are two parts of one design.md subsection ('Registry discovery contract (REQ-005)'; its own API/Contract Plan item 4 is the vendoring/--check release gate for that same contract). T-004's 'validator and the provider-terms allowlist' - the allowlist is data the validator's own check (g) directly consumes (design.md Architecture). T-006's 'projection generator and stage the protected-file registration' is explicit, non-decouplable housekeeping per tasks.md Protected Files ('T-006 is the sole editor of this bundle... avoiding the staging race Global Constraints... calls out'). T-007's 'parity and installed-layout invocation harness' are two closely-tied test-verification concerns (TEST-031/TEST-033) in one suite. No task's title or scope connects two genuinely distinct feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item across T-001..T-007 names a concrete, inspectable target: TEST-NNN pass/fail outcomes tied to AC-NNN, named diagnostic IDs (e.g. gate-id-duplicate, unregistered-script), exact commands/exit codes (e.g. 'vendor-capability-registry.py --check exits non-zero', 'generate-guard-invariants.py --check ... exit 0'), grep self-checks, MANIFEST.sha256 entry verification, and mtime-unchanged/byte-unchanged assertions. None of the forbidden vague phrases ('ensure', 'consider', bare 'verify is correct', 'works correctly', bare 'review <X>', bare 'confirm <X>') appear; T-006's 'confirmed before this task is marked Done' item names a specific observable result (SHA-256 match plus an exit-0 command result). Every non-documentation-only task includes a Done When item naming a concrete verification command or evidence artifact plus an independent quality-gate verdict. No Done When item requires editing a review-frozen artifact (design.md, the tasks.md body, or traceability.md); evidence instead targets specs/epic-190-a2-capability-registry/verification/T-00X/ and staged human-copy/ candidates."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID T-001..T-007 has a Task Mapping row in traceability.md. Every requirement ID in traceability.md (REQ-001..REQ-006) exists in requirements.md's Goals section. For this full-profile feature, each REQ row's Layer Spec column carries canonical anchors: REQ-001..REQ-004 -> security-spec.md#trust-boundaries; REQ-005 -> infra-spec.md#deployment-topology; security-spec.md#trust-boundaries; REQ-006 -> infra-spec.md#cicd-sequence; security-spec.md#trust-boundaries. security-spec.md contains a '## Trust Boundaries' heading (anchor trust-boundaries); infra-spec.md contains '## Deployment Topology' (anchor deployment-topology) and '## CI/CD Sequence' (anchor cicd-sequence). These anchors were checked against the same hash-verified copies of infra-spec.md/security-spec.md read for this review. No dangling task or requirement reference in either direction."
+    }
+  ],
+  "findings": []
+}

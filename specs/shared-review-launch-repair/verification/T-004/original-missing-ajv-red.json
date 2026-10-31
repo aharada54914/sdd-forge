@@ -1,0 +1,30 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/task-structured-output.tests.py",
+    "TaskStructuredOutputTests.test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+  "started_at": "2026-10-10T13:39:24.630206+00:00",
+  "expected_exit": 1,
+  "exit": 1,
+  "stdout": "",
+  "stderr": "F\n======================================================================\nFAIL: test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict (__main__.TaskStructuredOutputTests.test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/tests/task-structured-output.tests.py\", line 185, in test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : node:internal/modules/cjs/loader:1424\n  throw err;\n  ^\n\nError: Cannot find module './mcp/ci-mcp/node_modules/ajv'\nRequire stack:\n- /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/[eval]\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)\n    at Module._load (node:internal/modules/cjs/loader:1227:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.require (node:internal/modules/cjs/loader:1504:12)\n    at require (node:internal/modules/helpers:152:16)\n    at [eval]:2:13\n    at runScriptInThisContext (node:internal/vm:219:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    '/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/[eval]'\n  ]\n}\n\nNode.js v24.13.0\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.040s\n\nFAILED (failures=1)\n",
+  "environment": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "npm_config_cache": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/npm-cache"
+  },
+  "source_sha256": {
+    ".github/workflows/test.yml": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "tests/run-all.sh": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "tests/run-all.ps1": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+    "tests/task-structured-output.tests.py": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+    "tests/host-review-preflight.tests.py": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f",
+    "mcp/ci-mcp/package.json": "787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713",
+    "mcp/ci-mcp/package-lock.json": "cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f"
+  }
+}

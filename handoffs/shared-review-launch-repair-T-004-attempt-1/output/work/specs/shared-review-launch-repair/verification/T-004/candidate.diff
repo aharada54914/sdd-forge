@@ -1,0 +1,11 @@
+--- before/.github/workflows/test.yml
++++ after/.github/workflows/test.yml
+@@ -53,6 +53,8 @@
+       - name: Test traceability freeze normalization
+         shell: bash
+         run: python3 -B tests/traceability-freeze-contract.tests.py
++      - name: Install contract validator
++        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+       - name: Test shared review launch and conditional input contracts
+         shell: bash
+         run: |

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "gh",
+    "pr",
+    "view",
+    "558",
+    "--repo",
+    "aharada54914/sdd-forge",
+    "--json",
+    "state,mergedAt,mergeCommit,headRefOid,url"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:12:03.841136+00:00",
+  "finished_at": "2026-10-14T15:12:05.334614+00:00"
+}

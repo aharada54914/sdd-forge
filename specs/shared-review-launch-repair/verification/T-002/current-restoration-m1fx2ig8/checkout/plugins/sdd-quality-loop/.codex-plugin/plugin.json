@@ -1,0 +1,25 @@
+{
+  "name": "sdd-quality-loop",
+  "version": "1.18.0",
+  "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, verify differential baselines, retrospect on workflow performance, and decide Done.",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "author": {
+    "name": "Harada"
+  },
+  "interface": {
+    "displayName": "SDD Quality Loop",
+    "shortDescription": "Independently verify completed implementations",
+    "longDescription": "Final SDD stage for CI-equivalent verification, critical review, UI checks, review-ticket fixes, traceability, and Done decisions.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Independent quality gate",
+      "Critical review and UI verification",
+      "Scoped review-ticket fixes",
+      "Differential baseline verification",
+      "Workflow retrospective and self-improvement"
+    ],
+    "defaultPrompt": "Use the quality-gate skill for an Implementation Complete task."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "task_id": "T-008",
+  "feature": "sdd-domain",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-07-06T08:56:51Z",
+  "stack": "shell",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints): all T-008 files are shell/PowerShell scripts and Markdown; no lint toolchain is configured for this stack per risk-gate-matrix.md's stack descriptor.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints): shell/PowerShell scripts have no type system; typecheck does not apply to this stack.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-008.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-007", "AC-009", "AC-015"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-008.unit-tests.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integration surface distinct from the acceptance-test fixture scenarios already covered by check-domain-conformance.Tests.ps1; the script is a standalone CLI gate with no external service/API integration to test.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Global Constraints): shell/PowerShell scripts require no compilation/build step.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-008.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-008.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-008.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-007", "AC-009", "AC-015"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-008.unit-tests.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-008.regression.log", "waiver_reason": "", "requirement_ids": ["REQ-007", "AC-009", "AC-015"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-008.regression.log" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "check-domain-conformance is a CLI gate script, not a running service/app; there is no dev server or entry point to smoke-test beyond the acceptance-test fixture invocations already covering real subprocess execution.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-008 is a net-new script and skill-doc addition, not a refactor/bugfix task with a baseline-behavior.md; differential-test-policy does not apply.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user-facing UI is touched by this task; check-domain-conformance is a backend CLI gate script and a quality-gate skill-doc edit only.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system/ contract or UI-layer files are touched by this task.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

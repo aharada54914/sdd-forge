@@ -1,0 +1,10 @@
+{
+  "AGENTS.md": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7",
+  "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+  "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421",
+  "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "238e835d6283ac2489fc0b2df3786384e051c7c044d7032425c9e0e80474ee90",
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18",
+  "tests/traceability-freeze-contract.tests.py": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+  "tests/review-hash-normalization.tests.ps1": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32"
+}

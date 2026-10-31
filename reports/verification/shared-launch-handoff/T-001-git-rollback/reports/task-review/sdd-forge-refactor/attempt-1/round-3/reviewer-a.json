@@ -1,0 +1,54 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 6 requirements (REQ-001 through REQ-006) map to at least one task in the REQ→Task table. REQ-001 → T-002 (Phases 2/3/4) + T-003; REQ-002 → T-002 Phase 1; REQ-003 → T-005; REQ-004 → T-002 Phase 3; REQ-005 → T-004; REQ-006 → T-005. No gaps."
+    },
+    {
+      "id": "AC-TRACEABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 10 ACs (AC-001 through AC-010) trace to at least one REQ in the AC→REQ table and to a BL or documented exemption in the AC→BL table. AC-007 legitimately maps to BL '—' with an explanatory note confirming this is an INV-003 fix with no prior baseline. AC-009 and AC-010 are present in both acceptance-tests.md and the traceability tables, fully cross-referenced to REQ-001 and BL-007/BL-012/BL-013 respectively."
+    },
+    {
+      "id": "DEPENDENCY-INTEGRITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Blocker DAG: T-001 (none) → T-002 (T-001) → T-003 (T-002) → T-005 (T-002, T-003, T-004); T-002 → T-004 (T-002) → T-005. Acyclic. All referenced blocker IDs (T-001, T-002, T-003, T-004) exist as defined tasks. T-001 is already Done, which is consistent with T-002 being unblocked."
+    },
+    {
+      "id": "DONE-WHEN-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All Done When criteria are externally verifiable: T-002 uses file existence checks, specific line references, and named AC/BL pass conditions. T-003 specifies exact file paths and validate-repository.ps1 line numbers. T-004 uses line count bounds (≤450) and directory/file existence. T-005 uses test pass counts and file content checks. Phase 3.5 references 'AC-002 が手動確認可能な状態' which is specific enough (exit-code check of hook guard against new path)."
+    },
+    {
+      "id": "TASK-COMPLETENESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each requirement is covered with sufficient implementation detail. REQ-004 caller update specifies exact line numbers (L88, L99, L105, L111, L118, L119, L145, L150). REQ-002 Python Check 2e specifies the CWD-relative path approach, the ADR-004 constraint (_resolve_project_root() not to be used), and the exact function signature requirement. REQ-005 doc restructure specifies line-level changes and a 450-line size constraint. No requirement is left at a vague description level."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 phases are sequenced correctly and explicitly: Phase 1 (human/sudo guard update) must precede Phase 2 (plugin creation) so that new guard paths protect new files before they exist. Phase 3 (caller update) precedes Phase 3.5 (verification gate) which precedes Phase 4 (old plugin deletion). Phase 5 (old guard path removal, human/sudo) is last, after old plugins are confirmed deleted. The ⚠️ advisory at the task header and inline phase labels make the ordering constraints unambiguous."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No two tasks claim conflicting modifications to the same file. T-002 Phase 1 adds new guard paths to sdd-hook-guard.js/py; T-002 Phase 5 removes old paths from the same files — sequential within a single task, not cross-task conflict. validate-repository.ps1 is owned entirely by T-005 (both $expectedSkills and $forbiddenPaths updates). T-002 Phase 5 explicitly disclaims $forbiddenPaths ('注: $forbiddenPaths の更新は T-005 が担当 — ここでは行わない'). The Task→実装ファイル table correctly lists validate-repository.ps1 only under T-005."
+    },
+    {
+      "id": "TRACEABILITY-CONSISTENCY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round 2 fixes are confirmed present: REQ-001|T-003 row exists in REQ→Task table (line 31); AC-004→BL-008 and AC-005→BL-008 are in AC→BL table (lines 60-61); AC-007 BL column correctly shows '—' with explanatory note (line 63); T-002 Phase 5 no longer claims $forbiddenPaths ownership. One minor omission: the Task→実装ファイル table row for T-005/validate-repository.ps1 describes only '$expectedSkills 15→17' but not the $forbiddenPaths addition, even though both changes are in T-005's Scope and Done When. This is a documentation completeness gap in the table, not a logical inconsistency — the full scope is captured in T-005's Scope section. Additionally, requirements.md enumerates AC-001 through AC-008 in its Acceptance Criteria list but acceptance-tests.md contains AC-009 and AC-010; traceability correctly cross-references these additional ACs. Neither issue affects implementation correctness."
+    }
+  ]
+}

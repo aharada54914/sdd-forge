@@ -1,0 +1,87 @@
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel → exit 1 (diversity fail)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel → exit 0 (diversity satisfied)
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel → pass (non_anthropic≥1, distinct≥2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS, no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel PASS → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches all → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+=== T-001: POSIX panelist runner timeout contract ===
+ok: TEST-003 gpt/unset: valid timeout invokes CLI
+ok: TEST-003 gpt/empty: valid timeout invokes CLI
+ok: TEST-003 gpt/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gpt/one: valid timeout invokes CLI
+ok: TEST-003 gpt/0: exit 2 without CLI invocation
+ok: TEST-003 gpt/-5: exit 2 without CLI invocation
+ok: TEST-003 gpt/abc: exit 2 without CLI invocation
+ok: TEST-003 gemini/unset: valid timeout invokes CLI
+ok: TEST-003 gemini/empty: valid timeout invokes CLI
+ok: TEST-003 gemini/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gemini/one: valid timeout invokes CLI
+ok: TEST-003 gemini/0: exit 2 without CLI invocation
+ok: TEST-003 gemini/-5: exit 2 without CLI invocation
+ok: TEST-003 gemini/abc: exit 2 without CLI invocation
+ok: TEST-012: POSIX timeout defaults are derived from source and match (600s)
+measurement: TEST-004(a) runner=gpt elapsed_ms=5140 deadline_ms=1000 margin_ms=10000 stub_pid=41072 stub_alive=0 child_pid=41073 child_alive=0
+ok: TEST-004(a) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gpt elapsed_ms=5145 deadline_ms=1000 margin_ms=10000 stub_pid=41145 stub_alive=0 child_pid=41146 child_alive=0
+ok: TEST-004(b) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(a) runner=gemini elapsed_ms=4120 deadline_ms=1000 margin_ms=10000 stub_pid=41223 stub_alive=0 child_pid=41224 child_alive=0
+ok: TEST-004(a) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gemini elapsed_ms=5161 deadline_ms=1000 margin_ms=10000 stub_pid=41288 stub_alive=0 child_pid=41289 child_alive=0
+ok: TEST-004(b) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=3128 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/1: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=3138 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/2: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=3129 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/3: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=3128 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/4: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=3136 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/5: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=3134 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/1: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=3129 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/2: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=3139 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/3: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=3140 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/4: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=3135 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/5: near-boundary completion stays successful
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+=== TEST-001/002: panelist failure taxonomy ===
+ok: TEST-001: CLI absent states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+ok: TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+
+Results: 64 passed, 0 failed

@@ -1,0 +1,77 @@
+FAIL: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS (exit 127; stdout: ; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (2) hash mismatch rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (3) HMAC mismatch rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (4) unregistered approver id rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (5) duplicate approver identity rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-014 (6) future effective_at rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-020 validator rejects applying a cooldown sidecar before its effective_at (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+FAIL: TEST-019 (a) validate-approval-sidecar.py rejects the solo-approved two-person-required sidecar (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+FAIL: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+FAIL: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry registry (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: OBLIGATION 2 non-bootstrap null-verdict rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: OBLIGATION 2 --verify-provenance rejects non-bootstrap null-verdict (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-043 --verify-provenance passes a correctly-approved sidecar post-publish (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-043 --verify-provenance fails an underapproved sidecar post-publish (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-043 --verify-provenance passes the bootstrap case (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-043 standard validation path fails closed on a live journal naming --content (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-HARDEN malformed registry rejected (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 93: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-HARDEN no resolvable SDD_CONTEXT_KEY (exit 127; stderr: env: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-HARDEN missing --content usage error (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 816: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-HARDEN --content + --verify-provenance usage error (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 824: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: TEST-HARDEN missing --sidecar file (exit 127; stderr: tests/validate-approval-sidecar.tests.sh: 行 832: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh: No such file or directory)
+FAIL: OBLIGATION 1 case 1/4 (env var) key-resolution byte-parity: Traceback (most recent call last):
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 16, in <module>
+    val = _load("_val_approval_sidecar", VAL_PATH)
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 12, in _load
+    spec.loader.exec_module(module)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
+FAIL: OBLIGATION 1 case 2/4 (env-file) key-resolution byte-parity: Traceback (most recent call last):
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 16, in <module>
+    val = _load("_val_approval_sidecar", VAL_PATH)
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 12, in _load
+    spec.loader.exec_module(module)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
+FAIL: OBLIGATION 1 case 3/4 (home-path) key-resolution byte-parity: Traceback (most recent call last):
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 16, in <module>
+    val = _load("_val_approval_sidecar", VAL_PATH)
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 12, in _load
+    spec.loader.exec_module(module)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
+FAIL: OBLIGATION 1 case 4/4 (none resolvable) key-resolution byte-parity: Traceback (most recent call last):
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 16, in <module>
+    val = _load("_val_approval_sidecar", VAL_PATH)
+  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/validate-approval-sidecar-test.47KKTY/key_parity.py", line 12, in _load
+    spec.loader.exec_module(module)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 twin exists
+PASS: 8
+FAIL: 30
+exit=1

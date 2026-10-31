@@ -1,0 +1,7 @@
+{
+  "path": "tests/unified-launch-order.tests.py",
+  "sha256": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+  "snapshot_manifest_sha256": "347c102120352a273c7f83cb1785824ed1cd53837bf451c958a76b9cbcf09218",
+  "base_revision": "immutable manifest snapshot; Git HEAD not admitted",
+  "mode": "0o644"
+}

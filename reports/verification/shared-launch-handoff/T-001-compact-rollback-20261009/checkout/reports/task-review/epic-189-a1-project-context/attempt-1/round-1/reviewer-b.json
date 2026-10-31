@@ -1,0 +1,111 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt1-seq0331",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt1-seq0331",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+      {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+      {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "d46874550250fed89bc2d70dd415f7b566a7ef64488903c67b04aa32c865978b"},
+      {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "2029fe95ed053cbe701acdf453324941a6177931bc085e2edbf5a839d61b4298"},
+      {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ee7882de70145c61d63bd3fa0067e9265c7f923857cdc9e5a080ecd52c39bdd3"},
+      {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+      {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+      {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+      {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-1/precheck-result.json", "sha256": "b3e151c23d3e4582e9ee4ddf5623fb9e753f2ac063e0d8b4f2bed5fc9cc366a4"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-1/integrated-summary.json", "sha256": "d19fa22eaf1087e6d1c2b60d8e99657b14077ce265bda8bc9ad3005d36e63f38"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-010 (Risk: medium) implements the same security-relevant track-selection precedence logic that T-011 (Risk: high) implements for the remaining two consumers. T-010's Goal states it revises bootstrap/SKILL.md, sdd-bootstrap-interviewer/SKILL.md, and lite-gate/SKILL.md per design.md's four-case rule: absent -> compatibility fallback; present+valid -> new precedence; present-but-failing-REQ-005-validation -> explicit PROJECT_CONTEXT_INVALID stop, never treated as absent. This is the exact ADR-0023 access-control precedence fix (security-spec.md's B5 'Track-selection fail-open' boundary; AC-025/AC-026/AC-039 test all 5 REQ-009 consumers identically per traceability.md's REQ-009 row and AC-039's 30-assertion, 5-consumer x 6-case matrix). T-010's own Risk Rationale claims these 3 consumers 'implement no new security-decision logic themselves,' but its Goal/Scope text describes exactly the PROJECT_CONTEXT_INVALID-vs-fallback decision branch being added to these files. Per risk-classification-policy.md's high tier ('access control ... anything where a silent defect causes material harm') and by direct parity with T-011's high classification for the identical behavior class in the other 2 of the same 5 consumers, T-010 is under-classified; a silent defect in this precedence logic (e.g. a present-but-invalid Context mistakenly treated as absent) reproduces exactly the 'silent downgrade' ADR-0023 exists to close."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high/critical task (T-002,T-003,T-004,T-005,T-006,T-007,T-008,T-009,T-011) includes in its Done When section both TDD Red/Green evidence recorded in the implementation report and an independent quality-gate verdict (a named second reviewer) recording PASS (e.g. T-002's, T-005's, T-009's final Done-When bullets). Both Risk: critical tasks (T-006, T-008) additionally include 'a second, distinct named approver additionally reviews and signs the evidence bundle (Risk: critical, risk-classification-policy.md:17)' in their final Done-When bullet, satisfying the additional critical-tier requirement. No high/critical task omits any of the required Done-When evidence items."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004 ('Author the approver registry schema and the policy-weakening detector') bundles two structurally distinct implementation artifacts under one task -- a new JSON Schema (contracts/approver-registry.schema.json) and a separate algorithmic script (detect-policy-weakening.py, implementing the 3-implemented/6-N/A weakening-category table, the glob-coverage narrowing algorithm, and the approved-context anchor CLI resolution) -- and its Done When list has 11 distinct verifiable items (TEST-044, TEST-045, TEST-046, TEST-016, TEST-017, TEST-018, TEST-030, TEST-031, suite self-registration, CHANGELOG update, TDD Red/Green+independent-review evidence), exceeding the 8-item oversized-task threshold. The task title itself joins the two artifacts with 'and'. T-001 ('Author the project-context.yaml and provider-bindings.yaml schemas') shows the same pattern less severely (3 bundled schema/template artifacts, 11 Done-When items), and T-003 (schema + staging-only signer) is a milder instance at 9 Done-When items. Splitting T-004 into a schema-authoring task and a detector-algorithm task, mirroring how T-002/T-005 each own a single artifact, would make each unit completable in a single focused session with per-artifact TDD/review evidence rather than conflated evidence across two functionally unrelated deliverables."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task's underlying REQ has dedicated, explicit error-path/edge-case acceptance criteria distinct from happy-path coverage: T-001/REQ-001-002 (AC-001/AC-003 parameterized negative fixture sets, AC-040 duplicate-id rejection), T-002/REQ-003 (AC-005 four-category rejection lock, AC-037 boundary-vector rejections), T-003/REQ-004 (AC-010 negative schema fixtures, AC-011 fail-closed-with-no-key), T-004/REQ-006 (AC-044 malformed-registry rejection, AC-045 duplicate-id rejection), T-005/REQ-005 (AC-014 six-way negative proof), T-006/REQ-007 (AC-033 symlink/hard-link/crash-injection edge cases), T-007/REQ-010 (AC-027 write-executed/unrecognized/missing/stale-nonce rejection cases, AC-032 cleanup-failure/stale-sentinel cases), T-010/T-011/REQ-009 (AC-026 PROJECT_CONTEXT_INVALID explicit-stop case distinct from the absent-fallback happy path). No functional task's REQ is covered by happy-path-only acceptance criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's own header states TEST IDs (TEST-001..TEST-046) map 1:1 to AC-001..AC-046 -- every test task in tasks.md cites TEST-NNN IDs that are, by this package's own consistent design, acceptance tests each tied to one specific AC-NNN (satisfying the check's acceptance-test criterion 'must reference a specific AC-NNN'), e.g. T-001's Done When ties TEST-001 to (AC-001), TEST-002 to (AC-002), etc., across every task. No task declares a conflicting unit/integration/end-to-end classification whose scope would then mismatch; this package consistently frames all verification at the acceptance-criterion granularity per its own methodology, and none of the 46 tests is mislabeled against that framing."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high/critical task carries a task-specific Rollback: field: T-002 ('revert this task's two commits; nothing protected is touched yet'), T-003 ('a staged candidate that is never applied leaves no live-state change to roll back'), T-006 ('no protected file is touched by this task ... T-008 does that later'), T-008 ('reverting this task's agent-authored commit does NOT automatically revert an already-human-applied guard-invariants.json/generated-file change -- the revert PR states explicitly whether a human should also hand-revert that application'), T-011 (identical human-applied-change caveat for ship/SKILL.md and lite-spec/SKILL.md). Each addresses the specific revert mechanics for its own artifact class (staged-only vs. human-applied vs. protected)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tests/run-all.sh/.ps1 and the staged specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml + MANIFEST.sha256 are claimed as Planned Files by all 12 tasks, and Global Constraints requires each task to append 'in this task list's own numeric order (T-001 through T-012), one array-append per task ... so no two tasks race on the same shared file' -- but this ordering is not enforced via the Blockers field for every task. T-002 (2nd in numeric order) declares Blockers: None despite sharing these files with T-001 (1st); T-004 (4th) declares Blockers: T-002 only, omitting T-003 (3rd, the immediately preceding numeric-order task); T-006 (6th) and T-007 (7th) each declare Blockers: None despite sharing these files with T-001 through T-005/T-006 respectively. SCOPE-DISJOINT's own legitimate-sharing carve-out requires 'the Blockers field enforces the ordering' -- for these tasks it does not, so a downstream orchestrator relying on the Blockers graph could legitimately schedule e.g. T-003 and T-004 in parallel or out of order, racing on the same shared append-only files Global Constraints exists to protect."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The numeric-order append chain for the shared files (tests/run-all.sh/.ps1, the staged .github/workflows/test.yml candidate, MANIFEST.sha256) is broken/non-transitive at several points: T-008 (8th in numeric order) declares Blockers: T-002,T-003,T-004,T-005,T-006,T-007 but omits T-001 (1st); T-010 (10th) declares Blockers: T-001,T-005,T-007 but omits T-008 and T-009 (8th/9th, the immediately preceding numeric-order tasks for the shared append); T-011 (11th) declares Blockers: T-008,T-010 but omits T-009 (9th). Combined with T-002/T-004/T-006/T-007 also not blocking on their own immediately-preceding numeric-order task (see SCOPE-DISJOINT finding), the overall Blockers graph does not guarantee the strict per-task landing order Global Constraints mandates for these shared files ('so no two tasks race on the same shared file') -- an omission that would cause exactly the integration failure (a lost or conflicting array-append, or a corrupted staged MANIFEST.sha256) this check's missing-blockers condition addresses. Only T-001, T-003, T-005, T-009, and T-012 currently have Blockers consistent with the required numeric-order chain."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 through T-012 are all net-new schema/tool authoring, protected-file registration, or verification/audit tasks (e.g. T-009's Goal is to 'Prove, against the LIVE, post-T-008-application hook guard, that a write attempt ... is denied' -- a security-verification task confirming NEW protection just registered, not a regression fix for pre-existing broken behavior); none of T-001..T-012's title, Goal, Scope, or Done When describes fixing an existing defect, regression, or flaky test."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "RISK-APPROPRIATE",
+      "severity": "Major",
+      "task_id": "T-010",
+      "finding": "T-010 (Risk: medium) implements the identical ADR-0023 track-selection precedence/PROJECT_CONTEXT_INVALID-stop decision logic that T-011 (Risk: high) implements for the other 2 of the same 5 REQ-009 consumers; the Risk Rationale's claim of 'no new security-decision logic' is contradicted by the Goal section's own four-case-rule description. Under-classified per risk-classification-policy.md's high tier and by parity with T-011."
+    },
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004 bundles a JSON Schema (approver-registry) and a separate detection algorithm (detect-policy-weakening) under one task; 11 Done-When items exceed the 8-item oversized threshold; title joins two artifacts with 'and'. T-001 (11 items, 3 bundled artifacts) and T-003 (9 items, schema+signer) show the same pattern to a lesser degree."
+    },
+    {
+      "check_id": "SCOPE-DISJOINT",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "T-002, T-004, T-006, T-007 all share tests/run-all.sh/.ps1 and the staged .github/workflows/test.yml + MANIFEST.sha256 with earlier numeric-order tasks per Global Constraints' mandatory serialized-append rule, but do not declare their immediately-preceding numeric-order task as a Blocker, leaving the required ordering unenforced by the machine-checkable Blockers field."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-010",
+      "finding": "The shared-file numeric-order Blockers chain is non-transitive: T-008 omits T-001; T-010 omits T-008 and T-009; T-011 omits T-009 -- despite Global Constraints requiring strict serialized landing order on these shared files to prevent a race/integration failure."
+    }
+  ]
+}

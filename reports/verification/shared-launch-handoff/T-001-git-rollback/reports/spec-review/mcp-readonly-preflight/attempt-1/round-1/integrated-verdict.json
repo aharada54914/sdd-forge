@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "RUN-mcpreadonlypreflight-spec-a1r1-a-seq0463",
+  "reviewer_b_run_id": "RUN-mcpreadonlypreflight-spec-a1r1-b-seq0466",
+  "reviewer_a_host_session_id": "SESS-spec-a1r1-a-mcpreadonlypreflight-0463",
+  "reviewer_b_host_session_id": "SESS-spec-a1r1-b-mcpreadonlypreflight-0466",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

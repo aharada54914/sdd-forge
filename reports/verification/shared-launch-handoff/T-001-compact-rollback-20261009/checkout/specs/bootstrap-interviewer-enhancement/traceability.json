@@ -1,0 +1,150 @@
+{
+  "feature": "bootstrap-interviewer-enhancement",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005"],
+      "tests": ["tests/bootstrap-layer-templates.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-001/green.log"]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-006"],
+      "tests": ["tests/bootstrap-interview-guidance.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-003/green.log"]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-001", "AC-008"],
+      "tests": ["tests/bootstrap-layer-templates.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-001/green.log"]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-010"],
+      "tests": ["tests/bootstrap-interview-guidance.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-003/green.log"]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-011", "AC-012"],
+      "tests": [
+        "tests/structure-check-feature-mode.tests.sh",
+        "tests/structure-check-feature-mode.tests.ps1"
+      ],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-004/green.log"]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-009"],
+      "tests": [
+        "tests/bootstrap-layer-templates.tests.sh",
+        "tests/bootstrap-interview-guidance.tests.sh"
+      ],
+      "evidence": [
+        "specs/bootstrap-interviewer-enhancement/verification/T-001/green.log",
+        "specs/bootstrap-interviewer-enhancement/verification/T-003/green.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005"],
+      "tests": ["tests/bootstrap-layer-templates.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-001/green.log"]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-007"],
+      "tests": ["tests/bootstrap-cross-layer-index.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-002/green.log"]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-008"],
+      "tests": ["tests/bootstrap-cross-layer-index.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-002/green.log"]
+    },
+    {
+      "req": "REQ-010",
+      "acs": ["AC-006"],
+      "tests": ["tests/bootstrap-interview-guidance.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-003/green.log"]
+    },
+    {
+      "req": "REQ-011",
+      "acs": ["AC-010"],
+      "tests": ["tests/bootstrap-interview-guidance.tests.sh"],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-003/green.log"]
+    },
+    {
+      "req": "REQ-012",
+      "acs": ["AC-011", "AC-012"],
+      "tests": [
+        "tests/structure-check-feature-mode.tests.sh",
+        "tests/structure-check-feature-mode.tests.ps1"
+      ],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-004/green.log"]
+    },
+    {
+      "req": "REQ-013",
+      "acs": ["AC-009", "AC-013"],
+      "tests": [
+        "tests/bootstrap-interview-guidance.tests.sh",
+        "tests/run-all.sh"
+      ],
+      "evidence": [
+        "specs/bootstrap-interviewer-enhancement/verification/T-003/green.log",
+        "specs/bootstrap-interviewer-enhancement/verification/quality/run-all-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-014",
+      "acs": ["AC-011", "AC-012", "AC-013"],
+      "tests": [
+        "tests/structure-check-feature-mode.tests.sh",
+        "tests/structure-check-feature-mode.tests.ps1",
+        "tests/run-all.sh",
+        "tests/run-all.ps1"
+      ],
+      "evidence": [
+        "specs/bootstrap-interviewer-enhancement/verification/T-004/green.log",
+        "specs/bootstrap-interviewer-enhancement/verification/quality/run-all-sh.log",
+        "specs/bootstrap-interviewer-enhancement/verification/quality/run-all-ps.log"
+      ]
+    },
+    {
+      "req": "REQ-015",
+      "acs": ["AC-014"],
+      "tests": [
+        "tests/claude-manifest-validation.tests.ps1",
+        "tests/validate-repository.ps1"
+      ],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-008/green.log"]
+    },
+    {
+      "req": "REQ-016",
+      "acs": ["AC-015"],
+      "tests": [
+        "tests/impl-layer-review-inputs.tests.sh",
+        "tests/impl-layer-review-inputs.tests.ps1",
+        "tests/task-layer-review-inputs.tests.sh",
+        "tests/task-layer-review-inputs.tests.ps1",
+        "tests/task-layer-full-profile.tests.sh"
+      ],
+      "evidence": [
+        "specs/bootstrap-interviewer-enhancement/verification/T-005/green.log",
+        "specs/bootstrap-interviewer-enhancement/verification/T-006/green.log"
+      ]
+    },
+    {
+      "req": "REQ-017",
+      "acs": ["AC-016"],
+      "tests": [
+        "tests/approval-boundary.tests.sh",
+        "tests/guard-parity.tests.sh",
+        "tests/hooks.tests.ps1"
+      ],
+      "evidence": ["specs/bootstrap-interviewer-enhancement/verification/T-007/green.log"]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "design-sync-scan",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "RUN-designsyncscan-spec-a1r1-a-seq0541",
+  "reviewer_b_run_id": "RUN-designsyncscan-spec-a1r1-b-seq0544",
+  "reviewer_a_host_session_id": "SESS-spec-a1r1-a-designsyncscan-0541",
+  "reviewer_b_host_session_id": "SESS-spec-a1r1-b-designsyncscan-0544",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

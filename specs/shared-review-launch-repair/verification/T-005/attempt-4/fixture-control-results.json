@@ -1,0 +1,211 @@
+[
+  {
+    "case": "restores-executable-copy",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/restores-executable-copy/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/restores-executable-copy/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/restores-executable-copy/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 0,
+    "expected_rejection": null,
+    "assertion": "matched",
+    "stdout": "{\"result\":\"FIXTURE_READY\",\"files\":1,\"snapshot_unchanged\":true,\"work\":\"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/restores-executable-copy/output/work\"}\n",
+    "stderr": "",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "unsafe-input",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-input/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-input/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-input/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "duplicate/unsafe input",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:12\nfor(const row of manifest.allowed_inputs){if(!safe(row.path)||allowed.has(row.path))throw Error('duplicate/unsafe input');allowed.set(row.path,row.sha256);}\n                                                                                    ^\n\nError: duplicate/unsafe input\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:12:91)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "duplicate-input",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-input/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-input/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-input/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "duplicate/unsafe input",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:12\nfor(const row of manifest.allowed_inputs){if(!safe(row.path)||allowed.has(row.path))throw Error('duplicate/unsafe input');allowed.set(row.path,row.sha256);}\n                                                                                    ^\n\nError: duplicate/unsafe input\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:12:91)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "unsafe-inventory",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-inventory/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-inventory/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/unsafe-inventory/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "inventory entry",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18\n if(!safe(row.path)||seen.has(row.path)||allowed.get(row.path)!==row.sha256||!Number.isInteger(row.mode)||row.mode<0||row.mode>511)throw Error('inventory entry');\n                                                                                                                                   ^\n\nError: inventory entry\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18:138)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "duplicate-inventory",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-inventory/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-inventory/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/duplicate-inventory/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "inventory entry",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18\n if(!safe(row.path)||seen.has(row.path)||allowed.get(row.path)!==row.sha256||!Number.isInteger(row.mode)||row.mode<0||row.mode>511)throw Error('inventory entry');\n                                                                                                                                   ^\n\nError: inventory entry\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18:138)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "mode-out-of-range",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-out-of-range/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-out-of-range/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-out-of-range/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "inventory entry",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18\n if(!safe(row.path)||seen.has(row.path)||allowed.get(row.path)!==row.sha256||!Number.isInteger(row.mode)||row.mode<0||row.mode>511)throw Error('inventory entry');\n                                                                                                                                   ^\n\nError: inventory entry\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18:138)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "mode-noninteger",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-noninteger/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-noninteger/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/mode-noninteger/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "inventory entry",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18\n if(!safe(row.path)||seen.has(row.path)||allowed.get(row.path)!==row.sha256||!Number.isInteger(row.mode)||row.mode<0||row.mode>511)throw Error('inventory entry');\n                                                                                                                                   ^\n\nError: inventory entry\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:18:138)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "inventory-pin-mismatch",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/inventory-pin-mismatch/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/inventory-pin-mismatch/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/inventory-pin-mismatch/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "inventory hash",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:14\nif(hash(inventoryBytes)!==allowed.get(inventoryPath))throw Error('inventory hash');\n                                                     ^\n\nError: inventory hash\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:14:60)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "source-hash-mismatch",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/source-hash-mismatch/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/source-hash-mismatch/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/source-hash-mismatch/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "snapshot mismatch",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:20\n if(!st.isFile()||fs.realpathSync(src)!==src||hash(fs.readFileSync(src))!==row.sha256)throw Error('snapshot mismatch');\n                                                                                      ^\n\nError: snapshot mismatch\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:20:93)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "external-roots",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/external-roots/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/external-roots/other-source",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/external-roots/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "external fixture roots",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:6\nif(snapshot!==path.join(handoff,'snapshot')||output!==path.join(handoff,'output'))throw Error('external fixture roots');\n                                                                                  ^\n\nError: external fixture roots\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:6:89)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  },
+  {
+    "case": "existing-work",
+    "command": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/existing-work/manifest.json",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/existing-work/snapshot",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/fixture-controls/existing-work/output"
+    ],
+    "stdin": "DEVNULL",
+    "exit_code": 1,
+    "expected_rejection": "output work already exists",
+    "assertion": "matched",
+    "stdout": "",
+    "stderr": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:23\nconst work=path.join(output,'work');if(fs.existsSync(work))throw Error('output work already exists');\n                                                           ^\n\nError: output work already exists\n    at Object.<anonymous> (/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-4/prepare-fixture.cjs:23:66)\n    at Module._compile (node:internal/modules/cjs/loader:1761:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1481:32)\n    at Module._load (node:internal/modules/cjs/loader:1300:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.13.0\n",
+    "fixture_inputs_unchanged": true
+  }
+]

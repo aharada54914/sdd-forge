@@ -1,0 +1,47 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-rce",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "d0ef52994aee23c3f378be8f22b352d461dab348d24025f5db62e133cf883263",
+  "quality_report": "reports/quality-gate/20260711T012306Z-T-001.md",
+  "verification_contract": "specs/epic-136-phase1-rce/verification/T-001.contract.json",
+  "git_commit": "6ae0b496d259439508273c0973682117ff9ece85",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "windows",
+    "python": "3.14.0",
+    "git": "git version 2.54.0.windows.1",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase1-rce/verification/T-001.contract.json",
+      "sha256": "bc6eedb98f21c36fbaa101ea6e145ea2b40824331d5838b8c2ff4dabaf8c3420"
+    },
+    {
+      "path": "reports/quality-gate/20260711T012306Z-T-001.md",
+      "sha256": "5f152f254480080a1ae40855860125b6f3962f8dabb28a63a1c232d458cb6cef"
+    },
+    {
+      "path": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log",
+      "sha256": "fca87d18da48f19fa84bef8195326db09f4fce403cdd4c95c6b3fdb06bce296a"
+    },
+    {
+      "path": "specs/epic-136-phase1-rce/verification/qg/T-001/scripted-gates-cycle2.log",
+      "sha256": "20134b251bce8b1f845a7aae98add4281cc1c34d1c8f2af78794c10345224379"
+    }
+  ]
+}

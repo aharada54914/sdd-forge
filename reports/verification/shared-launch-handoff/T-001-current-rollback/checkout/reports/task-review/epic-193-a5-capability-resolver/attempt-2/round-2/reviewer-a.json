@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-a-a2r2-seq0346",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-193-a5-capability-resolver-a2r2-0346",
+  "manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+    {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "245a89380f10c7c47331bbc0087f016082b3db1f553af1b80e5ea06b401f7951"},
+    {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-2/precheck-result.json", "sha256": "e4c33b46191d3c2642d300e167b0769ea75ab42dd91d09203abc99652654c67f"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-2/dependency-graph.json", "sha256": "89484bd03691a3df4a9e943427eb9cb2ab83205611d1d7f4a815ff9ebc878053"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in a task's Requirements field (T-005: AC-003..AC-008, AC-016, AC-043, AC-044, AC-052, AC-056; T-006: AC-001, AC-002, AC-028, AC-009; T-009: AC-022..AC-025; T-010: AC-045) resolves to a real row in acceptance-tests.md. No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks' Blockers fields are either the literal 'None' (T-001) or a comma-separated T-NNN list (T-002: T-001; T-003: T-002; T-004: T-001, T-003; T-005: T-002, T-004; T-006: T-004, T-005; T-007: T-004; T-008: T-001, T-006, T-007; T-009: T-002, T-003, T-004, T-005, T-006, T-007, T-008; T-010: T-004, T-007, T-008, T-009). No range notation, no prose. blockers_format_valid: true, consistent with precheck-result.json."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-006 and REQ-008 are each cited in at least one task's Requirements field (T-001..T-010). REQ-007 has no task (tasks.md Global Constraints 'Deferred, Not Scheduled') but is explicitly deferred with rationale in traceability.md ('Documented (AC-029..032) / Deferred (AC-042, AC-046, AC-053) — no task', requirements.md Non-goals: 'Editing ... SKILL.md ... is a future implementation task's own responsibility'). No uncovered requirement lacking a stated deferral."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "traceability.md's Acceptance Mapping table maps every AC-001..AC-056 (including the AC-035/036/037 Global rows) to a task or an explicit deferral. AC-029..032 map to 'No task — satisfied by acceptance-tests.md's own Spec-Authoring-Time Manual Review Record'; AC-042/AC-046/AC-053 map to 'No task — deferred (design.md Test Strategy item 10; caller-contract suite not scheduled)' per the 'Deferred, Not Scheduled' section. Every other AC maps to a real task (e.g. new AC-003..008/016/043/044/052/056 -> T-005)."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-010 cites at least one REQ-NNN in its Requirements field. No task relies on an INFRA/HOUSEKEEPING pseudo-requirement."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Test-scoped tasks each cite AC-NNN in their Requirements field: T-005 ('full-pipeline ... suite', scope exclusively test/fixture files) cites AC-003..008/016/043/044/052/056; T-006 (title contains 'test suites') cites AC-001/AC-002/AC-028/AC-009; T-009 ('parity and determinism suite', test-only scope) cites AC-022..025; T-010 ('metamorphic completeness suite', test-only scope) cites AC-045. T-001/T-008 pair schema/validator production code with their own suites (titles do not contain test/spec/verify and scope is not exclusively test-file changes), so the rule's trigger condition does not apply to them."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks (T-001..T-010) declare 'Approval: Draft' and 'Status: Planned' verbatim (grep-confirmed at tasks.md lines 289/291, 470/472, 733/735, 982/984, 1256/1258, 1454/1456, 1631/1633, 1863/1865, 2055/2057, 2208/2210), matching the pre-implementation rule for this attempt-2 round-2 review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every task declares Risk and Required Workflow, and every pairing matches the risk-gate-matrix: T-002/T-003/T-004/T-007/T-008 = high/tdd; T-001/T-005/T-006/T-009/T-010 = medium/acceptance-first. New T-005 (the isolated match suite, this round's remedy) is medium/acceptance-first as expected, and all renumbered T-006/T-009/T-010 remain medium/acceptance-first. Consistent with precheck-result.json's workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared ACs (e.g. AC-010/011/012/013/014/038 across T-002/T-003/T-004/T-007; AC-026/032/033/034 across T-001..T-010; AC-040 split first/second fixture across T-004/T-007) each carry an explicit, task-text-stated scope distinction ('five of sixteen rows', 'three more', 'first fixture'/'second fixture', 'share, completes'). T-004's Requirements field explicitly disclaims ownership of AC-003..008/016/043/044/052/056 in favor of new T-005 ('is T-005's own, split out of this task ... closing a TASK-SIZE finding'), so no AC is claimed as a primary, undifferentiated test target by two tasks."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers field (T-001..T-010) exists in dependency-graph.json's nodes array (10 entries, T-001..T-010) and as a '## T-NNN' heading in tasks.md. No dangling reference."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. Programmatic DFS over dependency-graph.json's 23 edges (10 nodes) found no cycle; every edge points from a higher-numbered task to a lower-numbered or equal-tier predecessor (T-002->T-001, T-003->T-002, T-004->T-001/T-003, T-005->T-002/T-004, T-006->T-004/T-005, T-007->T-004, T-008->T-001/T-006/T-007, T-009->T-002..T-008, T-010->T-004/T-007/T-008/T-009), forming a strict DAG."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-004's title no longer joins production code with the match suite ('Author resolve-project-context.{py,sh,ps1}'s track-branch and Evidence-assembly stage (steps 10-13)' — both clauses are internal facets of one design.md-defined pipeline stage, not two distinct feature concerns). T-001/T-008's 'and its ... suite' titles pair production code with directly-tied verification work (calibration exception 1). T-002/T-003's 'X and Y stage (steps N-M)' titles describe one coherent script-authoring stage per design.md's own step-boundary decomposition. T-006's three bundled test suites (cli/discovery/lite) form one coherent 'peripheral engine-verification' concern, an established grouping from prior remedy rounds. No task title/scope joins two materially distinct feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "T-003's Done When item 2 ('Union-match and WARN evaluation logic implemented') and T-004's Done When item 2 ('Production logic complete and ready for downstream exercise') each state internal correctness/completeness claims ('is recorded ... regardless of outcome', 'are all correctly implemented per design.md's own contract') with no named test ID, command, or artifact of their own, explicitly deferring all verification to T-005's future match suite ('this task's own Done When does not itself require the match suite passing'). This is the same unverifiable-at-this-task-boundary pattern the check's forbidden-phrase list targets ('works correctly'-equivalent 'correctly implemented'); a human/quality-gate reviewer has nothing inspectable to check against this specific item at T-003's or T-004's own completion. Each of these two tasks separately satisfies the check's other sub-requirement (at least one Done When item names concrete verification evidence, via their own 'TDD evidence ... An independent quality-gate verdict records PASS' item), so only this one item per task is deficient, not the whole task."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table lists all 10 task IDs (T-001..T-010, including new T-005), each with matching Requirements/Acceptance-Tests columns consistent with tasks.md. Every requirement ID in traceability.md (REQ-001..REQ-008) exists in requirements.md. For this full-profile feature, each requirement row carries a canonical <layer>-spec.md#<section> anchor or a reasoned N/A: REQ-001 -> security-spec.md#trust-boundaries, infra-spec.md#cicd-sequence/#journal-recovery; REQ-002 -> security-spec.md#trust-boundaries/#stride-analysis; REQ-003 -> security-spec.md#trust-boundaries; REQ-004 -> security-spec.md#trust-boundaries/#stride-analysis; REQ-005 -> security-spec.md#trust-boundaries, infra-spec.md#cicd-sequence; REQ-006 -> infra-spec.md#cicd-sequence, security-spec.md#trust-boundaries; REQ-007 -> 'N/A — cross-layer only' (ux-spec.md and frontend-spec.md both independently confirmed N/A); REQ-008 -> infra-spec.md#cicd-sequence. All cited anchors (## Trust Boundaries, ## STRIDE Analysis in security-spec.md; ## CI/CD Sequence, ## Journal Recovery, ## Rollback in infra-spec.md) exist verbatim in the hash-bound layer documents I read."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "OBSERVABLE-DONE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "tasks.md T-004's Done When item 2 ('Production logic complete and ready for downstream exercise') and T-003's Done When item 2 ('Union-match and WARN evaluation logic implemented') each assert internal implementation-correctness with no concrete test ID, command, or artifact of their own — T-004's text reads 'the track branch, facet-name aggregation, Evidence assembly, output schema self-validation, and pre-publication recheck are all correctly implemented per design.md's own contract; this task's own Done When does not itself require T-005's own match suite passing'; T-003's parallel text reads 'is recorded in this invocation's own in-memory evaluation set regardless of outcome (no short-circuit), ready for T-005's own match-suite fixtures to exercise once the pipeline is complete; this task's own Done When does not itself require the match suite passing.' Neither item names an inspectable artifact, metric, or command output at its own task boundary (verification is entirely deferred to T-005, a separate task) — the failure mode is that a quality-gate reviewer closing T-003 or T-004 has no observable check to run against this specific criterion, only the implementer's own unverified claim of correctness, which is the same defect class OBSERVABLE-DONE's forbidden-phrase list ('works correctly') targets. Remedy: replace each item with either (a) removal (since it adds no independently-checkable criterion beyond the task's own TDD-evidence item), or (b) a concrete, task-local check (e.g. a unit-level assertion inspecting capability_evaluations[]/conditional_facet_evaluations[] structure directly, independent of T-005's suite)."
+    }
+  ]
+}

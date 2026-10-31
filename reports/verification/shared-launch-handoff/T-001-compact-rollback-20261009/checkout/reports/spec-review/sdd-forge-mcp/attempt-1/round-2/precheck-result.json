@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-forge-mcp",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "983f6e46c5e07249194234cbcc131eccd215d769e20e430b1f593e73b0533204",
+  "acceptance_sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "d65a33a956a69142af6ae3bf97b0969129ded0e52307c3ecbce151eee52eac50",
+  "edit_summary": "Added AC-015 (per-tool contract-schema acceptance for all 8 core tools, REQ-002), AC-016 (root immutability verification, REQ-007), AC-017 (named error paths not-found/not-sdd-root/too-large, REQ-005/006) to acceptance-tests.md and mirrored them in the requirements.md AC list, addressing round-1 findings GOAL-AC-TRACE (A) and EDGE-CASE-COVERAGE/DOWNSTREAM-READINESS (B).",
+  "reset": false,
+  "generated_at": "2026-07-04T13:04:17Z"
+}

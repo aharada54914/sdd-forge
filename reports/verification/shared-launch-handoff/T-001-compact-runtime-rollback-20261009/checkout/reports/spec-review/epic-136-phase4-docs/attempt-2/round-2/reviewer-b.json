@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-spec-a2r2-b-seq0398",
+  "host_session_id": "SESS-spec-a2r2-b-epic136phase4docs-0398",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-2/round-2/integrated-summary.json",
+      "sha256": "fdc3a3e3a32130ab747cc53843822c5ec75f5ea7a0b9e3cb989cf0d4dac7ca50"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-2/round-2/precheck-result.json",
+      "sha256": "e72ed146e2c739fe0cfc9312cd97814f25d9eee1d8be82e6dc5b7edcb703de7b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "aeb2e098f02e2a67f3518077e0e141302154db32eba8775302988955cd757be6"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core terms are concrete: SDD_PANELIST_TIMEOUT default 600s with exit-2 rejection rules (AC-003), and REQ-002's runtime table (requirements.md:57-60) specifies exact mechanisms per runtime (setsid plus a process-group SIGTERM for POSIX; Start-Process -PassThru plus WaitForExit plus Kill with the entire-tree flag for PowerShell) with matching sub-case assertions in acceptance-tests.md:64-76. The unspecified exact SIGTERM grace-period duration (requirements.md:59) is implementation latitude bounded by a generous 10s test margin (acceptance-tests.md:53), not a two-implementer-divergence risk, per the false-positive guard on implementation architecture."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found. The apparent asymmetry between POSIX's two-step escalation (SIGTERM then SIGKILL) and PowerShell's single unconditional tree-kill (requirements.md:59-60) is explicitly reasoned rather than contradictory: Process.Kill maps to TerminateProcess, which cannot be trapped, so a PowerShell (b) sub-case cannot fail (acceptance-tests.md:70) -- the remediation narrative (requirements.md:62) documents that a prior draft asserted a false equivalence here and was corrected. REQ-003's exit-1-for-timeout and AC-003's exit-2-for-bad-config are distinct failure classes (vendor non-response vs caller misconfiguration) with no overlap."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 finding is genuinely closed, not merely restated. requirements.md:59 now requires the POSIX child to start in its own process group (setsid) and be signalled via the group, explicitly not to the single PID, and AC-004's liveness-assertion column requires 'no orphan of any child the stub spawned remains' for POSIX, not only PowerShell. acceptance-tests.md:64-76 mirrors this: the TEST-004 sub-case table marks orphan-checking as required for both runtimes in row (a), and the attempt-2 remediation paragraph (acceptance-tests.md:74-76) states the stub spawns its own child and the POSIX assertion fails against a single-PID signal and passes only with the process-group signalling. A literal implementation that stores and signals a single pid (the round-1 gap) would leave that spawned grandchild alive and fail TEST-004(a) on POSIX, so the loophole is closed by an executable assertion, not by prose alone. Edge Cases 1-7 each map to a specific AC/TEST pair."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The SIGTERM-termination assumption (requirements.md:176) is not left open -- Edge Case 7 mandates a test whose stub traps SIGTERM specifically to exercise the SIGKILL escalation path, closing the assumption with a test rather than deferring it. The install.sh:758-781 citation's missing INV- provenance (requirements.md:177) is explicitly flagged as a recorded gap, and the requirement it supports is stated to rest independently on Edge Case 1's first-hand command -v result, so the gap does not block design. The three investigation Open Questions for #133/#134 are each resolved by name in the requirements text (AC-002 for rate-limiting, AC-013/REQ-004 for the MCP-checklist question, AC-014 for the residual-risk cross-linking question)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-005/AC-010 requires docs/THREAT-MODEL.md to name the hook-trust governance-bypass flag explicitly and state what an operator who uses it forfeits (requirements.md:131-133), and this is testable via TEST-010 (acceptance-tests.md:16,94-98), which asserts both the literal identifier and an accompanying trust/mitigation statement. This is the one approval/governance-adjacent boundary this feature's scope touches, and it is testable as required rather than left as an unverifiable narrative claim."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification supplies enough concrete detail that a design reviewer need not invent product behavior: REQ-002's runtime table names exact mechanisms and signal targets per runtime (requirements.md:57-60), REQ-001's five-mode failure taxonomy with per-mode exit code / verdict-file / propagation requirements is fully enumerated (requirements.md:25,31-39), and REQ-004/REQ-005's five undocumented trust surfaces are named with a two-part verification (identifier plus trust/mitigation statement, requirements.md:123-133). No requirement defers a product decision to the design stage."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (confirmed via Glob for domain and domain/*, both returning no matches), so the check's applicability precondition is not met. Recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

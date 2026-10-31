@@ -1,0 +1,143 @@
+=== GREEN (a): pwsh tests/loop-driver.tests.ps1 AFTER landing spec-review-precheck.ps1 ===
+
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.ps1)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.ps1: 22 passed, 0 failed, 4s elapsed
+
+SKIP count: 0 (RED baseline was 15 passed, 0 failed, 1 SKIP -- TEST-006 fully
+converted from named SKIP citing #174's structural gap to real, green
+execution: rounds 1, 2, AND 3 all drive for real, round-3 records
+verdict PASS with warningCount 1, TEST-006.6/.7 assert_prior_round_complete
+checks run for real.)
+
+=== GREEN (a): pwsh tests/loop-consistency.tests.ps1 AFTER landing
+spec-review-precheck.ps1 ===
+
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+Risk check passed for 1 task(s). [x4, one per driven task round]
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 27 passed, 0 failed, 27s elapsed
+
+SKIP count: 0 (RED baseline was 14 passed, 0 failed, 3 SKIP -- ALL THREE
+SKIPs citing #174's structural gap converted to real, green execution:
+TEST-008 spec/impl/task legs (SKIP -> ok x13: TEST-008.1-.10), the
+brownfield-profile leg's round drive (SKIP -> ok x2: TEST-008.17/.18), and
+TEST-009.1's impl-review round-2 differential-regression check (SKIP -> ok).
+The impl and task legs recovering, per requirements.md AC-016 and
+tasks.md's Goal, confirms they were only TRANSITIVELY blocked on a genuine
+on-disk spec-review PASS chain -- task-review-precheck.ps1's own
+Require-Pass function unconditionally requires a persisted spec-review PASS
+verdict before task-review-precheck.ps1 will even run, and
+impl-review-precheck.ps1 requires the same of its own predecessor stage;
+neither impl-review-precheck.ps1 nor task-review-precheck.ps1 needed any
+change -- landing spec-review-precheck.ps1 alone unblocked both.)
+
+=== SKIP-to-green summary (AC-016 Done-When bullet, TEST-016) ===
+
+| Suite | RED (before) | GREEN (after) | delta |
+|---|---|---|---|
+| tests/loop-driver.tests.ps1 | 15 passed, 0 failed, 1 SKIP | 22 passed, 0 failed, 0 SKIP | +7 passed, -1 SKIP |
+| tests/loop-consistency.tests.ps1 | 14 passed, 0 failed, 3 SKIP | 27 passed, 0 failed, 0 SKIP | +13 passed, -3 SKIP |
+
+Zero edits to tests/loop-driver.tests.ps1 or tests/loop-consistency.tests.ps1
+(confirmed via `git status` -- see the implementation report's Files Changed
+section). Both suites reached 0 SKIP with zero FAIL, satisfying TEST-016's
+"real, green execution" bar for the spec, impl, AND task legs of TEST-008
+plus TEST-006 -- unlike T-003's domain leg, which hit an independent,
+pre-existing tests/lib/loop-driver.ps1 defect (fixed separately by the host
+in 9ca31bb before this task began; see below), this task's self-healing
+signal reaches full green with no residual failure.
+
+=== Discovered PowerShell JSON-parsing quirk (fixed inside this task's own
+file; not a Specification Difference against the .sh original's BEHAVIOR,
+only against a literal jq-vs-ConvertFrom-Json type-system difference) ===
+
+During the round-2/round-3 drive above, `Test-ValidateContract`'s
+own-stage prior-round re-validation (the PowerShell translation of
+`validate_contract()`/`validate_reviewer_output()`, `spec-review-precheck.sh`
+lines 85-195) initially failed at the final `integrated-summary.json`
+`generated_at` field check. Root cause, isolated via an instrumented copy of
+the function running against the real loop-driver-produced fixture (see
+Working Notes in the implementation report): PowerShell 7's
+`ConvertFrom-Json` auto-coerces ISO-8601-looking JSON STRING values (e.g.
+`"generated_at": "2026-06-23T00:00:00Z"`) into `[DateTime]` objects, unlike
+`jq`, which never performs implicit type coercion and always sees a JSON
+string as a string. The original PowerShell translation of the .sh
+original's `(.generated_at | type == "string")` check
+(`$summary.generated_at -isnot [string]`) was therefore too strict for this
+one field under PS7's parser. Fixed by adding a `Test-IsStringLike` helper
+(`($Value -is [string]) -or ($Value -is [DateTime])`) and using it only at
+that one call site -- the underlying JSON value IS a string in every case
+(a `[DateTime]` result is proof the source WAS a string, since only actual
+JSON strings are eligible for this coercion), so this preserves the
+original's semantic intent (the field exists and is a well-formed
+timestamp-shaped value) while accommodating PS7's parser behavior. Verified
+with `-AsHashtable` too: the coercion happens regardless of
+`ConvertFrom-Json`'s output-object mode, so no alternate parsing flag avoids
+it. No other field in this task's port holds a value that PS7 could
+similarly misclassify (sha256 hex digests, feature slugs, role/schema
+names, and UUIDs do not parse as dates).
+
+=== GREEN: crlf-parity.tests.sh / constant-parity.tests.sh (bash-lane
+regression checks, run separately per protected-basename Bash-line
+constraint -- results recorded in green-sh.log) ===
+
+See specs/epic-159-pillar-a2/verification/T-004/green-sh.log for the
+crlf-parity.tests.sh (8/0) and constant-parity.tests.sh (2/0, PROTECTED,
+read-only) results, both unaffected by this task.

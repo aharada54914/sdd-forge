@@ -1,0 +1,52 @@
+ticket_id: RT-20260821-008
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-005"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-traceability.sh"
+    - "plugins/sdd-quality-loop/scripts/check-traceability.ps1"
+    - "tests/gates.tests.sh"
+    - "tests/scripts.tests.ps1"
+summary: >-
+  check-traceability's require-evidence mode is disabled by any misspelled
+  flag; ps1 accepts repo-escaping evidence symlinks; requirement-set
+  completeness and the design requirement_ids rule are unenforced
+problem: |
+  QG evaluator (seq 0814, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T060500Z.md) accepted five Majors.
+
+  1. The 3rd positional is compared to the exact literal require-evidence
+     with no validation; --require-evidence, Require-Evidence,
+     require_evidence, and -RequireEvidence (the PowerShell spelling) all
+     silently run default mode and exit 0. Fail-open on the clause AC-004
+     conditions on risk tier.
+  2. The ps1 twin resolves evidence paths with GetFullPath (lexical only),
+     so an evidence symlink to /etc/hosts passes on ps1 and through the
+     shipped dispatcher on a pwsh-only PATH, while python resolve() rejects
+     it.
+  3. design.md:94's requirement_ids-for-high/critical rule is enforced
+     nowhere - the script never opens a verification contract, and no
+     fixture covers the rule.
+  4. The six advertised hardening rules (absolute, drive, UNC, traversal,
+     non-regular, zero-byte) have zero fixtures in either runtime.
+  5. Completeness is unenforced: the repo's own traceability.json cut from
+     11 links to 1 still passes in require-evidence mode. REQ-004 says the
+     gate verifies every REQ maps to at least one AC; resolution needs
+     either REQ enumeration from requirements.md or a recorded decision
+     narrowing the gate's scope to intra-file consistency.
+expected_fix:
+  - "Validate the mode argument: unknown 3rd positionals are a usage error, not silent default mode; mirror in the ps1 parameter handling"
+  - "Resolve evidence paths with symlink-following semantics in the ps1 twin, matching python resolve(), with an escaping-symlink fixture on both runtimes"
+  - "Add fixtures for the six advertised hardening rules on both runtimes"
+  - "Human decision folded in: enforce REQ completeness from requirements.md, or record the intra-file-consistency scope narrowing as an approved spec change; same for the design.md:94 requirement_ids rule's home"
+  - "Re-run the quality gate for T-005 once fixed"
+references:
+  - "reports/quality-gate/20260821T060500Z.md"
+  - "specs/risk-adaptive-layer/requirements.md"
+  - "specs/risk-adaptive-layer/design.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

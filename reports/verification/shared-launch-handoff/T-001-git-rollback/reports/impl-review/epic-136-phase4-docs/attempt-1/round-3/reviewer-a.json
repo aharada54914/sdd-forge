@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-impl-a1r3-a-seq0404",
+  "host_session_id": "SESS-impl-a1r3-a-epic136phase4docs-0404",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-1/round-2/integrated-summary.json",
+      "sha256": "4393570344af32739eed2f907413294c0fbceef0c7517e4545df749428bd5a8e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-1/round-3/precheck-result.json",
+      "sha256": "59966f140276280ccc05ca082c142ad2e3c2383d3ff58c1637f4111d8675eb80"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "b7c69736cbd6d0e48d94d02ced5b7b46eebb1ef6f18a6e14d8ba10ffcecbbf96"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:5-13 (legacy heading '## Architecture Overview') describes top-level boundaries (Stream A: 4 runner scripts + policy doc; Stream B: docs/THREAT-MODEL.md only), explains integration with the existing gate ('It deliberately does not go in check-cross-model (BL-002): that gate reads verdict files off disk and never invokes a panelist... so a timeout there would be a bound on the wrong thing', :9), and states technology choices consistent with ux-spec.md:5/frontend-spec.md:5 (no frontend/data layer; shell+PowerShell+Markdown only). Not a one-sentence description; interactions are explained, not merely component names."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:9 and Components table (:15-27) describe only one-directional relationships (runners -> vendor CLI; docs are inert) and explicitly state check-cross-model.sh is 'Untouched' (BL-002, :27), which precludes a gate-to-runner cycle."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Data Plan' present at design.md:149-160 (literal header match, not a legacy-compat gap). States 'No data changes' with rationale (no DB/schema/document format), lists the two existing on-disk artifacts affected (panelist verdict JSON schema - unchanged; SDD_PANELIST_TIMEOUT - new env var, not stored data) in a table (:155-158), and explicitly states 'No migration, no backfill, and no retention change follows from this' (:160), cross-referenced by infra-spec.md:30-38's Rollback section. All three required elements (entities / existing data / migration) are substantively covered even though not literally sub-labeled."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## API & Contract Plan' at design.md:29 (legacy ampersand variant of '## API / Contract Plan') covers the only contract this feature exposes: the SDD_PANELIST_TIMEOUT configuration contract (:108-118, values/defaults/rejection behaviour tabulated), the failure-taxonomy table consumed by the gate (:124-131), and the two docs/THREAT-MODEL.md deliverables (:139-147). frontend-spec.md:5 and ux-spec.md:5 confirm no HTTP/RPC/browser surface exists, consistent with this being a CLI+docs feature with no network API; the section functions as the equivalent 'no API changes' coverage for that reason."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Security Boundaries' present at design.md:162-177, naming B1 (vendor CLI process), B2 (cross-model consensus signal), B3 (threat-model control inventory), B4 (hook-trust surface), matching security-spec.md's Trust Boundaries section which design.md explicitly incorporates as normative ('the authoritative treatment is security-spec.md, which is a normative layer of this specification', :164). Authorization stated at :173-176 (no protected-gate write, no SDD_SUDO, no secret handling). Data classification addressed explicitly ('No secret is read, written, or transported. SDD_PANELIST_TIMEOUT is a non-secret integer...', :177). OWASP-adjacent concerns (DoS, EoP, Spoofing, Tampering, Repudiation) are addressed via the normatively-incorporated STRIDE table at security-spec.md:29-37, which maps each threat to a closing AC/test."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md carries no 'Feature Type:' header (confirmed absent), but ux-spec.md:5 ('N/A -- no user-facing surface') and frontend-spec.md:5 ('N/A -- no browser or frontend bundle') both record N/A with substantive justification -- the feature is 4 CLI runner scripts plus two Markdown documents, confirmed by investigation.md's scope section and requirements.md's Overview. This is functionally equivalent to feature type cli/library, for which this check is defined to be skipped. No frontend/API surface exists to check for endpoint or field consistency."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'## Test Strategy' at design.md:187-198 covers unit scope (item 1, AC-003 config parsing via stub CLI, non-invocation assertion), integration scope (items 2-4, real-process stub tests and composition with check-cross-model), acceptance-criteria mapping (every item cites AC-NNN and, after this round's edit, TEST-NNN IDs), regression/parity (items 5-6, BL-001/BL-004), and concrete planned evidence: named artifacts tests/cross-model.tests.sh and .ps1 and the CI command path tests/run-all.sh (Deployment & CI Plan, design.md:202). Round-3 edit to item 7 (design.md:198) adds 'the three MCP server names sdd-forge-mcp, local-env-mcp and ci-mcp (TEST-013)' and explains why TEST-013 is listed separately from TEST-007 ('collapsing them is exactly how the MCP deliverable went missing from this plan in the first place') -- substantive, non-filler text that directly closes round 2's Major finding by naming a concrete verification artifact (TEST-013, matching acceptance-tests.md:19,108-112) rather than merely re-mentioning AC-013."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every script/doc/test file referenced in the Architecture Overview and API & Contract Plan (the four run-panelist scripts, cross-model-verification-policy.md, docs/THREAT-MODEL.md, tests/cross-model.tests.sh and .ps1, check-cross-model.sh) is defined in the Components table (design.md:15-27). The three MCP servers newly named at design.md:145 (sdd-forge-mcp, local-env-mcp, ci-mcp) are established system components independently identifiable from requirements.md:111 (AC-013) and investigation.md:142 (INV-013), not undefined inventions."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No '## Architecture Decision Records' section is present, and design.md does not introduce a new technology choice, integration pattern, or architectural departure requiring one: the bounded-wait timeout mechanism explicitly reuses an established repository convention (install.sh:758-781, cited at design.md:33 and :118) rather than inventing a new pattern, and design.md:202 explicitly reasons that ADR-0003 (dist/ rebuild obligation) does not apply because this feature has no dist/ bundle. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: verified via ls -d design-system at the project root -- 'No such file or directory'. The target project has no design-system/ directory, so this check does not apply; recorded as skipped per the check's own instruction to emit PASS in this case."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: verified via ls -d domain at the project root -- 'No such file or directory'. The target project has no domain/ directory (and therefore no domain/context-map.md with Domain-Model-Status: Approved), so this check does not apply; recorded as skipped per the check's own instruction to emit PASS in this case."
+    }
+  ],
+  "legacy_design": true,
+  "feature_type": "cli"
+}

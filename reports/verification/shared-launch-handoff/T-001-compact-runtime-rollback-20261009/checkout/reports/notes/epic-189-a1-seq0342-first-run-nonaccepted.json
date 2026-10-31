@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt3-seq0342",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt3-seq0342",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+      {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+      {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+      {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "46a5d0d2da13316a4c2f55a58aeb15b3257461840c585658b8924f3d33ef4b2c"},
+      {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+      {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+      {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+      {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+      {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json", "sha256": "dced6205c8a332261d2b3db4e868f5f4c910dbd22fd10fe2cfaa92f017c72dd6"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/integrated-summary.json", "sha256": "2cda5cc290a7c8cfe3dda1cabf5bc8ba381689d359af201865b44004b4c08edd"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No sentinel-surface/tier mismatch found. T-002/T-003/T-004/T-005/T-006/T-007/T-008/T-009/T-010/T-011/T-012 are Risk: high or critical and each Risk Rationale names a sentinel surface consistent with risk-classification-policy.md:16-17 (canonicalization foundation for HMAC preimages, secrets/HMAC signing, approver-identity schema, policy-weakening self-approval logic, approval validation, irreversible atomic-publish tooling, protected-file inventory edits, access-control precedence in sdd-ship/lite-spec/bootstrap/lite-gate). T-001 (medium) and T-013 (medium) are correctly not high/critical: T-001's schemas are wholly new, unconsumed artifacts (Out of Scope explicitly excludes any consumer until T-002 onward) and T-013 is an audit/CI-closure task with 'no production logic change' per its own Risk Rationale. No high/critical task's scope is limited to UI copy/CSS/docs/test-only content."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 11 high/critical tasks (T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010, T-011, T-012) carry a Done When item requiring TDD Red/Green evidence AND 'an independent quality-gate verdict (a named second reviewer, not the implementing agent) records PASS'. The two Risk: critical tasks (T-007, T-009) additionally carry 'a second, distinct named approver additionally reviews and signs the evidence bundle (Risk: critical, risk-classification-policy.md:17)' in their Done When lists, matching the critical-tier requirement for a second approver plus signed evidence bundle."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Five of thirteen tasks exceed the 'more than eight distinct verifiable items' oversized-task indicator in their Done When sections (mechanically counted): T-001 has 11 items (TEST-001, TEST-002, TEST-003, TEST-004, TEST-040, TEST-041, TEST-042, suite self-registration, staged test.yml+MANIFEST.sha256, CHANGELOG entry, acceptance-first+quality-gate evidence); T-002 has 9 (TEST-005/006/007/008/009/037 plus suite-registration, CHANGELOG, TDD Red/Green+quality-gate evidence); T-003 has 9 (TEST-010/011/012/013/034/036 plus the same three closing items); T-005 has 9 (TEST-016/017/018/030/031/046 plus the same three closing items); T-006 has 9 (TEST-014/015/019/020/043/046 plus the same three closing items). T-001's Scope additionally spans more than three distinct implementation areas — two separate JSON Schemas (contracts/project-context.schema.json, contracts/provider-bindings.schema.json) plus a third artifact (contracts/project-context.template.yaml) plus a seven-test-ID acceptance matrix plus CI/test.yml staging — independently satisfying 'Scope section spans more than three distinct implementation areas.' Bundling this many independently-verifiable Done-When items into one task increases the risk that a single implementation session leaves some items silently unverified or requires the session to span more than one focused sitting."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional (non-test, non-infra) task maps to acceptance criteria that include an explicit negative/error-path scenario, not just happy-path coverage: T-001 -> AC-001 (parameterized required-field rejection) and AC-040 (duplicate-id rejection); T-002 -> AC-005 (4-category rejection lock) and AC-037 (boundary-vector rejections); T-003 -> AC-010 (hmac-shape rejection) and AC-011 (fail-closed with no key); T-004 -> AC-044 (malformed-registry rejection); T-005 -> AC-017 (strengthening-change negative proof) and AC-030 (NO_APPROVED_CONTEXT_ANCHOR fail-closed rule); T-006 -> AC-014 (six-way negative proof); T-007 -> AC-033 (symlink/reparse denial, crash recovery); T-008 -> AC-027 (unrecognized/missing/stale-nonce -> CAPABILITY_RUNTIME_UNAVAILABLE); T-011/T-012 -> AC-026 (PROJECT_CONTEXT_INVALID explicit-stop, distinct from the absent-file path). No functional task was found with only happy-path acceptance criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's declared Test Type consistently matches its Test Target's actual scope. Narrow-scope tests are declared narrowly: TEST-001 ('parameterized schema conformance') targets exactly one schema file (contracts/project-context.schema.json). Broad, multi-component tests are declared as such, not mislabeled as narrow: TEST-030 ('approved-context anchor CLI contract + injection-attempt rejection') explicitly spans the candidate file, the protected anchor snapshot, and git-commit-landing behavior; TEST-039 ('full per-consumer common-contract-suite matrix') explicitly spans all five migrated consumer skills against six shared cases (30 assertions); TEST-023 ('protected-write-boundary + never-bypass proof, full matrix') explicitly spans 4 basenames x 12 call sites x 2 SDD_SUDO states (96 assertions) across sdd-hook-guard.py's full call-site surface. No test task's declared type contradicts the component breadth its Test Target text describes."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high or critical task carries an explicit Rollback: field. T-002/T-003/T-004/T-005/T-006/T-008/T-010/T-011 state 'revert this task's two commits' with an explicit note on protected-file exposure (e.g. T-003: 'a staged candidate that is never applied leaves no live-state change to roll back'). T-007 (critical) and T-009 (critical) and T-012 (high) additionally address the harder case of an already-human-applied protected-file change: 'reverting this task's agent-authored commit does NOT automatically revert an already-human-applied guard-invariants.json/generated-file change — the revert PR states explicitly whether a human should also hand-revert that application' (T-009), with the identical pattern for ship/SKILL.md and lite-spec/SKILL.md at T-012."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every shared file this task list touches has either a single designated editor task or an enforced Blockers-chain serialization, per the Global Constraints section: guard-invariants.json/generate-guard-invariants.py/generated/* -> T-009 sole editor; apply-human-copy.{sh,ps1} -> T-007 sole author; PLUGIN-CONTRACTS.md -> T-011 sole editor; ship/SKILL.md and lite-spec/SKILL.md -> T-012 only (T-011's own Out of Scope explicitly excludes them). tests/run-all.sh/.ps1, the staged .github/workflows/test.yml candidate, MANIFEST.sha256, and CHANGELOG.md's #189 entry are each touched by T-001 through T-012, but Global Constraints states each task appends only its own lines 'in this task list's own numeric order' and that this ordering 'is enforced machine-checkably, not merely by convention' via the Blockers chain verified under DEPENDENCY-OVERLAP below — this matches the check's own 'legitimate multi-task scope sharing... provided the Blockers field enforces the ordering' exception, not uncoordinated overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified the full Blockers chain T-001(none)->T-002(T-001)->T-003(T-002)->T-004(T-003)->T-005(T-002,T-004)->T-006(T-003,T-004,T-005)->T-007(T-006)->T-008(T-007)->T-009(T-002,T-003,T-005,T-006,T-007,T-008)->T-010(T-009)->T-011(T-001,T-006,T-008,T-010)->T-012(T-009,T-011)->T-013(T-001..T-012): every task declares the immediately-preceding numeric-order task among its Blockers, satisfying the shared-file serialization Global Constraint. Each task's 'Depends On' prose explicitly distinguishes functional dependency from shared-file-serialization-only dependency where they differ (e.g. T-002: 'Depends On: T-001 only for this task list's mandatory shared-file numeric-order append serialization... this task's own functional content... has no compile-time dependency on the schema files T-001 authors'; T-007 and T-009 make the identical distinction), so blockers that lack a functional dependency are not spurious — they have a documented, real shared-file-integrity reason. No task's scope was found to depend on another task's output without a corresponding Blockers entry (T-004->T-003->T-002 covers T-004's REQ-003-canonicalization dependency transitively; T-005/T-006 declare direct functional blockers on T-002/T-004/T-003/T-005 respectively)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All thirteen tasks (T-001 through T-013) are net-new feature-build tasks ('Author...', 'Verify...', 'Revise...', 'Migrate...', 'Close out...'); none is scoped, by title, Goal, Scope, or Done When text, as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test-resolution, or incident-remediation task."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001 Done When has 11 distinct verifiable items (>8) and its Scope spans more than three distinct implementation areas (two JSON Schemas, a template scaffold, a seven-test-ID acceptance matrix, and CI/test.yml staging). T-002, T-003, T-005, and T-006 each also carry 9 Done-When items (>8): T-002 (TEST-005/006/007/008/009/037 + suite-registration + CHANGELOG + TDD/quality-gate evidence), T-003 (TEST-010/011/012/013/034/036 + the same three closing items), T-005 (TEST-016/017/018/030/031/046 + the same three closing items), T-006 (TEST-014/015/019/020/043/046 + the same three closing items). Recommend splitting each of these five tasks' verification surface, or explicitly re-scoping the Done-When granularity, so each lands within the single-coherent-unit-of-work indicator this check defines."
+    }
+  ]
+}

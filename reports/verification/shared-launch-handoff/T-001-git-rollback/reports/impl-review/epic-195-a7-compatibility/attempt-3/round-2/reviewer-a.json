@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-a-seq0777",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-195-a7-compatibility-0777",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-3/round-1/integrated-summary.json", "sha256": "c00a614842d1e0fe458a31b30d8137d2683b075cf71ebce4be8a0c5177c5cbe6"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-3/round-2/precheck-result.json", "sha256": "234fd20c971699c593a27965ad54e6b149b43e133f48125006f0801d247699e8"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "f3dda65bca1826656215e30849b85c9c83b87ee7648dc9b2a0bca2587d27b337"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:34-70 '## Architecture' gives a mermaid flowchart with component boundaries (fixture matrix F1-F4 vs. the three test kinds vs. golden baseline/schema) and explicit integration edges into five already-existing repository files (loop-inventory.json, loop-driver.sh, loop-consistency.tests.sh, loop-escalation.tests.sh, emit-run-record.sh, install/uninstall suites), each labeled '.extends.'/'.compares.' and cited to an INV-ID. Technology choices per layer are fixed immediately after Components in the '## Layer Specifications' section (design.md:99-131: UX N/A, Frontend N/A/Bash-PowerShell-JSON, Infra CI registration described in Deployment/CI Plan, Security in Security Boundaries), cross-referenced into frontend-spec.md's Technology Stack table and infra-spec.md's Deployment Topology. No downstream-implementer ambiguity results from the tech-choice statement sitting in the adjoining Layer Specifications subsection rather than literally inside the Architecture heading, given this document's own layer-file split convention (Feature Type: test-infrastructure spec, no UI)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Graph built from design.md:36-65 mermaid edges: {F1,F2,F3,F4}->{BI,SC,OE}; BI->GB; BI-.extends.->INST; OE-.compares.->SCHEMA; OE-.extends.->{LI,LD,LE,LC,ERR}; LI->LIT. All edges flow one direction (fixture states -> test kinds -> targets/extensions); no node is reachable back to an ancestor. No cycle exists."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:163-184 '## Data Plan' states all three required sub-fields explicitly: 'Data Entities: none persisted by this task' (with rationale that future-task schema fields are documentation of an intended shape); 'Existing Data Affected: none' (loop-inventory.json's 8 entries unmodified by this task, citing INV-001); 'Migration Strategy: No migration required' with an explicit additive/optional/backward-compatible rationale per proposed field."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:588-733 '## API / Contract Plan' fully specifies every new/changed contract this non-HTTP, CLI/library-shaped feature introduces in place of endpoints: assert_capability_applicability, _loop_trace_emit, assert_event_trace (full signatures, read/write behavior, callers), emit-run-record.sh's new flags and all four flag-combination outcomes (including the capability-only usage-error), the golden-baseline capture/promote script pair's exact CLI contract and fail-closed guards, and the fixture-matrix builder's five-parameter build_fixture signature. No breaking/deprecated change is claimed or needed since every extension point is additive-only (Global Constraints, Constraint Compliance table)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1081-1087 '## Security Boundaries' names B1 (golden-baseline capture/update), B2 (shared-registry/driver/run-record blast radius), and B3 (REQ-007 allowlist manifest integrity) as trust boundaries this feature crosses, states the auth/authz mechanism at each (CI-env-var + --approved-by structural refusal for B1; protected-file-equivalent review rigor for B2; the merged()/fingerprint_match() evaluator for B3), states data classification for each ('repository fixture/script output only, no secrets'; 'none'), and addresses OWASP concerns per boundary (Broken Access Control for B1, cross-epic-coordination risk for B2, silent scope drift for B3). security-spec.md expands this into a full STRIDE/OWASP-mapping table (B1-B5) traced back to the same design.md content, with no contradiction found between the two documents."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no '## Frontend Plan' or '## Backend Plan' heading exists in design.md (grep confirms only '## Architecture' and '## Components'), and design.md's own Feature Type header ('test-infrastructure specification (Phase 1 — no code)') plus its Layer Specifications section explicitly state 'Frontend: N/A — no browser or frontend application' and 'UX: N/A — no GUI, view, dialog, menu item, or human interactive shell surface'. ux-spec.md and frontend-spec.md both independently confirm N/A with no UI/API-client content. This feature is functionally a test-infrastructure/library artifact with no frontend-backend surface, matching the intent of the skip list (api-only/frontend-only/cli/library) even though the design's own Feature Type string is not one of the four literal enum values."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:735-819 '## Test Strategy' lists 9 ordered future-task items covering fixture-matrix construction, golden-baseline capture, byte-identical suite extension, structural-compatibility suite extension (unit/component-level: canonicalizer, record corpus), canonical event-trace implementation and TEST-018/TEST-019 integration cases (component-boundary: driver + suites + registry), Epic A5 deferred assertions, emit-run-record.sh extension, the REQ-007 allowlist manifest wiring, and CI registration. acceptance-tests.md maps every AC-001..AC-043 to a concrete Test ID/Test Type/Test Target (e.g. AC-002 negative self-check, AC-035 negative self-check x3, AC-041 integration negative-fixture pair), giving acceptance-criterion verification a concrete, inspectable path. The golden-baseline diff-check (capture-golden-baseline.sh, default invocation) serves this feature's end-to-end verification path in place of a UI E2E test, consistent with its non-UI feature type."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in design.md's Architecture diagram and API / Contract Plan is defined in the Components table (design.md:72-87) or its own named API/Contract Plan subsection. The one Architecture-diagram node not given its own Components-table row, 'tests/loop-inventory.tests.sh' (LIT), is an established system component fully identified from investigation.md INV-002 ('tests/loop-inventory.tests.sh:129-133') and cited repeatedly in design.md's own Global Constraints/Design Decisions text (e.g. design.md:855-856,1060-1061), satisfying the check's 'established system component identifiable from investigation.md' carve-out."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:151-161 '## ADR Change Log' states 'No new ADR' and cites ADR-0010, ADR-0016, and ADR-0023 as the already-governing decisions. Verified all three exist on disk: docs/adr/0010-loop-inventory-and-fixture-vocabulary.md, docs/adr/0016-workflow-axes-separation.md, docs/adr/0023-track-selection-contract-migration.md. The design's own new decisions (suite placement, capability_applicability scoping, cross-epic fingerprint citations, structural-comparison seam, golden-baseline location) are each framed in Design Decisions as extensions within these existing ADRs' vocabulary, not a new architectural departure requiring a new ADR."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP condition met: `ls -d design-system` confirms no design-system/ directory exists in this repository. design.md:132-134 '## Design System Compliance' already records the exact required 'N/A — ds_profile: none' text for this skip condition."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP condition met: `ls -d domain` confirms no domain/ directory exists in this repository, so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json to check design.md against."
+    }
+  ]
+}

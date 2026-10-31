@@ -1,0 +1,7 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {"id": "check-broken", "stage": "implementation", "blocking": true}
+  ],
+  "capabilities": []
+}

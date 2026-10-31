@@ -1,0 +1,152 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-190-a2-capability-registry",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7ae6becda321666579d0cfea55c5a1316a541bc827d98362b2c58aff8c6fdc7b",
+  "created": "2026-07-23T04:15:00Z",
+  "comment": "Default-FAIL verification contract for T-004 (high, tdd), attempt 2 (post RT-20260723-001 remedy). Required set = medium ∪ {requirement-traceability} per risk-gate-matrix.md; tdd requires non-empty red_evidence + green_evidence on unit-tests/acceptance-tests (TDD_TEST_IDS). Populated from the independent quality-gate evaluator's own verification results, recorded verbatim in reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md (Run ID RUN-epic-190-a2-capability-registry-qg-T-004-a2-seq0348, reserved identity-ledger sequence 348, review-context manifest reports/review-context/pending-epic-190-a2-capability-registry-sdd-evaluator-T-004-a2-seq0348-manifest.json). Attempt 1 (sequence 347, reports/quality-gate/2026-07-23T020000Z-epic-190-a2-capability-registry-T-004-attempt1.md) returned NEEDS_WORK (Critical 0 / Major 2 / Minor 3): wrapper-group collision undetected (AC-016) and TEST-016 substantially unimplemented (3 missing assertions). Both Majors were remedied in commit 81c9cab (collision-keyed real-path -> [gate ids] diagnostic `gate-implementation-collision`, plus the 3 missing TEST-016 assertions, TDD RED captured against the unmodified pre-remedy code at 2e79289 showing exactly the 2 collision assertions failing pre-remedy) with a follow-up formatting-only fix in bc60969. The unit-tests/acceptance-tests red_evidence/green_evidence below cite the remedy's own RED->GREEN cycle (the currently-relevant TDD evidence for the shipping code); the 'regression' check's red_evidence/green_evidence cite the ORIGINAL T-004 implementation's RED->GREEN cycle (commit 2e79289) as the pre-existing regression baseline that the remedy did not disturb -- both pairs are real, both runtimes (sh authoritative here, ps1 twin logs exist at the -ps1/-ps1-remedy suffix and were independently reran by the evaluator, 27/27 both runtimes post-remedy). The evaluator independently reran both runtimes' 27-check suites (up from 23 pre-remedy), independently constructed adversarial two-gate-collision registries (not relying solely on the shipped fixture) to confirm the collision diagnostic fires and correctly reproduced the pre-remedy silent-pass bug against unmodified commit 2e79289 as a differential proof, confirmed neither the collision check nor the pre-existing unregistered-script check masks the other, confirmed the live .github/workflows/test.yml is byte-identical since 2e79289 while the staged human-copy candidate is unchanged and still matches MANIFEST.sha256, and performed line-level requirement-traceability against REQ-003(a-i)/AC-014..022/AC-039. Verdict: PASS, zero Critical, zero Major, three Minor findings (all recorded, non-blocking, disclosed here since generate-evidence-bundle.sh's review_verdict parser only reads bare 'Critical:'/'Major:'/'Minor: N' count lines and this report's Findings section is prose-only -- see reports/notes/quality-gate-report-header-convention-undocumented.md): (1) the remedy's new symlink fixture check-registered-symlink.py was mentioned only in Remedy prose, not as its own Outputs-table row -- being closed post-gate as a report-completeness fix mirroring bc60969's format-only pattern, recorded in RT-20260723-001's resolution; (2) design.md's diagnostic-ID table does not separately enumerate the gate-implementation-collision sub-diagnostic (the collision behavior itself is fully specified in prose -- design.md rule 4, requirements.md:268, AC-016 -- and design.md is a spec file correctly not edited by an implementation task; record-only, not a conformance defect); (3) the seq0348 allowed-input manifest omitted docs/review-tickets/RT-20260723-001.yml even though T-004.md's Outputs table declares it -- a manifest-construction observation outside T-004's implementation scope, independently verified as current content regardless. Attempt-1's own Minor findings 3-5 (check (d) top-level-only glob scope; check (g) substring false-positive risk; fully-clean fixture coupling to check-contract.py) remain durably recorded in RT-20260723-001 and T-004.md and were confirmed by the attempt-2 evaluator to be correctly out of the two-Major remedy scope. Stack: shell waives lint/typecheck/build (no compile toolchain for this repository's Python/shell/PowerShell deliverables).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's Python/shell/PowerShell deliverables (stack: shell); the evaluator's re-execution of the 27-check suite across both runtimes exercises parse validity implicitly.",
+      "requirement_ids": ["REQ-003"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "AC-016", "AC-017"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/red-sh-remedy.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/green-sh-remedy.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; the evaluator drives only local, disposable --repo-root-isolated fixture trees against the real CLI (Global Constraints).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "AC-014", "AC-015", "AC-016", "AC-017", "AC-018", "AC-019", "AC-020", "AC-021", "AC-022", "AC-039"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/red-sh-remedy.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/green-sh-remedy.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-004/green-sh.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's deliverables are a validator script and an allowlist reference, fully covered by the focused/regression suite runs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task. The change is a wholly new, additive validator with no prior version; the saved TDD RED/GREEN evidence (original + remedy) provides the applicable behavior comparison, including a differential proof against the unmodified pre-remedy commit 2e79289.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are script/test/fixture files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

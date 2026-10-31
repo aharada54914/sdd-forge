@@ -1,0 +1,124 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "task-a-sddforgemcp-a1r3-20260704-e5d9",
+  "host_session_id": "hs-task-a-7ea701ba-0016",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/traceability.md",
+      "sha256": "9c317fb6da2074dee4012bdcf532b3ec25538d6ad81b36a6e0eca2ed2b0ec76c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "58017dedc614d1f2d62bbe55830904ad78fddcb0e1c8b49dd8c1034d568f7e1e"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/dependency-graph.json",
+      "sha256": "0177ff96bf4d191015a54381a52f2780d8922c75bd8cbd76e180cd131de86088"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in tasks.md Done When items (AC-001..AC-017) resolves to a real criterion in acceptance-tests.md. No dangling AC IDs."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 Blockers fields are None (T-001) or comma-separated T-NNN lists. No range notation or prose. Matches precheck blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All REQ-001..REQ-011 appear in at least one task's Requirements field, matching traceability.md's REQ->Task table exactly."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-001..AC-017 are traceable to a task via explicit Done When references (AC-013->T-009, AC-014->T-005, AC-012/AC-005->T-010, AC-017 split T-001/T-004), matching traceability.md."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks declare a non-empty Requirements field with at least one valid REQ-NNN."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-007 and T-010 contain test-like title substrings but neither is exclusively test-file scope, and both reference concrete ACs (T-007: AC-006/AC-010; T-010: AC-012/AC-005). No orphaned test task."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks show Approval: Draft and Status: Planned; compliant for round 3."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All pairings match the risk-gate-matrix: 8x high/tdd, 2x medium/acceptance-first, 1x low/test-after."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each AC is claimed by exactly one task except the explicitly differentiated AC-017 split (T-001 too-large/not-sdd-root; T-004 not-found), matching traceability.md."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All Blockers references resolve to existing task IDs; the 20 edges in dependency-graph.json are an exact set-equality match to the Blockers fields."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "DFS over 20 edges (11 nodes) found no cycle; valid DAG consistent with the stated execution order."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001's four sub-parts form a single tightly-coupled foundational chokepoint (path-guard depends on root resolution and reports via the shared envelope) — mandatory non-decoupleable foundation work. No task combines unrelated feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No forbidden vague verbs in any Done When list. Every item names a concrete AC criterion, evidence record, or named artifact path."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID (T-001..T-011) has corresponding traceability.md entries; every REQ-ID exists in requirements.md. No dangling references."
+    }
+  ]
+}

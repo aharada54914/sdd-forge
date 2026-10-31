@@ -1,0 +1,63 @@
+{
+  "task_id": "T-004",
+  "feature": "local-env-mcp",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "01281b86060b58ce7a1da24d765f1182b84e861f9d4ac0b2a5b50819458e65b1",
+  "quality_report": "reports/quality-gate/2026-07-05T171242Z-local-env-mcp-T-004.md",
+  "verification_contract": "specs/local-env-mcp/verification/T-004.contract.json",
+  "git_commit": "184d1f3d59fb15095c1df83caba164f4a94d95c8",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 1,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/local-env-mcp/verification/T-004.contract.json",
+      "sha256": "3d176c70b92dc8991f531199a6faec2856018edf4a112b06ed60d0df10a04819"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T171242Z-local-env-mcp-T-004.md",
+      "sha256": "323beb5bb6ef3fdeeac4341aea86bc6053f1c9579362c4ea36a05c714cd56b95"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/build.log",
+      "sha256": "9d601ff4d9453480c517befdccbb020b132205885ab8f7d567d2695efc6075fd"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/check-placeholders.log",
+      "sha256": "d76075f5cb3802ae05fd2ff2227b857776991aefb6e7546220d1f617a5b601df"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/check-task-state.log",
+      "sha256": "e2ed0f7a9ef04080089aad0d8ad90a5543733ad97ea1d26b73dc460a9ab78435"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/check-traceability.log",
+      "sha256": "83cb8bd7081364945c629c4e2c7d5cffd93115f6730fe064100903b9e4ad0988"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/tests.log",
+      "sha256": "d037436492448236869290e59c2a72d12f875f94a5fbba883049d479361fb5a9"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-004/typecheck.log",
+      "sha256": "a49474e782f06fa4c57fe70cbc8b85177b4b6d3623c1524ca0a2c4b8ab179ab8"
+    }
+  ]
+}

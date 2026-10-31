@@ -1,0 +1,18 @@
+{
+  "label": "prepare-traversal",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/snapshot/handoffs/shared-review-launch-repair-T-005-attempt-5/prepare-fixture.cjs",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/preparation-traversal/manifest.json",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/preparation-traversal/snapshot",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/preparation-traversal/output"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+  "stdin": "DEVNULL",
+  "started_at": "2026-10-08T22:17:43.786619+00:00",
+  "ended_at": "2026-10-08T22:17:43.811322+00:00",
+  "elapsed_seconds": 0.025,
+  "exit_code": 1
+}

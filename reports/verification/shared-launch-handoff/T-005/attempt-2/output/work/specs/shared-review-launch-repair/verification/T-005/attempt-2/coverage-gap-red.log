@@ -1,0 +1,17 @@
+test_reservation_failure_runs_canonical_validator (__main__.ActualReservationCoverage.test_reservation_failure_runs_canonical_validator) ... FAIL
+
+======================================================================
+FAIL: test_reservation_failure_runs_canonical_validator (__main__.ActualReservationCoverage.test_reservation_failure_runs_canonical_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/../scratch/gap_red.py", line 18, in test_reservation_failure_runs_canonical_validator
+    self.assertGreater(len(reserves), 0,
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                       'coverage gap: reservation failure never executes a canonical validator append')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : coverage gap: reservation failure never executes a canonical validator append
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=1)

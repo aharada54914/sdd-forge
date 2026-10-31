@@ -1,0 +1,54 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 6 requirements are covered by tasks. REQ-001 → T-002 (Phases 2/3/4) + partial T-003. REQ-002 → T-002 Phase 1. REQ-003 → T-005. REQ-004 → T-002 Phase 3. REQ-005 → T-004. REQ-006 → T-005. No requirement is unaddressed."
+    },
+    {
+      "id": "AC-TRACEABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-004 and AC-005 are absent from the AC→BL table in traceability.md. The Round 1 fix notes claim these were added with BL-008 references, but the current traceability.md AC→BL table contains only AC-001, AC-002, AC-003, AC-006, AC-008, AC-009, AC-010 — no rows for AC-004 or AC-005. acceptance-tests.md explicitly states both test BL-008. The claimed fix was not applied."
+    },
+    {
+      "id": "DEPENDENCY-INTEGRITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Dependency chain is acyclic and logically sound: T-001 (Done) → T-002 → {T-003, T-004} → T-005. T-002 Phase ordering (1→2→3→3.5→4→5) is internally consistent. T-005 correctly depends on T-002 to ensure Python Check 2e (Phase 1) exists before Scenarios 19/20/21 are added. No circular dependencies detected."
+    },
+    {
+      "id": "DONE-WHEN-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All Done When criteria are observable or mechanically verifiable. T-002 includes AC-009 and AC-010 checkboxes (Round 1 fix confirmed present at lines 117/119). T-004's '450行以内' criterion is measurable via line count. T-005 criteria are test exit codes. T-003 criteria reference specific test scripts. No vague or unverifiable criteria found."
+    },
+    {
+      "id": "TASK-COMPLETENESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All ACs are reachable from tasks. AC-001 → T-002 Phase 3 (caller updates). AC-002/AC-003 → T-002 Phase 1/5 (guard updates). AC-004/AC-005 → T-002 Phase 1 (Python Check 2e). AC-006 → T-005. AC-007 → T-005. AC-008 → T-002 Done When (BL-010/011). AC-009 → T-002 Done When line 117. AC-010 → T-002 Done When line 119. No AC is left without a task that produces the necessary change."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002 phases are correctly sequenced: Phase 1 (human/sudo guard update) must precede Phase 2 (create new plugin, now guarded) must precede Phase 3 (caller updates) must precede Phase 3.5 (verification gate) must precede Phase 4 (deletion of old plugins) must precede Phase 5 (human/sudo remove old guard paths). The verification gate at Phase 3.5 before irreversible deletion (Phase 4) is a sound safety design. Cross-task ordering enforced via Blockers fields."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "tests/validate-repository.ps1 is modified by both T-002 Phase 5 ($forbiddenPaths) and T-005 ($expectedSkills 15→17). The changes target different variables and are non-conflicting. Since T-002 is a blocker for T-005, sequential ordering is enforced, eliminating concurrent-write risk. All other file assignments are unique per task phase."
+    },
+    {
+      "id": "TRACEABILITY-CONSISTENCY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two consistency gaps found: (1) T-003 is absent from the REQ→Task table in traceability.md. T-003 lists Requirements: REQ-001 but the REQ-001 row in the REQ→Task table maps only to T-002 Phases 2/3/4 — T-003 is never referenced. This makes T-003's requirement traceability unidirectional. (2) AC-004 and AC-005 rows are missing from the AC→BL table (also flagged in AC-TRACEABILITY). The Round 1 fix claiming this was corrected does not match the current file content."
+    }
+  ]
+}

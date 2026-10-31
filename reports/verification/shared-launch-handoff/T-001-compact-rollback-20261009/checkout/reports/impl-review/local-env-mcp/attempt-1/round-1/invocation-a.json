@@ -1,0 +1,53 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "local-env-mcp",
+  "run_id": "impl-a-localenvmcp-a1r1-20260705-b0d0",
+  "host_session_id": "hs-impl-a-6503d1ba-0003",
+  "sequence": 35,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "947615d7c7966dc801e4ac5af0317e20660a0490f25290dab94694fdbf5fb4e2",
+  "previous_record_sha256": "69b47d7c1797cd6ea2468339d24010a908fc9f47a73a005cabefd35956d4c63a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "specs/local-env-mcp/design.md",
+      "sha256": "d6f01d094c0e17b402ea21284b95fdd5f123189be679cdc6d0210be128aeb762"
+    },
+    {
+      "path": "specs/local-env-mcp/ux-spec.md",
+      "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283"
+    },
+    {
+      "path": "specs/local-env-mcp/frontend-spec.md",
+      "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b"
+    },
+    {
+      "path": "specs/local-env-mcp/infra-spec.md",
+      "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"
+    },
+    {
+      "path": "specs/local-env-mcp/security-spec.md",
+      "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/local-env-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d5cc8fa973a6c1bf22a12342551978bc898a3e15ce0f4806c9bf6cf65c868760"
+    }
+  ]
+}

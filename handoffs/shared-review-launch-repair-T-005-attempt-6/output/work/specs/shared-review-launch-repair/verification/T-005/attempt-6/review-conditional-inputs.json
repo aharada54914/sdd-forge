@@ -1,0 +1,32 @@
+{
+  "label": "review-conditional-inputs",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/review-conditional-inputs.tests.py",
+    "-v"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/work",
+  "stdin": "DEVNULL",
+  "environment": {
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp",
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp",
+    "TMPPREFIX": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/zsh",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/cache",
+    "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/config",
+    "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/data",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/tmp/dotnet",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CEILING_DIRECTORIES": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output",
+    "T005_SOURCE_GIT_ROOT": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-6/output/git-history.git"
+  },
+  "started_at": "2026-10-08T23:13:57.767246+00:00",
+  "finished_at": "2026-10-08T23:14:24.724533+00:00",
+  "duration_seconds": 26.957,
+  "exit_code": 0
+}

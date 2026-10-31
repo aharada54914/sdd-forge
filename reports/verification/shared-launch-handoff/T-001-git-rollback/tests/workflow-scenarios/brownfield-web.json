@@ -1,0 +1,25 @@
+{
+  "scenario_id": "brownfield-web",
+  "class_number": 2,
+  "class_name": "brownfield web",
+  "class_name_source": "issue #125 body (代表10種 item 2: \"brownfield web\"); investigation.md INV-017 row 2",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "tests/loops/loop-inventory.json",
+      "line": "25",
+      "note": "fixture_profiles: [\"greenfield\",\"brownfield\"] -- same loop-level profile as class 1; no \"web project shape\" specific fixture exists."
+    },
+    {
+      "path": "tests/lib/loop-driver.sh",
+      "line": "14,132-138",
+      "note": "loop_fixture_init brownfield <feature> requires LOOP_FIXTURE_SEED and copies it via cp -R -- the concrete brownfield fixture-construction mechanism (seed-copy-initialized) this scenario class is anchored to."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Edit"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Partial existing coverage only (investigation.md INV-017 row 2: same loop-level fixture_profiles vocabulary as class 1; no \"web\" project-shape-specific fixture). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist and that loop-driver.sh's brownfield branch genuinely requires LOOP_FIXTURE_SEED (grep for the exact guard), plus TEST-013's PreToolUse-shape drive builds a representative Edit/exec_command payload for a synthetic existing web-project file edit. This scenario intentionally does not duplicate tests/loop-driver.tests.sh's own assertions."
+}

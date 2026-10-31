@@ -1,0 +1,113 @@
+{
+  "feature": "epic-136-phase4-docs",
+  "generated_by": "quality-gate verification contract authoring 2026-08-07 (derived from specs/epic-136-phase4-docs/traceability.md Requirement Coverage and Acceptance Mapping tables)",
+  "schema": "traceability/v1",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-003/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-003",
+        "AC-004"
+      ],
+      "tests": [
+        "TEST-003",
+        "TEST-004"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-001/red.log",
+        "specs/epic-136-phase4-docs/verification/T-001/green.log",
+        "specs/epic-136-phase4-docs/verification/T-002/red.log",
+        "specs/epic-136-phase4-docs/verification/T-002/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-005",
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-005",
+        "TEST-006"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-001/red.log",
+        "specs/epic-136-phase4-docs/verification/T-001/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-007",
+        "AC-008",
+        "AC-013"
+      ],
+      "tests": [
+        "TEST-007",
+        "TEST-008",
+        "TEST-013"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-004/red.log",
+        "specs/epic-136-phase4-docs/verification/T-004/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-009",
+        "AC-010",
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-009",
+        "TEST-010",
+        "TEST-014"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-005/red.log",
+        "specs/epic-136-phase4-docs/verification/T-005/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-011",
+        "AC-012"
+      ],
+      "tests": [
+        "TEST-011",
+        "TEST-012"
+      ],
+      "evidence": [
+        "specs/epic-136-phase4-docs/verification/T-001/green.log",
+        "specs/epic-136-phase4-docs/verification/T-002/green.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+        "specs/epic-136-phase4-docs/verification/qg/cross-model-ps1.log"
+      ]
+    }
+  ]
+}

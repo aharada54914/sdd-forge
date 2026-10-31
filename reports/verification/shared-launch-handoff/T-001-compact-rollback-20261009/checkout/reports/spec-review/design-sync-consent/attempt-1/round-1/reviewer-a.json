@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncconsent-spec-a1r1-a-seq0464",
+  "host_session_id": "SESS-spec-a1r1-a-designsyncconsent-0464",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "2a74e7bdb9379a381eac1a57d49f31439c13ab52c7f878eed3acb2d97e629ed7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "e2a1d451dd8030bdccdd765a009032c2f9772ef92b8f1730b6568e4d65cb87c7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "d79242ad6216a43939a382d490554d0ac12fe288d854cb407182af10e467366c"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:244-251 marks OQ-1, OQ-2, OQ-3 and OQ-8 as blocking against REQ-001/002/003/004/008, and requirements.md:255 states they block implementation and that approving tasks while they stand would violate the Approval Gate rule. The gap is concrete: REQ-001 (requirements.md:27) says the scope unit is not decided by this requirement, yet AC-001 branch 3 (requirements.md:35) requires asserting that a different scope does not inherit the consent, which cannot be constructed without knowing what a scope is. acceptance-tests.md:201 confirms it: TEST-004 is satisfiable only after OQ-1 is answered and TEST-039 is not writable until OQ-8 is. REQ-008 (requirements.md:230, BL-005) states the task decomposition cannot be written until OQ-8 is answered. OQ-2 and OQ-3 (requirements.md:245-246) leave consent expiry and re-consent-on-regeneration undefined while Edge Case 1 (requirements.md:205) forbids implying the payload is fixed at consent time without stating what triggers re-consent. Critical because the undefined unit is the approval and consent boundary of a data-egress control, matching spec-review-calibration.md:49-51."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal in the Overview (requirements.md:9-19) maps to at least one AC: consent-unit change to AC-001/002 (:29-43); informed disclosure to AC-003/004/005 (:56-68); flow inversion and review demotion to AC-006-009 (:76-90); Design-Source record shape to AC-010-012 (:98-108); fallback and non-blocking preservation to AC-013-016 (:114-128); DS-30/DS-31 forward compatibility to AC-017-020 (:138-152); stale-text reconciliation to AC-021-023 (:168-178); CI enforcement to AC-024/025 (:186-192). No stated goal lacks a corresponding AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC in requirements.md:29-192 names an externally observable text or structural condition rather than intent. AC-006 (:76-78) requires the actual ordered step sequence; AC-010 (:98-100) is explicitly not satisfied by asserting the heading exists. acceptance-tests.md:11-50 pairs each AC with a conformance or structural TEST row, and :86-90 rejects a presence-only check in favour of asserting relative list-position order."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:194-202 states six explicit Non-goals with reasons and forward references: implementing the #139 scan, implementing ds_upload_consent/#140, changing the pull direction, adding redaction or a machine-checkable consent object, removing the egress gate, and rewriting the untouched design-system section. Scope is bounded exactly where the feature could otherwise expand."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:224-236 states nine Baseline Constraints BL-001..BL-009 covering security-boundary preservation, fallback behaviour preservation, the non-blocking invariant, protected-file and human-copy handling for two named files, an unmodifiable historical record, regression-locked pre-existing literals, dual-runtime parity, and the workflow-registry entry. Material security, migration and approval-boundary constraints are explicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claim, that local review is demoted so a first payload may egress unread, has a planned validation surface: AC-008 (:84-86) and TEST-013 (acceptance-tests.md:23,99-103) require the skill to state the demotion consequence where it is described. AC-012/TEST-018 (:106-108; acceptance-tests.md:28,109) require the Design-Source record be characterised as an unenforced agent-written audit trace rather than an authorization, targeting the forgeability risk at investigation.md:242-244. AC-017/AC-026 require a named non-bypassable choke point ahead of upload."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain/domain-contract.json appears in the allowed input manifest, and requirements.md carries no Bounded-Context field across its full 256 lines. With no Approved domain model in scope the skip condition applies."
+    }
+  ]
+}

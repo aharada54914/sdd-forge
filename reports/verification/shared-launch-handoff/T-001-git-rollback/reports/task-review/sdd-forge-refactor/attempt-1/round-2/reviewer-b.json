@@ -1,0 +1,54 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-CLASSIFICATION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 is correctly classified as high-risk with clear rationale: hook guard self-protection requires human/sudo, caller update omissions cause runtime errors, and Phase 4 deletion is irreversible. T-003/T-004/T-005 are low-risk with appropriate rationale. Risk labels are consistent with actual scope."
+    },
+    {
+      "id": "TASK-SIZING",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-002 is large (5 phases, 8 subtasks, guard edits + plugin creation + caller updates + deletion + guard cleanup) but the explicit phase sequencing and the Round-1-added Phase 3.5 verification gate provide sufficient internal structure to manage implementer risk. Other tasks (T-003/T-004/T-005) are appropriately scoped. No decomposition is required given the phase structure."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Key edges are covered: AC-003 covers post-deletion state for old guard paths (exit 0 as no-op); AC-004/AC-005 cover Python guard reject/allow; AC-009 covers approval guard continuity; T-005 Scenario 20 notes the required 'cd $WORK' for CWD-relative Python path resolution. One minor gap: no explicit coverage of a partial Phase 2 failure mid-creation (e.g., some files copied, some not), but Phase 3.5 gate implicitly catches this before deletion."
+    },
+    {
+      "id": "ROLLBACK-PLANNING",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Phase 1 is safe: new paths are added to PROTECTED_GATE_SUFFIXES while old paths are retained, so it is reversible by a second human/sudo session. Phase 4 deletion is correctly flagged as irreversible in Risk Rationale. The Phase 3.5 gate acts as a pre-deletion checkpoint to prevent reaching Phase 4 in a broken state. No explicit 'if Phase 3.5 fails, abort and remediate' instruction exists, but the gate language ('削除前に以下を確認してから Phase 4 に進む') implies a stop-and-fix protocol. This is acceptable for a high-risk task where human approval is required at both ends."
+    },
+    {
+      "id": "HUMAN-SUDO-CLARITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The top-level warning is explicit: 'T-002 Phase 1 と Phase 5 は human/sudo セッションが必須'. Phase 1 and Phase 5 are each labeled '[human/sudo — エージェント不可]'. Phases 2/3/3.5/4 are labeled '[エージェント]'. Done When items for Phases 1 and 5 are distinct checklist entries. The T-005 note about $forbiddenPaths ownership ('注: $forbiddenPaths の更新は T-005 が担当') prevents scope confusion with T-005."
+    },
+    {
+      "id": "WORKFLOW-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "precheck-result.json reports workflow_match_precheck: PASS. T-002 uses 'tdd' workflow and its Done When checklist includes specific AC IDs and BL regression checks, consistent with test-driven verification. T-001/T-003/T-004/T-005 use 'acceptance-first' workflow and reference ACs and BL checks in Done When conditions, consistent with that workflow."
+    },
+    {
+      "id": "TEST-ALIGNMENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001/002/003/009 are in T-002 Done When. AC-006/007 are covered by T-005 Done When. AC-008 (scenario + install tests) is referenced in T-002 and T-005 via BL-010/BL-011. AC-010 (install.sh auto-include + marketplace) is not explicitly in any task's Done When, but is referenced in T-002 Done When as 'BL-012/BL-013 が変化しないことを確認'. One minor gap: AC-004 and AC-005 (Python guard accept/reject) are not listed in T-002 Done When even though T-002 Phase 1 is where Check 2e code is written. These ACs are implicitly verified by T-005 Scenarios 19/20/21, but T-002's Done When list should ideally reference them directly. Not a blocker since T-005 Done When references AC-006 which includes Scenarios 19/20/21."
+    },
+    {
+      "id": "BLOCKER-COMPLETENESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003 and T-004 correctly block on T-002 (new plugin must exist and callers must be updated before Caller headers or doc references are finalized). T-005 correctly blocks on T-002 + T-003 + T-004 (CHANGELOG and test additions should reflect the final stable state). T-001 is Done and blocks nothing. Note: dependency-graph.json lists edges as [] (empty), which is inconsistent with tasks.md Blockers fields — however, this is a precheck artifact issue rather than a task description quality issue and does not affect implementer guidance since tasks.md is the authoritative source."
+    }
+  ]
+}

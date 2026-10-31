@@ -1,0 +1,138 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-190-a2-capability-registry",
+  "task_id": "T-006",
+  "run_id": "RUN-epic-190-a2-capability-registry-qg-T-006-seq0666",
+  "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-006-0666",
+  "sequence": 666,
+  "previous_record_sha256": "fabdcf038aa54923397ca5e94ffed42e9eb2e1850d896cfe8c5b9351fc0c707b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "b668e72470f4c622ba79b7dbcc6f2844cd9de73c32f65576841b9d3156e0f5cc",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.ps1",
+      "sha256": "3fc9897e8c20ed70d574e3a46d438695bbcbf114b2fd0a851779fd95c7cd6c65"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.sh",
+      "sha256": "7c69e74494762742b4ee2326e43502066e304ab4ca8db92a3135c073ad7fab17"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+      "sha256": "6532c0adce2fbc0cacc7dd2d855a2b598956a9bad459b0668a58260471f2cd8b"
+    },
+    {
+      "path": "reports/implementation/epic-190-a2-capability-registry/T-006.md",
+      "sha256": "77f8ee774d4a62ac9057a7f4d6c0cfb175267aaec907a3dd1a5e36b274a1c606"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+      "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/design.md",
+      "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+      "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml",
+      "sha256": "7d57f1d9dc21f701ffccbc861ec8605c6bc02ea1003b71527b8540b3713cf548"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "6669e368a2ddbff901ccf06786309a625ce8646f9aa421efd6c0579fdd07d624"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "9ecc77853dda050dd2a7030416a5f276fbb260bdc9e4390f1666ccad15e97bca"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "04eb90d036786fa72122b05b33cf81dffeec277299ad30f8b92cc95f95397465"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "5ff08571eb963d150b354edffb7c796048928d5992ba6d8c4ff3b5b67aeaecd2"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "0e04af8fc716954c0e0dd657bbe4b65aa0a9c6283b6510d212aed58e31b52089"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "831d080d53bf54f50c21e88387fda76488677589d192c76d2eaf06d7df639719"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "4606faf04c32ec15c0a0cc00791a43d9b149da3c4783e54f11eb40c97b11333f"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+      "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/requirements.md",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+      "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/tasks.md",
+      "sha256": "76653d907ca05d6f3350cfaf622def5ed4cbf39b9df989506feaa792238f50f9"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/traceability.md",
+      "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+      "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/green-ps1.log",
+      "sha256": "77982d1c3b135b470c77ba3d4a96a23a0380a8070f345f5de3f5c08ed021358a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/green-sh.log",
+      "sha256": "43f2f80b5cb9565c163f51eea8458ddcebed57572a39e786f902326eae367751"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/red-ps1.log",
+      "sha256": "30b9e15fd0c469814d55b7e6b82985bc83cb094be5042af7263c327da97327e5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/red-sh.log",
+      "sha256": "d236fcdac6f38bc4c922529f6c68cf8faf84665478dcd948b63338f6dccbd854"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-clean-expected.json",
+      "sha256": "c6fbf948d61c82b9dd8a2f0b6168061cbb1f9552d4758b392f7f3ddee82c5ce2"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-clean-registry.json",
+      "sha256": "e91b1fc0599a1854ba21e92e5dc485f5bc6cb48a52c65cc0ef7d18cf5dc5fcab"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-mutated.json",
+      "sha256": "74189d9668d41b3dd294627d0f9009fa26e836aa77ff81b1c0b474d2efb67c76"
+    }
+  ]
+}

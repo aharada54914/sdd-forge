@@ -1,0 +1,59 @@
+{
+  "task_id": "T-001",
+  "feature": "design-sync-consent",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "b1c503eae137f40a20c7db2d20540fc5a7536ae90379b5017a60effc9d5081fd",
+  "quality_report": "reports/quality-gate/20260805T144446Z-design-sync-consent-T-001.md",
+  "verification_contract": "specs/design-sync-consent/verification/T-001.contract.json",
+  "git_commit": "72c96f7873765c386d348aaac258e8048a91568a",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-consent/verification/T-001.contract.json",
+      "sha256": "15d1948413cb02f28c496a5915375bb3416ef899774c63cfe386ece15be9197d"
+    },
+    {
+      "path": "reports/quality-gate/20260805T144446Z-design-sync-consent-T-001.md",
+      "sha256": "8c37f53e5d774a569d8802ff1c82b8d10be7a95bbb1fdf54ec17c01aca08594a"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/acceptance-mapping.md",
+      "sha256": "80ccac1aa48e01e77bc63cf0d7ead9952791ca8e2a8dacf6961458436048e906"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-001/red-baseline-sh.log",
+      "sha256": "10f8071c27c239ac93b698323b59954d9c3fba791e36c8a804f2d3f733a0ce54"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/placeholder-T-001.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/run-all.log",
+      "sha256": "8d07f0108968efdc2b4c7799f20ed7216fd7b27ffb78e604e402b74d2e66f958"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

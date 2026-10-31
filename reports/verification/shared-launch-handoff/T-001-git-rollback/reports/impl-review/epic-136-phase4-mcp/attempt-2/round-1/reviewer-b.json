@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4mcp-impl-a2r1-b-seq0379",
+  "host_session_id": "SESS-impl-a2r1-b-epic136phase4mcp-0379",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-2/round-1/integrated-summary.json",
+      "sha256": "cdadd2c5b641e8554262c7bc17e2acb28a7594cc1efba027d5d58339c9d3969e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-2/round-1/precheck-result.json",
+      "sha256": "20884a96e2c4cede9edec2b631a031f1b982e5a1b21f343c0672c35a6bae0779"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "d722965cd3a5916d35defd5314b3a1bb6a18f214bcca28cc39628680b1351c60"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Design Decisions (lines 673-744) gives explicit rationale for every OQ resolution: OQ-1 single-field choice cites the DRY conflict two overlapping arrays would create and rejects options (B)/(C) with reasons; the OQ-1 required-vs-optional sub-decision cites BL-004's exact risk and the verified `private:true` (mcp/sdd-forge-mcp/package.json:4, confirmed) monorepo-atomic-deploy basis; OQ-2 rejects a flag argument citing type-mismatch risk across 3 existing call sites; OQ-3 cites investigation.md INV-009; OQ-4 cites ADR-0008 (read-only/no-exec) and BL-005 (verdict formula closed-input set) as the reason enforcement is not added. Two further 'New decision' entries (test-file placement, and NOT wiring quality-report.ts/review-ticket.ts) each carry an explicit because-clause. No bare 'we will use X' decision found anywhere in design.md lacking a rationale."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's own `## Open Questions` section (lines 820-826) reads: 'None blocking. All 4 of requirements.md's OQ-1..OQ-4 are resolved above with concrete field shapes and rationale. investigation.md's own new Open Question ... is resolved here as a Non-goal / follow-on issue candidate, not a decision this design defers.' There are no remaining entries lacking an owner, a Blocks-Implementation field, or a Resolution Path, because no unresolved open question is listed."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Assumptions` (lines 811-818) lists 4 assumptions, each explicitly cited to investigation.md and independently re-verified against the live repo in this review: PROTECTED_GATE_SUFFIXES membership (INV-018; confirmed absent via plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js:5), ADR-0008/0009 Status:Proposed (INV-016; confirmed via docs/adr/0008-...md:3-5 and docs/adr/0009-...md:3-5, both read 'Proposed'), CHANGELOG.md `## Unreleased` empty (INV-020; confirmed, CHANGELOG.md:1-5), and the mcp-tests 3-OS/dist-parity CI shape (INV-017; confirmed byte-accurate against .github/workflows/test.yml:385-432). investigation.md is present (specs/epic-136-phase4-mcp/investigation.md), satisfying the grounding requirement."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a `## Constraint Compliance` section (lines 799-809, Primary/TYPE-D path applies). Its first row addresses requirements.md's entire `## Constraints` list (BL-001..BL-006) with specific detail (BL-003's verified Layer-1/Layer-2 call-site inventory, cross-referenced to TEST-004/006/007/008); further rows address read-only/no-exec, additive-v1-contract (REQ-005), ADR-0008 host-deferred boundary, doc-following (REQ-008), version-bump-script-only, and protected-file-avoidance (AC-015). A grep of requirements.md for 'must not|shall not|within Nms|maximum N|compliant with|compatible with' outside the Constraints section returned no additional constraint text left unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A keyword grep (response time, throughput, concurrency, latency, SLA, N ms) across requirements.md, design.md, infra-spec.md, and frontend-spec.md returned no numeric threshold or SLA statement; frontend-spec.md explicitly states 'No runtime-budget assertion applies to this feature's new tests' and infra-spec.md's Runtime Budget section states the same, consistent with an additive read-only fixture-driven-test-only feature."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Deployment / CI Plan` (lines 781-797) states the deployment target ('No runtime deployment ... the existing mcp-tests job (.github/workflows/test.yml:385-432 ...)', independently confirmed byte-accurate against the live workflow file), states CI-pipeline changes required ('adds NO new CI step and touches NO protected file', confirmed: none of the feature's target files appear in PROTECTED_GATE_SUFFIXES), and describes atomic same-commit landing of schema+dist+src as the rollback/ordering discipline in lieu of a DB migration order (Data Plan states 'Migration Strategy: none' -- no database exists in this feature). Feature-flag strategy is not stated but is not applicable: this is not an incrementally-rolled-out feature (Global Constraints requires schema+implementation to land together in one commit, not phased), so its absence does not meet the check's specific Major-triggering conditions (section absent, or migration order omitted for a feature with schema changes)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (lines 170-191) states 'Data Entities: none new', 'Existing Data Affected: none read differently', and 'Migration Strategy: none' -- functionally equivalent to 'No data changes' per calibration guidance, since this feature has no database and its only schema artifact (contracts/sdd-forge-mcp-tools.v1.schema.json) is a JSON response-contract file receiving 3 additive `required` properties, not a table/column change. PASS per the 'No data changes' rule."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## External Integrations` (lines 775-779) states 'None. Every change operates entirely on repository-local files already read by the existing implementation -- no new network call, external API, or credential.' This is corroborated by frontend-spec.md Dependencies ('No new runtime or dev dependency ... No new network call, subprocess, or external API') and infra-spec.md Runtime Dependencies (no new services/containers). No integration is mentioned in passing anywhere in design.md without this explicit None-declaration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table (lines 143-153) maps every one of requirements.md's REQ-001..REQ-008 (Goals) and all 4 User Stories to a specific design.md section; every new artifact traces to a REQ-ID (`unreadableContracts`->REQ-001, `hostRequiredChecks`->REQ-002, `listGuardedFilesWithDiagnostics`/`GuardedListError`->REQ-003, `undeterminable`/`anyFileContainingWithDiagnostics`->REQ-004), independently confirmed against the live source (evidence.ts, path-guard.ts, report-lookup.ts) that no such fields/functions exist yet -- nothing pre-empted or extra. No `domain/` directory exists in this repository (`ls domain/` fails), so no design-system/domain contract applies; ux-spec.md/frontend-spec.md both correctly declare N/A for this non-UI api-only feature. requirements.md's Non-goals (widening to list_review_tickets/get_quality_gate_summary) are explicitly excluded in design.md's Design Decisions, with no scope creep found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surface present: this feature edits path-guard.ts (the single filesystem-read choke point) and evidence.ts's deep-verify security-relevant code. security-spec.md's STRIDE Analysis (B1-B4) and its Security Tests table name concrete TEST-IDs per boundary (TEST-001 for B1, TEST-003/TEST-004 for B2, TEST-005/TEST-006 for B3, TEST-007/TEST-008 for B4), each tied to a specific test file (mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts, tests/tools/*, tests/path-security/list-guarded-files-diagnostics.test.ts) -- the latter two directories independently confirmed to already exist (tests/path-security/denylist.test.ts, traversal-and-symlink.test.ts present). No high-risk claim relies on an unnamed or 'manual review only' validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this repository has no `domain/` directory (`ls domain/` -> 'No such file or directory'), so the Approved-Domain-Model precondition for this check is absent."
+    }
+  ]
+}

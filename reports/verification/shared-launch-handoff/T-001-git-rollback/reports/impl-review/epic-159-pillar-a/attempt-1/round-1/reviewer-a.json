@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a-impl-impl-reviewer-a-seq0195",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-a-0195",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a/requirements.md",
+      "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/design.md",
+      "sha256": "d2454610839a76e25fcd3e160507cfba480d31d7f86f2cd5242172e5f2ba0fcc"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/ux-spec.md",
+      "sha256": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/frontend-spec.md",
+      "sha256": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/infra-spec.md",
+      "sha256": "5bb4329b54c110ab9d8b88773246e45e43d27752dc464e3a1f3b3e9c6d1306c4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/security-spec.md",
+      "sha256": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-1/precheck-result.json",
+      "sha256": "e6fd52d76924228646217959a3bc01c672ad2514e5582657572e6431f7e2cb0f"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "deterministic test infrastructure (loop-cap consistency harness)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "## Architecture (design.md lines 19-38) mermaid flowchart names top-level component boundaries (loop-inventory.json, four new suites, loop-driver) and integration edges into existing components (IT -->|derive surfaces, cross-check| REPO = plugins/**/scripts/*-review-precheck.sh + validate-review-context-set.sh; LD -->|drive read-only| REAL = real prechecks/cycle-limit/select-agent-model/terminal-tier scripts; LC -.->|SDD_LOOP_REPO_ROOT override| PRE = 2d8c6a5^ worktree). Technology choices per major layer: ## Components (lines 42-51) states JSON for the inventory, Bash/PowerShell for driver+suites, GitHub Actions YAML for CI; ## Layer Specifications (lines 79-84) explicitly marks Frontend/UX N/A with rationale (no GUI) and states Infrastructure = CI 3-OS matrix/deterministic lane, Security = fixture isolation. All three required elements present."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency graph extracted from ## Architecture mermaid (design.md lines 21-38): RA -> {IT,DT,LC,LE}; IT -> {REPO, INV}; LD -> {INV, REAL}; DT -> LD; LC -> {LD, PRE}; LE -> LD. This is a DAG (RA is the sole root; INV/REPO/REAL/PRE are the sole leaves); no node has a path back to any ancestor. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md lines 108-118) states all three required sub-fields: Data Entities: tests/loops/loop-inventory.json plus mktemp-scoped synthetic fixtures; Existing Data Affected: none, with rationale ('Real reports/, specs/, and specs/workflow-state-registry.json are never written by the harness'); Migration Strategy: none, consistent with the stated absence of any existing-data change."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md (lines 36-37) explicitly states this is test-infrastructure work with no user-facing entry point, so the requirements-reference-user-facing-interactions trigger does not apply. ## API / Contract Plan (design.md lines 120-213) is populated, not empty: it defines the new loop-inventory/v1 JSON schema and field rules (lines 122-166) plus the tests/lib/loop-driver function contract (lines 168-198) with explicit input signatures (loop_fixture_init <profile> <feature>, drive_review_round <stage> <attempt> <round> <verdict>, etc.) and defined behavior/output per function -- the equivalent of request/response schema for this non-HTTP harness. No existing contract is deprecated or broken: the Protected-File Statement (lines 63-75) and Constraint Compliance table (lines 293-302) confirm all changes are additive new files plus non-protected registration-array edits."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries (design.md lines 268-276) names three trust boundaries (B1 fixture world vs real repository, B2 harness vs real gate semantics, B3 test payloads vs hook-guard command-line analysis), states the auth/authz mechanism at each (mktemp isolation + fixture-root-outside-repo assertion; REAL binaries driven read-only with non-decreasing guarantee; protected-basename+write-verb confinement to script interiors), states data classification (synthetic fixtures / internal source, no PII), and OWASP concerns (Broken Access Control prevented, Integrity, Injection avoided by construction). Cross-referenced to security-spec.md's more detailed Trust Boundaries (lines 23-27), STRIDE (lines 31-38), and OWASP Mapping (lines 63-68) tables, which are consistent."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'deterministic test infrastructure (loop-cap consistency harness)' with no frontend surface. design.md ## Layer Specifications (line 82) marks Frontend N/A ('shell/PowerShell/JSON test infrastructure only'); ux-spec.md (lines 1-7) and frontend-spec.md (lines 1-6) both declare N/A -- no GUI, no browser/frontend application. design.md contains no ## Frontend Plan / ## Backend Plan sections to cross-check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 215-239) covers: unit-level negative self-checks per function (item 1, lines 217-221, explicitly naming the project's zero-mocking principle -- 'REAL binaries only'); integration-level chains (item 2 RED-differential procedure across precheck+validator, lines 222-232; item 3 escalation-leg table tests across cycle-limit/select-agent-model/terminal-tier/resume, lines 233-234); degradation-path testing (item 4, lines 235-237); and acceptance verification via concrete named commands ('bash tests/run-all.sh', 'pwsh tests/run-all.ps1', 3-OS CI matrix authoritative, item 5, lines 238-239). Each item maps to named AC/TEST IDs via acceptance-tests.md's Test ID column (TEST-001/002/007/010/012 negative self-checks, TEST-009 RED differential, TEST-011/018 escalation table, TEST-013 degradation). No fullstack E2E/user-journey path is required since Feature Type has no UI surface."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in ## Architecture (INV, IT, LD, DT, LC, LE, RA) is defined in ## Components (design.md lines 42-51). REPO and REAL (mermaid edge-label nodes for existing precheck/validator/cycle-limit/select-agent-model/terminal-tier scripts) are established existing components, itemized explicitly in the 'Real gate surfaces exercised READ-ONLY' list (lines 53-61) and corroborated by investigation.md INV-001/INV-002/INV-004/INV-014-017. PRE (2d8c6a5^ worktree) is defined in ## Test Strategy item 2 (lines 222-232). tests/spec-review-loop.tests.sh, referenced in the loop-driver contract (line 187) as the write_contract() seed, is an established existing file corroborated by investigation.md INV-008."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## ADR Change Log (design.md lines 100-106) references one new ADR: docs/adr/0010-loop-inventory-and-fixture-vocabulary.md, Status Proposed. Verified present on disk at that exact path; its Status header matches design.md's stated 'Proposed pending human approval alongside this spec.' No other new technology/architectural departure lacks ADR coverage (all other decisions are stated as mirroring the epic-136-phase1-guards pattern)."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Design System Compliance (lines 86-89) states 'N/A -- ds_profile: none. Not a UI application; no mockup provided,' consistent with ux-spec.md ## Design Tokens ('ds_profile: none. N/A -- no change: no design tokens apply,' lines 45-47) and frontend-spec.md's overall N/A frontend declaration (lines 1-6, 16-19). No design-system/ directory is relevant to this feature. The N/A declaration is reasoned and consistent across all three specs."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory reference and no Domain-Model-Status field appear in design.md (verified by grep); no repository-root domain/ directory is relevant to this feature. This feature does not touch domain-modeling artifacts (domain-story.md, event-storming.md, aggregates, etc.); check is inapplicable -> PASS."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+ok: TEST-041: no --effort-policy flag resolves to matrix post-flip (effort_source=risk-matrix, effort=high; raw={"available_candidates":["openai/gpt-5.2-codex"],"canonical_tier":"strong","effort":"high","effort_control":"none","effort_source":"risk-matrix","escalation":null,"estimated_cost_per_attempt_usd":"1.0","model":"openai/gpt-5.2-codex","xhigh_reason":null})
+ok: TEST-041 (welded carve-out, OQ-004): --effort-policy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff (---- check summary: 10 targets, 0 drift ----)
+ok: TEST-043: USERGUIDE.md describes the matrix-default effort policy
+ok: TEST-043: docs/agent-capability-matrix.md describes the matrix-default effort policy
+ok: TEST-043: CHANGELOG.md describes the matrix-default effort policy
+ok: TEST-043: all three REQ-009 doc surfaces (USERGUIDE.md, docs/agent-capability-matrix.md, CHANGELOG.md) describe the matrix-default policy
+ok: TEST-044: real Codex-host run's run-record (reports/runs/RUN-20260721T152053Z-epic-159-pillar-c.json) shows non-null effort_applied (high) [invoked model substituted with the operator account's default: ChatGPT-account codex auth rejects registry API models; selected effort (high) kept]
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (0b478726dbd4b725ef5e6d72079534c8a1298f4f)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the RELEASE-COMMIT re-run against the actual tagged release is the caller's own job at release time -- this suite verifies the implementation-time HEAD, not a release tag that does not exist yet)
+ok: TEST-046: current branch (feature/epic-159-pillar-c-t007) is T-007-scoped, distinct from any T-001..T-006 branch
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh (the separate release is the caller's own, later step)
+ok: TEST-046: process-conformance proxy satisfied (full proof -- a genuinely separate GitHub PR -- is verified by the caller at PR-creation time, outside what a local test suite can observe)
+---- summary: pass=14 fail=0 skip=0 ----
+ok: effort-policy-flip suite passed (14 checks, 0 skipped)

@@ -1,0 +1,84 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 12,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a12r1-seq0856",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a12r1-0856",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "35dc2737b968a9e11ea6e9b054eb987fa1f146e89dd5005582d0a1331f601b11"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "ed3f391a9fe37ec4a1383ac8036a0b4ca22cc16e4520bff0861e154e69f8dacd"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "0509e3c8c8534f6e637c62f28509b75f07e39cbc9d8ee228540ba3ca19edef1a"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-12/round-1/precheck-result.json", "sha256": "beee8f80380825dfd25b020ca484fd67b242a0660d8c4cb9056a128df7dcc4e6"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-12/round-1/integrated-summary.json", "sha256": "a3b699c006dac9c9337765a55231515f35d8af36311e8d4cfcb567ca7399830e"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No sentinel surfaces (auth, authorization, payment, PII storage, migration, externally-visible API contract) appear in any task; every task declares 'Data Migration: none' and 'Breaking API: no'. Risk tiers track actual scope: T-002/T-003/T-004/T-007/T-008 (high) each author or extend the Resolver's core evaluation engine, its publication/rollback transaction, or the tamper-evidence validator (irreversible-filesystem and provenance-trust surfaces, per T-007's and T-008's own Risk Rationale); T-001/T-005/T-006/T-009/T-010 (medium) author a schema or a test suite only. No task is over-classified (none of the high-risk tasks is UI-copy/docs/test-only) and none is under-classified."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002 L715/718, T-003 L1000/1004, T-004 L1260/1264, T-007 L1968/1970, T-008 L2170/2172 of tasks.md) carries a 'TDD evidence' Done When item stating RED (deliberately-broken/failing fixtures) then GREEN (full suite), plus 'An independent quality-gate verdict records PASS' -- this SDD workflow's own independent (non-implementing-agent) reviewer-a/reviewer-b gate. No task in this package declares Risk: critical, so the second-approver/signed-evidence-bundle bar does not apply anywhere."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified on its merits: T-007's Done When now has exactly 8 top-level items (Crash-recovery scan, In-process publication failure, Post-publication verification/race, affected_components-only snapshot-generation-mismatch fixture, Full sixteen-row Block matrix complete, Staged-generation/journaled-transactional-publication lock, Governance, TDD evidence), each with a present '- [ ]' checkbox -- the AC-059 criterion the attempt-11 TASK-SIZE finding flagged as a bare, checkbox-less ninth item is now folded into the existing Governance bullet (tasks.md:1940-1967) alongside the AC-032/033/034 boundary self-checks, at the 8-item ceiling rather than past it. All other tasks' Done When counts are 4-7 items (T-001:6, T-002:5, T-003:4, T-004:4, T-005:5, T-006:6, T-008:7, T-009:7, T-010:5); none exceeds eight, and none is a single-function/single-file fragment (each is a substantial pipeline stage, schema, or test suite)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Error-path coverage is extensive and distributed across every functional task: REQ-002's sixteen-row Block/diagnostic-id taxonomy (AC-010) is explicitly partitioned 5 (T-002) + 5 (T-003) + 3 (T-004) + 3 (T-007) = 16 in tasks.md:1917-1929; TOCTOU/race edge cases (AC-040, AC-048, AC-049, AC-057) and absent-component fail-closed handling (AC-058) are each bound to a dedicated fixture and task. Happy-path-only functional tasks do not exist in this package."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every TEST-NNN row in acceptance-tests.md maps 1:1 to an AC-NNN (stated in the file's own preamble and confirmed for AC-059/TEST-059), satisfying the acceptance-test AC-reference bar. Non-acceptance suites are consistently scoped as multi-component integration tests (e.g. TEST-004 asserts `resolve-project-context` invokes `resolve-component-paths` with pass-through flags; TEST-010 exercises the full dependency chain), matching the shell/CLI-orchestration architecture this whole Epic set already uses; no test task mislabels a single-module unit-test scope as integration/e2e or vice versa."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task, including the Risk: high ones, carries an explicit `Rollback:` header field (e.g. T-007 tasks.md:1778-1781: revert its two commits, with an explicit human-copy-applied-content caveat). T-007's own transactional rollback content is independently backed by infra-spec.md's Runtime/data-level rollback section (lines 138, 203-292) covering journal-based rollback and post-rollback re-verification."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The shared implementation file `resolve-project-context.{py,sh,ps1}` is touched by T-002/T-003/T-004/T-007 under a strict linear Blockers chain (T-002<-T-001, T-003<-T-002, T-004<-T-001/T-003, T-007<-T-004), and `MANIFEST.sha256`/`tests/resolve-project-context-block.tests.sh` similarly by ordered, blocked tasks. `CHANGELOG.md` is touched by every task but only via an additive, non-conflicting `## Unreleased` entry-per-task convention used uniformly across this Epic set. No two tasks claim the same file for the same purpose without a Blockers relationship."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified on its merits: AC-059's grep scope (tasks.md:1952-1967, design.md:2783-2806) now names only `resolve-project-context.{py,sh,ps1}` -- the files T-007 itself authors -- consistent with requirements.md's Field Definitions (line 981-984: 'Resolver' is defined as exactly this script family and 'never refers to a different script anywhere in this package'). T-007 no longer depends on T-008's later-authored `validate-resolver-evidence.*` to satisfy its own gate; T-008 (tasks.md:1991-2189) does not test AC-059 and carries no conflicting claim on it. design.md confirms the same narrowing and explicitly rejects the previously-tried per-commit-CI-gate bridge as contradicted by its own Deployment/CI Plan (no CI wiring in this Phase 1 package; GitHub-Actions gating is a separately staged, human-applied patch) -- so the accepted fix is genuinely self-contained at T-007's own gate with no residual dependency on T-008 or a later human action. The remainder of the Blockers graph (T-001 through T-010) is linear/coherent and each edge is justified inline in the task's own Depends On text."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-b-a3r1-seq0783",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-domain-concept-contract-a3r1-0783",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain-concept-contract/design.md", "sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"},
+    {"path": "specs/sdd-domain-concept-contract/requirements.md", "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"},
+    {"path": "specs/sdd-domain-concept-contract/acceptance-tests.md", "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"},
+    {"path": "specs/sdd-domain-concept-contract/investigation.md", "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"},
+    {"path": "specs/sdd-domain-concept-contract/ux-spec.md", "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"},
+    {"path": "specs/sdd-domain-concept-contract/frontend-spec.md", "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"},
+    {"path": "specs/sdd-domain-concept-contract/infra-spec.md", "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"},
+    {"path": "specs/sdd-domain-concept-contract/security-spec.md", "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-3/round-1/precheck-result.json", "sha256": "63d908196d2c4188bed62e6aec40b6645f92fe617624b9caaf4798f4165bc621"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-3/round-1/integrated-summary.json", "sha256": "ee76eba631b35bd95f20ddac33da19df190c1369f81eb4ca1b80e28bb8f0402e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 7 rows of the design.md `## Design Decisions` table (DD-1..DD-7) carry a non-empty 根拠 (rationale) column citing either an INV-xxx grounding (DD-1 references distinguished_from cross-context semantics + validator responsibility; DD-3 references INV-005; DD-4 references INV-005 + 'python3 is already assumed by this repository's script corpus' + PS5.1 constraint; DD-5 references INV-006; DD-6 references OQ-004) or an explicit owner decision (DD-2: 'owner 決定（2026-08-16）: v1 資産は存在しない'). The Deployment / CI Plan's four sub-decisions (deployment target, feature-flag strategy, CI pipeline, migration order) each carry inline rationale (e.g. 'Phase 0 では consumer を 1 つも接続しないため'). frontend-spec.md's Technology Stack table also fills a Rationale column for every technology row (draft-07, bash+python3, PowerShell ConvertFrom-Json, Pester). No inline 'we will use X' statement was found without an accompanying because/since clause. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Open Questions` has 4 entries (OQ-001..OQ-004), each with all three required fields: Owner ('repository owner (human)', a role, never 'TBD'), 'Blocks Implementation: no' (all four), and a concrete Resolution Path (e.g. OQ-001: 'Phase 3（reviewer 記録照合）で INV-004 の consumer 4 系統の v2 切替が完了した時点で、owner が削除か恒久共存かを決定する'; OQ-002: 'tests/sdd-domain/ 全体の登録方針として別 WFI を起票し、承認後に既存 11 スイートと本スイートをまとめて登録する'). OQ-003/OQ-004 are marked resolved with 'Resolution Path: 解決済み — 未着手の作業はない' and cite the concrete spec-review/REQ disposition that resolved them. No open question blocks implementation with a missing resolution path, and none lacks an owner. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md itself has no separate `## Assumptions` heading (confirmed via section scan: Technical Summary/Design Decisions/v2 Schema Shape/Architecture/Error Handling/Test Strategy/Deployment-CI Plan/Constraint Compliance/Open Questions only) — its per-decision assumptions are folded into the Design Decisions 根拠 column, already evaluated under DECISION-JUSTIFIED. requirements.md's `## Assumptions` section (the closest matching content) has 3 entries, and investigation.md IS present (so the 'investigation.md absent' trigger does not apply): (1) the hook-activation-handshake deviation is grounded in INV-010 ('CAPABILITY_RUNTIME_UNAVAILABLE...track 解決は C1 COMPATIBILITY_FALLBACK'); (2) 'v1 契約インスタンスは存在しない' is grounded in INV-009 and the explicit owner decision (2026-08-16); (3) '後続 Phase は本 feature の schema / validator を変更せずに積み上げる' is an explicitly accepted risk, mirrored in requirements.md Risks R1 ('concepts[] の型が後続 Phase の実装で不足と判明し...改版が必要になる。緩和: fixture corpus を先に書き...受け入れテストで先取り検証する'). All three assumptions meet at least one of the three validity conditions. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Primary (TYPE-D) path applies: design.md has a `## Constraint Compliance` section with 10 rows, each citing its requirements.md source. Independently re-scanning requirements.md for constraint language (v1 無変更 REQ-007; Non-goals: 二重バージョンローダーを作らない, meta.status Approved 書込への機械的強制機構の新設をしない, domain/ アーティファクトの生成・変更をしない; Security Boundaries: content-as-data, 読み取り専用・ネットワークなし・外部依存なし, fixture に秘密情報を含めない; Edge Cases: fail-closed/best-effort パースをしない; Roles and Permissions: hook-guard 非保護状態の維持; REQ-004(c)'s type-check-precedes-pattern ordering) against the Constraint Compliance table's 10 rows (v1 無変更/content-as-data/読み取り専用・ネットワークなし・外部依存なし/fixture秘密情報なし/fail-closed/承認強制機構なし/二重バージョンローダーなし/domain/アーティファクト不変更/hook-guard保護/ASCII改行規約) confirms every independently-identified constraint has a matching compliance row. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. The spec declares no numeric latency/throughput/concurrency threshold or SLA; the only quantitative figure is the 10MB oversized-input edge case (Edge Cases, Field Definitions absent), which is a fail-closed correctness bound, not a performance target, and is addressed in design.md's Error Handling ('想定外の巨大入力: 非 0 + 1 行の原因表示')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Deployment / CI Plan` states all four required elements with rationale: deployment target ('デプロイされるサービス・環境はない...実行ホスト要件は bash + python3 ... または Windows PowerShell 5.1+ / pwsh', linking to infra-spec.md#execution-environments); feature-flag strategy ('不要。段階的ロールアウトをしない...オプトインの単位は「その契約が v2 を名乗るかどうか」であり、フラグではなく契約の schema 値そのものが担う'); CI pipeline changes ('なし。新規ジョブ・環境変数・シークレットの追加はない', linking to infra-spec.md#ci--release-impact); and migration execution order relative to deployment, stated with rationale ('該当なし。スキーマ変更を伴うデータストアが存在しない（DB・永続ストアなし、既存テーブル/カラムの読み書きなし）ため、migrate-before-deploy / deploy-before-migrate の選択自体が発生しない'). No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no dedicated `## Data Plan` heading (confirmed via section scan), but the substantively equivalent declaration lives in the Deployment / CI Plan's マイグレーション実行順序 row: 'スキーマ変更を伴うデータストアが存在しない（DB・永続ストアなし、既存テーブル/カラムの読み書きなし）'. This is functionally equivalent to 'No data changes' — the feature adds a JSON Schema *file* (`contracts/domain-contract.v2.schema.json`) and CLI scripts, not a database/persisted-data schema change to any table or column. infra-spec.md's Rollback section corroborates ('All three deliverables are additive files with no consumer wired in Phase 0...no data, state, or registration to unwind'). No schema-change-to-a-datastore is declared anywhere in requirements.md or design.md, so the migration-plan requirements (naming convention, rollback, volume impact) do not apply."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no external system, third-party service, or cross-service API call is referenced anywhere in design.md. security-spec.md Threat Considerations states explicitly: 'No network, no external dependency... Nothing is fetched, uploaded, or cached', and design.md DD-4 states the validator uses only 'python3 stdlib（json）' / PowerShell 'ConvertFrom-Json' with no jq/ajv/Test-Json dependency. The only 'consumers' referenced (domain-sync, reviewer A, interviewer, check-domain-conformance — INV-004) are explicitly stated as untouched/unconnected in Phase 0 ('本 feature ではまだ接続しない', Architecture section), so they are not integrations exercised by this design. The scoped integration surface does not exist."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 3 deliverables map 1:1 onto requirements.md's Goals with no extra components: G1 (concepts[] required top-level array) and G2 (term→concept `concept_id` linking) are covered by the `## v2 Schema Shape` section and REQ-001/002/003; G3 (decision-theoretic validator for cross-reference integrity) is covered by the validator twins in `## Architecture` and REQ-004; G4 (fixture corpus + tests) is covered by `## Test Strategy` and REQ-005/006; G5 (v1/consumers/existing tests unchanged) is covered by the 'v1 無変更（REQ-007）' row in Constraint Compliance and TEST-002/TEST-015. No component, data model, or API endpoint is introduced beyond these. Forward references to Phase 1/Phase 3 consumers are explicitly scoped out ('本 feature ではまだ接続しない') rather than implemented, so they are not scope creep. The repository has no `design-system/` directory (confirmed via filesystem search), so the design-system-contract clause of this check does not apply. No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "security-spec.md flags this feature as always requiring impact assessment because the validator is 'the deterministic validator that later phases' gates...will trust as their foundation. A validator that best-effort-parses malformed input, executes contract content, or silently passes an invalid contract would weaken every downstream gate built on it' — i.e. fail-closed parsing and content-as-data enforcement are the high-risk design claims here. design.md `## Test Strategy` names a concrete acceptance-test-artifact validation path for exactly this risk: 'acceptance-tests.md の TEST-001..026', explicitly citing fail-closed fixtures (TEST-017: malformed JSON + 10MB oversized input, non-0 exit, no stack trace), type-precedence fixtures (TEST-024, 29 fixtures proving type checks precede pattern/minLength/minItems), and twin-parity fixtures (TEST-013: sh/ps1 exit-code and violation-count agreement). These are concrete, named acceptance test artifacts, satisfying the check's evidence bar. No issues found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: filesystem search from repository root confirms no `domain/` directory exists (no `domain/context-map.md`, no `domain/domain-contract.json`) anywhere under the project root. The applicability precondition ('the target project has a domain/ directory with domain/context-map.md recording Domain-Model-Status: Approved and a schema-valid domain/domain-contract.json') is not met, so this check is skipped per its own stated condition."
+    }
+  ]
+}

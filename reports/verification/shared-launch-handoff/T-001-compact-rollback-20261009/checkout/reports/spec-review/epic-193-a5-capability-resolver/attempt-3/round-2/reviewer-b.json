@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a3r2-seq0775",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-193-a5-capability-resolver-a3r2-0775",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "5461fd7e50a4140cfcc71b07a08503906f698587d1dca377c9bef5c2b96ef618"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "0693dc91fb1e3d29b9b2a72ad7f7f4d431156abd44ba69199cc640a420705883"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-2/precheck-result.json", "sha256": "f0476a2a606b281e64f6b035e34e5fae46e5655017b35ed04e8ebac872bf0ef6"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-2/integrated-summary.json", "sha256": "9371883acc2699f4b43408e2c161fc479d9be25f6083d15872b42af27e63d397"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-2 amended text (A① in requirements.md:526-554/868 and acceptance-tests.md AC-056 row; B① in requirements.md:426-456/828 and acceptance-tests.md AC-016 row) precisely defines 'evaluation pass' (REQ-001 steps (f)-(g)), 'evaluation abort', and 'jointly caused', and precisely scopes the AC-016 byte-identity exclusion to state/full_context_revision/projection_sha256. No implementer-facing term in either amendment is left underspecified. The human approval quote references a third ruling C① not described in this package's own text, but investigation.md's own closing sentence ('propagates ruling A① into ... both ruling sentences') confirms only two rulings apply to this package -- C① belongs to a sibling epic's frozen-document family (194/195/196), not an undocumented gap here."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the new AC-056 exception against REQ-004's general rule ('every id except dsl-warn-on-matched-capability appears at most once, always with severity: block', requirements.md:518-521): the exception permits dsl-warn-on-matched-capability to appear only as multiple warn entries (no block summary for that id) while a *different* id (e.g. dependency-subprocess-failed) carries its own single block entry -- consistent with, not violating, the general rule. Checked the sixteen-row REQ-002 Block table (requirements.md:353-370) against AC-010/TEST-010's own 'sixteen' count (acceptance-tests.md AC-010) -- counts match. Checked the twelve-value validate-resolver-evidence enum (requirements.md:568-575) against AC-021/TEST-021 -- counts match. No conflict found between requirements.md, acceptance-tests.md, or the amended AC-016/AC-056 rows and their governing REQ-003/REQ-004 prose."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specific edge case the amendment introduces (a warn node collected before a different-id abort in the same evaluation sweep) has its own named, independently-invocable fixture: acceptance-tests.md AC-056's 'evaluate-predicate-failure-after-warn' fixture (tests/resolve-project-context-block.tests.sh/.ps1), asserting the exact forwarded-warn-plus-different-id-block shape. Combined with the pre-existing Block matrix (AC-010, sixteen fixtures), WARN matrix (AC-027 item d, three any-branch cases), zero-affected-component fixture (AC-018/Edge Cases), and TOCTOU/crash-recovery/post-publication-race fixtures (AC-047-049), material negative and boundary paths are covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions (lines 1204-1228) each state an explicit fallback if the assumption fails (re-verify protection status, follow-up design.md edit). Open Questions OQ-001/OQ-002 are explicitly and narrowly deferred to a named future epic/caller with no bearing on this package's own design completeness; OQ-003 is resolved by this revision (investigation.md INV-020 M6, requirements.md:1238-1250) with a file:line-cited anchor and a position-sensitive drift check (AC-053). No assumption is left as a silent, unmarked gap."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This feature's Roles and Permissions section (requirements.md:927-958) and Security Boundaries (requirements.md:1142-1201) name concrete, testable governance boundaries: protected-path content only reaches a live path via a human-applied human-copy batch (never a direct agent write, investigation.md INV-003) and a running Resolver's own journaled publication transaction. REQ-002/REQ-007 fix a fail-closed, non-degrading Block-surfacing contract (AC-013, AC-031, AC-042, AC-046) rather than a silent fallback. The spec package's own post-implementation amendment itself is gated on a verbatim, dated human approval recorded in investigation.md's Amendment Re-Review Context, meeting the calibration's evidence bar."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001's processing procedure (requirements.md:250-339) fixes a fully-ordered thirteen-step pipeline with named Block points; REQ-002 fixes a closed sixteen-row diagnostic table; REQ-004 fixes the full Resolver Evidence field shape including cardinality and bidirectional-consistency rules. Every remaining open item (OQ-001/OQ-002, A2/A4 addendum candidates in Risks) is explicitly scoped out of this package's own design authority rather than left implicit. A design reviewer has no missing product behavior to invent."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Confirmed via Glob that no `domain/` directory exists at the project root (/Users/jrmag/Projects/active/sdd-forge-wt-epic-193). Per the check's own skip condition, this check is recorded as skipped and does not apply."
+    }
+  ]
+}

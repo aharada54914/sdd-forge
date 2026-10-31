@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-b-seq0246",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-b-0246",
+  "feature": "epic-159-pillar-b",
+  "attempt": 1,
+  "round": 3,
+  "verdict": "PASS",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-159-pillar-b/requirements.md",
+        "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+        "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/design.md",
+        "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/tasks.md",
+        "sha256": "f1be6a1cb1786c469ef632efae7aada252efe8e933f2e7882109804c2a5a139a"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/traceability.md",
+        "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/ux-spec.md",
+        "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/frontend-spec.md",
+        "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/infra-spec.md",
+        "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+      },
+      {
+        "path": "specs/epic-159-pillar-b/security-spec.md",
+        "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-3/precheck-result.json",
+        "sha256": "de646377d812dcb5423d6696b38526c94854d12ac577821fd8fd8e2486d05e93"
+      },
+      {
+        "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-3/integrated-summary.json",
+        "sha256": "4a645d33554e96025218dd6ea14867673714ca5e5653fbb71a6ced4ce2fd0f50"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:109-138) and T-002 (tasks.md:336-361) are both Risk: medium. Neither task's Scope/Done When/Goal touches the proximity-rule sentinel surfaces: both explicitly declare Data Migration: none and Breaking API: no (tasks.md:165-170, 393-398), and no auth/authz/payment/PII surface is present anywhere in requirements.md or design.md for this feature (ux-spec.md/frontend-spec.md confirm N/A - no user-facing surface). Both Risk Rationale sections use a verified three-ground argument (additive-only fail-closed change; TEST-002/003 or TEST-008/009 external negative-branch verification; TEST-004/005 or TEST-008 construction self-check) that I independently confirmed matches the same argument shape used and evidently accepted for specs/epic-159-pillar-a2/tasks.md T-003 (lines 428-439), and correctly distinguishes itself from the genuinely high-risk precedent at specs/workflow-state-integrity/tasks.md:23-26, which I confirmed by direct read is high because it CHANGED predecessor review-gate validation logic (a behavior change neither T-001 nor T-002 makes). Neither task is over-classified either: both carry substantive script/workflow/test-suite edits, not merely UI copy, CSS, or documentation-only changes."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "SKIP: no Risk: high or Risk: critical task in scope. tasks.md contains only T-001 and T-002, both Risk: medium (tasks.md:109, 336)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Recounted directly: T-001's Done When has exactly 8 top-level '- [ ]' bullets (tasks.md:263-309) and T-002 has exactly 7 (tasks.md:476-509) - both at or under the '>8' threshold, resolving the round-2 11-bullet finding. T-001's Scope section literally states 'four surfaces (script edit, suite authoring, CI wiring, documentation)' (tasks.md:217-222), which textually exceeds the >3-area indicator, but this is anchored to a genuinely frozen spec-level task boundary: requirements.md Main Workflows item 1 (requirements.md:270-275, Spec-Review-Status: Passed) explicitly assigns the loop-gate edit, suite authoring, CI wiring, AND the CHANGELOG/runbook CREATE to T-001 as one unit - task-review cannot split this without re-gating an already-approved spec, which is out of this gate's scope. The round-1 oversizing finding (single-commit, 4-area bundle) is structurally mitigated by the two-commit split (Global Constraints, tasks.md:32-49): Commit A bundles script+its own TDD suite+trivial CI-array-registration (a single coherent, tightly-coupled implementation unit, consistent with this repo's universal TDD-task convention), Commit B isolates documentation as a separate concern. The compound Done-When bullet (tasks.md:287-298, labeled (a)(b)(c)(d)) is a transparent, individually-labeled enumeration, verified structurally identical to the accepted precedent at specs/epic-159-pillar-a2/tasks.md:223-232 ('Cross-cutting shares, each independently verifiable'), which I confirmed by direct read also totals exactly 8 top-level Done-When bullets using the same technique. No fragmentation indicators present (only 2 tasks, neither is a single-function/single-file-rename task)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both functional tasks have edge-case/error-path acceptance criteria beyond the happy path. T-001/REQ-001: AC-002 and AC-003 (acceptance-tests.md:11-12) are independent red-path/fail-closed-with-zero-mutation assertions; AC-004 (no-bypass grep self-check) and AC-005 (ordering assertion) are additional construction-proof edge cases. T-002/REQ-002: AC-008 (weakened-gate escape-hatch negative scan) and AC-009 (negative-branch canary proving AC-008's check is not vacuous) directly cover the failure/tamper path. requirements.md Edge Cases section (lines 289-326) documents CI-resilience, red-suite zero-mutation, weakened-gate threat, and unchanged-trigger-surface edge cases explicitly, all mapped to the AC-NNN IDs above."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Neither T-001 nor T-002 is a dedicated test-authoring task (both are TDD-style feature tasks with embedded suites), so this check was applied to the acceptance-tests.md Test Type column entries for scope-consistency. No mismatch found: TEST-001 (integration, fixture-driven, real script) genuinely spans multiple components (script + fixture filesystem + suite invocations); TEST-004/TEST-005 (construction-proof/structural-ordering) correctly target a single file/module (scripts/bump-version.sh source) matching unit-scope; TEST-007/008/009/010 (configuration conformance / negative-branch canary) correctly target release.yml's own text structure; TEST-011/012/014 (document conformance) correctly target markdown files; every TEST-ID (TEST-001..TEST-014) references a specific AC-NNN in the acceptance-tests.md table (acceptance-tests.md:10-23). Minor non-blocking observation: several Test Type labels ('negative-branch (fixture-driven)', 'construction proof', 'hygiene / non-existence assertion') are descriptive rather than the four canonical category names; this does not create scope ambiguity since each row's Test Target column is fully concrete, so it does not rise to a Major finding."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this check's mandatory trigger (Risk: high or Risk: critical) is absent - both T-001 and T-002 are Risk: medium. Noted for completeness, not required: both tasks nonetheless carry an explicit Rollback: field (tasks.md:172-178 for T-001, tasks.md:400-405 for T-002) describing a coordinated two-commit revert."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared files (tests/run-all.sh/.ps1, .github/workflows/test.yml, CHANGELOG.md, docs/contributor/release-runbook.md) are each touched by both T-001 and T-002, but every overlap is the legitimate coordinated-sharing case: each task adds only its own disjoint registration lines/sections, and T-002 declares Blockers: T-001 (tasks.md:526) which structurally serializes the create-then-append ordering, consistent with design.md's Global Constraints section (design.md:393-407) and tasks.md's own Global Constraints (tasks.md:55-73). No uncoordinated parallel overlap exists."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's Blocker on T-001 (tasks.md:526) is not spurious despite T-002's own 'Depends On: none materially' text (tasks.md:371-375) explicitly stating the test content itself has no functional dependency on T-001's script edit - the Blocker exists solely to serialize the genuine shared-file coordination need (registration arrays, CHANGELOG create-then-append) verified under SCOPE-DISJOINT above, which is exactly the legitimate use case the DEPENDENCY-OVERLAP check permits. This transparency (naming the real reason for the block) reduces ambiguity rather than inflating the critical path. No missing blockers found: T-001 (Blockers: None) genuinely has no prerequisite, and no other task's scope depends on unstated prior output."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. Both T-001 and T-002 are net-new feature-addition tasks (adding a loop-gate prerequisite and a required CI job respectively); neither task's title, Goal, Scope, or Done When describes a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

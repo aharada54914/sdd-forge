@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a4r3-seq0791",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a4r3-0791",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "1028bf2c256f337971c7bb669133209fe96550bbcdc7d8460710d9d9a2bda0af"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "56296debb00b7b2a04fdfd6c27139307a2b457459cdf805b50da0d1fbd2401bd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-3/precheck-result.json",
+      "sha256": "63d27e54239d1671fb7597d856fedc74ed3c9b0ad0f30a06fab3ff30002b96db"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each name a concrete, machine-checkable procedure (fixed CLI flags, a 16-row closed diagnostic-id table with trigger conditions, exact array shapes/keying rules for Resolver Evidence, a byte-identical determinism requirement). The two round-3-relevant rows (dependency-output-malformed, snapshot-generation-mismatch) each state their own trigger condition, the pipeline point it fires at, and cite AC-057/AC-058 as their observable test."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-3-relevant REQ-002 sub-triggers (ruling C(1) at REQ-001 step (e); ruling C(2) at steps (f)-(g)) each have a dedicated acceptance criterion: AC-057/TEST-057 for the step-(e) recheck site, AC-058/TEST-058 for the absent-component fail-closed path (acceptance-tests.md lines 97-98), each naming a dedicated fixture (registry-swapped-during-validation, affected-component-absent-from-context) and an explicit assertion of the expected Block behavior."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-057 and AC-058 describe externally observable outcomes (exit code, canonical detail sentence, an empty capability_evaluations array, no live artifact written) rather than intent, and each isolates its own trigger from the row's pre-existing triggers so the two are independently verifiable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md carries a Non-goals section (line 732) and the Dependencies section explicitly excludes this feature from proposing the Epic A2 Registry-schema revision it names as a prerequisite, keeping the round-3-relevant C(1)/C(2) amendments narrowly scoped to REQ-002's diagnostic table without expanding this feature's own authority."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "investigation.md's Round-1/round-2 remediation extension (within Amendment Re-Review Context, Rulings C(1)/C(2)) cites a further amendment commit only as the abbreviated 8-character 0d6283ed, while every other amendment commit in the same record is given as a full 40-character hash. Per spec-review-calibration.md's Amendment Re-Review Context evidence bar (item 1: full, unabbreviated commit hashes), an abbreviated hash where a full hash is required means the declaration does not apply, with no benefit of the doubt. Both amended REQ-002 rows name this same record as their sole approval evidence for the stated approval boundary, so the boundary is not fully citable per this package's own established evidence discipline. Same defect class as the round-2 Major on this check; the round-3 edit closed the prior instance but reintroduced a fresh one in the same record."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Risks (line 1252) names every material high-risk claim with a citation to the governing REQ/AC or design.md section that validates it, including AC-053's drift-check fixture for the anchor-fingerprint risk."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists at the project root, so this check does not apply per its skip condition."
+    }
+  ]
+}

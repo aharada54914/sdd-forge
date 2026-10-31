@@ -1,0 +1,23 @@
+# T-007 backfill verification transcript (2026-08-11T11:44Z, HEAD c36a6cbb59084d44b45464509714379a4f080e59)
+# Re-execution of T-007's deterministic checks at backfill time. The authoritative
+# quality-gate record is reports/quality-gate/20260809T024321Z-epic-190-a2-capability-registry-T-007.md (seq0670, VERDICT: PASS).
+
+$ bash tests/capability-registry-parity.tests.sh (tail)
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+exit=0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/capability-registry-parity.tests.ps1 (tail)
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/capability-registry-parity.tests.sh tests/capability-registry-parity.tests.ps1
+Placeholder scan passed.
+exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-190-a2-capability-registry/tasks.md T-007
+Risk check passed for task T-007.
+exit=0

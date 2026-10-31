@@ -1,0 +1,13 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: src/repo-resolve.ts not yet implemented — the pretest compile
+# fails, so no tests can run. This is the genuine failing-first (Red) state
+# for T-004 (tests/repo-resolve/repo-resolve.test.ts,
+# tests/repo-resolve/no-exec.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/repo-resolve/repo-resolve.test.ts(16,29): error TS2307: Cannot find module '../../src/repo-resolve.js' or its corresponding type declarations.
+
+npm test exit code: 2

@@ -1,0 +1,43 @@
+Command: bash tests/phase2-risk-upgrade.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-risk-upgrade.tests.ps1
+Result: expected RED (both commands exit 1 before the T-004 staged candidates exist)
+
+phase2-risk-upgrade.tests.sh: 0 passed, 15 failed
+phase2-risk-upgrade.tests.ps1: 0 passed, 15 failed
+
+Representative failures:
+- AUTH_BOUNDARY parity expected full-required output, but both checker candidates were absent.
+- Invalid UTF-8, NUL, opaque URL, and missing-input fail-closed fixtures could not reach either absent checker candidate.
+- The lite-spec candidate was absent, so the pre-write risk-gate and unavailable-input clauses were missing.
+- The ship candidate was absent, so the --full bypass, risk-hit precedence, unavailable-input stop, and pre---lite ordering clauses were missing.
+
+This RED result proves the staged checker and workflow candidates are required;
+no protected live source was used as an implementation target.
+
+Resume correction RED (missing checker argument):
+
+Command: bash tests/phase2-risk-upgrade.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-risk-upgrade.tests.ps1
+Result: expected RED after adding the missing-path parity assertion and before
+changing the staged PowerShell checker.
+
+The shell checker returned `risk-upgrade: input unavailable` with exit 2. The
+PowerShell checker instead stopped at parameter binding with exit 1 and emitted
+the missing-mandatory-parameter error. This proves the staged PowerShell
+candidate needed an internal absent/empty-path fail-closed branch.
+
+Security-review correction RED (cygpath failure, exclusion boundaries, and
+risk-forced full artifact stop):
+
+Command: `bash tests/phase2-risk-upgrade.tests.sh; powershell.exe -NoProfile
+-ExecutionPolicy Bypass -File tests/phase2-risk-upgrade.tests.ps1`
+Result: expected RED after adding the three cross-runtime regression assertions
+and before changing the staged candidates. Both suites exited 1 with 30 passed
+and 3 failed assertions.
+
+- The shell checker exited 71 with no diagnostic when its available `cygpath`
+  command failed, instead of emitting `risk-upgrade: input unavailable` and
+  exiting 2.
+- Both checkers escalated `design token` / `design tokens` when followed by
+  `/`, `@`, `"`, `|`, or a non-ASCII character, despite each being a documented
+  non-`[a-z0-9_]` boundary.
+- The staged ship candidate had no explicit risk-hit branch that stops and
+  emits a bootstrap/full-track diagnostic when full artifacts are absent.

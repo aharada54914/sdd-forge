@@ -1,0 +1,6 @@
+test_reservation_failure_runs_canonical_validator (__main__.ActualReservationCoverage.test_reservation_failure_runs_canonical_validator) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 12.200s
+
+OK

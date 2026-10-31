@@ -1,0 +1,94 @@
+{
+  "feature": "epic-136-phase4-mcp",
+  "generated_by": "Machine-readable companion to traceability.md, authored at quality-gate time (after all 5 tasks recorded VERDICT: PASS) rather than at Phase 2, because this feature's Phase 2 produced only traceability.md. Every link's req/acs/tests triple is transcribed verbatim from traceability.md's requirement table (the 'Test ID' column) and its Acceptance Mapping table; no mapping is invented here. AC-015/TEST-015 (the protected-path re-grep leg) appears in NO link on purpose: traceability.md assigns it per-task in its Task Mapping table as a disjoint cross-cutting share, and no requirement row claims it, so inventing a REQ owner for it here would contradict the reviewed artifact. Evidence arrays are populated (implementation has landed) and every path is a real, non-empty file on disk; validated by plugins/sdd-quality-loop/scripts/check-traceability.{sh,ps1} in require-evidence mode.",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by plugins/sdd-quality-loop/scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-002", "AC-017"],
+      "tests": ["TEST-001", "TEST-002", "TEST-017"],
+      "evidence": [
+        "reports/quality-gate/20260729T140817Z-epic-136-phase4-mcp-T-001.md",
+        "specs/epic-136-phase4-mcp/verification/T-001/red.log",
+        "specs/epic-136-phase4-mcp/verification/T-001/green.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-003", "AC-004", "AC-016", "AC-018"],
+      "tests": ["TEST-003", "TEST-004", "TEST-016", "TEST-018"],
+      "evidence": [
+        "reports/quality-gate/20260729T134534Z-epic-136-phase4-mcp-T-002.md",
+        "specs/epic-136-phase4-mcp/verification/T-002/red.log",
+        "specs/epic-136-phase4-mcp/verification/T-002/green.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-005", "AC-006"],
+      "tests": ["TEST-005", "TEST-006"],
+      "evidence": [
+        "reports/quality-gate/20260729T134605Z-epic-136-phase4-mcp-T-003.md",
+        "specs/epic-136-phase4-mcp/verification/T-003/red.log",
+        "specs/epic-136-phase4-mcp/verification/T-003/green.log",
+        "specs/epic-136-phase4-mcp/verification/T-003/selfcheck.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-007", "AC-008"],
+      "tests": ["TEST-007", "TEST-008"],
+      "evidence": [
+        "reports/quality-gate/20260729T134641Z-epic-136-phase4-mcp-T-004.md",
+        "specs/epic-136-phase4-mcp/verification/T-004/red.log",
+        "specs/epic-136-phase4-mcp/verification/T-004/green.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-009"],
+      "tests": ["TEST-009"],
+      "evidence": [
+        "reports/quality-gate/20260729T140817Z-epic-136-phase4-mcp-T-001.md",
+        "reports/quality-gate/20260729T134534Z-epic-136-phase4-mcp-T-002.md",
+        "reports/quality-gate/20260729T134641Z-epic-136-phase4-mcp-T-004.md",
+        "specs/epic-136-phase4-mcp/verification/qg/tests.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-010"],
+      "tests": ["TEST-010"],
+      "evidence": [
+        "specs/epic-136-phase4-mcp/verification/qg/build.log",
+        "specs/epic-136-phase4-mcp/verification/qg/typecheck.log",
+        "specs/epic-136-phase4-mcp/verification/qg/tests.log",
+        "specs/epic-136-phase4-mcp/verification/T-001/dist-parity.log",
+        "specs/epic-136-phase4-mcp/verification/T-002/dist-parity.log",
+        "specs/epic-136-phase4-mcp/verification/T-003/dist-parity.log",
+        "specs/epic-136-phase4-mcp/verification/T-004/dist-parity.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-011", "AC-012"],
+      "tests": ["TEST-011", "TEST-012"],
+      "evidence": [
+        "reports/quality-gate/20260729T140817Z-epic-136-phase4-mcp-T-001.md",
+        "reports/quality-gate/20260729T134534Z-epic-136-phase4-mcp-T-002.md",
+        "reports/quality-gate/20260729T134641Z-epic-136-phase4-mcp-T-004.md",
+        "specs/epic-136-phase4-mcp/verification/qg/tests.log"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-013", "AC-014"],
+      "tests": ["TEST-013", "TEST-014"],
+      "evidence": [
+        "reports/quality-gate/20260729T134311Z-epic-136-phase4-mcp-T-005.md",
+        "specs/epic-136-phase4-mcp/verification/T-005/verify.log",
+        "specs/epic-136-phase4-mcp/verification/T-005/selfcheck.log"
+      ]
+    }
+  ]
+}

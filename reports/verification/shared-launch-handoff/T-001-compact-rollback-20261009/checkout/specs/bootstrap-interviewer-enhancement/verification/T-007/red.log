@@ -1,0 +1,4 @@
+TEST-016 RED
+Command: bash tests/approval-boundary.tests.sh
+Result: exit 1
+Output: FAIL: TEST-016 approval-boundary fixtures are not implemented

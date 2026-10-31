@@ -1,0 +1,424 @@
+*** Begin Patch
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py
+@@
+ 
+ spec = importlib.util.spec_from_file_location(
+     'transport', Path(__file__).with_name('validate-nontty-spec-launch.py'))
+-if spec is None or spec.loader is None:
+-    raise ValueError('transport loader unavailable')
+ transport = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(transport)
+ 
+@@
+     helper_spec = importlib.util.spec_from_file_location(
+         'conditional_inputs', Path(__file__).parents[2] /
+         'sdd-quality-loop/scripts/review-conditional-inputs.py')
+-    if helper_spec is None or helper_spec.loader is None:
+-        raise ValueError('conditional input loader unavailable')
+     helper = importlib.util.module_from_spec(helper_spec)
+     helper_spec.loader.exec_module(helper)
+     result = helper.resolve(root, data['feature'], data['stage'])
+@@
+     else:
+         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        matches = [pattern.fullmatch(e['path']) for e in data['allowed_input_manifest']]
+-        rounds = [m for m in matches if m is not None]
++        rounds = [pattern.fullmatch(e['path']) for e in data['allowed_input_manifest']]
++        rounds = [m for m in rounds if m]
+         transport.require(len(rounds) == 1, 'one admitted precheck is required')
+         attempt, round_number = rounds[0].groups()
+         admitted = checked_input_paths(root, data)
+@@
+     files.update(root / e['path'] for e in data['allowed_input_manifest'])
+     for name in ('rtk', 'claude', 'node', 'bash', 'jq', 'shasum'):
+         executable = shutil.which(name)
+-        if executable is None:
+-            raise ValueError('missing dependency: ' + name)
++        transport.require(executable is not None, 'missing dependency: ' + name)
+         files.add(Path(executable).resolve(strict=True))
+     pins = {str(p): transport.sha(p) for p in files}
+     (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
+@@
+                                                  conditional_state=dependency_presence))
+     wrapper = output / 'wrapper.json'
+     run(root, command, wrapper, prompt.read_text())
+-    transcripts = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
+-    transport.require(len(transcripts) == 1, 'native transcript missing or ambiguous')
+-    transcript.write_bytes(transcripts[0].read_bytes())
++    matches = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
++    transport.require(len(matches) == 1, 'native transcript missing or ambiguous')
++    transcript.write_bytes(matches[0].read_bytes())
+     result = transport.postflight(root, invocation, transcript, prompt, wrapper, receipt,
+                                   strict=True, conditional_state=dependency_presence)
+     (output / 'delivery.json').write_text(json.dumps(result, sort_keys=True))
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/preflight-host-review.py
+@@
+ 
+ def load_module(name, path):
+     spec = importlib.util.spec_from_file_location(name, path)
+-    if spec is None or spec.loader is None:
+-        raise ValueError('module loader unavailable: ' + str(path))
+     module = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(module)
+     return module
+@@
+     else:
+         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        matches = [pattern.fullmatch(entry['path']) for entry in data['allowed_input_manifest']]
+-        rounds = [match for match in matches if match is not None]
++        rounds = [pattern.fullmatch(entry['path']) for entry in data['allowed_input_manifest']]
++        rounds = [match for match in rounds if match]
+         require(len(rounds) == 1, 'one admitted precheck required')
+         attempt, round_number = map(int, rounds[0].groups())
+         precheck = root / rounds[0].group()
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@
+ import subprocess
+ import sys
+ import uuid
+-from typing import Any
+ 
+ 
+ STAGE_ROLES = {
+@@
+                 'admitted input hash mismatch')
+         pattern = re.compile(r'reports/task-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        matches = [(e, match) for e in entries
+-                   if (match := pattern.fullmatch(e['path'])) is not None]
++        matches = [(e, pattern.fullmatch(e['path'])) for e in entries]
++        matches = [(e, m) for e, m in matches if m]
+         require(len(matches) == 1, 'task precheck missing or duplicated')
+         entry, match = matches[0]
+         precheck = load(root / entry['path'])
+@@
+     entries = {'type': 'array', 'items': {'type': 'object', 'properties': {
+         'path': text, 'sha256': text}, 'required': ['path', 'sha256']}}
+     check_fields = {key: text for key in ('id', 'result', 'status', 'severity', 'finding')}
+-    properties: dict[str, Any] = {key: text for key in ('schema', 'stage', 'role', 'run_id',
++    properties = {key: text for key in ('schema', 'stage', 'role', 'run_id',
+                                        'host_session_id', 'verdict')}
+     properties['checks'] = {'type': 'array', 'items': {
+         'type': 'object', 'properties': check_fields}}
+@@
+     identity(session)
+     data, _ = manifest(root, invocation)
+     selected_model = role.get('model')
+-    require(selected_model == 'sonnet' and
++    require((selected_model in ('opus', 'sonnet') if data['stage'] == 'quality'
++             else selected_model == 'sonnet') and
+             role.get('tools') == agent_tools(data['stage']) and
+             role.get('disallowedTools') == ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit'] and
+             isinstance(selected_model, str), 'unsupported role permission profile')
+@@
+     require((root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs').is_file(),
+             'session guard missing')
+     executable = shutil.which('claude')
+-    if executable is None:
+-        raise ValueError('Claude executable missing')
++    require(executable is not None, 'Claude executable missing')
+     command = ['rtk', 'proxy', executable, '-p', '--session-id', session,
+                '--model', selected_model, '--permission-mode', 'dontAsk',
+                '--tools', 'Read,Bash', '--disallowedTools',
+@@
+ BOUNDARY_PATH = 'plugins/sdd-review-loop/references/review-context-boundary.md'
+ 
+ 
+-def canonical_read_paths(root, relative_paths):
+-    """Render tool targets without changing relative manifest or receipt identities."""
+-    return [str((root / relative).resolve()) for relative in relative_paths]
+-
+-
+ def diagnostic_read_paths(entries, invocation_path):
+     """Native probe samples Read; its separate hash and guard checks cover every input."""
+     require(entries and isinstance(invocation_path, str) and invocation_path,
+@@
+         producers = ["printf '%s' " + shlex.quote(text)
+                      for text in (inputs_text, record_text)]
+     commands = [producer + ' | rtk proxy shasum -a 256' for producer in producers]
+-    control: dict[str, Any] = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
++    control = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
+             'record_text': record_text, 'record_sha256': digest,
+             'hash_commands': commands}
+     if data['stage'] == 'quality':
+@@
+         if strict and data['stage'] in ('spec', 'impl') and conditional_state is not None else '')
+     return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
+             + binding + '\n'
+-            + ('Read tool file_path values (canonical absolute paths):\n'
+-               + json.dumps(canonical_read_paths(root, [relative, BOUNDARY_PATH] +
+-                            [entry['path'] for entry in data['allowed_input_manifest']]),
+-                            ensure_ascii=True) + '\n'
+-               'Use these exact absolute paths for Read; do not infer a different repository root. '
+-               'Keep relative paths unchanged in manifest, hash commands, receipt and output identities.\n'
+-               if enforced else '')
+             + task_hash_note
+             + conditional_note
+             + control_prompt(data, receipt_text, sha(root / 'plugins/sdd-review-loop/references/review-context-boundary.md'),
+@@
+             (entry['path'], raw_hashes[entry['path']])
+             for entry in data['allowed_input_manifest']] + [
+             (BOUNDARY_PATH, sha(root / BOUNDARY_PATH))]
+-        required_hashes: dict[str, str | None] = {batch_command: None}
++        required_hashes = {batch_command: None}
+         required_hashes.update(zip(control['hash_commands'],
+                                    (control['inputs_sha256'], control['record_sha256'])))
+         required_order = list(required_hashes)
+         file_hash_order = [batch_command]
+-        proven: set[str] = set()
+-        pending: dict[str, Any] = {}
++        proven = set()
++        pending = {}
+         used_tool_ids = set()
+         issued_file_hashes = 0
+         retries = set()
+@@
+                     continue
+                 if block.get('type') == 'tool_result':
+                     tool_id = block.get('tool_use_id')
+-                    if not isinstance(tool_id, str) or tool_id not in pending:
+-                        raise ValueError('impl tool result lacks matching use')
++                    require(tool_id in pending, 'impl tool result lacks matching use')
+                     command = pending.pop(tool_id)
+                     result_text = block.get('content')
+                     if command is output_tool:
+@@
+                             if command == batch_command:
+                                 require_hash_batch_result(result_text, batch_expected)
+                             else:
+-                                expected_hash = required_hashes[command]
+-                                require(isinstance(expected_hash, str) and
+-                                        isinstance(result_text, str) and
+-                                        result_text.rstrip('\n') == expected_hash +
++                                require(isinstance(result_text, str) and
++                                        result_text.rstrip('\n') == required_hashes[command] +
+                                         '  -' and result_text.count('\n') <= 1,
+                                         'impl control hash tool result differs from pinned digest')
+                             if command not in file_hash_order:
+@@
+                     continue
+                 require(item.get('type') == 'assistant', 'impl tool use outside assistant turn')
+                 name, tool_input = block.get('name'), block.get('input')
+-                if not isinstance(tool_input, dict):
+-                    raise ValueError('impl tool input is malformed')
++                require(isinstance(tool_input, dict), 'impl tool input is malformed')
+                 require(not structured_seen, 'tool call after JSON review StructuredOutput')
+                 if must_retry is not None:
+                     require(name == 'Bash' and tool_input.get('command') == must_retry,
+@@
+                     require(all(command is None for command in pending.values()),
+                             'impl Read overlapped pending hash proof')
+                     value = tool_input.get('file_path')
+-                    if not isinstance(value, str) or not value:
+-                        raise ValueError('impl Read path missing')
++                    require(isinstance(value, str) and value,
++                            'impl Read path missing')
+                     target = pathlib.Path(value)
+                     target = (target if target.is_absolute() else root / target).resolve()
+                     require(target in allowed_reads, 'impl Read outside admitted inputs')
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/probe-nontty-review.py
+@@
+ """Unreserved Sonnet probe of the session-local spec/impl Read boundary."""
+-from __future__ import annotations
+-
+ import hashlib
+ import importlib.util
+ import json
+@@
+ ROOT = Path(__file__).resolve().parents[3]
+ source = ROOT / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+ spec = importlib.util.spec_from_file_location('nontty_transport', source)
+-if spec is None or spec.loader is None:
+-    raise SystemExit('non-TTY transport module loader missing')
+ transport = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(transport)
+ if len(sys.argv) != 2:
+@@
+ entries.append({'path': source_relative, 'sha256': source_digest})
+ stage, role_name = source_data['stage'], source_data['role']
+ inputs_digest = hashlib.sha256('\n'.join(e['path'] + '\t' + e['sha256'] for e in entries).encode()).hexdigest()
+-record_suffix: tuple[str, ...]
+ if stage == 'quality':
+     binding = hashlib.sha256((source_data['feature'] + '\n' +
+                               source_data['scratch_root']).encode()).hexdigest()
+@@
+               + '\n'.join(str(index) + '. Bash ' + command
+                           for index, command in enumerate(hash_commands, 1)) +
+               '\nThen Read each of these files with limit=1, in this order:\n' +
+-              '\n'.join(transport.canonical_read_paths(ROOT, read_paths)) +
+-              '\nThen Bash ' + chained_bash + '\nFinally Read ' +
+-              transport.canonical_read_paths(ROOT, [outside])[0] +
++              '\n'.join(read_paths) +
++              '\nThen Bash ' + chained_bash + '\nFinally Read ' + outside +
+               ('\nAfter that final Read, submit one StructuredOutput JSON object and make '
+                'no further tool calls.' if stage in transport.JSON_REVIEW_STAGES else ''))
+     command = transport.claude_command(ROOT, session, role_name, role,
+                                       control['exact_permission_rules'], settings_path,
+                                       invocation, receipt_path, policy_path)
+-    launch_result = subprocess.run(command, input=prompt, text=True, capture_output=True,
++    result = subprocess.run(command, input=prompt, text=True, capture_output=True,
+                             cwd=ROOT, timeout=300)
+-    print(json.dumps({'session': session, 'exit': launch_result.returncode,
+-                      'rate_limited': '429' in launch_result.stdout or '429' in launch_result.stderr}), flush=True)
+-    if launch_result.returncode != 0:
+-        raise SystemExit(launch_result.returncode)
+-    wrapper = json.loads(launch_result.stdout)
++    print(json.dumps({'session': session, 'exit': result.returncode,
++                      'rate_limited': '429' in result.stdout or '429' in result.stderr}), flush=True)
++    if result.returncode != 0:
++        raise SystemExit(result.returncode)
++    wrapper = json.loads(result.stdout)
+     if wrapper.get('session_id') != session or wrapper.get('is_error') is not False:
+         raise SystemExit('native wrapper did not accept proposed session')
+     matches = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
+@@
+     if len(read_calls) != len(read_paths) + 1 or any(result is None for _, result in read_calls):
+         raise SystemExit('native Read calls were not all observed')
+     for (use, result), input_path in zip(read_calls[:-1], read_paths):
+-        if (result is None or
+-                Path(use['input'].get('file_path', '')).resolve() != (ROOT / input_path).resolve() or
++        if (Path(use['input'].get('file_path', '')).resolve() != (ROOT / input_path).resolve() or
+                 result.get('is_error') is True):
+             raise SystemExit('admitted Read did not execute')
+     second = read_calls[-1]
+-    if second[1] is None:
+-        raise SystemExit('native Read calls were not all observed')
+     denied_text = str(second[1].get('content', ''))
+     if (Path(second[0]['input'].get('file_path', '')).resolve() != (ROOT / outside).resolve() or
+             second[1].get('is_error') is not True or
+@@
+         raise SystemExit('out-of-scope Read was not denied by pinned pretool guard')
+     bash_calls = [(use, results.get(tool_id)) for tool_id, use in uses.items()
+                   if use.get('name') == 'Bash']
+-    hash_success: list[tuple[str, str | None]] = []
++    hash_success = []
+     first_bash_retry_due = False
+     first_bash_retry_seen = False
+     for kind, block in events:
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/quality-nontty-transport.tests.py
+@@
+ 
+ 
+ class QualityTransport(unittest.TestCase):
+-
+-    def test_shared_argv_rejects_model_permission_and_session_mismatches(self):
+-        with tempfile.TemporaryDirectory() as tmp:
+-            root = Path(tmp)
+-            session = str(uuid.uuid4())
+-            invocation = root / 'invocation.json'
+-            invocation.write_text('{}')
+-            receipt = root / 'receipt.txt'
+-            receipt.write_text('receipt')
+-            policy = root / 'policy.json'
+-            policy.write_text('{}')
+-            settings = root / 'settings.json'
+-            settings.write_text('{}')
+-            guard = root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+-            guard.parent.mkdir(parents=True)
+-            guard.write_text('// fixture\n')
+-            permissions = ['Read(source.md)']
+-            flags = ('-p --session-id --model --permission-mode --tools '
+-                     '--disallowedTools --allowedTools --settings --plugin-dir '
+-                     '--agents --agent --output-format --json-schema')
+-            for stage, roles in TRANSPORT.STAGE_ROLES.items():
+-                for role_name in roles:
+-                    data = {'stage': stage, 'host_session_id': session}
+-                    role = {'model': 'sonnet', 'tools': TRANSPORT.agent_tools(stage),
+-                            'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
+-                    with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})), \
+-                            mock.patch.object(TRANSPORT, 'launch_policy', return_value=(b'{}', {})), \
+-                            mock.patch.object(TRANSPORT, 'receipt_control', return_value={
+-                                'exact_permission_rules': permissions}), \
+-                            mock.patch.object(TRANSPORT, 'admitted_raw_hashes', return_value={}), \
+-                            mock.patch.object(TRANSPORT.shutil, 'which', return_value='claude'), \
+-                            mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
+-                                              subprocess.CompletedProcess([], 0, flags, '')):
+-                        def command(selected_role=role, selected_permissions=permissions,
+-                                    selected_session=session):
+-                            return TRANSPORT.claude_command(
+-                                root, selected_session, role_name, selected_role,
+-                                selected_permissions, settings, invocation, receipt, policy)
+-                        self.assertIn('--session-id', command())
+-                        for flag in flags.split():
+-                            if flag == '--json-schema' and stage == 'quality':
+-                                continue
+-                            with self.subTest(stage=stage, role=role_name, missing_flag=flag):
+-                                missing = ' '.join(item for item in flags.split() if item != flag)
+-                                with mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
+-                                                       subprocess.CompletedProcess([], 0, missing, '')):
+-                                    with self.assertRaisesRegex(ValueError, 'unsupported CLI argument'):
+-                                        command()
+-                        for model in ('opus', 'haiku', 'Sonnet', '', None):
+-                            with self.subTest(stage=stage, role=role_name, model=model):
+-                                with self.assertRaisesRegex(ValueError, 'unsupported role permission profile'):
+-                                    command(dict(role, model=model))
+-                        with self.subTest(stage=stage, mismatch='permissions'):
+-                            with self.assertRaisesRegex(ValueError, 'permission rules mismatch'):
+-                                command(selected_permissions=permissions + ['Read(outside.md)'])
+-                        with self.subTest(stage=stage, mismatch='session'):
+-                            with self.assertRaisesRegex(ValueError, 'session differs'):
+-                                command(selected_session=str(uuid.uuid4()))
+-                        settings.write_text('{"permissions": {"allow": ["Read"]}}')
+-                        with self.subTest(stage=stage, mismatch='settings'):
+-                            with self.assertRaisesRegex(ValueError, 'settings or policy mismatch'):
+-                                command()
+-                        settings.write_text('{}')
+     def test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag(self):
+         executable = shutil.which('claude')
+         if executable is None:
+@@
+                 policy, _ = TRANSPORT.launch_policy(root, invocation, receipt_path,
+                                                     root / 'policy.json')
+             self.assertIn(command, json.loads(policy)['bash_commands'])
+-            # Absolute tool targets must match the pinned scope, while identities stay relative.
+-            relative_reads = [relative, TRANSPORT.BOUNDARY_PATH, 'source.md']
+-            targets = TRANSPORT.canonical_read_paths(root, relative_reads)
+-            self.assertEqual(targets, json.loads(policy)['read_paths'])
+-            self.assertEqual(relative_reads, [relative, TRANSPORT.BOUNDARY_PATH, 'source.md'])
+-            sampled = TRANSPORT.diagnostic_read_paths(data['allowed_input_manifest'], relative)
+-            self.assertTrue(set(TRANSPORT.canonical_read_paths(root, sampled)).issubset(targets))
+-            with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})):
+-                rendered = TRANSPORT.expected_prompt(root, invocation, receipt_path).decode()
+-            self.assertIn('Read tool file_path values (canonical absolute paths):\n' +
+-                          json.dumps(targets, ensure_ascii=True), rendered)
+-            self.assertIn('"invocation": "' + relative + '"', rendered)
+-            probe_source = (ROOT / 'plugins/sdd-review-loop/scripts/probe-nontty-review.py').read_text()
+-            self.assertIn('transport.canonical_read_paths(ROOT, read_paths)', probe_source)
+-            self.assertIn('transport.canonical_read_paths(ROOT, [outside])[0]', probe_source)
+             self.assertEqual(set(control['hash_commands']),
+                              set(json.loads(policy)['bash_commands']) -
+                              {command})
+@@
+                                       'tool_input': {'command': candidate}}),
+                     text=True, capture_output=True, check=True)
+                 self.assertEqual(bool(result.stdout), denied)
+-            outside = root / 'outside.md'
+-            outside.write_text('not admitted')
+-            for requested, denied in ((source, False), (outside, True)):
+-                result = subprocess.run(
+-                    ['rtk', 'proxy', 'node', str(guard), str(policy_path),
+-                     hashlib.sha256(policy).hexdigest()],
+-                    input=json.dumps({'tool_name': 'Read',
+-                                      'tool_input': {'file_path': str(requested)}}),
+-                    text=True, capture_output=True, check=True)
+-                self.assertEqual(bool(result.stdout), denied)
+             self.assertEqual(sum(item.startswith('rtk proxy shasum -a 256 ') for item in
+                                  json.loads(policy)['bash_commands']), 1)
+             prompt = TRANSPORT.control_prompt(data, receipt, 'c' * 64,
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py
+@@
+         if version is not None:
+             schema = json.loads(observe('contracts/' + version.replace('/', '.') + '.schema.json'))
+             spec = importlib.util.spec_from_file_location('review_schema', Path(__file__).with_name('validate-facet-manifest.py'))
+-            if spec is None or spec.loader is None:
+-                raise ValueError('schema validator loader unavailable')
+             module = importlib.util.module_from_spec(spec)
+             spec.loader.exec_module(module)
+             valid = not module.validate_against_schema(document, schema)
+*** Delete File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/review-conditional-inputs.tests.py
+*** Delete File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-build.tests.py
+*** Delete File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-python-requirements.txt
+*** Delete File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-python/pyproject.toml
+*** End Patch

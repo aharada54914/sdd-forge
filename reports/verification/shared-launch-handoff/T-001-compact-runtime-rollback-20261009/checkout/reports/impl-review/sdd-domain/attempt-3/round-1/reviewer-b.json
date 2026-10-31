@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-20260706T0450Z-impl-reviewer-b-a3r1",
+  "host_session_id": "SESS-impl-b-sdd-domain-a3r1",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "5271c9a4ff48a971ccb247c98dcff12d5db6b827dc29daab09e24ea8e992c9a5"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain/attempt-3/round-1/precheck-result.json", "sha256": "64d449381646e7ed9299cfcc92fe93d9e60eca7b016b413cc0d3f54869297d09"},
+    {"path": "reports/impl-review/sdd-domain/attempt-3/round-1/integrated-summary.json", "sha256": "158129181a96376b6fd8ccc9814b3129504266b26beb9975ae7e7f241451f342"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No unjustified inline decisions found. The two most novel technical decisions in the Assumptions section (cross-model-verify reuse for a domain-scoped bundle; c4-container template reuse) each cite a 'Technical-default basis' with exact file:line source evidence (prepare-panelist-input.sh:27-59, check-cross-model.sh:35, c4-container.template.md:1-21). Components table technology choices (PowerShell+bash, JSON Schema) align with rationale stated elsewhere (frontend-spec.md Technology Stack 'matches existing test suites'; Data Plan's design-tokens.json precedent for the JSON-contract pattern)."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Open Questions has OQ-001 and OQ-002, each with Owner: human, Blocks Implementation: no, and a stated Resolution Path ('confirm at task approval; revisit after first retrospective with drift metrics' / 'confirm at task approval; revisit via WFI'). Both required fields are present for both entries."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "specs/sdd-domain/investigation.md is absent, but design.md's ## Assumptions section contains two non-trivial entries and both are independently grounded under basis 2 (reasonable technical default, basis cited): the cross-model-verify bundle assumption cites prepare-panelist-input.sh:27-59/91-95 and check-cross-model.sh:35 with line-level detail, and the c4-container template-reuse assumption cites c4-container.template.md:1-21. Since each non-trivial assumption states its own verified basis rather than being left ungrounded, the investigation.md-absence fallback trigger (bare, unsupported assumptions) does not apply here."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a ## Constraint Compliance section (lines 153-162) covering all constraints identifiable in requirements.md: visibility contract (AC-001/011), unidirectional flow (Main Workflows), graceful degradation / byte-identical absence behavior (AC-010), warn-first gates with two-release escalation (AC-009/R-3), R-10 protected-file procedure (R-1), and human-owned approval judgment (AC-007). The corrected Security Boundaries table in design.md now includes the external-vendor-egress (B4) boundary consistent with security-spec.md's B4 row; requirements.md's summary Security Boundaries table lists only 3 boundaries but is a non-exhaustive summary (explicitly delegates 'Details' to security-spec.md#trust-boundaries) and its Assumptions section already presupposes cross-model vendor reuse, so this is additive detail, not a contradiction."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. A search for latency/throughput/response-time/SLA/concurrency/numeric-threshold keywords found only a qualitative cost/latency risk note (R-2: 'Cross-model verification at the domain gate adds cost/latency per model revision'), which is a risk acknowledgment, not a numeric performance requirement or SLA."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Deployment / CI Plan (lines 146-151) states deployment target (no deployed service; reasoned N/A, local + CI only), CI pipeline changes (validate-repository.ps1 updated expectations plus new Pester suites), and the existing marketplace manifest pattern. Feature-flag strategy is inherent to the design (absence of domain/ directory disables the entire lane, stated in Constraint Compliance 'Graceful degradation' and Architecture note) rather than a separate flag mechanism. Data Plan states no schema changes and 'Migration Strategy: none required,' so migration-execution-order is not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Data Plan states 'Existing Data Affected: none' and 'Migration Strategy: none required,' equivalent to the check's stated 'No data changes' PASS condition. No column/table schema changes are declared."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The sole external integration (cross-model panel of GPT/Gemini vendor slots, via the reused cross-model-verify skill) is identified in the Components table (name + purpose: 'Blind multi-vendor verdict on the reviewed model'), the Security Boundaries table (contract: 'Existing vendor API auth (reused unchanged); input-manifest allowlist limits the bundle to domain/*'), and failure behavior is explicit in Risks/Assumptions/requirements.md AC-006/AC-017 ('panelist-unavailable' recorded, requires_human_decision set, no auto-continue). GitHub Actions CI is pre-existing repository infrastructure, not a new third-party integration requiring this level of table detail."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All design.md components (domain-model, domain-interviewer, domain-reverse, domain-review-loop, domain-sync, domain-reviewer-a/b, check-domain-conformance, domain-contract schema, hook guard extension) map to requirements.md REQ-001..REQ-011 and US-1..US-4; no component, data model, or endpoint lacks a corresponding requirement. All four User Stories (US-1 interview, US-2 independent+cross-model review, US-3 bootstrap consumption, US-4 reverse-generation) and all Goals are covered by a named component in the Architecture/Components sections."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: authorization/self-approval guard (B2) and cross-service integration failure behavior (B4, cross-model panel). Both have concrete named verification artifacts: TEST-007 and TEST-014 (tests/hooks/domain-approval-guard.Tests.ps1, per security-spec.md Security Tests) for the approval guard and post-approval reset, and TEST-006/TEST-017 (tests/sdd-domain/cross-model-gate.Tests.ps1) for cross-model mismatch and panelist-unavailable, all cross-referenced in design.md's Cross-Layer Dependencies and Test Strategy sections."
+    }
+  ]
+}

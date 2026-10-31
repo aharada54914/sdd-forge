@@ -1,0 +1,14 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "workflow-state-integrity",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "PASS",
+  "warningCount": 0,
+  "finding_counts": {"critical": 0, "major": 0, "minor": 0},
+  "reviewer_a_run_id": "spec-a-wsi-a1r2-20260627",
+  "reviewer_a_host_session_id": "host-spec-a-wsi-a1r2-20260627",
+  "reviewer_b_run_id": "spec-b-wsi-a1r2-20260627",
+  "reviewer_b_host_session_id": "host-spec-b-wsi-a1r2-20260627"
+}

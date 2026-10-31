@@ -1,0 +1,27 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "epic-192-a4-facet-manifest",
+  "run_id": "RUN-epic-192-a4-facet-manifest-impl-impl-reviewer-a-seq0322",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-192-a4-facet-manifest-0322",
+  "sequence": 322,
+  "previous_record_sha256": "f361fa9123d588d704db94e69ac0e8c468a6a8d58222daf7f54410a304961de8",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a0a0f149cb487015c28621b1fdb645abe00db4b37e732f3252a46b8a849e1821",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path": "specs/epic-192-a4-facet-manifest/requirements.md", "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"},
+    {"path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md", "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"},
+    {"path": "specs/epic-192-a4-facet-manifest/design.md", "sha256": "2927f7d384b0587a39eb56b9accf3ceef673fa5b66be6b1bb52619ac4e09c5d7"},
+    {"path": "specs/epic-192-a4-facet-manifest/investigation.md", "sha256": "e82a67c5cb79f0be950500635642f69744df50400177e21f263de1a7fe83f17f"},
+    {"path": "specs/epic-192-a4-facet-manifest/ux-spec.md", "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"},
+    {"path": "specs/epic-192-a4-facet-manifest/frontend-spec.md", "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"},
+    {"path": "specs/epic-192-a4-facet-manifest/infra-spec.md", "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"},
+    {"path": "specs/epic-192-a4-facet-manifest/security-spec.md", "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-192-a4-facet-manifest/attempt-1/round-1/precheck-result.json", "sha256": "710494c0262cfdd27649a8f17ef3dc7e2c61f45cc2fcce1b772e6e20070161fa"}
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-191-a3-path-ownership",
+  "task_id": "T-002",
+  "run_id": "RUN-epic-191-a3-path-ownership-qg-T-002-seq0656",
+  "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-002-0656",
+  "sequence": 656,
+  "previous_record_sha256": "05a34aecaf83375e2c2704ba7d33ba03cda28fa58e6753a4145826dc1c181b77",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ef3c7b0bda1440d4a28b10a1717b7563696712fe6e95f60ab760b624e52527e8",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "0470072a0df6bd31f9ce81bbc3953ed09ee682072ab7fa797909abdd98f75ff8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "sha256": "ac49ac2b328e09eb8b4023103f214fafe510821f306294311aacef24e685d96a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "e6d50cd2a97697d3edba83f5d766518ec6ef82658a7dc45088717e538a2044a6"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-002.md",
+      "sha256": "55c00a24cf4e04bb9fb5052d8e04d78fe5e05d9fe85f875132e27c3e470b5a8f"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/MANIFEST.sha256",
+      "sha256": "0768b0d9e79a449de47e451eb72260b5708c90be8f776375457eee5db9a058d7"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/component-path-diff-basis-ci-steps.yml",
+      "sha256": "8cd0440de5008e9bb5ee4d3c6720c08b10bdff18b4507dd0bd14ab7ab55b690a"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis-ps1.GREEN.log",
+      "sha256": "1795d3a22ad398d16bca57a9ab48cc1cb35c1d69d1ef7aa59de4a13108a8e845"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis-ps1.RED.log",
+      "sha256": "0b20eaf967313195d922ba46ad5b9a1fd61216aba71d2e5bd91c6c95f088ee6e"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis.GREEN.log",
+      "sha256": "c20087d8ac3ed968aced2bda940ff1aa1a62608b5e1185f3c690d2bb1d0da175"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis.RED.log",
+      "sha256": "5978ed788a76549e975ad58d2575765b716399e7e09359a30edf7d3fa232b59f"
+    },
+    {
+      "path": "tests/component-path-diff-basis.tests.ps1",
+      "sha256": "fbc987d2a6f5a0b3058e00e30056afeef30386c701e1bcb7eba08c37ebd283c6"
+    },
+    {
+      "path": "tests/component-path-diff-basis.tests.sh",
+      "sha256": "93c34e85553c7580da37446d913e3f3154111da0e1c17dd40a46477c1935ed3e"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "b69e36da97e1ab87c6d2709557c69327274af11ee484f5f46adb2d91fc7d5a75"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "274d8d537fdd86ed7f40718da8ccaa68162c5cdebba09e306ff46507b279c473"
+    }
+  ]
+}

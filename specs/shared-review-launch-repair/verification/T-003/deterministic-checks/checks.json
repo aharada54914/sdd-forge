@@ -1,0 +1,102 @@
+[
+  {
+    "check": "host-regression",
+    "command": [
+      "python3",
+      "-B",
+      "tests/host-review-preflight.tests.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log_sha256": "ea91ce1de31b6f75cbdcd9b6b9a92dbf0a1988a9f4abcdc68ed8090d16734554"
+  },
+  {
+    "check": "generator",
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "build",
+    "command": [
+      "python3",
+      "-B",
+      "tests/shared-launch-build.tests.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "log_sha256": "6f5b3fb602a249319fd133c9d111a1f7fbdf42718b48f43afd89390b604eb1ae"
+  },
+  {
+    "check": "placeholder",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "tests/host-review-preflight.tests.py"
+    ],
+    "exit_code": 0,
+    "log_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  {
+    "check": "risk",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "specs/shared-review-launch-repair/tasks.md"
+    ],
+    "exit_code": 0,
+    "log_sha256": "476b82b0108c876d6bcb8025355dd2862790b4805c38d91ae8850145fe5457b1"
+  },
+  {
+    "check": "task-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/shared-review-launch-repair/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation",
+      "."
+    ],
+    "exit_code": 0,
+    "log_sha256": "831fe5031db804ce71ea9d7fd5337ccf365c618907065502186a91b69746d536"
+  },
+  {
+    "check": "component",
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "--repo-root",
+      "."
+    ],
+    "exit_code": 0,
+    "log_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+  },
+  {
+    "check": "traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-003/deterministic-checks/traceability.json",
+      ".",
+      "require-evidence"
+    ],
+    "exit_code": 1,
+    "log_sha256": "9aa2e5439af0cfbd5ec56a47da5a9845ee50c73003869c2fbe161504f56de432"
+  },
+  {
+    "check": "report",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/implementation/shared-review-launch-repair/T-003.md"
+    ],
+    "exit_code": 0,
+    "log_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+  }
+]

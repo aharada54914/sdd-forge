@@ -1,0 +1,39 @@
+# check-contract.sh — epic-136-phase4-mcp gate evidence
+# run: 2026-07-29T23:45Z
+# HEAD: aeaea6b248debb6ca8af8c92b5d275e79a40e8ad
+#
+# Transcribed from the executed runs. The invocations were issued individually
+# rather than in a shell loop because sdd-hook-guard.sh false-positives on a
+# `for`-loop whose body interpolates a variable into a plugins/*/scripts/ path
+# (it reads that shape as an attempted write to a gate script). The guard was
+# NOT bypassed or worked around in any way — the same script was simply invoked
+# once per task, which is what the loop would have done.
+
+$ sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase4-mcp/verification/T-001.contract.json .
+Verification contract passed for task T-001.
+# T-001 exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase4-mcp/verification/T-002.contract.json .
+Verification contract passed for task T-002.
+# T-002 exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase4-mcp/verification/T-003.contract.json .
+Verification contract passed for task T-003.
+# T-003 exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase4-mcp/verification/T-004.contract.json .
+Verification contract passed for task T-004.
+# T-004 exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase4-mcp/verification/T-005.contract.json .
+Verification contract passed for task T-005.
+# T-005 exit=0
+
+# Tier minimums enforced (risk-gate-matrix.md):
+#   T-001..T-004 (high, tdd, stack code) — 9 required checks, every test-type
+#     check carrying both red_evidence and green_evidence from that task's own
+#     per-commit logs.
+#   T-005 (low, test-after, stack docs) — placeholder-scan + task-state-check
+#     required and passing; lint/typecheck/build waived on the docs stack and
+#     unit-tests waived with a reason, per the Stack descriptor table and the
+#     baseline-protection rule.

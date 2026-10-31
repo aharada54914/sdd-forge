@@ -1,0 +1,57 @@
+test_input_hash (__main__.PersistedMismatch.test_input_hash) ... ERROR
+test_raw_invocation_pin (__main__.PersistedMismatch.test_raw_invocation_pin) ... ERROR
+test_reserved_identity_receipt (__main__.PersistedMismatch.test_reserved_identity_receipt) ... ERROR
+
+======================================================================
+ERROR: test_input_hash (__main__.PersistedMismatch.test_input_hash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/../scratch/preflight_mismatches.py", line 24, in test_input_hash
+    launcher.transport.admitted_raw_hashes(root, {'stage': 'spec',
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+        'allowed_input_manifest': [{'path': 'requirements.md', 'sha256': '0' * 64}]})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py", line 39, in admitted_raw_hashes
+    require(data['stage'] == 'task' and len(mismatches) == 1 and
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            mismatches[0]['path'] == 'specs/' + feature + '/tasks.md',
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'admitted input hash mismatch')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py", line 155, in require
+    raise ValueError(message)
+ValueError: admitted input hash mismatch
+
+======================================================================
+ERROR: test_raw_invocation_pin (__main__.PersistedMismatch.test_raw_invocation_pin)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/../scratch/preflight_mismatches.py", line 18, in test_raw_invocation_pin
+    launcher.launch(root, invocation, root / 'output', '0' * 64)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/launch-impl-review.py", line 212, in launch
+    transport.require(re.fullmatch(r'[0-9a-f]{64}', manifest_sha256) is not None and
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      transport.sha(invocation) == manifest_sha256,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      'caller invocation pin mismatch')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py", line 155, in require
+    raise ValueError(message)
+ValueError: caller invocation pin mismatch
+
+======================================================================
+ERROR: test_reserved_identity_receipt (__main__.PersistedMismatch.test_reserved_identity_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/../scratch/preflight_mismatches.py", line 34, in test_reserved_identity_receipt
+    launcher.transport.receipt_control(data, receipt)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py", line 296, in receipt_control
+    raise ValueError('receipt record hash mismatch')
+ValueError: receipt record hash mismatch
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+FAILED (errors=3)

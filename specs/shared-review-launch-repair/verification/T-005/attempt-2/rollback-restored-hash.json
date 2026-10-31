@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-08T18:27:39.138945+00:00",
+  "path": "tests/unified-launch-order.tests.py",
+  "byte_equal": true,
+  "restored_sha256": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+  "before_sha256": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+  "baseline_launch_exit": 0,
+  "baseline_task_launch_exit": 0
+}

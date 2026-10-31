@@ -1,0 +1,15 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "specs/shared-review-launch-repair/tasks.md",
+    "reports/quality-gate",
+    "reports/implementation",
+    "."
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:50.698410+00:00",
+  "finished_at": "2026-10-14T15:11:51.422386+00:00"
+}

@@ -1,0 +1,230 @@
+{
+  "headSha": "e97de1c849e05313fdebbd4c4901ff69a7f6b5c2",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250",
+  "jobs": [
+    {
+      "name": "loops-routing (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:48Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280181"
+    },
+    {
+      "name": "installers (windows-latest / mcp)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:53:50Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280215"
+    },
+    {
+      "name": "ci-mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:15Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280235"
+    },
+    {
+      "name": "complete POSIX regression inventory",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:56:03Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280236"
+    },
+    {
+      "name": "mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:10Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280240"
+    },
+    {
+      "name": "installers (windows-latest / clients)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:53:07Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280241"
+    },
+    {
+      "name": "version-gates-windows-lanes (lite)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:34Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280244"
+    },
+    {
+      "name": "loops-routing (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:57:39Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280246"
+    },
+    {
+      "name": "version-gates-windows-lanes (ownership)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:53Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280249"
+    },
+    {
+      "name": "test (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:04:27Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280252"
+    },
+    {
+      "name": "version-gates (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:08:44Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280253"
+    },
+    {
+      "name": "installers (windows-latest / context)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:13Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280261"
+    },
+    {
+      "name": "installers (ubuntu-latest / all)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:11Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280267"
+    },
+    {
+      "name": "local-env-mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:51:50Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280270"
+    },
+    {
+      "name": "local-env-mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:00Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280273"
+    },
+    {
+      "name": "ci-mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:53:32Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280274"
+    },
+    {
+      "name": "version-gates-windows-lanes (governance)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:08Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280275"
+    },
+    {
+      "name": "test (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:59:11Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280279"
+    },
+    {
+      "name": "version-gates (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:02:21Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280281"
+    },
+    {
+      "name": "version-gates-windows-lanes (capability)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:55:50Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280282"
+    },
+    {
+      "name": "POSIX unwired shard (3)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:58:59Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280289"
+    },
+    {
+      "name": "test (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:12:19Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280293"
+    },
+    {
+      "name": "installers (windows-latest / core)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:52Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280294"
+    },
+    {
+      "name": "POSIX unwired shard (0)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:56:39Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280296"
+    },
+    {
+      "name": "installers (macos-latest / all)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:57:02Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280303"
+    },
+    {
+      "name": "mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:19Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280314"
+    },
+    {
+      "name": "version-gates-windows-bump",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:56:43Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280319"
+    },
+    {
+      "name": "POSIX unwired shard (2)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:59:24Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280323"
+    },
+    {
+      "name": "cli-hook-enforcement (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:06Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280333"
+    },
+    {
+      "name": "mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:53:09Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280345"
+    },
+    {
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:21Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280350"
+    },
+    {
+      "name": "cli-hook-enforcement (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:52:56Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280361"
+    },
+    {
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:53:25Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280377"
+    },
+    {
+      "name": "POSIX unwired shard (1)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:06:38Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280398"
+    },
+    {
+      "name": "test-windows-heavy",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:03:48Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280403"
+    },
+    {
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T05:54:26Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114401280410"
+    },
+    {
+      "name": "required-checks",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T06:12:25Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38116113250/job/114404633129"
+    }
+  ]
+}

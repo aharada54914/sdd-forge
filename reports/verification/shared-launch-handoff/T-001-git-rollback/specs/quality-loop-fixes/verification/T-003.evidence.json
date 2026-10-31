@@ -1,0 +1,59 @@
+{
+  "task_id": "T-003",
+  "feature": "quality-loop-fixes",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "d3ce2bccbe2fd0534358a26d45e5fb34c9fb1540f966dfdced5400ca38354c3a",
+  "quality_report": "reports/quality-gate/20260719T183208Z-quality-loop-fixes-T-003.md",
+  "verification_contract": "specs/quality-loop-fixes/verification/T-003.contract.json",
+  "git_commit": "677c61c2245a9c560b581f19e6f7b96207849dff",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/quality-loop-fixes/verification/T-003.contract.json",
+      "sha256": "4785424986a05e5f04ec68c60c0c3125c900f1878c26f8891a6500c02eeab06b"
+    },
+    {
+      "path": "reports/quality-gate/20260719T183208Z-quality-loop-fixes-T-003.md",
+      "sha256": "912c08587c0b9fe9d74f66bd451f3899482feadb3f8059466d6cd26cb9e0986d"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-003/focused-tests.log",
+      "sha256": "9f4d8458a50124f350def8b7258f386bfc30bb602c0bf659662741399e9ea2c3"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-003/placeholder-scan.log",
+      "sha256": "6fd8d192a64af88adc178213f6e89c3c85369eb12e1161f2d9b90ec47f3ec51f"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-003/regression.log",
+      "sha256": "45231c133c35078da897212a58cf0ed38b34a6908942f3cb2d503c79ac99236d"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-003/task-state.log",
+      "sha256": "63e5903181c21626f2b9e1a3436dd28d59e77db3328c0261143347aad690ca43"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-003/traceability.log",
+      "sha256": "99039eb92b8030a63474bf09c37febca39eb535d9f92f851e9ee58bdd48eb07a"
+    }
+  ]
+}

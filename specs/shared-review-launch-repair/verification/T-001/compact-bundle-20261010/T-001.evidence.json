@@ -1,0 +1,183 @@
+{
+  "task_id": "T-001",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "80584525647fccd41d560850d1b8dfa9a44439644047ab6540212a6bffe60348",
+  "quality_report": "reports/quality-gate/20261009-shared-review-launch-repair-T-001-compact.md",
+  "verification_contract": "specs/shared-review-launch-repair/verification/T-001.contract.json",
+  "git_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/component.log",
+      "evidence_sha256": "5f8af270576d85becbeddb3687bb55653701c7c840d39c2def2fd584a89ef5ac"
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/ruff.log",
+      "evidence_sha256": "1a3da41063eec3c38117f5f03201ef0a23b3f9f80c442eb8936f91b220aa75ae"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/mypy.log",
+      "evidence_sha256": "221e26ef9462657c5b4f9f84311c840536f2c8bd987101177f515338d83c6b12"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/quality-nontty-transport.log",
+      "evidence_sha256": "1e8c1b4912b49cfecf4ac165fcdef40269d304d341ea0dd70e491874b3a6c106"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/shared-launch-build.log",
+      "evidence_sha256": "704999bd2bfdcc5bd6331edae6fd7e6541afcc36da1e2836d06014b0c9e87382"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/placeholder.log",
+      "evidence_sha256": "2fa5e9940144eb8f115e2645d5167acb464b93e2eadf97e657084b1558c35ba4"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/task-state.log",
+      "evidence_sha256": "5d6167862a4d3d4e9327d9687b312fe5a9b1da023788799b053954e7581e686a"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/quality-nontty-transport.log",
+      "evidence_sha256": "1e8c1b4912b49cfecf4ac165fcdef40269d304d341ea0dd70e491874b3a6c106"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/coverage.md",
+      "evidence_sha256": "b35df392a830eb3b9d9d349ff4ed76d745ef6ca999fcde9b9f2cbe8dc5428009"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/traceability.log",
+      "evidence_sha256": "a24ddea4b57f200ad69cacf7728c6674c581e589b69024f016a1d77f4d7812b1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001.contract.json",
+      "sha256": "426ce9cd95f5fd8a9e024b077223a946261fc378424831c47edfa8ea821f5df2"
+    },
+    {
+      "path": "reports/quality-gate/20261009-shared-review-launch-repair-T-001-compact.md",
+      "sha256": "f93e2f4e7a6b86fe4be590b5b33865442d4c40d9789c51552746be6f42819063"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/coverage.md",
+      "sha256": "b35df392a830eb3b9d9d349ff4ed76d745ef6ca999fcde9b9f2cbe8dc5428009"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/mypy.log",
+      "sha256": "221e26ef9462657c5b4f9f84311c840536f2c8bd987101177f515338d83c6b12"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/placeholder.log",
+      "sha256": "2fa5e9940144eb8f115e2645d5167acb464b93e2eadf97e657084b1558c35ba4"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/quality-nontty-transport.log",
+      "sha256": "1e8c1b4912b49cfecf4ac165fcdef40269d304d341ea0dd70e491874b3a6c106"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/ruff.log",
+      "sha256": "1a3da41063eec3c38117f5f03201ef0a23b3f9f80c442eb8936f91b220aa75ae"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/shared-launch-build.log",
+      "sha256": "704999bd2bfdcc5bd6331edae6fd7e6541afcc36da1e2836d06014b0c9e87382"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/task-state.log",
+      "sha256": "5d6167862a4d3d4e9327d9687b312fe5a9b1da023788799b053954e7581e686a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-bundle-20261010/traceability.log",
+      "sha256": "a24ddea4b57f200ad69cacf7728c6674c581e589b69024f016a1d77f4d7812b1"
+    }
+  ]
+}

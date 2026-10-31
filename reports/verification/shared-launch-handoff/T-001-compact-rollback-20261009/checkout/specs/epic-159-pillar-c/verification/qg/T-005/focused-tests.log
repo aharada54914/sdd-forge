@@ -1,0 +1,12 @@
++ bash tests/agent-model-routing.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/agent-model-routing.tests.ps1 (T-005 full case list, both twins)
+== start: 2026-07-18T05:50:16Z ==
+###### bash tests/agent-model-routing.tests.sh ######
+ok: turn-first model routing structure is defined
+EXIT_CODE_SH: 0
+###### pwsh tests/agent-model-routing.tests.ps1 ######
+Risk check passed for 1 task(s).
+Risk check FAILED:
+ - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)
+ok: turn-first model routing structure is defined (PowerShell twin)
+EXIT_CODE_PS1: 0
+== end: 2026-07-18T05:50:38Z ==

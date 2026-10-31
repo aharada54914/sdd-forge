@@ -1,0 +1,13 @@
+Task: T-001
+Phase: red
+Observed: 2026-06-27 during the mandatory bootstrap review chain
+Command: plugins/sdd-review-loop/scripts/impl-review-precheck.sh workflow-state-integrity 1 1
+Exit: nonzero
+Failure: a persisted Spec PASS contract was rejected after the canonical
+requirements header transitioned from Pending to Passed.
+Diagnostic: ERROR: spec-review-precheck: prior round contract is malformed or does not require work
+Root cause: the predecessor contract bound the pre-transition artifact hash,
+while the downstream precheck required the post-transition hash. Repository-root
+absolute manifest paths were also not normalized consistently.
+Reproduction: tests/spec-review-loop.tests.sh now retains the transition fixture
+that failed before the implementation.

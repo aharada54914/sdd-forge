@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0329",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0329",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "05b4ca2b6e59d376d658a791fa93d3ea5d5619638366bc561cdf062ebbee734b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-2/precheck-result.json", "sha256": "c71085f75c40755d4a1423d3a342813ee590e945131464549ba23798057997c2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-2/integrated-summary.json", "sha256": "1ea320c712e2c0ab340a7510075d2f3dea9d05805c3893829a0a04cc01080f6b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's flagged gap (REQ-002 operator grammar) is now closed: the operator vocabulary is a literal closed 8-token enum (all/any/not/equals/not_equals/contains/in/exists) with any other token a schema-level PREDICATE_SCHEMA_ERROR, independently testable of AC-011's field-allowlist check via new AC-040/TEST-040. Remaining terms are concrete: REQ-003(c)/AC-016/AC-017 fix the Gate implementation identity schema to exact literals (scan root 'plugins/sdd-quality-loop/scripts/', 'check-' prefix rule, symlink-then-group comparison); REQ-005/AC-027 fix discovery order (script-relative packaged copy -> git-resolved root -> fail closed) and a distinct version check per artifact. No object/state/actor was found left undefined enough that two implementers would build divergent behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked Goals/Non-goals/Field Definitions/ACs for direct conflicts (delivery_strategy required-but-open-vocabulary vs minimum_enforcement genuinely-optional; OQ-002/OQ-003 schema rulings vs the two-location-only DSL statement; AC-034 scope-boundary vs Non-goals) and found none. The one apparent tension -- investigation.md's OQ-004 entry reading 'Status: open, materially expanded' alongside the Adversarial Spec Review Response's 'fully closed same day per orchestrator ruling P8' for the same OQ -- is reconciled, not contradictory: requirements.md Roles and Permissions explicitly states the human maintainer 'resolves OQ-001 and OQ-004 either by direct instruction or by a follow-up ADR,' and investigation.md's own OQ-004 text ties 'open' to provenance ('still flagged as this spec's own proposal, not found verbatim in decision v2 or an ADR'), not to specification completeness, while REQ-003(c)/AC-016/AC-017 already give a concrete, implementable Gate-identity schema. No requirement/AC pair asserts opposite outcomes for the same input."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every material negative/empty/boundary path implied by REQ-001..006 has a dedicated AC/TEST row: empty required_facets/conditional_facets (AC-037), empty review_check_ids (AC-038), missing/null/type-mismatched comparison operands and the exists exception (AC-007/AC-008), not's zero/2+-child arity error and truth table (AC-012), all/any empty-list and no-short-circuit behavior (AC-009), the newly-closed forbidden-operator boundary (AC-040/TEST-040) independent of the field-allowlist violation (AC-011), duplicate Gate ID and duplicate Capability ID checked independently so neither masks the other (AC-014/AC-039), dangling gate_ids reference (AC-021), unrecognized upgrade_reasons token (AC-022), missing/nonexistent implementation_ref only for stage:implementation (AC-002/AC-015), non-.py wrapper/symlink/duplicate-wrapper-group identity errors (AC-016/AC-017), digest hard-failures for an unknown ID or no selector flag at all (AC-024), a hand-mutated projection and a clean regeneration for --check (AC-026), and discovery fail-closed diagnostics for wrong schema/missing $schema/mismatched $id/no-location-resolves/stale-vendored-copy (AC-027). No gap was found."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-002 and OQ-003 are marked RESOLVED by orchestrator ruling with the resulting schema behavior stated directly in REQ-001/AC-004/AC-006. OQ-001 is explicitly marked partially resolved: vocabulary-freezing is deferred to Epic A6 (ADR-0022 item 4, stated as Non-goals) while a concrete interim fail-closed catalog check is added (REQ-003(h)/AC-022) -- an explicit decision-needed marker, not a silent guess. OQ-004 is explicitly flagged, consistently across investigation.md, requirements.md's User Stories, Roles and Permissions, and AC-035, as this spec's own design proposal pending eventual human/ADR ratification, with a concrete interim mechanism already specified (REQ-003(c)) rather than left to the design reviewer to invent. REQ-004's Epic A1 dependency is explicitly marked 'blocked' with a named condition for unblocking (Dependencies section), and REQ-002's field allowlist placeholder carries an explicit drift-check obligation (INV-004a) rather than being silently treated as final."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-approval boundary is stated and testable: Roles and Permissions confines the spec author to never writing 'Approved' in any Status field ('Spec-Review-Status stays Pending, for a human to change'). The irreversible/protected-file boundary (guard-invariants.json additions, .github/workflows/test.yml registration) is required to go through specs/epic-190-a2-capability-registry/human-copy/ + MANIFEST.sha256 rather than a direct edit, and AC-029/AC-030 give a concrete three-part verification (staged candidate with correct MANIFEST.sha256 entry; live protected file byte-identical until a human applies it; post-cp regenerated content check), so this boundary is independently checkable rather than merely asserted."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 40 ACs map to a corresponding TEST row via matching row number, with the two documented, justified exceptions (AC-034 has no automated TEST-034 because it is a one-time commit-boundary manual review record; TEST-036 is explicitly Deferred to Phase 2 since its target file does not exist yet) rather than a silent gap. Non-goals precisely bound scope (no plugins/scripts/contracts/tests/.github file touched this commit; tasks.md/traceability.md deferred to Phase 2 per this repository's own check-workflow-state.sh gate). Every OQ is either resolved or explicitly flagged with a stated interim design, and field/behavior definitions (Field Definitions section) are concrete enough that a design/implementation-policy reviewer does not need to invent missing product behavior to proceed."
+    }
+  ]
+}

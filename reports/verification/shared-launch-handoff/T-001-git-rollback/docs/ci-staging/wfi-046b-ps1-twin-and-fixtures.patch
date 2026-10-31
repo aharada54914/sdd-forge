@@ -1,0 +1,126 @@
+--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1
+@@ -246,6 +246,49 @@
+     $evidence = ([string]($check.evidence)).Trim()
+     $waiverReason = ([string]($check.waiver_reason)).Trim()
+ 
++    # Per-check execution record (design.md section 2, WFI-046). Optional --
++    # absent or null is valid -- but format-checked when present, with wording
++    # byte-identical to the python twin. This twin is an independent
++    # implementation, not a delegate, so the rule has to be written here too;
++    # shipping it on one runtime only is what gate seq 849 charged.
++    $checkProps = $check.PSObject.Properties.Name
++    $commandValue = $null
++    if ($checkProps -contains 'command') { $commandValue = $check.command }
++    if ($null -ne $commandValue) {
++        if ($commandValue -isnot [string] -or [string]::IsNullOrWhiteSpace($commandValue)) {
++            $failures += "check '$id' has invalid command: expected a non-empty string"
++        }
++    }
++    $exitCodeValue = $null
++    if ($checkProps -contains 'exit_code') { $exitCodeValue = $check.exit_code }
++    if ($null -ne $exitCodeValue) {
++        if ($exitCodeValue -is [bool] -or
++            -not ($exitCodeValue -is [int] -or $exitCodeValue -is [long])) {
++            $failures += "check '$id' has invalid exit_code: expected an integer"
++        }
++    }
++    foreach ($tsField in @('started_at', 'finished_at')) {
++        $tsValue = $null
++        if ($checkProps -contains $tsField) { $tsValue = $check.$tsField }
++        if ($null -eq $tsValue) { continue }
++        # ConvertFrom-Json coerces an ISO-8601 string to [datetime] and its
++        # string form is locale-rendered, so the original Z cannot be recovered
++        # from the text. DateTimeKind does distinguish the four shapes exactly:
++        # a trailing Z yields Utc, a bare timestamp Unspecified, and a numeric
++        # offset Local -- so the UTC requirement is checked on Kind, and only a
++        # value that stayed a string is pattern-checked.
++        if ($tsValue -is [datetime]) {
++            if ($tsValue.Kind -ne [System.DateTimeKind]::Utc) {
++                $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
++                    "(YYYY-MM-DDTHH:MM:SSZ)"
++            }
++        } elseif ($tsValue -isnot [string] -or
++            "$tsValue" -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z$') {
++            $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
++                "(YYYY-MM-DDTHH:MM:SSZ)"
++        }
++    }
++
+     # Waiver enforcement: required:false + passes:false needs waiver_reason
+     if (-not $required -and -not $passes) {
+         if ([string]::IsNullOrWhiteSpace($waiverReason)) {
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -1795,6 +1795,71 @@
+     fail "T-004V.7: v2 medium should not require spec_revision: $(run_check_contract "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium")"
+ fi
+ 
++# T-006.8 (WFI-046, gate seq 849): the per-check execution record shipped with
++# NO fixture in either suite, so the format-check code path was never entered
++# and its total absence from the ps1 twin went unnoticed. Both polarities
++# pinned here; the ps1 twin carries T-006.ps.7a-7e.
++wfi046_root="${WORK}/wfi046"
++mkdir -p "$wfi046_root/specs/test-feature"
++printf 'PASS\n' > "$wfi046_root/ev.log"
++write_wfi046_contract() {
++    # $1 = output path, $2 = JSON fragment merged into the first check
++    python3 - "$1" "$2" <<'PY'
++import json, sys
++out, fragment = sys.argv[1], sys.argv[2]
++contract = {
++    "task_id": "T-046", "feature": "test-feature", "risk": "low",
++    # risk: low requires every baseline id at required:true, so the fixture
++    # marks them all required and passing -- otherwise the tier-minimum rule
++    # rejects it before the WFI-046 checks are ever reached.
++    "checks": [
++        {"id": cid, "required": True, "passes": True, "evidence": "ev.log",
++         "waiver_reason": "", "requirement_ids": []}
++        for cid in ("lint", "typecheck", "unit-tests", "build",
++                    "placeholder-scan", "task-state-check")
++    ],
++}
++if fragment:
++    contract["checks"][0].update(json.loads(fragment))
++open(out, "w").write(json.dumps(contract, indent=2) + "\n")
++PY
++}
++
++write_wfi046_contract "$wfi046_root/absent.json" ""
++if check_contract_passes "$wfi046_root/absent.json" "$wfi046_root"; then
++    ok "T-006.8a: WFI-046 fields absent still passes (grandfathering)"
++else
++    fail "T-006.8a: contract without the execution record should pass: $(run_check_contract "$wfi046_root/absent.json" "$wfi046_root")"
++fi
++
++write_wfi046_contract "$wfi046_root/valid.json" '{"command": "bash tests/unit.tests.sh", "exit_code": 0, "started_at": "2026-08-24T10:00:00Z", "finished_at": "2026-08-24T10:05:00Z"}'
++if check_contract_passes "$wfi046_root/valid.json" "$wfi046_root"; then
++    ok "T-006.8b: WFI-046 valid execution record passes"
++else
++    fail "T-006.8b: valid execution record should pass: $(run_check_contract "$wfi046_root/valid.json" "$wfi046_root")"
++fi
++
++write_wfi046_contract "$wfi046_root/blank-command.json" '{"command": "   "}'
++if check_contract_passes "$wfi046_root/blank-command.json" "$wfi046_root"; then
++    fail "T-006.8c: blank command should be rejected"
++else
++    ok "T-006.8c: WFI-046 blank command is rejected"
++fi
++
++write_wfi046_contract "$wfi046_root/bad-rc.json" '{"exit_code": "zero"}'
++if check_contract_passes "$wfi046_root/bad-rc.json" "$wfi046_root"; then
++    fail "T-006.8d: non-integer exit_code should be rejected"
++else
++    ok "T-006.8d: WFI-046 non-integer exit_code is rejected"
++fi
++
++write_wfi046_contract "$wfi046_root/bad-ts.json" '{"started_at": "2026-08-24T10:00:00"}'
++if check_contract_passes "$wfi046_root/bad-ts.json" "$wfi046_root"; then
++    fail "T-006.8e: timestamp without the UTC Z should be rejected"
++else
++    ok "T-006.8e: WFI-046 timestamp without the UTC Z is rejected"
++fi
++
+ # ============================================================================
+ # T-004: Red→Green evidence enforcement
+ # ============================================================================

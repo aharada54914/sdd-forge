@@ -1,0 +1,161 @@
+{
+  "feature": "sdd-forge-mcp",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-005",
+        "AC-011"
+      ],
+      "tests": [
+        "TEST-005",
+        "TEST-011"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-001-green.txt",
+        "specs/sdd-forge-mcp/verification/T-004-green.txt",
+        "reports/implementation/sdd-forge-mcp/T-004.md"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-005",
+        "AC-015"
+      ],
+      "tests": [
+        "TEST-005",
+        "TEST-015"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-003-green.txt",
+        "specs/sdd-forge-mcp/verification/T-004-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-014"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-011-green.txt",
+        "specs/sdd-forge-mcp/verification/T-005-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-013"
+      ],
+      "tests": [
+        "TEST-013"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-009-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-017"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-017"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-002-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-003",
+        "AC-004",
+        "AC-017"
+      ],
+      "tests": [
+        "TEST-003",
+        "TEST-004",
+        "TEST-017"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-001-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": [
+        "AC-016"
+      ],
+      "tests": [
+        "TEST-016"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-001-green.txt"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "acs": [
+        "AC-010"
+      ],
+      "tests": [
+        "TEST-010"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-001-green.txt",
+        "reports/implementation/sdd-forge-mcp/T-007.md"
+      ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": [
+        "AC-007",
+        "AC-008",
+        "AC-009"
+      ],
+      "tests": [
+        "TEST-007",
+        "TEST-008",
+        "TEST-009"
+      ],
+      "evidence": [
+        "reports/implementation/sdd-forge-mcp/T-006.md",
+        "reports/implementation/sdd-forge-mcp/T-008.md"
+      ]
+    },
+    {
+      "req": "REQ-010",
+      "acs": [
+        "AC-006",
+        "AC-010"
+      ],
+      "tests": [
+        "TEST-006",
+        "TEST-010"
+      ],
+      "evidence": [
+        "reports/implementation/sdd-forge-mcp/T-007.md"
+      ]
+    },
+    {
+      "req": "REQ-011",
+      "acs": [
+        "AC-012"
+      ],
+      "tests": [
+        "TEST-012"
+      ],
+      "evidence": [
+        "specs/sdd-forge-mcp/verification/T-010-green.txt"
+      ]
+    }
+  ]
+}

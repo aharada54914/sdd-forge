@@ -1,0 +1,53 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+    PLUGIN-CONTRACTS.md \
+    plugins/sdd-bootstrap/skills/bootstrap/SKILL.md \
+    plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md \
+    plugins/sdd-lite/skills/lite-gate/SKILL.md \
+    tests/plugin-contracts-track-selection.tests.sh \
+    tests/plugin-contracts-track-selection.tests.ps1 \
+    tests/run-all.sh \
+    tests/run-all.ps1 \
+    specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml
+Placeholder scan passed.
+exit=0
+
+SCOPE NOTE: the nine paths above are T-011's entire changed source surface -
+the four revised documents, the new suite in both lanes, both runners, and the
+staged CI workflow candidate. They are exactly T-011's Planned Files minus
+CHANGELOG.md, which is handled below, minus the frozen spec/report artifacts
+(tasks.md, the implementation report, the T-011 Red/Green logs, MANIFEST.sha256)
+which are not production surface.
+
+CHANGELOG.md EXCLUDED, with the reason MEASURED rather than assumed. Running the
+same scan with CHANGELOG.md appended fails with 5 findings, all of them in
+long-standing prose that DESCRIBES the placeholder scanner's own behaviour:
+
+  $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh <the nine above> CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1014:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+   - CHANGELOG.md:1015:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+   - CHANGELOG.md:1024:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+   - CHANGELOG.md:2003:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+   - CHANGELOG.md:2013:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+  exit=1
+
+PROOF that none of the five is T-011's, by re-running the scan on the pre-T-011
+tree rather than by inspection alone:
+
+  $ git archive 9652430e | tar -x -C <scratch dir>     # 9652430e = 3dd2567d^
+  $ cd <scratch dir> && bash plugins/sdd-quality-loop/scripts/check-placeholders.sh CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1968: ... TODO_REPLACE_WITH_PROJECT_COMMANDS ...
+   - CHANGELOG.md:1978: ... TODO_REPLACE_WITH_PROJECT_COMMANDS ...
+   - CHANGELOG.md:979:  `raise NotImplementedError` ...
+   - CHANGELOG.md:980:  ... `# TODO` マーカー ...
+   - CHANGELOG.md:989:  ... NotImplementedError ... TODO ...
+  exit=1
+
+The same five findings, at line numbers exactly 35 lower. T-011's CHANGELOG
+commit is a pure insertion of 35 lines at line 584 (`git diff --unified=0
+9abf8bcd^ 9abf8bcd -- CHANGELOG.md` reports a single hunk `@@ -583,0 +584,35 @@`),
+so 979 -> 1014, 980 -> 1015, 989 -> 1024, 1968 -> 2003 and 1978 -> 2013 account
+for all five. T-011 introduced no placeholder marker and moved five pre-existing
+ones by a constant offset. T-010's chain likewise did not scan CHANGELOG.md; this
+log records why rather than leaving the omission unexplained.

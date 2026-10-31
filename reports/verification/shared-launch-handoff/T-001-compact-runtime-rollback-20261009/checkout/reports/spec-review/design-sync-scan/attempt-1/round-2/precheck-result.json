@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "design-sync-scan",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f811a6698ef20af859d107041ad3ee7a18abc5ffe3790820007ae88b45614b3b",
+  "acceptance_sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "add07578a16d31797d2f29322b70a58ed85b76d4addafcd801046b11e2bb758b",
+  "edit_summary": "Added AC-039 (REQ-001) with TEST-085/086: the non-HTML selection boundary stated in Non-goals/Edge Case 4 is now a checked negative fixture, and the .html extension test is decided case-insensitive with a dedicated cross-runtime parity row. Resolves round-1 reviewer B EDGE-CASE-COVERAGE (Major). design.md usage block synced.",
+  "reset": false,
+  "generated_at": "2026-08-07T14:27:10Z"
+}

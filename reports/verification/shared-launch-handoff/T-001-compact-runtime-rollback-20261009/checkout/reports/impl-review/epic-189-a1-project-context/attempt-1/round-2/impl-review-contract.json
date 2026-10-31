@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 1,
+  "round": 2,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) -- no UI, no new plugin, no Provider integration",
+  "legacy_design": false,
+  "requirements_sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+  "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+  "design_sha256": "3a68384e14e613e3b9e1397d5407c740b0e97dc4a840986955555c61b828ee5f",
+  "layer_sha256": {
+    "ux-spec.md": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7",
+    "frontend-spec.md": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276",
+    "infra-spec.md": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489",
+    "security-spec.md": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Round 1 ADR-PRESENT (Major): design.md's Human-copy publisher transactional bundle contract (REQ-007, multi-target atomicity) was a materially new integration pattern not covered by any existing ADR (ADR-0011 explicitly disclaims the exact multi-target atomicity guarantee this design provides). Remedy: created docs/adr/0025-human-copy-transactional-bundle.md, formalizing already-approved design.md content (no substantive design change), and updated design.md's ADR Change Log section to cite it. No other section of design.md was touched.",
+  "prior_round_contract_sha256": "72badb48b03bde32682b35a9e669fb781c39f1e67679b67d664a2d98cf65cd0f",
+  "pass_type": "clean",
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-a-seq0326",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-189-a1-project-context-0326",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "3a68384e14e613e3b9e1397d5407c740b0e97dc4a840986955555c61b828ee5f"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/investigation.md",
+          "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json",
+          "sha256": "c72ec033e5a92f5fe9995aca524880fd8c45b5c37b4fee7f5d4a5584ee700cb3"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-b-seq0327",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-189-a1-project-context-0327",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "3a68384e14e613e3b9e1397d5407c740b0e97dc4a840986955555c61b828ee5f"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/investigation.md",
+          "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json",
+          "sha256": "c72ec033e5a92f5fe9995aca524880fd8c45b5c37b4fee7f5d4a5584ee700cb3"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-1/round-2/integrated-summary.json",
+          "sha256": "015c13c1fb08fb52c51b76f38378ec0f1fe90b83de841baea186cf69671c4137"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "run_id": "impl-orch-epic189a1projectcontext-a1r2",
+  "timestamp": "2026-07-22T00:05:49Z"
+}

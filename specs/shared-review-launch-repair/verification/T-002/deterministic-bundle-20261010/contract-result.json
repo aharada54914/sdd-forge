@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "specs/shared-review-launch-repair/verification/T-002.contract.json",
+    "."
+  ],
+  "exit_code": 1,
+  "stdout": "Verification contract FAILED for task T-002:\n - required check 'acceptance-tests' has passes=false\n - check 'acceptance-tests' required_workflow tdd needs non-empty red_evidence\n",
+  "stderr": "",
+  "contract_sha256": "85770cc07f3fe919cf29a8e7db0e03bde08c96a554af5394df5fe41b2d26986c"
+}

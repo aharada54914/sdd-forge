@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-placeholders.sh /Users/jrmag/Projects/active/sdd-forge/.github/workflows/release.yml /Users/jrmag/Projects/active/sdd-forge/tests/release-loop-gate.tests.sh /Users/jrmag/Projects/active/sdd-forge/tests/release-loop-gate.tests.ps1
+== start: 2026-07-16T13:38:30Z ==
+Placeholder scan passed.
+== end: 2026-07-16T13:38:30Z ==
+EXIT_CODE: 0

@@ -1,0 +1,21 @@
+{
+  "schema":"review-context-invocation/v2","input_mode":"file-manifest","fallback_mode":"none","read_only":true,
+  "feature":"shared-review-launch-repair","stage":"task","role":"task-reviewer-a",
+  "run_id":"0d7c92cd-773b-46ed-bde9-fa37bb86591d","host_session_id":"0d7c92cd-773b-46ed-bde9-fa37bb86591d",
+  "sequence":1196,"previous_record_sha256":"f5b79332a959ac582437e21c15ea48de09717bd7bf1158d3bede2bda8e665c3e",
+  "identity_ledger_path":"reports/review-context/identity-ledger.json","identity_ledger_sha256":"c55c127ce9bd45fef87c216f9514adbf273e9b45c97ae6abce276567a68d7362",
+  "allowed_input_manifest":[
+    {"path":"specs/shared-review-launch-repair/requirements.md","sha256":"bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"},
+    {"path":"specs/shared-review-launch-repair/acceptance-tests.md","sha256":"6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"},
+    {"path":"specs/shared-review-launch-repair/design.md","sha256":"68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"},
+    {"path":"specs/shared-review-launch-repair/tasks.md","sha256":"2ab149e5843d4a390ff2aea9ad950a5db54cbadc8e46d52a85755b686dea24c4"},
+    {"path":"specs/shared-review-launch-repair/traceability.md","sha256":"3eb98814fb2d0937bba0d4735f325612f64085d9baa73746df5dd0c4fba8e711"},
+    {"path":"specs/shared-review-launch-repair/ux-spec.md","sha256":"6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"},
+    {"path":"specs/shared-review-launch-repair/frontend-spec.md","sha256":"def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"},
+    {"path":"specs/shared-review-launch-repair/infra-spec.md","sha256":"b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"},
+    {"path":"specs/shared-review-launch-repair/security-spec.md","sha256":"aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/shared-review-launch-repair/attempt-1/round-2/precheck-result.json","sha256":"8d9648e150de68ba4bec689261c18340464580d96bfa24ce1de261aa976b55de"},
+    {"path":"reports/task-review/shared-review-launch-repair/attempt-1/round-2/dependency-graph.json","sha256":"24d29185c087b3d4b0611ad7abc8a479c516b4377ee995029c2e13fb05920c1f"}
+  ]
+}

@@ -1,0 +1,44 @@
++ bash tests/release-loop-gate.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/release-loop-gate.tests.ps1
+== start: 2026-07-16T13:30:14Z ==
+
+###### bash tests/release-loop-gate.tests.sh ######
+=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ===
+ok: TEST-007 (AC-007): a loop-gate: job slice was found in release.yml
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh
+=== TEST-008 (AC-008): release job needs: loop-gate + no escape hatch ===
+ok: TEST-008 (AC-008): release job slice carries a needs: loop-gate entry
+ok: TEST-008 (AC-008): loop-gate job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+ok: TEST-008 (AC-008): release job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+=== TEST-009 (AC-009): negative-branch canary (needs: stripped) ===
+ok: TEST-009 (AC-009): the needs:-stripped fixture copy is reported non-compliant (release_has_needs=False), proving TEST-008's assertion is not vacuously true
+=== TEST-010 (AC-010): ubuntu-latest only + self-registration ===
+ok: TEST-010 (AC-010): loop-gate job slice declares runs-on: ubuntu-latest
+ok: TEST-010 (AC-010): loop-gate job slice carries no strategy:/matrix: key (single-OS, matching release.yml's existing scope)
+ok: TEST-010 (AC-010): release-loop-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml
+---- summary: pass=10 fail=0 ----
+ok: release-loop-gate suite passed (10 checks)
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/release-loop-gate.tests.ps1 ######
+=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ===
+ok: TEST-007 (AC-007): a loop-gate: job slice was found in release.yml
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh
+=== TEST-008 (AC-008): release job needs: loop-gate + no escape hatch ===
+ok: TEST-008 (AC-008): release job slice carries a needs: loop-gate entry
+ok: TEST-008 (AC-008): loop-gate job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+ok: TEST-008 (AC-008): release job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+=== TEST-009 (AC-009): negative-branch canary (needs: stripped) ===
+ok: TEST-009 (AC-009): the needs:-stripped fixture copy is reported non-compliant, proving TEST-008's assertion is not vacuously true
+=== TEST-010 (AC-010): ubuntu-latest only + self-registration ===
+ok: TEST-010 (AC-010): loop-gate job slice declares runs-on: ubuntu-latest
+ok: TEST-010 (AC-010): loop-gate job slice carries no strategy:/matrix: key (single-OS, matching release.yml's existing scope)
+ok: TEST-010 (AC-010): release-loop-gate.tests.ps1 is registered in tests/run-all.ps1 and .github/workflows/test.yml
+
+release-loop-gate.tests.ps1: 10 passed, 0 failed
+---- exit: 0 ----
+
+SUMMARY: bash_exit=0 pwsh_exit=0
+== end: 2026-07-16T13:30:14Z ==
+EXIT_CODE: 0

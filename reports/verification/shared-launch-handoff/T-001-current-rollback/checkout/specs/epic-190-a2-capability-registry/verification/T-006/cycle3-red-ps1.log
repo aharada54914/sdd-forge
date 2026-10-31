@@ -1,0 +1,21 @@
+# TDD evidence for the quality-gate cycle 3 remediation of T-006
+# (tests/generate-gate-capabilities.tests.ps1), PowerShell runtime.
+# PowerShell twin of cycle3-red-sh.log -- see that file's header for the
+# full rationale. This runtime's new ".py tuple superset" check
+# (Test-NoRegressionPy / Get-PyTupleConstant) is exercised the same way:
+# real candidate (PASS expected), then a scratch copy of the real
+# candidate's content overwritten with the real, live-checked-out
+# human-copy/ (old, pre-epic-189-a1-merge) generator script's content
+# (FAIL expected). Nothing under human-copy/ or
+# drafts/human-copy-candidate/ was modified; the mutated copy lived only
+# in a scratch temp path.
+#
+# Captured 2026-08-09, quality-gate cycle 3 remediation.
+
+=== Scenario 1: real candidate .py (drafts/human-copy-candidate/), unmutated ===
+[real candidate .py] PASS (0 removals)
+
+=== Scenario 2: MUTATION -- candidate .py content replaced with the OLD trap script's content ===
+[candidate .py mutated to OLD trap content] FAIL (29 removals) e.g. [PHASE2_TARGETS] tests/guard-parity.tests.sh; [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/apply-human-copy.ps1; [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+
+MUTATION TEST PASSED: the real candidate .py passes; swapping in the old trap .py correctly fails.

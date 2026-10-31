@@ -1,0 +1,22 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-002",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "stack": "code",
+  "required_workflow": "tdd",
+  "spec_revision": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "comment": "Corrected after parent audit confirmed normal TDD applicability: authentic structural helper-extraction RED plus all preserved-equivalence GREEN satisfies this refactoring acceptance obligation. 242 current output hashes and 217 modes match native attempt-3; all four final behavioral suites pass. Initial iconv PATH omission and historical traceability fixture errors are not RED. The prior Default-FAIL interpretation is superseded in coverage.md and its failed gate logs are retained. No RT-20261009-001 exception extends to T-002; this is ordinary TDD evidence, not a waiver or invented all-output behavioral RED. Formal evaluation and task transitions are separate. spec_revision is raw requirements.md SHA-256.",
+  "checks": [
+    {"id":"check-component-coverage","required":false,"passes":false,"waiver_reason":"Actual deterministic result is not-applicable (disabled-legacy), not a coverage PASS.","evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/component.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"lint","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/ruff.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"typecheck","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/mypy.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/hash-parity.stdout.log","requirement_ids":["REQ-005"],"red_evidence":"specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md","green_evidence":"specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/hash-parity.stdout.log"},
+    {"id":"build","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/build.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/placeholder.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/task-state.log","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/coverage.md","requirement_ids":["REQ-004","REQ-005"],"red_evidence":"specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md","green_evidence":"specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/execution-summary.json"},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/coverage.md","requirement_ids":["REQ-004","REQ-005"]},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/traceability.log","requirement_ids":["REQ-004","REQ-005"]}
+  ]
+}

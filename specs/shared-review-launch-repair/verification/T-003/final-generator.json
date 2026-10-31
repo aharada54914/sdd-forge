@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "work/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "--check"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+  "environment_overrides": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/cache",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/dotnet"
+  },
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "elapsed_seconds": 0.04487895965576172
+}

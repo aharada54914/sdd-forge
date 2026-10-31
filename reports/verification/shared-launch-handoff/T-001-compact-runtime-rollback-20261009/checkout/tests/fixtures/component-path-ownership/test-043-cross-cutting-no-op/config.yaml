@@ -1,0 +1,23 @@
+# AC-043: "a fixture diff confined to the six-entry set above, with zero
+# components declared to own them, never triggers Fail-1."
+#
+# `components: []` is the literal precondition AC-043 names. It is also the
+# exact shape Epic A1's canonical starter template emits
+# (contracts/project-context.template.yaml), and A1's schema permits it
+# (contracts/project-context.schema.json declares components as an array
+# with no minItems). This fixture previously declared a dummy component
+# `c1`, which contradicted this test's own pass message.
+components: []
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting

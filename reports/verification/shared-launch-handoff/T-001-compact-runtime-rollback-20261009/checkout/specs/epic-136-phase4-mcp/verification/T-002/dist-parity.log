@@ -1,0 +1,84 @@
+==============================================================================
+T-002 DIST-PARITY EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29 (UTC), AFTER Commit A landed
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+AC-010 leg / REQ-006 / ADR-0003. This is the post-commit re-verification that
+the committed mcp/sdd-forge-mcp/dist/index.js is exactly what `npm run build`
+regenerates from the committed src/ -- the same check CI's ubuntu-latest-only
+`git diff --exit-code -- dist/` step in the existing mcp-tests job runs
+(.github/workflows/test.yml, unmodified by this task).
+
+GREEN re-confirmed here after the rebuilt bundle was committed, as this task's
+Done When requires ("GREEN -- the same suites passing afterwards, re-confirmed
+after the regenerated dist/index.js is committed").
+
+Commit A: c09749ea "feat(mcp): add top-level hostRequiredChecks to
+evidence_deep_verify (#131)". Its --stat below shows the schema, the src/
+change, the rebuilt bundle and the tests are all present in this ONE commit --
+no schema-only or implementation-only partial land (design.md Global
+Constraints; ADR-0003).
+
+Note on the last block: the pipeline used to tail the npm test output swallowed
+its exit status, so the exit code was re-captured by an immediate, separate
+`npm test > /dev/null; echo $?` run, which returned 0. The substituted value is
+that measurement, not an inferred one.
+==============================================================================
+
+=== COMMAND: git show --stat --oneline HEAD ===
+c09749ea feat(mcp): add top-level hostRequiredChecks to evidence_deep_verify (#131)
+ contracts/sdd-forge-mcp-tools.v1.schema.json       |  16 +-
+ mcp/sdd-forge-mcp/dist/index.js                    |   8 +-
+ mcp/sdd-forge-mcp/src/tools/evidence.ts            |  44 ++-
+ .../tools/deep-verify-contract-conformance.test.ts | 377 +++++++++++++++++++++
+ .../tests/tools/deep-verify-tool.test.ts           |  20 +-
+ mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts  |  21 ++
+ 6 files changed, 481 insertions(+), 5 deletions(-)
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm run build ===
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  1.3mb ⚠️
+
+⚡ Done in 18ms
+build EXIT: 0
+
+=== COMMAND: git diff --exit-code -- mcp/sdd-forge-mcp/dist/ ===
+git diff --exit-code -- mcp/sdd-forge-mcp/dist/ EXIT: 0
+
+=== COMMAND: grep -c hostRequiredChecks mcp/sdd-forge-mcp/dist/index.js ===
+2
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npx tsc --noEmit  (post-commit re-run) ===
+tsc EXIT: 0
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm test  (post-commit re-run) ===
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (5.333167ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (3.37525ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (2.354875ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (4.397541ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (4.031292ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (4.911333ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.331834ms)
+✔ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (19.622042ms)
+✔ error envelope: an invalid taskId maps to invalid-input through the tool (44.976333ms)
+✔ error envelope: an invalid feature maps to invalid-input through the tool (3.109333ms)
+✔ error envelope: a missing bundle maps to not-found through the tool (2.671417ms)
+✔ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (2.492417ms)
+✔ AC-001: a fully consistent bundle verifies as pass with no failures (4.944625ms)
+✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (6.334792ms)
+✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (5.314375ms)
+✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (3.727833ms)
+✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (3.959792ms)
+ℹ tests 214
+ℹ suites 0
+ℹ pass 214
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8373.848209
+npm test EXIT: 0   (re-captured cleanly, see note below)

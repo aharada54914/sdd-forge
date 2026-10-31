@@ -1,0 +1,78 @@
+T-010 uninstall(uninstall.sh / uninstall.ps1): ci-mcp 登録解除 + 配置削除 — GREEN evidence
+Required Workflow: tdd
+
+Source files restored to their ci-mcp-extended state (uninstall.sh,
+uninstall.ps1 — VALID_MCPS / MCP_LIST / ValidateSet / default array +=
+"ci-mcp"; usage/help text and the Node-absent Cursor/VS Code warning updated
+to name ci-mcp too). No new removal logic was needed: uninstall.sh /
+uninstall.ps1 already implement a fully generic MCP_SELECTION /-Mcp loop
+(established when local-env-mcp was added) for payload removal
+(remove_mcp_payload / Remove-McpPayload), Claude deregistration
+(unregister_claude_mcp / Unregister-ClaudeMcp — "claude mcp remove <name>"),
+Codex config.toml marker-block stripping (unregister_codex_mcp /
+Unregister-CodexMcp — matches "# >>> <name> ... >>>" / "# <<< <name> <<<"),
+and the Cursor/VS Code mcp.json managed-key-only deletion (remove_mcp_json_keys
+/ Remove-McpJsonKeys). Because these are keyed purely off the selected name
+list, adding "ci-mcp" to VALID_MCPS/MCP_LIST/ValidateSet/default array is
+sufficient for ci-mcp to be deregistered/removed through every one of those
+paths — the same hardening the task names already existed and now also
+covers ci-mcp:
+  - broken-JSON failsafe: remove_mcp_json_keys / Remove-McpJsonKeys exit 3
+    on invalid JSON, leave the file byte-identical, print an "invalid JSON"
+    notice, and continue with the other client (verified for ci-mcp's
+    3-name list by scenario (q), which still corrupts only the Cursor file
+    and confirms VS Code — carrying the ci-mcp key too — is still cleaned).
+  - delete-only-managed-name boundary: remove_mcp_json_keys /
+    Remove-McpJsonKeys only `delete section[name]` for names in the
+    selection; scenario (o) asserts the pre-seeded user-defined "my-server"
+    key and the unrelated "telemetry"/"inputs" top-level keys survive
+    alongside the sdd-forge-mcp/local-env-mcp/ci-mcp removals, and the Codex
+    config.toml's unrelated "[some_other_section]" block survives scenario
+    (p)'s full 3-MCP removal.
+
+=== bash: tests/uninstall.tests.sh ===
+Command: bash tests/uninstall.tests.sh
+Exit code: 0
+
+...
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+
+Results: 24 passed, 0 failed.
+SH_EXIT:0
+
+=== pwsh: tests/uninstall.tests.ps1 ===
+Command: pwsh -NoProfile -NonInteractive -File tests/uninstall.tests.ps1
+Exit code: 0
+
+...
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+Kept installed files at: ...  (-KeepFiles).
+
+SDD plugins uninstalled.
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+
+uninstall.tests.ps1: all scenarios passed.
+PS1_EXIT:0
+
+=== mcp/ci-mcp full suite (regression check — untouched by T-010) ===
+Command: cd mcp/ci-mcp && node scripts/run-tests.mjs
+Exit code: 0
+tests 137
+pass 137
+fail 0
+
+All three suites are green. Relative to T-010-red.txt, every failing
+scenario ((o), (p), (q), (r)) now passes, and no other scenario regressed.

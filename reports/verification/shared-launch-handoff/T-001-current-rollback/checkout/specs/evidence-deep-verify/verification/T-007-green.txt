@@ -1,0 +1,19 @@
+# T-007 GREEN — AC-015 contract conformance
+# evidenceDeepVerifyData branch present in contracts/sdd-forge-mcp-tools.v1.schema.json (committed, byte-identical to HEAD)
+# Command: node --test dist-test/tests/tools/deep-verify-contract-conformance.test.js
+# Date: 2026-07-08T16:29:26Z
+# ----------------------------------------------------------------------
+✔ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (39.993792ms)
+✔ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (3.301708ms)
+✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (2.077792ms)
+✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (2.407333ms)
+✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (2.5665ms)
+✔ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (6.157417ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.429958

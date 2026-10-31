@@ -1,0 +1,188 @@
+
+QUALITY_SCRIPTS = 'plugins/sdd-quality-loop/scripts/'
+CANONICAL = 'plugins/sdd-quality-loop/references/guard-invariants.json'
+GENERATOR = QUALITY_SCRIPTS + 'generate-guard-invariants.py'
+WORKFLOW = '.github/workflows/test.yml'
+ENTRYPOINTS = (
+    'plugins/sdd-review-loop/scripts/launch-impl-review.py',
+    'plugins/sdd-review-loop/scripts/preflight-host-review.py',
+    'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py',
+    'plugins/sdd-review-loop/scripts/probe-nontty-review.py',
+    'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs',
+    QUALITY_SCRIPTS + 'preflight-evaluator-delivery.py',
+)
+PROJECTIONS = tuple(QUALITY_SCRIPTS + 'generated/' + name for name in (
+    'guard_invariants.py', 'guard-invariants.generated.js',
+    'guard-invariants.generated.ps1', 'guard-invariants.generated.sh'))
+GUARDS = tuple(QUALITY_SCRIPTS + 'sdd-hook-guard.' + ext
+               for ext in ('py', 'js', 'ps1', 'sh'))
+FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WORKFLOW)
+# Pin all unrelated keys and memberships to the admitted T-003 baseline.
+UNRELATED_SHA256 = '__PIN__'
+TRANSPORT_RUN = re.compile(
+    r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
+    re.MULTILINE)
+
+
+class ProtectedEntrypointTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        for name in FIXTURE_INPUTS:
+            source = ROOT / name
+            self.assertTrue(source.is_file(), f'missing admitted fixture input: {name}')
+            target = self.root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source.read_bytes())
+        self.env = dict(os.environ, CLAUDE_PROJECT_DIR=str(self.root),
+                        PYTHONDONTWRITEBYTECODE='1')
+        self.env.pop('PAYLOAD', None)
+
+    def run_command(self, command, payload=None):
+        return subprocess.run(command, cwd=self.root, env=self.env,
+                              input=payload, capture_output=True, text=True, timeout=60)
+
+    def check_generator(self, expected=0, diagnostic=''):
+        result = self.run_command([sys.executable, '-B', str(self.root / GENERATOR), '--check'])
+        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+        self.assertIn(diagnostic, result.stderr)
+
+    def assert_denied(self, result):
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn('agents must not modify gate scripts', result.stderr,
+                      'expected enforcement-chain denial, not a broken fixture')
+
+    def check_entrypoint(self, index):
+        target = self.root / ENTRYPOINTS[index]
+        self.assertTrue(target.is_file(), f'missing entrypoint: {ENTRYPOINTS[index]}')
+        commands = {
+            'Python': [sys.executable, '-B', str(self.root / GUARDS[0]), '--emit', 'exit'],
+            'Node': ['node', str(self.root / GUARDS[1]), '--emit', 'exit'],
+            'PowerShell': ['pwsh', '-NoProfile', '-File', str(self.root / GUARDS[2]), '-Emit', 'exit'],
+            'Bash': ['bash', str(self.root / GUARDS[3]), '--emit', 'exit'],
+        }
+        for runtime, command in commands.items():
+            with self.subTest(runtime=runtime, entrypoint=ENTRYPOINTS[index]):
+                if not shutil.which(command[0]):
+                    self.skipTest(f'NOT RUN: {runtime} runtime unavailable')
+                # Read and unrelated-write controls reject fail-closed fixture errors.
+                for tool, path in (('Read', target), ('Write', self.root / 'ordinary.txt')):
+                    result = self.run_command(command, json.dumps({
+                        'tool_name': tool, 'tool_input': {'file_path': str(path), 'content': 'fixture'}}))
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                result = self.run_command(command, json.dumps({
+                    'tool_name': 'Write', 'tool_input': {'file_path': str(target), 'content': 'fixture'}}))
+                self.assert_denied(result)
+
+    def test_011a_launch_impl_review(self):
+        self.check_entrypoint(0)
+
+    def test_011b_preflight_host_review(self):
+        self.check_entrypoint(1)
+
+    def test_011c_validate_nontty_spec_launch(self):
+        self.check_entrypoint(2)
+
+    def test_011d_probe_nontty_review(self):
+        self.check_entrypoint(3)
+
+    def test_011e_nontty_impl_pretool_guard(self):
+        self.check_entrypoint(4)
+
+    def test_011f_preflight_evaluator_delivery(self):
+        self.check_entrypoint(5)
+
+    def check_mutation(self, name, mutated, diagnostic):
+        target = self.root / name
+        before = target.read_bytes()
+        self.check_generator()
+        self.assertNotEqual(before, mutated)
+        try:
+            target.write_bytes(mutated)
+            self.check_generator(1, diagnostic)
+        finally:
+            target.write_bytes(before)
+        self.assertEqual(target.read_bytes(), before)
+        self.check_generator()
+
+    def test_012a_canonical_only_addition(self):
+        data = json.loads((self.root / CANONICAL).read_bytes())
+        data['protected_gate_suffixes'].append('plugins/sdd-review-loop/scripts/t003-extra.py')
+        self.check_mutation(CANONICAL, (json.dumps(data) + '\n').encode(),
+                            'exact baseline/inventory union')
+
+    def test_012b_generator_only_addition(self):
+        before = (self.root / GENERATOR).read_bytes()
+        marker = b'BASELINE_SUFFIXES = ('
+        self.assertEqual(before.count(marker), 1)
+        mutated = before.replace(marker, marker +
+            b'\n    "plugins/sdd-review-loop/scripts/t003-extra.py",', 1)
+        self.check_mutation(GENERATOR, mutated, 'exact baseline/inventory union')
+
+    def test_012c_each_stale_projection(self):
+        for name in PROJECTIONS:
+            with self.subTest(projection=name):
+                self.check_mutation(name, (self.root / name).read_bytes() + b'\n',
+                                    str(self.root / name))
+
+    def assert_unrelated_unchanged(self, data):
+        unrelated = dict(data)
+        unrelated['protected_gate_suffixes'] = [
+            path for path in data['protected_gate_suffixes'] if path not in ENTRYPOINTS]
+        digest = hashlib.sha256(json.dumps(unrelated, sort_keys=True,
+                               separators=(',', ':')).encode()).hexdigest()
+        self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
+
+    def test_012d_unrelated_membership_unchanged(self):
+        data = json.loads((self.root / CANONICAL).read_bytes())
+        self.assert_unrelated_unchanged(data)
+        for path in ENTRYPOINTS + (
+                'plugins/sdd-review-loop/scripts/review-hash-normalization.ps1',
+                QUALITY_SCRIPTS + 'review-conditional-inputs.py'):
+            self.assertEqual(data['protected_gate_suffixes'].count(path), 1, path)
+        mutated = json.loads(json.dumps(data))
+        mutated['protected_gate_suffixes'].pop(0)
+        with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
+            self.assert_unrelated_unchanged(mutated)
+        mutated = dict(data, sudo_signature_hex_length=-1)
+        with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
+            self.assert_unrelated_unchanged(mutated)
+        self.assert_unrelated_unchanged(data)
+
+    def assert_transport_registered(self):
+        workflow = (self.root / WORKFLOW).read_text()
+        job = re.search(r'(?ms)^  posix-regression:\n(.*?)(?=^  [\w-]+:|\Z)', workflow)
+        self.assertIsNotNone(job, 'CI POSIX regression job missing')
+        # The current workflow uses a single-line run step, not a display-name match.
+        self.assertEqual(len(TRANSPORT_RUN.findall(job.group(1))), 1,
+                         'CI transport registration missing or duplicated')
+
+    def test_013_ci_transport_registration(self):
+        self.assert_transport_registered()
+        target = self.root / WORKFLOW
+        before = target.read_bytes()
+        mutated, count = TRANSPORT_RUN.subn('', before.decode())
+        self.assertEqual(count, 1)
+        try:
+            target.write_text(mutated)
+            self.check_generator()  # Generation does not check CI registration.
+            with self.assertRaisesRegex(AssertionError, 'CI transport registration missing'):
+                self.assert_transport_registered()
+            target.write_text(mutated + '\n# run: python3 -B tests/quality-nontty-transport.tests.py\n')
+            with self.assertRaisesRegex(AssertionError, 'CI transport registration missing'):
+                self.assert_transport_registered()
+        finally:
+            target.write_bytes(before)
+        self.assertEqual(target.read_bytes(), before)
+        self.assert_transport_registered()
+
+    def test_broken_projection_is_not_protection_evidence(self):
+        (self.root / PROJECTIONS[0]).unlink()
+        result = self.run_command(
+            [sys.executable, '-B', str(self.root / GUARDS[0]), '--emit', 'exit'],
+            json.dumps({'tool_name': 'Write', 'tool_input': {
+                'file_path': str(self.root / ENTRYPOINTS[0]), 'content': 'fixture'}}))
+        with self.assertRaisesRegex(AssertionError, 'expected enforcement-chain denial'):
+            self.assert_denied(result)
+

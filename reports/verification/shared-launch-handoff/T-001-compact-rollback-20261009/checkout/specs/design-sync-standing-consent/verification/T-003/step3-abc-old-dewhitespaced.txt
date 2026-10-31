@@ -1,0 +1,12 @@
+- **(a) Consent already holds for this feature AND this session** —
+continue to 5 with no prompt. The scope is the conjunction of those two
+coordinates and both must match. A consent whose session has ended does
+not hold; neither does one the operator withdrew mid-session.
+- **(b) Consent has not been obtained for this scope** — go to 4.
+- **(c) Egress is not permitted** — take the manual fallback
+`../sdd-bootstrap-interviewer/references/claude-design-workflow.md`,
+make no upload attempt, record the outcome, and return to the caller.
+This outcome is persistent for the scope. It is not the same thing as a
+decline at 4: a decline is transient, binds only the upload attempt it
+was asked about, and the next one asks again — it is not a persisted
+refusal and writes no standing forbiddance.

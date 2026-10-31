@@ -1,0 +1,11 @@
+{
+  "schema": "lite-upgrade-reason-catalog/v1",
+  "catalog_version": 1,
+  "reasons": [
+    "public_distribution",
+    "production_cloud_runtime",
+    "durable_workflow",
+    "external_identity",
+    "pii"
+  ]
+}

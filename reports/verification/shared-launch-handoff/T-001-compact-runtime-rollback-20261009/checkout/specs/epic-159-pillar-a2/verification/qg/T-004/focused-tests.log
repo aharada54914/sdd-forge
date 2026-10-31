@@ -1,0 +1,258 @@
++ gate-time reverification (post-fix HEAD b5eba54): guard-ps1-ascii + spec-review-precheck reject-path parity (3 systems) + slug case-sensitivity parity + header case-sensitivity parity (cmdlet level) + loop-driver/loop-consistency 0-SKIP confirmation
+== start: 2026-07-16T06:05:41Z ==
+
+###### bash tests/guard-ps1-ascii.tests.sh ######
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+---- exit: 0 ----
+
+###### reject-path re-verification: plugins/sdd-review-loop/scripts/spec-review-precheck.sh vs plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 (3 required systems) ######
+
+--- System (i): out-of-range Round (feature=test-feature, attempt=1, round=4) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh test-feature 1 4
+ERROR: spec-review-precheck: round must be between 1 and 3
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature test-feature -Attempt 1 -Round 4 (named)
+ERROR: spec-review-precheck: round must be between 1 and 3
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('test-feature','1','4')
+ERROR: spec-review-precheck: round must be between 1 and 3
+(exit: 1)
+ok: System (i) out-of-range Round byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- System (ii): round-1 non-empty --edit-summary (feature=test-feature, attempt=1, round=1) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh test-feature 1 1 --edit-summary=hello
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature test-feature -Attempt 1 -Round 1 -EditSummary hello (named)
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('test-feature','1','1','--edit-summary=hello')
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
+ok: System (ii) round-1 non-empty --edit-summary byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- System (iii)a: --reset outside attempt N+1 round 1 (feature=test-feature, attempt=1, round=1, --reset) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh test-feature 1 1 --reset
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature test-feature -Attempt 1 -Round 1 -Reset (named)
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('test-feature','1','1','--reset')
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+(exit: 1)
+ok: System (iii)a --reset outside attempt N+1 round 1 byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- System (iii)b: new attempt without --reset (feature=test-feature, attempt=2, round=1) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh test-feature 2 1
+ERROR: spec-review-precheck: a new attempt requires --reset
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature test-feature -Attempt 2 -Round 1 (named)
+ERROR: spec-review-precheck: a new attempt requires --reset
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('test-feature','2','1')
+ERROR: spec-review-precheck: a new attempt requires --reset
+(exit: 1)
+ok: System (iii)b new attempt without --reset byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+reject-path-parity (3 systems, 4 conditions): PASS
+---- exit: 0 ----
+
+###### slug case-sensitivity parity re-verification (fix commit 2a7eef5, spec-review-precheck.ps1:146 -cnotmatch) ######
+
+--- slug=Test-Feature (attempt=1, round=1) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh Test-Feature 1 1
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature Test-Feature -Attempt 1 -Round 1 (named)
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('Test-Feature','1','1')
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
+ok: slug=Test-Feature byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- slug=NOFEATURE (attempt=1, round=1) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh NOFEATURE 1 1
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature NOFEATURE -Attempt 1 -Round 1 (named)
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('NOFEATURE','1','1')
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
+ok: slug=NOFEATURE byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- slug=Epic-159-Pillar-A2 (attempt=1, round=1) ---
++ bash plugins/sdd-review-loop/scripts/spec-review-precheck.sh Epic-159-Pillar-A2 1 1
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh ... -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature Epic-159-Pillar-A2 -Attempt 1 -Round 1 (named)
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' @('Epic-159-Pillar-A2','1','1')
+ERROR: spec-review-precheck: invalid feature slug
+(exit: 1)
+ok: slug=Epic-159-Pillar-A2 byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+slug-case-sensitivity-parity: PASS
+---- exit: 0 ----
+
+###### header case-sensitivity parity re-verification (fix commit 19cfb75, spec-review-precheck.ps1:187 Select-String -CaseSensitive) ######
+
+  header line: SPEC-REVIEW-STATUS: Pending
+    .sh:  exit=1  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending
+    .ps1: exit=1  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending
+    ok: header="SPEC-REVIEW-STATUS: Pending" byte-for-byte parity (exit code + stderr text)
+  header line: spec-review-status: Pending
+    .sh:  exit=1  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending
+    .ps1: exit=1  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending
+    ok: header="spec-review-status: Pending" byte-for-byte parity (exit code + stderr text)
+
+header-case-sensitivity-parity: PASS
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-driver.tests.ps1 (0-SKIP confirmation) ######
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.44db912d92dc405a9833ab7c831e5411) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.ps1)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+REVIEW_CONTEXT_OK aaade95250942a5a6d93b037550e60abdb9192d93f8c279460ed6ab5d7c7583c
+REVIEW_CONTEXT_OK e376af4256ce8ad0d3ccd1f6352e26b2795fb5cb78ede6a6867ed022e7d0440a
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+REVIEW_CONTEXT_OK 16b458334c0975c03c9b1ef2e158fa408760b760b7596ad2189d8ce00aa3a084
+REVIEW_CONTEXT_OK 1c4f06082d5062fede9f65346c824dfa129400329ec9ce39c59ca3fee0cc5fbb
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+REVIEW_CONTEXT_OK 2c318b094f19c1e30d2c89d24d29e7ae94b7816526a33064224c1f8d515660c9
+REVIEW_CONTEXT_OK 2a95e631ddc359b35aad77a2be553c2b636a26826a840d80f029eb1e7f651879
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.ps1: 22 passed, 0 failed, 3s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-consistency.tests.ps1 (0-SKIP confirmation) ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK c74d69bdbdcae4671624858339632c06f54e8dff28a862e6c6458e82e609b9b5
+REVIEW_CONTEXT_OK 3a2a403882cf3c7c1cba8799f895d76145c0a6a65a6263164e88a25f57d9a984
+REVIEW_CONTEXT_OK 5a5727f88c816b24ffb8bf14ed857d7a4c36f93778f7b68d417a856137be90e9
+REVIEW_CONTEXT_OK 828be7d55229159c544ebca1f0869c4de9f6d65ab09c31fc6ebb55e2a4591ff2
+REVIEW_CONTEXT_OK c9f894c9aaf02cda99db01d72283a801b4fe00bc4144a264b0f79550e7944a19
+REVIEW_CONTEXT_OK 2e3d9107008414d03bc5ee24edde4cae0e598ad163faa6c256dfeb141fbe44c7
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK af182f406d97d265c8daca5b25e909676b6af1b0d2e427e49831897572c2e30c
+REVIEW_CONTEXT_OK 95fbacdeb8b13e63e31b3ce62ee936ab9f2761030817a4f49a9efe0273d17ee5
+REVIEW_CONTEXT_OK efc14d4247041fe347ce9294a1bbbb5ac148c7e6d898896afc96fbad4da30820
+REVIEW_CONTEXT_OK 69cf84578ab23fd724e810e6e0ba1664a920836ad53deb38eb308105a01778f2
+REVIEW_CONTEXT_OK 6ebf19e733a4fb45389fc250dd2e6ff0c9f023cdb083ad90e93e123028f28aaa
+REVIEW_CONTEXT_OK 50ba01983ee8bd2f1d506e5841ce915369d6f2d02bcd9772b39595bd98eccd35
+REVIEW_CONTEXT_OK f1743648f8a6169ba7fd4acf7fc343a758dea2a97b94ee81db11f3d022935932
+REVIEW_CONTEXT_OK c8cad31657621b3ecff043055e7284b89a285775d734ca4deee698060bd289ff
+REVIEW_CONTEXT_OK 239a7fd4c72f3bb01bc658167c637e5d7fe4293992bbb1836c0c93476df2592c
+REVIEW_CONTEXT_OK 2e06cac7c34234f5b09f5874dbc66d5e46623428a2747e2dd8226321d770e432
+REVIEW_CONTEXT_OK 41d969e529394b2b520e5bda9f6cbf42da19a3176b877a2d075ad819b6c2e540
+REVIEW_CONTEXT_OK f6eb78ec30dac1549b8c1b6492371402351226c91d9329dc9e5f515e643fd304
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK b83614f71c432c5185fb03cffa91ae2459f9399db4b5b384027b4cb1388949ab
+REVIEW_CONTEXT_OK 56996a63d6d084319ab76e0b152115eda69f1668266ee9b9c056ecf5d6c1d73c
+REVIEW_CONTEXT_OK cec7bbd5fb84e2ea3ab0c0ef23f23710eed2512196a6f29d1badc90391db25e4
+REVIEW_CONTEXT_OK 4959bfe9dbccc6160c7d616e35cefbf3198bd1c9ee5c74f6e95d698fc32d3bc9
+REVIEW_CONTEXT_OK cdf63abc17d20d607cefb7fc2c5758add81937eeb10ce04a86fcbb2479331fca
+REVIEW_CONTEXT_OK 85932396a34ed4446f73900097c9e3ea769fc05428eb5883c365c03e7ae1f8f2
+REVIEW_CONTEXT_OK 50301ca052eb12b37bbfa71de0ad107a881470031bc3b779c2e4840a7e0b2168
+REVIEW_CONTEXT_OK 38b33c27c23dc0659f4209ee90661baeb234585a39e22485efa9b26903a5d404
+REVIEW_CONTEXT_OK c3c47abac465d64cacc89ad7420245fae9ad429d236cdef24e25bdccee2ff932
+REVIEW_CONTEXT_OK 7209c0bd12f6fe664d1b4871e120d34009fd2cb2ea27d51b906224f38a94428b
+REVIEW_CONTEXT_OK d1c0d6014e3ef09892d4f4d1ac7921c731f049b1dff47112a7168d3df91773b2
+REVIEW_CONTEXT_OK 4892b4bd9c9c1b7a9895bdab78d733812d715ca70f98e0e34b67396f264bca61
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 3d0899ed49a51598afbd47fbc27418f79f27aba6f336a04effaf4fcd76fa5c2d
+REVIEW_CONTEXT_OK 74402e171f14e5167e0dcab00ebfc732571b996d05d97790dcba52f352b2d5cb
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 7e0ad8973bbff4a9a6a4b3cb4419c5f8e1fb2bd8432d0ff9d45245270e67a354
+REVIEW_CONTEXT_OK 08530730f03cab69b03f62452c82e2468981320128c7b2f7f87e89b06650fd7d
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK b39b14e877abaf7687aa6100e7fd685a96ec21e510d5cc0baaea0ebd2c4d0efc
+REVIEW_CONTEXT_OK c8082b49b8933ec9ba4fbe7abe744dc6929d7cfd0350e887fe04c11327f2fbfa
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+REVIEW_CONTEXT_OK 764b2099f1fdbd6e41ecf708d943f2dd2e33c1a24149b13307c065a6acc562d5
+REVIEW_CONTEXT_OK ebab1fdfb411edb00391d350d148c21f3c92d4e7b56dc9483a65d457af8cdbce
+REVIEW_CONTEXT_OK 60fc080ad6c184749e2bad663d22ee04cbb2dc4bb836a0b47e15c5de759f4ad6
+REVIEW_CONTEXT_OK f2dddf314c9674cb8419d5246f4281a84b88c646340313dab9e5af7739147585
+REVIEW_CONTEXT_OK 876a5e17d31ffeae08bda32a8c655bb1cb1115718fb8ef3decb71c009e623e64
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK baf9abc36a763b981990ef42094063fc000c39ebbc78a6e2cb4807a7fa2119de
+REVIEW_CONTEXT_OK f688cfb13ac1af906035230e1d0a08a63b319cd9c95dd0fb7f49066bb0718ed5
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK 4f2c063754bdc2679990a99989ac6d3da626a9016439a8c5abad29647ae2afac
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 86c9d9189722607c2d202d76a1efb8428acbe845121a1fa64cff208ad269b5b3
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 83eb162ffffde0b596bd9125de67407f797cf31c71fca039dbf3f4d4bd424509
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-82851/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 27 passed, 0 failed, 26s elapsed
+---- exit: 0 ----
+
+SUMMARY: guard_ps1_ascii_exit=0 reject_path_parity_exit=0 slug_case_sensitivity_parity_exit=0 header_case_sensitivity_parity_exit=0 loop_driver_ps1_exit=0 loop_consistency_ps1_exit=0
+== end: 2026-07-16T06:06:16Z ==
+EXIT_CODE: 0

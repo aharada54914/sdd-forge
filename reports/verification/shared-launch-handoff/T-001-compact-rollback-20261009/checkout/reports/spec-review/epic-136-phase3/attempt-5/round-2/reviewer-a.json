@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a5r2-a-seq0435",
+  "host_session_id": "SESS-spec-a5r2-a-epic136phase3-0435",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-5/round-2/precheck-result.json",
+      "sha256": "d0fe97669c70ddbc4253f350e148bfd612906dfbcfc71b57ba54315516fbb6bd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "c115dbf38f384a49f9ce9ba5817174972e31af05c16d5fd531ffbdd2224cda21"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-006 goal is tied to concrete, observable branches/artifacts (e.g. REQ-001's 5 PATH-availability branches + precedence order at requirements.md:218-230; REQ-005's grep-based run-all.sh/run-all.ps1/test.yml registration at requirements.md:268-278) and each maps 1:1 to a Test ID with a stated pass condition in acceptance-tests.md (TEST-001..023). Downstream implementers have enough to write a fixture and a verifier has enough to judge pass/fail without further clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 6 Goals have matching Acceptance Criteria: REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023 (requirements.md:218-296, acceptance-tests.md table). No orphan goal or orphan AC found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete externally observable outcomes: specific branch selection + decision parity (AC-001..007), named exit codes / deny-JSON shape (AC-005), 12-named-combination matrices with per-combination PASS/FAIL (AC-008..011), a closed-set schema field check (AC-012), and text-marker self-checks against a staged file (AC-016..020). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:297-347) explicitly excludes editing the 4 R-10-protected suites, inventing a fixture vocabulary, migrating tests/scenario.tests.sh, treating Stream D as a bugfix, epic Phase 4/design-sync work, any test.yml staging beyond the ONE shared batch, and Phase-2 artifacts (tasks.md/traceability). The boundary of the single shared human-copy batch is stated precisely enough to prevent scope creep into a second batch."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's Major finding (and reviewer B's Critical CONTRADICTION) concerned the ONE shared human-copy batch's stream composition being stated inconsistently. I re-checked every occurrence of 'batch' and every 'Stream[s] A/B/C/D' enumeration across the current requirements.md (18 'batch' hits: lines 138-145, 147-154, 268-278, 324-338, 578-599, 603-650, 679-691, 697-700, 704-746, 760-770, 775-851) and acceptance-tests.md (TEST-019/020/021/023). Every passage that enumerates the batch's stream composition now says Streams A, B, C, plus Stream D consistently (e.g. requirements.md:325-328 'one CI step per new suite from Streams A, B, AND C ... plus Stream D's step-prefix restructuring'; :583-586 'Streams A's, B's, and C's new CI steps plus Stream D's step-prefix lane marking'; :596 'Streams A + B + C + D'; :639 'together with Streams A's, B's, and C's CI-step additions' [Stream D itself]; :781 'Streams A/B/C/D's test.yml edits'; acceptance-tests.md:40 'Streams A + B + C + D'). AC-022's separate 'three vs four entries' contradiction (not raised by either reviewer in round 1, self-identified in the precheck edit summary) is also now consistently 'four independent entries' in both requirements.md:507-513 and acceptance-tests.md:42 (TEST-022). No stray 'A, B, D' (omitting C) or other inconsistent stream-set enumeration remains anywhere in either document. The reconciliation is complete, not merely applied to the passages the two round-1 findings quoted."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:804-851) enumerates 5 risks (Stream C's ADR dependency, intra-batch same-file-edit risk, Stream B's matrix-collapse risk, Stream A's PATH-stub false-pass risk, Stream D's silent step-drop risk), each tied to a concrete validation surface: specific ACs (AC-008/009/010's per-combination enumeration, AC-017's text-marker self-check), the Edge Cases section's explicit presence/absence assertion requirement, or design.md's Global Constraints. No high-risk claim is left without a stated acceptance-criterion or inspection target."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in the repository root (confirmed by glob against /Users/jrmag/Projects/active/sdd-forge-wt-phase4/domain/*, zero matches), so the Approved domain-model precondition for this check is absent. Skipped per the check's own explicit skip condition."
+    }
+  ]
+}

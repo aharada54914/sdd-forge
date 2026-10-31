@@ -1,0 +1,19 @@
+=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ===
+SKIP: TEST-001 (AC-001) mutation-success assertions -- this host's sed is BSD-style; scripts/bump-version.sh's unedited mutation section (scripts/bump-version.sh:51-70) requires GNU sed. Pre-existing portability gap, out of scope for T-001 (REQ-001 loop-gate logic itself is proven by TEST-002..006, none of which reach the mutation section on this host).
+=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ===
+ok: TEST-002 (AC-002): bump-version.sh exits non-zero when loop-consistency.tests.sh is stubbed failing
+ok: TEST-002 (AC-002): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ===
+ok: TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)
+ok: TEST-003 (AC-003): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-004 (AC-004): no-bypass self-check (real scripts/bump-version.sh) ===
+FAIL: TEST-004 (AC-004): loop-gate marker comment not found in scripts/bump-version.sh
+=== TEST-005 (AC-005): loop-gate precedes the first mutation step (real scripts/bump-version.sh) ===
+FAIL: TEST-005 (AC-005): loop-gate invocation line not found in scripts/bump-version.sh
+=== TEST-006 (AC-006): CI-resilience + self-registration ===
+ok: TEST-006 (AC-006, CI-resilience): fixture-root normalization uses Resolve-Path (pwd -P equivalent)
+ok: TEST-006 (AC-006, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): this suite drives no real validator (non-use declaration)
+FAIL: TEST-006 (AC-006): bump-version-gate.tests.ps1 is NOT registered in tests/run-all.ps1 and/or .github/workflows/test.yml
+
+bump-version-gate.tests.ps1: 7 passed, 3 failed

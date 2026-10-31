@@ -1,0 +1,25 @@
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+ok: TEST-025(2): fresh output is byte-identical to the golden expected projection
+ok: TEST-025(3): _generated block carries source/schema_version/sha256/notice correctly
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+ok: TEST-025(5): capability_gate_map omits the promotion-stage gate (dangling-reference filtering), sorted, empty-array capability preserved
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+ok: TEST-026(2): --check exits non-zero with a 'stale' diagnostic against a hand-mutated file
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+ok: TEST-026(4): missing canonical Registry fails closed with a diagnostic
+ok: run-all.sh registers this suite
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: regenerated guard-invariants candidate drops no live-protected path/key
+ok: QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)
+ok: human-copy/ staged guard-invariants.json is a pure superset of live (human apply already landed)
+ok: human-copy/ staged generate-guard-invariants.py is a pure superset of live (human apply already landed)
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+ok: QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)
+ok: human-copy/ staged workflow is a job-set superset of live (human apply already landed)
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=23 fail=0 designed-red=0 ----
+generate-gate-capabilities suite passed (23 checks)

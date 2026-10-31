@@ -1,0 +1,26 @@
+{
+  "schema":"task-review-contract/v1",
+  "stage":"task",
+  "feature":"bootstrap-interviewer-enhancement",
+  "run_id":"task-orchestrator-a1-r2-20260629T1414Z",
+  "verdict":"BLOCKED",
+  "pass_type":"clean",
+  "round":2,
+  "attempt":1,
+  "workflow_match_precheck":"PASS",
+  "reviewer_a_verdict":"NEEDS_WORK",
+  "reviewer_b_verdict":"BLOCKED",
+  "findings_critical":1,
+  "findings_major":2,
+  "findings_minor":0,
+  "prior_round_contract_sha256":"8593757bcf2ccc1b2990b5006ca41de1bc84a5ed6f826c7440bd6ebdae39ff88",
+  "requirements_sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+  "acceptance_sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "tasks_sha256":"d19588cd77acfe86f9936bab19359d7536a257e0fcec02a11875dbe48ef0d27d",
+  "reviewers":[
+    {"role":"task-reviewer-a","run_id":"tra-bootstrap-r2-8f27c416","host_session_id":"hs-tra-r2-b593e8da","allowed_input_manifest":[{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"d19588cd77acfe86f9936bab19359d7536a257e0fcec02a11875dbe48ef0d27d"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/traceability.md","sha256":"b0ef1a33e6ad8929466918fba23b281f392acb7770c68ae2b191edf37c0f9574"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-2/precheck-result.json","sha256":"77bc98439d75738c3ace144cee47cd0fba2a3a5877a010ef8932c458961f8b4c"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-2/dependency-graph.json","sha256":"f2c5d4e4dd9af22037ed62d935e142ddf0c1e8baea0aa8d1f213668ca1d2a77a"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}]},
+    {"role":"task-reviewer-b","run_id":"b6c6b551-52af-4d47-a5df-70ea682486ab","host_session_id":"49021850-0d22-41cd-b7f6-ed76ce613dcc","allowed_input_manifest":[{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"d19588cd77acfe86f9936bab19359d7536a257e0fcec02a11875dbe48ef0d27d"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-2/precheck-result.json","sha256":"77bc98439d75738c3ace144cee47cd0fba2a3a5877a010ef8932c458961f8b4c"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-2/integrated-summary.json","sha256":"3eb284bb9f185ab44bcb762c4f5c506358ad161cba19bae33674a9b2205d5606"}]}
+  ],
+  "human_edit_summary":"Split the oversized task into focused layer, checker, review-integrity, and release units; mapped every REQ and AC explicitly.",
+  "timestamp":"2026-06-29T14:14:00Z"
+}

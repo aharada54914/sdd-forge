@@ -1,0 +1,212 @@
+T-005 case-sensitivity sweep (AGENTS.md "Author-time sweeps" item 1, narrow
+scope per tasks.md T-005 Done-When: every `-match`/`-notmatch`/`Select-String`
+site T-001 added to tests/design-system-contract.tests.ps1 whose .sh
+counterpart compares case-sensitively, swept at both the operator level and
+the cmdlet level, with a mis-cased negative fixture recorded per layer).
+
+=== Exhaustive enumeration (code only, comment block at :168-177 excluded) ===
+
+  -match     : 61 occurrences
+  -notmatch  :  1 occurrence
+  -cmatch    :  7 occurrences  (out of this narrow scope: already
+                                 case-sensitive by construction)
+  -cnotmatch :  0 occurrences
+  Select-String : 0 occurrences (the file's only "Select-String" grep hit is
+                                  the comment at :174 stating this fact, not
+                                  a cmdlet call)
+
+Counted with:
+  awk 'NR>=142 && !(NR>=168 && NR<=178)' tests/design-system-contract.tests.ps1 \
+    | grep -oE -- '<token>' | wc -l
+  (per token, run separately; NR>=142 scopes to T-001's added TEST-NNN
+  section, confirmed pure-addition by `git show 6dc9cf09 --stat`: .ps1
+  139->736, 597 insertions, 0 deletions)
+
+=== Category A: direct, per-Test-ID inline -match/-notmatch sites ===
+
+Full TEST-001..TEST-051 cross-reference against the .sh twin's mechanism for
+the same check: see per-test-id-table.md in this directory. Result: every
+inline -match/-notmatch site correctly pairs a case-INsensitive .ps1
+operator with a case-INsensitive .sh check (grep -Ei / grep -Fi), across all
+51 Test IDs. Zero mismatches in this category.
+
+(Sites using .Contains() or -cmatch are outside this task's explicitly
+narrowed scope -- see acceptance-mapping.md "Case-sensitivity sweep --
+narrow-scope justification" -- but were spot-checked anyway while building
+the cross-reference table and found correctly paired: 7 -cmatch sites
+[TEST-004 positive half, TEST-014 x2, TEST-026, the TEST-033 description-line
+setup, TEST-038, TEST-040] all pair with a case-sensitive .sh grep -Eq /
+grep -n -E; every .Contains() site pairs with a case-sensitive .sh grep -Fq.
+This extends T-001's own load-bearing-and-case-sensitivity-evidence.log,
+which covered 3 of these 7 -cmatch sites [TEST-004, TEST-014, TEST-026] with
+its own fixture demonstrations, by confirming the remaining 4 by direct
+grep-mechanism cross-reference rather than a fresh fixture run.)
+
+=== Category B: shared-helper -match/-notmatch sites (2 findings) ===
+
+Two functions T-001 authored (tests/design-system-contract.tests.ps1:249-266,
+:284-289) are shared across multiple Test IDs and read every line via a
+single, unconditional plain `-match` (case-INsensitive by default, PS7.6.2
+confirmed). Their .sh counterparts are NOT uniformly case-insensitive, which
+this task's sweep is required to catch mechanically rather than trust the
+file's own header comment (:168-177) at face value.
+
+--- F-1: Get-SectionBetween (:249-266) vs section_between() (.sh :179-185) ---
+
+Get-SectionBetween's start/end matching (:254 `-match`, :260 `-match` +
+`-notmatch`) is unconditionally case-INSENSITIVE. It backs $loopLines,
+$boundariesLines, $capLines, $bsiUiBulletLines, $wfgSectionLines -- the
+section-scoped text nearly every TEST-NNN assertion in Category A above
+reads from.
+
+The .sh twin, section_between() (:179-185), is implemented with awk's `~`
+operator (`$0 ~ start`, `$0 !~ start`), which is case-SENSITIVE by default
+in POSIX/gawk with no `-i`/IGNORECASE set anywhere in this suite --
+uniformly, for all 5 of its call-sites (LOOP_SECTION, BOUNDARIES_SECTION,
+DSL_CAP_SECTION, BSI_UI_BULLET, WFG_SECTION).
+
+DIVERGENCE: the .ps1 side is unconditionally more permissive (case-
+insensitive) than the .sh side (case-sensitive), for the SAME section-
+boundary-finding operation, across all 5 uses -- not situational, systemic.
+
+Operator-level mis-cased negative fixture (verbatim function bodies copied
+from the real suite, run against a heading mis-cased as "## loop" instead of
+"## Loop"):
+
+  $ sh sweep-operator.sh
+  === section_between() (.sh, awk ~ operator) case-sensitivity ===
+  --- mis-cased heading '## loop' against pattern '^## Loop$' (must be EMPTY) ---
+  result=[]
+  EMPTY (correct: case-sensitive, no match)
+  --- correctly-cased heading '## Loop' against pattern '^## Loop$' (must be NON-EMPTY) ---
+  result=[## Loop
+  consent already holds for this feature and this session
+  this line SHOULD be extracted, case matches exactly]
+  NON-EMPTY (correct: match found)
+
+  $ pwsh -NoProfile -File sweep-operator.ps1
+  === Get-SectionBetween() (.ps1, plain -match operator) case-sensitivity ===
+  --- mis-cased heading '## loop' against pattern '^## Loop$' (must be EMPTY if parity with .sh held) ---
+  count=3
+  NON-EMPTY -- DIVERGENCE: .ps1 -match is case-INSENSITIVE, matched '## loop' where .sh's awk ~ (case-sensitive) would not
+    > ## loop
+    > consent already holds for this feature and this session
+    > this line should not be extracted if section matching is case-sensitive
+  --- correctly-cased heading '## Loop' against pattern '^## Loop$' (must be NON-EMPTY) ---
+  count=3
+  NON-EMPTY (correct: match found)
+
+Confirmed: the .sh side rejects the mis-cased fixture (empty result, no
+section found); the .ps1 side accepts it (non-empty, 3 lines extracted) --
+a real, mechanically demonstrated divergence.
+
+No cmdlet-layer analogue for this finding: Get-SectionBetween is
+implemented with the -match operator only, no Select-String / -split /
+[regex] static method / switch -wildcard / Sort-Object involved (confirmed
+by the exhaustive enumeration above: 0 such cmdlet/language-feature sites
+anywhere in this section).
+
+--- F-2: Get-FirstLineIndex (:284-289), TEST-037 call only ---
+
+Get-FirstLineIndex is a single-definition helper (one `-match` at :286),
+called 7 times: 4x by TEST-010, 2x by TEST-025, 1x by TEST-037
+(Test-037Unchanged, :601, the CHANGELOG.md anchor search).
+
+For TEST-010 and TEST-025, the .sh counterpart is loop_line_of() (:235-237),
+which uses `grep -n -iE` -- case-INsensitive, matching Get-FirstLineIndex's
+default. Correct pairing for 6 of the 7 calls.
+
+For TEST-037, the .sh counterpart is NOT loop_line_of() -- it is a direct,
+inline `grep -n 'design-sync-loop`' "$CHG"` (.sh :530, inside
+test_037_unchanged()), with no `-i` flag: case-SENSITIVE. Get-FirstLineIndex
+being unconditionally case-insensitive means this single call-site (of 7)
+is paired with a case-sensitive .sh check while using a case-insensitive
+.ps1 mechanism.
+
+DIVERGENCE: situational (this one call-site only; the other 6 calls through
+the same helper are correctly paired).
+
+Operator-level mis-cased negative fixture (verbatim function body, run
+against an anchor mis-cased as "Design-Sync-Loop`" instead of
+"design-sync-loop`"):
+
+  $ sh sweep-operator.sh (same run as F-1, second half)
+  === TEST-037 anchor find, plain 'grep -n' (.sh side, case-SENSITIVE, no -i) ===
+  --- mis-cased anchor 'Design-Sync-Loop`' against pattern 'design-sync-loop`' (must be NOT FOUND) ---
+  NOT FOUND (correct: case-sensitive)
+  --- correctly-cased anchor 'design-sync-loop`' (must be FOUND) ---
+  FOUND at line 2 (correct)
+
+  $ pwsh -NoProfile -File sweep-operator.ps1 (same run as F-1, second half)
+  === TEST-037 anchor find, Get-FirstLineIndex w/ plain -match (.ps1 side) ===
+  --- mis-cased anchor 'Design-Sync-Loop`' against pattern 'design-sync-loop`' (must be NOT FOUND if parity with .sh held) ---
+  FOUND at index 1 -- DIVERGENCE: .ps1 -match is case-INSENSITIVE, matched 'Design-Sync-Loop`' where .sh's plain grep (case-sensitive, no -i) would not
+  --- correctly-cased anchor 'design-sync-loop`' (must be FOUND) ---
+  FOUND at index 1 (correct)
+
+Confirmed: same divergence pattern as F-1, demonstrated at this call-site
+specifically.
+
+=== Cmdlet-level layer ===
+
+Zero Select-String (or Get-ChildItem -Filter/-Include/-Exclude, -split,
+[regex]::Match/IsMatch/Replace, switch -wildcard/-regex, Sort-Object) sites
+exist anywhere in tests/design-system-contract.tests.ps1's T-001-added
+section -- confirmed by exhaustive grep across the whole file, not assumed
+from the file's own header comment (which makes the same claim at :174-177;
+this sweep independently re-verifies it rather than trusting it, per this
+task's own risk rationale: "confirms, mechanically, that case-sensitivity
+holds in code T-001 wrote"). Nothing to sweep or fixture-test at this layer
+-- an empty result, not a gap. No mis-cased fixture is applicable when there
+is no cmdlet-level site to apply one to.
+
+=== Whether F-1 / F-2 affect the live tree today ===
+
+No. Re-verified by direct read at this task's implementation time:
+
+  $ grep -n '^## ' plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md
+  22:## Capability Detection
+  32:## Ensure design-system/
+  66:## Loop
+  160:## Design-Source consent record
+  207:## Boundaries
+
+  $ grep -n -i 'design-sync-loop`' CHANGELOG.md
+  1299:- 内部スキル `design-sync-loop`（sdd-bootstrap）を新設。仕様段階で
+
+Every heading Get-SectionBetween's 5 call-sites search for is correctly
+cased in the live document today, and CHANGELOG.md carries exactly one
+`design-sync-loop`` occurrence at any case -- no mis-cased duplicate for
+Get-FirstLineIndex's TEST-037 call to find in error. F-1 and F-2 are
+therefore LATENT structural risks in the suite's own dual-runtime parity
+(BL-008), not active defects producing a wrong PASS/FAIL on the current
+tree.
+
+=== Disposition ===
+
+tests/design-system-contract.tests.{sh,ps1} are explicitly out of scope for
+this task to edit (tasks.md T-005 prohibition list; this task's own scope is
+tests/run-all.{sh,ps1} plus this verification record). F-1 and F-2 are
+reported here, not silently patched -- the same disposition T-001's own
+commit applied to the pre-existing DS-010 stale-count defect it surfaced.
+Recommended follow-on (not performed by this task): change
+Get-SectionBetween's two operators to -cmatch/-cnotmatch (F-1, matches all 5
+of its call-sites' actual requirement); give TEST-037's anchor search its
+own case-sensitive inline line-search, mirroring how TEST-026 already avoids
+routing its case-sensitive `write_files` scan through Get-FirstLineIndex
+(F-2), rather than widening Get-FirstLineIndex itself, since 6 of its 7
+callers correctly need case-insensitivity.
+
+=== Files in this directory supporting this log ===
+
+  sweep-operator.sh, sweep-operator.ps1   -- the harness scripts run above
+                                              (function bodies copied
+                                              verbatim from the real suite,
+                                              not modified)
+  fixture-miscased-loop-heading.md
+  fixture-correctcased-loop-heading.md
+  fixture-miscased-changelog-anchor.md
+  fixture-correctcased-changelog-anchor.md -- the four fixtures the harness
+                                              scripts above were run against
+  per-test-id-table.md                    -- the full TEST-001..051
+                                              Category A cross-reference

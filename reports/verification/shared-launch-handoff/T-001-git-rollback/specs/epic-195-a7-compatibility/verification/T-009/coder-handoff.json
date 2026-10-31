@@ -1,0 +1,17 @@
+{
+  "decision": [
+    "T-009 uses TDD and preserves the existing no-flag v1 and effort-only v2 output bodies byte-for-byte.",
+    "Capability-only exits 1 before output creation; both families emit capability.enforcement and optional capability.block_id."
+  ],
+  "unresolved": [
+    "Independent reviewer and repository regression test remain."
+  ],
+  "evidence": [
+    "specs/epic-195-a7-compatibility/verification/T-009/red.log: Bash and PowerShell each 40 passed, 4 failed before implementation.",
+    "specs/epic-195-a7-compatibility/verification/T-009/green.log: Bash and PowerShell each 49 passed, 0 failed after implementation.",
+    "specs/epic-195-a7-compatibility/verification/T-009/baseline.sha256: v1 and effort-only v2 pre/post hashes match."
+  ],
+  "next_action": [
+    "Review only the four T-009 planned files against REQ-003 AC-011, AC-012, and AC-033, then run regression tests."
+  ]
+}

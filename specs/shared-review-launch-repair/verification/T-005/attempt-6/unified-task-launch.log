@@ -1,0 +1,14 @@
+test_normalized_delegation_and_raw_observation (__main__.TaskHashes.test_normalized_delegation_and_raw_observation) ... ok
+test_other_stage_cannot_normalize (__main__.TaskHashes.test_other_stage_cannot_normalize) ... ok
+test_rejects_canonical_failure_and_concurrent_change (__main__.TaskHashes.test_rejects_canonical_failure_and_concurrent_change) ... ok
+test_task_receipt_uses_canonical_six_field_record (__main__.TaskHashes.test_task_receipt_uses_canonical_six_field_record) ... ok
+test_task_full_order_and_replay (__main__.TaskOrder.test_task_full_order_and_replay) ... ok
+test_task_pre_reservation_failures_leave_ledger_unchanged (__main__.TaskOrder.test_task_pre_reservation_failures_leave_ledger_unchanged) ... ok
+test_task_reservation_failure_prevents_launch (__main__.TaskOrder.test_task_reservation_failure_prevents_launch) ... ok
+test_canonical_a_and_b_output (__main__.TaskOutputIdentity.test_canonical_a_and_b_output) ... ok
+test_cross_role_wrong_stage_and_session_rejected (__main__.TaskOutputIdentity.test_cross_role_wrong_stage_and_session_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.204s
+
+OK

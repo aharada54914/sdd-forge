@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "ci-mcp",
+  "run_id": "task-a-cimcp-a1r3-20260706-1535",
+  "host_session_id": "hs-task-a-8eee4773-0011",
+  "sequence": 65,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "8c1b35d0f0ff2aa82986d8ea54797646cfe6b3a12d42554d592fa6f6aa3a41c5",
+  "previous_record_sha256": "a6c587331c936cc034533cca721574abb1cf75927fef9ea67254e566aa8a3180",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-1/round-3/dependency-graph.json",
+      "sha256": "d684814ebe950c0ef38d3c861f97b6c4f1aedc8b6b227a71279887580957cd7f"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "1b35eea90110cfa603f8f285032ebf6502b2442255d0a00296a92a432d0813e4"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "043bb5fc01d122f10c37b2894e34bec76f40c9227b7865ed74e76ffaaec1d394"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.md",
+      "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    }
+  ]
+}

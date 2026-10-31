@@ -1,0 +1,142 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-159-pillar-a2",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "488c237f5fdd7f357c9e072b31fc869710d1f6f74eef782ac05069521758d97c",
+  "created": "2026-07-16T04:19:35Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first). Populated after the quality gate reran tests/hitl-wfi-terminal.tests.sh/.ps1 (16/16 passed both lanes, 0 SKIP) and the epic-159-pillar-a2 regression set (4 loop suites + check-placeholders + template-validator-parity + crlf-parity + constant-parity + guard-ps1-ascii + second-approval-mask + validate-repository, all green, 0 failed suites). Shell stack waives the three compile-oriented checks (lint/typecheck/build); this task ships only new tests/ suite files plus unprotected registration edits, with no compiled toolchain.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell/JSON test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell/JSON test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The HITL leg drives a fixture COPY of the real hitl-loop.template.sh through mocked stdin and a CHECK stub, and the WFI-audit leg is a deterministic reference check on fixture-scoped WFI-NNN.md copies; no separate service-integration surface exists beyond what unit/acceptance already exercise.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/JSON test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds only test-infrastructure (the HITL cap-5 leg plus the WFI-audit terminal-behavior leg), fully covered by the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only tests/hitl-wfi-terminal.tests.{sh,ps1} plus registration edits to run-all.sh/.ps1 and test.yml.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

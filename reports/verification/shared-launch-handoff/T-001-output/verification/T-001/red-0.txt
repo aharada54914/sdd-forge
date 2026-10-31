@@ -1,0 +1,21 @@
+COMMAND: ['rtk', 'proxy', 'python3', '-B', 'tests/quality-nontty-transport.tests.py', 'QualityTransport.test_shared_argv_rejects_model_permission_and_session_mismatches', '-v']
+EXIT: 1
+STDOUT:
+
+STDERR:
+test_shared_argv_rejects_model_permission_and_session_mismatches (__main__.QualityTransport.test_shared_argv_rejects_model_permission_and_session_mismatches) ... 
+  test_shared_argv_rejects_model_permission_and_session_mismatches (__main__.QualityTransport.test_shared_argv_rejects_model_permission_and_session_mismatches) (stage='quality', role='sdd-evaluator', model='opus') ... FAIL
+
+======================================================================
+FAIL: test_shared_argv_rejects_model_permission_and_session_mismatches (__main__.QualityTransport.test_shared_argv_rejects_model_permission_and_session_mismatches) (stage='quality', role='sdd-evaluator', model='opus')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-output/staged/tests/quality-nontty-transport.tests.py", line 84, in test_shared_argv_rejects_model_permission_and_session_mismatches
+    with self.assertRaisesRegex(ValueError, 'unsupported role permission profile'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (failures=1)

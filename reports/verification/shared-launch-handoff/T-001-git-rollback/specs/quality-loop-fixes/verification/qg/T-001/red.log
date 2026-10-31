@@ -1,0 +1,24 @@
+=== RED evidence: check-quality-gate-cycle-limit (UNMODIFIED pre-fix, OLD 2-arg contract <task-id> [reports-dir]) ===
+=== reproduces RT-20260712-001 / AC-004 / TEST-004: task id shared across features falsely escalates ===
+Script SHA-256 (pre-fix .sh): 62d5925b236449373137f3899f14e5564f3ced7550c51fc18296bd7d013f56d3
+Script SHA-256 (pre-fix .ps1): fe162aa45ddc19bd3f12f6eadfab2d1b1cebed118ed98288d1e164891e50774a
+
+--- sub-case: 3 other-feature reports + 0 this-feature reports (target task T-777) ---
+[sh] bash check-quality-gate-cycle-limit.sh T-777 "reports-0" (old contract: 2nd positional = reports-dir)
+exit=1 output=[Escalate-Human]
+[ps1] pwsh check-quality-gate-cycle-limit.ps1 T-777 "reports-0"
+exit=1 output=[Escalate-Human]
+
+--- sub-case: 3 other-feature reports + 1 this-feature reports (target task T-777) ---
+[sh] bash check-quality-gate-cycle-limit.sh T-777 "reports-1" (old contract: 2nd positional = reports-dir)
+exit=1 output=[Escalate-Human]
+[ps1] pwsh check-quality-gate-cycle-limit.ps1 T-777 "reports-1"
+exit=1 output=[Escalate-Human]
+
+--- sub-case: 3 other-feature reports + 2 this-feature reports (target task T-777) ---
+[sh] bash check-quality-gate-cycle-limit.sh T-777 "reports-2" (old contract: 2nd positional = reports-dir)
+exit=1 output=[Escalate-Human]
+[ps1] pwsh check-quality-gate-cycle-limit.ps1 T-777 "reports-2"
+exit=1 output=[Escalate-Human]
+
+=== EXPECTED (RED): all three sub-cases wrongly print Escalate-Human/exit1 because the unmodified script has no feature dimension and counts the 3 other-feature reports toward T-777's total regardless of which feature the caller cares about ===

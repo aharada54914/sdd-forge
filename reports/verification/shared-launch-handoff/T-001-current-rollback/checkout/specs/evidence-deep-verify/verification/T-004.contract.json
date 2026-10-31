@@ -1,0 +1,129 @@
+{
+  "task_id": "T-004",
+  "feature": "evidence-deep-verify",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "code",
+  "spec_revision": "",
+  "created": "2026-07-08T17:06:08Z",
+  "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran this session and output was inspected (qg logs). Lint evidence is tsc --noEmit (strict) as the project's static-analysis gate; no separate eslint toolchain is configured (same convention as sdd-forge-mcp/local-env-mcp/ci-mcp contracts). unit/acceptance/regression share tests.log (single node:test suite run, 205/205).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/check-placeholders.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/check-task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "specs/evidence-deep-verify/verification/T-004-red.txt",
+      "green_evidence": "specs/evidence-deep-verify/verification/T-004-green.txt"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "specs/evidence-deep-verify/verification/T-004-red.txt",
+      "green_evidence": "specs/evidence-deep-verify/verification/T-004-green.txt"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "specs/evidence-deep-verify/verification/T-004-red.txt",
+      "green_evidence": "specs/evidence-deep-verify/verification/T-004-green.txt"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/evidence-deep-verify/verification/qg/T-004/check-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-012"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

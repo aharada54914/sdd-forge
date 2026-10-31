@@ -1,0 +1,88 @@
+# WFI Audit Report — Cycle 1
+
+## Header
+
+| Field | Value |
+|---|---|
+| WFI-ID | WFI-062 |
+| Category | plugin-improvement |
+| Cycle | 1 of 2 |
+| Auditor Agent | wfi-auditor-a |
+| Verdict | NEEDS_REVISION |
+| Critical Findings | 0 |
+| Major Findings | 1 |
+| Minor Findings (Advisory) | 0 |
+| Generated | 2026-09-04T06:21:05Z |
+
+## Verdict: NEEDS_REVISION
+
+NEEDS_REVISION on one Major finding: the Verification Metric baseline is session-observed rather than retrospective-sourced, and while the WFI discloses this transparently, the check has no carve-out. Zero Critical findings; the attempt-1 Critical (plugin name in Proposed Change) is resolved.
+
+Audit attempt 2. Attempt 1 (same cycle) returned BLOCKED with one Critical
+(CATEGORY-LANGUAGE-MATCH) and structural Majors; that verdict and the applied
+revisions are preserved in git history (commit b2706e6c).
+
+---
+
+## Findings
+
+### Critical Findings
+
+None.
+
+### Major Findings
+
+- [MAJOR] VERIFICATION-METRIC-DEFINED — Section names exactly one primary metric ('specification review gate attempts blocked by an unreachable round transition') with a quantitative target (1 -> 0) and a checkpoint ('after the next 3 amendment-triggered specification review attempts'), satisfying requirements 2 and 3. It fails requirement 1: the baseline is explicitly NOT sourced from the retrospective report. Quoted text: 'baseline 1 observed (2026-09-03 incident; session-observed, not yet retrospective-tracked)' and 'Baseline source: live incident report (see Problem Evidence); the next retrospective run covering epic-193-a5 should add this count so the following cycle compares against a report-sourced row.' The check requires 'Current baseline value from the retrospective report'; the WFI's own text confirms this requirement is unmet, for the same structural reason given in Problem Evidence (the retrospective predates and excludes epic-193's in-flight work). No carve-out exists for this check (unlike NO-PLUGIN-SCOPE-CREEP), so it is scored as written.
+
+### Minor Findings (Advisory)
+
+None.
+
+---
+
+## Auditor Reasoning
+
+### EVIDENCE-CITED
+Result: PASS
+Evidence: Problem Evidence cites a live incident (not retrospective-backed) and explicitly explains why: the retrospective (reports/retrospective/2026-08-14T034801Z-pillar-a-wave-session.md) predates the 2026-09-03 incident and its Scope Note states 'eight of epic-193's ten tasks... are still Planned and contribute no measurements at all.' In place of a retrospective row, the WFI cites verifiable primary artifacts, all confirmed to exist and match verbatim during this audit: plugins/sdd-review-loop/scripts/spec-review-precheck.sh:331-334 (the exact disjunction and 'reviewed inputs are unchanged from the prior round' fail message), reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-a.json (run seq0877, CONSTRAINTS-EXPLICIT Critical on investigation.md Ruling (G) bare-path citations, verdict NEEDS_WORK), attempt-14/round-2/precheck-result.json (edit_summary confirms requirements_sha256 changed from 6f996079... to 19add713... via a Ruling-Annotations-mirror companion edit, unlocking round 2; reviewer run_ids seq0879/seq0880 confirmed), and attempt-12's round-2/round-3 artifacts (confirmed to exist) for the subordinate detection-latency note. Every specific claim is independently verifiable against real files; none are vague or uncited.
+
+### ROOT-CAUSE-PLAUSIBLE
+Result: PASS
+Evidence: Root Cause Hypothesis names a specific mechanism ('the round>1 changed-inputs predicate compares only the two review-subject document hashes because it was written before the Amendment Re-Review Context mechanism made investigation.md a first-class review subject'), not a restatement of the symptom. It matches the Why-Why chain's terminal Because (level 3: the Amendment Re-Review Context mechanism made investigation.md a first-class review subject whose bytes must be able to change between rounds), and the WFI explicitly states 'Terminal cause = the Root Cause Hypothesis above (level 3's mechanism).' No mismatch found.
+
+### WHY-CHAIN-VALID
+Result: PASS
+Evidence: Section present with 3 numbered levels (meets the >=3 minimum). Anchored: Level 1 asks why round 2 refused to start, matching the friction stated in Problem Evidence. Chained: each level's Because is what the next level's Why interrogates (predicate scope -> why that scope -> why that scope is now wrong), no subject switch. Terminates at mechanism: level 3's Because names a controllable process cause (Amendment Re-Review Context makes investigation.md a review subject whose bytes must be able to change), not blame or a bare restatement. Not padded: only 3 levels, no filler. Evidenced: level 1 cites spec-review-precheck.sh:331-334 (confirmed verbatim); level 2 is explicitly marked '(hypothesis, inferred from the same script's round-transition design; no counterexample attempt exists...)'; level 3 cites the calibration's Amendment Re-Review Context section (confirmed present at spec-review-calibration.md:61) and the attempt-14 round-1 reviewer-a.json Critical (confirmed). All levels satisfy the evidenced-or-hypothesis requirement.
+
+### CATEGORY-LANGUAGE-MATCH
+Result: PASS
+Evidence: Category is plugin-improvement. Scanned Root Cause Hypothesis, Why-Why Why/Because text, Proposed Change Change Description column, and Expected Effect for forbidden terms from Section 2's table (sdd-impl-review, impl-review-loop, sdd-task-review, quality-gate, sdd-bootstrap-interviewer, spec-review-loop, spec-reviewer-a/b, implement-task(s), workflow-retrospective, spec_review_rounds, spec_review_blocked_rate, legacy_design, sdd-sudo/lite/adopt, sdd-review-loop). None appear in the audited sections. Change Description rows correctly use the generic substitution 'review gate plugin' and 'specification review gate' rather than the forbidden 'sdd-review-loop' / 'spec-review-loop'. Target File column (which legitimately carries the concrete plugin path) is out of scope per Section 2 and was excluded from this check, consistent with CHANGE-CONCRETE/NO-PLUGIN-SCOPE-CREEP handling it separately.
+
+### CHANGE-CONCRETE
+Result: PASS
+Evidence: Both Proposed Change rows name a specific file (plugins/sdd-review-loop/scripts/spec-review-precheck.sh, + .ps1 twin) with non-vague, mechanism-level descriptions (change a two-way hash disjunction into a three-way disjunction including the investigation document's hash; record the investigation document's hash in the round contract the same way the two existing hashes are recorded). Both rows name a plugins/ path, which would normally be an automatic Major finding, but the NO-PLUGIN-SCOPE-CREEP carve-out applies here (see that check's finding for the three verified conditions), so per the shared-rule requirement this check does not flag the plugins/ path either.
+
+### EFFECT-MEASURABLE
+Result: PASS
+Evidence: Expected Effect names a specific metric in generic plugin-improvement language ('specification review gate attempts with no lawful round-2 transition') and states a quantitative target ('from 1 observed... to 0 over the next 3 amendment-triggered specification review attempts'), plus a mechanistic re-run demonstration (attempt-14 round-2 transition with only the investigation-document pin-fix exits 0 instead of failing). No forbidden terms used; language is consistent with CATEGORY-LANGUAGE-MATCH.
+
+### VERIFICATION-METRIC-DEFINED
+Result: FAIL
+Evidence: Section names exactly one primary metric ('specification review gate attempts blocked by an unreachable round transition') with a quantitative target (1 -> 0) and a checkpoint ('after the next 3 amendment-triggered specification review attempts'), satisfying requirements 2 and 3. It fails requirement 1: the baseline is explicitly NOT sourced from the retrospective report. Quoted text: 'baseline 1 observed (2026-09-03 incident; session-observed, not yet retrospective-tracked)' and 'Baseline source: live incident report (see Problem Evidence); the next retrospective run covering epic-193-a5 should add this count so the following cycle compares against a report-sourced row.' The check requires 'Current baseline value from the retrospective report'; the WFI's own text confirms this requirement is unmet, for the same structural reason given in Problem Evidence (the retrospective predates and excludes epic-193's in-flight work). No carve-out exists for this check (unlike NO-PLUGIN-SCOPE-CREEP), so it is scored as written.
+
+### VERIFICATION-PLAN-SPECIFIC
+Result: PASS
+Evidence: Item 4 of the Verification Plan references specific retrospective metric rows to be compared in the next cycle: 'compare the Review Gate Metrics rows for the affected feature (Spec Review Rounds / Spec Review Verdict for epic-193-a5-capability-resolver) and the new unreachable-round-transition count against this WFI's baseline.' This is not generic ('we will check if things improved') and names the feature and row labels.
+
+### NO-PLUGIN-SCOPE-CREEP
+Result: PASS
+Evidence: Both Proposed Change rows target plugins/sdd-review-loop/scripts/spec-review-precheck.sh (+ .ps1 twin), which would normally be a Major finding, but the carve-out applies. I verified all three required conditions: (1) the WFI declares 'Category: plugin-improvement' (line 13); (2) the '## Category' section states in its own words that 'This repository is the source of truth for the review gate plugin (plugins/sdd-review-loop/): it is developed, versioned, and released from here, and the proposed change travels as a repository commit to those paths, not as a downstream issue against an external project'; (3) a '## GitHub-Issue' section is present with the explicit statement 'GitHub-Issue: PENDING — to be created by wfi-audit-cycle', naming when the tracking issue is filed (after audit completion, per this repository's established practice referenced in the Category section). All three conditions hold, so per the rule the plugins/ paths are not a finding under this check, consistent with CHANGE-CONCRETE's treatment of the same rows.
+
+---
+
+## Proposed Revisions
+
+### Revision 1
+**Section:** ## Verification Metric
+**Change:** Add an explicit line distinguishing the incident-sourced baseline from a future retrospective-sourced one, e.g.: 'Retrospective baseline: not available — this metric (unreachable round-2 transitions) does not yet exist in any retrospective table because the covering retrospective (2026-08-14) explicitly excludes epic-193's in-flight tasks. The value used here (1) is sourced from the live incident evidence in ## Problem Evidence, independently verifiable against reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-1 and round-2 artifacts. The first retrospective-report-sourced baseline for this metric will be captured at the stated checkpoint (after the next 3 amendment-triggered specification review attempts) and should be treated as the authoritative baseline for cycle-2 comparison.'
+**Rationale:** Resolves the VERIFICATION-METRIC-DEFINED Major finding by making the deviation from a retrospective-sourced baseline an explicit, audit-visible statement rather than leaving the check's literal requirement (baseline from the retrospective report) unmet without acknowledgment of the gap it creates for future audit cycles. This does not fabricate a retrospective row; it documents why one does not yet exist and commits to closing the gap at the stated checkpoint.

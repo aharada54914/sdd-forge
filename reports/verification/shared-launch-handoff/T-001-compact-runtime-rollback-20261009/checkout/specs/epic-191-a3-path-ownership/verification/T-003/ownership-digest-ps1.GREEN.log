@@ -1,0 +1,15 @@
+ok: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+ok: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ok: TEST-038B: context binding, resolver metadata, and ownership input are excluded from semantic output comparison
+ok: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+ok: TEST-040A: ownership freshness matrix semantic=True digest=True
+ok: TEST-040B: ownership freshness matrix semantic=True digest=True
+ok: TEST-040C: ownership freshness matrix semantic=False digest=True
+ok: TEST-040D: ownership freshness matrix semantic=False digest=True
+ok: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+ok: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+ok: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+ok: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+13 passed / 0 failed
+EXIT_CODE=0

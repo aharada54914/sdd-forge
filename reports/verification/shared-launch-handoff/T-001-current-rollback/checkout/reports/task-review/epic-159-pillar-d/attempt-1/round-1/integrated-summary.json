@@ -1,0 +1,25 @@
+{
+  "schema": "integrated-summary/v1",
+  "attempt": 1,
+  "round": 1,
+  "generated_at": "2026-07-16T17:01:56Z",
+  "reviewer_a_check_ids": [
+    "PREREQ-AC-IDS",
+    "BLOCKERS-FORMAT",
+    "REQ-COVERAGE",
+    "AC-COVERAGE",
+    "ORPHAN-TASK",
+    "ORPHAN-TEST",
+    "INITIAL-STATE",
+    "RISK-WORKFLOW-FORMAT",
+    "NO-DUPLICATE-AC",
+    "DEPENDENCY-COMPLETE",
+    "DEPENDENCY-CYCLE",
+    "SINGLE-CONCERN",
+    "OBSERVABLE-DONE",
+    "TRACEABILITY-SYNC"
+  ],
+  "reviewer_a_fail_count": 0,
+  "reviewer_a_pass_count": 14,
+  "reviewer_a_skip_count": 0
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0174",
+  "host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0174",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "3122c740d5cad179117f85206775f64c991546e3fdced56e92be8785e853f28f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-3/precheck-result.json",
+      "sha256": "3982cc0b8868b9dc26dfd09676107030f0247f51e8159c3100ae635da47db8de"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 (requirements.md Goals) states a byte-level normalization rule: delete column-0 Second Approval lines (including terminator) before hashing, for any field value, LF and CRLF, task-stage only, with sh/ps1 required to be byte-identical and decision-identical. Fully observable/measurable by AC-001..AC-004/TEST-001..004."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The single Goal REQ-001 is traced by AC-001 through AC-005, each tagged (REQ-001) in requirements.md and each mapped to TEST-001..TEST-005 in acceptance-tests.md."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001..AC-005 each specify externally checkable outcomes: exit code + workflow-state: ok text, nonzero exit + stage-provenance/task plan hash is stale diagnostic, byte-identical normalized forms, matching first diagnostic rule IDs, and SHA-256 equality of live vs. staged human-copy files."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals explicitly excludes check-task-state content validation, the hook guard write-denial rule, spec/impl-stage normalization, the identity ledger, registry schema, other validators, and retroactive re-hashing of existing contracts."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries names the removed tamper-evidence class and compensating controls (hook guard denial, check-task-state Done-time validation); Roles and Permissions states the human-only write constraint and the mandated human-copy/SHA-256-MANIFEST staging path required by the hook guard's R-10 protected-suffix rule; Assumptions states the pwsh 7.x dependency."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Risks entries map to concrete validation surfaces: over-broad masking -> AC-002/TEST-002 negative controls including the column-0-anchoring sub-case; sh/ps1 divergence -> AC-003/AC-004 byte-identical normal-form assertions; botched live apply -> AC-005/TEST-005 human-copy MANIFEST plus gate-recorded live==staged SHA-256 evidence."
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-impl-a3r1-b-seq0531",
+  "host_session_id": "SESS-impl-a3r1-b-epic136phase4docs-0531",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/impl-review/epic-136-phase4-docs/attempt-3/round-1/integrated-summary.json",
+      "sha256": "db4274d65d636df2037fab037825ef9fa48f823ccd060fbce852d3134b1c4871"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/impl-review/epic-136-phase4-docs/attempt-3/round-1/precheck-result.json",
+      "sha256": "0f8b615f4cd8cbf5e8ca7693480f8ba6020228037ad9be6117d663d861fd724b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/design.md",
+      "sha256": "d98f046a8127125e4e75244aab06645070e4faccf32ea1e82cd8a82ae3027984"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural decision in design.md carries a stated rationale: date+kill-0 polling over timeout(1) (design.md:33); setsid process-group signalling (design.md:38-42, Edge Case 2); SIGTERM-then-SIGKILL with 2s grace (design.md:67,245); 600s default (design.md:118, grounded against SDD_INSTALL_LOCK_STALE:-600); exit-1-not-2 on timeout (design.md:183, OQ-3); per-panelist bound (design.md:182, OQ-2). The two amended hunks (design.md:23,122) carry a stated justification ('human-ratified exit-code correction... BL-003 posture preserved; tasks.md ruling 2026-08-07')."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:179-185 'Design Decisions (Resolving Open Questions)' explicitly resolves every open question investigation.md left open (OQ-1..OQ-4 for #133, #134's OQ-3), each with stated resolution and rationale. No unresolved question lacking owner or resolution path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md present (INV-001..INV-017) and every technical assumption grounded: timeout(1) unavailability (design.md:33, requirements.md Edge Case 1); signal escalation (design.md:67 resolves requirements.md:176); 600s default grounded in existing constant; 2s grace flagged as unverified guess (design.md:245) rather than presented as fact."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H fallback scan: REQ-003 'must not exit 2' (timeout) addressed by design.md:116/128; REQ-005 no-re-documenting addressed at design.md:24; requirements.md:158 addressed via BL-001 (design.md:87); Edge Case 6 addressed at design.md:47-52. Central: the amended BL-003 text (design.md:23,122) does not contradict requirements.md:184 'keep their current meaning' \u2014 INV-004 (investigation.md:70-77) shows check-cross-model.sh's zero-verdict branch already exits 2 while INV-005's quoted policy prose erroneously said exit 1; the ratified correction fixes that stale citation to match already-existing BL-002-protected behaviour. Both values are non-zero fail-closed; REQ-003's runner-own-timeout exit 1 remains exit 1 throughout (design.md:124-131,108-118). git diff 489389df confirms exactly 2 hunks. Minor non-blocking observation: design.md defers the '1->2' detail to tasks.md, which this role cannot read."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002's numeric bound (600s default) and AC-004's wall-clock assertions are addressed by the bounded-wait mechanisms (design.md:31-87 shell, :89-106 PowerShell), the Configuration contract (design.md:108-118), and Test Strategy timing items (design.md:217-220); infra-spec.md:15 states the ~3s CI cost."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:228-232 Deployment & CI Plan: no new CI step, existing test job runs tests/run-all.sh registering cross-model.tests.sh; infra-spec.md:1-28 covers 3-OS matrix and no-service topology. Feature flags N/A (fail-closed correction with env override); migration ordering N/A (Data Plan: no data changes)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:149-160 Data Plan states 'No data changes... No migration, no backfill, and no retention change' \u2014 automatic PASS per check definition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The vendor CLI boundary is identified with contract and failure behaviour: design.md:166-171 (B1), security-spec.md:7-11 (B1 writeup), :31 (STRIDE row), :57-58 (test mapping); unpinned-CLI limitation stated (requirements.md:162); failure behaviour exhaustively tabulated in the taxonomy (design.md:124-131)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All REQ-001..REQ-006 mapped in the coverage table (design.md:193-210) with no uncovered REQ; Components table (design.md:17-27) contains nothing beyond the four runners, policy doc, THREAT-MODEL.md and two suites, all in requirements Scope; Non-goals respected (no retry logic, check-cross-model untouched per BL-002, no CLI pinning); ux/frontend specs record N/A consistently."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (B1 DoS closure, vendor-CLI failure behaviour) have named validation paths: TEST-004/005/006 (design.md:200-202) and security-spec.md:51-65 mapping every STRIDE row to a named test artifact."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in this project, so no Approved domain model applies."
+    }
+  ]
+}

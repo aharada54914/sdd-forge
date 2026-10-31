@@ -1,0 +1,81 @@
+PASS: manifest: PROTECTED-MANIFEST.md exists
+PASS: manifest: every inventory-shaped row satisfies the normative grammar
+PASS: manifest: total entry count is 28 (design.md Protected-File Statement)
+PASS: manifest: concrete entry count is 24
+PASS: manifest: reserved entry count is 4
+PASS: manifest: no duplicate paths
+PASS: manifest: ordinals are contiguous and ascending 01..28
+PASS: manifest: every path is a valid repository-relative path
+PASS: manifest: prose Counts table states concrete=24, matching the rows
+PASS: manifest: prose Counts table states reserved=4, matching the rows
+PASS: manifest: prose Counts table states total=28, matching the rows
+PASS: TEST-038: ADR-0019 item 3 category represented: canonicalizer
+PASS: TEST-038: ADR-0019 item 3 category represented: hash-generator
+PASS: TEST-038: ADR-0019 item 3 category represented: approval-validator
+PASS: TEST-038: ADR-0019 item 3 category represented: policy-weakening-detector
+PASS: TEST-038: ADR-0019 item 3 category represented: resolver
+PASS: TEST-038: ADR-0019 item 3 category represented: generated-projection
+PASS: TEST-038: 20 entries fall under an ADR-0019 item 3 category
+PASS: TEST-038: 8 entries are deliberate beyond-item-3 extensions (6 data + 2 publisher)
+PASS: TEST-038: resolver reservation is exactly the three resolve-project-context paths
+PASS: TEST-038: generated-projection reservation is exactly the resolved-projection path
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.sh is a concrete entry
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 is a concrete entry
+PASS: TEST-038: sdd/.approved-context/project-context.approved.yaml is a concrete entry
+PASS: TEST-038: sdd/.approved-context/provider-bindings.approved.yaml is a concrete entry
+PASS: staged: candidate exists: specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json
+PASS: staged: candidate exists: specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+PASS: staged: generated output exists: guard_invariants.py
+PASS: staged: generated output exists: guard-invariants.generated.js
+PASS: staged: generated output exists: guard-invariants.generated.ps1
+PASS: staged: generated output exists: guard-invariants.generated.sh
+PASS: TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)
+PASS: TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)
+PASS: TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order
+PASS: TEST-021: each manifest path occurs exactly once in staged protected_gate_suffixes
+PASS: TEST-021: staged protected_gate_suffixes has no duplicates
+PASS: TEST-021: staged generator EPIC_A1_TARGETS equals the manifest exactly (ordered)
+PASS: TEST-021: frozen constant untouched in the staged generator: PHASE2_TARGETS
+PASS: TEST-021: frozen constant untouched in the staged generator: BASELINE_SUFFIXES
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL requires epic_a1_targets
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL matches live, which already requires it (human apply landed)
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL removes no existing key
+PASS: TEST-021: staged JSON top-level key set equals the staged generator's REQUIRED_TOP_LEVEL
+PASS: TEST-021: no EPIC_A1 projection is emitted into the generated outputs (design decision)
+PASS: TEST-021: all 28 manifest paths are projected into guard_invariants.py
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.js
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.ps1
+PASS: TEST-021: staged-tree generate-guard-invariants.py --check passes
+PASS: TEST-021: the staged generator anchors on the STAGED canonical JSON, never the live one
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped JSON entry)
+PASS: TEST-021-MUT: --check rejects a dropped protected_gate_suffixes entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped EPIC_A1_TARGETS entry)
+PASS: TEST-021-MUT: --check rejects a dropped EPIC_A1_TARGETS entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (stale generated output)
+PASS: TEST-021-MUT: --check rejects a stale generated output
+PASS: TEST-022: live guard-invariants.json equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generate-guard-invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard_invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.js equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.ps1 equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.sh equals this batch's reviewed staged candidate (human apply landed)
+PASS: staging: MANIFEST.sha256 exists
+PASS: staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>
+PASS: staging: the pre-existing .github/workflows/test.yml entry is preserved verbatim
+PASS: staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path>
+PASS: staging: every MANIFEST.sha256 digest matches its staged bytes
+PASS: staging: MANIFEST.sha256 has 8 entries (1 pre-existing + 7 added by T-009)
+PASS: staging: MANIFEST.sha256 registers specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/references/guard-invariants.json
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+PASS: staging: the nested staged PROTECTED-MANIFEST.md copy is byte-identical to the canonical one
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 twin exists
+PASS: 78
+FAIL: 0
+sh_exit=0

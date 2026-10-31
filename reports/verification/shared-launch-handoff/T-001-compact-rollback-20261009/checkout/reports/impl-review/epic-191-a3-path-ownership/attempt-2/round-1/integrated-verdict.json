@@ -1,0 +1,15 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-orchestrator-a2r1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "verdict_note": "Provenance re-review (--provenance-rereview) round 1 of 3: two Major findings (ADR-PRESENT: design.md cites docs/adr/0025-component-path-ownership-resolver-semantics.md, renumbered on disk to 0027 with the 0025 slot occupied by two unrelated ADRs; OPEN-QUESTIONS-RESOLVABLE: the OQ-002 Open Questions entry lacks an owner, Blocks Implementation field, and Resolution Path field). Round-aware state machine: NEEDS_WORK, remedy round available. Impl-Review-Status stays Passed for the whole re-binding per the mode contract."
+}

@@ -1,0 +1,86 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "risk-adaptive-layer",
+ "task_id": "T-001",
+ "run_id": "RUN-risk-adaptive-layer-qg-T-001-seq0839",
+ "host_session_id": "SESS-qg-risk-adaptive-layer-T-001-0839",
+ "sequence": 839,
+ "previous_record_sha256": "46b016091b81be14a6f8918761db7d4f3dc4ef76aa4b160329c0e544850a93e8",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "620e60ef2f810235101ef2bee409c7fc0a1c641b9611399f49e6f8c5ab9da4af",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/risk-adaptive-layer/requirements.md",
+   "sha256": "6eeaa30e8c8348a8bb8e0f08c45ce3b7df0ee0725729a9adcf7438971542e7f0"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/design.md",
+   "sha256": "38b39607eda436d25f72748cd3df99db254c7070d15452702084b7958ff7f3ca"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+   "sha256": "bebcc8b7222d27dba533ced804898a6829f297cfff208013e807826e10201a73"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/tasks.md",
+   "sha256": "ef10f870343d1e0c2bf16f225b56525452fa94b91ce0f342c9d647a3205509f7"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/traceability.md",
+   "sha256": "218b70f1877464b31834dad19558f7085cc30489ce49daa51fa448831677f6de"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/risk-adaptive-layer/T-001.md",
+   "sha256": "1dd6cdbefde4b03a90184d8352eff3664927292e3ecf4de976f43d544f802c8b"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
+   "sha256": "bcf0823ace7f536f06ef2e8eb5355a555b8bf35f27fcae810669237ae4b1375d"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md",
+   "sha256": "e4708bbd8ab0a390b970e4aa75d793feedaa3358ca6562c85963ae1dfb050179"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md",
+   "sha256": "adeaba316f174d8f66b31b30d8c48eeda76258d096ac501973f98426fcd809c9"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md",
+   "sha256": "99f48ea0a3363c8f3bc2479afb5fa97052d6138f599f7e0ee40797c95703335c"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md",
+   "sha256": "8ca895ff44ae54a7ac173fd72b63bb3a7de54bfbdc922fbe0c50ff1539cbddf7"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+   "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+   "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/templates/evidence-bundle.template.json",
+   "sha256": "d1a131c56c69a934186fe2fb940d8d689626746670682cda85f2e3efa67e7432"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+   "sha256": "dd85b053d8b9effe0ca0b7cf5432fe6bd48e0e661456adcdb4b8ea4f8dc3cc32"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260823T103000Z.md",
+  "sha256": "50cbfd13f0e55cb11cae4cf81e8243851d7184a2afeb27ab751a546e4cb0b53b"
+ }
+}

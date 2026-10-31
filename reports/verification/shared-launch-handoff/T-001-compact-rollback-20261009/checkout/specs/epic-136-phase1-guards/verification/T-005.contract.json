@@ -1,0 +1,168 @@
+{
+  "task_id": "T-005",
+  "feature": "epic-136-phase1-guards",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
+  "created": "2026-07-12T06:10:00Z",
+  "comment": "Default-FAIL verification contract for T-005; populated after quality-gate reran the focused suites and deterministic gates. Shell stack waives compile-oriented checks.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No shell/YAML lint tool configured; bash -n / static syntax recorded as evidence instead.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Shell/PowerShell/JSON/YAML have no configured static type-check command.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-005/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Focused suites drive the script/config entry points directly with isolated fixtures; no separate service integration surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-005/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-005/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for a shell/JSON/YAML/Markdown repository (shell stack).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-005/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; deterministic script/guard behavior is fully covered by the focused suites.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Not a refactor/bugfix with baseline-behavior.md; behavior change is additive and spec-approved.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface (CLI/CI hardening).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

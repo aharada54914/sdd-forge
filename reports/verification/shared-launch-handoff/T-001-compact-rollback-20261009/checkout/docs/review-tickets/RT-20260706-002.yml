@@ -1,0 +1,56 @@
+ticket_id: RT-20260706-002
+status: resolved
+resolution: |
+  2026-07-07: Human authorized the install ("run jq"). jq 1.7.1 official
+  Windows binary downloaded to C:/Users/J0138462/sdd-tools/bin/jq-real.exe;
+  sha256 verified against the official release manifest
+  (7451fbbf37feffb9bf262bd97c54f0da558c63f0748e64152dd87b0a07b6d6ab, exact
+  match). MSYS-safe shim installed at C:/Users/J0138462/sdd-tools/shim/jq and
+  verified on all three known Windows failure modes: version OK, zero CR
+  bytes in output (tr -d '\r'), leading-slash --arg values pass verbatim
+  (MSYS2_ARG_CONV_EXCL='*'), file operands converted via cygpath -m.
+  `jq -e . specs/workflow-state-registry.json` now exits 0, confirming the
+  original "registry-malformed" diagnostic was a missing-interpreter false
+  report. Gate runs must use PATH="$HOME/sdd-tools/shim:$HOME/sdd-tools/bin:$PATH"
+  (a durable .bashrc entry is pending separate human authorization).
+  NOTE: with jq working, check-workflow-state now executes fully and surfaces
+  a previously masked, unrelated finding in sdd-domain's task-review stage
+  provenance -- tracked separately as RT-20260707-001.
+type: environment-gap
+severity: major
+target:
+  feature: sdd-domain
+  task: T-008
+  files:
+    - specs/workflow-state-registry.json
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+summary: check-workflow-state fails on this machine because jq is not installed, not because the registry is malformed.
+problem: |
+  `check-workflow-state.sh` (run with no `--feature`, as required before every
+  quality-gate Done decision) reports:
+    workflow-state: repository: registry-malformed: registry is not valid JSON
+  This diagnostic is misleading: `jq -e . specs/workflow-state-registry.json`
+  fails with exit 127 ("jq: command not found"), confirmed by `which jq`
+  returning nothing anywhere on this machine's PATH -- there is no jq install
+  at all, native or otherwise. `python -c "json.load(open(...))"` confirms
+  `specs/workflow-state-registry.json` parses as fully valid JSON. The script
+  does not distinguish "jq missing" from "jq ran and rejected the input",
+  so a missing interpreter surfaces as a false registry-corruption report.
+expected_fix: |
+  Needs a human decision to install jq on this machine (e.g. via winget/choco,
+  or the official jq-1.7.1 Windows binary) and add it to PATH before any
+  future SDD quality-gate run here. Per existing project memory
+  (sdd-forge-windows-jq-gate-scripts), once jq is present, Git Bash + native
+  jq.exe on Windows also needs an MSYS-safe shim to avoid two further known
+  failure modes (CRLF line endings breaking hash-chain checks, and MSYS
+  path auto-conversion corrupting `--arg` values that start with `/`) --
+  install alone is not sufficient for check-workflow-state / precheck /
+  validate-review-context-set to run correctly on this host. This agent did
+  not attempt to download or install jq unilaterally since acquiring and
+  running a new external binary needs explicit user authorization.
+references:
+  - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+  - specs/workflow-state-registry.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

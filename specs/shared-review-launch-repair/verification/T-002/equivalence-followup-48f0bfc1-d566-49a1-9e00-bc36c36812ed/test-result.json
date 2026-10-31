@@ -1,0 +1,20 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "pwsh",
+    "-NoLogo",
+    "-NoProfile",
+    "-File",
+    "tests/review-hash-normalization.tests.ps1"
+  ],
+  "exit_code": 0,
+  "changes": [
+    {
+      "path": "tests/review-hash-normalization.tests.ps1",
+      "before": "5d922dca8a6d92828315c5349e4b40bd657a9ddeb0388bad77c14e41574220d1",
+      "after": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32"
+    }
+  ],
+  "claim": "local regression, not native Windows or formal verdict"
+}

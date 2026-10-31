@@ -1,0 +1,72 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-001",
+  "run_id": "secondapprovalmask-t-001-run-01",
+  "session_id": "secondapprovalmask-t-001-session-01",
+  "agent_instance_id": "secondapprovalmask-t-001-agent-01",
+  "model_tier": "strong",
+  "provider": "anthropic",
+  "model": "opus",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-07-12T10:56:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/second-approval-mask/requirements.md",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+    },
+    {
+      "path": "specs/second-approval-mask/design.md",
+      "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+    },
+    {
+      "path": "specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "specs/second-approval-mask/tasks.md",
+      "sha256": "928017ec5b8bcec520ee005681585e35ecdcc48e011046f56b421cfc19f245b9"
+    },
+    {
+      "path": "specs/second-approval-mask/traceability.md",
+      "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+    },
+    {
+      "path": "specs/second-approval-mask/security-spec.md",
+      "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+    },
+    {
+      "path": "specs/second-approval-mask/infra-spec.md",
+      "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "c03feaca8196cf7da5cf0290289cb7a618266c0566cc1714887642a625952638"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "sha256": "ff76b973e68690ed30c15d78ac18b9ccc06baa91a779a4a74c6448e8664e21b4"
+    },
+    {
+      "path": "tests/workflow-state-parity.tests.sh",
+      "sha256": "65bb2f3a89da593b0ce1db64d56fbda9db28bc617c045657c2f1ac384c5cd2d0"
+    },
+    {
+      "path": "docs/review-tickets/RT-20260712-003.yml",
+      "sha256": "e455c09a15fdbe6fbe9082c18c34f4883c7b623b3982f038218977c50f85c6bf"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/second-approval-mask.tests.sh",
+    "tests/run-all.sh",
+    "specs/second-approval-mask/human-copy/check-workflow-state.sh",
+    "specs/second-approval-mask/human-copy/check-workflow-state.ps1",
+    "specs/second-approval-mask/human-copy/T-001.MANIFEST.sha256",
+    "specs/second-approval-mask/verification/T-001/red.log",
+    "specs/second-approval-mask/verification/T-001/green.log",
+    "reports/implementation/second-approval-mask/T-001.md"
+  ]
+}

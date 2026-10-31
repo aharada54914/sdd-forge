@@ -1,0 +1,14 @@
+{
+    "schema": "integrated-verdict/v1",
+    "stage": "task",
+    "feature": "epic-189-a1-project-context",
+    "run_id": "task-orch-epic189a1projectcontext-a4r1",
+    "verdict": "PASS",
+    "round": 1,
+    "attempt": 4,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0,
+    "reviewer_a_verdict": "PASS",
+    "reviewer_b_verdict": "PASS"
+}

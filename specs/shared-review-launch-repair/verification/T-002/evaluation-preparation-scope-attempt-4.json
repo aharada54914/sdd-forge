@@ -1,0 +1,17 @@
+{
+  "task": "T-002",
+  "owner": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+  "risk": "high",
+  "scope": "Caller-owned evaluation input preparation only; no reservation, launch, ledger or lifecycle change",
+  "contracts": [
+    "review-context-invocation/v2",
+    "supplemental-delivery-declaration/v1"
+  ],
+  "required_validation": "243 output hashes; supplemental resolver; canonical evaluator delivery preflight without reserve",
+  "head": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "dirty": " M .github/workflows/test.yml\n M AGENTS.md\n M plugins/sdd-quality-loop/agents/evaluator.md\n M plugins/sdd-quality-loop/references/guard-invariants.json\n M plugins/sdd-quality-loop/scripts/generate-guard-invariants.py\n M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js\n M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1\n M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh\n M plugins/sdd-quality-loop/scripts/generated/guard_invariants.py\n M plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1\n M plugins/sdd-quality-loop/scripts/validate-review-context-set.sh\n M plugins/sdd-quality-loop/skills/quality-gate/SKILL.md\n M plugins/sdd-review-loop/references/review-context-boundary.md\n M plugins/sdd-review-loop/scripts/impl-review-precheck.ps1\n M plugins/sdd-review-loop/scripts/spec-review-precheck.ps1\n M plugins/sdd-review-loop/scripts/spec-review-precheck.sh\n M plugins/sdd-review-loop/scripts/task-review-precheck.ps1\n M plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md\n M plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md\n M plugins/sdd-review-loop/skills/task-review-loop/SKILL.md\n M reports/review-context/identity-ledger.json\n M specs/workflow-state-registry.json\n M tests/review-agent-isolation.tests.sh\n M tests/review-context-boundary.tests.sh\n M tests/review-scratch-history.tests.py\n M tests/run-all.ps1\n M tests/run-all.sh\n",
+  "reused_helper": {
+    "path": "reports/verification/shared-launch-handoff/prepare-t005-evaluation.py",
+    "sha256": "63523108b1283a45d8e4153d74d6dbd368859401056af8d9e9cd1f8bce73a167"
+  }
+}

@@ -1,0 +1,87 @@
+=== focused: bash tests/validate-approval-sidecar.tests.sh ===
+PASS: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS
+PASS: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS
+PASS: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (DUPLICATE_COMPONENT_ID)
+PASS: TEST-014 (2) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-014 (3) HMAC mismatch (context_sha256 matches; hmac signed under a different key) rejected (HMAC_MISMATCH)
+PASS: TEST-014 (4) unregistered approver id rejected (UNREGISTERED_APPROVER)
+PASS: TEST-014 (5) duplicate approver identity (primary == second) rejected (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-014 (6) future effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-020 validator rejects applying a cooldown sidecar before its effective_at
+PASS: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+PASS: TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+PASS: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+PASS: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry approvers:[] registry (no id can ever resolve, UNREGISTERED_APPROVER)
+PASS: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: OBLIGATION 2 a non-bootstrap sidecar (predecessor_context_sha256 present) with weakening_verdict: null is rejected (WEAKENING_VERDICT_MISSING)
+PASS: OBLIGATION 2 --verify-provenance also rejects a non-bootstrap null-verdict sidecar (WEAKENING_VERDICT_MISSING)
+PASS: TEST-043 --verify-provenance PASSES a correctly-two-person-approved weakening sidecar after its predecessor anchor is gone
+PASS: TEST-043 --verify-provenance FAILS an underapproved (solo) weakening sidecar after its predecessor anchor is gone (WEAKENING_PROVENANCE_UNDERAPPROVED)
+PASS: TEST-043 --verify-provenance PASSES the bootstrap case (approval_epoch:1, weakening_verdict: null) with no second-approval requirement implied
+PASS: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-043 standard validation path: a live TRANSACTION.json naming the content path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)
+PASS: SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned
+PASS: TEST-HARDEN a malformed (non-array approvers) registry is rejected (APPROVER_REGISTRY_SCHEMA_VIOLATION)
+PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+PASS: TEST-HARDEN missing --content (without --verify-provenance) is a clean usage error, never a traceback
+PASS: TEST-HARDEN --content combined with --verify-provenance is a clean usage error
+PASS: TEST-HARDEN a missing --sidecar file is rejected cleanly (SIDECAR_UNREADABLE), never a traceback
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 twin exists
+PASS: 40
+FAIL: 0
+bash-exit=0
+=== focused: pwsh ===
+PASS: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS
+PASS: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS
+PASS: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (DUPLICATE_COMPONENT_ID)
+PASS: TEST-014 (2) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-014 (3) HMAC mismatch (context_sha256 matches; hmac signed under a different key) rejected (HMAC_MISMATCH)
+PASS: TEST-014 (4) unregistered approver id rejected (UNREGISTERED_APPROVER)
+PASS: TEST-014 (5) duplicate approver identity (primary == second) rejected (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-014 (6) future effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-020 validator rejects applying a cooldown sidecar before its effective_at
+PASS: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+PASS: TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+PASS: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+PASS: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry approvers:[] registry (no id can ever resolve, UNREGISTERED_APPROVER)
+PASS: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: OBLIGATION 2 a non-bootstrap sidecar (predecessor_context_sha256 present) with weakening_verdict: null is rejected (WEAKENING_VERDICT_MISSING)
+PASS: OBLIGATION 2 --verify-provenance also rejects a non-bootstrap null-verdict sidecar (WEAKENING_VERDICT_MISSING)
+PASS: TEST-043 --verify-provenance PASSES a correctly-two-person-approved weakening sidecar after its predecessor anchor is gone
+PASS: TEST-043 --verify-provenance FAILS an underapproved (solo) weakening sidecar after its predecessor anchor is gone (WEAKENING_PROVENANCE_UNDERAPPROVED)
+PASS: TEST-043 --verify-provenance PASSES the bootstrap case (approval_epoch:1, weakening_verdict: null) with no second-approval requirement implied
+PASS: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-043 standard validation path: a live TRANSACTION.json naming the content path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)
+PASS: SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned
+PASS: TEST-HARDEN a malformed (non-array approvers) registry is rejected (APPROVER_REGISTRY_SCHEMA_VIOLATION)
+PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+PASS: TEST-HARDEN missing --content (without --verify-provenance) is a clean usage error, never a traceback
+PASS: TEST-HARDEN --content combined with --verify-provenance is a clean usage error
+PASS: TEST-HARDEN a missing --sidecar file is rejected cleanly (SIDECAR_UNREADABLE), never a traceback
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 39
+FAIL: 0
+pwsh-exit=0

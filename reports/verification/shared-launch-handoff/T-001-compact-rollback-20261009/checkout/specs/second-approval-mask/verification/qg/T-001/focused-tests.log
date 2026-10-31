@@ -1,0 +1,47 @@
+# second-approval-mask suite (CWS_SH=specs/second-approval-mask/human-copy/check-workflow-state.sh)
+--- sanity: base provenance fixture ---
+ok: SANITY unmutated frozen validates [sh] (0|)
+ok: SANITY unmutated frozen validates [ps1] (0|)
+ok: SANITY unmutated frozen validates [parity sh==ps1] (0|)
+--- TEST-001 (AC-001): post-freeze Second Approval normalizes to ok ---
+ok: TEST-001 base add [sh] (0|)
+ok: TEST-001 base add [ps1] (0|)
+ok: TEST-001 base add [parity sh==ps1] (0|)
+ok: TEST-001 base add: sh/ps1 normal forms byte-identical
+ok: TEST-001 value edit [sh] (0|)
+ok: TEST-001 value edit [ps1] (0|)
+ok: TEST-001 value edit [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence [sh] (0|)
+ok: TEST-001 multi-occurrence [ps1] (0|)
+ok: TEST-001 multi-occurrence [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence: sh/ps1 normal forms byte-identical
+--- TEST-002 (AC-002): negative controls stay fail-closed (RED and GREEN) ---
+ok: TEST-002a arbitrary line [sh] (1|stage-provenance)
+ok: TEST-002a arbitrary line [ps1] (1|stage-provenance)
+ok: TEST-002a arbitrary line [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [sh] (1|stage-provenance)
+ok: TEST-002b checkbox flip [ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [sh] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [parity sh==ps1] (1|stage-provenance)
+--- TEST-003 (AC-003): CRLF parity + byte-identical normal forms ---
+ok: TEST-003 CRLF base add [sh] (0|)
+ok: TEST-003 CRLF base add [ps1] (0|)
+ok: TEST-003 CRLF base add [parity sh==ps1] (0|)
+ok: TEST-003 CRLF base add: sh/ps1 normal forms byte-identical
+ok: TEST-003 CRLF tamper [sh] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [ps1] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [parity sh==ps1] (1|stage-provenance)
+ok: TEST-003 CRLF final-line-no-newline [sh] (0|)
+ok: TEST-003 CRLF final-line-no-newline [ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline: sh/ps1 normal forms byte-identical
+ok: TEST-003 LF final-line-no-newline [sh] (0|)
+ok: TEST-003 LF final-line-no-newline [ps1] (0|)
+ok: TEST-003 LF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 LF final-line-no-newline: sh/ps1 normal forms byte-identical
+--- TEST-004 (AC-004): suite registered in tests/run-all.sh ---
+ok: TEST-004 registered in tests/run-all.sh
+---- summary: pass=39 fail=0 skip=0 ----
+ok: second-approval-mask suite passed (39 checks, 0 skipped)

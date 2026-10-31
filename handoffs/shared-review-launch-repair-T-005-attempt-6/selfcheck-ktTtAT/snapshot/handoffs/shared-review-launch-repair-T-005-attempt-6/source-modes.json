@@ -1,0 +1,110 @@
+{
+  "schema": "t005-fixture-modes/v1",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "sha256": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "sha256": "a2df15daa4b42c582b507f17d094df14cc369c512e7ed6ac314fb24cfd85a34d",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "sha256": "992a2e8ec18512e83d1813f369e84d40ef3ec0e1d38b43fea19dbd361b34ccd6",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-agent-isolation.tests.sh",
+      "sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "mode": 493
+    },
+    {
+      "path": "tests/review-scratch-history.tests.py",
+      "sha256": "9b201b1434ba2198a51cfedb6b838ed8bb98ee2ba6983ace296b7f3566bf6cff",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "fb9047658a0640644401a777100cd638970a7d9a31aba1c3d5a8bc71bbdb0f05",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+      "mode": 420
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-005-attempt-6/git-history.cjs",
+      "sha256": "6e9923e5d44fe437ff4deec30ae005bfa5d0e5e980efe45152a1af49cae5f5b7",
+      "mode": 420
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-005-attempt-6/git-history.pack",
+      "sha256": "abb124c03ca33abcbaaecc196cf121ff917a63b3dd4d8d3b000e37cb285ae1ea",
+      "mode": 420
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-005-attempt-6/git-history.json",
+      "sha256": "d4429cc2ff9fe43e1fb564da4e1fc528f0cd2233805fe1cd44ebe627f6e05501",
+      "mode": 420
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-005-attempt-6/prepare-fixture.cjs",
+      "sha256": "304a3b36ac48abe6ec078a6df999a0f8584aeef997df806088f00c836b59789c",
+      "mode": 420
+    }
+  ]
+}

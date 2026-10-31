@@ -1,0 +1,12 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-risk.sh",
+    "specs/shared-review-launch-repair/tasks.md"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:20.293848+00:00",
+  "finished_at": "2026-10-14T15:11:20.315425+00:00"
+}

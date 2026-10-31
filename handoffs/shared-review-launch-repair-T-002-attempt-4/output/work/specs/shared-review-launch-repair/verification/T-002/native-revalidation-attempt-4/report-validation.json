@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/shared-review-launch-repair/T-002.md"
+  ],
+  "command": "rtk proxy bash plugins/sdd-implementation/scripts/validate-implementation-report.sh reports/implementation/shared-review-launch-repair/T-002.md",
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/output/work",
+  "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/output",
+  "shell_login": false,
+  "exit_code": 0,
+  "stdout_path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/report-validation.stdout.log",
+  "stderr_path": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-4/report-validation.stderr.log",
+  "scope": "Report schema only; final report bytes are pinned by delivery-index.json."
+}

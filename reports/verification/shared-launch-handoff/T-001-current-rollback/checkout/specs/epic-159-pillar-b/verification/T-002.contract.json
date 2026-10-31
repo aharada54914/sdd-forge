@@ -1,0 +1,142 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-159-pillar-b",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "08a7daae8948fc6aac3835b4ec2e2dfbb4c7594088cf5302bb27872015bd3597",
+  "created": "2026-07-16T13:39:04Z",
+  "comment": "Default-FAIL verification contract for T-002 (medium, acceptance-first). Populated after the quality gate reran tests/release-loop-gate.tests.sh/.ps1 (10/10 passed both lanes) and the epic-159-pillar-b regression set (loop-consistency, loop-inventory, crlf-parity, constant-parity, cross-suite regression against T-001's bump-version-gate suite, and validate-repository.sh, all green, 0 failed suites). Shell stack waives the three compile-oriented checks (lint/typecheck/build). Disclosed implementation-time deviations, recorded here as fact per the implementation report: (1) release.yml's workflow-level permissions: block grants contents: write / id-token: write / attestations: write to the entire workflow, and GitHub Actions job-level permissions inherit that grant unless a job declares its own narrower permissions: key; design.md's literal Planned-shape snippet for the loop-gate job omitted an override, which would have silently left the job inheriting the full write/attestation grant despite the Risk Rationale and security-spec.md B4/Secrets-Management sections both asserting the job requests no elevated permissions -- a job-level permissions: contents: read override was added directly on the loop-gate job to close this gap rather than defer it to code review, matching security-spec.md's own stated intent; (2) a bug in the suite's own scratch-checker fixture (mktemp templated with a literal .py suffix AFTER the XXXXXX run, which BSD/macOS mktemp -- unlike GNU mktemp -- does not randomize, causing a File-exists collision on any run after the first) was found and fixed during implementation by mktemp -d-ing a directory with a bare XXXXXX suffix and writing the fixed-name checker.py inside it.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell/YAML test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell/YAML test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The suite drives text-marker structural assertions directly over the REAL release.yml (including a mktemp fixture copy with needs: textually stripped for the negative-branch canary); no separate service-integration surface exists beyond what unit/acceptance already exercise -- this task never runs the workflow itself (that is GitHub Actions' own runtime, out of this repository's test scope).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-002/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-002/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/YAML test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-002/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-002/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds a new CI job (release.yml loop-gate) plus its text-marker lock suite, fully covered by the focused and regression logs. The job itself only runs inside GitHub Actions, outside this repository's local test scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is additive to the workflow graph (design.md API/Contract Plan): a new job plus a single needs: line; no existing tarball/SBOM/checksum/attestation/upload step is edited.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only the loop-gate job in .github/workflows/release.yml plus tests/release-loop-gate.tests.{sh,ps1}.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

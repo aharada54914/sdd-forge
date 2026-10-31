@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-d",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a18a2d4d1938e4d2df45313ccb36f5773d6b4069b7ddb7b818553462fad5adf6",
+  "acceptance_sha256": "1bb7c38ee880a87a1aa48ffeb2e7e2a304682a34efc0a4582fbaa588002757cb",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "dcee9b57f6011ee60d461a1aba5b9f743fa65a7514ca5d366caad52939115138",
+  "edit_summary": "Round-1 Reviewer B's three Major findings are resolved as follows. AMBIGUITY (a): the human-copy application timing is now pinned in Roles and Permissions, Main Workflows T-003, AC-011, and Edge Cases — the maintainer applies the staged .github/workflows/test.yml candidate as a commit on the feature PR branch before merge, so AC-009's live-file self-check goes green in the PR's own CI, and the pre-application red CI is documented as the designed fail-closed gate with no staged-candidate fallback (design.md Test Strategy item 6 was rewritten to remove the contradicting fallback wording, with matching updates in Deployment/CI Plan, Constraint Compliance, security-spec B3, and infra-spec CI/CD Sequence). AMBIGUITY (b): the dedup title marker is now a pinned literal ([model-freshness-divergence], Field Definitions) shared by both filing paths — REQ-001/AC-002 require D1's manual issues to carry it and the checklist to state it verbatim, and design.md's D1 checklist text and file_or_dedupe_issue sketch cite the identical string. EDGE-CASE-COVERAGE: new AC-020/TEST-020 lock the no-diff branch (fetch success, no divergence yields zero stubbed-gh invocations, exit 0), AC-009 now maps each of its four named branches to an explicit TEST ID, and the secondary issue-body gap is closed by new AC-021/TEST-021 asserting only charset-allowlist-validated model-ID tokens reach an issue body, with Security Boundary B1 extended to cover issue bodies in requirements, design, and security-spec. DOWNSTREAM-READINESS follows from the above: both previously-inventable behaviors are now explicit, traceable spec decisions; AC/TEST remain 1:1 at 21 pairs with no renumbering of existing IDs.",
+  "reset": false,
+  "generated_at": "2026-07-16T15:49:22Z"
+}

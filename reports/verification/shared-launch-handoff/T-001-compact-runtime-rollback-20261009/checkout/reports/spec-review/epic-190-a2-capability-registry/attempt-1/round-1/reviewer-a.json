@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "4862e4d930af03159ff9e6eb550b0d37c60be2d5514bac8654b03382b731a0a0"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "0f2f2e8891d26e066d64fcf28e2a523f3acbe95401550d22d651e8c60e78a964"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "0c500a89b1dbf2844c96f63b2adbf1566d473505ce48200a37f6a31532967228"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-006 (including REQ-003's eight lettered sub-checks a-h) states a concrete, measurable shape or behavior (e.g. REQ-001's exact object required-lists and enum values; REQ-002's operator-by-operator fail-closed/exists-exception truth table; REQ-003(a-h)'s eight independently identifiable checks; REQ-004's fragment-selection API and stable-sort rule; REQ-005's header/`--check`/discovery-fallback contract), and each is matched to fixture-driven ACs in acceptance-tests.md (AC-001..AC-033) that name the exact diagnostic string or observable outcome expected. No in-scope requirement is stated only as vague intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's six Goals bullets (REQ-001..REQ-006) each map to a contiguous AC block in acceptance-tests.md: REQ-001->AC-001..AC-006, REQ-002->AC-007..AC-013, REQ-003(a-h)->AC-014..AC-022 (one AC per lettered sub-check), REQ-004->AC-023/AC-024, REQ-005->AC-025..AC-029, REQ-006->AC-030..AC-033. acceptance-tests.md's own header states this 1:1 renumbering was done specifically to close a prior adversarial-review Blocker finding ('AC-TEST 1:1 is false'), and the Requirement column in the AC-TEST table cross-confirms every mapping."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria consistently describe concrete fixture inputs and expected diagnostics/outputs rather than intent, e.g. AC-014 ('two gates[] entries sharing one id fails validation with a gate-id-duplicate diagnostic'), AC-024 (reordered/duplicated ID lists must produce an identical digest; an absent ID is a hard failure), AC-026 ('a hand-mutated committed projection causes --check to exit non-zero... no filesystem write occurs'). AC-034/AC-035, which are manual/procedural rather than automated, still name an externally observable check (git status/diff confined to specs/, a grep/cross-reference audit) rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section lists seven explicit exclusions with citations: no Epic A1 deliverables, no Epic A5 Resolver/Facet-Manifest work, no Capability Pack content authoring, no freezing of upgrade_reasons/delivery_strategy.kind vocabulary, no Artifact/Promotion Gate stage implementation, no new plugin introduction, no actual plugin/contract/test file writes in this commit, and no tasks.md/traceability.md authoring or workflow-state-registry.json registration in this commit -- each with a stated rationale (e.g. check-workflow-state.sh:681-682's hard-enforcement). This closes off the areas where the feature could otherwise expand."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: a hard external dependency and its blocked-until-condition (Dependencies section, Epic A1 canonicalizer path/version/I-O contract, REQ-004 'implementation task is blocked'); a security/compatibility boundary (Provider-name contamination check, ADR-0018, REQ-003(g)/AC-020); an approval boundary (Roles and Permissions: Spec-Review-Status/Impl-Review-Status stay Pending for a human, guard-invariants protected-file changes require human cp + MANIFEST.sha256 verification, AC-029); and a migration/registration constraint (workflow-state-registry.json registration deferred to a separate commit, Non-goals)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claims each have a named validation surface: the Epic A1 external-dependency risk has AC-023/TEST-023 explicitly marked 'Planned (blocked on Epic A1's canonicalizer contract...)'; the cross-runtime determinism claim has AC-031/AC-033 golden-fixture and 3-runtime parity locks; the first automated Provider-neutrality enforcement (INV-008, previously only a human review policy) has AC-020's per-category negative fixtures; and the protected-file/guard-invariants registration risk has AC-029's three-part human-copy verification procedure. No high-risk claim in this package is left without a stated acceptance criterion, fixture target, or manual-review record."
+    }
+  ]
+}

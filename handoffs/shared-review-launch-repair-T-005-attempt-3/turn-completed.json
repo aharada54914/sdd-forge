@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11d02-3d61-7681-b3e6-3815b8ac79bc",
+    "turn": {
+      "id": "01a11d03-2488-7a03-a0ae-68e3a31a91f4",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0dd6b08491ea454e016ac7f1fa052881919d198f73b23ed780",
+          "text": "再検証は **BLOCKED** です。\n\n- 4スイート・48テスト成功、2スイート失敗、2スイート中断。\n- スクリプトの実行権限が `0444` で `Permission denied`。指示どおり停止し、変更・迂回・再試行なし。\n- 全607入力の内容不変、報告書の全必須項目と47証跡のハッシュを確認。\n\n[実装報告書](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/reports/implementation/shared-review-launch-repair/T-005.md) ／ [今回の証跡](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/specs/shared-review-launch-repair/verification/T-005/attempt-3/README.md)\n\n独立レビュー・品質ゲート・CI・nativeモデル起動は未実施。再検証は未完了で、Done／正式PASSは宣言していません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791488107,
+      "completedAt": 1791488512,
+      "durationMs": 404495
+    }
+  },
+  "emittedAtMs": 1791488512188
+}

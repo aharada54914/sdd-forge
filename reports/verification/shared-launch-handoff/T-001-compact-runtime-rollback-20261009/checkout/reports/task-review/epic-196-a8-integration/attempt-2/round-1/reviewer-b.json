@@ -1,0 +1,94 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0780",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0780",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-2/round-1/integrated-summary.json", "sha256": "ecfee5c7e9435a09e68d8f6149c525e6d96c4a6bae30eef1b573a7963a63ea7b"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-2/round-1/precheck-result.json", "sha256": "ca234e376f88693dd5549c4af88f487c8be845b4a1c0a85d5e534df66df78065"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md", "sha256": "3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md", "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"}
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md is byte-identical to the version attempt-1 round-3 reviewed (hash 72b6e2b3... -> 3568d38c... differs only by the eight Approval: Draft -> Approved lines, commit ff73ebaa, verified by git diff). The amended design.md/security-spec.md (SKIP Allowlist Activation Gate revision) does not change any task's declared Risk tier vs. its own described scope: T-002 (high, B2 drift), T-004 (high, cli-hook-enforcement extension), T-005 (high, B1 validator core), T-008 (high, B1 discharge + two-party signing) each still touch an access-control/security-boundary-adjacent surface and remain internally consistent 'not critical' per their own Risk Rationale text; T-001/T-003/T-006/T-007 (medium) touch no sentinel surface. Advisory: converges attempt-1 round-3's PASS finding on this same, unchanged tasks.md content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-008 (Risk: high) Done-When's 'HUMAN APPLY STEP -- Trusted-Signer Registry + two-party signing' bullet (tasks.md, T-008 Done When) requires completion be 'confirmed by re-running validate-live-host-proof and observing pending (not a hard failure)... AC-028's own pending aggregate... is the correct pre-merge Done state, never discharged.' This is now judged fully on the merits (TYPE-D, unaffected by the provenance-rereview convergence rule) because it depends on the AMENDED design.md/security-spec.md, not byte-identical prior content. Per design.md's amended SKIP Allowlist Activation Gate (commit 66d5bdde, current SHA-256 4a2068c5...), AC-015/AC-016 activate on Epic-A1-artifact existence alone (single clause, no task-start gate), and 'Epic A1 merged on 2026-08-08, so both cases are activated... a SKIP surviving now... is a hard failure' (design.md 'Activation predicate -- AC-015/AC-016' and 'Designed-red window' sections). design.md's amended SKIP Representation section defines only three per-cell validator states: missing (hard failure), 'valid pre-activation SKIP' (only before the gate activates), and 'stale post-activation SKIP' (ERR_STALE_SKIP, 'a hard failure') -- no valid post-activation SKIP/'pending' state exists for AC-015/AC-016, since the activation window already closed (Epic A1 merged) before T-008 can even run. security-spec.md's amended B3 STRIDE row corroborates: 'AC-015/AC-016 carry no such residual risk: both activated the moment Epic A1 merged (2026-08-08)... validate-live-host-proof is already reporting the designed-red hard failure for both' (security-spec.md, current SHA-256 2918b235...). Yet T-008's own Out of Scope (tasks.md) excludes producing the genuine, real-session live-host-verification-record/v1 that would reach the design's stated 'discharged' end-state, deferring it as requiring 'Epic A1's own handshake script (not yet merged)' -- itself now stale, since Epic A1 has merged; design.md's own 'Designed-red window' Risks bullet states 'the gate closes only when T-008 lands ... and produces the five real, discharged semantic-cell... records', directly contradicting T-008's own Out-of-Scope exclusion. Net effect: T-008's literal Done-When completion criterion describes a target state ('pending') the current, authoritative design.md/security-spec.md classify as unreachable for a SKIP-verdict record (any record T-008 commits for AC-015/AC-016 will be ERR_STALE_SKIP, a hard failure, not pending), while the only state that would actually pass (discharged) is explicitly out of this task's (and every task's) scope. This is an unobservable Done-When for a Risk: high security-boundary task -- the exact 'NOT suppressed' example reviewer-calibration.md's Amendment Re-Review Context section names verbatim ('an amended task's Done-When is unobservable... reviewed and reported exactly as usual even when the evidence bar is met')."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md's per-task Scope/Done-When text is unchanged since attempt-1 round-3 (only the Approval lines changed). Done-When item counts remain T-001=6, T-002=5, T-003=6, T-004=4, T-005=7, T-006=6, T-007=6, T-008=8 (none exceeds 8); no task spans more than two-to-three tightly coupled implementation areas; no group of 3+ tasks reduces to a single-file-rename pattern. The design.md/layer-spec amendment affects only SKIP-gate activation semantics, not any task's file count or Done-When item count. Advisory: converges attempt-1 round-3's PASS on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md is unchanged since attempt-1 round-3 (identical SHA-256 eccb74b8... in both round-3 and this round's manifests), and tasks.md's TEST-NNN assignments are unchanged. Each functional task still pairs happy-path ACs with dedicated error/edge-path cases (T-002/TEST-022-023 mode/lifecycle states; T-005/TEST-026-027 exercising all named ERR_* codes; T-007/TEST-025,029,030 mutated-copy negative fixtures; T-008/TEST-013-015 flag/subagent/SKIP-state coverage). Advisory: converges attempt-1 round-3's PASS on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md is unchanged (identical SHA-256 to attempt-1 round-3); Test Type column labels (integration / static-doc-review / regression / live-host proof / aggregate-validator) still match each row's described scope, and no row uses 'unit' or 'end-to-end'/'e2e' loosely. Advisory: converges attempt-1 round-3's PASS on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks (T-002, T-004, T-005, T-008) still carry an explicit, unchanged top-level Rollback: field describing a concrete revert procedure (T-008's: 'revert this task's commit(s); the five draft SKIP records remain unsigned... until a human completes the apply step... a revert after the human apply step must also state whether the now-signed records and the a8-trusted-signers.json entries should be hand-reverted'). This field's presence/adequacy is unaffected by the design.md activation-gate amendment. Advisory: converges attempt-1 round-3's PASS on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared-file scopes are unchanged: a8-skip-allowlist.json (T-001 seeds AC-006, T-008 appends AC-015/AC-016) and a8-trusted-signers.json (T-005 seeds empty, T-008 appends real signer entries) are each Blockers-ordered (T-008 Blockers: T-001, T-005). No new overlapping-file claim was introduced by the design.md/layer-spec amendment, which touches no Planned Files list. Advisory: converges attempt-1 round-3's PASS, including its non-blocking Global-Constraints-ordering observation, on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-008's Blockers (T-001, T-005) remain functionally justified independent of the amendment: T-008 still needs T-001's a8-skip-allowlist.json (to append AC-015/AC-016) and T-005's validate-live-host-proof tooling/a8-trusted-signers.json regardless of when the AC-015/AC-016 activation predicate fires -- the amendment changes only the activation *timing* semantics evaluated inside HIGH-CRITICAL-EVIDENCE above, not the tool/file dependency basis for T-008's Blockers. No spurious or missing blocker found elsewhere in the graph; no cycle introduced. Advisory: converges attempt-1 round-3's PASS, including its documentation-precision observation on the Global Constraints framing, on this unchanged content (reports/task-review/epic-196-a8-integration/attempt-1/round-3/reviewer-b.json)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001 through T-008) author net-new test-infrastructure/verification surfaces; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text. Unaffected by the design.md amendment."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": "T-008",
+      "finding": "T-008's Done-When 'HUMAN APPLY STEP' completion criterion (observe validate-live-host-proof return 'pending, not a hard failure') is unobservable under the amended, currently-authoritative design.md/security-spec.md: AC-015/AC-016's single-clause SKIP Allowlist Activation Gate already activated when Epic A1 merged on 2026-08-08, so any SKIP-verdict record T-008 commits for those cells is now classified ERR_STALE_SKIP (a hard failure), not 'pending' -- design.md's amended SKIP Representation section defines no valid post-activation SKIP state. The only state design.md now says would actually close the gate ('discharged', real session records) is explicitly placed Out of Scope in T-008's own tasks.md text ('requires Epic A1's own handshake script (not yet merged)' -- itself stale, since Epic A1 has merged). This is the reviewer-calibration.md Amendment Re-Review Context section's own named 'NOT suppressed' example: 'an amended task's Done-When is unobservable.'"
+    }
+  ]
+}

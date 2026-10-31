@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-epic136guards-a1r3-20260711-b2c3",
+  "host_session_id": "hs-spec-b-epic136guards-0153",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "0b9ee4c5729054bdd15185e2463ff4c36ac3486ecfd2fa4c639bb1e1dedbc1c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "d149a4e00b8b04f3a5143dfcd56acc0edeb93cae8a9e4e20acc5285e32fd40ea"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-3/precheck-result.json",
+      "sha256": "cfec75e51d76c9c556809af27a834cd6a4375d838955c33d6c938c1939306a0c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-3/integrated-summary.json",
+      "sha256": "7ecd9fc34ad371595ca7ad2548135fb414348f1d5edb1147c876a7e020674f6c"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "'lite track' is referenced in Non-goals and AC-009 but never defined; 'lite-track behavior for critical tasks' has no defined content, so implementers could reach opposite conclusions for the safety control REQ-004 guarantees."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Non-goals excludes cross-model on the lite track while REQ-004 mandates cross-model for Risk:critical/Security-Sensitive:true unconditionally and AC-008 requires the flow to stop absent cross-model/waiver; the spec never states whether a critical task on the lite track is exempt (contradicting REQ-004) or blocked from lite (leaving the non-goal unclear). Direct Goal/Non-goal conflict on a safety-relevant workflow boundary."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Edge Cases scenario maps to a specific acceptance test (ASCII->AC-015, cd/pushd->AC-003/005, prefix collision and absent dir->AC-006, no-PR->AC-014, read-target and malformed->AC-012/013)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions are stable premises, implementation-verifiable facts, or wired into an AC forcing resolution (id-token->AC-010). Open Questions closed with recorded resolutions."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "In-scope approval boundaries are testable: R-10 protected-path denial (AC-001/002/004) and Cross-Model-Waiver human-approval gate (AC-008/009); B1-B3 boundaries each backed by an AC/TEST pair."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-009 obligates documenting lite-track behavior for critical tasks but the requirements never state it, and the REQ-004/non-goal contradiction is unreconciled, so a downstream reviewer would invent the product rule for critical-task/lite-track interaction."
+    }
+  ]
+}

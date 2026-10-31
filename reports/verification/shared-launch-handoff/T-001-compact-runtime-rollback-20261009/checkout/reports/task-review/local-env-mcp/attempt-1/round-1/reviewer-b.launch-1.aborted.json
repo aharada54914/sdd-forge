@@ -1,0 +1,33 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-localenvmcp-a1r1-20260705-6851",
+  "host_session_id": "hs-task-b-6503d1ba-0006",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-1/integrated-summary.json", "sha256": "f5551e42304efc931e8499af96f791204d96943923053fa2f9a1e8a1bd3b45d6"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "7f053005d5cda2505f1e6cca888549b4446d49b86d83bee1f6d9e9bfb7c9660f"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/design.md", "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/tasks.md", "sha256": "ff842ef9335dc6f7262ed7179b9d7cd858d4e1f212917874fc4afcaf954bb58f"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/traceability.md", "sha256": "5d4ebf6859ee7b253c5f750399181273b863532ae32b88c3edab1b14643c285a"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {"id": "RISK-APPROPRIATE", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "HIGH-CRITICAL-EVIDENCE", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "TASK-SIZE", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "TEST-TYPE-MATCH", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "ROLLBACK-PLAN", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "SCOPE-DISJOINT", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "DEPENDENCY-OVERLAP", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. See LAUNCH-BOUNDARY finding."},
+    {"id": "BUGFIX-DIAGNOSTIC-PATH", "result": "FAIL", "severity": "Critical", "finding": "Launch boundary failed closed: no content check performed. LAUNCH-BOUNDARY: invocation-b.json binds identity_ledger_sha256=21a9d1b4064911567acfb10e3fa5543714859e1cac13e5b9f07d6efc181190ac but the actual current ledger at reports/review-context/identity-ledger.json hashes to 8d362613e5056beba91be74e773aa581c53321281f0f55a9ec63d0f72176a4ed (stale/mismatched). The deterministic validator plugins/sdd-quality-loop/scripts/validate-review-context-set.sh, run read-only against invocation-b.json, exits 1 with REVIEW_CONTEXT_IDENTITY: canonical identity ledger hash is stale or mismatched. Additionally the bound run_id task-b-localenvmcp-a1r1-20260705-6851 and host_session_id hs-task-b-6503d1ba-0006 are already persisted at ledger sequence 38 (reports/review-context/identity-ledger.json), i.e. this identity is reused rather than fresh, and no --reserve step atomically extended the ledger to sequence 39 for this invocation. Per role instructions this is fail-closed: reject reused implementation/review/evaluation identity and hash mismatch. No content checks (RISK-APPROPRIATE through BUGFIX-DIAGNOSTIC-PATH) were performed; all nine are reported FAIL/Critical solely due to the blocked launch boundary, not due to any defect found in tasks.md."}
+  ]
+}

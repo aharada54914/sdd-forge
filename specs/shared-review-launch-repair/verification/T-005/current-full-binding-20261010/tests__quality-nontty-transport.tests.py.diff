@@ -1,0 +1,191 @@
+--- attempt6/tests/quality-nontty-transport.tests.py
++++ current-owner/tests/quality-nontty-transport.tests.py
+@@ -40,6 +40,76 @@
+ 
+ 
+ class QualityTransport(unittest.TestCase):
++
++    def test_compact_command_verifies_all_640_inputs_and_rejects_mutations(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp).resolve()
++            source = root / SOURCE.relative_to(ROOT)
++            source.parent.mkdir(parents=True)
++            shutil.copyfile(SOURCE, source)
++            boundary = root / TRANSPORT.BOUNDARY_PATH
++            boundary.parent.mkdir(parents=True, exist_ok=True)
++            boundary.write_text('boundary\n')
++            entries = []
++            for index in range(640):
++                path = root / f'input-{index}.md'
++                path.write_text(str(index))
++                entries.append({'path': path.name, 'sha256': TRANSPORT.sha(path)})
++            session = str(uuid.uuid4())
++            data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
++                    'sequence': 2, 'run_id': session, 'host_session_id': session,
++                    'previous_record_sha256': 'a' * 64,
++                    'scratch_root': str(root / 'scratch'), 'allowed_input_manifest': entries}
++            binding = hashlib.sha256(('example\n' + data['scratch_root']).encode()).hexdigest()
++            record = '|'.join(('2', 'quality', 'sdd-evaluator', session, session,
++                               'a' * 64, 'scratch-declaration-v1', binding))
++            digest = hashlib.sha256(record.encode()).hexdigest()
++            receipt = (f'REVIEW_CONTEXT_OK {digest} sequence=2 '
++                       f'previous_record_sha256={"a" * 64} pre_append_tip_sequence=1 '
++                       'identity_unique=yes\n')
++            invocation = root / 'invocation.json'
++            invocation.write_text(json.dumps(data))
++            control = TRANSPORT.receipt_control(data, receipt, invocation.name, root=root)
++            command = control['compact_command']
++            self.assertLess(len(command), 4096)
++            self.assertEqual(control['hash_commands'], [command])
++            self.assertEqual(control['exact_permission_rules'], ['Bash(' + command + ')'])
++
++            def run():
++                return subprocess.run(command, shell=True, cwd=root, capture_output=True, text=True)
++
++            result = run()
++            self.assertEqual(result.returncode, 0, result.stderr)
++            TRANSPORT.require_compact_result(result.stdout, control['compact_output'])
++            self.assertEqual(json.loads(result.stdout)['input_count'], 640)
++            for target, replacement in ((root / entries[-1]['path'], b'changed'),
++                                        (boundary, b'changed'), (invocation, b'{}'),
++                                        (source, b'raise SystemExit(0)\n')):
++                original = target.read_bytes()
++                target.write_bytes(replacement)
++                try:
++                    self.assertNotEqual(run().returncode, 0, str(target))
++                finally:
++                    target.write_bytes(original)
++            target = root / entries[-1]['path']
++            original = target.read_bytes()
++            target.unlink()
++            self.assertNotEqual(run().returncode, 0)
++            target.symlink_to(root / entries[0]['path'])
++            self.assertNotEqual(run().returncode, 0)
++            target.unlink()
++            target.write_bytes(original)
++            for changed in (entries[::-1], entries + [entries[0]]):
++                data['allowed_input_manifest'] = changed
++                invocation.write_text(json.dumps(data))
++                self.assertNotEqual(run().returncode, 0)
++            data['allowed_input_manifest'] = [{'path': '../outside', 'sha256': 'a' * 64}]
++            invocation.write_text(json.dumps(data))
++            with self.assertRaises(ValueError):
++                TRANSPORT.receipt_control(data, receipt, invocation.name, root=root)
++            with self.assertRaises(ValueError):
++                TRANSPORT.require_compact_result(control['compact_output'] + '\nextra',
++                                                 control['compact_output'])
+ 
+     def test_shared_argv_rejects_model_permission_and_session_mismatches(self):
+         with tempfile.TemporaryDirectory() as tmp:
+@@ -58,7 +128,7 @@
+             guard.write_text('// fixture\n')
+             permissions = ['Read(source.md)']
+             flags = ('-p --session-id --model --permission-mode --tools '
+-                     '--disallowedTools --allowedTools --settings --plugin-dir '
++                     '--disallowedTools --settings --plugin-dir '
+                      '--agents --agent --output-format --json-schema')
+             for stage, roles in TRANSPORT.STAGE_ROLES.items():
+                 for role_name in roles:
+@@ -142,8 +212,7 @@
+                                                       permissions, settings, invocation,
+                                                       receipt, policy)
+                 self.assertEqual(formal, diagnostic)
+-                self.assertEqual(formal[formal.index('--allowedTools') + 1:
+-                                        formal.index('--settings')], permissions)
++                self.assertNotIn('--allowedTools', formal)
+                 for flag, value in (('--model', 'sonnet'),
+                                     ('--permission-mode', 'dontAsk'),
+                                     ('--tools', 'Read,Bash'),
+@@ -155,13 +224,13 @@
+                 self.assertEqual(json.loads(formal[formal.index('--agents') + 1]),
+                                  {'sdd-evaluator': role})
+                 self.assertNotIn('--json-schema', formal)
+-                missing = help_result.stdout.replace('--allowedTools, --allowed-tools',
++                missing = help_result.stdout.replace('--disallowedTools, --disallowed-tools',
+                                                      '--removedTools, --removed-tools', 1)
+-                self.assertNotIn('--allowedTools, --allowed-tools', missing)
++                self.assertNotIn('--disallowedTools, --disallowed-tools', missing)
+                 with mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
+                                        subprocess.CompletedProcess([], 0, missing, '')):
+                     with self.assertRaisesRegex(ValueError,
+-                                                'unsupported CLI argument: --allowedTools'):
++                                                'unsupported CLI argument: --disallowedTools'):
+                         TRANSPORT.claude_command(root, session, 'sdd-evaluator', role,
+                                                  permissions, settings, invocation,
+                                                  receipt, policy)
+@@ -447,11 +516,19 @@
+             boundary = root / 'plugins/sdd-review-loop/references/review-context-boundary.md'
+             boundary.parent.mkdir(parents=True)
+             boundary.write_text('boundary\n')
++            helper = root / SOURCE.relative_to(ROOT)
++            helper.parent.mkdir(parents=True, exist_ok=True)
++            shutil.copyfile(SOURCE, helper)
++            data['allowed_input_manifest'][0]['sha256'] = TRANSPORT.sha(source)
++            invocation.write_text(json.dumps(data))
++            control = TRANSPORT.receipt_control(data, receipt, relative, root=root)
++            command = control['compact_command']
+             receipt_path = root / 'receipt.txt'
+             receipt_path.write_text(receipt)
+             with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})):
+-                policy, _ = TRANSPORT.launch_policy(root, invocation, receipt_path,
++                policy, settings = TRANSPORT.launch_policy(root, invocation, receipt_path,
+                                                     root / 'policy.json')
++            self.assertEqual(settings['permissions']['allow'], control['exact_permission_rules'])
+             self.assertIn(command, json.loads(policy)['bash_commands'])
+             # Absolute tool targets must match the pinned scope, while identities stay relative.
+             relative_reads = [relative, TRANSPORT.BOUNDARY_PATH, 'source.md']
+@@ -465,18 +542,19 @@
+             self.assertIn('Read tool file_path values (canonical absolute paths):\n' +
+                           json.dumps(targets, ensure_ascii=True), rendered)
+             self.assertIn('"invocation": "' + relative + '"', rendered)
++            self.assertIn('read the admitted task, requirements, design, acceptance tests', rendered)
++            self.assertIn('Hash verification proves identity, not review coverage', rendered)
++            self.assertIn('return NEEDS_WORK and name the unread inputs or unchecked criteria', rendered)
+             probe_source = (ROOT / 'plugins/sdd-review-loop/scripts/probe-nontty-review.py').read_text()
+             self.assertIn('transport.canonical_read_paths(ROOT, read_paths)', probe_source)
+             self.assertIn('transport.canonical_read_paths(ROOT, [outside])[0]', probe_source)
+             self.assertEqual(set(control['hash_commands']),
+-                             set(json.loads(policy)['bash_commands']) -
+-                             {command})
++                             set(json.loads(policy)['bash_commands']))
+             policy_path = root / 'policy.json'
+             policy_path.write_bytes(policy)
+             guard = ROOT / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+-            first_producer = control['hash_commands'][0].split(' | ', 1)[0]
+             for candidate, denied in ((control['hash_commands'][0], False),
+-                                      (first_producer, True),
++                                      ('rtk proxy python3 -B', True),
+                                       ('rtk proxy shasum -a 256', True),
+                                       (control['hash_commands'][0] + '; rtk proxy pwd', True),
+                                       ('rtk proxy shasum -a 256 outside.txt', True)):
+@@ -497,11 +575,11 @@
+                                       'tool_input': {'file_path': str(requested)}}),
+                     text=True, capture_output=True, check=True)
+                 self.assertEqual(bool(result.stdout), denied)
+-            self.assertEqual(sum(item.startswith('rtk proxy shasum -a 256 ') for item in
++            self.assertEqual(sum(item.startswith('rtk proxy python3 -B ') for item in
+                                  json.loads(policy)['bash_commands']), 1)
+             prompt = TRANSPORT.control_prompt(data, receipt, 'c' * 64,
+                                               strict=True, invocation_path=relative,
+-                                              invocation_sha256=TRANSPORT.sha(invocation))
++                                              invocation_sha256=TRANSPORT.sha(invocation), root=root)
+             self.assertIn('```sh\n' + command + '\n```', prompt)
+             self.assertIn(TRANSPORT.sha(invocation), prompt)
+             prompt_path = root / 'prompt.txt'
+@@ -512,14 +590,14 @@
+             ledger.write_text('unchanged ledger')
+             invocation.write_text('{"invocation": false}\n')
+             with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})):
+-                with self.assertRaisesRegex(ValueError, 'prompt differs'):
++                with self.assertRaisesRegex(ValueError, 'compact invocation differs from supplied manifest'):
+                     TRANSPORT.native_delivery(root, invocation, root / 'transcript.jsonl',
+                                               prompt_path, root / 'wrapper.json',
+                                               receipt_path, strict=True)
+             self.assertEqual(ledger.read_text(), 'unchanged ledger')
+ 
+             spec_data = dict(data, stage='spec', role='spec-reviewer-a')
+-            inputs = 'source.md\t' + 'b' * 64
++            inputs = 'source.md\t' + data['allowed_input_manifest'][0]['sha256']
+             input_digest = hashlib.sha256(inputs.encode()).hexdigest()
+             spec_record = '|'.join(('2', 'spec', 'spec-reviewer-a', data['run_id'],
+                                     data['host_session_id'], 'a' * 64,

@@ -1,0 +1,9 @@
+## Capability Detection
+
+1. Probe for the `DesignSync` tool. In Claude Code it may be a deferred tool;
+   search for it before concluding it is absent.
+2. If the tool is unavailable or authentication fails, record
+   `design tools unavailable — manual workflow used` in the layer file's
+   `Design-Source` section, follow the manual fallback
+   `../sdd-bootstrap-interviewer/references/claude-design-workflow.md`, and
+   return to the caller. Never block the specification flow.

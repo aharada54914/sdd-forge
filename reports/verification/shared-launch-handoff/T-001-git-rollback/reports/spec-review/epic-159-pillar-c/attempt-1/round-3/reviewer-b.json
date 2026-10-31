@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-c-spec-spec-reviewer-b-seq0289",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-c-0289",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core round-2 ambiguities (effort-resolution priority, welded carve-out) are now fully resolved with an explicit priority table (requirements.md:177-212, 208-212) and dedicated AC-053. Residual Minor items only: (1) T-007's Main Workflow entry (requirements.md:819-825) does not state whether its new tests/effort-policy-flip suite (AC-041) is registered in run-all.sh/test.yml, though the Assumptions bullet's explicit four-task list (T-001/003/005/006) implicitly excludes T-007 and acceptance-tests.md's Notes frame TEST-041..046 as release-gated rather than CI-lane; (2) AC-054(iii)'s 'value outside the model's own supported_efforts vocabulary' phrase superficially overlaps AC-009's per-model clamp condition, resolved on careful read by risk_effort_matrix's model-agnostic schema but could reuse AC-052's explicit {low,medium,high,xhigh} phrasing for precision. Neither rises to a concrete two-implementer divergence."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The round-2 Critical contradiction (test.yml direct-edit plan vs. confirmed R-10 protection) is fully resolved and internally consistent across Assumptions bullet 4, Roles and Permissions, Main Workflows T-001/T-003/T-005/T-006, Edge Cases, Risks, and the rewritten 3-part AC-027/TEST-027 (requirements.md:562-578,745-767,771-825,859-867,918-939). Verified no new conflict introduced by the --requested-effort welded carve-out (AC-010 vs AC-053 are explicitly kept disjoint from AC-007's golden scope) or by AC-054's malformed-registry rejection against AC-009's clamp behavior (different validation layers: static registry-structure vs. dynamic post-selection clamp)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Negative/boundary/failure coverage is comprehensive: AC-004/AC-007 mutation-based negative canaries, AC-009 clamp+xhigh-gate, AC-013 v1/v2 candidates-file divergence, AC-019/AC-020 write-boundary positive/read-boundary pair, AC-024 bidirectional field-population lock, AC-025 backward-compat, AC-051 host-independent degradation generalization, AC-052 CLI-injection rejection (whitespace/flag/separator shapes), AC-053 welded-override carve-out, and new AC-054/TEST-054's 3-category malformed-registry rejection (empty/non-array supported_efforts, out-of-enum effort_control, malformed risk_effort_matrix) with a MODEL_SELECTION_ERROR diagnostic mirroring v1's existing rejection posture."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 Assumptions bullets (requirements.md:895-939) are grounded in file:line investigation citations (select-agent-model.sh:155-184, sdd-hook-guard.py:886-927, guard_invariants.py:4) or explicit git-verified facts (A3 ancestor check) with stated re-verification discipline at task-implementation time. Open Questions: OQ-001/OQ-002/OQ-004 RESOLVED; OQ-003 explicitly PARTIALLY RESOLVED with the automation gap correctly mirrored in Non-goals ('Building an automated CI gate...is explicitly out of scope') rather than left as a silent unresolved risk."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-approval boundaries are in scope and testable: the 4 protected-reviewer-file + test.yml human-copy/cp procedure is backed by AC-019/AC-020/AC-027 (write-boundary proof pairs plus the 3-part test.yml check); T-007's prerequisite gate and separate-release requirement are backed by AC-045/AC-046; the exclusive scripts/bump-version.sh release channel is backed by AC-050. No untestable or missing governance boundary found."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Spec is exceptionally detailed (explicit field-definition scoping, priority-order table, security boundaries, risk/mitigation pairs) and does not require a design reviewer to invent product behavior. Residual Minor gap: AC-054/TEST-054's owning task among T-001/T-002/T-005 is left implicit (its test target is stated as 'and/or' between two suite files, and no Main Workflow task enumerates it) -- this is a task-ordering/ownership nicety explicitly protected from failing under the calibration's False-Positive Guard ('do not fail...for omitting implementation tasks or task ordering'), not a missing product-behavior definition."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-c/attempt-1/round-3/integrated-summary.json",
+      "sha256": "dded08da970dbf85f533e6084bdb698f1fcac3c9a539d90ee6a97301e3d3f8e8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-c/attempt-1/round-3/precheck-result.json",
+      "sha256": "5881365578dcf7f2141b1b02115fa4b0d415b90c23449f18b60dc35177e436e3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "816537366a4b0a10e63e50b8bf0d342530cf6994ca803e192e058f21934ab296"
+    }
+  ]
+}

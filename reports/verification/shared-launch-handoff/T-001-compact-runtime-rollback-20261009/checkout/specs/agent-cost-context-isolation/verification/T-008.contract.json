@@ -1,0 +1,152 @@
+{
+  "task_id": "T-008",
+  "feature": "agent-cost-context-isolation",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36",
+  "created": "2026-09-22T05:00:00Z",
+  "comment": "Default-FAIL quality-gate contract for the atomic rollback transaction. Compile-oriented checks are waived for the shell stack; executable acceptance and regression evidence are required.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell stack: no repository lint tool applies; shell syntax is exercised by the focused and repository validation suites.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell stack: no static type-check tool is configured for the paired shell/PowerShell transaction.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": "specs/agent-cost-context-isolation/verification/T-008/green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No external service or network integration is in scope; the paired transaction integration fixtures are recorded under acceptance-tests and regression.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": "specs/agent-cost-context-isolation/verification/T-008/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": "specs/agent-cost-context-isolation/verification/T-008/green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The feature uses the established Markdown traceability.md artifact; no traceability.json exists for the JSON-only gate. The evaluator verifies the REQ-011 to AC-007 to TEST-006 chain in the Markdown traceability record.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell stack: no compile/build toolchain is applicable to the repository-local transaction scripts.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable service or UI exists; the rollback executable is exercised directly by the paired transaction tests.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface is in scope.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system surface is in scope.",
+      "requirement_ids": ["REQ-011"],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

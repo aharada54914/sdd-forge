@@ -1,0 +1,15 @@
+{
+  "feature": "evidence-deep-verify",
+  "exitCode": 1,
+  "fileNotFound": false,
+  "ownFailureMessages": [
+    "T-001 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-001.evidence.json",
+    "T-002 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-002.evidence.json",
+    "T-003 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-003.evidence.json",
+    "T-004 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-004.evidence.json",
+    "T-007 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-007.evidence.json",
+    "T-008 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-008.evidence.json",
+    "T-005 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-005.evidence.json",
+    "T-006 evidence bundle failed validation: specs/evidence-deep-verify/verification/T-006.evidence.json"
+  ]
+}

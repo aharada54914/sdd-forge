@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a4r3-seq0792",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a4r3-0792",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "1028bf2c256f337971c7bb669133209fe96550bbcdc7d8460710d9d9a2bda0af"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "56296debb00b7b2a04fdfd6c27139307a2b457459cdf805b50da0d1fbd2401bd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-3/precheck-result.json",
+      "sha256": "63d27e54239d1671fb7597d856fedc74ed3c9b0ad0f30a06fab3ff30002b96db"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-3/integrated-summary.json",
+      "sha256": "32fd04c4743845c0f07731d7bb2ba1df249952022dd562d8020fe13b573df82f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The two new sub-triggers ruling C(1)/C(2) introduces (requirements.md REQ-002 rows for dependency-output-malformed and snapshot-generation-mismatch) are each anchored to concrete REQ-001 lettered steps ((e); (f)-(g)) and each has a dedicated, independently-triggerable fixture (AC-057/TEST-057, AC-058/TEST-058, acceptance-tests.md lines 97-98) naming the exact stub behavior and expected assertion, leaving no term or step reference open to divergent implementer interpretation."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "investigation.md's Amendment Re-Review Context, Rulings C(1)/C(2) (lines 1214-1343) now meets the calibration's full four-element evidence bar: full 40-char commit hashes for the documents-only amendment, the implementation follow-up, and the round-1/round-2 remediation follow-up; per-document SHA-256 pins for every amended frozen document at each commit; a verbatim, dated human-approval quotation; and file-level SHA-256 for every later-phase artifact cited plus the full input digest. The phase-sequencing suppression therefore applies, and no independent contradiction was found: the amended requirements.md REQ-002 rows and acceptance-tests.md AC-057/AC-058 reference the identical REQ-001 lettered steps with no conflicting cardinality or ordering claim against pre-existing rows."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both new Block conditions from rulings C(1)/C(2) have dedicated, independently-triggerable acceptance-tests.md rows (AC-057/TEST-057 registry-swapped-during-validation, AC-058/TEST-058 affected-component-absent-from-context), each specifying the exact stub, expected exit code, canonical detail sentence, and empty-array assertion."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 1203-1213) states an explicit resolution mechanism if any of the four sibling-epic contracts changes before Phase-2 implementation begins. OQ-001/OQ-002 are explicitly deferred to a named future caller/epic; OQ-003 is resolved by this revision with a concrete anchor and drift-check mechanism."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The protected-script human-copy boundary (Roles and Permissions, requirements.md lines 927-958) is testable: AC-032 confirms no plugins path is touched by this package's own commits, and the human-copy application mechanism is reused verbatim from Epic A1's already-passed contract."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Goals, Main Workflows, Edge Cases, Field Definitions, and Security Boundaries give a fully-specified CLI/processing/output contract with no product-behavior decision left open for a design reviewer to invent."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the repository root; skipped per the check's own skip condition."
+    }
+  ]
+}

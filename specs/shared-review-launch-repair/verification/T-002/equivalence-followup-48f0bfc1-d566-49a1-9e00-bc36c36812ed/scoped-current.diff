@@ -1,0 +1,452 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index e98f0695..c7622a72 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -55,8 +55,16 @@ the task gate re-binds `design.md`. A spec-stage freeze is not released by a
+ later gate: `requirements.md` and `acceptance-tests.md` are re-checked at
+ every later passed stage. The status/approval carve-out covers only the
+ document each gate normalizes (`requirements.md`, `design.md`, the task
+-plan); `acceptance-tests.md`, `traceability.md` and the layer specifications
+-are bound by raw content hash, so any byte change to them breaks the gate.
++plan). The WFI-030 exception for persisted task-stage evidence also accepts
++`traceability.md` with only a REQ row's final status cell normalized to `Planned`,
++from exactly `Planned`, `In Progress`, `Implementation Complete`, `Done`, or
++`Blocked` (case-sensitive). Every other byte, including Evidence cells, remains
++bound; unknown or annotated statuses are not normalized. This does not validate
++lifecycle transitions or reopen historical verdicts. New review input snapshots
++and their launch verification still bind the current raw bytes; this exception
++does not permit changing an input after precheck or reservation.
++`acceptance-tests.md` and the layer specifications remain bound by raw content
++hash, so any byte change to them breaks the gate.
+ Sanctioned later updates — open-question resolutions, verification-status
+ finalization — are recorded in non-frozen addenda (implementation reports,
+ `specs/<feature>/verification/`, user documentation) instead of the frozen
+@@ -139,6 +147,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
+ - `specs/second-approval-mask/`
+ - `specs/uninstall-workflow/`
+ - `specs/sdd-domain-concept-contract/`
++- `specs/shared-review-launch-repair/`
+ 
+ ## Source Artifact Locations
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+index 342a5b19..19bdf9bc 100644
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -110,6 +110,81 @@ function Get-TasksNormalizedHash([string]$Path) {
+     finally { $sha.Dispose() }
+ }
+ 
++function Get-ImplementationBinding {
++        if ($implementationManifestPath -ceq '') {
++            Fail-ReviewContext 'IDENTITY' 'new evaluator requires a pinned implementation manifest'
++        }
++        $declaration = $document.implementation_manifest
++        $pinned = @($inputs | Where-Object {
++            $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
++        })
++        if ($pinned.Count -ne 1) {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest is not a hash-pinned evaluator input'
++        }
++        try {
++            $implementationText = Get-Content -LiteralPath (Join-Path $root $implementationManifestPath) -Raw -Encoding UTF8
++            Assert-ImplJsonObject $implementationText
++            $implementation = $implementationText | ConvertFrom-Json -AsHashtable
++        } catch {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest is invalid JSON'
++        }
++        if ($implementation.schema -cne 'task-input-manifest/v1' -or
++            $implementation.task_id -cne $document.task_id -or
++            $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
++            $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
++        }
++        if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_.StartsWith('- **Session ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "Run ID: $($implementation.run_id)" }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "- **Run ID**: $($implementation.run_id)" }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "- **Session ID**: $($implementation.session_id)" }).Count -ne 1) {
++            Fail-ReviewContext 'IDENTITY' 'implementation report run/session does not match its manifest'
++        }
++        $manifestCitation = 'Input manifest: `' + $declaration.path + '`, SHA-256 `' + $declaration.sha256 + '`'
++        $citationLines = @($implementationReportLines | Where-Object { $_.StartsWith('Input manifest:', [StringComparison]::Ordinal) })
++        if ($citationLines.Count -ne 1 -or
++            -not ($citationLines[0] -ceq $manifestCitation -or $citationLines[0] -ceq ($manifestCitation + '.') -or
++                $citationLines[0].StartsWith($manifestCitation + '. ', [StringComparison]::Ordinal))) {
++            Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
++        }
++        return $implementation
++}
++
++function Test-ImplementationInput {
++    param($Document, [string]$Root, [string]$Path, [string]$Hash)
++    if ($Document.stage -cne 'quality' -or $Document.role -cne 'sdd-evaluator' -or
++        -not $Document.ContainsKey('implementation_manifest')) { return $false }
++    $declaration = $Document.implementation_manifest
++    if (@($Document.allowed_input_manifest | Where-Object {
++        $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
++    }).Count -ne 1 -or -not (Test-CanonicalPath $declaration.path)) { return $false }
++    $current = $Root
++    foreach ($component in $declaration.path.Split('/')) {
++        $current = Join-Path $current $component
++        if (-not (Test-Path -LiteralPath $current) -or
++            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
++            return $false
++        }
++    }
++    if (-not (Test-Path -LiteralPath $current -PathType Leaf) -or
++        (Get-FileHash -LiteralPath $current -Algorithm SHA256).Hash.ToLowerInvariant() -cne $declaration.sha256) {
++        return $false
++    }
++    $data = Get-ImplementationBinding
++    if ($data.allowed_inputs -isnot [array] -or $data.allowed_inputs.Count -eq 0) { return $false }
++    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    $found = $false
++    foreach ($entry in $data.allowed_inputs) {
++        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
++            -not (Test-CanonicalPath $entry.path) -or -not $seen.Add($entry.path) -or
++            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') { return $false }
++        if ($entry.path -ceq $Path -and $entry.sha256 -ceq $Hash) { $found = $true }
++    }
++    return $found
++}
++
+ function Test-AuthorizedPath {
+     param(
+         [string]$Stage,
+@@ -382,9 +457,15 @@ try {
+     $topKeys = @($baseTopKeys)
+     if ($document.stage -ceq 'quality') {
+         $topKeys = @($baseTopKeys) + @('task_id')
++        if ($document.ContainsKey('implementation_manifest')) {
++            $topKeys = @($topKeys) + @('implementation_manifest')
++        }
+         if ($document.ContainsKey('gate_report_declaration')) {
+             $topKeys = @($topKeys) + @('gate_report_declaration')
+         }
++        if ($document.ContainsKey('supplemental_delivery_declaration')) {
++            $topKeys = @($topKeys) + @('supplemental_delivery_declaration')
++        }
+         if ($document.ContainsKey('scratch_root')) {
+             $topKeys = @($topKeys) + @('scratch_root')
+         }
+@@ -408,6 +489,19 @@ try {
+         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
+         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+     }
++    $implementationManifestPath = ''
++    if ($document.ContainsKey('implementation_manifest')) {
++        $implementationDeclaration = $document.implementation_manifest
++        if ($implementationDeclaration -isnot [hashtable] -or
++            -not (Test-ExactKeys $implementationDeclaration @('path','sha256')) -or
++            $implementationDeclaration.path -isnot [string] -or
++            $implementationDeclaration.path -cnotmatch '^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$' -or
++            $implementationDeclaration.sha256 -isnot [string] -or
++            $implementationDeclaration.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++            Fail-ReviewContext 'CONTRACT' 'implementation_manifest requires a canonical path and SHA-256'
++        }
++        $implementationManifestPath = $implementationDeclaration.path
++    }
+     if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
+         Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
+     }
+@@ -792,6 +886,16 @@ try {
+             }
+         }
+     }
++    if ($document.ContainsKey('supplemental_delivery_declaration')) {
++        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
++        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
++        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
++        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'supplemental-delivery-inputs.py') --root $root --manifest $Manifest
++        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'supplemental delivery declaration is invalid' }
++        foreach ($entry in @(($resolved -join "`n") | ConvertFrom-Json -AsHashtable)) {
++            [void]$evaluatorOutputs.Add("$($entry.path)`n$($entry.sha256)")
++        }
++    }
+     # Located before the manifest-entry loop: the WFI-025 task-plan exception
+     # inside the loop cross-checks the round's precheck record. The precheck
+     # entry's own raw-hash verification still runs in the loop, so a tampered
+@@ -804,6 +908,22 @@ try {
+     $implDesignBytes = $null
+     $implPrechecks = [Collections.Generic.List[object]]::new()
+     $verifiedAdrInputs = $null
++    $conditionalInputs = $null
++    if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl')) {
++        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
++        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
++        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
++        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage
++        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'conditional review dependencies could not be resolved' }
++        $conditionalInputs = @((($resolved -join "`n") | ConvertFrom-Json -AsHashtable).inputs)
++        foreach ($required in $conditionalInputs) {
++            $requiredPath = $required.path
++            $requiredHash = $required.sha256
++            if (@($inputs | Where-Object { $_.path -ceq $requiredPath -and $_.sha256 -ceq $requiredHash }).Count -ne 1) {
++                Fail-ReviewContext 'PATH' "$($document.role) omits selected conditional review dependencies"
++            }
++        }
++    }
+     $orderedInputs = $inputs
+     if ($document.stage -ceq 'impl') {
+         $orderedInputs = @($inputs | Sort-Object -Stable -Property {
+@@ -819,6 +939,8 @@ try {
+         if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+             Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
+         }
++        $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$' -and
++            $input.path -cmatch '^(domain|design-system)/'
+         $isAdrInput = $document.stage -ceq 'impl' -and
+             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
+         if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
+@@ -828,8 +950,28 @@ try {
+             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
+             $verifiedAdrInputs.ContainsKey($input.path) -and
+             $verifiedAdrInputs[$input.path] -ceq $input.sha256
++        } elseif ($isConditionalInput) {
++            $allowedConditionalPaths = if ($document.stage -ceq 'spec') {
++                @('domain/context-map.md', 'domain/domain-contract.json')
++            } else {
++                @('domain/context-map.md', 'domain/domain-contract.json',
++                  'design-system/design-tokens.json', 'design-system/design-system.md',
++                  'design-system/ui-patterns.md')
++            }
++            if ($allowedConditionalPaths -cnotcontains $input.path -and
++                -not ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$')) {
++                $false
++            } elseif ($null -ne $persistedMatch) {
++                $persistedMatch.ContainsKey('allowed_inputs_sha256')
++            } else {
++                $conditionalPath = $input.path
++                $conditionalHash = $input.sha256
++                @($conditionalInputs | Where-Object { $_.path -ceq $conditionalPath -and $_.sha256 -ceq $conditionalHash }).Count -eq 1
++            }
+         } else {
+-            Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
++            ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
++                $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
++                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
+         }
+         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
+             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
+@@ -964,6 +1106,22 @@ try {
+             }
+         }
+     }
++    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
++        if ($document.ContainsKey('implementation_manifest') -or $Reserve) {
++            $implementation = Get-ImplementationBinding
++        }
++        if ($Reserve) {
++            if (@($records | Where-Object {
++                $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
++            }).Count -gt 0) {
++                Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
++            }
++            if ($document.run_id -ceq $implementation.run_id -or
++                $document.host_session_id -ceq $implementation.session_id) {
++                Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
++            }
++        }
++    }
+ 
+     if ($document.stage -ceq 'impl' -and $null -eq $verifiedAdrInputs) {
+         # Validate explicit binding even when the caller omitted every ADR.
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+index b33613ed..fcc58acd 100755
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -247,8 +247,92 @@ gate_report_output_is_declared() {
+     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
+ }
+ 
++# Bind the pinned implementation task manifest to its same-task report.
++verify_implementation_binding() {
++  [[ -n "$implementation_manifest_path" ]] ||
++    fail IDENTITY 'new evaluator requires a pinned implementation manifest'
++  implementation_manifest_hash=$(jq -r '.implementation_manifest.sha256' "$manifest")
++  jq -e --arg p "$implementation_manifest_path" --arg h "$implementation_manifest_hash" \
++    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null ||
++    fail IDENTITY 'implementation manifest is not a hash-pinned evaluator input'
++  implementation_manifest="$repository_root/$implementation_manifest_path"
++  admission_json_members "$implementation_manifest" >/dev/null 2>&1 ||
++    fail IDENTITY 'implementation manifest contains ambiguous JSON members'
++  jq -e --arg task "$task_id" '
++    .schema == "task-input-manifest/v1" and .task_id == $task and
++    (.run_id | type == "string" and length > 0) and
++    (.session_id | type == "string" and length > 0)
++  ' "$implementation_manifest" >/dev/null 2>&1 ||
++    fail IDENTITY 'implementation manifest task/run/session is invalid'
++  implementation_run=$(jq -r '.run_id' "$implementation_manifest")
++  implementation_session=$(jq -r '.session_id' "$implementation_manifest")
++  implementation_report="$repository_root/$implementation_report_path"
++  [[ "$(grep -c '^Run ID: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -c '^- \*\*Run ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -c '^- \*\*Session ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "Run ID: $implementation_run" "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "- **Run ID**: $implementation_run" "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "- **Session ID**: $implementation_session" "$implementation_report" || true)" -eq 1 ]] ||
++    fail IDENTITY 'implementation report run/session does not match its manifest'
++  manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
++  citation_line=$(grep '^Input manifest:' "$implementation_report" || true)
++  [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
++     ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
++       "$citation_line" == "$manifest_citation. "* ) ]] ||
++    fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
++}
++
++implementation_input_is_declared() {
++  local path=$1 expected_hash=$2 declaration absolute component current pinned
++  [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
++  declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
++  jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
++    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null || return 1
++  is_canonical_path "$implementation_manifest_path" || return 1
++  absolute="$repository_root/$implementation_manifest_path"
++  current="$repository_root"
++  local -a components
++  IFS='/' read -r -a components <<< "$implementation_manifest_path"
++  for component in "${components[@]}"; do
++    current="$current/$component"
++    [[ ! -L "$current" ]] || return 1
++  done
++  [[ -f "$absolute" && ! -L "$absolute" ]] || return 1
++  [[ "$(sha256_file "$absolute")" == "$declaration" ]] || return 1
++  verify_implementation_binding
++  jq -e --arg task "$task_id" --arg p "$path" --arg h "$expected_hash" '
++    (.allowed_inputs | type == "array" and length > 0) and
++    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
++      (.path | type == "string" and (test("[\\r\\n]") | not)) and
++      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
++    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
++    any(.allowed_inputs[]; .path == $p and .sha256 == $h)
++  ' "$absolute" >/dev/null 2>&1 || return 1
++  while IFS= read -r pinned; do
++    is_canonical_path "$pinned" || return 1
++  done < <(jq -r '.allowed_inputs[].path' "$absolute")
++}
++
++conditional_inputs_json=''
+ path_is_authorized() {
+   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
++  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
++      [[ "$path" == domain/* || "$path" == design-system/* ]]; then
++    case "$stage:$path" in
++      spec:domain/context-map.md|spec:domain/domain-contract.json|\
++      impl:domain/context-map.md|impl:domain/domain-contract.json|\
++      impl:design-system/design-tokens.json|impl:design-system/design-system.md|\
++      impl:design-system/ui-patterns.md) ;;
++      *) [[ "$stage" == impl && "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] || return 1 ;;
++    esac
++    if [[ -n "$persisted_match" ]]; then
++      [[ -n "$persisted_input_binding" ]]
++      return
++    fi
++    jq -e --arg path "$path" --arg sha "$expected_hash" \
++      'any(.inputs[]; .path == $path and .sha256 == $sha)' <<<"$conditional_inputs_json" >/dev/null
++    return
++  fi
+   case "$stage:$role" in
+     spec:spec-reviewer-a|spec:spec-reviewer-b)
+       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|investigation)\.md$ ]] ||
+@@ -285,13 +369,15 @@ path_is_authorized() {
+       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|tasks|traceability|baseline-behavior|ux-spec|frontend-spec|infra-spec|security-spec)\.(md|json)$ ]] ||
+         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
+         [[ "$path" == "$implementation_report_path" ]] ||
++        [[ -n "$implementation_manifest_path" && "$path" == "$implementation_manifest_path" ]] ||
+         evaluator_output_is_declared \
+           "$path" "$expected_hash" \
+           "$repository_root/$implementation_report_path" '## Outputs' ||
+         implementation_report_legacy_declares \
+           "$path" "$expected_hash" \
+           "$repository_root/$implementation_report_path" ||
+-        gate_report_output_is_declared "$path" "$expected_hash"
++        gate_report_output_is_declared "$path" "$expected_hash" ||
++        jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
+       ;;
+     domain:domain-reviewer-a|domain:domain-reviewer-b)
+       [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
+@@ -345,9 +431,17 @@ jq -e '
+     (.stage == "quality" and
+       ((keys | sort) ==
+         ((base_keys + ["task_id"] +
++          (if has("implementation_manifest") then ["implementation_manifest"] else [] end) +
+           (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
++          (if has("supplemental_delivery_declaration") then ["supplemental_delivery_declaration"] else [] end) +
+           (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
+       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
++      (if has("implementation_manifest") then
++        (.implementation_manifest |
++          type == "object" and ((keys | sort) == ["path", "sha256"]) and
++          (.path | type == "string" and test("^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$")) and
++          (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
++      else true end) and
+       (if has("gate_report_declaration") then
+         (.gate_report_declaration |
+           type == "object" and
+@@ -396,6 +490,10 @@ bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
+ task_id=''
+ [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
+ scratch_binding=''
++implementation_manifest_path=''
++if [[ "$stage" == quality ]] && jq -e 'has("implementation_manifest")' "$manifest" >/dev/null 2>&1; then
++  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest" | tr -d '\r')
++fi
+ scratch_root=''
+ if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
+   scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
+@@ -610,6 +708,15 @@ fi
+ # persisted identity is historical; a file created later was not its input.
+ # Check fresh preflight as well as --reserve, without expanding task inputs.
+ if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
++  conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
++    --root "$repository_root" --feature "$feature" --stage "$stage") ||
++    fail INPUT 'conditional review dependencies could not be resolved'
++  jq -e --argjson expected "$conditional_inputs_json" '
++    .allowed_input_manifest as $declared |
++    all($expected.inputs[]; . as $required |
++      any($declared[]; .path == $required.path and .sha256 == $required.sha256))
++  ' "$manifest" >/dev/null ||
++    fail PATH "$role omits selected conditional review dependencies"
+   investigation_path="specs/$feature/investigation.md"
+   if [[ -f "$repository_root/$investigation_path" ]]; then
+     jq -e --arg path "$investigation_path" '
+@@ -671,6 +778,12 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+   fi
+ fi
+ 
++supplemental_delivery_inputs='[]'
++if jq -e 'has("supplemental_delivery_declaration")' "$manifest" >/dev/null; then
++  supplemental_delivery_inputs=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest") ||
++    fail INPUT 'supplemental delivery declaration is invalid'
++fi
++
+ # Located before the manifest-entry loop: the WFI-025 task-plan exception
+ # inside the loop cross-checks the round's precheck record. The precheck
+ # entry's own raw-hash verification still runs in the loop, so a tampered
+@@ -902,6 +1015,24 @@ if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
+   verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+ fi
+ 
++# New evaluator reservations use the implementation task manifest, not a
++# fabricated implementation record in the reviewer/evaluator ledger. All
++# referenced files have passed the ordinary path and hash loop above.
++if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++  if [[ -n "$implementation_manifest_path" ]] || $reserve; then
++    verify_implementation_binding
++  fi
++  if $reserve; then
++    if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
++    any(.records[]; .run_id == $run or .host_session_id == $session)
++    ' "$ledger" >/dev/null; then
++      fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
++    fi
++    [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
++      fail IDENTITY 'evaluator reuses implementation run/session'
++  fi
++fi
++
+ # Round consistency. A manifest freezes hashes at reservation time; the round's
+ # precheck-result.json froze them when the round opened. If the two disagree, a
+ # reviewed document changed between the precheck and this reservation, so the two

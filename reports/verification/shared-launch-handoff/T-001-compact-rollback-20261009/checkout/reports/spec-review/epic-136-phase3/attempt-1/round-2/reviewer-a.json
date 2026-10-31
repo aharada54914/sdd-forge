@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a1r2-a-seq0340",
+  "host_session_id": "SESS-spec-a1r2-a-epic136phase3-0340",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-2/precheck-result.json",
+      "sha256": "42fd9abcf65b879a6cf614e7345dc5e0ce26ebb833e57193844d50e09bb263a7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "43581bbc893fc269aa0a75de352bec164ee7effe932cfac7732297624b6bd4c8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "0eb03063e08786a045e85bf663a5fb5ed70648414812c95fdd81977c20d6570f"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope REQ-001..REQ-006 resolves to a concretely measurable target. REQ-001 (requirements.md:194-206) enumerates 6 named PATH-availability/precedence branches x 2 emit modes, each independently checkable (AC-001..007, acceptance-tests.md:15-21). REQ-002 (requirements.md:207-215) specifies an exact 3-class x 4-runtime x 3-tool_name-shape = 12-combination matrix with an explicit cross-runtime parity assertion (AC-008..011, acceptance-tests.md:22-25), and the Notes section (acceptance-tests.md:41-52) confirms WFI-014 branch enumeration is applied literally (36 leaf assertions, not one combined check). REQ-005/REQ-006 (requirements.md:243-269) reduce to grep-based self-checks (AC-019..023) with a stated expected answer ('none' for doc-surface impact, AC-023). Even the Blocked REQ-003 (requirements.md:216-228) defines a testable target (closed-set greenfield|brownfield field, 10 mapped scenario ids) so Phase 2 task decomposition is not left guessing once ADR-0010 unblocks it (AC-012..015, marked Blocked not Planned, acceptance-tests.md:26-29,71-75). No requirement relies on unmeasurable language like 'should be robust' or 'improve reliability'."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Acceptance Criteria section (lines 338-487) and acceptance-tests.md's traceability table (lines 13-37) give a clean 1:1 AC-NNN <-> TEST-NNN mapping, and every REQ-NNN goal has a contiguous AC range: REQ-001 -> AC-001..007, REQ-002 -> AC-008..011, REQ-003 -> AC-012..015 (Blocked, explicitly retained rather than dropped), REQ-004 -> AC-016..018, REQ-005 -> AC-019/020, REQ-006 -> AC-021..023. acceptance-tests.md:3-11 states explicitly that TEST-NNN numbers match AC-NNN 1:1 and that TEST-012..015 are intentionally listed (not omitted) despite being un-runnable today, so a downstream task author inherits complete traceability the moment Stream C unblocks."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The round-1 CONTRADICTION was fixed only in the Goals/AC/Non-goals sections, not throughout the document, so a live self-contradiction about REQ-004/Stream D's observable outcome remains. REQ-004 (requirements.md:229-242, esp. 233-234) now states Stream D marks the lane boundary 'WITHOUT splitting the job and WITHOUT touching required-checks' needs: list'; AC-016 (requirements.md:433-440) states the job 'keeps its single-job structure -- the job count and job names are unchanged'; AC-017 (requirements.md:441-450) states 'needs: list is confirmed byte-unchanged'; acceptance-tests.md TEST-016/017 (lines 30-31) match this single-job/needs-unchanged reading. But three OTHER sections of the SAME requirements.md were not updated to match and still describe a job SPLIT: (1) Overview, requirements.md:119-121, 'Stream D (#126) separates test.yml's single deterministic test job into named lanes'; (2) Main Workflows item 4, requirements.md:584-586, 'restructure test.yml's test job into named deterministic-lane job(s) per AC-016..AC-018, update required-checks' needs: list' -- this literally instructs updating needs:, directly contradicting AC-017's 'byte-unchanged'; (3) Roles and Permissions, requirements.md:543-544, 'Stream D's job-graph restructuring'; (4) Edge Cases, requirements.md:631-637, whose self-check description explicitly presupposes multiple jobs -- 'confirm each survives in the post-restructuring job graph, not merely confirm the new jobs exist' (line 637). Downstream failure: a task author decomposing Stream D purely from Main Workflows item 4 or Edge Cases (both still describing job(s)/needs: updates/'new jobs exist') would build a job-split implementation that violates AC-016/AC-017/TEST-016/TEST-017's job-count-preserving, needs:-unchanged contract -- the exact class of implementer-facing ambiguity Phase 1 spec review exists to catch before task decomposition, not an implementation-detail difference resolvable by design.md (this is a factual dispute about WHAT AC-017 requires, not HOW to build it). Severity is Critical per this round's explicit instruction to classify contradictions as Critical and per the calibration doc's 'contradictory goals ... that makes the specification unreviewable' ladder entry -- a reviewer cannot certify REQ-004 as internally consistent while 3 of its own narrative sections describe the opposite of what its own AC-016/017 certify."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:271-315) is explicit and enumerated: no edits to the 4 R-10-protected suites (must land in new unprotected files); no Stream C implementation ahead of ADR-0010 Accepted (with an explicit carve-out that spec-defining Stream C's shape is still in-scope); no migration/rename of tests/scenario.tests.sh's existing A/B1/E scenarios; Stream D explicitly scoped as preventive, not a mixed-lane bugfix; explicit exclusion of epic #136 Phase 4 (#128-#135) and design-sync (#138-#140) issues; an explicit boundary on how many test.yml human-copy batches this feature may produce (the ONE shared batch, with an explicit clarification of what 'no independent re-staging' does and does not mean); and explicit exclusion of tasks.md/traceability.md/traceability.json and baseline-behavior.md as Phase-2/other-document artifacts. This is a comprehensive non-goals boundary leaving no obvious scope-creep vector unaddressed for a Phase 1 gate."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Security Boundaries table (requirements.md:639-648) enumerates 4 trust boundaries (B1: fixtures vs. live protected guards, read-only; B2: fixture issue body vs. reading agent session, inert-data requirement; B3: test.yml vs. agent-direct edits, human-copy-only; B4: fixture world vs. real network/repo state, mktemp-scoped, no live gh/network calls) each with data-classification and regulatory columns explicitly marked 'none identified'/'internal only' rather than left blank. Approval boundaries are explicit in Roles and Permissions (requirements.md:534-557): the human maintainer, not any agent or this spec, decides ADR-0010's Status transition and validates/applies every human-copy candidate. Compatibility constraints are explicit in REQ-006 (requirements.md:254-258): bash 3.2 safety (no declare -A, set -u array guards) and .ps1 ASCII/LF/no-BOM/exit-N rules. Migration is explicitly N/A (additive feature, no baseline-behavior.md, Non-goals:312-315) with the one narrow preserved-behavior contract (BL-001) carried into REQ-004/AC-017 instead."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:740-779) lists 5 risks, each tied to a concrete validation surface rather than left as a bare warning: the High risk (ADR-0010 rejection) is bounded by the recorded OQ-2 Blocker rather than a hedged fallback vocabulary; the Medium test.yml-staging-collision risk is assigned to design.md's Global Constraints for sequencing; the Medium 12-combination-matrix risk is mitigated by AC-008/009/010's explicit per-combination enumeration (cross-checked against acceptance-tests.md's WFI-014 Notes, lines 41-52, and the TEST-ID traceability table making each combination independently reported); the Low-Medium PATH-stub false-pass risk is mitigated by the Edge Cases requirement (requirements.md:606-612) that each fixture assert the intended tool's actual presence/absence before asserting on the guard's decision; the Low required-checks needs: gap risk is mitigated by AC-017's text-marker self-check plus an explicit human reviewer verification step against GitHub's actual branch-protection settings. Every stated high-risk claim in this document has a named, concrete validation path."
+    }
+  ]
+}

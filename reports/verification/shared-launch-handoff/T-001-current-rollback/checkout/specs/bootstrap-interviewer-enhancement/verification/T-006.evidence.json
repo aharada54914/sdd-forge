@@ -1,0 +1,55 @@
+{
+  "task_id": "T-006",
+  "feature": "bootstrap-interviewer-enhancement",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "5d1e24636ccf9b4327fbcf030804fb183adf80f3dfeccee7b7a067f6b145d18b",
+  "quality_report": "reports/quality-gate/bootstrap-interviewer-enhancement-T-006.md",
+  "verification_contract": "specs/bootstrap-interviewer-enhancement/verification/T-006.contract.json",
+  "git_commit": "351be52f7c2cd1ca02efcb598eece7ce3226346b",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.53.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/bootstrap-interviewer-enhancement/verification/T-006.contract.json",
+      "sha256": "d438237f051d110b7be1c96e1fe4b4906df36eb8b050b72852496c2c7c029876"
+    },
+    {
+      "path": "reports/quality-gate/bootstrap-interviewer-enhancement-T-006.md",
+      "sha256": "057e00991edfd4907ed073aab957202effdee4e49436a0b7f90bf460d13f4223"
+    },
+    {
+      "path": "specs/bootstrap-interviewer-enhancement/traceability.json",
+      "sha256": "ac8a745761d60e2d1ec13553ad26f93204eeb335d94f848820bf8cd9df5f85c3"
+    },
+    {
+      "path": "specs/bootstrap-interviewer-enhancement/verification/T-006/green.log",
+      "sha256": "5e8a1c5447a2cfaaffc67d2c2cfd9dcfa3a83bcf706dad94fecd3eac175fc293"
+    },
+    {
+      "path": "specs/bootstrap-interviewer-enhancement/verification/quality/T-006-gate.log",
+      "sha256": "7692f4ce65ea43aedb82a4206c08f80f492c33bfd6f6bf4c118f611665a4783b"
+    },
+    {
+      "path": "specs/bootstrap-interviewer-enhancement/verification/quality/run-all-sh.log",
+      "sha256": "6dac602a4f89b29c38622d7494c2d0c8b5ce88912b37f7df11aefa85bbdf486a"
+    }
+  ]
+}

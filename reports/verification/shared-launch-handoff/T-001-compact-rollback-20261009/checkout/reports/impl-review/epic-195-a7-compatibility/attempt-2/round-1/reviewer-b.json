@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0338",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0338",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-2/round-1/integrated-summary.json", "sha256": "3e7d7b69ed8bcfea35e359e054335e44b5661c8f32adb828397b6606ad8d1f7f"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json", "sha256": "436fc6f209344cf8b8082f84cd76da6656847c690d139ddb339212c2b2fa0f91"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "318ecab29d66b0706bfc1692f549b594495cafb9e668e42a18f752e28eaed8c6"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Components table names the future-task 'fixture-matrix builder' component as '(name/location fixed by Design Decisions below)' -- a decision the document explicitly promises to make concrete -- but no entry in '## Design Decisions' (which does concretely fix the golden-baseline scripts' names 'capture-golden-baseline.sh'/'promote-golden-baseline.sh' and their CLI signatures) ever names or locates the fixture-matrix builder. Two further internal cross-references -- Data Plan's 'PROJECT_CONTEXT_INVALID variant plan' ('the fixture-matrix builder's own valid_or_invalid parameter (API / Contract Plan)') and Test Strategy item 1 ('named builder functions for F1-F4... (API / Contract Plan)') -- point to '## API / Contract Plan' for this signature, but that section only defines assert_capability_applicability, _loop_trace_emit, assert_event_trace, the emit-run-record.sh flags, and the golden-baseline capture/promote contract; it contains no fixture-matrix-builder function/script name or parameter signature. Only two of the builder's parameters are even named in prose (valid_or_invalid, track_flag); the remaining parameters AC-014 requires (project-context.yaml-absent-or-present, AGENTS.md-marker-present-or-absent, capability_enforcement-valued) are described only descriptively. This leaves requirements.md's own AC-014 ('F1-F4... are constructible by a single, named fixture-builder contract (design.md fixes its signature)') unmet: design.md promises but never delivers the fixed signature AC-014 requires. Concrete failure mode: a Phase 2/3 implementer building the one fixture-matrix builder every REQ-001/REQ-002/REQ-003 test in this epic depends on (Architecture diagram's own Fixture matrix subgraph) has no fixed function/script name or parameter contract to implement against, and AC-014/TEST-014 cannot be validated against a signature that does not exist yet."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Open Questions' states OQ-001/OQ-002/OQ-003 'are all three resolved by this design (Design Decisions, above)... none carries forward as an open recommendation' and requirements.md's own '## Open Questions' independently marks each '(resolved)' with an inline pointer to the exact resolving prose (OQ-001 -> Non-goals/design.md Design Decisions; OQ-002 -> Field Definitions 'Context-present-invalid variant'/AC-019-021; OQ-003 -> design.md Design Decisions 'Golden-baseline location'). Each entry therefore states, in substance, that it does not block implementation and cites the concrete resolving text as its resolution path, even though the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels are not used verbatim. No entry remains genuinely open or unresolved, and requirements.md's own Design Decisions cross-reference (design.md Design Decisions | requirements.md OQ-001-OQ-003 row, Cross-Layer Dependencies table) makes the resolution owner traceable. The four layer specs' own Open Questions sections ('None') are consistent."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (required input), so the 'investigation.md absent' Major-finding rule does not apply. design.md '## Assumptions' restates requirements.md's three assumptions: (1) 'Epics A1/A3/A5 remain unmerged... A4 has passed spec-review-loop but is also unmerged; A6 is in active spec-review' -- grounded in investigation.md's cross-epic findings (INV-013 Epic A1, INV-014/INV-015 Epic A3/A5, INV-023's citation of Epic A4/A6 spec files at sibling worktrees); (2) 'ADR-0010/0016/0023 and decision doc... remain authoritative and unrevised' -- grounded in INV-008/INV-009/INV-010's own direct ADR citations; (3) 'jq/bash/PowerShell remain the available deterministic runtimes' -- grounded in INV-005 (existing suites accept LOOP_INVENTORY_PATH/SDD_LOOP_REPO_ROOT overrides, .sh/.ps1 pairing) and INV-007 (install/uninstall suite conventions). No non-trivial assumption is left ungrounded."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (Primary/TYPE-D path applies). Its 8 rows map 1:1 onto requirements.md's own explicit constraint statements: no new loop-inventory entry (Non-goals), no new test-suite file (REQ-003), assert_terminal/assert_artifacts_schema unmodified (AC-009), emit-run-record.sh no-flag byte-identical (AC-011), every upstream-dependent assertion has a named degradation (REQ-007), PROJECT_CONTEXT_INVALID distinguishable (Edge Cases), golden baseline cannot be silently regenerated (REQ-006), and cross-epic citations cannot silently drift (finding 10/NEW-001, matching the one 'must not silently [validate]' constraint sentence found in requirements.md Edge Cases). A supplementary keyword scan of requirements.md for 'must not/shall not/within N ms/maximum N/compliant with/compatible with' surfaced only that one Edge Cases sentence, which the Constraint Compliance table's golden-baseline row already covers via AC-018's commit-SHA pinning. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A keyword scan for throughput/latency/concurrency/response-time/ms/SLA/load-test/p95/p99 across the full requirements.md text returned zero matches; this is an internal test-infrastructure specification (design.md Feature Type: 'test-infrastructure specification (Phase 1 -- no code)') with no numeric SLA or performance target of any kind."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment / CI Plan' states the deployment target concretely (GitHub Actions '.github/workflows/test.yml', tests/run-all.sh/.ps1, matching the four Pillar-A loop suites' own precedent per investigation.md INV-005) and states CI pipeline changes required for this task explicitly: 'No CI change in this task,' since this package is Phase 1 spec-only (Non-goals: 'Authoring the actual test code... Phase 2/3 deliverables'). Migration execution order is correctly omitted because Data Plan's Migration Strategy states 'No migration required' (no schema changes for this task -- see MIGRATION-PLANNED). Feature-flag strategy is not stated inside this specific section, but this task ships no code/rollout of its own; the design's actual incremental-activation mechanism (REQ-007 SKIP allowlist manifest with per-entry activation_condition, Data Plan/Test Strategy item 8) is the functional equivalent and is fixed elsewhere in the same document. infra-spec.md's Deployment Topology/CI-CD Sequence sections independently corroborate the same 'no CI change in this task' framing with concrete diagrams. Neither of the check's two explicit Major-finding triggers (absent section; omitted migration order for a schema-changing feature) applies."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Data Plan' states 'Existing Data Affected: none' and 'Migration Strategy: No migration required' -- every future-task schema-shaped change is additive/optional with a documented backward-compatible default (capability_applicability field absent-safe; emit-run-record.sh capability object gated behind emit_capability with byte-identical no-flag default; the three new schemas -- compatibility-event-trace/v1, skip-allowlist-manifest/v1, structural-fixture-corpus/v1 -- are net-new files with no prior version to migrate). This matches the check's 'No data changes' PASS condition; infra-spec.md's Data Residency and Retention table independently confirms 'No database, no migration, no runtime storage anywhere in this feature.'"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## External Integrations' states 'None. Every target in this package is internal to the repository (existing scripts, schemas, templates, and the future golden baseline).' security-spec.md's Framing section and Authentication Flow independently corroborate this ('this feature's attack surface is entirely local'; 'N/A -- this feature defines no authentication mechanism'). The one candidate exception -- AC-031's 'a separate, explicitly non-gating test exercises the structural compatibility assertions against a live model call (recorded-response corpus refresh)' -- is not a new cross-service integration this design wires up: it reuses the repository's own existing model-invocation path (the sdd-bootstrap-interviewer generation flow this whole SDD framework already depends on), is explicitly deferred to a future, non-gating Phase 2/3 test whose 'own result is never required for the compatibility suite's own pass/fail verdict' and 'is never registered in the gating tests/run-all.sh/.github/workflows/test.yml entries,' and its own failure mode (irrelevant to the gating suite) is stated. No externally-visible or gating cross-service call is left unidentified."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table traces every design decision back to a specific requirements.md REQ/AC, and the Compatibility Matrix (AC-028) exhaustively maps every fixture row (F1-F8) against REQ-001/002/003 with no unmapped cell. The Protected-File Statement ('no protected file and no file outside specs/epic-195-a7-compatibility/, AGENTS.md..., and specs/workflow-state-registry.json') matches requirements.md's own Non-goals scope boundary ('Any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task'). No component, data model, or API endpoint in the Components table lacks a REQ citation, and every requirements.md Goal (REQ-001 through REQ-007) has a corresponding design.md section (Architecture/Data Plan/API Contract Plan/Test Strategy). ds_profile: none (Design System Compliance: N/A, no UI); consistent with requirements.md's own 'no UI Integration Checklist' statement."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one applicable high-risk surface is security/authorization changes around golden-baseline write integrity and the SKIP-allowlist's own integrity (Security Boundaries B1/B3; no PII, no payment surface, no fullstack user journeys, and External Integrations: None rules out the other high-risk categories). Concrete validation paths are named: AC-040 (static scan of the committed test.yml text for the literal strings 'promote-golden-baseline.sh'/'--write-candidate', hard-fail on match), AC-041 (two independent runtime-refusal negative fixtures: CI env var set, and --approved-by omitted, each asserting non-zero exit and no canonical write), and AC-035's three independent hard-fail checks for the allowlist manifest (dependency-present SKIP, unknown SKIP, fingerprint drift) plus AC-030's 'parser failure is a hard suite failure, never a silent skip' rule for the structural-comparison corpus. All are named acceptance-test/AC artifacts with concrete pass/fail assertions, satisfying the check's 'command, CI job, metric target, acceptance test artifact' bar."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in this worktree (`ls domain` returns 'No such file or directory'), so there is no `domain/context-map.md` recording `Domain-Model-Status: Approved` and no `domain/domain-contract.json` to validate against. Per the check's own stated skip condition, this check is recorded as skipped."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-wsi-a1r2-20260627",
+  "host_session_id": "host-spec-b-wsi-a1r2-20260627",
+  "allowed_input_manifest": [
+    {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "46c14d5cac5a213488494904fc1d59fe02896d4dff9dfd7fa472fedc09cad9f4"},
+    {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path": "specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+    {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "sha256": "7c9d317466f6eaa093359f13da7964f1ac5122fa60cfd879f6292409abccc727"},
+    {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json", "sha256": "36e6987d9e154902602d1b7cd025705e3649cb9f5b2e65577c60593d61ac1be4"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "REQ-001 through REQ-012 concretely define profiles, invalid states, provenance requirements, task lifecycle boundaries, integrations, portability, migration behavior, and bypass resistance; AC-001 through AC-014 provide corresponding observable outcomes sufficient to prevent materially divergent product behavior."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "The requirements, constraints, non-goals, and acceptance criteria consistently preserve predecessor ordering, prohibit fabricated provenance and bypasses, isolate lite profiles, and bound legacy migration; no directly conflicting goal or acceptance outcome is present."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "AC-002, AC-004 through AC-008, and AC-014 cover registry errors, traversal and symlink escape, malformed/stale/forged provenance, the task-state boundary matrix, overbroad legacy exceptions, lite isolation, LF/CRLF parity, corrupt JSON, missing files, and unreadable inputs."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "INV-001 through INV-008 identify the persisted-state gap, historical artifact generations, enforcement surfaces, parity obligations, missing retrospective record, and synchronized release baseline; the requirements explicitly resolve these findings through profiles, bounded migration records, global enforcement, and provenance rules."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "REQ-004 requires valid Spec, Impl, and Task PASS before Approved or executable/completed task states, preserves Draft/Planned while awaiting human approval, and AC-005 verifies the full predecessor matrix including sudo and pre-existing state; constraints retain quality-gate-only authority for Done."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "The specification defines observable policy for registry coverage, full/lite/legacy profiles, provenance, lifecycle coupling, enforcement integrations, migration, portability, regression coverage, and release synchronization, allowing implementation-policy review to select architecture without inventing product behavior."}
+  ]
+}

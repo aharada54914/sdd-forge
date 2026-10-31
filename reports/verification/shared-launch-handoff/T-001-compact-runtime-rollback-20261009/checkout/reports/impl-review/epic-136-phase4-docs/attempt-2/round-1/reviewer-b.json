@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-impl-a2r1-b-seq0408",
+  "host_session_id": "SESS-impl-a2r1-b-epic136phase4docs-0408",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-1/integrated-summary.json",
+      "sha256": "5555445f6883d1485ae7a7c57f41b1b8b9e2f53eedf89a6952c7fff88621b46f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-1/precheck-result.json",
+      "sha256": "93580f2cd49b36702d70b7edf45ccb53e84e84328a44a23f38f19985ade331d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "488f8c445ef2c57bcf4d69e7827c69a1cf8c06db880f2866287bdf8193dfe083"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No unjustified decision found. Every stated technology/architecture choice carries an explicit rationale: design.md:118 ('600 is chosen against the neighbouring SDD_INSTALL_LOCK_STALE:-600 rather than invented ... a bound tighter than the repository's existing longest-wait constant would false-trip'); design.md:182 ('Per-panelist rather than per-collection-phase because the runner is the only component that owns a child process; a collection-phase bound would require the orchestrating skill to become a process supervisor'); design.md:183 ('Exit 1 reuses the entire existing fail-closed chain unchanged; exit 2 would mean tool error, misattributing a vendor non-response...'); design.md:38-42 (setsid/process-group choice, citing Edge Case 2). No bare 'we will use X' statement lacking a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md carries no literal '## Open Questions' heading. Instead every open question recorded in investigation.md (#133 OQ-1..OQ-4, #134 OQ-3) is explicitly resolved in '## Design Decisions (Resolving Open Questions)' (design.md:179-185), each with a stated resolution and rationale (e.g. OQ-3: exit 1, 'the load-bearing decision', with the misattribution rationale spelled out). #134's remaining investigation OQ-1 (which OWASP entries apply) and OQ-2 (checklist authority) are resolved upstream: OQ-2 is closed in requirements.md AC-013 ('cite primary MCP documentation... no authoritative third-party MCP security checklist is established'), and OQ-1's methodology (read existing Controls Table/Threats & Mitigations, do not invent controls) is stated at design.md:143. No unresolved open question with a missing owner or resolution path remains."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present, so the more-than-one-non-trivial-assumption-with-no-investigation fallback does not apply. requirements.md's '## Assumptions' (176-178) are each grounded: the SIGTERM-termination assumption is not merely deferred but backed by a mandatory test (Edge Case 7, requirements.md:172 and acceptance-tests.md TEST-004(b)), and design.md implements the stated escalation explicitly (SIGTERM then SIGKILL after a 2s grace, design.md:53-57, 67); the install.sh:758-781 portable-deadline citation is flagged honestly as lacking its own INV- number but is independently supported by the first-hand 'command -v timeout gtimeout' result recorded as Edge Case 1; the file:line re-verification note is a procedural instruction, not a substantive technical assumption requiring grounding. No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has no '## Constraint Compliance' section, so the TYPE-H fallback applies. All BL-001..BL-005 and REQ-002/003/005 constraints are otherwise addressed (e.g. design.md:87 'BL-001 holds by construction'; design.md:23-24 BL-003/REQ-005 citing unchanged line ranges; design.md:232 BL-005/INV-017). However, design.md directly contradicts acceptance-tests.md's corrected AC-003/TEST-003 text. design.md:212 ('AC-003 -- configuration parsing. Unset, empty, 600, 1, 0, -5, abc. First three proceed; last three exit 2') reproduces, verbatim in structure, the exact arithmetic error acceptance-tests.md itself documents as previously caught and fixed: acceptance-tests.md:40-43 states 'First four (unset, empty, 600, 1): the runner proceeds ... 1 is a valid bound, not an invalid one ... Last three (0, -5, abc): exit 2 ... (An earlier draft wrote first three / last three against a seven-item list, leaving 1 unclassified. Both round-2 reviewers caught the arithmetic independently.)' design.md's own Configuration contract table (design.md:108-116, 'Non-numeric, 0, negative -> exit 2') agrees that 1 is valid, so only this Test Strategy narrative is stale. This is the exact row the exhaustive AC-to-TEST coverage table cites as 'Delivered by: Item 1 below' for AC-003 (design.md:199), so an implementer following the design's own restated plan risks reintroducing the specific classification bug the acceptance criteria were corrected to prevent, misclassifying SDD_PANELIST_TIMEOUT=1 -- the identical value AC-004/TEST-004(a) and (b) require to be accepted and then bounded."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Overview (11-13) states the governing performance/availability constraint: performance-checklist.md requires 'External calls have timeouts and bounded retries (no unbounded fan-out)' (INV-007), and a panelist invocation is an external call. design.md's bounded-wait pattern (design.md:31-106) and Configuration contract (108-118) directly implement the bound (SDD_PANELIST_TIMEOUT, default 600s, SIGTERM/SIGKILL escalation with process-group signalling), and TEST-004 (acceptance-tests.md:47-76) is a concrete wall-clock verification plan (elapsed-time assertion, PID-liveness assertion, and a dedicated boundary-race sub-case run at least 5 times). Addressed."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment & CI Plan' (224-228) states no new CI step and no dist/ rebuild obligation (ADR-0003 N/A, stack descriptor shell). Deployment target is stated in infra-spec.md's Deployment Topology table (infra-spec.md:19-28: runner scripts 'shipped inside the plugin, no build step'; docs 'repository-only, not shipped in the plugin') and is not contradicted anywhere in design.md. No incremental rollout is described in any artifact, so the absence of a feature-flag strategy is correct rather than an omission. Data Plan states no schema changes (design.md:151), so migration-execution-order is correctly not required here. Minor, non-blocking: design.md's own section states target/CI detail thinly and relies on infra-spec.md rather than cross-referencing it by name the way the Security Boundaries section names security-spec.md as authoritative (design.md:164) -- not a defect since the two documents agree."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan (design.md:149-160) states 'No data changes. This feature introduces no database, no persisted schema, and no new document format.' Per this check's explicit rule, PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The two external integrations referenced in design.md -- the codex and gemini vendor CLIs -- are identified with purpose (panelist invocation for cross-model verification, design.md:9), contract (invocation shape/args and I/O redirection, design.md:69-85 shell / 93-104 PowerShell; output validated against the existing cross-model-verdict/v1 JSON schema, design.md:157), and failure behaviour (six-row Failure Taxonomy table, design.md:124-131, and Security Boundaries B1 row, design.md:168, both stating exit code, verdict-file state and gate propagation per failure mode). The detail is distributed across three coherent, cross-referenced tables rather than one consolidated Integrations table, but every required element (name, purpose, contract, failure behaviour) is present for both integrations."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md has no literal '## Goals'/'## User Stories' headings; REQ-001..REQ-006 serve that role in this feature's template. design.md's roll-up (193) and 14-row Coverage table (195-210) trace every REQ to its ACs with no REQ reachable only through prose. The Components table (17-27) introduces no file or capability beyond what REQ-001..REQ-006 require, and explicitly marks check-cross-model.sh Untouched (BL-002), matching the Non-goals list (requirements.md:157-162). No scope creep or omitted capability found. The project carries no design-system/ contract relevant here; the feature is confirmed non-UI (ux-spec.md and frontend-spec.md both N/A with a stated, consistent rationale matching the repository's convention for non-UI features), so that sub-check does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces are present (B1 DoS/EoP, B2 spoofing/tampering, B4 hook-trust bypass -- security-spec.md STRIDE table, 29-37) and each maps to a named, concrete test in security-spec.md's Security Tests table (51-65) and design.md's Coverage table (195-210): TEST-004/TEST-005/TEST-006 for B1/B2, TEST-003 for B2 Tampering, TEST-010 for B4. Every named path is a file-read or process-behaviour assertion with a stated stub-CLI mechanism, not a vague reference. (The AC-003/TEST-003 narrative in design.md's Item 1 contains a content defect already recorded under NO-REQ-CONTRADICTION; the named validation path itself exists and is not re-flagged here to avoid duplication.)"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists at the project root (verified: ls domain -> 'No such file or directory'). Check does not apply."
+    }
+  ]
+}

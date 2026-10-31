@@ -1,0 +1,17 @@
+row	os	script	separator	eol	normalization	phase
+1	windows	sh	forward-slash	LF	NFC	install
+2	linux	sh	forward-slash	LF	NFC	uninstall
+3	macos	sh	forward-slash	LF	NFD	install
+4	windows	sh	forward-slash	LF	NFD	uninstall
+5	linux	sh	forward-slash	CRLF	NFC	install
+6	macos	sh	forward-slash	CRLF	NFC	uninstall
+7	windows	sh	forward-slash	CRLF	NFD	install
+8	linux	sh	forward-slash	CRLF	NFD	uninstall
+9	macos	ps1	forward-slash	LF	NFC	install
+10	windows	ps1	backslash	LF	NFC	uninstall
+11	linux	ps1	forward-slash	LF	NFD	install
+12	macos	ps1	forward-slash	LF	NFD	uninstall
+13	windows	ps1	backslash	CRLF	NFC	install
+14	linux	ps1	forward-slash	CRLF	NFC	uninstall
+15	macos	ps1	forward-slash	CRLF	NFD	install
+16	windows	ps1	backslash	CRLF	NFD	uninstall

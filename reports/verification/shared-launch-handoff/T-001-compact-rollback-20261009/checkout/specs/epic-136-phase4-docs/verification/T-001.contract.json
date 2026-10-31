@@ -1,0 +1,138 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase4-docs",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "3a5d1620df06456b50d773a20948531aafda96f5e07adbd140125a418b2f06ce",
+  "created": "2026-08-07T05:24:09Z",
+  "comment": "Implementation completed by GPT-5 Codex on 2026-08-03 (Run ID epic-136-phase4-docs-t001-20260803), landing the SDD_PANELIST_TIMEOUT bound and process-group kill/escalation in run-panelist-gpt.sh and run-panelist-gemini.sh under Task-Review-Status: Passed tasks.md. RED (16 failed) and GREEN (52 passed, 0 failed) evidence plus the independent reviewer's reproduced regression (review-red.log) were committed to this branch on 2026-08-07 (c8e66fab, then relocated into specs/epic-136-phase4-docs/verification/T-001/ by 128e43fe) ahead of this quality-gate verification-contract authoring pass. This contract's own deterministic-gate evidence (placeholder scan, task-state check, full cross-model suite re-run, traceability check) was generated fresh during contract authoring on 2026-08-07.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell/PowerShell panelist-runner control flow plus Markdown policy/threat-model prose for this feature; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; design.md:232 'Stack for the verification contract is shell (shell, PowerShell and Markdown only)').",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell/PowerShell panelist-runner control flow plus Markdown policy/threat-model prose for this feature; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; design.md:232 'Stack for the verification contract is shell (shell, PowerShell and Markdown only)').",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell/PowerShell panelist-runner control flow plus Markdown policy/threat-model prose for this feature; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; design.md:232 'Stack for the verification contract is shell (shell, PowerShell and Markdown only)'). design.md Deployment & CI Plan also confirms no dist/ rebuild obligation (ADR-0003 does not apply).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/qg/placeholder-T-001.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/T-001/green.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/epic-136-phase4-docs/verification/T-001/red.log",
+      "green_evidence": "specs/epic-136-phase4-docs/verification/T-001/green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/epic-136-phase4-docs/verification/T-001/red.log",
+      "green_evidence": "specs/epic-136-phase4-docs/verification/T-001/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/qg/workflow-state-tail.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-docs/verification/qg/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "second-approval-mask",
+  "task_id": "T-001",
+  "run_id": "RUN-second-approval-mask-qg-T-001-seq0184",
+  "host_session_id": "SESS-qg-second-approval-mask-T-001-0184",
+  "sequence": 184,
+  "previous_record_sha256": "ce9fe03f83880d1e5ac80d7d3fc62d243b5d732db2151b2379a7c9265c0ad9fc",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "0dc6153865531652d774c0f22802ab3995f2c4e8daef8d08ed8364d56e59f754",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/second-approval-mask/requirements.md",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+    },
+    {
+      "path": "specs/second-approval-mask/design.md",
+      "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+    },
+    {
+      "path": "specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "specs/second-approval-mask/security-spec.md",
+      "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+    },
+    {
+      "path": "specs/second-approval-mask/infra-spec.md",
+      "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+    },
+    {
+      "path": "specs/second-approval-mask/tasks.md",
+      "sha256": "d4b8b9aab351a4859d3cfc96d4f69dba9220e10a6e6554af7c2c41961c701a91"
+    },
+    {
+      "path": "specs/second-approval-mask/traceability.md",
+      "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+    },
+    {
+      "path": "specs/second-approval-mask/traceability.json",
+      "sha256": "6d8dece487569bbcfc8b5c8bfebed784fe0079f96c92d5fb883fc6456bbf2823"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/second-approval-mask/T-001.md",
+      "sha256": "9e9cd85538611a25e17a566652c63124e8697d15a9ef9909d03ec76b7e09d582"
+    },
+    {
+      "path": "tests/second-approval-mask.tests.sh",
+      "sha256": "c8053d483e5bf40dfc9a01e21a7fed4cdf2d15dec11ee5f84e96657ce4bdb9b7"
+    },
+    {
+      "path": "specs/second-approval-mask/human-copy/check-workflow-state.sh",
+      "sha256": "9884b6241bf50fcf0d4162de70bff1cdf7299688b46d603965c4082e0b3a41ee"
+    },
+    {
+      "path": "specs/second-approval-mask/human-copy/check-workflow-state.ps1",
+      "sha256": "2b8c5e34a5603315b112f1c8bd4841582b73b8b4e692a176d4d5c36f9a5fa222"
+    },
+    {
+      "path": "specs/second-approval-mask/human-copy/T-001.MANIFEST.sha256",
+      "sha256": "a696f51b900e00c65b006baf336aceaa010fd528c9d7caa1cff37cfda6697e11"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/T-001/red.log",
+      "sha256": "c22b155812855e4c032fddc857bf17bf87ffd0065f910a95fd5518371ea4aa10"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/T-001/green.log",
+      "sha256": "0db49b9a8d1e2a38e235032aed47c63278905292a210c005b3803323a6c0c58f"
+    }
+  ]
+}

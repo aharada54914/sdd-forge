@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11cbb-3dd3-7d92-9a8f-68016108fe85",
+    "turn": {
+      "id": "01a11cbb-effd-71c1-b4e2-f29d0ebc11a6",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_00c474c75901ff5d016ac7e23f4a688191b3d2d17e98f794a5",
+          "text": "T-005の変更を `output/work` に準備しました。本番コードは保持し、テスト1ファイルのみ変更しています。\n\n- 実validatorで予約後receipt不一致を再現し、追記保持・子起動なし・再予約拒否を確認。\n- RED→GREEN、ロールバック・再適用、関連8スイート成功（Bash／PowerShell含む）。\n- 成果物のhashと必須identity項目を照合済み。\n\n[実装報告・証跡一覧](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md)\n\nowner適用・独立レビュー・品質ゲート・CI・Windows・nativeモデル実行は未実施です。モデル輸送部分はmockであり、Done／正式PASSは主張していません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791483441,
+      "completedAt": 1791484484,
+      "durationMs": 1043237
+    }
+  },
+  "emittedAtMs": 1791484484426
+}

@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-designsyncconsent-impl-a1r3-a-seq0493",
+  "host_session_id": "SESS-impl-a1r3-a-designsyncconsent-0493",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+      "sha256": "90aaba5daf0f9ccc4ca072e21382e0720b8f20156b0534b5462e6db2cd861804"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-3/precheck-result.json",
+      "sha256": "4c91a1ecd8d500397ce63f489ddc2e55687311f6657bb7739d44070f74b00de5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+      "sha256": "0c0716f6a18ea8af648e7be2f7610fa7536dcf775265f33a6e89247ec4ce77f2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+      "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:6-47 '## Architecture Overview' gives the four-surface edit table (10-18), a mermaid control-flow diagram of the split loop (27-39), and rationale for the structural split (41-47); design.md:49-67 '## Components' states existing/edited/untouched/protected status per file, covering integration with sdd-bootstrap-interviewer, lite-spec, and the test suites; design.md:71-76 '## Layer Specifications' states the technology posture per layer (UX N/A, Frontend N/A, Infrastructure 'no new CI step... one protected human-copy staging round', Security 'Load-bearing'). All three required elements are present; heading is 'Architecture Overview' rather than literal 'Architecture' but content is substantively equivalent and unchanged from earlier rounds where this check already passed."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:27-39's mermaid diagram is the Loop's control-flow (Generate -> Consent Resolution -> Pre-Upload Check Point -> Upload -> Review -> back to Generate), not a component-dependency graph, and design.md:49-67's Components table records file-level edit status without declaring inter-component dependency edges."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:196-207 '## Data Plan' states 'No data model, no persistence, no migration' (198), enumerates the two on-disk artifacts touched in shape -- Design-Source section gains named fields, additive, existing records remain readable (204); the mockups directory unchanged in shape (205) -- and states 'No migration and no backfill follow' with a cross-reference to infra-spec.md's Rollback section (207). Substantively covers entities, existing-data impact and migration strategy though it does not use the literal template labels; no concrete failure mode results since the content is unambiguous."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:84-194 '## API and Contract Plan' documents the Loop's target shape as the feature's actual contract surface (90-158, a SKILL.md text protocol, not a REST/RPC service given Feature Type states 'no application code') and the Design-Source consent-record field table (165-190) as the schema equivalent. No HTTP endpoints exist to enumerate; the section supplies the correct substitute (step order plus record shape) rather than an empty or absent plan."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both round-2 fix sites verified on the merits: design.md:217 B3 row now states 'the later-session question is answered: R-OQ-1/R-OQ-2 (2026-08-04) scope consent to feature and session, so the record cannot authorize a later session -- a later session is a different scope and re-gates (AC-001 branch 3)' (previously deferred to open OQ-1/OQ-2). security-spec.md:133 Authorization bullet now states 'OQ-8 resolved toward CI registration (R-OQ-8, 2026-08-04), so it is a second protected target -- its CI registration travels as a separately staged, human-applied patch outside this decomposition, with AC-024 red until that patch lands' (previously conditioned on unresolved OQ-8). Re-swept every other OQ-1/2/3/4/5/8 reference in design.md and security-spec.md (Trust Boundaries mermaid ~security-spec.md:68-77, boundary table 79-84, 'Under Whose Consent' 40-48, STRIDE row B3 126, Residual Risk R2 176, Open Questions 185-192) -- all consistently marked Resolved with no remaining stale deferral. Boundaries B1-B4 named with AuthN/AuthZ per boundary (security-spec.md:79-84), data classification present (138-149), STRIDE analysis present (114-129)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'feature (workflow/policy change to an existing internal skill; no application code)' -- not a literal match to the four enumerated skip values, but the feature has no Frontend Plan or Backend Plan section and no rendered UI or REST endpoints to check consistency between: ux-spec.md:5 states 'N/A -- no rendered, interactive, or GUI surface' and frontend-spec.md:5 states 'N/A -- no browser, no bundle, no build output'. The scoped surface this check verifies does not exist."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 fix verified: design.md:299 coverage table now carries 'AC-030 | TEST-051 | step 6's push-failure rule, all four parts...'; design.md:267 requirement roll-up includes 'REQ-001 -> AC-001, AC-002, AC-026, AC-027, AC-028, AC-030'; design.md:137-149 Loop step 6 states all four parts of the push-failure rule citing AC-030/TEST-051; design.md:255 Design Decisions entry restates all four parts. Cross-checked against requirements.md:84-95 (AC-030, all four parts with rationale) and acceptance-tests.md:61 and 246-248 (TEST-051, all four parts). REQ->AC->TEST chain is complete and consistent across all three documents. Test Strategy also covers assertion methodology (design.md:304-311), staging/CI-registration conformance (313-331), and names concrete verification artifacts (tests/design-system-contract.tests.{sh,ps1}, tests/run-all.{sh,ps1})."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every file-based component referenced in Architecture Overview / API and Contract Plan is defined in the Components table (design.md:49-67: design-sync-loop/SKILL.md, sdd-bootstrap-interviewer/SKILL.md, docs/workflow-guide.md, lite-spec/SKILL.md, claude-design-workflow.md, CHANGELOG.md, tests/design-system-contract.tests.{sh,ps1}, .github/workflows/test.yml, tests/run-all.sh/.ps1, AGENTS.md, specs/workflow-state-registry.json). Design-Source is defined in its own named subsection (design.md:165-190). External tool names (finalize_plan, write_files, list_projects, get_file, create_project, list_files) are established system components per investigation.md INV-007 (six names appear only in design-sync-loop/SKILL.md), not internal architecture components requiring a Components-table entry."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:236-244 '## ADR Change Log' lists one candidate decision with Status 'Proposed' and number explicitly 'TBD' (not a filed NNNN number), with reasoning for and against filing and an explicit instruction to re-derive the next free number at drafting time rather than consuming '0025' now, citing investigation.md INV-025's documented ADR-number collisions. No ADR is claimed to exist, so there is no dangling docs/adr/NNNN reference; verified via ls docs/adr/ that no 0025-*.md or design-sync/egress-consent-named file exists, consistent with the 'not yet numbered' framing. The architectural departure is acknowledged rather than silently omitted."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP condition met: project has no design-system/ directory (verified: ls design-system -> No such file or directory), and design.md:80 '## Design System Compliance' records exactly 'N/A -- ds_profile: none.' as required by the skip clause. Recorded as skipped and emitted as PASS per the check definition."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP condition met: project has no domain/ directory (verified: ls domain -> No such file or directory), so no domain/context-map.md with Domain-Model-Status: Approved or domain-contract.json exists to check against. Recorded as skipped and emitted as PASS per the check definition."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "feature (workflow/policy change to an existing internal skill; no application code)"
+}

@@ -1,0 +1,116 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 3,
+  "round": 3,
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "run_id": "96a60e12-20b0-4014-85bd-58435f4dc035",
+  "host_session_id": "3cb588bd-7ab9-4ec1-841a-89b303833a62",
+  "host": "Mac.lan",
+  "generated_at": "2026-06-27T07:57:10Z",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851",
+      "verified": true
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
+      "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2",
+      "verified": true
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json",
+      "sha256": "d41dd7f48169dec592d7ad37c2378cba0015a2a28d0148f4d2a606b2ed13393f",
+      "verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+      "verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+      "verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/tasks.md",
+      "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54",
+      "verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/traceability.md",
+      "sha256": "e18a240c237530aedf9bd2f2495e0879f418f983ce60640d7d423fb7e75f2fca",
+      "verified": true
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "TRA-001",
+      "name": "structural-coverage",
+      "status": "PASS",
+      "evidence": "T-001 through T-006 collectively cover REQ-001 through REQ-012 and AC-001 through AC-014. Each task defines source issue, risk, workflow, requirement scope, planned files, goal, scope, observable Done When criteria, exclusions, rollback, and blockers.",
+      "finding": null
+    },
+    {
+      "id": "TRA-002",
+      "name": "blocker-graph",
+      "status": "PASS",
+      "evidence": "The pinned graph contains all six task nodes and is acyclic: T-001 and T-002 precede T-003; T-003 precedes T-004 and T-005; T-004 and T-005 precede T-006. Shared downstream-precheck files are serialized transitively from T-001 through T-003 to T-005.",
+      "finding": null
+    },
+    {
+      "id": "TRA-003",
+      "name": "draft-planned-state",
+      "status": "PASS",
+      "evidence": "Every task is Approval: Draft and Status: Planned while Task-Review-Status is Pending. No task is executable or completed.",
+      "finding": null
+    },
+    {
+      "id": "TRA-004",
+      "name": "required-workflow-match",
+      "status": "PASS",
+      "evidence": "T-001 through T-005 use tdd for behavioral, validator, and integration changes; T-006 uses acceptance-first for synchronized release metadata. The selected workflows match task risk and each task names concrete pre/post implementation evidence.",
+      "finding": null
+    },
+    {
+      "id": "TRA-005",
+      "name": "planned-path-precision",
+      "status": "PASS",
+      "evidence": "Implementation entry points, contracts, integration files, tests, reports, and release surfaces are named with repository-relative paths. T-002's bounded tests/fixtures/workflow-state/ root is paired with enumerated AC-002 and AC-006 invalid cases and exact test entry points, so it does not leave the implementation boundary indeterminate.",
+      "finding": null
+    },
+    {
+      "id": "TRA-006",
+      "name": "concern-dependencies-done-observability",
+      "status": "PASS",
+      "evidence": "Each task states the motivating concern, risk rationale, dependency boundary, rollback, exclusions, and inspectable completion evidence. High-risk tasks require red-to-green logs, parity or integration commands, changed-file hashes, traceability proof, independent review, and exercised rollback.",
+      "finding": null
+    },
+    {
+      "id": "TRA-007",
+      "name": "traceability-synchronization",
+      "status": "PASS",
+      "evidence": "Task requirement and AC declarations agree with traceability.md. All requirement rows remain Planned and point to the same task/test targets represented by the task decomposition.",
+      "finding": null
+    },
+    {
+      "id": "TRA-008",
+      "name": "task-without-direct-ac",
+      "status": "PASS",
+      "evidence": "T-001 has no direct AC ownership, but its REQ-003, REQ-008, REQ-010, and REQ-012 mappings remain traceable to acceptance coverage, it is a prerequisite of T-003, and its Done When section independently requires the original transition reproduction, shell/PowerShell regression suites, rejection cases, red-to-green logs, independent review, hashes, traceability proof, and rollback evidence. The supplied contract does not require every task to own an AC.",
+      "finding": null
+    },
+    {
+      "id": "TRA-009",
+      "name": "precheck-separation",
+      "status": "PASS",
+      "evidence": "The pinned precheck reports workflow_match_precheck PASS and valid blocker formatting with hashes matching the reviewed requirements, acceptance tests, and tasks. No distinct substantive defect was found that warrants duplicating a precheck-owned issue.",
+      "finding": null
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "local-env-mcp",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "73cacf502da64422d56fc6f79f11c295d7dd9efae5858be11f3eb580aeaa754e",
+  "acceptance_sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-localenvmcp-a1r1-20260705-3ba3",
+      "host_session_id": "hs-spec-a-6503d1ba-0001",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "b195a38347a6a08b8d5cf3f3b07fedf1077e65c4026103ea52a31dd8a97f1a68"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md",
+          "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md",
+          "sha256": "73cacf502da64422d56fc6f79f11c295d7dd9efae5858be11f3eb580aeaa754e"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-localenvmcp-a1r1-20260705-0cc6",
+      "host_session_id": "hs-spec-b-6503d1ba-0002",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/integrated-summary.json",
+          "sha256": "c44a4a5c5a46c88337016324a8f51c8fd6b67d303ff8862f711c01a5843a7c02"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "b195a38347a6a08b8d5cf3f3b07fedf1077e65c4026103ea52a31dd8a97f1a68"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md",
+          "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md",
+          "sha256": "73cacf502da64422d56fc6f79f11c295d7dd9efae5858be11f3eb580aeaa754e"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-localenvmcp-a1r1-20260705-c20a",
+  "verdict": "PASS",
+  "warningCount": 0
+}

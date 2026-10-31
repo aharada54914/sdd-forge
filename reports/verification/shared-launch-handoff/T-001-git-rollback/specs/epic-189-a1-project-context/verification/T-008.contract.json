@@ -1,0 +1,164 @@
+{
+  "task_id": "T-008",
+  "feature": "epic-189-a1-project-context",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-02T00:22:10Z",
+  "comment": "Default-FAIL verification contract for T-008 (high, tdd). Populated after the quality gate reran the hook-activation-handshake suite in BOTH lanes (bash tests/check-hook-activation-handshake.tests.sh PASS 88 / FAIL 0; pwsh -NoProfile -File tests/check-hook-activation-handshake.tests.ps1 PASS 87 / FAIL 0; ZERO skip lines in either lane, so every assertion genuinely executed on this platform; specs/epic-189-a1-project-context/verification/qg/T-008/focused-tests.log) and the epic-189-a1 SEVEN-suite regression set via INDIVIDUAL runs, both lanes, all green (project-context-schema 41/41 x2, approver-registry-schema 8/8 x2, canonicalizer 80/80 + 77/77, signer 59/59 + 57/57, detector 60/60 + 59/59, validator 40/40 + 39/39, publisher 218/0 + 146/0 - the publisher newly added to the set now that T-007 has landed; all fourteen runs exit=0; specs/epic-189-a1-project-context/verification/qg/T-008/regression.log). Individual-suite mode is used because tests/run-all.sh aborts at tests/prepare-panelist.tests.sh, whose failure PRE-DATES this task (content last touched by 298cf22b/2f93edd6, #108/#185-era; part of the known run-all failure chain) - NOT attributable to T-008, and recorded in the regression log's own header so the exclusion is transparent rather than silent. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-008/placeholder.log: 'Placeholder scan passed.' over all three production scripts and both suites - plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py, check-hook-activation-handshake.sh, check-hook-activation-handshake.ps1, tests/check-hook-activation-handshake.tests.sh, tests/check-hook-activation-handshake.tests.ps1). Task-state (13 tasks passed, with T-002..T-007 contracts and evidence bundles revalidated in the same run; T-007's is the first bundle in this feature carrying no dirty-tree warning; specs/epic-189-a1-project-context/verification/qg/T-008/task-state.log) and scripted requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-008/traceability.log; REQ-010 -> AC/TEST-027 and AC/TEST-032 chain verified directly against requirements.md, traceability.md, acceptance-tests.md and both suites, plus suite self-registration at tests/run-all.sh:64 / tests/run-all.ps1:47) are both green; the traceability log additionally records two facts the gate observed rather than adjudicated - traceability.md's T-008 artifact column names a specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml (staged, appended) plus MANIFEST.sha256 staging that was deliberately NOT performed (human-copy/ holds only MANIFEST.sha256 and no .github/ tree at all; identical to the T-001..T-007 precedent, with the T-009/T-013 chain named as owner), and T-008's proof is FIXTURE-SIMULATED by design, the live cross-runtime observation of a real host guard denying being explicitly out of A1's scope and Epic A8's own Done condition. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set). TDD red = specs/epic-189-a1-project-context/verification/T-008/red-sh.log (22 passed / 66 failed) with its twin specs/epic-189-a1-project-context/verification/T-008/red-ps1.log (21 / 66); green = specs/epic-189-a1-project-context/verification/T-008/green-sh.log (88 / 0) with its twin specs/epic-189-a1-project-context/verification/T-008/green-ps1.log (87 / 0), commit c0aaf3a6. Unlike T-007, this task needed exactly ONE round: independent skeptical evaluation PASSed on the FIRST attempt, seq0363 (reports/quality-gate/2026-08-01T144328Z-T-008.md, 0 Critical / 0 Major / 5 Minor recorded). All five Minors are recorded and non-blocking; one of them notes that the implementation commit c0aaf3a6 also swept an UNRELATED task's (T-009's) Approval / Second Approval lines into itself - an out-of-scope tasks.md edit that this chain-authoring commit deliberately does not repeat or compound: it touches no tasks.md line at all. Risk high (not critical) means the evidence bundle is generated here in the same manner as T-002..T-006, with no second-approver signature required by generate-evidence-bundle.sh (signing is gated on risk == critical).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-008/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-008/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-008's scope; the handshake is a standalone filesystem CLI exercised end-to-end by its own suite (in-repo dispatch and scratch-directory fixtures only).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-008/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-008/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-008/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the CLI is smoke-exercised by every suite invocation recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-008 is net-new work, not a refactor/bugfix.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-008's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

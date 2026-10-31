@@ -1,0 +1,35 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-r2-20260630-0318",
+  "host_session_id": "task-session-b-r2-20260630-0318",
+  "allowed_input_manifest": [
+    {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+    {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"6887ad149fffdb23e8d0dcde8c7f6b8bf664e7ef8a8b2ba76bab79b2c02a0012"},
+    {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+    {"path":"specs/agent-cost-context-isolation/tasks.md","sha256":"f3c440adc098b44f3f44380ee1d8fed59e56fad138b4b9543075c449217055e9"},
+    {"path":"specs/agent-cost-context-isolation/traceability.md","sha256":"316f936a4a32d2f8c671e60f4d035d8490741855fa755ee3e9240a5b150077e3"},
+    {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+    {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+    {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+    {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+    {"path":"reports/task-review/agent-cost-context-isolation/attempt-1/round-2/precheck-result.json","sha256":"ddf86dd24155e0e0f455263dda344f73fca747f078d8bf8a023b7e4a8d495285"},
+    {"path":"reports/task-review/agent-cost-context-isolation/attempt-1/round-2/integrated-summary.json","sha256":"bbe673f9fd2020cd05e3b13bf482b521edb4a2cf5c6baef2f2b290338d31265c"},
+    {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"4fd42b68610a6254e8acd42e4628f827be9428a8820c041b4f33cdd33dc27354"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"No issues found. T-001, T-004, and T-005 declare medium with limited impact, controlled reversibility, and behavioral surfaces; T-002 and T-003 declare high with material impact, difficult reversibility, sensitive surfaces, and tdd workflows, matching risk-classification-policy.md."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"No issues found. T-002 and T-003 Done When each require explicit red.log and green.log evidence with failing tests committed before implementation, plus a named independent reviewer recording PASS in the task implementation report."},
+    {"id":"TASK-SIZE","result":"FAIL","severity":"Major","finding":"tasks.md decomposes several tasks beyond one focused implementation session. T-001 Scope combines at least five implementation areas: capability matrix, paired selectors, risk/recurrence policy, terminal-resume state handling, and role floors. T-002 combines the schema, paired snapshot builders, paired validators, batch orchestration, identity/fallback handling, and fixtures. T-005 combines broad release-surface synchronization, a hash inventory contract, paired transactional rollback executables, and isolated success/failure fixtures. These scopes exceed the prompt's more-than-three-area sizing indicator; implementation and verification can become partially complete while the task remains indivisible, which is a blocking Major decomposition defect."},
+    {"id":"EDGE-CASE-COVERAGE","result":"FAIL","severity":"Major","finding":"T-004 is a functional reporting/retrospective task mapped only to AC-005 and TEST-004, but acceptance-tests.md TEST-004 checks presence of required template fields and contains no edge-case or error-path scenario. Although T-004 Done When mentions legacy fixtures, that case is absent from the corresponding acceptance criterion. A regression in backward-compatible report handling could therefore satisfy the named acceptance test, so this is a blocking Major coverage gap."},
+    {"id":"TEST-TYPE-MATCH","result":"SKIP","severity":"Major","finding":"SKIP: tasks.md contains no dedicated test task declaring unit, integration, end-to-end, or acceptance as its task type; test files and TEST-NNN checks are embedded within functional implementation tasks."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"No issues found. High-risk T-002 and T-003 each contain an explicit Rollback field and a Done When item requiring an isolated rollback fixture that restores the affected baseline and reruns the relevant tests."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"No issues found. T-001 through T-005 identify distinct primary purposes and test targets; where later release or reporting work consumes earlier artifacts, explicit Blockers ordering prevents simultaneous modification for the same purpose."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"No issues found. T-002 depends on T-001 model-selection fields, T-003 builds reviewer/evaluator isolation after the T-002 manifest boundary, T-004 reports identities and gate metrics supplied by T-002/T-003, and T-005 waits for all feature artifacts so its synchronized hashes and rollback inventory can be finalized."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"SKIP","severity":"Major","finding":"SKIP: no bugfix or debugging task in scope."}
+  ]
+}

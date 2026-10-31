@@ -1,0 +1,12 @@
+const fs=require('fs'),path=require('path'),crypto=require('crypto');
+const base=__dirname,root=path.resolve(base,'../..');
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'reports/verification/shared-launch-handoff/T-005/attempt-2/manifest.json')));
+const session=JSON.parse(fs.readFileSync(path.join(base,'native-thread-start-result.json'))).result.thread.id;
+manifest.run_id='T-005-'+session;manifest.session_id=session;manifest.agent_instance_id=session;
+manifest.allowed_outputs=['handoffs/shared-review-launch-repair-T-005-attempt-3/output/'];
+const paths=new Set(manifest.allowed_inputs.map(x=>x.path));
+paths.add('plugins/sdd-implementation/templates/implementation-report.template.md');
+paths.add('reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md');
+manifest.allowed_inputs=[...paths].sort().map(p=>({path:p,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,p))).digest('hex')}));
+fs.writeFileSync(path.join(base,'manifest.json'),JSON.stringify(manifest,null,2)+'\n',{flag:'wx'});
+console.log('MANIFEST_PREPARED',session,manifest.allowed_inputs.length);

@@ -1,0 +1,76 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-010",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "NEEDS_REVISION",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 0,
+    "auditor_a_pass_count": 8,
+    "auditor_a_verdict": "PASS"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "All four required elements present: primary/secondary metric rows named; baseline (gate_reports.total = 0 (true 4), blocked = 1 (true 0), RUN-20260714T193722Z) and target (exact equality with the retrospective's manually counted totals); horizon (next 1 completed feature's run record); threshold (exact equality on the first run verifies; any remaining discrepancy keeps the WFI in Needs-Followup)."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "A single deterministic grep-logic defect (two line-level bugs in the same script, confirmed recurring across 2 retrospective periods) gets a narrow two-file fix (the script and its .ps1 twin). Neither over- nor under-scoped."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "WFI-010's Proposed Change conflicts with WFI-003 (Status: Verified). WFI-003 added AGENTS.md Rules 'Evidence report identity fields' (AGENTS.md:119-130), mandating that quality verification gate reports carry a 'Task: T-NNN' line and a 'Run ID:' line equal to the evaluator run id reserved in the identity ledger. WFI-003's Verified Result (2026-07-06) recorded all ten local-env-mcp gate reports compliant — independently confirmed by inspection of reports/quality-gate/2026-07-05T171242Z-local-env-mcp-T-005.md, which carries both lines in addition to the template's native 'Task ID:' line. The two gate reports WFI-010 cites as its own evidence (epic-136 T-001, epic-159 T-001) carry only 'Task ID:'/'Feature:'/'VERDICT:' — matching the unmodified template (git log --follow confirms no commit ever added Task:/Run ID: lines to the template). Report authoring therefore regressed away from WFI-003's Verified, AGENTS.md-mandated compliance state between 2026-07-06 and 2026-07-12; the emitter's Task:/Run ID: expectation was never merely 'an older or assumed' convention. WFI-010 as written would retune the emitter to permanently accept the now-noncompliant format, silently mooting WFI-003's still-standing AGENTS.md rule. The two WFIs pull the gate-report identity-field contract in opposite directions and cannot both stand unreconciled."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Correctly plugin-improvement: the root-cause lines live in a plugin script no project-side edit could patch; Direct Target is explicitly None; the GitHub-Issue Lane follows the Verified/Approved WFI-005/006/007/009 structural precedent; the described plugin-side fix is plausibly sufficient to close the measured discrepancy once merged upstream."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Zero forbidden terms in the three restricted sections; all gate-concept references use the generic 'quality verification gate'. The sole literal occurrence sits in Verification Plan, an unrestricted section."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Single-run full convergence is plausible for a deterministic parsing fix with byte-cited grep-pattern mismatches — not an overreach."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Problem Evidence reduces cleanly to 2-3 generic sentences; the Proposed Change table names two concrete target files with generic-compliant descriptions usable verbatim; Expected Effect states a quantitative target."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Strict lane applies (Meta-Change: true) and passes: (1) no gate/grader/threshold is loosened — the counters are descriptive and the fix corrects toward true values in both directions; (2) non-decreasing guard holds (0 checks added or removed; bugfix to existing counting logic, per the Rollback-Plan's explicit statement); (3) no self-grading — the Target-Metric is validated against the retrospective's independently hand-derived Metrics-table totals, which the retrospective's own FP-03 Do-Not-Overfit note confirms do not depend on the emitter."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Root Cause Hypothesis",
+      "change": "Add a paragraph disclosing the WFI-003 conflict: AGENTS.md Rules 'Evidence report identity fields' (added and Verified by WFI-003, 2026-07-06) currently mandates the Task:/Run ID: lines; WFI-003's Verified Result recorded compliant reports on 2026-07-06; the reports this WFI cites carry neither line — report authoring regressed from WFI-003's Verified compliance state, rather than the emitter's expectation having always been an incorrect assumption. This WFI's fix retunes the emitter to accept the now-noncompliant format rather than restoring compliance.",
+      "rationale": "Makes the WFI's narrative accurately reflect that the convention it calls 'older or assumed' is a still-standing, previously-Verified project rule that recent reports stopped following."
+    },
+    {
+      "section": "## Proposed Change (GitHub-Issue Lane, Audit note)",
+      "change": "Add a second audit note (Cycle 2) flagging the WFI-003 conflict and requiring the human approver to choose between (a) accepting the emitter fix and revising/retiring WFI-003's AGENTS.md rule in the same change, or (b) restoring AGENTS.md/WFI-003 compliance in gate-report authoring instead, in which case the emitter fix targets the wrong convention. Both cannot stand unreconciled.",
+      "rationale": "Routes the conflict to explicit human adjudication before Status: Approved, matching the disclosure pattern already used for the NO-PLUGIN-SCOPE-CREEP tension."
+    }
+  ],
+  "process_note": "The auditor disclosed that a grep across docs/workflow-improvements/WFI-*.md briefly surfaced two lines from the disallowed WFI-010-audit-cycle-1.md; the leaked content (attempt-1 BLOCKED reasons) was not used in any finding — all findings derive from WFI-010.md, the retrospective, the category guide, and direct repository inspection.",
+  "summary": "NEEDS_REVISION. Seven of eight checks pass on independent evidence, including the Meta-Change anti-Goodhart strict lane (the modified instrument is checked against an untouched, independently-derived ground truth). One Major UNINTENDED-CONSEQUENCES finding: the proposed emitter fix conflicts with WFI-003 (Verified), whose still-standing AGENTS.md rule mandates the exact Task:/Run ID: header convention this WFI dismisses as an outdated assumption — gate-report authoring regressed from that rule between 2026-07-06 and 2026-07-12. Two disclosure revisions route the conflict to human adjudication."
+}

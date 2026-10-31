@@ -1,0 +1,5 @@
+COMMAND: bash /Users/jrmag/Projects/active/sdd-forge-gates/plugins/sdd-quality-loop/scripts/check-traceability.sh specs/risk-adaptive-layer/traceability.json .
+EXIT: 0
+LABEL: requirement traceability
+------------------------------------------------------------
+Traceability check passed for risk-adaptive-layer: 11 link(s).

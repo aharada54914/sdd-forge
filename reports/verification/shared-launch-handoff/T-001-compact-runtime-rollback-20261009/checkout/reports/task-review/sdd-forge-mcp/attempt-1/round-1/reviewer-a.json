@@ -1,0 +1,124 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "task-a-sddforgemcp-a1r1-20260704-b2d7",
+  "host_session_id": "hs-task-a-7ea701ba-0012",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "450e25d7e1bbb11b0e26b9f9e2d6c841356077630bdaf74f4e69da0e9cf2bcdd"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/traceability.md",
+      "sha256": "89dfcd1639ee0f8862c32076b495003140d5f4d401f3f056e0f37082d66af467"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d38c56e6cfeb34f1299835720cf00478f66cd992597b0480743eb2b8479f1c3c"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-1/dependency-graph.json",
+      "sha256": "56707e1306ab6f8df53840b3b379732911de5b521c8d1d02aab0cd2560d66ad9"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN identifiers referenced in tasks.md (AC-001..AC-017 across T-001..T-007 Done When and Scope items) resolve to matching entries in acceptance-tests.md's AC table. No dangling AC IDs found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks use the literal value 'None' under their '### Blockers' section. precheck-result.json records blockers_format_valid: true, consistent with this observation."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All REQ-001..REQ-011 appear in at least one task's Requirements: field. No uncovered requirements."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-001..AC-017 are traceable to a task via explicit AC-NNN references in Done When / Scope items (AC-017 split across T-001 and T-004, matching traceability.md). No uncovered acceptance criteria."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-008 has a non-empty Requirements: field citing at least one REQ-NNN. No orphan tasks."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Only T-007 matches the test-task title trigger (contains 'mcp-tests'); its Done When explicitly references AC-006 and AC-010, so it is not orphaned."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 1 round 1. All 8 tasks show 'Approval: Draft' and 'Status: Planned'. No deviations."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-008 declares 'Risk: low' with 'Required Workflow: acceptance-first'. The risk-gate-matrix requires low -> test-after. This is a mismatch per the check's explicit pairing rule. The task's own Risk Rationale acknowledges the deviation (chosen to avoid the task-review-precheck file-level grep false positive with medium tasks), but the check text provides no waiver authority for choosing a stricter-than-required workflow, and precheck's workflow_match_precheck only guards the forbidden medium+test-after combination — it does not check or excuse low+acceptance-first. All other tasks (T-001..T-005 high/tdd; T-006/T-007 medium/acceptance-first) match the matrix correctly."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-017 is the only AC referenced by two tasks (T-001 too-large/not-sdd-root; T-004 not-found), with Done When annotations explicitly differentiating the sub-scopes and traceability.md confirming the intentional split. No other cross-task duplicates."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks declare Blockers: None; dependency-graph.json confirms edges: [] with nodes T-001..T-008. Vacuously satisfied."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json shows no edges, so no cycle is possible. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-003/T-004/T-007 each bundle multiple sub-components joined by '+', but in each case they are tightly-coupled parts of one architectural layer rather than two unrelated feature concerns. T-002 and T-006 fit the explicit exception patterns (impl+directly-tied test; paired install/uninstall). No task combines two disconnected business features."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No Done When item uses a forbidden vague verb/phrase. Each AC-tagged item names a concrete observable outcome. Non-documentation tasks include Red->Green evidence and provenance-bearing evidence bundle as concrete verification artifacts. T-008 names the exact file (USERGUIDE.md) and specific required content as its completion proof."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Task IDs T-001..T-008 all have corresponding entries in traceability.md's REQ->Task and AC->TEST->Task tables. REQ-001..REQ-011 in traceability.md all exist in requirements.md. No dangling references either direction within the manifest-scoped artifacts."
+    }
+  ]
+}

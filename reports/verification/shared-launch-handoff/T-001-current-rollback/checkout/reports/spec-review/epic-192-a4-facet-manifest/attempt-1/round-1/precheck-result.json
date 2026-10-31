@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "26a11832883733ab4b17d7716cd99f1c4102c6ef6dab50f4026fcaf4a58fb3f5",
+  "acceptance_sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "1f06ae558003184c203892fc6e371cf2071fdafd63803ea162bf14cfd91891f4",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-21T23:55:34Z"
+}

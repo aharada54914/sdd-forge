@@ -1,0 +1,434 @@
+# Collection layer: run OpenAI GPT panelist via codex CLI in isolated scratch.
+# Usage:
+#   run-panelist-gpt.ps1 --task T-NNN --feature <f> --input <bundle-path>
+#                        [--spec-root <dir>] [--model <model-id>]
+#                        [--effort <low|medium|high|xhigh>]
+#                        [--digest <64-hex>] [--consent <kind>]
+#
+# Writes verdict JSON to:
+#   specs/<feature>/verification/T-NNN.panelist-openai.verdict.json
+#
+# Graceful degrade: codex CLI absent -> exit 1 (not exit 2; not a tool error).
+# Panelist timeout: SDD_PANELIST_TIMEOUT whole seconds; expiry kills the process
+# tree and exits 1 without writing a verdict.
+# Scratch dir always cleaned up via try/finally.
+# Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
+#
+# codex-cli 0.147.0's non-interactive entry point is the `exec` subcommand;
+# a bare `codex --model ... <prompt>` is rejected by this CLI version's
+# clap parser. There is no `--no-project-doc` flag under `exec` either --
+# `--sandbox read-only --skip-git-repo-check -C <scratch>` roots the run at
+# an isolated, read-only scratch dir instead, achieving the same "no extra
+# context bleed" intent by construction. `--effort` (epic-159-pillar-c
+# T-006, REQ-006/AC-035) is forwarded as `-c model_reasoning_effort=<e>`
+# (codex-cli has no `--effort` flag; reasoning effort is a config
+# override); omitted entirely omits the `-c` override too.
+#
+# codex resolution: `codex` may resolve via a shell alias/wrapper (e.g.
+# `codex-sync`) with unrelated side effects (git sync, banner) that must
+# never be invoked as the panelist CLI. $env:SDD_PANELIST_CODEX_CMD
+# overrides resolution outright; otherwise the resolved command's real
+# target is inspected and rejected if it names codex-sync.
+#
+# Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and
+# --effort are validated BEFORE the codex ArgumentList is assembled. Values
+# containing whitespace, a leading "-"/"--" (flag-injection shape), or a
+# ";" (command-separator shape) are rejected fail-closed; --effort is
+# additionally rejected when it is not one of the ordinal-checked
+# {low, medium, high, xhigh} values (mirrors emit-run-record.ps1's
+# established 2-layer PowerShell case-sensitivity discipline: an ordinal
+# HashSet entry gate here, since there is no branch-dispatch layer 2 to
+# pair it with in this script).
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args/rejected value
+param()
+$ErrorActionPreference = "Stop"
+
+$TaskId      = ""
+$Feature     = ""
+$InputPath   = ""
+$SpecRoot    = "specs"
+# Empty by default so `codex exec` selects the model the signed-in account
+# actually supports. A hardcoded name ages: gpt-4o was the previous default
+# and is rejected outright by a ChatGPT-account Codex login, which made every
+# gpt-slot run fail for a reason unrelated to the work under review. An
+# explicit --model still overrides. Mirrors run-panelist-gpt.sh.
+$Model       = ""
+$Effort      = ""
+$InputDigest = ""
+$ConsentKind = "human-flag"
+$PanelistTimeoutDefault = 600
+
+$argIdx = 0
+$passedArgs = $args
+while ($argIdx -lt $passedArgs.Count) {
+    switch ($passedArgs[$argIdx]) {
+        "--task"      { $TaskId      = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--feature"   { $Feature     = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--input"     { $InputPath   = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--spec-root" { $SpecRoot    = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--model"     { $Model       = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--effort"    { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--digest"    { $InputDigest = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--consent"   { $ConsentKind = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        default {
+            [Console]::Error.WriteLine("run-panelist-gpt: unknown argument: $($passedArgs[$argIdx])")
+            exit 2
+        }
+    }
+}
+
+$panelistTimeoutRaw = $env:SDD_PANELIST_TIMEOUT
+if ([string]::IsNullOrEmpty($panelistTimeoutRaw)) {
+    $PanelistTimeout = $PanelistTimeoutDefault
+} else {
+    $parsedPanelistTimeout = 0
+    if ($panelistTimeoutRaw -notmatch '^[0-9]+$' -or
+        -not [int]::TryParse($panelistTimeoutRaw, [ref]$parsedPanelistTimeout) -or
+        $parsedPanelistTimeout -le 0) {
+        [Console]::Error.WriteLine("run-panelist-gpt: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: $panelistTimeoutRaw)")
+        exit 2
+    }
+    $PanelistTimeout = $parsedPanelistTimeout
+}
+
+# ── Reject argv-injection-shaped --model/--effort values (AC-052) ───────────
+# Runs BEFORE any other validation or the codex ArgumentList is assembled,
+# so a rejected value never reaches the codex command line.
+$validEfforts = [System.Collections.Generic.HashSet[string]]::new(
+    [string[]]@("low", "medium", "high", "xhigh"),
+    [System.StringComparer]::Ordinal)
+
+function Assert-NotInjectionShaped([string]$FlagName, [string]$Value) {
+    if ($Value -cmatch '\s') {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName contains whitespace (rejected, argv-injection shape): $Value")
+        exit 2
+    }
+    if ($Value.StartsWith('-', [StringComparison]::Ordinal)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName has a leading ""-"" (rejected, flag-injection shape): $Value")
+        exit 2
+    }
+    if ($Value.Contains(';', [StringComparison]::Ordinal)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName contains "";"" (rejected, command-separator shape): $Value")
+        exit 2
+    }
+}
+
+if ($Model) { Assert-NotInjectionShaped "--model" $Model }
+if ($Effort) {
+    Assert-NotInjectionShaped "--effort" $Effort
+    if (-not $validEfforts.Contains($Effort)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: --effort must be one of low|medium|high|xhigh (got: $Effort)")
+        exit 2
+    }
+}
+
+if (-not $TaskId)    { [Console]::Error.WriteLine("run-panelist-gpt: --task is required");    exit 2 }
+if (-not $Feature)   { [Console]::Error.WriteLine("run-panelist-gpt: --feature is required"); exit 2 }
+if (-not $InputPath) { [Console]::Error.WriteLine("run-panelist-gpt: --input is required");   exit 2 }
+if (-not (Test-Path $InputPath)) {
+    [Console]::Error.WriteLine("run-panelist-gpt: input file not found: $InputPath"); exit 1
+}
+
+# ── Resolve and check CLI availability ───────────────────────────────────────
+# Never invoke a `codex` that resolves to the `codex-sync` wrapper.
+function Resolve-CodexCommand {
+    if ($env:SDD_PANELIST_CODEX_CMD) { return $env:SDD_PANELIST_CODEX_CMD }
+    $cmd = Get-Command "codex" -ErrorAction SilentlyContinue
+    if ($cmd) {
+        $target = $cmd.Source
+        if ($cmd.CommandType -eq "Alias" -and $cmd.Definition) { $target = $cmd.Definition }
+        try {
+            $item = Get-Item -LiteralPath $cmd.Source -ErrorAction Stop
+            if ($item.LinkType -and $item.Target) { $target = "$target;$($item.Target -join ';')" }
+        } catch { }
+        if ($target -notlike "*codex-sync*") {
+            return $cmd.Source
+        }
+    }
+    $openaiCmd = Get-Command "openai" -ErrorAction SilentlyContinue
+    if ($openaiCmd) { return $openaiCmd.Source }
+    return $null
+}
+
+$CodexCmd = Resolve-CodexCommand
+
+if (-not $CodexCmd) {
+    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync) — skipping GPT panelist (graceful degrade)")
+    exit 1
+}
+
+# ── Key isolation ────────────────────────────────────────────────────────────
+$env:SDD_EVIDENCE_KEY  = $null
+$env:SDD_SUDO_KEY      = $null
+$env:SDD_SUDO_KEY_FILE = $null
+
+$scratch = [System.IO.Path]::GetTempPath() + [System.IO.Path]::GetRandomFileName()
+New-Item -ItemType Directory -Path $scratch -Force | Out-Null
+
+try {
+    $outDir  = Join-Path $SpecRoot (Join-Path $Feature "verification")
+    New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+    $outPath = Join-Path $outDir "$TaskId.panelist-openai.verdict.json"
+
+    $promptText = @'
+You are an independent panelist reviewing a software implementation. You are
+running BLIND: you have not seen any other panelist's verdict, the primary
+evaluator's verdict, or any prior review feedback on this task.
+
+Your role is READ-ONLY. You must not suggest, write, or edit code. You must
+not approve or set any task status. Return a structured verdict JSON only.
+
+## Input
+
+The sanitized input bundle follows this message. Review it for correctness,
+completeness, and adherence to the stated requirements and design.
+
+## Output Format
+
+Your ENTIRE reply MUST be a single bare JSON object matching this exact
+schema. The first character of your reply MUST be `{` and the last
+character MUST be `}`. Do not include any prose before or after it, and
+do not wrap it in a Markdown code fence (no ``` of any kind):
+
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "<task_id>",
+  "feature": "<feature>",
+  "vendor": "openai",
+  "model": "<model>",
+  "verdict": "PASS" or "NEEDS_WORK",
+  "findings": [
+    { "severity": "Critical" or "Major" or "Minor", "ref": "<file:line or section>", "note": "<description>" }
+  ],
+  "blind": true,
+  "input_digest": "<digest-from-bundle-header>",
+  "consent": { "kind": "<consent-kind>", "ref": "<ref>" }
+}
+
+Rules:
+- verdict MUST be "PASS" or "NEEDS_WORK".
+- findings MUST be an array (empty [] if none).
+- blind MUST be true (boolean, not string).
+- input_digest: copy the value from the "# input_digest:" comment in the bundle header.
+- consent.kind: copy from the "# consent:" comment in the bundle header.
+- consent.ref: the tasks.md flag or SDD_SUDO reference from the bundle.
+- Do not include any text outside the JSON object.
+- Do not wrap the JSON object in a Markdown code fence.
+'@
+
+    $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
+    $combined = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
+    $combinedFile = Join-Path $scratch "combined.txt"
+    Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
+
+    # Codex ArgumentList: `exec --model <m> [-c model_reasoning_effort=<e>]
+    # --sandbox read-only --skip-git-repo-check -C <scratch> -`. `exec` is
+    # codex-cli 0.147.0's non-interactive entry point; there is no
+    # `--no-project-doc` flag under it, so the read-only sandbox rooted at
+    # the isolated scratch dir stands in for "no extra context bleed".
+    $codexArgs = @("exec")
+    if ($Model) { $codexArgs += @("--model", $Model) }
+    if ($Effort) { $codexArgs += @("-c", "model_reasoning_effort=$Effort") }
+    $codexArgs += @("--sandbox", "read-only", "--skip-git-repo-check", "-C", $scratch, "-")
+
+    [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd $($codexArgs -join ' ') (task=$TaskId feature=$Feature)")
+
+    $rawOutput = Join-Path $scratch "raw-output.txt"
+    try {
+        # Use one deadline for process launch and waiting. Besides keeping
+        # startup inside the configured bound, the child-visible value lets
+        # boundary tests target the runner's real timeout clock.
+        $panelistDeadlineEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + ([long]$PanelistTimeout * 1000)
+        $hadDeadline = Test-Path Env:SDD_PANELIST_DEADLINE_EPOCH_MS
+        $savedDeadline = $env:SDD_PANELIST_DEADLINE_EPOCH_MS
+        $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
+        try {
+            $proc = Start-Process -FilePath $CodexCmd `
+                -ArgumentList $codexArgs `
+                -RedirectStandardInput  $combinedFile `
+                -RedirectStandardOutput $rawOutput `
+                -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
+                -PassThru -NoNewWindow
+        } finally {
+            if ($hadDeadline) { $env:SDD_PANELIST_DEADLINE_EPOCH_MS = $savedDeadline }
+            else { Remove-Item Env:SDD_PANELIST_DEADLINE_EPOCH_MS -ErrorAction SilentlyContinue }
+        }
+        # WaitForExit takes Int32 milliseconds; clamp the remaining portion of
+        # the absolute deadline so launch time cannot extend the timeout.
+        $remainingMs = $panelistDeadlineEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $panelistWaitMs = [int][Math]::Min([Math]::Max($remainingMs, 0), [int]::MaxValue)
+        $waitCompleted = $proc.WaitForExit($panelistWaitMs)
+        # Observe this exact handle, not the CLI worker's final output. A process
+        # may exit between the timed wait and HasExited; retain both observations.
+        $waitObservedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $observedExited = $proc.HasExited
+        if (-not $waitCompleted -and -not $observedExited) {
+            $proc.Kill($true)
+            $proc.WaitForExit()
+            # Logging follows cleanup so it cannot delay termination.
+            [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=0 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=1")
+            [Console]::Error.WriteLine("run-panelist-gpt: codex CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")
+            exit 1
+        }
+        $proc.WaitForExit()
+        [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=$([int]$waitCompleted) observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=0")
+        if ($proc.ExitCode -ne 0) {
+            [Console]::Error.WriteLine("run-panelist-gpt: codex CLI exited $($proc.ExitCode)")
+            Get-Content (Join-Path $scratch "stderr.txt") | ForEach-Object { [Console]::Error.WriteLine($_) }
+            exit 1
+        }
+    } catch {
+        [Console]::Error.WriteLine("run-panelist-gpt: failed to start codex: $_")
+        exit 1
+    }
+
+    # ── Extract and validate JSON ─────────────────────────────────────────────
+    # `codex exec` prints a full transcript: preamble, the echoed prompt
+    # (which itself contains the JSON schema example and the whole
+    # sanitized bundle -- both riddled with braces), the assistant's
+    # reply, then trailer lines. A greedy '\{[\s\S]*\}' regex spans from
+    # the FIRST '{' anywhere in that transcript to the LAST '}' anywhere
+    # in it, which almost always starts inside the echoed prompt/bundle
+    # rather than at the verdict -- confirmed against a live transcript,
+    # where the span began at the '{' in the prompt's own "Output Format"
+    # example (whose "PASS" or "NEEDS_WORK" is deliberately not valid
+    # JSON), producing a downstream parse error that pointed nowhere near
+    # the real verdict.
+    #
+    # Fixed by scanning for brace-balanced candidate objects (respecting
+    # string literals/escapes so a '}' inside a string cannot close a
+    # candidate early), parsing each, and keeping the LAST one that parses
+    # AND carries "schema": "cross-model-verdict/v1". Taking the last
+    # makes an echoed bundle harmless (codex also prints the real verdict
+    # a second time as its own trailing "last agent message" line);
+    # requiring the schema key stops a stray object elsewhere in the
+    # transcript from being mistaken for one.
+    $rawOutputText = [string](Get-Content -Raw -Encoding Utf8 $rawOutput)
+    $targetSchema = "cross-model-verdict/v1"
+
+    # Models wrap replies in ```json fences constantly, regardless of what
+    # the prompt asks for. The brace-balancer below does not depend on
+    # this (it only tracks '{'..matching '}'), but stripping fence lines
+    # first keeps diagnostics free of fence noise.
+    $cleanedOutputText = [regex]::Replace($rawOutputText, '```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '')
+
+    function Get-JsonObjectCandidates([string]$Text) {
+        # Returns each top-level brace-balanced '{...}' substring of $Text,
+        # in order of appearance. Nested objects are not yielded
+        # separately -- only the outermost '{' of each candidate starts a
+        # new scan.
+        $candidates = [System.Collections.Generic.List[string]]::new()
+        $n = $Text.Length
+        $i = 0
+        while ($i -lt $n) {
+            if ($Text[$i] -ne '{') { $i++; continue }
+            $start = $i
+            $depth = 0
+            $inString = $false
+            $escape = $false
+            $j = $i
+            $closedAt = -1
+            while ($j -lt $n) {
+                $c = $Text[$j]
+                if ($inString) {
+                    if ($escape) {
+                        $escape = $false
+                    } elseif ($c -eq '\') {
+                        $escape = $true
+                    } elseif ($c -eq '"') {
+                        $inString = $false
+                    }
+                } else {
+                    if ($c -eq '"') {
+                        $inString = $true
+                    } elseif ($c -eq '{') {
+                        $depth++
+                    } elseif ($c -eq '}') {
+                        $depth--
+                        if ($depth -eq 0) { $closedAt = $j; break }
+                    }
+                }
+                $j++
+            }
+            if ($closedAt -ge 0) {
+                $candidates.Add($Text.Substring($start, $closedAt - $start + 1))
+                $i = $closedAt + 1
+            } else {
+                # Unterminated from this '{' (e.g. a truncated echo) --
+                # advance past it and keep scanning for the next candidate.
+                $i = $start + 1
+            }
+        }
+        # -NoEnumerate matters: a bare `return $candidates` lets PowerShell's
+        # output pipeline enumerate the List[string], and when it holds
+        # EXACTLY ONE element that element is unwrapped into a scalar
+        # string at the call site -- `$candidates[$ci]` then silently
+        # indexes INTO THAT STRING (returning a single character) instead
+        # of indexing the list, corrupting every single-candidate case.
+        Write-Output -NoEnumerate $candidates
+    }
+
+    $candidates = Get-JsonObjectCandidates $cleanedOutputText
+
+    $verdict = $null
+    $rejections = [System.Collections.Generic.List[string]]::new()
+    for ($ci = 0; $ci -lt $candidates.Count; $ci++) {
+        $candidateNum = $ci + 1
+        try {
+            $parsed = $candidates[$ci] | ConvertFrom-Json -ErrorAction Stop
+        } catch {
+            $rejections.Add("candidate ${candidateNum}: parse error: $($_.Exception.Message)")
+            continue
+        }
+        if ($parsed -isnot [System.Management.Automation.PSCustomObject]) {
+            $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
+            continue
+        }
+        $schemaVal = $parsed.schema
+        if (-not [string]::Equals([string]$schemaVal, $targetSchema, [StringComparison]::Ordinal)) {
+            $rejections.Add("candidate ${candidateNum}: parsed but schema is '$schemaVal' (expected '$targetSchema')")
+            continue
+        }
+        $verdict = $parsed  # keep scanning -- the LAST matching candidate wins
+    }
+
+    if (-not $verdict) {
+        if ($candidates.Count -eq 0) {
+            [Console]::Error.WriteLine("run-panelist-gpt: no JSON object found in codex output")
+        } else {
+            [Console]::Error.WriteLine("run-panelist-gpt: no $targetSchema verdict found among $($candidates.Count) candidate JSON object(s) in codex output")
+            foreach ($r in $rejections) { [Console]::Error.WriteLine("  $r") }
+        }
+        [Console]::Error.WriteLine("raw: $($rawOutputText.Substring(0, [Math]::Min(500, $rawOutputText.Length)))")
+        exit 1
+    }
+
+    # Minimal validation
+    if ($verdict.schema -ne "cross-model-verdict/v1") {
+        [Console]::Error.WriteLine("run-panelist-gpt: wrong schema: $($verdict.schema)"); exit 1
+    }
+    if ($verdict.blind -ne $true) {
+        [Console]::Error.WriteLine("run-panelist-gpt: blind must be true"); exit 1
+    }
+    if ($verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
+        [Console]::Error.WriteLine("run-panelist-gpt: input_digest must be 64 lowercase hex"); exit 1
+    }
+    if ($verdict.verdict -notin @("PASS","NEEDS_WORK")) {
+        [Console]::Error.WriteLine("run-panelist-gpt: verdict must be PASS or NEEDS_WORK"); exit 1
+    }
+
+    # Normalize fields
+    $verdict.task_id = $TaskId
+    $verdict.feature = $Feature
+    $verdict.vendor  = "openai"
+
+    $verdict | ConvertTo-Json -Depth 10 | Set-Content -Encoding Utf8 -Path $outPath
+    [Console]::Error.WriteLine("run-panelist-gpt: verdict written to $outPath")
+    Write-Host $outPath
+
+} finally {
+    Remove-Item -Recurse -Force $scratch -ErrorAction SilentlyContinue
+}
+
+exit 0

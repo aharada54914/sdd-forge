@@ -1,0 +1,5 @@
+# T-011 task-state-check on tasks.md
+date(UTC): 2026-06-14T01:51:05Z
+$ check-task-state.sh specs/risk-adaptive-layer/tasks.md
+Task state check passed for 11 task(s).
+exit=0

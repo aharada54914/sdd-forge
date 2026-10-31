@@ -1,0 +1,21 @@
+T-006 TEST-013 RED - 2026-07-15
+
+Command:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+
+Result: exit 1; 55 passed, 13 failed.
+
+Expected failing contracts against the prior path-based runner:
+- anchored NtCreateFile/root-handle/no-follow API contract absent
+- path-based File.Copy/Get-FileHash fallback still present
+- FullLanguage/local-NTFS capability floor absent
+- inert isolated-fixture patch markers absent
+- out-of-inventory hard-link alias bytes changed by overwrite
+- source and destination-parent substitution barriers unavailable
+- all-temporary preparation/cleanup phase unavailable
+- fixed-index rename prefix and complete rollback contract unavailable
+- missing native API pre-replacement denial unavailable
+
+Several pre-existing successful-install assertions also fail in this RED run
+because the runner's post-install child suite now enforces the new TEST-013
+native contract. No protected live path was changed.

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "agent-cost-context-isolation",
+  "attempt": 2,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "0e6cc6a7c3294bc2ea182ce4ed253b965d344db4e2856f5971efddeaac6068f6",
+  "acceptance_sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "92cce92178118e6aa8412217f6206c18a75f072f05f1d7749d02f69e3b332843",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-06-30T03:33:47Z"
+}

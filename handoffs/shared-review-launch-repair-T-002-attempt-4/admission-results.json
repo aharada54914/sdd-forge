@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+      "--manifest",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/manifest.json",
+      "--repo-root",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+      "--snapshot-root",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/snapshot"
+    ],
+    "exit": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/manifest.json",
+      "--snapshot-root",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/snapshot",
+      "--expected-task",
+      "T-002"
+    ],
+    "exit": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  }
+]

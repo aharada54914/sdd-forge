@@ -1,0 +1,20 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS","severity":"Critical","finding":"All referenced REQ and AC identifiers resolve."},
+    {"id":"BLOCKERS-FORMAT","result":"PASS","severity":"Major","finding":"Every Blockers field uses None or a valid T-NNN identifier."},
+    {"id":"REQ-COVERAGE","result":"PASS","severity":"Critical","finding":"REQ-001 through REQ-011 are assigned."},
+    {"id":"AC-COVERAGE","result":"PASS","severity":"Critical","finding":"AC-001 through AC-011 are assigned."},
+    {"id":"ORPHAN-TASK","result":"PASS","severity":"Major","finding":"Every task references requirements."},
+    {"id":"ORPHAN-TEST","result":"PASS","severity":"Major","finding":"No orphan test task was found."},
+    {"id":"INITIAL-STATE","result":"PASS","severity":"Major","finding":"Every task is Draft and Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS","severity":"Critical","finding":"Risk/workflow combinations are valid."},
+    {"id":"NO-DUPLICATE-AC","result":"PASS","severity":"Major","finding":"Acceptance criteria have distinct primary task targets."},
+    {"id":"DEPENDENCY-COMPLETE","result":"PASS","severity":"Major","finding":"Every referenced blocker task exists."},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS","severity":"Critical","finding":"The declared task dependencies are acyclic."},
+    {"id":"SINGLE-CONCERN","result":"PASS","severity":"Major","finding":"Each task has one coherent concern."},
+    {"id":"OBSERVABLE-DONE","result":"FAIL","severity":"Major","finding":"T-003, T-004, and T-005 need an explicit Rollback field or observable reversal procedure."},
+    {"id":"TRACEABILITY-SYNC","result":"FAIL","severity":"Major","finding":"dependency-graph.json has no declared edges despite T-002 -> T-001, T-004 -> T-003, and T-005 -> T-004; T-002 must correct the graph parser and parity tests."}
+  ]
+}

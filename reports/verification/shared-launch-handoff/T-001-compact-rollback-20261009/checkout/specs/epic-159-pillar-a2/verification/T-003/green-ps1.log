@@ -1,0 +1,145 @@
+=== GREEN (ps1 side) evidence for T-003 / #147 ===
+
+--- 1. Reject-path assertions (TEST-011) ---
+
+named-parameter invocation (direct/test calling convention):
+$ pwsh -NoProfile -File plugins/sdd-domain/scripts/domain-review-precheck.ps1 -Attempt 1 -Round 4
+ERROR: domain-review-precheck: round must be between 1 and 3
+EXIT:1
+(matches .sh original exactly -- see red-sh.log section 1)
+
+$ pwsh -NoProfile -File plugins/sdd-domain/scripts/domain-review-precheck.ps1 -Attempt 1 -Round 1 -EditSummary hello
+ERROR: domain-review-precheck: --edit-summary is valid only after round 1
+EXIT:1
+(matches .sh original exactly -- see red-sh.log section 1)
+
+positional/GNU-style invocation via array splat (the exact calling
+convention tests/lib/loop-driver.ps1 uses: precheckArgs = @([string]$Attempt,
+[string]$Round); if ($Round -gt 1) { precheckArgs += "--edit-summary=..." };
+& $scriptPath @precheckArgs):
+$ (array-splat) & domain-review-precheck.ps1 1 1 "--edit-summary=round-1-edit"
+ERROR: domain-review-precheck: --edit-summary is valid only after round 1
+EXIT:1
+(confirms -EditSummary correctly receives and strips the raw
+--edit-summary=<text> token when bound positionally by array splatting. A
+dedicated splat-parameter-binding probe confirmed array splatting binds
+purely positionally -- unlike `pwsh -File script.ps1 <args>` direct CLI
+invocation, where PowerShell's parameter binder DOES attempt to match a
+leading-dash token against a parameter name first and fails with "A
+parameter cannot be found that matches parameter name". Both invocation
+styles were exercised; the production calling convention (array splat) is
+the one that matters for self-healing below.)
+
+--- 2. tests/loop-consistency.tests.ps1 domain leg self-healing (TEST-013) ---
+
+RED (before, captured in an isolated git worktree at HEAD 5176315, see
+red-ps1.log): 4 named SKIP lines, including
+"SKIP: TEST-008 domain leg: domain-review-precheck.ps1 not found at
+.../plugins/sdd-domain/scripts/domain-review-precheck.ps1 (#147)".
+11 passed, 0 failed (SKIPs recorded separately, not counted as failures).
+
+GREEN (after, this working tree, domain-review-precheck.ps1 landed):
+$ pwsh -NoProfile -File tests/loop-consistency.tests.ps1
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+FAIL: TEST-008.12: domain leg failed to drive rounds 1->3
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+...
+loop-consistency.tests.ps1: 13 passed, 1 failed, 2s elapsed
+Remaining SKIP count: 3 (down from 4) -- the domain-leg-specific SKIP line
+citing #147 is GONE; the 3 remaining SKIPs are all the pre-existing,
+independent spec-review-precheck.ps1 gap (#174 / T-004's own scope, not
+this task's).
+
+SKIP-count summary (OQ-7 decreasing-SKIP observable):
+  before (RED):  4 named SKIP lines (1 of which cites #147 / domain leg)
+  after (GREEN): 3 named SKIP lines (0 of which cite #147; the domain-leg
+                 SKIP-by-absence is fully eliminated -- domain-review-
+                 precheck.ps1 now exists and is dispatched for real)
+
+--- 3. Root-cause finding: TEST-008.12 FAIL is a PRE-EXISTING, INDEPENDENT
+    defect in tests/lib/loop-driver.ps1, not in domain-review-precheck.ps1 ---
+
+Isolated, step-by-step reproduction (sourcing the unmodified
+tests/lib/loop-driver.ps1, driving a real fixture):
+
+  1. Initialize-LoopFixture -Profile greenfield: OK.
+  2. domain-review-precheck.ps1 round 1 (attempt=1, round=1), invoked via
+     the exact array-splat convention Invoke-LoopDriveDomainRound uses:
+     EXIT 0, "domain-review-precheck: complete. Output written to .../
+     reports/domain-review/attempt-1/round-1/" -- precheck-result.json is
+     valid, well-formed JSON with round:1 as a plain JSON number.
+  3. Publish-LoopDomainRoundA $roundDir "Major": returns True.
+     integrated-summary.json and reviewer-a.json are both written
+     correctly and are valid JSON (reviewer-a.json's
+     allowed_input_manifest has 3 entries: context-map.md,
+     precheck-result.json, domain-review-calibration.md).
+  4. Publish-LoopDomainRoundBContract $roundDir "NEEDS_WORK" "Major":
+     - integrated-verdict.json jq call: EXIT 0, valid output.
+     - reviewer-b.json jq call: EXIT 0, valid output (allowed_input_manifest
+       has 4 entries).
+     - $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest")
+       reviewer-a.json  -- succeeds, EXIT 0, but the VALUE is a
+       PRETTY-PRINTED (multi-line) JSON array, which PowerShell's `&`
+       external-process capture returns as a STRING ARRAY (one element per
+       output line), not a single string.
+     - The final domain-review-contract.json jq call
+       (`--argjson manifest_a $manifestAJson --argjson manifest_b
+       $manifestBJson`) FAILS: "/usr/bin/jq: invalid JSON text passed to
+       --argjson" (jq exit 2). Root cause: PowerShell expands a
+       multi-element array variable interpolated among other arguments to
+       an EXTERNAL executable into SEPARATE positional arguments (one per
+       array element), so jq receives only the array's first output line
+       ("[") as the --argjson value instead of the complete JSON text.
+
+  This is exclusively a property of tests/lib/loop-driver.ps1's OWN
+  Publish-LoopDomainRoundBContract function (lines ~1057-1063 at the time
+  of this investigation), specifically its technique of re-reading a
+  previously-written file's manifest array back via `Invoke-LoopJq -r
+  ".allowed_input_manifest"` and re-embedding it via --argjson. The
+  spec/impl/task equivalents (Publish-Loop{Spec,Impl,Task}RoundBContract)
+  do NOT use this pattern -- they construct each reviewer's
+  allowed_input_manifest INLINE within the jq filter itself from scalar
+  --arg values, never re-reading a previously-emitted array back through
+  PowerShell. domain-review is therefore the ONLY stage whose contract
+  construction is exposed to this bug, and it could never have been
+  observed before this task, because domain-review-precheck.ps1 did not
+  exist and the domain leg was always SKIP-suppressed before reaching this
+  code path.
+
+  Independent confirmation that this is not caused by anything specific to
+  domain-review-precheck.ps1's own output: reviewer-a.json/reviewer-b.json
+  are generated ENTIRELY by loop-driver.ps1's own Publish-LoopDomainRoundA
+  function from loop-driver-computed SHA-256 hashes and fixed paths: none
+  of their content depends on domain-review-precheck.ps1's specific field
+  values. The failure is deterministic and would occur identically for ANY
+  domain-review-precheck.ps1 implementation, because
+  allowed_input_manifest always has >= 3 entries for domain review (forcing
+  jq's pretty-printed, multi-line output).
+
+  domain-review-precheck.ps1 itself is NOT implicated: sections 1-2 above
+  and the round-1-only reproduction step 2 confirm it validates arguments,
+  computes hashes, and writes a well-formed precheck-result.json
+  identically to the .sh original in every regard exercisable without
+  touching tests/lib/loop-driver.ps1.
+
+  Per this task's explicit constraint (tests/lib/loop-driver.ps1 must not
+  be edited by T-003; OQ-6 assumed the existence-guard dispatch was the
+  only untested surface), this defect is NOT fixed here. It is reported as
+  a Specification Difference in reports/implementation/epic-159-pillar-a2-
+  T-003.md, with a suggested minimal fix (force single-line jq output with
+  `-c` at the two `Invoke-LoopJq @("-r", ".allowed_input_manifest") ...`
+  call sites, or join the returned line array with newlines before
+  re-embedding) left for a human-authorized follow-up task, since it lies
+  outside this task's Planned Files and no-edit constraints.
+
+  Secondary observation: TEST-008.13 ("domain leg observed end state
+  BLOCKED matches the loop-inventory terminal") reports "ok" even though
+  TEST-008.12 (round-driving) FAILed. Test-LoopTerminal
+  (tests/lib/loop-driver.ps1) only compares the STATIC
+  loop-inventory.json .terminal.state value ("BLOCKED" for domain-review)
+  against the hardcoded -Observed "BLOCKED" argument the test itself
+  passes -- it does not read back any state the fixture actually produced.
+  This is a pre-existing, wave-1-era weak assertion (not introduced by this
+  task) and is noted for completeness, not remediated (out of scope; no
+  edit to tests/loop-consistency.tests.ps1 or tests/lib/loop-driver.ps1
+  permitted).

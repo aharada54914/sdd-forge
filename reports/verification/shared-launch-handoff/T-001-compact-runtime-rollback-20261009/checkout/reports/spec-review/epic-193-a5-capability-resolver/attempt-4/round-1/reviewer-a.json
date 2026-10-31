@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a4r1-seq0787",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a4r1-0787",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "ed15248373a3cd6e8ee5af15eb0a87bd0eb3209a6924171d03918957ea2a1a41"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "e2016b2da7101f6f0e3fd2b010db93cc1d0f821b5f9651318c4ffdb3177b6bb8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-1/precheck-result.json",
+      "sha256": "9f253ca6c9fbbdb55cc570ebc25fcce9073abdf84513f482b32f6b45ad6b545e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The two rulings C(1)/C(2) added to REQ-002's `snapshot-generation-mismatch` and `dependency-output-malformed` rows (requirements.md:364,368) state observable, measurable trigger conditions in their own right (a component id in `resolve-component-paths`'s `affected_components[]` absent from the Context Projection; a Registry byte re-read after steps 5/6 no longer matching the raw-bytes digest retained at first read). No requirement in scope was found to be unobservable/unmeasurable on its own substantive terms."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002's two amended rows (requirements.md:364 `dependency-output-malformed`'s new absent-component-id sub-trigger; :368 `snapshot-generation-mismatch`'s new mid-pipeline step-5/6 Registry re-read) introduce materially new Block conditions, but no acceptance criterion requires a dedicated fixture for either. AC-010/TEST-010 (acceptance-tests.md:52) and REQ-006 item (e) are scoped only to 'one fixture per REQ-002 diagnostic-id row' (sixteen ids) -- satisfiable using only each row's pre-existing trigger, since acceptance-tests.md is byte-unchanged and was never amended alongside requirements.md. This breaks the package's own established pattern of one dedicated AC per distinct trigger site within a diagnostic id (e.g. the prior B8 revision to this same `snapshot-generation-mismatch` row got its own AC-048/TEST-048 in addition to AC-040/TEST-040). A task author decomposing AC-010 into test tasks, or a verifier grading AC-010 satisfied, has no textual obligation to exercise either new C(1)/C(2) condition, so both could go silently unimplemented while every stated AC remains formally satisfied. This is a requirements.md/acceptance-tests.md self-consistency gap proper to spec review, not a missing design elaboration -- the goal (REQ-002) was amended without its companion AC surface following."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The acceptance criteria touched by, or adjacent to, this round's amendment (AC-010, AC-014, AC-040, AC-048 and their TEST rows) describe externally observable behavior (exit codes, diagnostic-id/detail strings, presence/absence of live artifacts, digest equality). acceptance-tests.md is byte-unchanged this round, and no new AC content was introduced that fails observability on its own terms."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The C(1)/C(2) amendment narrowly extends two existing, already-bounded REQ-002 rows within the already-fixed sixteen-row closed enumeration (requirements.md:346-351 states the table remains 'closed at sixteen rows'); it introduces no new diagnostic id and does not expand the feature's own Non-goals/Dependencies boundaries, which remain unchanged and explicit elsewhere in the document."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:364 and :368 (the amended REQ-002 rows) cite 'ruling C(2), human-approved 2026-08-26, closing the cross-model panel's fail-open finding' and 'ruling C(1), human-approved 2026-08-26, sanctioning the detection recheck two independent cross-model panels converged on' -- both leaning on adversarial/quality-gate-phase material as their justification, inside a package whose own header still reads `Spec-Review-Status: Pending`. I read investigation.md's entire `## Amendment Re-Review Context` section (lines 792-1213) in full and grepped it for `C(1)`, `C(2)`, `C(maru)`, and `ruling C`: the section documents only rulings A(1) (AC-056) and B(1) (AC-016), both dated 2026-08-24, plus a `design.md` extension applying those same two options; the only occurrence of a 'C(1)'-like token anywhere in the document is inside the combined 2026-08-24 do-A1B1C1 quotation, whose own body never states what 'C(1)' itself is, and which is dated two days earlier than the 2026-08-26 date the requirements.md rows themselves cite. No commit hash, no per-document SHA-256 pin, and no verbatim dated approval quotation exists anywhere in this feature's allowed inputs specifically naming a 'ruling C(1)' or 'ruling C(2)'. Per the calibration's own evidence bar (spec-review-calibration.md, 'Amendment Re-Review Context'), a declaration this incomplete does not suppress the default Phase-1 judgment, and the default judgment treats a Pending-status package's own citation of quality-gate/adversarial-review ('cross-model panel') material, with no citable, verifiable approval record backing it, as an unauthorized/unverifiable approval-boundary gap -- a downstream reviewer, task author, or verifier has no way to confirm the two new Block conditions' own stated rationale rests on a real, dated human ruling rather than an unverified or fabricated assertion, which is exactly the property this gate's evidence bar exists to guarantee. This contrasts with every other adversarial-review citation in the same document (B1-B9, M1-M10), each of which is backed by a fully-evidenced INV-020/INV-021 entry in investigation.md -- the C(1)/C(2) citations are the sole exception to that established, otherwise-consistent evidentiary practice."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Both C(1) and C(2) are explicitly framed as closing high-risk conditions found by adversarial/cross-model review -- a 'fail-open' vulnerability (C(2): evaluating a predicate against an empty/defaulted properties document for a dependency-inconsistent component id) and a TOCTOU race window (C(1): validate-capability-registry and generate-registry-digest independently re-reading the Registry with no binding to the invocation's own snapshot). Per the same gap identified under GOAL-AC-TRACE, neither high-risk claim has a planned validation surface: no acceptance criterion, manual-inspection target, or quality-gate evidence path in this package's allowed inputs requires a fixture that isolates either new condition from its diagnostic id's pre-existing trigger. This check does not qualify for SKIP because a high-risk claim and (partial, generic) risk surface are both present -- the surface is simply not scoped to reach these two new conditions."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in this repository (confirmed via directory listing at review time), so the Approved-domain-model precondition for this check is absent; skipped per the check's own explicit skip condition."
+    }
+  ]
+}

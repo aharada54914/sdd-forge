@@ -1,0 +1,12 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 1,
+  "round": 3,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "03856c0612259c04cf4c4302f698b1ef900da8606c5e76862254d6fe5fcc75f5",
+  "requirements_sha256": "da2aa02b868bcf62162366973be5c19e5b7a2ceb2fe212c3d19e2d210e1ea576",
+  "acceptance_sha256": "919361f04ebcc2fbb6dcb70bc7a0b2ae2f6d217f6ded0304149d21e7d7d56352",
+  "generated_at": "2026-06-22T23:39:47Z"
+}

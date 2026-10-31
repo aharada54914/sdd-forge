@@ -1,0 +1,66 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase1-rce",
+  "run_id": "impl-orch-epic136rce-a1r2-20260710-0013",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "bugfix / local shell security boundary",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "ef1a2a47aedc45ee1529b5affdc723f411ad199984a5ef598e6f44c78c456116",
+  "requirements_sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59",
+  "acceptance_sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c",
+  "design_sha256": "65a86eed5c8bdefbc92ac0950e798a066a26ed407523ee637672dad9abbf795f",
+  "layer_sha256": {
+    "ux-spec.md": "72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d",
+    "frontend-spec.md": "de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790",
+    "infra-spec.md": "b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26",
+    "security-spec.md": "296432b7c0e28d5a3958bb7accef8964ad8d74cbc540d558ac482f75034d8a7a"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-epic136rce-a1r2-20260710-0011",
+      "host_session_id": "hs-impl-a-epic136rce-0141",
+      "allowed_input_manifest": [
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-1/integrated-summary.json", "sha256": "f3b0c23c7f0a58ae261b85069fe82be705bad312ff10387ab3bf9ca44b3f2dc7"},
+        {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-2/precheck-result.json", "sha256": "e3aae957144c6caf509a2d04c163ab5065ba31707b2324a2104f146e8245504a"},
+        {"path": "specs/epic-136-phase1-rce/acceptance-tests.md", "sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c"},
+        {"path": "specs/epic-136-phase1-rce/design.md", "sha256": "65a86eed5c8bdefbc92ac0950e798a066a26ed407523ee637672dad9abbf795f"},
+        {"path": "specs/epic-136-phase1-rce/frontend-spec.md", "sha256": "de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790"},
+        {"path": "specs/epic-136-phase1-rce/infra-spec.md", "sha256": "b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26"},
+        {"path": "specs/epic-136-phase1-rce/requirements.md", "sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59"},
+        {"path": "specs/epic-136-phase1-rce/security-spec.md", "sha256": "296432b7c0e28d5a3958bb7accef8964ad8d74cbc540d558ac482f75034d8a7a"},
+        {"path": "specs/epic-136-phase1-rce/ux-spec.md", "sha256": "72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-epic136rce-a1r2-20260710-0012",
+      "host_session_id": "hs-impl-b-epic136rce-0142",
+      "allowed_input_manifest": [
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-2/integrated-summary.json", "sha256": "74b2f5ce7814e5e16277732a5a1f18ea4acb886308a7d6dc766ea4ce6cce0a7b"},
+        {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-2/precheck-result.json", "sha256": "e3aae957144c6caf509a2d04c163ab5065ba31707b2324a2104f146e8245504a"},
+        {"path": "specs/epic-136-phase1-rce/acceptance-tests.md", "sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c"},
+        {"path": "specs/epic-136-phase1-rce/design.md", "sha256": "65a86eed5c8bdefbc92ac0950e798a066a26ed407523ee637672dad9abbf795f"},
+        {"path": "specs/epic-136-phase1-rce/frontend-spec.md", "sha256": "de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790"},
+        {"path": "specs/epic-136-phase1-rce/infra-spec.md", "sha256": "b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26"},
+        {"path": "specs/epic-136-phase1-rce/requirements.md", "sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59"},
+        {"path": "specs/epic-136-phase1-rce/security-spec.md", "sha256": "296432b7c0e28d5a3958bb7accef8964ad8d74cbc540d558ac482f75034d8a7a"},
+        {"path": "specs/epic-136-phase1-rce/ux-spec.md", "sha256": "72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Documented the PowerShell UTF-8 byte-array HMAC boundary and its TEST-005 evidence in the security and design specifications.",
+  "timestamp": "2026-07-10T11:20:00Z"
+}

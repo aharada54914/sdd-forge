@@ -1,0 +1,8 @@
+{
+    "schema":  "phase2-contract-path-golden/v1",
+    "field":  "evidence",
+    "case":  "directory",
+    "expected_exit":  1,
+    "stdout":  "Verification contract FAILED for task T-003-FIXTURE:\n - check \u0027unit-tests\u0027 evidence is not a regular file: evidence/directory\n",
+    "stderr":  ""
+}

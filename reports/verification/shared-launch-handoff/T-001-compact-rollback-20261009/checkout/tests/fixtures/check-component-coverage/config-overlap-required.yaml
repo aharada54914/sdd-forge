@@ -1,0 +1,11 @@
+workflow:
+  capability_enforcement: required
+components:
+  - id: desktop
+    paths:
+      include:
+        - "shared/**"
+  - id: mobile
+    paths:
+      include:
+        - "shared/**"

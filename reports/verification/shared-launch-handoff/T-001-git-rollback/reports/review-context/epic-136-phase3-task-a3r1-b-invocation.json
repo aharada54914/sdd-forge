@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase3",
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-b-seq0450",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0450",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "3cc9cdd077534f236b15d23e89266ec866a100ad92a57548c61102457989955d",
+  "previous_record_sha256": "d226e0589bdf59fd82bb947d703713decd8791ab056fdb829f6f6f3c78064f22",
+  "sequence": 450,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase3/attempt-3/round-1/integrated-summary.json",
+      "sha256": "f065b1ee4af411b5c651db07cddb6de14e6a26bb6f500a61c69c3e8f31844ac5"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+      "sha256": "7686fde3f68809c55213de5db13383630cecc8a7c67609dcadd14a871a308ab8"
+    },
+    {
+      "path": "specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "specs/epic-136-phase3/design.md",
+      "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+    },
+    {
+      "path": "specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+    },
+    {
+      "path": "specs/epic-136-phase3/infra-spec.md",
+      "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+    },
+    {
+      "path": "specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "specs/epic-136-phase3/security-spec.md",
+      "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+    },
+    {
+      "path": "specs/epic-136-phase3/tasks.md",
+      "sha256": "fc95cd05b2e4965383695368b90789e52745210ae60942271a05b6ce1040bd27"
+    },
+    {
+      "path": "specs/epic-136-phase3/traceability.md",
+      "sha256": "be4da0772fb7796d2f12eccf3877878d50ad6118e4c85d43fdbaff439851d91f"
+    },
+    {
+      "path": "specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ]
+}

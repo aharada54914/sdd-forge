@@ -1,0 +1,3 @@
+ok: Claude registration installs sdd-bootstrap:run and sdd-ship:run plugins
+ok: Claude manifest validation fails before marketplace registration
+ok: RequireClaude fails closed when Claude CLI is absent

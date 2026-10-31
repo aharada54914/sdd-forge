@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-a-attempt3-seq0336",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-189-a1-project-context-attempt3-seq0336",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "ef1838c93088b17b3e10309d059d4e5a139fcbf881bd0d1bba1d5ee1e04087de"},
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-2/precheck-result.json", "sha256": "feded01aee5264df7b41f3a93ceec4cdc349f648eeabdd4ce84798404852aeb5"},
+    {"path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-1/integrated-summary.json", "sha256": "f0910363d4814d3a662cb91132c862e48cb77eac91175524a42d7cd6ec035ac7"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) — no UI, no new plugin, no Provider integration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's `## Architecture` mermaid diagram (lines 45-120) describes detailed component boundaries and their interactions (data-flow annotated edges, not a one-sentence summary), explicitly marks integration with existing components (GUARD/sdd-hook-guard.py 'EXISTING, unchanged decision logic'; CONTRACTS/SHIP/BOOT/INTERVIEWER/LITESPEC/LITEGATE all annotated 'existing, edited' or 'human-copy via PUBLISHER' in the Components table), and names technology choices inline (e.g. 'canonicalize-sdd-yaml.py + .sh/.ps1/.js wrappers', 'python3/python dispatch only'). Frontend/infra layers are explicitly and consistently declared N/A across design.md's Feature Type header, ux-spec.md, and infra-spec.md ('no UI, no new plugin, no Provider integration'; 'No region, no network boundary') — appropriate for this feature, not a coverage gap."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No explicit component 'depends on' declaration list exists (the Components table at design.md:122-157 has Responsibility/Technology/New-Existing/Protected columns, no dependency column). The Architecture flow diagram was checked for circular coupling: PUBLISHER\u2192ANCHOR\u2192DETECT\u2192GEN\u2192STAGE\u2192VALIDATE\u2192PUBLISHER forms an apparent flow cycle, but this is the documented, intentional temporal approval lifecycle (a publish now; a later, distinct invocation reads the published anchor when generating the NEXT candidate, per the 'Post-publish historical weakening re-provability' and 'Weakening-detector approved-context anchor CLI contract' sections) \u2014 not a simultaneous, structural circular dependency that would make the design unbuildable or ambiguous. No problematic circular dependency found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Data Plan` (design.md:299-437) specifies `Data Entities:` (line 301, extensive per-artifact field enumeration), `Existing Data Affected:` (line 426, names guard-invariants.json/generate-guard-invariants.py/generated/* as read/human-copy-written, PLUGIN-CONTRACTS.md as directly edited, and confirms no existing sdd/*.yaml instance exists), and `Migration Strategy:` (line 436, 'none. Every artifact this epic defines is wholly new; no existing schema, script, or content file is migrated in place') \u2014 all three required sub-fields present with substantive content."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## API / Contract Plan` (design.md:439-1134) lists and fully specifies four new JSON Schemas (project-context, provider-bindings, approval-sidecar, and \u2014 added this round \u2014 approver-registry) plus CLI argv/exit-code/output contracts for five script families (canonicalizer, sidecar generator/HMAC signing, weakening detector, human-copy publisher, and \u2014 added this round \u2014 the hook-activation handshake). No existing endpoint is deprecated; the closest analog (REQ-009's CLI-flag/Track-Detection behavior change) is documented as a breaking-but-intentional policy change in Constraint Compliance and Main Workflows, cross-referenced throughout requirements.md's REQ-009 text."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Security Boundaries` (lines 1668-1681) names nine trust boundaries (B1-B9) with an explicit Auth/Authz Mechanism column for each. security-spec.md, the normative refinement for this section, adds a Data Classification and Protection table explicitly stating 'No PII, and no provider-specific detail, is stored by any artifact this Epic designs' (line 126) and a dedicated OWASP Mapping table (Injection, Broken Access Control, Cryptographic Failures, Security Misconfiguration, Software and Data Integrity Failures, Identification and Authentication Failures, lines 131-140) \u2014 together satisfying all four required sub-items."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'schema + security-infrastructure ... \u2014 no UI, no new plugin, no Provider integration' \u2014 functionally equivalent to cli/library for this check's purpose. ux-spec.md and frontend-spec.md both explicitly record 'N/A \u2014 no change: this Epic has no UX surface' / 'no browser/client UI', so no frontend surface exists to check against the backend contract."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Test Strategy` (design.md:1136-1374) covers unit scope (e.g. item 2, canonicalizer rejection categories), integration scope (item 8, the 4-basename\u00d712-call-site\u00d72-sudo-state protected-write-boundary matrix; item 10, human-copy publisher crash-recovery), and AC-mapped acceptance verification (every item cites specific AC-NNN/TEST-NNN IDs). Concrete planned evidence is named throughout (`.tests.sh`/`.tests.ps1` suite files, `generate-guard-invariants.py --check`, `tests/run-all.sh` self-registration). AC-039/item 10e's 30-assertion full-consumer common-contract-suite matrix serves as the closest analog to an end-to-end journey proof for this non-UI feature."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node referenced in the Architecture diagram (PC, PB, SCHEMA_PC/PB, CANON, SIDE_PC/PB, GEN, STAGE, REG, ANCHOR, DETECT, VALIDATE, PUBLISHER, GUARD, GINV, SENTINEL, HANDSHAKE, CONTRACTS, SHIP, BOOT, INTERVIEWER, LITESPEC, LITEGATE) and in API/Contract Plan is defined either in the Components table (design.md:122-157) or a named subsection (e.g. `sdd/.staging/<schema-id>/<nonce>/` in Data Plan line 352; `TRANSACTION.json` in the Human-copy publisher transactional bundle contract section, lines 987-1076). design.md has no `## Frontend Plan`/`## Backend Plan` sections, consistent with the no-UI Feature Type, so nothing further to scan there."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All ADRs referenced in the `## ADR Change Log` (design.md:268-297) \u2014 0011-phase2-handle-relative-protected-copy.md, 0016-workflow-axes-separation.md, 0018-provider-binding-separation.md, 0019-approval-sidecar-protection.md, 0020-conditional-predicate-dsl.md, 0023-track-selection-contract-migration.md, and the new 0025-human-copy-transactional-bundle.md \u2014 verified to exist at docs/adr/ via `ls` (0025 dated Jul 22, 9379 bytes, matching the round-1 remedy described in the Edit Summary). The one artifact without a direct ADR citation (`sdd/approver-registry.yaml`) is explicitly reasoned as a supporting file for ADR-0019 item 6's already-Accepted concept, with an explicit low-cost promotion option recorded if impl-review disagrees \u2014 not a silent omission. The epic-191-branch A3 precedent and its own (there-numbered) 0025 ADR are explicitly cited as cross-branch precedent only, never as a local-file requirement, per the stated cross-branch citation contract."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the target repository has no `design-system/` directory (verified via `ls design-system/` \u2014 no such file or directory)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the target repository has no `domain/` directory (verified via `ls domain/` \u2014 no such file or directory)."
+    }
+  ]
+}

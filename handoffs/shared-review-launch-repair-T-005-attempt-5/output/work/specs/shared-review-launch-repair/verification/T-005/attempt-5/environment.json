@@ -1,0 +1,127 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.5 (main, May 10 2026, 10:21:34) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "scratch_root": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output",
+  "environment": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/cache",
+    "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/config",
+    "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/data",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/tmp/dotnet",
+    "GIT_CEILING_DIRECTORIES": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output"
+  },
+  "versions": [
+    {
+      "label": "version-python",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.136505+00:00",
+      "ended_at": "2026-10-08T22:17:43.147575+00:00",
+      "elapsed_seconds": 0.011,
+      "exit_code": 0
+    },
+    {
+      "label": "version-bash",
+      "command": [
+        "rtk",
+        "proxy",
+        "bash",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.147832+00:00",
+      "ended_at": "2026-10-08T22:17:43.156268+00:00",
+      "elapsed_seconds": 0.008,
+      "exit_code": 0
+    },
+    {
+      "label": "version-node",
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.156523+00:00",
+      "ended_at": "2026-10-08T22:17:43.171018+00:00",
+      "elapsed_seconds": 0.015,
+      "exit_code": 0
+    },
+    {
+      "label": "version-pwsh",
+      "command": [
+        "rtk",
+        "proxy",
+        "pwsh",
+        "-NoLogo",
+        "-NoProfile",
+        "-Command",
+        "$PSVersionTable.PSVersion.ToString()"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.171274+00:00",
+      "ended_at": "2026-10-08T22:17:43.667019+00:00",
+      "elapsed_seconds": 0.496,
+      "exit_code": 0
+    },
+    {
+      "label": "version-jq",
+      "command": [
+        "rtk",
+        "proxy",
+        "jq",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.667364+00:00",
+      "ended_at": "2026-10-08T22:17:43.674543+00:00",
+      "elapsed_seconds": 0.007,
+      "exit_code": 0
+    },
+    {
+      "label": "version-rtk",
+      "command": [
+        "rtk",
+        "proxy",
+        "rtk",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.674810+00:00",
+      "ended_at": "2026-10-08T22:17:43.681580+00:00",
+      "elapsed_seconds": 0.007,
+      "exit_code": 0
+    },
+    {
+      "label": "version-claude",
+      "command": [
+        "rtk",
+        "proxy",
+        "claude",
+        "--version"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T22:17:43.681812+00:00",
+      "ended_at": "2026-10-08T22:17:43.758007+00:00",
+      "elapsed_seconds": 0.076,
+      "exit_code": 0
+    }
+  ]
+}

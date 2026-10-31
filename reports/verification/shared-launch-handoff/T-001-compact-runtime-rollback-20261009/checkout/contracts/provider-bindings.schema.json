@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SDD Forge provider-bindings (skeleton)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "bindings"],
+  "properties": {
+    "schema": { "const": "sdd-provider-bindings/v1" },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "provider", "product", "purpose"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "provider": { "type": "string", "minLength": 1 },
+          "product": { "type": "string", "minLength": 1 },
+          "purpose": { "type": "string", "minLength": 1 },
+          "state_authority": { "type": "object" },
+          "credentials": { "type": "object" },
+          "adapter_paths": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "agent-cost-context-isolation",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "0e6cc6a7c3294bc2ea182ce4ed253b965d344db4e2856f5971efddeaac6068f6",
+  "acceptance_sha256": "6887ad149fffdb23e8d0dcde8c7f6b8bf664e7ef8a8b2ba76bab79b2c02a0012",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "cab26c0f6f18aa9cd3270c1d3bee1a8afc2537d37e5408b2b7e89be630b73120",
+  "edit_summary": "Added policy-bound task risk, mandatory hash-bound reviewer/evaluator manifests, deterministic fail-closed scripting, and human-only terminal-tier resume contract.",
+  "reset": false,
+  "generated_at": "2026-06-30T02:47:17Z"
+}

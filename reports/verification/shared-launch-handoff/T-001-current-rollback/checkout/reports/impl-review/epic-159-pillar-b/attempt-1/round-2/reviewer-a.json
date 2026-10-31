@@ -1,0 +1,110 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-b-impl-impl-reviewer-a-seq0237",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-b-0237",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:28-59 Architecture mermaid diagram defines component boundaries (BV, LC, LI, BVG, FX, STUB, RY, LG, RJ, LC2, LI2, RLG, RA) and their integration edges (e.g. 'BV -->|loop-gate prerequisite, before any mutation| LC/LI', 'RY --> LG, RJ', 'LG -.->|needs| RJ', 'RA --> BVG, RLG'), going well beyond a one-sentence description. Technology choices are stated via node/file-type labels in the same diagram (.sh/.ps1 Bash/PowerShell nodes at :32,38,54,57,66-70; .yml GitHub Actions node at :45,67) and the adjoining Layer Specifications table (design.md:100-108), which explicitly marks UX/Frontend as N/A (independently confirmed by ux-spec.md:1-11 and frontend-spec.md:1-6 — no GUI/frontend exists) and Infrastructure/Security as Planned with links to each layer spec's technology section. No data or frontend layer applies to this CLI/CI-wiring feature, and both are explicitly declared N/A rather than silently omitted, so the three required elements are satisfied for the layers that exist."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Directed edges taken from design.md:30-59 (BV->LC, BV->LI; BVG->FX->STUB; RY->LG, RY->RJ, LG->RJ via 'needs'; LG->LC2, LG->LI2; RLG->RY; RA->BVG, RA->RLG) form an acyclic graph: LC2/LI2 are terminal (real suites, no outgoing edges), RJ has no outgoing edge back toward RY or LG, and no component's dependency chain returns to itself. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:135-151 now carries explicit `Data Entities:`, `Existing Data Affected:`, and `Migration Strategy:` labels, each stated 'none' with supporting rationale (mktemp-scoped fixtures only; real README.md/CHANGELOG.md/plugin manifests never written by any suite; no schema/persisted-artifact change, citing the specs/epic-159-pillar-a/design.md:118 no-migration convention). This remediates round-1's Major finding (missing explicit `Data Entities:`/`Migration Strategy:` labels)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:153-308 '## API / Contract Plan' enumerates both new/changed surfaces this feature introduces: the scripts/bump-version.sh loop-gate prerequisite (insertion point + planned shell block, :155-194) with its test technique (:196-242), and the .github/workflows/release.yml required loop-gate job (planned YAML shape, :244-273) with its test technique (:275-308) — each with concrete contract detail (script exit-code/stdout behavior; job/needs: YAML structure) and explicit non-breaking framing ('only a needs: loop-gate line is added', :269-273, no new permissions). This CLI/CI-wiring feature has no literal HTTP endpoint, so the substituted concrete contract detail (exceeding what a bare 'No API changes' statement would convey) satisfies the check's intent for this feature's actual interface surfaces."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:409-418 '## Security Boundaries' table names four trust boundaries (B1-B4) matching security-spec.md's own B1-B4 (:33-38), states the isolation/authz mechanism at each (fixture-copy isolation B1/B3; no-bypass/no-escape-hatch B2, AC-004/AC-008; GitHub Actions needs: job-dependency semantics B4), states data classification per boundary ('synthetic fixture copies only', 'internal source' — consistent with security-spec.md's Data Classification table, no PII in this feature), and maps each boundary to OWASP concerns (Broken Access Control, Security Misconfiguration, Integrity, Supply Chain Integrity)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md contains no '## Frontend Plan' or '## Backend Plan' heading (confirmed via full H2-heading scan of design.md); ux-spec.md:1-11 and frontend-spec.md:1-6 both explicitly state 'N/A — no change ... no GUI ... no browser or frontend application' for this CLI/CI-wiring feature. Feature Type (design.md:4) is a custom label ('release-gate wiring') rather than a literal enum match, but its content plus both layer specs confirm this feature is functionally cli-equivalent with no frontend surface to check for consistency."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:310-343 '## Test Strategy' covers unit-level construction proofs (item 1: AC-004/AC-005 grep/line-position self-checks on the real script; stub-vs-real substitution answers 'what is mocked'), integration scope (item 1: fixture-driven bump-version.sh + loop-suite boundary; item 2: text-marker check against the real release.yml), acceptance-criterion mapping (items 1-2 cite AC-001..AC-010 by ID), and concrete planned verification evidence (item 4: named commands 'bash tests/run-all.sh' / 'pwsh tests/run-all.ps1', plus the named 3-OS test.yml matrix and the release-only ubuntu-latest job). No fullstack user-journey E2E path is required since ux-spec.md/frontend-spec.md confirm no UI exists for this feature."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node named in the Architecture mermaid diagram (design.md:30-59) and every surface named in API / Contract Plan (design.md:153-308) is defined either in the Components table (design.md:63-72), the 'Real surfaces exercised READ-ONLY' paragraph (design.md:74-78, defining tests/loop-consistency.tests.sh / tests/loop-inventory.tests.sh), or the API/Contract Plan's own test-technique subsections (design.md:196-242, 275-308, defining the fixture-repo copy, stub files, and the loop-gate:/release: job shapes)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:125-133 '## ADR Change Log' states 'No new ADR', with rationale that the feature reuses two already-established precedents (fixture-copy technique, text-marker technique) rather than introducing new architectural vocabulary; no ADR is referenced from design.md itself. security-spec.md:96 separately cites ADR-0008 (no-signature-crypto boundary), confirmed to exist at docs/adr/0008-evidence-deep-verify-no-signature-crypto.md via directory listing. No new technology choice or architectural departure is left uncovered by an existing precedent or ADR."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "f187ca12b34f1d658596fbd304c3f56f2cd5900df1525f56b3552031ab2abe4e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/investigation.md",
+      "sha256": "f1a71be18532189bbb2d68b5ca92b52b493eae0bf7e7ebf3ed1cc6358f4a95dc"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-2/precheck-result.json",
+      "sha256": "3f55338711dee5e06b309707f8f39f714e9f2b9209b2a7ae7eb59612eedf59d0"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a3bdeb4a2b0c852c565e3c6aeef0445066419fbd0c23b1bd25d2ffbe4c0252a6"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+components:
+  - id: c1
+    paths:
+      include:
+        - "contracts/one/**"
+        - "contracts/two/**"
+  - id: c2
+    paths:
+      include:
+        - "contracts/two/**"
+shared_paths:
+  - pattern: "contracts/**"
+    classification: cross-cutting

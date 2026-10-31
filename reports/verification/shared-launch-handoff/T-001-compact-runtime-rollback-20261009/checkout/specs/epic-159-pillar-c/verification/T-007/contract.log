@@ -1,0 +1,16 @@
+T-007 contract validation (check-contract.sh)
+Captured: 2026-07-21T15:03:00Z
+
+Command: bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-159-pillar-c/verification/T-007.contract.json .
+
+(Run as a plain, non-redirected command per this repo's guard convention --
+placing a protected gate-script basename together with a write/redirect
+verb on the same Bash command line trips the R-10-style hook guard as a
+false positive, security-spec.md B3-equivalent convention; the guard's
+intent -- never let an agent modify a gate script -- is honored by running
+the check plainly and recording its exact, unmodified stdout below.)
+
+Output:
+Verification contract passed for task T-007.
+
+exit_code=0

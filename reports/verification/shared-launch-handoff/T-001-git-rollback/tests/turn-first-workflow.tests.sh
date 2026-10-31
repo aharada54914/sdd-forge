@@ -1,0 +1,1059 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+IMPLEMENT_TASKS="$ROOT/plugins/sdd-implementation/skills/implement-tasks/SKILL.md"
+DELEGATION_POLICY="$ROOT/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
+VALIDATOR="$ROOT/plugins/sdd-implementation/scripts/validate-task-input-manifest.sh"
+IMPLEMENTATION_REPORT_TEMPLATE="$ROOT/plugins/sdd-implementation/templates/implementation-report.template.md"
+IMPLEMENTATION_REPORT_VALIDATOR="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+
+fail() {
+  printf 'not ok: %s\n' "$1" >&2
+  exit 1
+}
+
+hash_file() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
+
+expect_identity_rejection() {
+  output="$("$@" 2>&1)" && fail "expected identity reuse rejection from: $*"
+  case "$output" in
+    TASK_INPUT_IDENTITY:*) ;;
+    *) fail "expected TASK_INPUT_IDENTITY, got: $output" ;;
+  esac
+}
+
+write_manifest() {
+  file="$1"
+  task_id="$2"
+  run_id="$3"
+  session_id="$4"
+  agent_id="$5"
+  mode="${6:-fresh-agent}"
+  fallback_reason="${7:-}"
+  reload_hash="${8:-}"
+
+  jq -n \
+    --arg task "$task_id" \
+    --arg run "$run_id" \
+    --arg session "$session_id" \
+    --arg agent "$agent_id" \
+    --arg mode "$mode" \
+    --arg reason "$fallback_reason" \
+    --arg reload "$reload_hash" '
+    {
+      schema: "task-input-manifest/v1",
+      task_id: $task,
+      run_id: $run,
+      session_id: $session,
+      agent_instance_id: $agent,
+      model_tier: "strong",
+      provider: "openai",
+      model: "gpt-5.2-codex",
+      estimated_cost_per_attempt_usd: "0",
+      cost_estimate_source: "test-host",
+      cost_estimate_timestamp: "2026-06-30T00:00:00Z",
+      isolation_mode: $mode,
+      fallback_reason: $reason,
+      handoff_reload_evidence_hash: $reload,
+      allowed_inputs: ([
+        {
+          path: "specs/demo/requirements.md",
+          sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ] + if $reload == "" then [] else [{
+        path: "handoffs/reload-evidence.txt",
+        sha256: $reload
+      }] end),
+      allowed_outputs: [
+        ("reports/implementation/demo/" + $task + ".md")
+      ]
+    }' > "$file"
+}
+
+[[ -f "$IMPLEMENT_TASKS" ]] || fail "missing file: $IMPLEMENT_TASKS"
+[[ -f "$DELEGATION_POLICY" ]] || fail "missing file: $DELEGATION_POLICY"
+[[ -f "$VALIDATOR" ]] || fail "missing file: $VALIDATOR"
+[[ -f "$IMPLEMENTATION_REPORT_TEMPLATE" ]] ||
+  fail "missing file: $IMPLEMENTATION_REPORT_TEMPLATE"
+[[ -x "$IMPLEMENTATION_REPORT_VALIDATOR" ]] ||
+  fail "missing executable: $IMPLEMENTATION_REPORT_VALIDATOR"
+
+for needle in \
+  'launch exactly one fresh implementation agent' \
+  'persisted manifest and immutable snapshot are the only task handoff' \
+  'from any earlier batch task' \
+  'same-session-file-reload' \
+  'explicit host-capability fallback reason' \
+  'Chat history or compaction summaries alone are forbidden handoff input' \
+  'Reviewer and evaluator fallback is forbidden' \
+  'performed by checked-in scripts'; do
+  grep -Fq "$needle" "$IMPLEMENT_TASKS" || fail "implement-tasks omits policy text: $needle"
+done
+for needle in \
+  'The sole exception is an implementation batch' \
+  'same-session-file-reload' \
+  'Fresh per-task contexts remain' \
+  'mandatory on every capable host' \
+  'reviewers/evaluators never receive this' \
+  'exception.'; do
+  grep -Fq "$needle" "$DELEGATION_POLICY" || fail "delegation policy omits exception boundary: $needle"
+done
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+mkdir -p "$WORK/capable" "$WORK/fallback" "$WORK/evidence/handoffs" "$WORK/rollback"
+
+# Arrange a capable-host batch of three tasks with distinct identities.
+for index in 1 2 3; do
+  write_manifest \
+    "$WORK/capable/T-00$index.json" \
+    "T-00$index" \
+    "run-00$index" \
+    "session-00$index" \
+    "agent-00$index"
+done
+CAPABLE_BATCH=(
+  "$WORK/capable/T-001.json"
+  "$WORK/capable/T-002.json"
+  "$WORK/capable/T-003.json"
+)
+
+# Act/Assert: the valid batch passes, while adjacent and nonadjacent reuse of
+# every launch identity fails through the deterministic batch validator.
+bash "$VALIDATOR" --batch "${CAPABLE_BATCH[@]}" >/dev/null
+
+for field in task_id run_id session_id agent_instance_id; do
+  jq --arg field "$field" '.[$field] = input[$field]' \
+    "$WORK/capable/T-002.json" "$WORK/capable/T-001.json" \
+    > "$WORK/capable/adjacent-$field.json"
+  expect_identity_rejection bash "$VALIDATOR" --batch \
+    "$WORK/capable/T-001.json" \
+    "$WORK/capable/adjacent-$field.json" \
+    "$WORK/capable/T-003.json"
+
+  jq --arg field "$field" '.[$field] = input[$field]' \
+    "$WORK/capable/T-003.json" "$WORK/capable/T-001.json" \
+    > "$WORK/capable/nonadjacent-$field.json"
+  expect_identity_rejection bash "$VALIDATOR" --batch \
+    "$WORK/capable/T-001.json" \
+    "$WORK/capable/T-002.json" \
+    "$WORK/capable/nonadjacent-$field.json"
+done
+
+# Arrange the unsupported-host fallback: logical task/run identities remain
+# unique, physical session/agent identities are intentionally reused, and the
+# reload evidence is bound to a saved artifact.
+jq -n '{
+  schema: "implementation-host-capability/v1",
+  implementation_subagents_available: false,
+  fallback_reason: "host-does-not-support-implementation-subagents",
+  session_id: "shared-physical-session",
+  agent_instance_id: "shared-physical-agent",
+  task_runs: [
+    {task_id: "T-011", run_id: "fallback-run-01"},
+    {task_id: "T-012", run_id: "fallback-run-02"},
+    {task_id: "T-013", run_id: "fallback-run-03"}
+  ]
+}' > "$WORK/evidence/handoffs/reload-evidence.txt"
+RELOAD_HASH="$(hash_file "$WORK/evidence/handoffs/reload-evidence.txt")"
+for index in 1 2 3; do
+  write_manifest \
+    "$WORK/fallback/T-01$index.json" \
+    "T-01$index" \
+    "fallback-run-0$index" \
+    "shared-physical-session" \
+    "shared-physical-agent" \
+    "same-session-file-reload" \
+    "host-does-not-support-implementation-subagents" \
+    "$RELOAD_HASH"
+done
+FALLBACK_BATCH=(
+  "$WORK/fallback/T-011.json"
+  "$WORK/fallback/T-012.json"
+  "$WORK/fallback/T-013.json"
+)
+
+# Act/Assert: reused physical IDs are accepted only with the explicit fallback
+# records. Missing saved-file reload evidence (chat/compaction-only continuity)
+# and reused run identity fail closed.
+bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "${FALLBACK_BATCH[@]}" >/dev/null
+
+jq '.handoff_reload_evidence_hash = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    | .allowed_inputs[-1].sha256 = .handoff_reload_evidence_hash' \
+  "$WORK/fallback/T-012.json" > "$WORK/fallback/invented-evidence.json"
+output="$(bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/fallback/T-011.json" \
+  "$WORK/fallback/invented-evidence.json" \
+  "$WORK/fallback/T-013.json" 2>&1)" &&
+  fail "fabricated fallback evidence unexpectedly passed"
+case "$output" in
+  TASK_INPUT_HANDOFF:*) ;;
+  *) fail "expected TASK_INPUT_HANDOFF for fabricated evidence, got: $output" ;;
+esac
+
+output="$(bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/capable/T-001.json" \
+  "$WORK/fallback/T-012.json" 2>&1)" &&
+  fail "mixed capable/fallback isolation modes unexpectedly passed"
+case "$output" in
+  TASK_INPUT_ISOLATION:*) ;;
+  *) fail "expected TASK_INPUT_ISOLATION for mixed modes, got: $output" ;;
+esac
+
+printf '{"schema":"fabricated"}\n' > "$WORK/evidence/handoffs/reload-evidence.txt"
+output="$(bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "${FALLBACK_BATCH[@]}" 2>&1)" &&
+  fail "fallback passed without disk reread and hash revalidation"
+case "$output" in
+  TASK_INPUT_HANDOFF:*) ;;
+  *) fail "expected TASK_INPUT_HANDOFF after evidence mutation, got: $output" ;;
+esac
+jq -n '{
+  schema: "implementation-host-capability/v1",
+  implementation_subagents_available: false,
+  fallback_reason: "host-does-not-support-implementation-subagents",
+  session_id: "shared-physical-session",
+  agent_instance_id: "shared-physical-agent",
+  task_runs: [
+    {task_id: "T-011", run_id: "fallback-run-01"},
+    {task_id: "T-012", run_id: "fallback-run-02"},
+    {task_id: "T-013", run_id: "fallback-run-03"}
+  ]
+}' > "$WORK/evidence/handoffs/reload-evidence.txt"
+bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "${FALLBACK_BATCH[@]}" >/dev/null
+jq '.handoff_reload_evidence_hash = ""' \
+  "$WORK/fallback/T-012.json" > "$WORK/fallback/chat-only.json"
+output="$(bash "$VALIDATOR" --manifest "$WORK/fallback/chat-only.json" 2>&1)" &&
+  fail "chat-only fallback unexpectedly passed"
+case "$output" in
+  TASK_INPUT_HANDOFF:*) ;;
+  *) fail "expected TASK_INPUT_HANDOFF for chat-only fallback, got: $output" ;;
+esac
+
+jq '.fallback_reason = ""' \
+  "$WORK/fallback/T-012.json" > "$WORK/fallback/missing-reason.json"
+output="$(bash "$VALIDATOR" --manifest "$WORK/fallback/missing-reason.json" 2>&1)" &&
+  fail "fallback without an explicit reason unexpectedly passed"
+case "$output" in
+  TASK_INPUT_HANDOFF:*) ;;
+  *) fail "expected TASK_INPUT_HANDOFF for missing fallback reason, got: $output" ;;
+esac
+jq '.fallback_reason = "operator-prefers-one-session"' \
+  "$WORK/fallback/T-012.json" > "$WORK/fallback/wrong-reason.json"
+output="$(bash "$VALIDATOR" --evidence-root "$WORK/evidence" --manifest "$WORK/fallback/wrong-reason.json" 2>&1)" &&
+  fail "fallback with a non-capability reason unexpectedly passed"
+case "$output" in
+  TASK_INPUT_HANDOFF:*) ;;
+  *) fail "expected TASK_INPUT_HANDOFF for wrong fallback reason, got: $output" ;;
+esac
+
+jq '.run_id = "fallback-run-01"' \
+  "$WORK/fallback/T-013.json" > "$WORK/fallback/reused-run.json"
+expect_identity_rejection bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/fallback/T-011.json" \
+  "$WORK/fallback/T-012.json" \
+  "$WORK/fallback/reused-run.json"
+
+# Restore only the 1.4.0 implementation loop from the pinned baseline into an
+# isolated fixture. This is intentionally independent of T-008 rollback assets.
+BASELINE_COMMIT="$(git -C "$ROOT" rev-parse '7df7318^{commit}')"
+[[ "$BASELINE_COMMIT" == 7df7318* ]] || fail "unexpected 1.4.0 baseline identity: $BASELINE_COMMIT"
+git -C "$ROOT" show \
+  "7df7318:plugins/sdd-implementation/skills/implement-tasks/SKILL.md" \
+  > "$WORK/rollback/implement-tasks-1.4.0.md"
+BASELINE_BLOB="$(git -C "$ROOT" rev-parse '7df7318:plugins/sdd-implementation/skills/implement-tasks/SKILL.md')"
+RESTORED_BLOB="$(git hash-object "$WORK/rollback/implement-tasks-1.4.0.md")"
+[[ "$RESTORED_BLOB" == "$BASELINE_BLOB" ]] ||
+  fail "isolated 1.4.0 implement-tasks restoration is not byte-identical"
+for needle in \
+  'For each selected task:' \
+  'Set the selected task to `In Progress`.' \
+  'Re-evaluate the eligible set' \
+  'loop back to step 1'; do
+  grep -Fq "$needle" "$WORK/rollback/implement-tasks-1.4.0.md" ||
+    fail "restored 1.4.0 loop omits: $needle"
+done
+if grep -Fq 'launch exactly one fresh implementation agent' "$WORK/rollback/implement-tasks-1.4.0.md"; then
+  fail "restored 1.4.0 loop unexpectedly contains 1.5.0 launch orchestration"
+fi
+
+# Acceptance-first report contract: the current schema is complete and
+# deterministic, while pre-schema reports stay readable byte-for-byte.
+for needle in \
+  'Report Schema: implementation-report/v2' \
+  '## Outputs' \
+  '**Test Command**' \
+  '**Test Result**' \
+  '**Test Evidence Path**' \
+  '**Task Attempt Count**' \
+  '**Escalation Prior Tier**' \
+  '**Escalation Next Tier**' \
+  '**Escalation Failure Class**' \
+  '**Escalation Attempt Number**' \
+  '**Escalation Reason**' \
+  '**Run ID**' \
+  '**Session ID**' \
+  '**Agent Instance ID**' \
+  '**Isolation Mode**' \
+  '**Fallback Reason**' \
+  '**Handoff Reload Evidence Hash**' \
+  '## Unresolved Items' \
+  '**Current Status**' \
+  '**Next Action**' \
+  '**Unresolved Items**'; do
+  grep -Fq "$needle" "$IMPLEMENTATION_REPORT_TEMPLATE" ||
+    fail "implementation report template omits: $needle"
+done
+
+REPORT_WORK="$WORK/implementation-reports"
+mkdir -p "$REPORT_WORK/evidence"
+printf 'green evidence\n' > "$REPORT_WORK/evidence/green.log"
+cat > "$REPORT_WORK/current.md" <<'EOF'
+# Implementation Report: T-006
+
+- Model: anthropic/opus
+- Effort: high
+
+Report Schema: implementation-report/v2
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-006/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-006
+- **Session ID**: session-006
+- **Agent Instance ID**: agent-006
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+
+current_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/current.md")" ||
+  fail "complete current-schema implementation report was rejected"
+[[ "$current_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected current-schema success diagnostic: $current_output"
+
+# WFI-017: the v2 outputs contract accepts EITHER the current "## Outputs"
+# table (current.md, above) or the legacy "## Output Paths And Hashes"
+# bullet list, retained solely so previously committed bullet-only and
+# dual-form v2 reports remain valid -- and BOTH together, with duplicate-path
+# rejection spanning both sections.
+cat > "$REPORT_WORK/bullet-only-v2.md" <<'EOF'
+# Implementation Report: T-020
+
+- Model: anthropic/opus
+- Effort: standard
+
+Report Schema: implementation-report/v2
+
+## Output Paths And Hashes
+
+- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-020/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-020
+- **Session ID**: session-020
+- **Agent Instance ID**: agent-020
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+bullet_only_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/bullet-only-v2.md")" ||
+  fail "bullet-only v2 (legacy ## Output Paths And Hashes only) implementation report was rejected"
+[[ "$bullet_only_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected bullet-only v2 success diagnostic: $bullet_only_output"
+
+cat > "$REPORT_WORK/dual-form-v2.md" <<'EOF'
+# Implementation Report: T-021
+
+- Model: anthropic/opus
+- Effort: standard
+
+Report Schema: implementation-report/v2
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+
+## Output Paths And Hashes
+
+- **Path**: `plugins/example-legacy.md`; **SHA-256**: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-021/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-021
+- **Session ID**: session-021
+- **Agent Instance ID**: agent-021
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+dual_form_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/dual-form-v2.md")" ||
+  fail "dual-form v2 (## Outputs table + legacy ## Output Paths And Hashes, no duplicate path) implementation report was rejected"
+[[ "$dual_form_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected dual-form v2 success diagnostic: $dual_form_output"
+
+cat > "$REPORT_WORK/legacy.md" <<'EOF'
+# Implementation Report: T-001
+
+## Summary
+
+Historical report written before implementation-report/v2.
+EOF
+legacy_hash_before="$(hash_file "$REPORT_WORK/legacy.md")"
+legacy_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/legacy.md")" ||
+  fail "legacy implementation report was rejected"
+legacy_hash_after="$(hash_file "$REPORT_WORK/legacy.md")"
+[[ "$legacy_output" == "IMPLEMENTATION_REPORT_LEGACY_OK" ]] ||
+  fail "unexpected legacy success diagnostic: $legacy_output"
+[[ "$legacy_hash_before" == "$legacy_hash_after" ]] ||
+  fail "legacy validation fabricated fields or otherwise modified the report"
+
+remove_report_text() {
+  source_file="$1"
+  destination_file="$2"
+  text_to_remove="$3"
+  python3 - "$source_file" "$destination_file" "$text_to_remove" <<'PY'
+import sys
+
+source, destination, needle = sys.argv[1:]
+with open(source, encoding="utf-8") as handle:
+    text = handle.read()
+if needle not in text:
+    raise SystemExit(f"fixture needle not found: {needle}")
+with open(destination, "w", encoding="utf-8") as handle:
+    handle.write(text.replace(needle, "", 1))
+PY
+}
+
+replace_report_text() {
+  source_file="$1"
+  destination_file="$2"
+  old_text="$3"
+  new_text="$4"
+  python3 - "$source_file" "$destination_file" "$old_text" "$new_text" <<'PY'
+import sys
+
+source, destination, old, new = sys.argv[1:]
+with open(source, encoding="utf-8") as handle:
+    text = handle.read()
+if old not in text:
+    raise SystemExit(f"fixture needle not found: {old}")
+with open(destination, "w", encoding="utf-8") as handle:
+    handle.write(text.replace(old, new, 1))
+PY
+}
+
+expect_report_rejection() {
+  expected_prefix="$1"
+  fixture="$2"
+  description="$3"
+  rejection_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$fixture" 2>&1)" &&
+    fail "$description unexpectedly passed"
+  case "$rejection_output" in
+    "$expected_prefix"*) ;;
+    *) fail "unexpected diagnostic for $description: $rejection_output" ;;
+  esac
+}
+
+missing_cases=(
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+  '- **Test Command**: `bash tests/example.tests.sh`'
+  '- **Test Result**: PASS'
+  '- **Test Evidence Path**: `specs/example/verification/T-006/green.log`'
+  '- **Task Attempt Count**: 1'
+  '- **Escalation Prior Tier**: None'
+  '- **Escalation Next Tier**: None'
+  '- **Escalation Failure Class**: None'
+  '- **Escalation Attempt Number**: None'
+  '- **Escalation Reason**: None'
+  '- **Run ID**: run-006'
+  '- **Session ID**: session-006'
+  '- **Agent Instance ID**: agent-006'
+  '- **Isolation Mode**: fresh-agent'
+  '- **Fallback Reason**: None'
+  '- **Handoff Reload Evidence Hash**: None'
+  'None.'
+  '- **Current Status**: Implementation Complete'
+  '- **Next Action**: Independent quality review'
+  '- **Unresolved Items**: None'
+)
+case_index=0
+for missing_text in "${missing_cases[@]}"; do
+  case_index=$((case_index + 1))
+  invalid_report="$REPORT_WORK/missing-$case_index.md"
+  remove_report_text "$REPORT_WORK/current.md" "$invalid_report" "$missing_text"
+  invalid_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$invalid_report" 2>&1)" &&
+    fail "current-schema report passed with a missing required field: $missing_text"
+  case "$invalid_output" in
+    IMPLEMENTATION_REPORT_FIELD:*) ;;
+    *) fail "unexpected missing-field diagnostic: $invalid_output" ;;
+  esac
+done
+
+# RT-20260821-017 cycle-2 (seq 833): the required-headings enforcement had
+# ZERO coverage - a mutant that neutered the missing/duplicate-heading loop
+# survived every suite while accepting a report with two conflicting
+# ## Isolation Evidence sections (identity forgery surface, REQ-008).
+# Both polarities, pinned here.
+missing_heading_report="$REPORT_WORK/missing-heading.md"
+python3 - "$REPORT_WORK/current.md" "$missing_heading_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Session Handoff\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Session Handoff section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$missing_heading_report" 2>&1)" &&
+  fail "report with a MISSING required heading unexpectedly passed"
+[[ "$heading_output" == *'missing ## Session Handoff'* ]] ||
+  fail "unexpected missing-heading diagnostic: $heading_output"
+
+dup_heading_report="$REPORT_WORK/dup-heading.md"
+python3 - "$REPORT_WORK/current.md" "$dup_heading_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Isolation Evidence\n\n"
+          "- **Run ID**: ATTACKER-RUN\n"
+          "- **Isolation Mode**: same-session-file-reload\n"
+          "- **Fallback Reason**: operator-prefers-one-session\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$dup_heading_report" 2>&1)" &&
+  fail "report with a DUPLICATE ## Isolation Evidence section unexpectedly passed (identity forgery surface)"
+[[ "$heading_output" == *'duplicate ## Isolation Evidence'* ]] ||
+  fail "unexpected duplicate-heading diagnostic: $heading_output"
+
+# RT-20260821-017 cycle-3 (seq 840): the WFI-017 move of the outputs-section
+# enforcement into validate-implementation-report.sh lost ALL negative
+# coverage - four mutants (duplicate/missing section, duplicate path,
+# malformed row) survived every suite, two of them admitting forged
+# declaration reports into the evaluator authorization chain
+# (evaluator_output_is_declared parses the same section). The six cases below
+# pin the ## Outputs TABLE branch, each against its specific diagnostic.
+# NOTE (corrected at cycle 4, seq 843): the original wording claimed these
+# pinned EVERY outputs-section guard. That was false - the legacy
+# ## Output Paths And Hashes branch had four surviving mutants and is now
+# pinned separately further down.
+dup_outputs_report="$REPORT_WORK/dup-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$dup_outputs_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Outputs\n\n"
+          "| Path | SHA-256 |\n"
+          "|---|---|\n"
+          "| `plugins/ATTACKER-SMUGGLED.md` | `cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc` |\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
+  "$dup_outputs_report" \
+  "report with a SECOND ## Outputs table (declaration smuggling surface)"
+
+# Gate seq 851: the guard above was bypassable by ONE invisible byte. A greedy
+# heading capture left the trailing space in the section name, so `## Outputs `
+# keyed as a different section that this validator never parsed -- while the
+# authorization boundary's prefix matcher DID accept it as an Outputs section.
+# A smuggled `../../etc/passwd` row therefore reached an evaluator's authorized
+# input set past both the duplicate-section and the path-traversal guards.
+# Both whitespace forms pinned; the boundary now requires an exact heading.
+# Gate seq 853 broke the first fix: `[ \t]` covered only space and tab, so
+# form feed, vertical tab, NBSP and NUL still keyed a padded heading to a
+# different section, and the LEGACY heading was still matched by prefix at
+# the boundary. The whole whitespace-and-control class is enumerated here,
+# on BOTH headings, so the mutation that reopened it cannot survive.
+# Gate seq 856 charged that the heading grammar had been tightened one
+# character-class at a time for three consecutive cycles. Both components now
+# ban the CLASS, so this loop enumerates every invisible form that was ever
+# demonstrated -- ASCII whitespace, the C0 controls, the Unicode separators,
+# the format characters and the combining marks -- and asserts which of the two
+# fail-closed paths each one takes. Adding a form here costs one word.
+for pad_label in space tab cr ff vt nul nbsp ideographic en-space zwsp \
+    word-joiner bom mongolian-vs soft-hyphen lrm rlm lri pdi zwnj zwj \
+    comb-acute vs16 mixed; do
+  pad_report="$REPORT_WORK/pad-heading-$pad_label.md"
+  python3 - "$REPORT_WORK/current.md" "$pad_report" "$pad_label" <<'PYEOF'
+import sys
+source, destination, pad_label = sys.argv[1:]
+pads = {
+    "space": " ", "tab": "\t", "cr": "\r", "ff": "\x0c", "vt": "\x0b",
+    "nul": "\x00", "nbsp": "\u00a0", "ideographic": "\u3000",
+    "en-space": "\u2002", "zwsp": "\u200b", "word-joiner": "\u2060",
+    "bom": "\ufeff", "mongolian-vs": "\u180e", "soft-hyphen": "\u00ad",
+    "lrm": "\u200e", "rlm": "\u200f", "lri": "\u2066", "pdi": "\u2069",
+    "zwnj": "\u200c", "zwj": "\u200d", "comb-acute": "\u0301",
+    "vs16": "\ufe0f", "mixed": " \u200b\t",
+}
+pad = pads[pad_label]
+text = open(source, encoding="utf-8").read()
+text += (
+    "\n## Outputs" + pad + "\n\n"
+    "| Path | SHA-256 |\n"
+    "|---|---|\n"
+    "| `../../etc/passwd` | `" + "d" * 64 + "` |\n"
+)
+open(destination, "w", encoding="utf-8").write(text)
+PYEOF
+  # Two fail-closed paths, and every form takes exactly one of them:
+  #   * a Unicode separator (Zs) is stripped, so the padded heading collides
+  #     with the clean one and the duplicate-section guard fires;
+  #   * everything else -- control (Cc), format (Cf) and combining (Mn) -- is
+  #     refused outright, because it can never be stripped away safely.
+  # `comb-acute` sits in the second group only because the class is checked on
+  # the RAW name as well as the NFC form: NFC folds a trailing U+0301 into the
+  # preceding letter, erasing the standalone mark.
+  # `cr` joins the collide group rather than the refuse group: Python reads the
+  # report with universal newlines, so a lone CR is already a line terminator by
+  # the time the heading is keyed and never reaches the class check.
+  case "$pad_label" in
+    space|cr|nbsp|ideographic|en-space)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' ;;
+    *)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: control or format character in section heading' ;;
+  esac
+  expect_report_rejection "$pad_expect" \
+    "$pad_report" \
+    "second ## Outputs heading padded with a trailing $pad_label (one-byte authorization bypass)"
+done
+
+dup_legacy_report="$REPORT_WORK/dup-legacy-section.md"
+python3 - "$REPORT_WORK/dual-form-v2.md" "$dup_legacy_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Output Paths And Hashes\n\n"
+          "- **Path**: `plugins/ATTACKER-LEGACY.md`; **SHA-256**: `dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd`\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Output Paths And Hashes' \
+  "$dup_legacy_report" \
+  "report with a SECOND ## Output Paths And Hashes section"
+
+no_outputs_report="$REPORT_WORK/no-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$no_outputs_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Outputs\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Outputs section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing ## Outputs' \
+  "$no_outputs_report" \
+  "v2 report with NO outputs section (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/dup-output-path.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/dup-output-path.md" \
+  "report declaring the same output path twice in the Outputs table"
+
+replace_report_text \
+  "$REPORT_WORK/dual-form-v2.md" \
+  "$REPORT_WORK/cross-section-dup.md" \
+  '- **Path**: `plugins/example-legacy.md`; ' \
+  '- **Path**: `plugins/example.md`; '
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/cross-section-dup.md" \
+  "duplicate output path spanning the Outputs table and the legacy section"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| plugins/malformed.md | not-a-hash |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  "report with a malformed Outputs table row (silent-skip surface)"
+
+# RT-20260821-017 cycle-5 (seq 848): the 64-hex requirement was pinned on the
+# LEGACY branch only, so mutating the TABLE row pattern to `[0-9a-f]+` survived
+# every suite in the repository. The table branch is the form the template
+# emits and the form the authorization chain parses, so the hash half of
+# TEST-004's "path/hash" requirement needs the same mirror the path half has.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-short-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/short.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-short-hash.md" \
+  "table row carrying a 62-hex hash instead of 64"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-upper-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-upper-hash.md" \
+  "table row carrying an uppercase hash (the declared form is lowercase)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  '**SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '**SHA-256**: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  "legacy bullet carrying an uppercase hash"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-unquoted.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| plugins/example.md | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-unquoted.md" \
+  "table row without the backticks the authorization boundary matches on"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-tilde-path.md" \
+  '| `plugins/example.md` |' \
+  '| `~/secrets.md` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/table-tilde-path.md" \
+  "table row declaring a tilde-home path"
+
+# Boundary cases cover partial escalation records and isolation-mode-specific
+# fallback evidence rather than merely checking for non-empty labels.
+
+# RT-20260821-017 cycle-4 (seq 843): the cycle-3 remediation pinned only the
+# `## Outputs` TABLE branch. The legacy `## Output Paths And Hashes` branch --
+# which is the form this feature's own reports and their evaluator manifests
+# are authorized through -- still had zero negative coverage, and four of its
+# guards survived mutation. Pinned here against bullet-only-v2.md.
+python3 - "$REPORT_WORK/bullet-only-v2.md" "$REPORT_WORK/legacy-no-entry.md" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?m)^- \*\*Path\*\*: .*\n", "", text)
+assert n >= 1, "legacy bullet not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-no-entry.md" \
+  "legacy section present but declaring no output at all (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-malformed.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: plugins/malformed.md; SHA-256: not-a-hash'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-malformed.md" \
+  "malformed legacy bullet (silent-skip surface)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-traversal.md" \
+  '- **Path**: `plugins/example.md`;' \
+  '- **Path**: `../../etc/passwd`;'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/legacy-traversal.md" \
+  "legacy bullet declaring a path that escapes the repository"
+
+# A sole short-hash bullet reports 'missing ... entry' (the 64-hex pattern
+# matches nothing, so the not-found branch fires first). To pin the hex-length
+# requirement on the malformed branch instead, keep one valid bullet and add a
+# short-hash one: the parsed count then disagrees with the bullet count.
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: `plugins/short.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  "legacy bullet carrying a 62-hex hash instead of 64"
+
+# WFI-044 (RT-20260821-016): a quota interruption ends the recording agent's
+# turn, so the resuming orchestrator -- a different actor -- is the one that
+# knows the run fell back, and presence-only checking let agci T-007 ship
+# `fresh-agent` over a narrative describing exactly that fallback. Both
+# polarities plus the false-positive guard are pinned here.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe first attempt stopped when the host quota was hit, and the orchestrator resumed the work from the handoff file.\n'
+} > "$REPORT_WORK/isolation-contradiction.md"
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: isolation narrative contradicts declared mode' \
+  "$REPORT_WORK/isolation-contradiction.md" \
+  "fresh-agent declared over an interrupted-and-resumed narrative"
+
+python3 - "$REPORT_WORK/current.md" "$REPORT_WORK/isolation-truthful.md" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+text = (text.replace("- **Isolation Mode**: fresh-agent",
+                     "- **Isolation Mode**: same-session-file-reload")
+            .replace("- **Fallback Reason**: None",
+                     "- **Fallback Reason**: host-does-not-support-implementation-subagents")
+            .replace("- **Handoff Reload Evidence Hash**: None",
+                     "- **Handoff Reload Evidence Hash**: " + "a" * 64))
+text += ("\n\nThe first attempt stopped when the host quota was hit, and the "
+         "orchestrator resumed the work from the handoff file.\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text)
+PYEOF
+truthful_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-truthful.md")" ||
+  fail "a truthful same-session declaration with the same narrative was rejected"
+[[ "$truthful_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for truthful same-session narrative: $truthful_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe manifest is the only handoff input; chat history is forbidden. Evidence was reloaded from disk.\n'
+} > "$REPORT_WORK/isolation-ordinary-prose.md"
+ordinary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-ordinary-prose.md")" ||
+  fail "ordinary handoff/reload prose tripped the WFI-044 narrative rule (false positive)"
+[[ "$ordinary_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for ordinary handoff prose: $ordinary_output"
+
+# The rule's two NARROWING semantics need their own fixtures, or `and`->`or`
+# and per-sentence->whole-document both survive (seq 848). These two carry the
+# terms the previous false-positive fixture lacked.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe host quota was reached during the run. A later paragraph notes that the batch resumed normally afterwards.\n'
+} > "$REPORT_WORK/isolation-split-sentences.md"
+split_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-split-sentences.md")" ||
+  fail "WFI-044 fired across sentence boundaries (the rule is per-sentence)"
+[[ "$split_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for split-sentence narrative: $split_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe provider quota for this account is documented in the runbook.\n'
+} > "$REPORT_WORK/isolation-interruption-only.md"
+interrupt_only_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-interruption-only.md")" ||
+  fail "WFI-044 fired on an interruption term alone (the rule needs the conjunction)"
+[[ "$interrupt_only_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for interruption-only narrative: $interrupt_only_output"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/partial-escalation.md" \
+  '- **Escalation Prior Tier**: None' \
+  '- **Escalation Prior Tier**: lightweight'
+boundary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/partial-escalation.md" 2>&1)" &&
+  fail "partial escalation record unexpectedly passed"
+[[ "$boundary_output" == IMPLEMENTATION_REPORT_FIELD:* ]] ||
+  fail "unexpected partial-escalation diagnostic: $boundary_output"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/fallback-without-evidence.md" \
+  '- **Isolation Mode**: fresh-agent' \
+  '- **Isolation Mode**: same-session-file-reload'
+boundary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/fallback-without-evidence.md" 2>&1)" &&
+  fail "same-session fallback without evidence unexpectedly passed"
+[[ "$boundary_output" == IMPLEMENTATION_REPORT_FIELD:* ]] ||
+  fail "unexpected fallback-evidence diagnostic: $boundary_output"
+
+# A current/v2-shaped report cannot downgrade to unchecked legacy handling by
+# deleting or damaging its schema marker.
+remove_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/missing-schema.md" \
+  'Report Schema: implementation-report/v2'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/missing-schema.md" \
+  "v2-shaped report without a schema"
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/empty-schema.md" \
+  'Report Schema: implementation-report/v2' \
+  'Report Schema: '
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/empty-schema.md" \
+  "v2-shaped report with an empty schema"
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/malformed-schema.md" \
+  'Report Schema: implementation-report/v2' \
+  'Report Schema implementation-report/v2'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/malformed-schema.md" \
+  "v2-shaped report with a malformed schema"
+
+# Closed domains prevent free-form test outcomes and lifecycle states.
+for invalid_result in DEFINITELY-NOT-A-RESULT pass 'PASS — probably'; do
+  fixture="$REPORT_WORK/invalid-result-${invalid_result//[^A-Za-z0-9]/-}.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$fixture" \
+    '- **Test Result**: PASS' \
+    "- **Test Result**: $invalid_result"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$fixture" \
+    "invalid Test Result $invalid_result"
+done
+for invalid_status in BANANA Done Approved Draft; do
+  fixture="$REPORT_WORK/invalid-status-$invalid_status.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$fixture" \
+    '- **Current Status**: Implementation Complete' \
+    "- **Current Status**: $invalid_status"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$fixture" \
+    "invalid Current Status $invalid_status"
+done
+
+# Every report path field uses the same repository-relative canonical form.
+invalid_paths=(
+  '../../outside.log'
+  '/absolute/outside.log'
+  'C:/outside.log'
+  'specs\outside.log'
+  'specs//outside.log'
+  'specs/./outside.log'
+  'specs/../outside.log'
+)
+path_index=0
+for invalid_path in "${invalid_paths[@]}"; do
+  path_index=$((path_index + 1))
+  output_fixture="$REPORT_WORK/invalid-output-path-$path_index.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$output_fixture" \
+    'plugins/example.md' \
+    "$invalid_path"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$output_fixture" \
+    "non-canonical output path $invalid_path"
+
+  evidence_fixture="$REPORT_WORK/invalid-evidence-path-$path_index.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$evidence_fixture" \
+    'specs/example/verification/T-006/green.log' \
+    "$invalid_path"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$evidence_fixture" \
+    "non-canonical Test Evidence Path $invalid_path"
+done
+
+# The unsupported-host exception has one exact reason and hash-bound evidence.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/valid-fallback.md" \
+  '- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None' \
+  '- **Isolation Mode**: same-session-file-reload
+- **Fallback Reason**: host-does-not-support-implementation-subagents
+- **Handoff Reload Evidence Hash**: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fallback_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/valid-fallback.md")" ||
+  fail "documented host-capability fallback was rejected"
+[[ "$fallback_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected valid-fallback diagnostic: $fallback_output"
+replace_report_text \
+  "$REPORT_WORK/valid-fallback.md" \
+  "$REPORT_WORK/wrong-fallback-reason.md" \
+  'host-does-not-support-implementation-subagents' \
+  'operator-prefers-one-session'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_FIELD:' \
+  "$REPORT_WORK/wrong-fallback-reason.md" \
+  "fallback with a non-capability reason"
+
+printf 'ok: turn-first orchestration enforces three-task identity and fallback fixtures\n'
+printf 'ok: implementation report v2 enforces complete file-backed handoff fields with legacy compatibility\n'

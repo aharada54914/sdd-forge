@@ -1,0 +1,21 @@
+{
+  "schema": "impl-review-integrated/v1",
+  "feature": "sdd-forge-refactor",
+  "attempt": 1,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "summary": "Reviewer A: PASS on all structural soundness checks. Reviewer B: NEEDS_WORK — 3 Major findings related to scripts/templates migration gap that design.md does not cover.",
+  "critical_count": 0,
+  "major_count": 3,
+  "minor_count": 5,
+  "required_edits": [
+    "Add scripts/ and templates/ to sdd-review-loop directory structure in design.md",
+    "Specify migration of 6 ancillary files: impl-review-precheck.sh, task-review-precheck.sh, impl-review-contract.template.json, impl-review-report.template.md, task-review-contract.template.json, task-review-report.template.md",
+    "Add path-reference update to T-002 Phase 2 scope: new SKILL.md files must reference plugins/sdd-review-loop/scripts/ and plugins/sdd-review-loop/templates/",
+    "Note $expectedVersion non-goal (validate-repository.ps1 version bump is out of scope) OR include version bump in T-005 scope",
+    "Add scripts/templates migration gap to risk coverage"
+  ],
+  "generated_at": "2026-06-21T00:38:00Z"
+}

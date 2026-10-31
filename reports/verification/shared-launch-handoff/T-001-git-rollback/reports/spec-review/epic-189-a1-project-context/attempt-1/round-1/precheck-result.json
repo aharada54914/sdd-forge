@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "c02197de9270a7c5e2a3ad056c9f4577f61fba2aaf817fbbb2d49942ad91d1e3",
+  "acceptance_sha256": "874fb3dbc2a1a03fdef1d11a8bf15b1d7e67c59c9400f0ea3bf1068509b540ab",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "3c0eb8b4d627a25d422aa887c609fd69340273ae7ee13c6dad63015aff5db202",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-21T22:21:49Z"
+}

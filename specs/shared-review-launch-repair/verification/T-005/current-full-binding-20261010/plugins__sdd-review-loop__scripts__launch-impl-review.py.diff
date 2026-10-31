@@ -1,0 +1,11 @@
+--- attempt6/plugins/sdd-review-loop/scripts/launch-impl-review.py
++++ current-owner/plugins/sdd-review-loop/scripts/launch-impl-review.py
+@@ -343,7 +343,7 @@
+     policy.write_bytes(policy_bytes)
+     settings.write_text(json.dumps(settings_value))
+     permissions = transport.receipt_control(
+-        data, preview, invocation.relative_to(root).as_posix())['exact_permission_rules']
++        data, preview, invocation.relative_to(root).as_posix(), root=root)['exact_permission_rules']
+     command = transport.claude_command(root, session, data['role'], role, permissions,
+                                        settings, invocation, receipt, policy)
+     native = run(root, ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)], output / 'native.jsonl')

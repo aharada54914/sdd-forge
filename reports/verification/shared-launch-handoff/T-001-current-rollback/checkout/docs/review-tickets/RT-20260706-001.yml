@@ -1,0 +1,78 @@
+ticket_id: RT-20260706-001
+status: resolved
+resolution: |
+  2026-07-07: Human selected expected_fix option 3 (improve the matcher) and
+  applied the change themselves via the R-10 scratchpad->cp procedure (the
+  agent generated and tested the scripts; the human copied them into
+  plugins/sdd-quality-loop/scripts/, preserving the no-agent-edits-to-gate-
+  scripts boundary). Change, kept in parity across the .sh and .ps1 twins:
+  marker keywords (TODO|FIXME|HACK|NotImplemented|PLACEHOLDER|
+  TODO_REPLACE_WITH_PROJECT_COMMANDS) now match case-sensitively per the
+  ALL-CAPS marker convention; multi-word phrases (not implemented, lorem
+  ipsum, coming soon, do not ship, temporary stub, dummy data/value/response)
+  remain case-insensitive. Verified before handoff: real uppercase TODO stub
+  FAILS, NotImplementedError FAILS, mixed-case Lorem Ipsum FAILS, clean file
+  PASSES, and the protected eval.tests.sh placeholder-stub scenario (which
+  injects an uppercase '# TODO:') still FAILS as required. After apply,
+  fresh scans of T-008's four changed files, T-002's domain-interviewer
+  skill directory, and T-009's workflow-retrospective skill directory all
+  PASS (evidence: specs/sdd-domain/verification/T-00{2,8,9}.placeholder-scan.log),
+  and check-contract.py passes for all three contracts. Option 1 (reword)
+  was confirmed impossible for SKILL.md line 45: the flagged text is the
+  scanner's own script name, which necessarily contains the keyword.
+type: false-positive
+severity: minor
+target:
+  feature: sdd-domain
+  task: T-008
+  files:
+    - plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+    - specs/sdd-domain/verification/T-008.contract.json
+summary: check-placeholders false-positive on pre-existing quality-gate/SKILL.md prose blocks the required placeholder-scan check with no available waiver.
+problem: |
+  Running `check-placeholders.sh` against T-008's changed production files
+  (plugins/sdd-quality-loop/scripts/check-domain-conformance.sh,
+  check-domain-conformance.ps1, tests/sdd-domain/check-domain-conformance.Tests.ps1,
+  and plugins/sdd-quality-loop/skills/quality-gate/SKILL.md) reports 2 findings,
+  both inside quality-gate/SKILL.md:
+    - line 45: "`check-placeholders` on the changed production files only." --
+      matches the literal word "placeholders" inside descriptive gate documentation.
+    - line 239: "Skipped/`todo`/`xit` tests covering in-scope behavior left
+      unaddressed." -- matches a "todo"-adjacent keyword inside the skill's own
+      "Common Rationalizations" bullet list.
+  `git show HEAD -- plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`
+  confirms both lines are pre-existing content, outside the single 10-line
+  additive hunk (lines 54-63) T-008 actually inserted -- this is not a defect
+  introduced by T-008.
+  Per `deterministic-check-policy.md`'s "check-placeholders Scope and Waivers"
+  section, the documented escape is to set the contract's `placeholder-scan`
+  check to `required: false` with a `waiver_reason` plus record human
+  acceptance in the quality-gate report. However `check-contract.py`'s
+  `_pass4_risk_tier` enforces `placeholder-scan` as `required: true` at every
+  risk tier (`lint`/`typecheck`/`build` are the only checks eligible for the
+  `NONCODE_STACKS` waiver exemption) -- so the documented waiver path does not
+  actually work for this check today. This is the same false-positive class
+  already recorded (without a working waiver) against T-002's and T-009's own
+  contracts in this feature.
+expected_fix: |
+  Needs a human decision on one of:
+  1. Reword the two flagged pre-existing lines in quality-gate/SKILL.md to
+     avoid the literal "placeholders"/"todo" keyword match (e.g., escape or
+     rephrase), or
+  2. Extend check-contract.py's waiver handling so `placeholder-scan` can be
+     legitimately downgraded with a recorded `waiver_reason`, matching what
+     deterministic-check-policy.md already documents as intended, or
+  3. Improve check-placeholders.sh's matcher to distinguish prose describing
+     placeholder-scanning from actual TODO/stub/placeholder markers.
+  None of these are in scope for a quality-gate run to apply unilaterally --
+  (1) touches a file this task didn't author the flagged lines in, and (2)/(3)
+  are gate-script/policy changes that quality-gate must not modify itself.
+references:
+  - plugins/sdd-quality-loop/references/deterministic-check-policy.md
+  - plugins/sdd-quality-loop/scripts/check-contract.py
+  - plugins/sdd-quality-loop/scripts/check-placeholders.sh
+  - specs/sdd-domain/verification/T-002.contract.json
+  - specs/sdd-domain/verification/T-009.contract.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

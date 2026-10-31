@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "work/tests/host-review-preflight.tests.py",
+    "-v"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+  "environment_overrides": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/cache",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/dotnet"
+  },
+  "exit": 0,
+  "stdout": "",
+  "stderr": "test_canonical_preview_rejection_and_all_callers_wired (__main__.HostReviewPreflightTests.test_canonical_preview_rejection_and_all_callers_wired) ... ok\ntest_cli_help_flags_and_unsupported_argument (__main__.HostReviewPreflightTests.test_cli_help_flags_and_unsupported_argument) ... ok\ntest_impl_and_task_use_stage_precheck_before_preview (__main__.HostReviewPreflightTests.test_impl_and_task_use_stage_precheck_before_preview) ... ok\ntest_nonobject_and_scratch_alias_reject (__main__.HostReviewPreflightTests.test_nonobject_and_scratch_alias_reject) ... ok\ntest_pin_missing_input_outside_and_changed_scratch_reject (__main__.HostReviewPreflightTests.test_pin_missing_input_outside_and_changed_scratch_reject) ... ok\ntest_powershell_selects_existing_precheck_and_validator (__main__.HostReviewPreflightTests.test_powershell_selects_existing_precheck_and_validator) ... ok\ntest_spec_and_quality_normal_preview_never_reserve (__main__.HostReviewPreflightTests.test_spec_and_quality_normal_preview_never_reserve) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.036s\n\nOK\n",
+  "elapsed_seconds": 0.10541319847106934
+}

@@ -1,0 +1,17 @@
+{
+  "label": "host-launch-profile",
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/host-review-preflight.tests.py",
+    "-v"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+  "stdin": "DEVNULL",
+  "started_at": "2026-10-08T22:17:59.012081+00:00",
+  "ended_at": "2026-10-08T22:17:59.120395+00:00",
+  "elapsed_seconds": 0.108,
+  "exit_code": 0
+}

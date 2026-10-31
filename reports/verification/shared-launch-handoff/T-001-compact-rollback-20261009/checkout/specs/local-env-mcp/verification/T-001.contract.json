@@ -1,0 +1,138 @@
+{
+ "task_id": "T-001",
+ "feature": "local-env-mcp",
+ "risk": "high",
+ "required_workflow": "tdd",
+ "stack": "code",
+ "spec_revision": "",
+ "created": "2026-07-05T16:37:26Z",
+ "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session. Lint evidence is tsc --noEmit (strict) as the project's static-analysis gate; no separate eslint toolchain is configured (same convention as sdd-forge-mcp high-tier contracts).",
+ "checks": [
+  {
+   "id": "lint",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "typecheck",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "build",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/build.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "placeholder-scan",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/check-placeholders.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "task-state-check",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/check-task-state.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "unit-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "specs/local-env-mcp/verification/T-001-red.txt",
+   "green_evidence": "specs/local-env-mcp/verification/T-001-green.txt"
+  },
+  {
+   "id": "acceptance-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "specs/local-env-mcp/verification/T-001-red.txt",
+   "green_evidence": "specs/local-env-mcp/verification/T-001-green.txt"
+  },
+  {
+   "id": "regression",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "specs/local-env-mcp/verification/T-001-red.txt",
+   "green_evidence": "specs/local-env-mcp/verification/T-001-green.txt"
+  },
+  {
+   "id": "requirement-traceability",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/local-env-mcp/verification/qg/T-001/check-traceability.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-012"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "before": "0f57f0cdce58ad4150f19dceeb354a2e9555d56a15d37e3f376ce246235715aa",
+    "candidate": "10d7777f23335779f703675b5aeba580c23941f27f210364565dc6ae41643da1"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "before": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20",
+    "candidate": "16d096b31c1ccf7ca4d830f62da5af1f287ad6d17cdfb597639a7df7f002495a"
+  },
+  {
+    "path": "tests/quality-nontty-transport.tests.py",
+    "before": "a1955452366bd71f789b727974c20196d4ce7517173c2e4b11854131dacb1490",
+    "candidate": "7099669122c1715a1a9900f784fa4090777d72777c8234ae2a30e5ffcace1c51"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-forge-mcp",
+  "run_id": "task-orch-sddforgemcp-a1r1-20260704-e1b9",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 1,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

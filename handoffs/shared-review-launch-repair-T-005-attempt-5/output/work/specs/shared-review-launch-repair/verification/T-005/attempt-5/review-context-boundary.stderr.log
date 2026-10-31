@@ -1,0 +1,1 @@
+not ok: review-context-boundary.md cites validate-review-context-set.sh:459 for ".schema == "review-context-invocation/v2"", but those lines no longer contain it; the citation has slid off the construct it describes

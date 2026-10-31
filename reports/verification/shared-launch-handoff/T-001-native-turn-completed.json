@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+    "turn": {
+      "id": "01a119f1-18ad-7c90-bd08-acc0fe8e04e1",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0f570ad07c6b5b4a016ac729c2f51c81918782d18925a3b7fc",
+          "text": "T-001の仕上げを完了しました。変更は実装・テストの2ファイルに限定し、無関係な候補バイトを保持しています。\n\n- 検証：入力48件のハッシュ一致、新規実行43 GREEN。\n- rollback：元バイトへの復元、既存42 GREEN、修正前の失敗再現を確認。\n- [正規パスの実装報告書](staged/reports/implementation/shared-review-launch-repair/T-001.md)／[採用対象・ハッシュ一覧](verification/T-001/adoption-inventory.json)を出力ルート内に確定。\n\nnative reviewer権限動作・CI・独立レビュー・quality gateは **NOT RUN**。fixture検証はnative動作の証明ではありません。状態は **In Progress**、Doneにはしていません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791436593,
+      "completedAt": 1791437256,
+      "durationMs": 663234
+    }
+  },
+  "emittedAtMs": 1791437256575
+}

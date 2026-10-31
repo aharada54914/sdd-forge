@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0791",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0791",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-3/precheck-result.json",
+      "sha256": "b50495fd8edfa5a9cf572b51d2ec468c82f2a285c3f5ed176bbb0efc5150bccd"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "0e207d9ffdcb3ba22612f5694e63d1f357d62b794a0bec3933a525878a847609"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each fix concrete, machine-checkable observables (byte-tuples, event-kind ordering, hash pins, allowlist grammar with merged()/fingerprint_match() predicates). AC-026, the only remaining edge case, is now explicitly self-flagged as expected-to-fail with a stated resolution path (OQ-004: formal AC-009 hash amendment), so a downstream implementer/verifier can decide exactly what to do with it rather than being misled."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-007 goal has AC coverage (e.g. REQ-003's six event kinds map to AC-022..AC-027, with AC-026 covering Done-transition). No goal in the Goals section lacks a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md:30 (TEST-026) reverted its Test Type to plain 'integration', removing the SKIP claim that round 2 found AC-034's allowlist grammar cannot express and that AC-034 does not list among its named rows (AC-004, AC-007, AC-019-021, AC-036, AC-037, AC-042, AC-043 -- AC-026 absent). requirements.md:525-529 now states plainly 'This criterion carries no SKIP disposition and is not governed by AC-034's allowlist,' closing the mismatch that would have tripped AC-035(b)'s unknown-SKIP hard-fail. The point-of-use disclosure required by round 1 survives untouched: requirements.md:520 ('Known-unsatisfied, do not read this criterion in isolation') and acceptance-tests.md:30's Notes text ('known-unsatisfied ... (OQ-004)'), so a verifier reading either artifact in isolation still learns the criterion is known-unsatisfied. Both round-2 Criticals are closed without reopening round 1's gap."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals explicitly excludes implementing Epics A1-A6, authoring Phase 2/3 test code, registering a ninth loop id, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, docs/** in this task."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries fixes B1 (golden-baseline capture/promotion, candidate/canonical separation, CI never writes canonical) and B2 (shared registry/driver/run-record edit review rigor). Roles and Permissions and REQ-006c fix the human-approval gate for baseline promotion. No material constraint is left implicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks lists Critical/High/Medium/High/Note entries, each with a named mitigation and validation surface: AC-034/AC-035 for the drift risk, design.md field-naming-before-Phase-2 for the shared-surface risk, Main Workflows step 1 for the deliberate-scope-deviation risk, and OQ-004 plus the AC-026 point-of-use disclosure for the Done-transition ordering risk (the register entry is itself named as the control since no automated check detects the deviation)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory path is present in this reviewer's allowed-input manifest, and requirements.md carries no 'Bounded-Context:' field. Recorded as skipped per calibration's explicit SKIP condition for an absent/unevidenced domain contract."
+    }
+  ],
+  "verdict": "PASS"
+}

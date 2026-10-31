@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SDD Forge approver-registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "approvers"],
+  "properties": {
+    "schema": { "const": "sdd-approver-registry/v1" },
+    "approvers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "registered_at": { "type": "string" }
+        }
+      }
+    }
+  }
+}

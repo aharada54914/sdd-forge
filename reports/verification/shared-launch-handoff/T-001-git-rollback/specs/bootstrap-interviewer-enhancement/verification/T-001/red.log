@@ -1,0 +1,13 @@
+Command: ./tests/bootstrap-layer-templates.tests.sh
+Exit: 1
+
+The acceptance-first test failed before implementation with 42 failures.
+All four expected templates were absent, and every TEST-001 through TEST-005
+content assertion failed. Representative diagnostics:
+
+FAIL: TEST-001 UX layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md)
+FAIL: TEST-001 frontend layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md)
+FAIL: TEST-001 infrastructure layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md)
+FAIL: TEST-001 security layer template exists (missing: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md)
+PASS: 0
+FAIL: 42

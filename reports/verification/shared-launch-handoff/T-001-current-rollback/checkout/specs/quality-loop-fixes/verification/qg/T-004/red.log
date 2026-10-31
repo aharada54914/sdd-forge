@@ -1,0 +1,64 @@
+# T-004 RED evidence: tests/review-contract-foundation.tests.sh run against the UNFIXED plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+# Captured: 2026-07-19T17:24:22Z
+# Pre-fix script sha256: b3f5f7e8d316d9414ff609b5ae88974af45b0da1b7e9b3a361a49ee1a4192e0b
+# Command: bash tests/review-contract-foundation.tests.sh
+
+ok: review contract foundation validates canonical input and rejects unsafe inputs
+PASS (T-004): TEST-022/baseline: no-shim lane is green (spec fixture)
+PASS (T-004): TEST-022/baseline: no-shim lane is green (quality fixture)
+FAIL (T-004): TEST-022: manifest field .stage (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+FAIL (T-004): TEST-022: manifest field .role (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+FAIL (T-004): TEST-022: manifest field .feature (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_PATH: spec-reviewer-a contains a real but role-unlisted path: specs/crlf-fixture/requirements.md
+FAIL (T-004): TEST-022: manifest field .run_id (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_IDENTITY: run ID must be a nonblank canonical identifier
+FAIL (T-004): TEST-022: manifest field .host_session_id (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_IDENTITY: host-session ID must be a nonblank canonical identifier
+FAIL (T-004): TEST-022: manifest field .sequence (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh: 行 260: [[: 2: arithmetic syntax error: invalid arithmetic operator (エラーのあるトークンは "")
+REVIEW_CONTEXT_IDENTITY: invocation does not extend the canonical identity ledger
+FAIL (T-004): TEST-022: manifest field .previous_record_sha256 (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_IDENTITY: invocation does not extend the canonical identity ledger
+FAIL (T-004): TEST-022: manifest field .identity_ledger_sha256 (jq -r) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_IDENTITY: canonical identity ledger hash is stale or mismatched
+FAIL (T-004): TEST-022: conditional task_id read (line 187) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK b293b497b2fa559565956f954fe20490c0631eb6a40580521c56a98dfeb56f97
+  actual:   REVIEW_CONTEXT_PATH: sdd-evaluator requires the current task implementation report
+FAIL (T-004): TEST-023: ledger @tsv batch read (lines 250-258) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_IDENTITY: canonical identity ledger record hash is invalid
+FAIL (T-004): TEST-024a: line 275 (.allowed_input_manifest[].path) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK b293b497b2fa559565956f954fe20490c0631eb6a40580521c56a98dfeb56f97
+  actual:   REVIEW_CONTEXT_PATH: sdd-evaluator requires the current task implementation report
+FAIL (T-004): TEST-024b: line 305 (.allowed_input_manifest[] | [.path,.sha256] | @tsv) survives the CRLF shim
+  expected: REVIEW_CONTEXT_OK 845dea9a5ce63d9c018367cd4d033d623d9dda69889bc971bc2d111c78fbed6f
+  actual:   REVIEW_CONTEXT_HASH: spec-reviewer-a hash mismatch: specs/crlf-fixture/requirements.md
+PASS (T-004): TEST-026 (wrong sequence, no-shim lane) fails closed
+FAIL (T-004): TEST-026 (wrong sequence, __ALL__ shim lane) fails closed
+  expected to contain: REVIEW_CONTEXT_IDENTITY: canonical identity ledger chain is discontinuous
+  actual: REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+PASS (T-004): TEST-026 (wrong previous hash, no-shim lane) fails closed
+FAIL (T-004): TEST-026 (wrong previous hash, __ALL__ shim lane) fails closed
+  expected to contain: REVIEW_CONTEXT_IDENTITY: canonical identity ledger chain is discontinuous
+  actual: REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+PASS (T-004): TEST-026 (symlink traversal, no-shim lane) fails closed
+FAIL (T-004): TEST-026 (symlink traversal, __ALL__ shim lane) fails closed
+  expected to contain: REVIEW_CONTEXT_IDENTITY: canonical identity ledger traverses a symbolic link
+  actual: REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+PASS (T-004): TEST-026 (duplicate run/session id, no-shim lane) fails closed
+FAIL (T-004): TEST-026 (duplicate run/session id, __ALL__ shim lane) fails closed
+  expected to contain: REVIEW_CONTEXT_IDENTITY: run or host-session identity was already persisted
+  actual: REVIEW_CONTEXT_CONTRACT: stage and role are not an authorized invocation pair
+FAIL (T-004): 16 CRLF-shim assertion(s) failed for validate-review-context-set.sh (issue #179)
+
+EXIT_CODE=1

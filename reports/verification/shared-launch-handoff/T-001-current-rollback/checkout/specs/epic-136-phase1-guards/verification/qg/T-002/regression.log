@@ -1,0 +1,7 @@
+# T-002 regression over the live guard twins
+## guard-parity
+guard-parity.tests.sh: 36 passed, 0 failed
+## guards
+Results: 133 passed, 0 failed.
+## constant-parity
+constant-parity.tests.sh: 2 passed, 0 failed

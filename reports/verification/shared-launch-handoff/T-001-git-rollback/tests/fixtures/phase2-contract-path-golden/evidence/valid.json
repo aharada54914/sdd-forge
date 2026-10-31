@@ -1,0 +1,8 @@
+{
+    "schema":  "phase2-contract-path-golden/v1",
+    "field":  "evidence",
+    "case":  "valid",
+    "expected_exit":  0,
+    "stdout":  "Verification contract passed for task T-003-FIXTURE.\n",
+    "stderr":  ""
+}

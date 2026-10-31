@@ -1,0 +1,15 @@
+{
+  "id": 10,
+  "method": "turn/start",
+  "params": {
+    "threadId": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "input": [
+      {
+        "type": "text",
+        "text": "Implement only approved T-001 (REQ-001) using /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-manifest.json and immutable snapshot /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-snapshot-v2. No parent history is supplied. Verify the manifest and hashes before work. Read only manifest-listed source files from the snapshot. Existing candidate is the starting point: validate it and repair only T-001 deficiencies, preserving unrelated candidate bytes. All writes, temporary files, staged source copies, test fixtures and implementation report must stay under /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-output. Never write owner source, tasks.md, review ledgers, frozen evidence, Git or external services. Output paths in the manifest resolve against the owner checkout; the writable cwd is that output root. Treat copied source paths under staged/ as outputs, not authority to mutate snapshot. Before implementation record before-byte hashes, exact run/session/agent identities, high-risk persisted evidence fields, counterpart and executed failing mismatch tests in staged reports/implementation/T-001.md. Follow approved task TDD/Done When/rollback requirements, and do not claim inherited GREEN as your evidence. The actual native root thread UUID is the agent instance identity; sessionId is native session tree identity, both 01a119f0-3fc5-7b31-998e-34f90076b5ba; run label is T-001-01a119f0-3fc5-7b31-998e-34f90076b5ba. Cost 48.22 USD is historical API-equivalent estimate only, not current measurement or a ceiling. Use rtk proxy shell, no Gemini, no reviews/reservations. If a required dependency is not admitted, stop and report exact missing path for new snapshot publication. Report implementation/testing and remaining gaps separately; never mark Done."
+      }
+    ]
+  }
+}

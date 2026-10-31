@@ -1,0 +1,120 @@
+{
+  "task_id": "T-008",
+  "feature": "sdd-forge-mcp",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-07-04T23:30:18Z",
+  "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs stack (risk-gate-matrix stack descriptor): no compile-toolchain lint applies; shell syntax / docs checks recorded in acceptance evidence",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs stack: no TypeScript surface in this task",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs stack: nothing to compile; artifact placement verified via acceptance tests",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/check-placeholders.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/check-task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs-only task (low tier, test-after): no executable test surface; content verified against implementation sources per implementation report",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs-only task (low tier, test-after): no executable test surface; content verified against implementation sources per implementation report",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "docs-only task (low tier, test-after): no executable test surface; content verified against implementation sources per implementation report",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "medium/low tier: requirement-traceability not mandated by risk-gate-matrix",
+      "requirement_ids": [
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

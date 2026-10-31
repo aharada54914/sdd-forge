@@ -1,0 +1,234 @@
+{
+  "task_id": "T-012",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "294dcf8acee1fd41373657b412a9831af0ef08470c92466eb551b461c019285d",
+  "quality_report": "reports/quality-gate/epic-195-a7-compatibility/T-012.md",
+  "verification_contract": "specs/epic-195-a7-compatibility/verification/T-012.contract.json",
+  "git_commit": "58ec3b88161a929b83de41e24a489ae715ad39fb",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/structural-sh.log",
+      "evidence_sha256": "d15931aa35b2ad955db035bedd6ce1916286b665f0f83623b8e38149e75ab5f6"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/live-refresh-sh.log",
+      "evidence_sha256": "0c966d0a36f8904a4bc3e5ec139e655f6ded4d2644cb2b7768642fc498f2f2c9"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/structural-ps1.log",
+      "evidence_sha256": "7f10469a8e92b44266e40ade92c6e6a37b4eea9a1f53414c8d617ac76e703dfe"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/traceability.log",
+      "evidence_sha256": "7b49252e3a4047405d9a0be56b3acf34ec40db515f2038dba6e8fb52305427a7"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/placeholders.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/task-state.log",
+      "evidence_sha256": "fd15d18f249739fc35432406fbdfe009133c05fb348724b7410064636a0d900f"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-012/qg/component-coverage.json",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012.contract.json",
+      "sha256": "1bda23e62c9f5261f75b94b592c6bf68aab58a641a08572f2b7fbc7dd865f81d"
+    },
+    {
+      "path": "reports/quality-gate/epic-195-a7-compatibility/T-012.md",
+      "sha256": "eb959179daec6c8c2a8d0fae42e4a25302486702b74374d1bc82c684aab9a7ea"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/component-coverage.json",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/live-refresh-sh.log",
+      "sha256": "0c966d0a36f8904a4bc3e5ec139e655f6ded4d2644cb2b7768642fc498f2f2c9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/placeholders.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/structural-ps1.log",
+      "sha256": "7f10469a8e92b44266e40ade92c6e6a37b4eea9a1f53414c8d617ac76e703dfe"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/structural-sh.log",
+      "sha256": "d15931aa35b2ad955db035bedd6ce1916286b665f0f83623b8e38149e75ab5f6"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/task-state.log",
+      "sha256": "fd15d18f249739fc35432406fbdfe009133c05fb348724b7410064636a0d900f"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-012/qg/traceability.log",
+      "sha256": "7b49252e3a4047405d9a0be56b3acf34ec40db515f2038dba6e8fb52305427a7"
+    }
+  ]
+}

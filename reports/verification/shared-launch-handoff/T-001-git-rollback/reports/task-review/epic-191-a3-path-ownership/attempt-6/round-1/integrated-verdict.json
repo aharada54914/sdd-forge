@@ -1,0 +1,15 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "task-orch-epic-191-a3-path-ownership-a6r1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 6,
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "PASS",
+  "verdict_note": "Provenance re-review (--provenance-rereview) round 1 of 3: one Critical finding (AC-COVERAGE, reviewer A: AC-056/TEST-056, added to acceptance-tests.md 2026-08-11, has no task reference in the frozen tasks.md and no row or deferral entry in traceability.md; the AC-056 traceability refresh was explicitly deferred by amendment 6e7c84dd to this task-side re-bind). Reviewer A own role-local verdict is BLOCKED per its fixed per-reviewer formula (any Critical FAIL); per SKILL.md STEP 6 round-aware state machine (round < 3, Major or Critical findings -> NEEDS_WORK) and the established integrated-verdict precedent (impl a1r1 verdict_note), the integrated outcome is NEEDS_WORK with a remedy round available. Task-Review-Status stays Passed per the mode contract; the remedy targets traceability.md alone (the round-2 progress rule explicitly accepts a traceability-only change), never the frozen tasks.md body."
+}

@@ -1,0 +1,78 @@
+
+
+
+
+
+Describing domain-review-loop SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 906ms
+ [+] documents the sequential launch boundary requiring REVIEW_CONTEXT_OK 184ms
+ [+] documents the AC-005 verdict aggregation table matching spec/impl/task-review-loop 34ms
+ [+] documents the AC-014 drift-detection precondition distinct from the T-006 hook guard 36ms
+ [+] documents the T-011 cross-model-verify extension point without implementing it 33ms
+ [+] never instructs writing Domain-Model-Status: Approved 28ms
+ [+] documents the reviewer sequence never sharing a context and using integrated-summary as the only bridge 33ms
+Describing domain-reviewer-a.md contract (strategic checks)
+ [+] exists with the correct frontmatter (read-only tools, no write access) 279ms
+ [+] declares the six strategic check IDs in order 63ms
+ [+] documents check CONTEXT-BOUNDARY-CLARITY with a severity 35ms
+ [+] documents check RELATION-PATTERN-VALID with a severity 32ms
+ [+] documents check EVENT-COVERAGE with a severity 32ms
+ [+] documents check TERM-UNIQUENESS with a severity 32ms
+ [+] documents check AGGREGATE-CONTEXT-OWNERSHIP with a severity 32ms
+ [+] documents check DOMAIN-MODEL-STATUS-PRESENT with a severity 32ms
+ [+] requires the launch boundary and calibration reference 31ms
+ [+] declares the domain-reviewer-a/v1 output schema 32ms
+Describing domain-reviewer-b.md contract (tactical checks)
+ [+] exists with the correct frontmatter (read-only tools, no write access) 65ms
+ [+] declares the six tactical check IDs in order 34ms
+ [+] documents check INVARIANT-VERIFIABLE with a severity 33ms
+ [+] documents check TRANSACTION-BOUNDARY-REALISTIC with a severity 33ms
+ [+] documents check NO-GOD-AGGREGATE with a severity 34ms
+ [+] documents check NO-ANEMIC-MODEL with a severity 31ms
+ [+] documents check LIFECYCLE-DEFINED with a severity 29ms
+ [+] documents check AGGREGATE-SIZE-PROPORTIONATE with a severity 30ms
+ [+] never receives reviewer-a's raw report 31ms
+ [+] declares the domain-reviewer-b/v1 output schema 32ms
+Describing domain-review-calibration.md exists and scopes the gate
+ [+] exists and defines severity calibration 73ms
+ [+] excludes downstream conformance and cross-model verification from this gate's scope 59ms
+Describing validate-review-context-set.sh/.ps1 authorize the domain stage
+ [+] the bash validator's path_is_authorized recognizes domain:domain-reviewer-a/b 52ms
+ [+] the bash validator's authorized invocation pairs include the domain stage 37ms
+ [+] the PowerShell validator's Test-AuthorizedPath recognizes domain:domain-reviewer-a/b 37ms
+ [+] the PowerShell validator's valid-pairs list includes the domain stage 35ms
+ [+] both validators parse without syntax errors 132ms
+Describing AC-005 verdict aggregation: Get-DomainReviewVerdict (real execution)
+ [+] both reviewers clean PASS -> PASS with warningCount 0, any round 58ms
+ [+] one Major FAIL, round 1 -> NEEDS_WORK 31ms
+ [+] one Major FAIL, round 2 -> NEEDS_WORK 35ms
+ [+] round-3 unresolved Major -> BLOCKED 41ms
+ [+] round-3 unresolved Critical -> BLOCKED 36ms
+ [+] round-3 Minor-only -> PASS with nonzero warningCount 56ms
+ [+] Minor-only before round 3 -> NEEDS_WORK, not a premature PASS 33ms
+ [+] Critical takes precedence over Major and Minor at any round 33ms
+Describing AC-014 drift detection: Test-DomainDrift (real execution, real files, real hashes)
+ [+] computes a stable normalized hash for context-map.md regardless of Domain-Model-Status value 237ms
+ [+] records a fingerprint of the current tree and confirms zero drift when nothing changed 163ms
+ [+] detects drift for real when a domain/ file changes after the fingerprint was recorded 246ms
+ [+] does not report drift for a status-only edit (Approved reset to Pending) 270ms
+ [+] detects an added aggregate card as drift 291ms
+Describing domain-review-precheck.sh: real execution against a real fixture tree
+ [+] fails closed with 'jq is required' once all structural preconditions pass (real bash execution) 739ms
+ [+] rejects round 0 as not a positive integer (real bash execution) 185ms
+ [+] rejects round 4 as out of the 1-3 range (real bash execution) 166ms
+ [+] rejects a new attempt without --reset (real bash execution) 164ms
+ [+] rejects round 2 without --edit-summary (real bash execution) 273ms
+ [+] rejects a missing canonical domain/ artifact (real bash execution) 413ms
+ [+] rejects an empty domain/aggregates/ directory (real bash execution) 324ms
+ [+] rejects a malformed Domain-Model-Status value (real bash execution) 552ms
+ [+] on an Approved model with no fingerprint yet, still fails closed at jq before writing a fingerprint (real bash execution) 623ms
+Describing Worked fixtures (documented contract validation, per Done-When)
+ [+] both-reviewers-PASS -> clean PASS (worked example) 123ms
+ [+] one Major FAIL from reviewer B -> NEEDS_WORK (worked example) 37ms
+ [+] round-3 unresolved Major -> BLOCKED (worked example) 53ms
+ [+] round-3 Minor-only -> PASS with nonzero warningCount (worked example) 42ms
+ [+] domain/ file changed since last-approved-state -> halts pending a status reset (worked example over real hashes) 228ms
+ [+] no prior Approved state -> drift detection does not apply (first-ever review, worked example) 187ms
+Tests completed in 8.3s
+Passed: 62 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

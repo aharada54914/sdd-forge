@@ -1,0 +1,108 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "task-a-cimcp-a2r1-20260707-4e1a",
+  "host_session_id": "hs-task-a-cimcp-0101",
+  "allowed_input_manifest": [
+    {"path": "specs/ci-mcp/requirements.md", "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"},
+    {"path": "specs/ci-mcp/acceptance-tests.md", "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"},
+    {"path": "specs/ci-mcp/design.md", "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"},
+    {"path": "specs/ci-mcp/tasks.md", "sha256": "4bc2563e8703598a7b33050190bba3d2fce8f5263586b181b642c75d41cf53a4"},
+    {"path": "specs/ci-mcp/traceability.md", "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"},
+    {"path": "specs/ci-mcp/ux-spec.md", "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"},
+    {"path": "specs/ci-mcp/frontend-spec.md", "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"},
+    {"path": "specs/ci-mcp/infra-spec.md", "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"},
+    {"path": "specs/ci-mcp/security-spec.md", "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/ci-mcp/attempt-2/round-1/precheck-result.json", "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"},
+    {"path": "reports/task-review/ci-mcp/attempt-2/round-1/dependency-graph.json", "sha256": "fdf856fb3a69d2691a988ed858001c82968799eb9fb0506ba4eba821b6ed5061"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN referenced in task Done When/Scope resolve to real criteria in acceptance-tests.md (AC-001..AC-019): T-002{AC-010,AC-011}, T-003{AC-008,AC-009}, T-004{AC-012}, T-005{AC-001,AC-002}, T-012{AC-003,AC-005}, T-013{AC-004}, T-006{AC-006,AC-007}, T-007{AC-013}, T-008{AC-014,AC-015}, T-009{AC-016,AC-017}, T-010{AC-018}, T-011{AC-019}. No dangling AC ID."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 13 tasks have a Blockers field that is either 'None' (T-001) or a comma-separated list of valid T-\\d{3} IDs (e.g. T-011: 'T-001, T-002, ... T-013'). No range notation or prose. blockers_format_valid=true, consistent with precheck-result.json blockers_format_valid:true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All REQ-001..REQ-013 appear in at least one task Requirements field: REQ-001{T-001,T-002,T-006}, REQ-002{T-005,T-012,T-013}, REQ-003{T-002,T-006}, REQ-004{T-001,T-007}, REQ-005{T-003}, REQ-006{T-002}, REQ-007{T-004}, REQ-008{T-013}, REQ-009{T-008}, REQ-010{T-009}, REQ-011{T-010}, REQ-012{T-011}, REQ-013{T-001}. No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-001..AC-019 are traceable to a task via Done When AC references and traceability.md AC->TEST->Task table. Each AC maps to exactly one owning task. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every one of the 13 tasks references at least one REQ-NNN in its Requirements field. No orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test/verification-scoped tasks reference ACs: T-006 (read-only 静的検査 + no-write テスト, tests-only scope) -> AC-006/AC-007; T-007 (契約 schema + ajv 検証) -> AC-013. Tool tasks with test scope (T-005/T-012/T-013) each reference their target ACs. No test task lacks an AC reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 2, round 1: all 13 tasks have Approval: Draft (not Approved) and Status: Planned, satisfying the subsequent-round constraint (Approval != Approved; Status in {Planned,In Progress,Blocked})."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All Risk/Required Workflow pairs match the risk-gate matrix: medium->acceptance-first (T-001,T-008); low->test-after (T-011); high->tdd (T-002,T-003,T-004,T-005,T-012,T-013,T-006,T-007,T-009,T-010). Consistent with precheck workflow_match_precheck:PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No AC-NNN is claimed as primary target by more than one task. Tools split across T-005 (AC-001,002), T-012 (AC-003,005), T-013 (AC-004) each own distinct ACs despite sharing tools/actions.ts. No duplicate AC ownership."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All Blockers references resolve to existing task IDs present in dependency-graph.json nodes (T-001,T-002,T-003,T-004,T-005,T-012,T-013,T-006,T-007,T-008,T-009,T-010,T-011). No reference to a non-existent task."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS so cycle detection ran. Graph edges form a DAG with valid topological order T-001 -> {T-002,T-004} -> T-003 -> T-005 -> T-012 -> T-013 -> {T-006,T-007} -> T-008 -> T-009 -> T-010 -> T-011. Serial chain T-005->T-012->T-013 over shared actions.ts/server.ts introduces no back-edge; no cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task addresses one coherent concern; 'and'/'+' clauses are either tightly-coupled implementation pairs (T-002 client+error-normalizer, T-007 schema+ajv validation) or mandatory housekeeping (T-011 docs + traceability finalization). The prior attempt-1 SCOPE-DISJOINT defect (T-005/T-012/T-013 siblings mutating shared tools/actions.ts and server.ts with no ordering) is resolved: tasks.md now serializes them via Blockers chain T-012:{...,T-005}, T-013:{...,T-012}, and both consumers T-006/T-007 depend on all three, so no two shared-file tasks are concurrently eligible. Each of T-005/T-012/T-013 is individually single-concern (run tools / jobs+artifacts tools / job-log+truncation)."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item is observable (AC-bound assertions, unit/contract test results, Red->Green evidence, provenance evidence bundle, named implementation report artifacts, quality gate pass). No forbidden verbs (ensure/consider/works correctly/verify is correct). Each non-doc task names a concrete verification (typecheck/tests green, static grep, ajv, dist-parity CI, Inspector smoke) and evidence artifact; doc-only T-011 names exact files (README.md/USERGUIDE.md) plus addendum reports/implementation/ci-mcp/T-011.md."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 13 task IDs (T-001..T-013) appear in traceability.md Task->REQ table; all REQ IDs cited (REQ-001..REQ-013) exist in requirements.md; all AC IDs exist in acceptance-tests.md. Full-profile: every REQ row has canonical <layer>-spec.md#<section> anchors or reasoned 'N/A — cross-layer only:' rationale; cited anchors verified present in hash-bound docs (security-spec.md: Trust Boundaries/STRIDE Analysis/Secrets Management/Data Classification and Protection/SBOM and Supply Chain; infra-spec.md: Deployment Topology). No dangling references."
+    }
+  ]
+}

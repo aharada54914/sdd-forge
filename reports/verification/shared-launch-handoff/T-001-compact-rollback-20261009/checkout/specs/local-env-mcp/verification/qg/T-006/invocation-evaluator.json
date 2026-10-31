@@ -1,0 +1,110 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "local-env-mcp",
+  "task_id": "T-006",
+  "run_id": "qg-eval-localenvmcp-t006-20260706-1cf2",
+  "host_session_id": "hs-qg-e6-6503d1ba-0017",
+  "sequence": 49,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e31e9c527323980f666ab5c550884b15bcbb6f0ca0d7f6f700a2946e2584e9cf",
+  "previous_record_sha256": "bce886d82e02c81320cd040476173b7c17ab6d451c647dda1245f5706a12a1b7",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/local-env-mcp/T-006.md",
+      "sha256": "feae919a9fbc5c2ecd52c953bc856ed36ce1f87ec06a8e2844b5cffb8a181762"
+    },
+    {
+      "path": "specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "specs/local-env-mcp/design.md",
+      "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"
+    },
+    {
+      "path": "specs/local-env-mcp/tasks.md",
+      "sha256": "0c5c58918720495222bfdd6713d4e45ff78345bd08b484aa711fcc25cea9fe0c"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.md",
+      "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.json",
+      "sha256": "01761c18fd4c4ebffc2693ea42db7e4352a8071af4c631fb7c71cd36d8876546"
+    },
+    {
+      "path": "specs/local-env-mcp/ux-spec.md",
+      "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283"
+    },
+    {
+      "path": "specs/local-env-mcp/frontend-spec.md",
+      "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b"
+    },
+    {
+      "path": "specs/local-env-mcp/infra-spec.md",
+      "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"
+    },
+    {
+      "path": "specs/local-env-mcp/security-spec.md",
+      "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "a782bcf213763bd7d4292ef5b7b4fc091dd36478f8a0b864d51ec805b804f0ec"
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "f2a703bf184cbdd3ed788fd11074dfa703920081ec7f9cd10fec61570afbf986"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-006-red.txt",
+      "sha256": "1692e89b61a556751ccb7639965040b687f0c7b097e2a2ba56421f28af45a87e"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-006-green.txt",
+      "sha256": "973be96ae42c8b6c9103e61ae024451d811c77aac6ae752f8d0551eba3e370b0"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-006.contract.json",
+      "sha256": "7bc766db96462dc7ee4a17234b3cd42a14adb01aa3724b7bb4731284f90a684e"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/check-placeholders.log",
+      "sha256": "7ac4ffd96be0bffe010d1d9836d76ee0642c509c4c47f46a2df857dfe451cc38"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/check-risk.log",
+      "sha256": "f21ce75da9d0bb837b17635cb7fdabded10a43484c7fb2e6324d8c2cb2a55ae7"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/check-task-state.log",
+      "sha256": "ef9bd9106ad4cf96908a32e6e39a717e6c32bb6c840274276e7662e52aed77a9"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/check-traceability.log",
+      "sha256": "1bc41a010cf4e83437b55cad7575e58f93464628093a74e08bcabcd1dce074bf"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/check-workflow-state.log",
+      "sha256": "ef03658ab5b5d1b655d52f173cae20008e80115b8c484ece74ac9dacd5d707b9"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-006/tests.log",
+      "sha256": "b9675dd364dd36a3ab352899c50f6b63566874d94d21deb0b99454818d76d77f"
+    }
+  ]
+}

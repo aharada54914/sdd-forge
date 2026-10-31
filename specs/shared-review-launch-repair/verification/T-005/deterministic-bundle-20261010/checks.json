@@ -1,0 +1,100 @@
+[
+  {
+    "check": "ruff",
+    "command": [
+      "/tmp/shared-launch-static-20261008/bin/ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "/tmp/shared-launch-static-20261008/bin/mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "build",
+    "command": [
+      "python3",
+      "-B",
+      "tests/shared-launch-build.tests.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "placeholder",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "risk",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "specs/shared-review-launch-repair/tasks.md"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "task-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/shared-review-launch-repair/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation",
+      "."
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "component",
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "--repo-root",
+      "."
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/traceability.json",
+      ".",
+      "require-evidence"
+    ],
+    "exit_code": 0
+  }
+]

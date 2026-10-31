@@ -1,0 +1,58 @@
+$ git diff --numstat plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md plugins/sdd-review-loop/agents/spec-reviewer-a.md plugins/sdd-review-loop/agents/spec-reviewer-b.md plugins/sdd-review-loop/agents/impl-reviewer-a.md plugins/sdd-review-loop/agents/impl-reviewer-b.md
+
+10	0	plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+27	1	plugins/sdd-review-loop/agents/impl-reviewer-a.md
+33	1	plugins/sdd-review-loop/agents/impl-reviewer-b.md
+15	1	plugins/sdd-review-loop/agents/spec-reviewer-a.md
+13	1	plugins/sdd-review-loop/agents/spec-reviewer-b.md
+
+Re-verification note (independent re-check performed for T-007 quality-gate prep,
+not the original implementation report):
+
+- sdd-bootstrap-interviewer/SKILL.md: 10 insertions, 0 deletions. Pure additive
+  insertion of new step "1a" after step 1 in "Intake And Investigation". No
+  pre-existing line touched.
+
+- impl-reviewer-a.md: 27 insertions, 1 deletion. Full `git diff` inspected
+  directly (not just --numstat) because the deletion count exceeded 1-2 lines
+  in aggregate across all four files' insertions, but per-file the single
+  deletion in this file is exactly one line: the checks-array ordering line
+  "...ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE." replaced by the same line with
+  ", DOMAIN-CONFORMANCE" appended before the final period. The other 26
+  insertions are one wholly new "## DOMAIN-CONFORMANCE (Major, TYPE-D)"
+  section. No pre-existing check body, wording, or ordering altered.
+
+- impl-reviewer-b.md: 33 insertions, 1 deletion. Full `git diff` inspected.
+  The single deletion is the checks-array ordering line
+  "...DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE." replaced by the same
+  line rewrapped across two lines with ", DOMAIN-CONFORMANCE" appended
+  (rewrap is why this shows as 2 insertions + 1 deletion for the ordering
+  line itself, plus 31 insertion lines for the new
+  "## DOMAIN-CONFORMANCE (Major, TYPE-D)" section). No pre-existing check
+  body, wording, or ordering altered.
+
+- spec-reviewer-a.md: 15 insertions, 1 deletion. Full `git diff` inspected.
+  The single deletion is the checks-array ordering line
+  "`REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY,
+  CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE.`" replaced by the same line
+  with ", DOMAIN-CONFORMANCE" appended before the closing backtick+period.
+  The other 14 insertions are one new `DOMAIN-CONFORMANCE` bullet appended to
+  the existing "Run these checks:" list. No pre-existing check body, wording,
+  or ordering altered.
+
+- spec-reviewer-b.md: 13 insertions, 1 deletion. Full `git diff` inspected.
+  The single deletion is the checks-array ordering line
+  "`AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE,
+  APPROVAL-BOUNDARY, DOWNSTREAM-READINESS.`" replaced by the same line with
+  ", DOMAIN-CONFORMANCE" appended before the closing backtick+period. The
+  other 12 insertions are one new `DOMAIN-CONFORMANCE` bullet appended to the
+  existing "Run these checks:" list. No pre-existing check body, wording, or
+  ordering altered.
+
+Conclusion: all five files are additive-only. Every deletion line across all
+four edited shared-review files (5 deletions total: 0+1+1+1+1) is exactly the
+documented "ordering line grows by one appended check ID" pattern, confirmed
+by reading the full unified diff for each file, not just --numstat counts.
+No pre-existing check body, section, or instruction was altered, removed, or
+reworded in any of the five files. This independently reconfirms the
+implementation report's additive-only claim (reports/implementation/sdd-domain/T-007.md).

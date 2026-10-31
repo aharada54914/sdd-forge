@@ -1,0 +1,134 @@
+Requirement-traceability check passed for T-012:
+ - tasks.md T-012 -> REQ-009, REQ-010 (tasks.md:2503, "Requirements: REQ-009, REQ-010").
+   REQ-009 is defined in requirements.md (requirements.md:882, the track-selection contract
+   migration requirement, ADR-0023 / INV-001 / INV-002) and REQ-010 at requirements.md:951
+   (hook-activation handshake, REDESIGNED). Both are present in traceability.md as requirement
+   rows (REQ-009 traceability.md:16, REQ-010 traceability.md:17), and T-012 is present in
+   traceability.md at the task row (:44), the four AC->TEST->task rows (:75, :76, :85, :89) and
+   the planned-files row (:113).
+ - AC/TEST-025, AC/TEST-026, AC/TEST-035 and AC/TEST-039 are all defined in acceptance-tests.md
+   (AC-025 line 47, behavior lock: error-stop + promotion; AC-026 line 48, the revised
+   PROJECT_CONTEXT_INVALID explicit-stop proof that supersedes the prior "treated as absent"
+   verdict; AC-035 line 57, the full A1-time entry-point wiring inventory; AC-039 line 61, the
+   full per-consumer common-contract-suite matrix), and every one is implemented in BOTH lanes.
+   Reference counts measured this round rather than asserted: tests/ship-track-selection-
+   migration.tests.sh / .ps1 carry TEST-025 13/13, TEST-026 20/18, TEST-035 3/2, TEST-039 11/5,
+   and AC-025 3/1, AC-026 8/5, AC-035 3/2, AC-039 4/3. Unlike T-011 - whose suite referenced
+   TEST-025 ZERO times in both lanes because AC-025 is sdd-ship's own instance of the matrix and
+   sdd-ship was then out of scope - all four TEST ids are now non-zero in both lanes. T-011's
+   deferral is therefore discharged here, which is the point of this task.
+ - AC->TEST->task mapping table rows checked INDIVIDUALLY rather than by scanning for T-012, in
+   both directions. Forward: exactly four rows assign an AC to T-012 - AC-025 -> TEST-025 ->
+   T-012 (traceability.md:75), AC-026 -> TEST-026 -> T-012 (:76), AC-035 -> TEST-035 -> T-012
+   (:85), AC-039 -> TEST-039 -> T-012 (:89). Reverse: filtering the whole AC table for those four
+   AC ids returns those same four rows and nothing else, so none of T-012's four ACs is also
+   assigned to another task, and T-012 claims no AC owned elsewhere. No gap and no double-claim.
+ - suite self-registration verified: tests/run-all.sh:68 and tests/run-all.ps1:51, twelfth in
+   numeric order immediately after plugin-contracts-track-selection (T-011). Both runner entries
+   were read directly; the suite also asserts its own registration and the existence of its twin
+   (3 self-registration assertions per lane, transcribed in focused-tests.log).
+ - planned-files row traceability.md:113 checked item by item against the commit range. All nine
+   named paths exist on disk AND appear in `git diff --name-only 856c514f HEAD` (856c514f =
+   `git rev-parse --short 0afedf33^`, the commit immediately before T-012's first commit): the
+   two staged candidates, the suite in both lanes, tests/run-all.sh, tests/run-all.ps1,
+   CHANGELOG.md, the staged .github/workflows/test.yml and MANIFEST.sha256. That range lists 36
+   paths in total; the extra ones are the two LIVE protected consumers (the human-apply result,
+   see below), the implementation report, the two quality-gate reports, the carryover note, the
+   identity ledger and its two pending manifests, tasks.md, and T-012's own twelve artifacts
+   under verification/T-012/.
+
+HUMAN-APPLY STEP - COMPLETE, and the evidence is this round's own measurement.
+ - tasks.md T-012's "Human apply step (separate, explicit - required before Done)" and its Done
+   When item "The Human apply step above is complete and recorded in the implementation report"
+   are satisfied by commit c50f2c64, "feat(epic-189-a1): apply the staged ADR-0023 track-selection
+   migration to the protected consumers (T-012)". `git log --oneline -1 --` against each protected
+   live path returns c50f2c64 for BOTH, so that commit and no other carries the applied bytes.
+ - The apply was performed BY A HUMAN through the now-protected `apply-human-copy`, as TWO
+   SINGLE-TARGET BATCHES. A single two-target batch is not merely undesirable but IMPOSSIBLE, and
+   that was demonstrated empirically this round rather than argued from the spec. Both targets'
+   basename is literally `SKILL.md`, and the publisher refuses a same-basename batch at
+   manifest-parse time, before any live mutation (plugins/sdd-quality-loop/scripts/apply-human-
+   copy.sh:570-578, with EXIT_DUPLICATE_BASENAME_IN_BATCH=19 defined at :102). Driven against an
+   isolated `git clone --local` of HEAD in a throwaway directory outside the repository, with a
+   hand-written two-entry manifest naming both protected paths:
+
+     {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target
+      'plugins/sdd-lite/skills/lite-spec/SKILL.md' shares basename 'SKILL.md' (compared
+      case-insensitively) with an earlier target in the same batch; the pre-transaction backup
+      path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one
+      transaction"}
+     publisher-exit=19
+
+   `git status --porcelain` in that clone is EMPTY afterwards, confirming the refusal preceded any
+   mutation; the real worktree was never the target and is likewise clean. This is round 1's Major
+   finding, and it is why the runbook prescribes two batches.
+ - POST-APPLY LIVE DIGESTS, measured with `shasum -a 256` against the live files at HEAD:
+
+     0761a91547375da3456a5aa60d220543f3831d2e1986086f10a70a037bd6d5c9  plugins/sdd-ship/skills/ship/SKILL.md
+     757c681731aa766bf95ec016fc0f4a39216feb00a9ecca71f8b70a94cb1a9679  plugins/sdd-lite/skills/lite-spec/SKILL.md
+
+   These EQUAL the staged candidates' digests exactly - the same two values come back from
+   `shasum -a 256` over specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/
+   ship/SKILL.md and .../sdd-lite/skills/lite-spec/SKILL.md. Equality of digests was then
+   strengthened to byte equality: `cmp` over each live/staged pair exits 0. The apply is exact,
+   not merely approximately faithful.
+ - PRE-APPLY LIVE DIGESTS, read out of git rather than remembered: `git show 856c514f:<path> |
+   shasum -a 256` gives 5748a0928443bc63307bf3ab7bdb75c158bdfbef9cde72e3b3f5354bac063e91 for ship
+   and 40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74 for lite-spec. Those are
+   the two values the seq0371 report independently reconstructed by reverse-applying each
+   persisted diff onto the staged candidate, so the pre-state, the delta and the post-state now
+   agree from three directions.
+ - MANIFEST agreement: `shasum -a 256 -c MANIFEST.sha256` run from
+   specs/epic-189-a1-project-context/human-copy/ reports OK for all TEN entries, exit 0, including
+   entry 9 (ship, 0761a915…) and entry 10 (lite-spec, 757c6817…). The manifest, the staged bytes
+   and the live bytes are one consistent set.
+ - TEST-PUB, the suite's own view of the apply, now reports `published` for both consumers, `no
+   staged/live drift` for both, and its pair-consistency assertion green. Its state-classifying
+   nature was verified rather than assumed: the SAME suite extracted at d3e8d631 (the commit
+   immediately before the apply) into a throwaway directory reports `unpublished` for both and
+   still tallies 139/0. The suite therefore passes in both terminal states and is not vacuous in
+   either. See focused-tests.log for both transcripts.
+
+NOTES OBSERVED RATHER THAN ADJUDICATED:
+ - (a) AC-035's fifteen handshake assertions are genuinely per-consumer (5 consumers x
+   {handshake-block-present, handshake-tokens, handshake-before-contract}), and AC-039's thirty
+   are genuinely 6 cases x 5 consumers - both counted directly out of this round's transcript.
+   But for TWO of the five consumers, ship and lite-spec, the suite reads the STAGED candidate
+   path (specs/epic-189-a1-project-context/human-copy/plugins/...), not the live path; the other
+   three are read live. That is a consequence of the suite having been written before the apply.
+   It does not leave the live files unasserted: live and staged are byte-identical here (`cmp`
+   exit 0, single shared digest per pair), and TEST-PUB independently pins `no staged/live drift`
+   for each of the two, which is the assertion that carries the staged-path results onto the live
+   files. Recorded so the indirection is visible rather than implied.
+ - (b) the STAGED CI workflow candidate now registers FIVE of this feature's TWELVE suites -
+   project-context-schema (test.yml:221/225), approver-registry-schema (:232/:236),
+   hook-guard-epic-a1-boundary (:246/:250), plugin-contracts-track-selection (:261/:265) and, new
+   in T-012, ship-track-selection-migration (:278/:282). The SEVEN others (canonicalize-sdd-yaml,
+   generate-approval-sidecar, detect-policy-weakening, validate-approval-sidecar, apply-human-copy,
+   check-hook-activation-handshake, guard-invariants-epic-a1) are registered in tests/run-all.sh
+   and tests/run-all.ps1 but NOT in the staged workflow. The absence was proved, not assumed: a
+   single grep over the staged workflow for all twelve suite basenames returns exactly the ten
+   lines above and no others. T-011's log recorded this as "four of eleven"; T-012 adds its own
+   suite to both sides, so the shortfall is unchanged at seven. The implementer disclosed it and
+   assigned the backfill to T-013; carried here rather than assumed closed.
+ - (c) REQ-009's requirement row (traceability.md:16) was SHARED between T-011 and T-012, and
+   T-012's half is now present: the two protected consumers (staged AND live) and
+   tests/ship-track-selection-migration.tests.{sh,ps1} all exist. Nothing in that row is
+   outstanding.
+ - (d) the seq0371 evaluator's second Minor - that the normative scan-bypass rule was reworded
+   from "`--full` is the only scan bypass" to "A resolved `full` track is the only scan bypass"
+   with no assertion pinning it - is registered as carryover under "強化候補: scan bypass 規則の
+   書き換えにアサーションの錨がない" in reports/notes/epic-189-a1-carryover-items.md, checked on
+   disk this round. It is a hardening candidate, not a T-012 defect; the gate proved no check is
+   loosened by walking all six contract cases.
+ - (e) CARRYOVER REGISTRATION, counted rather than taken on trust. Commit d3e8d631 added FOUR
+   sections to reports/notes/epic-189-a1-carryover-items.md, covering seq0371 Minors 1-4 (the
+   ship fidelity narrative, the remedy1-evidence.sh overwrite trap, the stale CHANGELOG tallies,
+   the scan-bypass anchor). Minors 5 and 6 got no new section, and that is correct rather than an
+   omission: Minor 5 (run-all aborting before T-012's suite is reached) is already covered by the
+   pre-existing section "記述の訂正: 「run-all は prepare-panelist で中断する」はもはや事実で
+   ない", which already names tests/turn-first-workflow.tests.sh as the 21st-suite abort point -
+   re-confirmed by this round's own run-all measurement - and Minor 6 records the evaluator's own
+   out-of-manifest scope limits, which carries no repository-side action. So "the six Minors are
+   registered" is true in substance; the on-disk shape is four new sections plus one pre-existing
+   section plus one non-carryable item.

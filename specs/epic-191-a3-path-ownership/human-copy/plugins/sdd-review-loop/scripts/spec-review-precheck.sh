@@ -5,7 +5,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--edit-summary=<text>] [--reset]" >&2
+  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]" >&2
   exit 1
 }
 
@@ -27,11 +27,12 @@ is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
-edit_summary=""; reset=false
+edit_summary=""; reset=false; verify_inputs=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --edit-summary=*) edit_summary="${1#*=}" ;;
     --reset) reset=true ;;
+    --verify-inputs) verify_inputs=true ;;
     *) usage ;;
   esac
   shift
@@ -41,11 +42,16 @@ done
 [[ "$attempt" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$round" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
 [[ "$round" -le 3 ]] || fail "round must be between 1 and 3"
+if [[ "$verify_inputs" == true && ( "$reset" == true || -n "$edit_summary" ) ]]; then
+  fail "--verify-inputs cannot be combined with transition options"
+fi
 [[ -z "$edit_summary" || "$round" -gt 1 ]] || fail "--edit-summary is valid only after round 1"
-if [[ "$round" -gt 1 ]]; then
+if [[ "$verify_inputs" == false && "$round" -gt 1 ]]; then
   [[ -n "${edit_summary//[[:space:]]/}" ]] || fail "rounds 2 and 3 require a non-empty --edit-summary"
 fi
-if [[ "$reset" == true ]]; then
+if [[ "$verify_inputs" == true ]]; then
+  :
+elif [[ "$reset" == true ]]; then
   [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "--reset starts only attempt N+1 round 1"
 else
   [[ "$attempt" -eq 1 || "$round" -gt 1 ]] || fail "a new attempt requires --reset"
@@ -107,13 +113,14 @@ recorded_repo_root() {
     def rooted: test("^(/|[A-Za-z]:/)");
     def canonical_suffix:
       test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      (. == "domain/context-map.md" or . == "domain/domain-contract.json") or
       test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
       test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/domain/")))[] |
          . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
         | unique) as $candidates |
       if ($candidates | length) == 1 then $candidates[0] else null end] as $roots |
@@ -145,13 +152,17 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
   fail "neither sha256sum nor shasum is available"
 status="$(sed -n 's/^Spec-Review-Status:[[:space:]]*//p' "$requirements" | head -n 1 | tr -d '[:space:]')"
-if [[ "$reset" == true ]]; then
+if [[ "$verify_inputs" == true ]]; then
+  :
+elif [[ "$reset" == true ]]; then
   [[ "$status" == "Pending" || "$status" == "Passed" ]] || fail "requirements.md must declare a resettable Spec-Review-Status"
 else
   [[ "$status" == "Pending" ]] || fail "requirements.md must declare Spec-Review-Status: Pending"
 fi
 [[ ! -L "$report_root" ]] || fail "report root must not be a symlink"
-[[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+if [[ "$verify_inputs" == false ]]; then
+  [[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+fi
 
 requirements_sha="$(sha256 "$requirements")"
 acceptance_sha="$(sha256 "$acceptance")"
@@ -162,6 +173,32 @@ if [[ -n "$investigation_sha" ]]; then
   input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"
 else
   input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
+fi
+
+if [[ "$verify_inputs" == true ]]; then
+  precheck="${report_dir}/precheck-result.json"
+  [[ -d "$report_root" && ! -L "$report_root" && "$(canonical_dir "$report_root")" == "$report_root" ]] || fail "report root is missing or substituted"
+  [[ -d "${report_root}/attempt-${attempt}" && ! -L "${report_root}/attempt-${attempt}" &&
+     "$(canonical_dir "${report_root}/attempt-${attempt}")" == "${report_root}/attempt-${attempt}" ]] || fail "attempt directory is missing or substituted"
+  [[ -d "$report_dir" && ! -L "$report_dir" && "$(canonical_dir "$report_dir")" == "$report_dir" ]] || fail "round directory is missing or substituted"
+  [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  jq -se --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" \
+    --arg status "$status" --arg requirements "$requirements_sha" --arg acceptance "$acceptance_sha" \
+    --arg calibration "$calibration_sha" --arg investigation "$investigation_sha" --arg input "$input_sha" '
+      length == 1 and (.[0] | type == "object" and
+        keys == ["acceptance_sha256","attempt","calibration_sha256","edit_summary","feature","generated_at","input_sha256","investigation_sha256","requirements_sha256","reset","round","schema","spec_review_status_field","stage"] and
+        .schema == "spec-review-precheck/v1" and .stage == "spec" and
+        .feature == $feature and .attempt == $attempt and .round == $round and
+        .spec_review_status_field == $status and
+        .requirements_sha256 == $requirements and .acceptance_sha256 == $acceptance and
+        .calibration_sha256 == $calibration and
+        .investigation_sha256 == (if $investigation == "" then null else $investigation end) and
+        .input_sha256 == $input and
+        (.edit_summary | type == "string") and (.reset | type == "boolean") and
+        (.generated_at | type == "string"))
+    ' "$precheck" >/dev/null || fail "review inputs or precheck identity changed after precheck"
+  echo "spec-review-precheck: inputs verified for reviewer invocation."
+  exit 0
 fi
 
 validate_reviewer_output() {
@@ -226,7 +263,7 @@ validate_reviewer_output() {
 
 validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
-  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash contract_manifest_investigation_hash
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b conditional_a requirements_hash acceptance_hash calibration_hash investigation_hash contract_manifest_investigation_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
   local recorded_root recorded_prefix prior_investigation_sha prior_recorded_root prior_recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
@@ -321,6 +358,15 @@ validate_contract() {
     [[ -z "$contract_investigation_hash" || "$contract_investigation_hash" == "$investigation_hash" ]] || return 1
     expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
+  # Historical optional inputs remain bound to the sealed prior contract.
+  conditional_a="$(jq -ce --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] |
+      {path:(.path | relative_path), sha256} |
+      select(.path == "domain/context-map.md" or .path == "domain/domain-contract.json")] as $entries |
+    select(($entries | length) == ($entries | map(.path) | unique | length)) |
+    select(all($entries[]; .sha256 | type == "string" and test("^[0-9a-f]{64}$"))) |
+    $entries | sort_by(.path)' "$contract")" || return 1
+  expected_a="$(jq -cn --argjson manifest "$expected_a" --argjson conditional "$conditional_a" '$manifest + $conditional | sort_by(.path)')"
   expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
   actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
     [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$contract")"

@@ -1,0 +1,8 @@
+stages:
+  - verify
+
+verify:
+  stage: verify
+  script:
+    - echo "TODO_REPLACE_WITH_PROJECT_COMMANDS: replace this step with the project's lint/typecheck/test/build commands."
+    - exit 1

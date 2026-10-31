@@ -1,0 +1,119 @@
+# ADR 0020: Conditional Predicate DSL
+
+Status: Accepted
+
+Date: 2026-07-19
+
+## Context
+
+This decision was confirmed through three independent adversarial review
+passes (a Claude counter-argument review, a Claude fact-checking review,
+and a Codex counter-argument review), each cross-checked against the
+sdd-forge repository's actual code. Its core design is one of the eleven
+"skeleton" decisions that survived independent adversarial review without
+being falsified, per `docs/ai-dlc-foundation-decision-v2.md` §11 (Q10:
+Conditional Facet condition language).
+
+Conditional Facets (Facets included only when a component has certain
+characteristics) need a condition language. An arbitrary-expression
+language (`eval`, embedded JavaScript, or a Rego-like string) would make
+Resolver output non-deterministic and hard to statically review, and
+would reintroduce the "arbitrary code as configuration" risk the
+framework otherwise avoids.
+
+## Decision
+
+1. **A limited Predicate DSL expressed in JSON/YAML**, not an
+   arbitrary-expression language:
+
+   ```yaml
+   conditional_facets:
+     - facet: data-spec
+       when:
+         any:
+           - {scope: affected_component, field: characteristics.pii, operator: equals, value: true}
+           - {scope: affected_component, field: characteristics.local_persistence, operator: equals, value: true}
+   ```
+
+2. **Logical operators**: `all` / `any` / `not` (`not` is unary).
+   **Comparison operators**: `equals` / `not_equals` / `contains` /
+   `in` / `exists`.
+
+3. **Forbidden**: regular expressions, arbitrary JSONPath, shell,
+   JavaScript, Python, dynamic code, Provider API calls, time-dependent
+   conditions, and network-dependent conditions.
+
+4. **Evaluation semantics (new in v2)**, adopted as normative so that
+   results do not diverge across runtimes; this ADR is the DSL ADR referred
+   to by decision document v2 §11:
+   - **A missing path, a `null` value, or a type mismatch means "this
+     predicate does not match" (fail-closed)** for `equals`, `not_equals`,
+     `contains`, and `in` — recorded as a `WARN` in Resolver Evidence, with
+     no exception ever thrown. **This general rule does not apply to
+     `exists`**, which has its own rule (below) that always takes
+     priority for that operator.
+   - `equals` and `not_equals` compare same-typed scalars only. On a type
+     mismatch — the same trigger condition as a missing path or a `null`
+     value — **the predicate as a whole evaluates to `false` (does not
+     match) plus a `WARN`, uniformly for both operators**; `not_equals`
+     never evaluates to `true` merely because the compared values have
+     different types.
+   - `contains`: "array ∋ scalar" only. It is not usable for substring
+     matching (determinism is prioritized over convenience). A missing
+     path, a `null` value, or a non-array value is `false` plus a `WARN`.
+   - `in`: "scalar ∈ array literal" only. A missing path, a `null` value,
+     or the array literal being malformed is `false` plus a `WARN`.
+   - **`exists` (the explicit exception to the general rule above)**:
+     tests only whether the path exists. **If the path exists, the
+     predicate is `true` even when the value is `null`** — this
+     overrides the general rule's null handling. If the path does not
+     exist, the predicate is `false` plus a `WARN` (the missing-path
+     handling is the same as the general rule). A type mismatch is
+     irrelevant to `exists`, since it never inspects the value's type.
+   - `all` of an empty list is `true`; `any` of an empty list is `false`.
+     There is no short-circuit evaluation — every predicate is evaluated
+     and every result is recorded in Evidence.
+   - **`trigger` (the condition under which a Capability applies) uses
+     this same DSL**, evaluated only against the affected component's
+     properties. No second condition language is introduced (no
+     arbitrary-expression back door).
+
+5. **Field allowlist**: only dotted paths explicitly allowlisted by schema
+   may appear in a predicate: `artifact_kinds`, `runtime_classes`,
+   `characteristics.pii`, `characteristics.ui`,
+   `characteristics.auto_update`, `characteristics.local_persistence`,
+   `distribution_channels`, `data_classification`. The allowlist's source
+   of truth (new in v2) is
+   the Project Context schema itself: `distribution_channels` and
+   `data_classification` are added as first-class fields under a
+   component in the Project Context schema (Epic A1), because in v1 they
+   appeared only in the allowlist with no defined home field.
+
+6. The Resolver must be pure with respect to this DSL: the same input
+   always produces the same Facet Manifest.
+
+## Consequences
+
+- Facet inclusion decisions are statically reviewable and fully
+  reproducible; there is no code path in the DSL that can read the clock,
+  the network, or invoke a provider API.
+- Fail-closed-plus-`WARN` semantics mean a schema drift or an
+  incompletely-populated component never silently *includes* a Facet it
+  should not; at worst it silently *excludes* one, which is recorded as a
+  `WARN` in Resolver Evidence — an Epic A5 output (ADR-0021 dependency),
+  not an Epic A2 one — rather than causing a hard failure.
+- Because `trigger` reuses the same DSL and allowlist as Conditional
+  Facets, there is exactly one condition-evaluation implementation to test
+  and no second, looser dialect that could be used to smuggle logic the
+  Facet DSL forbids.
+- The field allowlist is now schema-derived rather than DSL-local, so
+  adding a new allowlisted field is a Project Context schema change
+  (reviewed under Epic A1's normal schema process), not a silent DSL
+  configuration edit.
+
+## References
+
+- Decision document v2 §11 (Q10) — `docs/ai-dlc-foundation-decision-v2.md`
+- Tracking issue #187 / Epic A0 issue #188
+- ADR-0016 (Workflow Axes Separation, Project Context as source of truth),
+  ADR-0021 (Context Projection Staleness, Resolver Evidence binding)

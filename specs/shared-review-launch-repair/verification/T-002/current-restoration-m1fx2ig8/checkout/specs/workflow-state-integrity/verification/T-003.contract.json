@@ -1,0 +1,132 @@
+{
+  "task_id": "T-003",
+  "feature": "workflow-state-integrity",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c",
+  "created": "2026-06-28T10:11:51Z",
+  "comment": "Default-FAIL contract for paired portable workflow-state validation and authoritative provenance checks.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No configured lint command spans Bash, PowerShell, JSON, and Markdown artifacts.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No statically typed build target exists for these adapters.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No build step exists; executable validation is provided by the scoped suites.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-003", "REQ-004", "REQ-006", "REQ-007", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-003.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-003.green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-003", "REQ-004", "REQ-006", "REQ-007", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-003.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-003.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-003", "REQ-004", "REQ-006", "REQ-007", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-003.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-003.green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-003.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-003", "REQ-004", "REQ-006", "REQ-007", "REQ-010", "REQ-012"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No interactive service or UI is changed.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Bash/PowerShell parity and adversarial fixtures provide the required differential coverage.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI is in scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

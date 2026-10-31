@@ -1,0 +1,77 @@
+ticket_id: RT-20260809-002
+status: open
+type: incomplete-implementation
+severity: major
+review_cycles: 3
+target:
+  feature: "epic-190-a2-capability-registry"
+  task: "T-006"
+  files:
+    - "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml"
+    - ".github/workflows/test.yml"
+    - "tests/generate-gate-capabilities.tests.sh"
+    - "tests/generate-gate-capabilities.tests.ps1"
+summary: "T-006 の QG cycle 上限 (3) 到達。cycle 2 の Critical (破壊的 staged bundle) は解消し非空虚性も実証されたが、要求される CI ステップ 2 種のうち vendoring --check が丸ごと欠落し、しかもスイートがその欠落を ok と表示している。加えて human-copy から live への適用 (人間アクション) が未実施"
+problem: |
+  cycle 3 で解消が確認された点 (evaluator 自身の測定):
+    - 削除ゼロ。protected_gate_suffixes 70->77、
+      phase2_human_copy_targets 19->26、epic_a1_targets 28 は不変
+    - 非空虚性の実証。staged ファイル群を 86b9aa7b^ に戻すと両ランタイムが
+      21/0/0 から 17/0/designed-red 4 に落ち exit 1、JSON 58 件・.py 29 件・
+      job 3 件の削除を名指しする
+  つまり cycle 2 の Critical (適用すると live の保護パス登録 30 件を
+  黙って落とす staged bundle) は機械検出可能な形で閉鎖済み。
+
+  残 Major 2 件:
+
+  1. vendoring --check ステップが存在しない (かつスイートが欠落を肯定する)
+     測定 (2026-08-09 に再確認): 文字列 vendor の出現回数は
+       live .github/workflows/test.yml              = 0
+       staged human-copy/.github/workflows/test.yml = 0
+       tests/run-all.sh                             = 0
+     一方で design.md:962-971 と infra-spec.md:16/37/109 がこのステップを
+     要求し、tasks.md:1089 と :1155 が T-006 に割り当てている。
+     さらに悪いことに、スイートは
+       ok: ... including the --check drift-lock step (Scope)
+     と出力する。存在しないものを ok と肯定しており、cycle 2 の Critical
+     (README で守られただけの罠) と構造的に同一。
+
+     真因はオーケストレータの指示ミス: 是正指示に "the projection drift
+     --check step" と単数で書いた。実際には --check ステップは 2 種
+     (projection drift lock と vendoring drift lock) 必要で、実装者は
+     指示どおり 1 種だけ入れ、スイートの文言はその 1 種を見て両方あるかの
+     ように読める形になった。
+
+  2. Done When #2 / #5 が未達 (人間アクション未実施)
+     測定 (2026-08-09): live .github/workflows/test.yml に
+     capability-registry-parity の出現は 0 件、staged 候補には 4 件。
+     すなわち human-copy から live への保護ファイル適用が行われていない。
+     この適用はエージェントが実行できない (sdd-hook-guard が human-copy 配下
+     および live の保護パスへの書き込みを DENY する。回避は禁止)。
+proposed_resolution: |
+  以下 1-2 を実施したうえで fresh session にて T-006 の evaluator を
+  1 サイクル予約・起動する。PASS なら quality-gate として Status: Done を
+  記録する。
+
+  1. vendoring --check ステップを追加し、スイートを両方要求に直す
+     - staged 候補 (drafts 配下に candidate として作成。human-copy へは
+       書けない) に vendoring drift-lock の --check ステップを追加する
+     - generate-gate-capabilities.tests.{sh,ps1} の Scope チェックを、
+       --check ステップ 2 種 (projection / vendoring) をそれぞれ独立に
+       要求する形へ直す。片方だけで ok を出す現在の文言は削除する
+     - 非空虚性を mutation で示す: 片方のステップを外すと該当チェックだけが
+       落ちること、両ランタイムで確認する
+     要求元は design.md:962-971 / infra-spec.md:16,37,109 /
+     tasks.md:1089,1155。
+
+  2. 人間アクション (エージェント実行不可): human-copy から live への適用
+     specs/epic-190-a2-capability-registry/human-copy/ 配下の保護ファイルを
+     live に適用する。適用コマンドを人間に提示し、人間が実行する。
+     適用後、live .github/workflows/test.yml に capability-registry-parity
+     が現れることを確認する。これが Done When #2 / #5 の充足条件。
+     この人間アクションが完了するまで T-006 は Done に到達できない。
+
+  3. Outputs 表は RT-20260809-001 の手順 (git diff --name-only からの導出)
+     に従って、他の全編集の後に 1 回だけ更新する。
+requires_human_decision: false
+created: 2026-08-09

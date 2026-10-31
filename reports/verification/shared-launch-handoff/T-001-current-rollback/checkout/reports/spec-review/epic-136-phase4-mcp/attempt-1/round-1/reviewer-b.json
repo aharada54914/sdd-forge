@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4mcp-spec-a1r1-b-seq0369",
+  "host_session_id": "SESS-spec-a1r1-b-epic136phase4mcp-0369",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "50eaff0e267ad9a589b5955a5b3b982a1620bd65cb9ffa27d6a56b367b86c61d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "78614c96411676cfdc3bdd817c2b9a691b12df69a0c0de41e47c8fdb9aac156b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "ac1e6e6188bf2ac500285a16d5abac1ee5edb19cc66543589264ce004503f3ef"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "d501627a667052f65ba3431c7aa47726c80ea23248eb0be79365ae4fd9fd70eb"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-002 (lines 107-116, specifically 113-115) states as part of REQ-002's own definition of done that 'the field's schema description documents the policy issue #131 asks for' as text -- but no acceptance criterion verifies this. AC-003/TEST-003 (requirements.md:236-240; acceptance-tests.md:12) checks only that hostRequiredChecks has exactly 2 entries, verified:false, and a non-empty note; AC-009/TEST-009 (requirements.md:273-281; acceptance-tests.md:18) checks only required/additionalProperties:false schema structure via getEnvelopeValidator(). Neither asserts the JSON-schema description string actually contains the stated policy sentence. Two implementers could satisfy every listed AC while writing entirely different (or no) policy text. Missing observable acceptance criterion for an explicitly stated MUST-have requirement content."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Overview (lines 38-40) states 'Every change is additive to the v1 MCP tool-response contract ... no tool is removed, renamed, or given a breaking response shape.' But BL-004 (lines 481-487) and Field Definitions (lines 349-356) justify choosing required over optional precisely so that a consumer validating strictly against the schema is FORCED to be aware of the new field rather than silently reading only mismatches.length -- i.e. the design intentionally makes strict schema validation fail for any consumer not yet updated. The non-breaking claim relies on the premise that implementation and schema are a single monorepo-nested package deploying atomically, a claim backed by none of investigation.md's INV-001..INV-022 and not listed among the 4 Assumptions (lines 449-466). Because additionalProperties:false is set on every affected object, any consumer holding an older cached schema will reject newly-appearing fields. Downstream failure mode: a CHANGELOG-writer (AC-013) trusting the Overview could describe the change as fully backward-compatible, or choose optional fields to satisfy 'no breaking response shape', conflicting with REQ-005's repeated 'required (never optional)'."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's own Edge Cases section names two by-design scenarios that acceptance-tests.md gives no dedicated Test ID. (a) Lines 408-414: a task in knownTaskIds that is NOT Done still appears in unreadableContracts -- yet AC-001/TEST-001 and AC-002/TEST-002 (requirements.md:228-235; acceptance-tests.md:10-11) scope their fixtures explicitly to 'a Done task', leaving the non-Done inclusion behavior untested. (b) Lines 432-437: hostRequiredChecks' 2 entries are ALWAYS present even when signature.present is false or gitCommit.shapeValid is false -- yet AC-003/TEST-003 only requires 'a pass-verdict fixture and a fail-verdict fixture', neither pinned to exercise the signature-absent or shape-invalid sub-conditions. A Phase 2 test author working from the AC/TEST table (designated authoritative at requirements.md:225) would not be directed to write fixtures for either author-flagged edge case."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 449-466) lists exactly 4 items, each traced to an investigation.md INV-NNN and each given a re-verification instruction. However the pivotal claim underpinning REQ-005's required-not-optional choice -- 'implementation and schema are a single monorepo-nested package that deploys atomically (never independent versioning), unlike a public API where old clients could be stranded' (Field Definitions, lines 349-356) -- is asserted as settled fact rather than listed as an Assumption, and cites no investigation.md finding: investigation.md (INV-001..INV-022, read in full) contains no finding about deployment, distribution, or external-consumer versioning model. If this claim is false, the compatibility analysis underlying REQ-005/BL-004 is wrong, yet no one is asked to check it before implementation. It is checkable, but was neither checked nor flagged."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Roles and Permissions (lines 358-372) separates Agent duties ('authors all 6 target files directly ... none is PROTECTED_GATE_SUFFIXES-listed ... No human-copy staging is used anywhere in this feature') from Human maintainer duties ('approves this spec and (Phase 2) tasks; decides ... whether to open the follow-on issue') and CI's scope. AC-015 (lines 305-315) requires a fresh implementation-time re-verification of protected-file status (WFI-013 discipline), and Non-goals (lines 190-196) withhold any new enforcement/gating code, keeping the policy documentation-only with enforcement 'entirely outside this feature'. No requirement assigns the agent a protected-file write, ADR acceptance, version-literal edit, or other human-reserved action."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Most of the spec is concretely decomposable -- REQ-001/003/004's field shapes, failure taxonomies (INV-013) and test targets are pinned with file:line evidence. But REQ-002's schema-description content requirement (requirements.md:113-115) has no corresponding acceptance criterion (see AMBIGUITY) and no pinned wording anywhere in the allowed inputs beyond a single quoted policy fragment. A Phase 2 task author would have to invent the literal description text, and would also inherit the unresolved deploy-topology assumption (see ASSUMPTIONS-RESOLVABLE) when deciding how to characterize the change in the CHANGELOG entry AC-013 requires -- the document's own two statements on backward compatibility disagree (see CONTRADICTION) and the spec does not say which framing to use."
+    }
+  ]
+}

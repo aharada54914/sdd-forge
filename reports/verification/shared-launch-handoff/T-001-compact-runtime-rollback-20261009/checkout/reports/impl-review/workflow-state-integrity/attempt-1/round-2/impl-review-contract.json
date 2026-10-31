@@ -1,0 +1,54 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "workflow-state-integrity",
+  "run_id": "2AE5A4A3-AD48-431A-AC22-665FB5146891",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "library",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "5c04078f9c06440cac99e9b9ee2a217cabc7dd9d006f1956c400f7f56d9b7d62",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "design_sha256": "6e11f53a2ee0502a6fb8202d48a6c8619a36da882bbafa44dfd0b65610024d9d",
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "a2-r2-6f709a71",
+      "host_session_id": "impl-a-4a0f187d",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json","sha256":"a34c8bf020980bd8108e91a8ef7c293fe5a809437ecd508d984609f27949a9e5"},
+        {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json","sha256":"d150abcf80ea8464b2df563b88d7dc266395b661321c4cf57b19787f29949a55"},
+        {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"specs/workflow-state-integrity/design.md","sha256":"6e11f53a2ee0502a6fb8202d48a6c8619a36da882bbafa44dfd0b65610024d9d"},
+        {"path":"specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "20b77913-a8f4-4a97-8b59-847f6e930621",
+      "host_session_id": "3cb376d8-0591-434c-a25c-e98405c4178f",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json","sha256":"a34c8bf020980bd8108e91a8ef7c293fe5a809437ecd508d984609f27949a9e5"},
+        {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json","sha256":"6d89bf5356b2e713e743beb4213f4ad2cd64eba8077d3a7668deccf6404f42ee"},
+        {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"specs/workflow-state-integrity/design.md","sha256":"6e11f53a2ee0502a6fb8202d48a6c8619a36da882bbafa44dfd0b65610024d9d"},
+        {"path":"specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Referenced ADR-0002, made the full-state/task boundary explicit, enumerated legacy migration treatments, and added concrete test, security, and deployment/CI plans.",
+  "timestamp": "2026-06-27T03:14:13Z"
+}

@@ -1,0 +1,142 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-193-a5-capability-resolver",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2",
+  "created": "2026-07-22T18:30:33Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first), populated after the independent quality-gate evaluator (sdd-evaluator, run seq0352) re-ran both runtime suites in place (20/20 PASS each), independently reproduced RED non-vacuousness against a schema-absent copy, JSON-compared the shipped contracts/resolver-evidence.schema.json against design.md's verbatim schema fence (semantically identical), line-inspected all 12 fixtures against AC-017..020, verified no plugins/** or .github/** path in the T-001 diff, and confirmed the HUMAN APPLY STEP is honestly disclosed (staged human-copy test.yml candidate absent, guard denied the write, live test.yml untouched). Stack: shell waives the three compile-oriented checks (this task ships a JSON Schema contract plus shell/PowerShell/Python-stdlib test infrastructure; no application compile toolchain applies). Regression evidence: bash -n / PowerShell ScriptBlock parse of tests/run-all.sh and .ps1 both syntax-clean after this task's one-line-each registration; the immediately preceding registered suite (tests/model-freshness-check.tests.sh/.ps1) re-run unaffected (29/29 passed, 0 failed, both runtimes) -- the full tests/run-all.sh/.ps1 sequence was not run end-to-end because numerous unrelated suites fail on this branch for reasons predating and independent of T-001 (Epic A1/A2/A3/A4 have not landed here; no canonicalize-sdd-yaml / evaluate-predicate / resolve-component-paths / validate-*.py exists under plugins/sdd-quality-loop/scripts/), disclosed identically in the implementation report and the quality-gate report.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's JSON-Schema/Python-stdlib/shell/PowerShell test-infrastructure files (stack: shell).",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's shell/PowerShell/stdlib-Python test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/focused-tests-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-006"],
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-001-red-sh.log",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/focused-tests-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "T-001 authors a schema document and its own hand-crafted-fixture-driven conformance suite only; no live Registry/Resolver integration exists yet for this task to exercise (T-002/T-003/T-004's own scope).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/focused-tests-ps1.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-006"],
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-001-red-ps1.log",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/focused-tests-ps1.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-008"],
+      "red_evidence": "",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for JSON-Schema/shell/PowerShell/stdlib-Python test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable CLI/service; this task adds only a schema document and its own conformance suite, fully covered by the unit/acceptance evidence above.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is strictly additive (a wholly new schema, suite, and fixture tree, plus one array-append line each in tests/run-all.sh/.ps1).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only a JSON Schema contract and its own test suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

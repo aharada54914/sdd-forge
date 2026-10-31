@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-004/deterministic-bundle-20261015/traceability.json",
+    ".",
+    "require-evidence"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:12:16.395585+00:00",
+  "finished_at": "2026-10-14T15:12:16.448004+00:00"
+}

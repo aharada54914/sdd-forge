@@ -1,0 +1,7 @@
+Command: bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain/tasks.md
+Run from repo root: C:\dev\sdd-forge
+
+Output:
+Task state check passed for 11 task(s).
+
+Exit code: 0

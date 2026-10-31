@@ -1,0 +1,152 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-159-pillar-d",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "1e5d744b0cbc76e80ecf3ea4cffe142f9367384cca6c3afdce6eb44886bd28d7",
+  "created": "2026-07-19T09:30:00Z",
+  "comment": "Default-FAIL verification contract for T-003 (high, tdd -- risk-gate-matrix.md requires tdd at high/critical, matching tasks.md's own 'Required Workflow: tdd' line). Populated after the quality gate reran tests/model-freshness-check.tests.sh/.ps1 (specs/epic-159-pillar-d/verification/qg/T-003/focused-tests.log) and the epic-159-pillar-d cross-suite regression set (specs/epic-159-pillar-d/verification/qg/T-003/regression.log), and check-traceability.sh against specs/epic-159-pillar-d/traceability.json (5 REQ links -- REQ-001..REQ-005; REQ-006 is not a goal of this feature per traceability.md's own N/A row and carries no link -- all with acs/tests present and existing evidence files; specs/epic-159-pillar-d/verification/qg/T-003/traceability.log) to satisfy the high-risk requirement-traceability check. Shell stack waives the three compile-oriented checks (lint/typecheck/build) for this task's shell/PowerShell test-infrastructure files plus the YAML workflow and bash script it adds. TDD red/green evidence for unit-tests/acceptance-tests is specs/epic-159-pillar-d/verification/T-003/{red,green}-sh.log (bash lane); the .ps1-lane pair (red-ps1.log/green-ps1.log) exists alongside as supplementary cross-runtime evidence -- per tasks.md's Stage (i): author the full suite twin and record it failing meaningfully against the pre-landing tree, before any implementation stage begins. KNOWN, DESIGNED, DOCUMENTED CONDITION (not a defect): both focused-tests.log and regression.log record a suite total of pass=39/fail=1 (bash) and 28 passed/1 failed (pwsh) for tests/model-freshness-check.tests.sh/.ps1. The single failure in every lane is the identical assertion: 'TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands'. This is AC-011's live-file self-check half of TEST-009 (AC-009); acceptance-tests.md's own AC-009 row states it is 'red until the human-copy pre-merge commit lands, AC-011 -- no staged-candidate fallback', and AC-011's own row states 'until then the PR CI is red by design -- fail-closed, no special case' (that clause governs the PR's own CI pipeline, not this point-in-time evidence record). tasks.md's Commit A Scope section states the identical exception explicitly: 'at commit-A completion every suite-verifiable Done-When bundle below must be green (TEST-009's live-file half excepted per AC-011's designed red window) -- independently re-verified by the quality gate, so a stalled Red, a partial landing, or a skipped bundle cannot pass.' The staged candidate this task DID produce -- specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml plus its sibling MANIFEST.sha256 -- is verified present and hash-matched by this same suite run (TEST-011, 'ok' in the log above); applying it to the LIVE, protected .github/workflows/test.yml is a human action per the epic-136 human-copy procedure that no agent commit (including this contract-authoring one) may perform (R-10 protected). Consequently: (1) unit-tests and acceptance-tests below are marked passing on this suite's evidence per tasks.md's own Definition-of-Done framing, which treats this one excepted assertion as not blocking Commit-A completion -- it is not laundered as a clean run, it is disclosed here in full; (2) the host MUST apply specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml (verifying its SHA-256 against MANIFEST.sha256 first) as a pre-merge commit on the feature PR branch, then re-run tests/model-freshness-check.tests.sh and tests/model-freshness-check.tests.ps1 to capture a fully 40/0 and 29/0 green pair, and SHOULD refresh this contract's unit-tests/acceptance-tests/regression evidence pointers to that fresh green log for the permanent record before the PR merges.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus the YAML workflow and bash script this task adds (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files plus the YAML workflow and bash script this task adds.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "specs/epic-159-pillar-d/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-d/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface beyond what the suite's fixture-injectable fetch and stubbed gh wrapper already exercise; no real external HTTP call or GitHub API call is made by any test (TEST-040-style non-use declaration).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "specs/epic-159-pillar-d/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-d/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files plus the YAML workflow and bash script this task adds.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-003/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's CI workflow only runs on a weekly schedule or manual dispatch, fully covered by the fixture-driven suite plus the one recorded manual workflow_dispatch run (AC-008).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task. The change is a new, standalone workflow + script + suite with no existing workflow, script, gate, or artifact format changes; the saved TDD red/green evidence and cross-suite regression set provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are a GitHub Actions workflow, a bash script, test-infrastructure files, and staged human-copy candidates only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

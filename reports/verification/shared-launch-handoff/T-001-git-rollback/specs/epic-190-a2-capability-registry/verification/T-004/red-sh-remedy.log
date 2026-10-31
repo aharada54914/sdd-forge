@@ -1,0 +1,38 @@
+# RED evidence -- validate-capability-registry (bash), RT-20260723-001 remedy
+# Runs the pre-remedy validator (commit 2e79289) against the 3 new TEST-016
+# assertions added by the remedy, proving the reported wrapper-group-collision
+# bug specifically (non-py-ref and symlink assertions were already correct,
+# only untested -- both pass even here; only the collision assertions fail).
+$ bash tests/validate-capability-registry.tests.sh
+ok: TEST-028: plugins/sdd-capability/ does not exist
+ok: TEST-028: every REQ-002..005 script/reference file lives under plugins/sdd-quality-loop/
+ok: TEST-014: gate-id-duplicate detected
+ok: TEST-015: implementation-ref-missing (field absent) detected
+ok: TEST-015: implementation-ref-missing (path does not exist) detected
+ok: TEST-016/017: unregistered check-*.py master flagged
+ok: TEST-017(i): a properly-referenced master is not flagged
+ok: TEST-017(ii): a script outside the scan root is never flagged
+ok: TEST-017(iv): a non-check-* script under the scan root is never scanned
+ok: TEST-016(1): a non-.py implementation_ref does not register its .py master
+ok: TEST-016(2): a gate referencing a symlinked entry point correctly registers the real master
+not ok: TEST-016(3): two gates resolving to the identical master are a gate-implementation-collision: expected non-zero exit + diagnostic containing 'registry: gate-implementation-collision:' -- actual (rc=1): registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-unregistered.py
+registry: pack-owns-gate-definition: capability-packs/some-pack/gates.yaml
+not ok: TEST-016(3): collision diagnostic names both colliding gate ids: expected non-zero exit + diagnostic containing ''collision-gate-a', 'collision-gate-b'' -- actual (rc=1): registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-unregistered.py
+registry: pack-owns-gate-definition: capability-packs/some-pack/gates.yaml
+ok: TEST-018: stage-missing re-asserted independent of schema
+ok: TEST-019: pack-owned gates.yaml detected repository-wide
+ok: TEST-020: provider-name-detected fires on a real provider term
+ok: TEST-020: provider-neutral vocabulary (durable_workflow) is not a false positive
+ok: TEST-021: dangling-gate-reference detected
+ok: TEST-022: unknown-upgrade-reason fails closed against the real catalog
+ok: TEST-039: capability-id-duplicate detected
+ok: TEST-039: combined fixture -- gate-id-duplicate surfaces
+ok: TEST-039: combined fixture -- capability-id-duplicate surfaces (neither masks the other)
+ok: fully-clean fixture: all 9 checks pass on valid input (negative proof)
+ok: self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh
+ok: self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=25 fail=2 ----
+validate-capability-registry suite FAILED (25 passed, 2 failed)
+exit: 1

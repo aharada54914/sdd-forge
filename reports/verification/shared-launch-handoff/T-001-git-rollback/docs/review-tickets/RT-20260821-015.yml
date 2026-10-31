@@ -1,0 +1,70 @@
+ticket_id: RT-20260821-015
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-007"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-task-state.sh"
+    - "tests/gates.tests.sh"
+summary: >-
+  check-task-state.sh emits a corrupted two-person-approval diagnostic on
+  BSD/macOS awk (greedy \x27A hex escape yields "zpproved"); correct on gawk
+  and on the ps1 twin, and the tests only match the prefix
+problem: |
+  Found by the caller during quality-gate preparation for risk-adaptive-layer
+  T-007 (2026-08-21), by running the delivered gate and reading its output.
+  Not an evaluator finding - T-007 could not be gated (it is blocked on two
+  human actions), so this was measured directly.
+
+  check-task-state.sh:159 and :165 build their diagnostics with an awk hex
+  escape immediately followed by a hex digit:
+
+    fail(task " ... a named approver (need \x27Approved (<id> <ISO>)\x27)")
+
+  One-true-awk (BSD/macOS, version 20200816) consumes hex digits greedily, so
+  \x27A parses as 0x27A, truncated to a byte = 0x7A = 'z'. The emitted string
+  is therefore:
+
+    T-007 is critical Done but primary Approval lacks a named approver
+    (need zpproved (<id> <ISO>)')
+
+  The literal an operator must copy - Approved (<id> <ISO>) - is destroyed,
+  the opening quote vanishes, and the trailing quote is left unbalanced
+  (\x27) parses correctly because ) is not a hex digit).
+
+  Measured on this host:
+    awk  'BEGIN{printf "[%s]", "\x27Approved"}'  ->  [zpproved]
+    gawk 'BEGIN{printf "[%s]", "\x27Approved"}'  ->  ['Approved]
+
+  So the message is correct on Linux CI (gawk) and corrupted on macOS - a
+  silent platform divergence. The PowerShell twin at check-task-state.ps1:131
+  and :137 uses plain single quotes and is always correct, so all three of
+  macOS sh, Linux sh, and pwsh disagree. design.md:217 Core Principle 4
+  requires identical behavior across runtimes.
+
+  The suites do not catch it: gates.tests.sh:2672 and scripts.tests.ps1:2355
+  grep only for "named approver", which sits BEFORE the corrupted segment, so
+  both pass on both platforms while blind to the defect. gates.tests.sh:2644
+  exercises line 159 specifically and still does not see it.
+
+  Fail-closed (the gate still rejects), so this is a diagnostic-correctness
+  and twin-parity defect, not an authorization hole.
+
+  Class sweep: I scanned every .sh/.ps1/.py/.js/.awk file in the repository
+  for a \xNN escape followed by another hex digit. 230 sites matched; 228 are
+  inside vendored mcp dist bundles (zod i18n), where JavaScript's \xNN is
+  strictly two digits and therefore harmless. The only two hazardous sites in
+  the repository are the two awk lines above.
+expected_fix:
+  - "Replace the \\x27 escapes at check-task-state.sh:159,165,168 with a portable single quote - e.g. an awk variable set from a shell string, or the octal escape \\047, or restructure the message to avoid quoting the literal"
+  - "Assert the FULL diagnostic (including the literal Approved (<id> <ISO>)) in gates.tests.sh and scripts.tests.ps1 so the corrupted form fails, and confirm the assertion is non-vacuous by mutating the message"
+  - "Re-run the quality gate for T-007 once fixed (note: T-007 is separately blocked on two human actions, see references)"
+references:
+  - "specs/risk-adaptive-layer/design.md"
+  - "specs/risk-adaptive-layer/tasks.md"
+  - "reports/implementation/risk-adaptive-layer/T-007.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 0

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "acd9e136da1b6aa535a0302270f5a75aa3b9a6eb6e4df4c57514bc6f58261b72",
+  "acceptance_sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "952cc63a65c642ca085e7d73abb37024c4934fba7fdc537ec01ffaf916a787a6",
+  "edit_summary": "Round-2 AMBIGUITY Major applied: introduced the cap_kind field (numeric | state) in Field Definitions — numeric caps stay under AC-002's grep-based drift lock; terminal-tier is declared the sole cap_kind: state entry (cap 'strong-tier recurrence → permanent BLOCK', no numeric grep target) and its drift lock is defined as the behavioral AC-011 escalation leg plus assert_terminal against the inventory terminal field (strictly stronger than a string grep). REQ-001's cross-check clause, the AC-002 requirement text, and the acceptance-tests.md AC-002 row were all scoped accordingly, closing the 'not obviously satisfiable for terminal-tier' gap without weakening any numeric drift check.",
+  "reset": false,
+  "generated_at": "2026-07-13T22:49:50Z"
+}

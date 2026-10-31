@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a6r2-seq0823",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a6r2-0823",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "6567b5033ae1f56700e5756e81e15e530cde62ea054ab0b8fc40012a5da355fa"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "820ee5f6a522c213bc42731376cfe073e7e741128fcbb9bf26906ab394c58492"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b26e60bf27b3df814999b42ff855d38eaf6ba89633b213ef5664e5d9f3d1074a"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-6/round-2/precheck-result.json", "sha256": "3b46d569363493cea69fdf798c1d1f79f1edf7b14b1c1590921fdb83889c7d76"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement fixes an inspectable surface: REQ-001's CLI shape and lettered processing order (requirements.md:232-238, :249-339); REQ-002's diagnostic-id table, which I counted independently at exactly sixteen rows (:353-370) and which matches AC-010's and TEST-010's own sixteen-id enumerations (:822, acceptance-tests.md:59); REQ-004's Evidence cardinality/bidirectional-consistency rules (:474-509) and its twelve-value validator enum, whose ids TEST-021 lists and which I counted at twelve (acceptance-tests.md:70); REQ-005's byte-identity scope (:594-632); REQ-008's grep-based self-checks (:722-730). The two rows added 2026-08-27 are measurable on their face: AC-057 (:869) names fixture `registry-swapped-during-validation`, exit 1, the canonical detail sentence, an empty `capability_evaluations` array and the step-(e) timing; AC-058 (:870) names fixture `affected-component-absent-from-context`, exit 1, the canonical absent-component sentence, and the before-any-predicate-evaluation ordering. Three residual Minors, none of which leaves a downstream actor unable to decide, so none is emitted as a FAIL under the calibration's finding-evidence gate: (a) :369 says a rollback failure is 'never a nineteenth diagnostic-id value of its own' -- a stale numeral in a taxonomy the same REQ closes at sixteen (:346, :510, :657, :822, :826); (b) REQ-001's block-site enumeration '(0)/(a)/(h)/(i)/(k)/(l)/(m)' (:333) was not extended when rulings C(1)/C(2) added Block sites at step (d)/(e), but the governing rules are stated generally at :383-388 (Evidence on every Block, two named exceptions) and :555-565, so the mechanism for the new sites is determinate; (c) REQ-004's ':477 cardinality bound to the discovered Registry's own capabilities[] set' reads against AC-057/AC-058's empty `capability_evaluations`, but the same sentence's own gloss at :475 ('every Capability the Resolver actually evaluated') resolves the pre-evaluation-Block case, and REQ-004 explicitly delegates the validator's check-id semantics to design.md (:572, :586) which is a later-gate surface this gate must not require."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight goals REQ-001..REQ-008 (requirements.md:221-730) appear in the Acceptance Criteria table's Requirement column, each with at least one row: REQ-001 (AC-001..AC-009, AC-038, AC-043, AC-052, AC-054), REQ-002 (AC-010..AC-014, AC-039..AC-041, AC-047..AC-049, AC-055, AC-057, AC-058), REQ-003 (AC-015, AC-016, AC-042), REQ-004 (AC-017..AC-021, AC-044, AC-050, AC-051, AC-056), REQ-005 (AC-022..AC-025, AC-045), REQ-006 (AC-026..AC-028, AC-045), REQ-007 (AC-029..AC-032, AC-042, AC-046, AC-053), REQ-008 (AC-033, AC-034). The revert left no dangling numbering: I enumerated every `AC-0NN` token in both documents -- none exceeds AC-058, and every AC cited from REQ prose now has a row (AC-057 cited from the `snapshot-generation-mismatch` row at :368 and AC-058 from the `dependency-output-malformed` row at :364 both resolve to rows :869 and :870). Counts reconcile in both directions: 58 criteria rows (AC-001..AC-034, the three Global AC-035/036/037, AC-038..AC-058) against 55 test rows, the difference being exactly the three Global rows acceptance-tests.md:8-18 documents as its one exception class; the preamble inventory now reads 'AC-038 through AC-058' (:29) and matches the rows actually present; AC-057/AC-058 sit inside the Markdown table (rows at :103-104, contiguous with AC-056 at :102, no intervening blank line) and map 1:1 to TEST-057/TEST-058."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Criteria state externally observable outcomes: exit codes (AC-013), file existence/byte-unchangedness after a Blocked run (AC-011), byte-identical artifact comparison (AC-003, AC-016, AC-022, AC-023), schema validation via named validators (AC-008, AC-009, AC-017, AC-021), spy-harness non-invocation (AC-015, AC-042), and a recomputed sha256 plus heading-ordinal pair (AC-053). The two new rows are observable and text-consistent with their twins: AC-057 (requirements.md:869) and TEST-057 (acceptance-tests.md:103) agree on fixture name, stub behaviour, trigger site, the isolation from AC-040/AC-048's steps (l)/(m) window, and all four assertions; AC-058 (:870) and TEST-058 (:104) agree on fixture name, stub behaviour, the 'before any predicate evaluation' ordering, and the never-defaulted-empty-properties negative. Two Minor wording imprecisions noted without FAIL because the package's own text forces the resolving reading: AC-057/TEST-057 assert both 'an empty `capability_evaluations` array' (which requires reading a written Resolver Evidence instance) and 'no live artifact', where the package elsewhere reserves 'no live artifact of any kind' for the write-nothing case (AC-012, :824) and enumerates only two Evidence exceptions (:383-388), neither of which is this diagnostic; TEST-047 (acceptance-tests.md:93) similarly says the unrecoverable-journal Block leaves 'the live state exactly as found' while AC-012/TEST-012 require a full Evidence record on that same Block. Both read consistently as shorthand for the three publication artifacts AC-011 enumerates."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals are explicit and cover every direction this package could expand (requirements.md:732-784): no implementation of the script family, no edit to any A1/A2/A3/A4 contract file, no `required_lite_checks` field added to Epic A2's schema, no re-specification of `check-component-coverage`'s Fail conditions, no `compare-facet-manifest-staleness` caller, no effective-enforcement computation, no `plugins/**` edit, no new ADR, no Phase-2 artifacts. The boundary is locked by AC-032/TEST-032 and restated in Roles and Permissions (:929-960). I searched both documents for residue of the reverted 2026-08-27 amendment and found none: no 'third exception', no seventeenth diagnostic id, no AC-059/TEST-059; REQ-002's exception sentence reads 'two named exceptions' (:384), REQ-004 keeps its sole-exception sentence (:556-560), Security Boundaries keeps the every-path guarantee (:1169-1179), and the enum stays closed at sixteen. On phase sequencing: investigation.md carries a `## Amendment Re-Review Context` heading (:792) whose `### Rulings C(1)/C(2)` (:1214) and `### Rulings D(1)/D(2)` (:1344) entries meet the calibration's four-element evidence bar -- full commit hashes (:1448-1460), per-document SHA-256 (:1462-1471, whose requirements.md and acceptance-tests.md values match this invocation's own verified manifest hashes exactly), verbatim dated approval quotations (:1361-1364, :1405-1411, :1241-1244), and sha256/commit pins for every later-phase artifact cited (:1293-1314) -- so the phase-sequencing suppression applies and I emit no finding whose sole basis is that later-phase work is disclosed while Spec-Review-Status is Pending. Minor: the D(2) narrative at :1421-1427 says all three documents 'return byte-for-byte to the bytes attempt 5 reviewed and PASSED -- 1028bf2c...' for requirements.md, which the same entry then corrects at :1432-1446 (two rows added) and at :1464 (current hash 6567b503...); the authoritative hash block is right and matches my manifest."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated where implied. Compatibility and data constraints: the four already-Passed, content-frozen sibling contracts are named as read-only inputs with the exact shapes reused (requirements.md:92-217), including the reserved protected script path and the canonicalizer as the only YAML-to-structure route. Security constraints: the write-set boundary, the approval-sidecar prohibition, the fail-closed disabled-legacy posture, the no-artifact-reaches-a-live-path-except-via-the-journal rule, the mandatory per-invocation crash-recovery scan, the single-writer assumption, and the no-verbatim-upstream-stderr rule (:1144-1203). Migration/ownership constraints: the Epic A2 Registry-schema revision is named as an owned prerequisite with owner, scope and migration statement (:139-163) and its consequence is bounded to `required` enforcement (:1256-1286). Approval/permission constraints: the human-copy route for protected script content, the Resolver-process-only writer role, and the re-verify-protection-status obligation (:929-960, :1216-1230). Determinism constraints: no clock, no network, no provider API, stable sort, input-order invariance (:612-632)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each carry a planned validation surface, so the SKIP condition does not apply. The B5 Lite-check-source gap (:1256-1286) is validated by AC-009/TEST-009's three-state matrix and AC-010/TEST-010's required-missing Block fixture, with the one state that cannot be fixtured today (required-present-empty) disclosed in place with its reason -- Epic A2's `lite_policy` schema admits no such key, so a fixture would not itself pass `validate-capability-registry` (acceptance-tests.md:58) -- rather than papered over with a synthetic Registry. The new-orchestration-rule risk (:1287-1298) is validated by AC-006/TEST-006, AC-043/TEST-043 and AC-052/TEST-052. The anchor-citation risk (:1341-1348) is validated by AC-053/TEST-053's position-sensitive fingerprint plus its relocation regression fixture. The atomicity/TOCTOU/provenance complexity risk (:1320-1335) is validated by AC-038/039/040/047/048/049/050/051/054 and their TEST twins. The two rulings-C sub-triggers now each have a dedicated isolating fixture (AC-057/TEST-057, AC-058/TEST-058) rather than sharing their row's pre-existing fixture."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Recorded as skipped. The allowed input manifest for this role contains no `domain/context-map.md` and no `domain/domain-contract.json`, so no Approved domain model with a schema-valid contract is available within this gate's read boundary, and requirements.md carries no `Bounded-Context:` field (its header fields at :3-12 are Spec-Review-Status, Source Issues, Epic and Investigation only; a search of the file for `Bounded-Context`, `domain-contract` and `context-map` returns no match). The check's precondition is therefore not met and no canonical-term or forbidden-synonym comparison is performed."
+    }
+  ]
+}

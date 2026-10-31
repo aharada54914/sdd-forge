@@ -1,0 +1,12 @@
+=== TDD RED: capability-summary-schema.tests.sh against pre-implementation tree ===
+(contracts/capability-summary.schema.json and validate-capability-summary.py absent -- this is the genuine pre-authoring state the suite/fixtures were written against first)
+Command: bash tests/capability-summary-schema.tests.sh
+Date: 2026-08-17T04:15:03Z
+
+FAIL: contracts/capability-summary.schema.json is missing
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json;print(json.load(open('/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/contracts/capability-summary.schema.json')).get('$schema',''))
+                                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/contracts/capability-summary.schema.json'
+EXIT CODE: 1

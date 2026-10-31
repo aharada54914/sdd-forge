@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "epic-190-a2-capability-registry",
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-seq0661",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-0661",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e5e1ec65cdd883abf19bd9e1c5445bc5e0b3270d0d12492838953ec46684902b",
+  "previous_record_sha256": "baa65a80149ad579561e28131c3fd807561e431391e189dd4cda0543e60812e9",
+  "sequence": 661,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/dependency-graph.json",
+      "sha256": "505df17c641e2c746e8d8acaf745c835e46092586b13c14f504296f728e2bc59"
+    },
+    {
+      "path": "reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/precheck-result.json",
+      "sha256": "e823dbe8bbb263bc38afe8e8e54f26da5c66e3fc0e76d962ef5012eed5ad19e0"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+      "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/design.md",
+      "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+      "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+      "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/requirements.md",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+      "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/tasks.md",
+      "sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/traceability.md",
+      "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+      "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+    }
+  ]
+}

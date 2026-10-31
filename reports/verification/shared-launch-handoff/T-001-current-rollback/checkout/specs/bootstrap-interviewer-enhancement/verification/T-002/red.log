@@ -1,0 +1,11 @@
+Command: ./tests/bootstrap-cross-layer-index.tests.sh
+Exit: 1
+
+Before implementation, TEST-007 and TEST-008 reported 14 failures: the design
+template had no four-layer links, dependency index, or ADR change log and still
+contained legacy inline frontend/backend plan placeholders; traceability had no
+Layer Spec column, coverage summary, canonical anchors, or reasoned cross-layer
+example.
+
+PASS: 5
+FAIL: 14

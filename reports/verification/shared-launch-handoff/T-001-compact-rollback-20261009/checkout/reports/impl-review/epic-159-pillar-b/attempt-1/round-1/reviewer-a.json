@@ -1,0 +1,106 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-b-impl-impl-reviewer-a-seq0235",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-b-0235",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 28-59) is a mermaid flowchart naming 13 components (BV, LC, LI, BVG, FX, STUB, RY, LG, RJ, LC2, LI2, RLG, RA) with labeled integration edges — e.g. BV->|loop-gate prerequisite, before any mutation| LC/LI and RY->LG / LG-.->|needs| RJ (RJ = the existing release: build job) — describing top-level boundaries and integration with existing components, not a one-sentence naming list. Technology choices for the applicable layers appear in the immediately adjacent ## Components table (lines 63-72, Technology column: Bash; Bash/PowerShell; GitHub Actions YAML; Markdown) keyed to the identical component names, and ## Layer Specifications (lines 100-107) explicitly marks Frontend/UX as N/A with rationale rather than silently omitting them, consistent with ux-spec.md/frontend-spec.md declaring no frontend application exists. No data layer is introduced (Data Plan, lines 135-144). All three required elements are present for this feature's actual scope."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Architecture's mermaid flowchart is the explicit dependency declaration. Edges: BV->LC, BV->LI, BVG->FX, FX->STUB, BVG->FX, RY->LG, RY->RJ, LG->RJ (needs), LG->LC2, LG->LI2, RLG->RY, RA->BVG, RA->RLG. No back-edge to any ancestor exists (e.g. LG->RJ is one-directional 'needs'; RJ/RY have no outgoing edge back to LG or RLG) — the graph is a DAG. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 135-144) states 'None. No data entity is introduced, stored, or migrated' (addresses Data Entities in substance but without the explicit Data Entities: label) and explicitly labels Existing Data Affected: none, but contains no Migration Strategy: sub-field or any standalone sentence stating 'no migration required' with rationale. This deviates from the established convention this feature's own sibling/precedent specs use for genuinely-no-data-change designs: specs/epic-159-pillar-a/design.md:118 ('Migration Strategy: none.') and specs/epic-159-pillar-a2/design.md's Data Plan (same explicit line) — both epics this very design repeatedly cites as its precedent source. Concrete failure mode: a downstream task/quality reviewer scanning the Data Plan for the three required sub-fields cannot confirm the Migration Strategy question was actually considered (vs. simply omitted) for this feature. Not precheck-owned (precheck only checks hash/status fields, not Data Plan sub-field completeness)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (lines 146-301) is not empty and covers both change surfaces via the check's 'or equivalent' allowance (no HTTP endpoint exists): the scripts/bump-version.sh loop-gate prerequisite subsection (lines 148-187) gives the exact insertion point, planned code, and behavior (suite invocation -> exit code, captured log on failure); the .github/workflows/release.yml required loop-gate job subsection (lines 237-266) gives the planned YAML job definition and explicitly states the existing release: job 'keeps its name to minimize diff churn; only a needs: loop-gate line is added' and 'No new permissions are needed for the loop-gate job' — explicitly addressing that the existing job is not deprecated or breaking-changed, only additively gated."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 402-411) is a 4-row table (B1-B4) naming every trust boundary crossed (release path vs. fixtures; weakened-gate/bypass threat; fixture world vs. real repo; GitHub release path), with an Auth/Authz Mechanism column per row (filesystem isolation for B1/B3; no env-var/CLI-flag bypass and no continue-on-error/if: always() escape hatch for B2; needs: structural gating with no elevated permissions for B4), a Data Classification column correctly reflecting no PII ('synthetic fixture copies only' / 'internal source'), and an OWASP Concerns column (Broken Access Control, Security Misconfiguration, Integrity, Supply Chain Integrity). Cross-referenced to and expanded by security-spec.md's Trust Boundaries table, STRIDE Analysis, Authorization table, and explicit OWASP Mapping table (security-spec.md lines 75-83). All four required items are present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type: header reads 'release-gate wiring (two additive test suites + edits to two already-existing release surfaces)', which does not literally match fullstack/api-only/frontend-only/cli/library, but the feature has no frontend by explicit declaration: ux-spec.md ('N/A — no change... no GUI, view, dialog, menu item, or human interactive shell surface') and frontend-spec.md ('N/A — no change... There is no browser or frontend application.') both confirm this, and design.md contains no ## Frontend Plan/## Backend Plan section to check for consistency against ## API / Contract Plan. Treated as functionally equivalent to a non-fullstack feature type for this check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 303-335) covers: unit-level scope with explicit mocking disclosure (item 1: AC-001's green path 'defaults to trivially-passing stubs... for speed'); integration/boundary scope (item 1 explains real bump-version.sh<->suite integration is covered by AC-005's ordering assertion plus test.yml's direct execution, INV-002; item 2 covers the release.yml check's RED-demonstrability via AC-009's negative-branch canary); acceptance criteria traceability (every item cites AC-NNN IDs; acceptance-tests.md provides a complete AC-001..014 -> TEST-001..014 mapping, all 'Planned'); and concrete planned verification evidence (item 4 names exact commands bash tests/run-all.sh / pwsh tests/run-all.ps1 and the CI matrix). This feature is not fullstack, so the E2E/user-journey sub-bullet is not required; the CLI/CI operator journeys are nonetheless covered by the fixture-driven TEST-001..010 flow and infra-spec.md's Observability runbook step (line 120)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in ## Architecture's diagram is defined elsewhere in design.md: scripts/bump-version.sh, tests/bump-version-gate.tests.sh/.ps1, .github/workflows/release.yml, tests/release-loop-gate.tests.sh/.ps1, tests/run-all.sh/.ps1, .github/workflows/test.yml are rows in ## Components (lines 63-72); the real, unedited loop suites (LC/LI/LC2/LI2) are defined in the paragraph immediately following that table (lines 74-78); the fixture-repo copy (FX) and stubbed suite files (STUB) are defined in the '### tests/bump-version-gate.tests.sh / .ps1 test technique (T-001)' subsection (lines 189-235); the loop-gate job (LG) and release job (RJ) are both defined in the '### .github/workflows/release.yml required loop-gate job (T-002)' subsection (lines 237-266). design.md has no ## Frontend Plan/## Backend Plan section, so no additional out-of-scope component references exist."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has an ## ADR Change Log section (lines 125-133) stating 'No new ADR' and explaining the feature introduces no new vocabulary, schema, or architectural pattern beyond precedents already established by epic-159-pillar-a2 (fixture-copy testing precedent, text-marker CI-content-assertion precedent, both cited by file). No ADR is referenced, so there is no docs/adr/NNNN-<slug>.md existence check to perform. The design's repeated precedent-citation pattern throughout Test Strategy and Design Decisions supports the no-new-architectural-departure claim. Per the check's own rule: 'If no ADRs are referenced and the feature does not introduce new architectural decisions, emit PASS.'"
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "fa944c8b6b5f94734f674f9d4ddff588c6900b8dc915181043090a020cef7f94"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/investigation.md",
+      "sha256": "f1a71be18532189bbb2d68b5ca92b52b493eae0bf7e7ebf3ed1cc6358f4a95dc"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-1/precheck-result.json",
+      "sha256": "73ee61931d5c081c7cd5b8b3c2c17e725c7ded70652c4c83e2a2c2cfa155436b"
+    }
+  ]
+}

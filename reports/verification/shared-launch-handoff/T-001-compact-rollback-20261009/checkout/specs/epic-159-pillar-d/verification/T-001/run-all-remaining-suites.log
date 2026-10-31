@@ -1,0 +1,648 @@
+SKIP (pre-existing main regression, documented): tests/turn-first-workflow.tests.sh
+==> tests/retrospective-loop.tests.sh
+ok: retrospective fixture derives exact counts 3/2/2/2
+ok: retrospective loop prompts and templates are synchronized
+RESULT tests/retrospective-loop.tests.sh: PASS
+==> tests/emit-run-record-feature-scope.tests.sh
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+
+emit-run-record-feature-scope.tests.sh: 7 passed, 0 failed
+RESULT tests/emit-run-record-feature-scope.tests.sh: PASS
+==> tests/rollback-1.5.0.tests.sh
+On branch feature/epic-159-pillar-d
+Your branch is up to date with 'origin/feature/epic-159-pillar-d'.
+
+nothing to commit, working tree clean
+RESULT tests/rollback-1.5.0.tests.sh: FAIL (exit 1)
+==> tests/cross-model.tests.sh
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel → exit 1 (diversity fail)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel → exit 0 (diversity satisfied)
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel → pass (non_anthropic≥1, distinct≥2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS, no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel PASS → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches all → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+
+Results: 18 passed, 0 failed
+RESULT tests/cross-model.tests.sh: PASS
+==> tests/eval.tests.sh
+=== Scenario: clean-pass ===
+ok: clean-pass: generate-evidence-bundle succeeds
+ok: clean-pass: check-contract PASS
+ok: clean-pass: check-placeholders PASS
+ok: clean-pass: check-evidence-bundle PASS
+ok: clean-pass: check-task-state PASS — Done permitted
+=== Scenario: placeholder-stub ===
+ok: placeholder-stub: check-placeholders FAILS (Done blocked) — mentions TODO
+=== Scenario: missing-evidence ===
+ok: missing-evidence: check-contract FAILS — mentions missing evidence
+=== Scenario: tampered-evidence ===
+ok: tampered-evidence: check-evidence-bundle FAILS — mentions sha256 mismatch
+=== Scenario: foreign-commit-evidence ===
+ok: foreign-commit-evidence: check-evidence-bundle FAILS (foreign git_commit not in history)
+=== Scenario: self-approval-blocked ===
+ok: self-approval-blocked: sdd-hook-guard.sh exits 2 (denied) — no SDD_SUDO
+=== Scenario: done-without-report ===
+ok: done-without-report: check-task-state FAILS — Done blocked (report/bundle mismatch)
+=== Scenario: optional-check-no-waiver ===
+ok: optional-check-no-waiver: check-contract FAILS — mentions waiver_reason
+=== Scenario: risk-tiered ===
+ok: risk-tiered: high task with Required Workflow: tdd passes check-risk
+ok: risk-tiered: high task missing tdd workflow fails check-risk (fail-closed)
+ok: risk-tiered: complete REQ->AC->TEST->evidence chain passes check-traceability
+ok: risk-tiered: link with empty tests array fails check-traceability (fail-closed)
+
+Results: 16 passed, 0 failed.
+RESULT tests/eval.tests.sh: PASS
+==> tests/crlf-parity.tests.sh
+=== CRLF-1: check-risk with CRLF tasks.md ===
+ok: CRLF-1.1: high task with CRLF endings passes check-risk (exit 0)
+ok: CRLF-1.2: fixture file confirmed to contain CR bytes (not already stripped)
+=== CRLF-2: check-risk with LF tasks.md (control) ===
+ok: CRLF-2.1: high task with LF endings passes check-risk (control)
+=== CRLF-3: check-risk critical+CRLF ===
+ok: CRLF-3.1: critical task with CRLF endings passes check-risk
+=== CRLF-4: check-risk CRLF bad-value still fails ===
+ok: CRLF-4.1: CRLF file with invalid Risk value still fails correctly (gate not neutered)
+=== CRLF-5: check-task-state with CRLF tasks.md ===
+ok: CRLF-5.1: Approved In-Progress task with CRLF endings passes check-task-state
+=== CRLF-6: check-task-state with LF tasks.md (control) ===
+ok: CRLF-6.1: LF tasks.md passes check-task-state (control)
+=== CRLF-7: check-task-state CRLF Draft+InProgress still fails ===
+ok: CRLF-7.1: CRLF Draft+InProgress still fails check-task-state (gate not neutered)
+
+Results: 8 passed, 0 failed.
+RESULT tests/crlf-parity.tests.sh: PASS
+==> tests/scenario.tests.sh
+=== Scenario A: full-chain multi-tier lifecycle ===
+--- A.1: check-risk passes ---
+ok: A.1: check-risk passes for well-formed three-task tasks.md
+--- A.2: check-risk fails-closed on missing Required Workflow ---
+ok: A.2: check-risk fails-closed when T-102 drops Required Workflow: tdd
+--- A.3: check-contract passes T-101 with docs stack ---
+ok: A.3: check-contract passes T-101 (docs stack, compile checks waived with waiver_reason)
+--- A.4: check-contract passes T-102 ---
+ok: A.4: check-contract passes T-102 (high risk, tdd, full evidence)
+--- A.5: check-contract fails on required passes:false ---
+ok: A.5: check-contract fails when required check has passes:false
+--- A.6: check-traceability passes complete chain ---
+ok: A.6: check-traceability passes complete REQ->AC->TEST->evidence chain
+--- A.7: check-traceability fails-closed on empty tests[] ---
+ok: A.7: check-traceability fails-closed on empty tests[] link
+--- A.8: check-task-state blocks Done with Approval: Draft ---
+ok: A.8: check-task-state BLOCKS Done while Approval: Draft
+--- A.9: check-task-state passes non-critical Done with named Approval ---
+ok: A.9: check-task-state PASSES non-critical Done with named Approval: Approved (alice)
+--- A.10: check-task-state blocks critical Done without Second Approval ---
+ok: A.10: check-task-state BLOCKS critical Done without Second Approval
+--- A.11: check-task-state blocks critical Done with same-name approvers ---
+ok: A.11: check-task-state BLOCKS critical Done with same-name approvers (alice==alice)
+--- A.12: check-task-state blocks critical Done with sudo approver ---
+ok: A.12: check-task-state BLOCKS critical Done with 'sudo' as primary approver
+--- A.13: evidence bundle round-trip for high task T-102 ---
+ok: A.13a: generate-evidence-bundle succeeds for high task T-102
+ok: A.13b: check-evidence-bundle passes for high task T-102
+=== Scenario B1: hook contract — all 3 CLI forms ===
+--- B1.1: Claude Code node --emit exit ---
+ok: B1.1a: Claude Code node guard exits 2 on self-approval (deny)
+ok: B1.1b: Claude Code node guard exits 0 on benign payload (allow)
+--- B1.2: Codex sh --emit exit ---
+ok: B1.2a: Codex sh guard exits 2 on self-approval (deny)
+ok: B1.2b: Codex sh guard exits 0 on benign payload (allow)
+--- B1.3: Copilot sh --emit copilot ---
+ok: B1.3a: Copilot sh guard emits permissionDecision=deny on self-approval (exit 0)
+ok: B1.3b: Copilot sh guard emits permissionDecision=allow on benign payload (exit 0)
+--- B1.4: drift guard — hook configs reference the correct CLI invocations ---
+ok: B1.4a: claude-hooks.json references sdd-hook-guard.js with --emit exit
+ok: B1.4b: hooks.json references sdd-hook-guard.sh --emit exit
+ok: B1.4c: copilot-hooks.json references sdd-hook-guard.sh --emit copilot
+=== Scenario E: critical signing round-trip ===
+--- E.1: generate signed critical bundle ---
+ok: E.1: generate-evidence-bundle succeeds for critical task with SDD_EVIDENCE_KEY
+ok: E.1b: signed bundle contains hmac-sha256 signature field
+--- E.2: check-evidence-bundle with correct key passes ---
+ok: E.2: check-evidence-bundle PASS with correct SDD_EVIDENCE_KEY
+--- E.3: tampered bundle fails signature check ---
+ok: E.3: tampered critical bundle fails check-evidence-bundle (mentions signature/HMAC)
+
+Results: 27 passed, 0 failed.
+RESULT tests/scenario.tests.sh: PASS
+==> tests/apply-branch-protection.tests.sh
+ok: 403-list: exits 0 (fail-soft)
+ok: 403-list: no PUT attempted (regression guard)
+ok: 403-list: no malformed ruleset URL in output
+ok: 403-list: manual fallback steps printed
+ok: empty-list: exits 0
+ok: empty-list: POST (create) attempted, no PUT
+ok: empty-list: reports created
+ok: match-list: exits 0
+ok: match-list: PUT to rulesets/12345 (update)
+ok: match-list: reports found id 12345
+ok: match-list: reports updated
+ok: obj-body-200: no PUT from non-array body
+ok: obj-body-200: falls through to manual fallback
+
+apply-branch-protection.tests.sh: 13 passed, 0 failed
+RESULT tests/apply-branch-protection.tests.sh: PASS
+==> tests/workflow-state-registry.tests.sh
+not ok: canonical registry contract is invalid
+RESULT tests/workflow-state-registry.tests.sh: FAIL (exit 1)
+==> tests/workflow-state-registry-parity.tests.sh
+not ok: canonical registry contract is invalid
+RESULT tests/workflow-state-registry-parity.tests.sh: FAIL (exit 1)
+==> tests/workflow-state.tests.sh
+ok: Shell workflow-state validation fixtures passed
+RESULT tests/workflow-state.tests.sh: PASS
+==> tests/workflow-state-parity.tests.sh
+ok: workflow-state adapter parity passed
+RESULT tests/workflow-state-parity.tests.sh: PASS
+==> tests/second-approval-mask.tests.sh
+# second-approval-mask suite (CWS_SH=/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/scripts/check-workflow-state.sh)
+--- sanity: base provenance fixture ---
+ok: SANITY unmutated frozen validates [sh] (0|)
+ok: SANITY unmutated frozen validates [ps1] (0|)
+ok: SANITY unmutated frozen validates [parity sh==ps1] (0|)
+--- TEST-001 (AC-001): post-freeze Second Approval normalizes to ok ---
+ok: TEST-001 base add [sh] (0|)
+ok: TEST-001 base add [ps1] (0|)
+ok: TEST-001 base add [parity sh==ps1] (0|)
+ok: TEST-001 base add: sh/ps1 normal forms byte-identical
+ok: TEST-001 value edit [sh] (0|)
+ok: TEST-001 value edit [ps1] (0|)
+ok: TEST-001 value edit [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence [sh] (0|)
+ok: TEST-001 multi-occurrence [ps1] (0|)
+ok: TEST-001 multi-occurrence [parity sh==ps1] (0|)
+ok: TEST-001 multi-occurrence: sh/ps1 normal forms byte-identical
+--- TEST-002 (AC-002): negative controls stay fail-closed (RED and GREEN) ---
+ok: TEST-002a arbitrary line [sh] (1|stage-provenance)
+ok: TEST-002a arbitrary line [ps1] (1|stage-provenance)
+ok: TEST-002a arbitrary line [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [sh] (1|stage-provenance)
+ok: TEST-002b checkbox flip [ps1] (1|stage-provenance)
+ok: TEST-002b checkbox flip [parity sh==ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [sh] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [ps1] (1|stage-provenance)
+ok: TEST-002c indented mention (column-0 anchor) [parity sh==ps1] (1|stage-provenance)
+--- TEST-003 (AC-003): CRLF parity + byte-identical normal forms ---
+ok: TEST-003 CRLF base add [sh] (0|)
+ok: TEST-003 CRLF base add [ps1] (0|)
+ok: TEST-003 CRLF base add [parity sh==ps1] (0|)
+ok: TEST-003 CRLF base add: sh/ps1 normal forms byte-identical
+ok: TEST-003 CRLF tamper [sh] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [ps1] (1|stage-provenance)
+ok: TEST-003 CRLF tamper [parity sh==ps1] (1|stage-provenance)
+ok: TEST-003 CRLF final-line-no-newline [sh] (0|)
+ok: TEST-003 CRLF final-line-no-newline [ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 CRLF final-line-no-newline: sh/ps1 normal forms byte-identical
+ok: TEST-003 LF final-line-no-newline [sh] (0|)
+ok: TEST-003 LF final-line-no-newline [ps1] (0|)
+ok: TEST-003 LF final-line-no-newline [parity sh==ps1] (0|)
+ok: TEST-003 LF final-line-no-newline: sh/ps1 normal forms byte-identical
+--- TEST-004 (AC-004): suite registered in tests/run-all.sh ---
+ok: TEST-004 registered in tests/run-all.sh
+---- summary: pass=39 fail=0 skip=0 ----
+ok: second-approval-mask suite passed (39 checks, 0 skipped)
+RESULT tests/second-approval-mask.tests.sh: PASS
+==> tests/workflow-state-ci-integration.tests.sh
+Workflow-state CI integration tests passed.
+RESULT tests/workflow-state-ci-integration.tests.sh: PASS
+==> tests/structure-check-feature-mode.tests.sh
+PASS: TEST-011 plugin repository-only output is unchanged
+PASS: TEST-011 root repository-only output is unchanged
+PASS: TEST-013 LITE/legacy specs are not implicitly validated
+PASS: TEST-012 plugin accepts complete nine-file feature
+PASS: TEST-012 root checker accepts complete nine-file feature
+PASS: TEST-012 missing requirements.md has one stable diagnostic
+PASS: TEST-012 missing design.md has one stable diagnostic
+PASS: TEST-012 missing ux-spec.md has one stable diagnostic
+PASS: TEST-012 missing frontend-spec.md has one stable diagnostic
+PASS: TEST-012 missing infra-spec.md has one stable diagnostic
+PASS: TEST-012 missing security-spec.md has one stable diagnostic
+PASS: TEST-012 missing acceptance-tests.md has one stable diagnostic
+PASS: TEST-012 missing tasks.md has one stable diagnostic
+PASS: TEST-012 missing traceability.md has one stable diagnostic
+PASS: TEST-019 invalid selector '' fails before path access
+PASS: TEST-019 invalid selector '/tmp/outside' fails before path access
+PASS: TEST-019 invalid selector '../outside' fails before path access
+PASS: TEST-019 invalid selector 'Uppercase' fails before path access
+PASS: TEST-019 invalid selector 'under_score' fails before path access
+PASS: TEST-019 plugin rejects a feature-directory symlink before traversal
+PASS: TEST-019 root checker rejects a feature-directory symlink before traversal
+PASS: TEST-019 plugin rejects a feature-file symlink before traversal
+PASS: TEST-013 rollback restores baseline checker hashes
+PASS: TEST-013 rolled-back plugin checker retains repository-only behavior
+PASS: TEST-013 rolled-back root checker retains repository-only behavior
+PASS: 25
+FAIL: 0
+RESULT tests/structure-check-feature-mode.tests.sh: PASS
+==> tests/quality-gate-cycle-limit.tests.sh
+=== QGCL-001: 0 reports (empty dir) -> continue ===
+ok: QGCL-001 (sh): continue / exit 0
+ok: QGCL-001 (ps1): continue / exit 0
+=== QGCL-002: 1 report -> continue ===
+ok: QGCL-002 (sh): continue / exit 0
+ok: QGCL-002 (ps1): continue / exit 0
+=== QGCL-003: 2 reports -> continue ===
+ok: QGCL-003 (sh): continue / exit 0
+ok: QGCL-003 (ps1): continue / exit 0
+=== QGCL-004: 3 reports -> Escalate-Human ===
+ok: QGCL-004 (sh): Escalate-Human / exit 1
+ok: QGCL-004 (ps1): Escalate-Human / exit 1
+=== QGCL-005: 4 reports -> Escalate-Human ===
+ok: QGCL-005 (sh): Escalate-Human / exit 1
+ok: QGCL-005 (ps1): Escalate-Human / exit 1
+=== QGCL-006: prefix collision T-0010 does not count for T-001 ===
+ok: QGCL-006 (sh): continue / exit 0
+ok: QGCL-006 (ps1): continue / exit 0
+=== QGCL-007: absent reports dir -> continue ===
+ok: QGCL-007 (sh): continue / exit 0
+ok: QGCL-007 (ps1): continue / exit 0
+=== QGCL-008: invalid task-id -> exit 2 ===
+ok: QGCL-008a (too few digits) (sh): usage error exit 2
+ok: QGCL-008a (too few digits) (ps1): usage error exit 2
+ok: QGCL-008b (four digits) (sh): usage error exit 2
+ok: QGCL-008b (four digits) (ps1): usage error exit 2
+ok: QGCL-008c (lowercase) (sh): usage error exit 2
+ok: QGCL-008c (lowercase) (ps1): usage error exit 2
+ok: QGCL-008d (non-task) (sh): usage error exit 2
+ok: QGCL-008d (non-task) (ps1): usage error exit 2
+ok: QGCL-008e (empty) (sh): usage error exit 2
+ok: QGCL-008e (empty) (ps1): usage error exit 2
+=== QGCL-009: punctuation-adjacent counts, embedded does not ===
+ok: QGCL-009a (bracket/colon adjacent) (sh): Escalate-Human / exit 1
+ok: QGCL-009a (bracket/colon adjacent) (ps1): Escalate-Human / exit 1
+ok: QGCL-009b (embedded in word) (sh): continue / exit 0
+ok: QGCL-009b (embedded in word) (ps1): continue / exit 0
+=== QGCL-010: default reports-dir = reports/quality-gate ===
+ok: QGCL-010 (sh): default dir counts 3 -> Escalate-Human
+ok: QGCL-010 (ps1): default dir counts 3 -> Escalate-Human
+=== QGCL-011: sh/ps1 output+exit parity ===
+ok: QGCL-011: parity for T-001 in r0 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001 in r2 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001 in r3 (exit=1, out=[Escalate-Human])
+ok: QGCL-011: parity for T-001 in rc (exit=0, out=[continue])
+=== QGCL-012: .ps1 ASCII-only and no BOM ===
+ok: QGCL-012a: .ps1 is ASCII-only (byte count 2239/2239)
+ok: QGCL-012b: .ps1 has no UTF-8 BOM
+
+Results: 36 passed, 0 failed
+RESULT tests/quality-gate-cycle-limit.tests.sh: PASS
+==> tests/guard-ps1-ascii.tests.sh
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+RESULT tests/guard-ps1-ascii.tests.sh: PASS
+==> tests/loop-inventory.tests.sh
+=== TEST-001: inventory schema + registration forcing ===
+ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/tests/loops/loop-inventory.json
+ok: TEST-001.1: schema field is loop-inventory/v1
+ok: TEST-001.2: inventory carries exactly eight loop entries
+ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-a maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-b maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-a maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-b maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-a maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-b maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair quality:sdd-evaluator maps to inventory entry quality-gate
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-a maps to inventory entry domain-review
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-b maps to inventory entry domain-review
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-task-state.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-implementation/scripts/select-agent-model.sh
+ok: TEST-001.6 (negative self-check): removing a registered entry turns registration validation red
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+ok: TEST-002.1: spec-review cap value greps to its driver source's limit
+ok: TEST-002.1: domain-review cap value greps to its driver source's limit
+ok: TEST-002.1: quality-gate cap value greps to its driver source's limit
+ok: TEST-002.2: terminal-tier is cap_kind:state and excluded from the numeric grep
+ok: TEST-002.3: exactly one cap_kind:state entry exists in the inventory
+ok: TEST-002.4 (negative self-check): a mutated cap value turns the drift lock red
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+ok: TEST-003.1: impl-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: task-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: wfi-audit carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: hitl-diagnosis carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.2: wfi-audit carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.2: hitl-diagnosis carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.3: every fixture_profiles value is greenfield or brownfield
+ok: TEST-003.4: every entry declares a non-empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+ok: TEST-004.1: loop-inventory.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-inventory.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-driver.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-driver.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-consistency.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-consistency.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-escalation.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-escalation.tests.ps1 is registered in run-all.ps1 and test.yml
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.sh: 49 passed, 0 failed, 0s elapsed
+RESULT tests/loop-inventory.tests.sh: PASS
+==> tests/loop-driver.tests.sh
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.8n3NQD) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.sh: 22 passed, 0 failed, 2s elapsed
+RESULT tests/loop-driver.tests.sh: PASS
+==> tests/loop-consistency.tests.sh
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, PASS/Minor-only) green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)
+NOTE: TEST-008.14: domain-review-precheck.ps1 now exists upstream -- tests/loop-consistency.tests.ps1's named SKIP self-heals; no action needed here.
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LOOP_FIXTURE_ROOT
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-53356/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.sh: 27 passed, 0 failed, 12s elapsed
+RESULT tests/loop-consistency.tests.sh: PASS
+==> tests/loop-escalation.tests.sh
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.sh escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.sh escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.sh reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: assert_terminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.sh denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.sh permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+ok: TEST-018.2: temp copy mutation removed the word-boundary flag from grep
+ok: TEST-018.3 (negative self-check): the substring-grep mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.sh accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: python3-absent degradation (restricted PATH) ===
+ok: TEST-013.0: python3 is present under this suite's normal PATH (the restricted-PATH legs below are a deliberate simulation, not an accidental gap)
+SKIP: TEST-013.1: check-terminal-tier-resume.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation, rc=1
+SKIP: TEST-013.2: select-agent-model.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.sh: 22 passed, 0 failed, 1s elapsed
+RESULT tests/loop-escalation.tests.sh: PASS
+==> tests/hitl-wfi-terminal.tests.sh
+=== TEST-001/TEST-002: HITL cap-5 terminal behavior (real template, fixture copy) ===
+ok: TEST-001 (AC-001): never-reproducing CHECK completes exactly 5 iterations, exits 0, prints the terminal string
+ok: TEST-002 (AC-002): CHECK returning true on iteration 3 exits 1 immediately with the RED canary message
+=== TEST-003: WFI-audit one-directional sweep (Audit-Attempt 0 -> 1 -> 2 -> 3) ===
+ok: TEST-003.1 (AC-003): Audit-Attempt absent (=0), BLOCKED -> Audit-Attempt 1, Audit-Status Not-Started
+ok: TEST-003.2 (AC-003): Audit-Attempt 1, BLOCKED -> Audit-Attempt 2, Audit-Status Not-Started
+ok: TEST-003.3 (AC-003): Audit-Attempt 2, BLOCKED -> Audit-Attempt 3, Audit-Status Human-Blocked (convergence guard)
+ok: TEST-003.4 (AC-003, negative self-check): mutating the threshold to 4 turns the attempt-3 assertion red, proving the check is live
+=== TEST-004: no remote-CLI invocation + Category construction proof ===
+ok: TEST-004.1 (AC-004): neither new file in this feature invokes the remote issue-tracker CLI
+ok: TEST-004.2 (AC-004): WFI-audit fixture Category is process, keeping SKILL.md STEP 8 a documented no-op by construction
+=== TEST-005: WFI-010.md / WFI-011.md read-only smoke ===
+ok: TEST-005 (AC-005): WFI-010.md Audit-Attempt=1 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-011.md Audit-Attempt=0 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-010.md SHA-256 unchanged before vs. after this suite run
+ok: TEST-005 (AC-005): WFI-011.md SHA-256 unchanged before vs. after this suite run
+=== TEST-006: self-registration + runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-006.3 (AC-006, negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-006.4 (AC-006): suite completed within the 300s runtime budget
+
+hitl-wfi-terminal.tests.sh: 16 passed, 0 failed, 0s elapsed
+RESULT tests/hitl-wfi-terminal.tests.sh: PASS
+==> tests/check-placeholders-brownfield.tests.sh
+=== TEST-007: canonical brownfield seed existence + three documented categories ===
+ok: TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker
+ok: TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker
+ok: TEST-007.3 (AC-007): specs/brownfield-seed-demo/tasks.md is bootstrap-complete (header/Task-Review-Status/T-NNN block with Status,Risk,Risk Rationale,Required Workflow/Blockers section)
+ok: TEST-007.4 (AC-007): specs/brownfield-seed-demo/tasks.md carries no unresolved {{...}} template placeholder
+=== TEST-008: marker-free CHANGED_FILES.txt subset passes (Case A) ===
+ok: TEST-008.1 (AC-008): CHANGED_FILES.txt manifest exists
+ok: TEST-008.2 (AC-008): check-placeholders.sh invoked with only the marker-free changed-files subset exits 0
+ok: TEST-008.3 (AC-008, negative self-check): CHANGED_FILES.txt lists neither marker-bearing file
+=== TEST-009: full seed directory fails with BOTH pre-existing markers (Case B) ===
+ok: TEST-009.1 (AC-009): check-placeholders.sh invoked with the full seed directory exits 1
+ok: TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding
+ok: TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding
+ok: TEST-009.4 (AC-009, negative self-check): the marker-free service.py does not appear in the findings
+ok: TEST-009.5 (AC-009, negative self-check): the marker-free tasks.md does not appear in the findings
+=== Self-registration: run-all.sh / run-all.ps1 / test.yml ===
+ok: REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml
+ok: REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml
+
+check-placeholders-brownfield.tests.sh: 14 passed, 0 failed
+RESULT tests/check-placeholders-brownfield.tests.sh: PASS
+==> tests/bump-version-gate.tests.sh
+=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ===
+SKIP: TEST-001 (AC-001) mutation-success assertions -- this host's sed is BSD-style; scripts/bump-version.sh's unedited mutation section (scripts/bump-version.sh:51-70) requires GNU sed. Pre-existing portability gap, out of scope for T-001 (REQ-001 loop-gate logic itself is proven by TEST-002..006, none of which reach the mutation section on this host).
+=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ===
+ok: TEST-002 (AC-002): bump-version.sh exits non-zero when loop-consistency.tests.sh is stubbed failing
+ok: TEST-002 (AC-002): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ===
+ok: TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)
+ok: TEST-003 (AC-003): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-004 (AC-004): no-bypass self-check (real scripts/bump-version.sh) ===
+ok: TEST-004 (AC-004): the loop-gate 'for' statement is unindented (top-level, not nested inside a conditional)
+ok: TEST-004 (AC-004): no bypass-suggestive token (SKIP/BYPASS/OVERRIDE) inside the loop-gate block's code
+ok: TEST-004 (AC-004): no statement (conditional or otherwise) precedes the loop-gate 'for' entry
+=== TEST-005 (AC-005): loop-gate precedes the first mutation step (real scripts/bump-version.sh) ===
+ok: TEST-005 (AC-005): loop-gate invocation (line 46) precedes the first mutation step (line 71)
+=== TEST-006 (AC-006): CI-resilience + self-registration ===
+ok: TEST-006 (AC-006, CI-resilience): fixture-root normalization uses pwd -P
+ok: TEST-006 (AC-006, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): this suite drives no real validator (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): no unguarded bash array expansion found (set -u empty-array safety)
+ok: TEST-006 (AC-006): bump-version-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml
+---- summary: pass=13 fail=0 ----
+ok: bump-version-gate suite passed (13 checks)
+RESULT tests/bump-version-gate.tests.sh: PASS
+==> tests/release-loop-gate.tests.sh
+=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ===
+ok: TEST-007 (AC-007): a loop-gate: job slice was found in release.yml
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh
+=== TEST-008 (AC-008): release job needs: loop-gate + no escape hatch ===
+ok: TEST-008 (AC-008): release job slice carries a needs: loop-gate entry
+ok: TEST-008 (AC-008): loop-gate job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+ok: TEST-008 (AC-008): release job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+=== TEST-009 (AC-009): negative-branch canary (needs: stripped) ===
+ok: TEST-009 (AC-009): the needs:-stripped fixture copy is reported non-compliant (release_has_needs=False), proving TEST-008's assertion is not vacuously true
+=== TEST-010 (AC-010): ubuntu-latest only + self-registration ===
+ok: TEST-010 (AC-010): loop-gate job slice declares runs-on: ubuntu-latest
+ok: TEST-010 (AC-010): loop-gate job slice carries no strategy:/matrix: key (single-OS, matching release.yml's existing scope)
+ok: TEST-010 (AC-010): release-loop-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml
+---- summary: pass=10 fail=0 ----
+ok: release-loop-gate suite passed (10 checks)
+RESULT tests/release-loop-gate.tests.sh: PASS
+==> tests/guard-r10-port.tests.ps1
+guard-r10-port.tests.ps1
+  PS1: /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  PY : /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  JS : /Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+ok: r10 file-write: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: .claude/settings.json (all exit 2)
+ok: r10 file-write: tests/gates.tests.sh (all exit 2)
+ok: r10 edit: ship/SKILL.md (all exit 2)
+ok: r10 file-write: impl-review-loop SKILL.md (all exit 2)
+ok: r10 multiedit: check-contract.ps1 (all exit 2)
+ok: r10 file-write: claude-hooks.json (all exit 2)
+ok: r10 apply_patch: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: ../ traversal to guard (all exit 2)
+ok: r10 file-write: sdd-hook-guard.js (all exit 2)
+ok: r10 file-write: sdd-hook-guard.ps1 (all exit 2)
+ok: r10 edit: sdd-hook-guard.sh (all exit 2)
+ok: r10 file-write: kill-switch.js (all exit 2)
+ok: r10 file-write: kill-switch.sh (all exit 2)
+ok: r10 file-write: kill-switch.ps1 (all exit 2)
+ok: r10 file-write: hooks.json (all exit 2)
+ok: r10 file-write: copilot-hooks.json (all exit 2)
+ok: r10 file-write: check-contract.sh (all exit 2)
+ok: r10 file-write: check-contract.py (all exit 2)
+ok: r10 file-write: check-evidence-bundle.sh (all exit 2)
+ok: r10 file-write: check-evidence-bundle.ps1 (all exit 2)
+ok: r10 file-write: check-evidence-bundle.py (all exit 2)
+ok: r10 file-write: validate_path.py (all exit 2)
+ok: r10 file-write: settings.local.json (all exit 2)
+ok: r10 file-write: tests/eval.tests.sh (all exit 2)
+ok: r10 file-write: tests/guard-parity.tests.sh (all exit 2)
+ok: r10 file-write: tests/constant-parity.tests.sh (all exit 2)
+ok: r10 edit: impl-reviewer-a.md (all exit 2)
+ok: r10 edit: impl-reviewer-b.md (all exit 2)
+ok: r10 multiedit: task-reviewer-a.md (all exit 2)
+ok: r10 multiedit: task-reviewer-b.md (all exit 2)
+ok: r10 file-write: task-review-loop SKILL.md (all exit 2)
+ok: r10 plugin.json: .plugin relative (all exit 2)
+ok: r10 plugin.json: .claude-plugin relative (all exit 2)
+ok: r10 plugin.json: .codex-plugin absolute (all exit 2)
+ok: allow: src/plugin.json (no plugin dot-dir) (all exit 0)
+ok: r10 bash redirect into guard (all exit 2)
+ok: r10 bash cd <dir> && rm <basename> (all exit 2)
+ok: r10 bash pushd <dir> && rm <basename> (all exit 2)
+ok: r10 bash cp onto guard (all exit 2)
+ok: r10 bash compound cat && rm guard (all exit 2)
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+ok: impl-review forgery: no verdict -> deny (all exit 2)
+ok: impl-review: PASS verdict -> allow (all exit 0)
+ok: impl-review: FAIL verdict -> deny (all exit 2)
+ok: impl-review forgery edit: no verdict -> deny (all exit 2)
+ok: impl-review forgery multiedit: FAIL verdict -> deny (all exit 2)
+ok: impl-review edit: PASS verdict -> allow (all exit 0)
+ok: copilot-emit: r10 write to guard -> deny (all deny, exit 0)
+ok: copilot-emit: cd+rm guard -> deny (all deny, exit 0)
+ok: copilot-emit: write src/main.py -> allow (all allow, exit 0)
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+ok: kill-switch: AGENT_STOP at git root, nested cwd, no CLAUDE_PROJECT_DIR -> deny (all exit 2)
+ok: kill-switch: no AGENT_STOP, nested cwd, no CLAUDE_PROJECT_DIR -> allow (all exit 0)
+
+guard-r10-port.tests.ps1: 60 passed, 0 failed
+RESULT tests/guard-r10-port.tests.ps1: PASS
+REMAINING-SUITES OVERALL: FAIL

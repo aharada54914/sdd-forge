@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-spec-a2r2-a-seq0397",
+  "host_session_id": "SESS-spec-a2r2-a-epic136phase4docs-0397",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-2/round-2/precheck-result.json",
+      "sha256": "e72ed146e2c739fe0cfc9312cd97814f25d9eee1d8be82e6dc5b7edcb703de7b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "aeb2e098f02e2a67f3518077e0e141302154db32eba8775302988955cd757be6"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every requirement (REQ-001..REQ-006) resolves to one or more ACs with concrete, checkable evidence (file:line citations, exit codes, process-liveness checks) and each AC maps to a numbered TEST in acceptance-tests.md:5-20. The round-2 no-orphan clause is stated as a directly observable check -- 'kill -0 <pid> fails after the runner returns, and no orphan of any child the stub spawned remains' (requirements.md:59) and the PowerShell counterpart (requirements.md:60) -- echoed by an executable assertion in acceptance-tests.md:74, giving implementer and verifier a concrete pass/fail bar on both runtimes."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated goal (complete failure taxonomy, bounded vendor CLI invocation, fail-closed timeout via the existing exit-1 mechanism, threat-model OWASP+MCP cross-reference, five absent runtime trust surfaces, documentation=behavior parity) traces to a numbered AC (AC-001..AC-014, requirements.md:31-153) and each AC has a 1:1 row in the Test Matrix (acceptance-tests.md:7-20). No goal in the Overview or Summary lacks a corresponding AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ACs describe externally checkable artifacts: file content and table rows (AC-001, AC-007, AC-009, AC-013, AC-014), exit codes plus file absence (AC-003, AC-005), and wall-clock elapsed time plus process liveness (AC-004). The round-2 addition anchors the no-orphan requirement to a liveness check on a named process (acceptance-tests.md:74) rather than an unmeasurable intent statement."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:155-162) explicitly exclude retries, rewriting the already-correct absent/error path, adding new output-validation code, re-documenting the vendor agent role definition files, changing check-cross-model, and pinning or vendoring CLIs -- covering exactly the areas the investigation shows could otherwise expand."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "BL-001..BL-005 (requirements.md:182-186) state behavior preservation for the absent/error path, no edits to check-cross-model, extension-not-replacement of policy text, dual-runtime parity, and a verified no-protected-file constraint (BL-005, corroborated by investigation.md INV-017's direct read of guard-invariants.generated.js). Edge Cases (requirements.md:164-172) and Assumptions (requirements.md:174-178) add configuration bounds."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The high-risk claim is a vendor-CLI-spawned grandchild left orphaned holding a live API session after a timeout (Edge Case 2, requirements.md:167). Round 1 found this validation surface existed only for PowerShell; the current text closes that gap on both sides: requirements.md:57-60 commits POSIX to process-group semantics (setsid on start, kill -TERM on the negative pgid at expiry) and gives both rows the same no-orphan liveness assertion, and acceptance-tests.md:62-76 makes this concrete in TEST-004(a) for both runtimes, with explicit prose (acceptance-tests.md:76) that the POSIX assertion fails against a single-PID signal and passes only with process-group signalling. A literal POSIX implementation using a bare single-pid SIGTERM (the round-1 failure mode) would now fail this test, so the risk surface is genuinely closed rather than papered over."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (confirmed via Glob on domain/*, zero matches), so per the check's explicit skip condition this is recorded as skipped. No Bounded-Context field is present in requirements.md, consistent with the absence of an Approved domain model."
+    }
+  ]
+}

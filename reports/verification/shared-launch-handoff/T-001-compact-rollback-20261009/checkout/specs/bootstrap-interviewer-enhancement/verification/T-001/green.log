@@ -1,0 +1,86 @@
+PASS: TEST-001 UX layer template exists
+PASS: TEST-001 frontend layer template exists
+PASS: TEST-001 infrastructure layer template exists
+PASS: TEST-001 security layer template exists
+PASS: TEST-002 UX target views
+PASS: TEST-002 UX state traceability
+PASS: TEST-002 UX Mermaid interaction sequence
+PASS: TEST-002 UX wireframe placeholder
+PASS: TEST-002 UX navigation
+PASS: TEST-002 UX accessibility
+PASS: TEST-002 UX failure states
+PASS: TEST-002 UX responsive breakpoints
+PASS: TEST-002 UX design tokens
+PASS: TEST-003 frontend stack
+PASS: TEST-003 frontend component tree
+PASS: TEST-003 frontend state plan
+PASS: TEST-003 frontend route contract
+PASS: TEST-003 frontend API client
+PASS: TEST-003 frontend bundle budget
+PASS: TEST-003 frontend LCP budget
+PASS: TEST-003 frontend INP budget
+PASS: TEST-003 frontend CLS budget
+PASS: TEST-003 concrete TypeScript interface
+PASS: TEST-003 frontend dependencies
+PASS: TEST-004 deployment topology
+PASS: TEST-004 CI/CD sequence
+PASS: TEST-004 environment matrix
+PASS: TEST-004 IaC stub
+PASS: TEST-004 scaling
+PASS: TEST-004 availability SLO
+PASS: TEST-004 latency SLO
+PASS: TEST-004 residency and retention
+PASS: TEST-004 observability
+PASS: TEST-004 cost estimate
+PASS: TEST-004 rollback
+PASS: TEST-005 trust boundaries
+PASS: TEST-005 authentication flow
+PASS: TEST-005 STRIDE matrix
+PASS: TEST-005 authorization
+PASS: TEST-005 data controls
+PASS: TEST-005 OWASP mapping
+PASS: TEST-005 secrets
+PASS: TEST-005 supply chain
+PASS: TEST-005 security tests
+PASS: malformed ux-spec.template.md rejects removed ## Target Views
+PASS: malformed ux-spec.template.md rejects removed ## Wireframe Attachments
+PASS: malformed ux-spec.template.md rejects removed ## Navigation Map
+PASS: malformed ux-spec.template.md rejects removed ## Component States
+PASS: malformed ux-spec.template.md rejects removed ## Design Tokens
+PASS: malformed frontend-spec.template.md rejects removed ## Technology Stack
+PASS: malformed frontend-spec.template.md rejects removed ## State Shape
+PASS: malformed frontend-spec.template.md rejects removed ## API Client Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Deployment Topology
+PASS: malformed infra-spec.template.md rejects removed ## CI/CD Sequence
+PASS: malformed infra-spec.template.md rejects removed ## Infrastructure as Code
+PASS: malformed infra-spec.template.md rejects removed ## Scaling Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Cost Estimate
+PASS: malformed infra-spec.template.md rejects removed ## Rollback
+PASS: malformed security-spec.template.md rejects removed ## Trust Boundaries
+PASS: malformed security-spec.template.md rejects removed ## Authentication Flow
+PASS: malformed security-spec.template.md rejects removed ## Authorization
+PASS: malformed security-spec.template.md rejects removed ## OWASP Mapping
+PASS: malformed security-spec.template.md rejects removed ## Secrets Management
+PASS: malformed security-spec.template.md rejects removed ## Security Tests
+PASS: malformed ux-spec.template.md rejects removed state traceability
+PASS: malformed ux-spec.template.md rejects removed interaction sequence
+PASS: malformed ux-spec.template.md rejects removed accessibility target
+PASS: malformed ux-spec.template.md rejects removed responsive breakpoints
+PASS: malformed frontend-spec.template.md rejects removed component tree
+PASS: malformed frontend-spec.template.md rejects removed route contract
+PASS: malformed frontend-spec.template.md rejects removed bundle budget
+PASS: malformed frontend-spec.template.md rejects removed LCP budget
+PASS: malformed frontend-spec.template.md rejects removed INP budget
+PASS: malformed frontend-spec.template.md rejects removed CLS budget
+PASS: malformed frontend-spec.template.md rejects removed concrete TypeScript interface
+PASS: malformed frontend-spec.template.md rejects removed dependency decision
+PASS: malformed infra-spec.template.md rejects removed environment matrix
+PASS: malformed infra-spec.template.md rejects removed availability SLO
+PASS: malformed infra-spec.template.md rejects removed latency SLO
+PASS: malformed infra-spec.template.md rejects removed residency and retention
+PASS: malformed infra-spec.template.md rejects removed observability plan
+PASS: malformed security-spec.template.md rejects removed STRIDE matrix
+PASS: malformed security-spec.template.md rejects removed data controls
+PASS: malformed security-spec.template.md rejects removed supply-chain controls
+PASS: 84
+FAIL: 0

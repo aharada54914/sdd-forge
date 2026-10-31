@@ -1,0 +1,138 @@
+{
+  "id": 7,
+  "result": {
+    "data": [
+      {
+        "name": "code-review",
+        "runtimeStatus": "disabled",
+        "pluginId": "code-review@openai-bundled",
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "codex_app",
+        "runtimeStatus": "disabled",
+        "pluginId": "codex-app-tools@openai-bundled",
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "computer-history",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "computer-use",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "creative_production_mcp",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "cua_repl",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "node_repl",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "openai-api-key-local-confirmation",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "pencil",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      },
+      {
+        "name": "playwright",
+        "runtimeStatus": "disabled",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": null,
+        "serverCapabilities": null,
+        "tools": {},
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      }
+    ],
+    "nextCursor": null
+  }
+}

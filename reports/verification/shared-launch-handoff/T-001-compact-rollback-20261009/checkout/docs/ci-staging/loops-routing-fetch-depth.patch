@@ -1,0 +1,36 @@
+Subject: ci(loops-routing): fetch full history, matching the test job
+
+The loops-routing job's checkout is shallow (no fetch-depth), while the
+test job pins fetch-depth: 0 with an explicit rationale. The gap was
+latent until claude/plugins-pin-stability grew two review-loop
+calibration documents: check-workflow-state's plugins-pin reconciliation
+then had to resolve the recorded pin commit via `git show`, which a
+shallow clone cannot serve (the pin commit is not fetched), so
+tests/task-plan-binding-durability.tests.sh's P3 cases fail in CI while
+passing in every full-depth checkout. Observed on PR #354 run
+32910347404 (macos + ubuntu red, windows green because the sh suite does
+not run there).
+
+Apply from the repository root:
+
+    git apply --check docs/ci-staging/loops-routing-fetch-depth.patch
+    git apply docs/ci-staging/loops-routing-fetch-depth.patch
+
+---
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -340,6 +340,14 @@ jobs:
+     timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          # Full history, matching the test job: check-workflow-state's
++          # plugins-pin reconciliation resolves recorded pin commits via git
++          # show, which a shallow clone cannot serve (the pin commit is not
++          # fetched). task-plan-binding-durability's P3 fixtures depend on it
++          # whenever a live plugins reference has grown past the committed
++          # contracts' pins.
++          fetch-depth: 0
+
+       - name: Test template-validator parity (bash)
+         shell: bash

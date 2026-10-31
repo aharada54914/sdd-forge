@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "design-sync-consent",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "7be40d82b6e67aa613d46fdd1f3d3eed34675614497bad2c4e9f19c1660fdacd",
+  "acceptance_sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "33ea56f3cc334788eb1f2f719fc723769458a59cc8ff2ddcef572fc360f82887",
+  "edit_summary": "Round-1 findings (REQ-TESTABILITY from A, AMBIGUITY from B, same root): TEST-051's detail demanded an AC-019 boundary statement that AC-030's three enumerated parts never required, breaking the AC-026 precedent where the distinction is its own numbered element. AC-030 now carries the boundary as part 4 with its own vacuous-satisfaction rationale, and TEST-051's matrix row and detail block enumerate the same four parts as the criterion — the assertion set and the numbered list are now the same list.",
+  "reset": false,
+  "generated_at": "2026-08-04T23:08:44Z"
+}

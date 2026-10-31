@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a1r2-seq0322",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a1r2-0322",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "4ebfe16c671c17bff55898001ae06c4849453af06b6364026769909212dbcd04"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "703cdccbefcc2a0f53e355ed39f2e44fe3e648c4079ecd9f095269366bcb84a1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-2/precheck-result.json", "sha256": "202e81737bfbe042b8fbdc0ae3cd8103864b2f4abbcd3449df32bae9e384ed5d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md REQ-004 Fail-6 (lines ~455-467) and AC-033/TEST-033 were edited this round to make the adapter_paths glob match against an EXCLUSIVE-owned changed path the SOLE trigger condition, explicitly stating 'no additional per-binding facet or revision field is defined by this feature' (requirements.md:459-461). But investigation.md's OQ-001 'Resolved' section still states the trigger requires the glob match 'without the corresponding binding facet/revision also present in the diff' -- the identical undefined two-part condition the edit summary says was removed. A grep for 'binding facet|binding revision' across the spec package confirms this is the only remaining occurrence. Downstream failure mode: a task author or implementer following requirements.md's own forward-reference to investigation.md OQ-001 for Fail-6's resolved rule would build a two-part trigger that contradicts REQ-004/AC-033/TEST-033's now-simplified sole-condition rule, producing a Fail-6 implementation that cannot be validated unambiguously against this feature's own acceptance criteria. This is a Phase-1-internal contradiction between two documents this gate is responsible for, not a downstream implementation-review or quality-gate concern. Severity Critical because the two documents give mutually exclusive answers to the same trigger question and requirements.md itself directs the reader to the stale one."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001 through REQ-009) has a corresponding, explicitly-labeled acceptance-criteria block in requirements.md's Acceptance Criteria section, and acceptance-tests.md maps each AC 1:1 to a TEST ID with a concrete test target."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete, externally observable outcomes throughout: specific fixture inputs/outputs, exit codes, evidence-record fields (e.g. AC-027's state string with exit 0, AC-028's distinct non-zero hard-error exit code, AC-054's producer.sha256 field, AC-042's exact six-entry shared_paths enumeration). None of the reviewed AC text relies on unmeasurable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section explicitly excludes project-context.yaml schema definition, Facet Manifest schema definition, Epic A1's canonicalizer implementation, Capability Registry/Registry gate projection, Provider Bindings file schema, Epic A1's bootstrap flow and any A3-authored competing seed-list document, and any change to sdd-hook-guard's own enforcement logic -- each tied to the specific epic that owns it."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Security Boundaries section covers protected-file reachability, producer-digest tamper-evidence scope (two-tier defense per ADR-0019), and credential-block exclusion; the Roles and Permissions section fixes the human-only approval boundary; Dependencies section fixes hard-block vs. non-blocking dependency status per REQ."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section identifies each high-risk claim and ties each to a concrete validation surface -- a dedicated AC/fixture or an explicit task-decomposition risk/workflow tag, consistent with the calibration's instruction not to require Phase 2 task evidence at this gate."
+    }
+  ]
+}

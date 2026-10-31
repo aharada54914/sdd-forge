@@ -1,0 +1,276 @@
+{
+  "schema": "t004-native-delivery-index/v1",
+  "task_id": "T-004",
+  "run_id": "T-004-01a12608-3c98-7fc0-9d9f-461daa965549",
+  "task_attempt_count": 1,
+  "session_id": "01a12608-3c98-7fc0-9d9f-461daa965549",
+  "agent_instance_id": "01a12608-3c98-7fc0-9d9f-461daa965549",
+  "manifest_sha256": "565e5fcccf4b60629d24aad73a3d246c9e69b036a634829c211be63c68688a90",
+  "output_root": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output",
+  "base_head": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "base_head_source": "admitted before-byte-inventory.json; no live Git observation",
+  "spec_revision": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "source_changes": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+      "after_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5"
+    }
+  ],
+  "delivered": [
+    {
+      "path": ".github/workflows/test.yml",
+      "output_path": "work/.github/workflows/test.yml",
+      "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+      "before_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+      "after_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/baseline-test013.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/baseline-test013.json",
+      "sha256": "14a11665de5b22448a68d3c050bbe0539781e1ea42935bd37914d23d9e892eb3",
+      "before_sha256": null,
+      "after_sha256": "14a11665de5b22448a68d3c050bbe0539781e1ea42935bd37914d23d9e892eb3",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/candidate-test013.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/candidate-test013.json",
+      "sha256": "bd825f4afe2a8e098b6e0442483b5270fc8eefb7e22b777baf5bea36d5c842ff",
+      "before_sha256": null,
+      "after_sha256": "bd825f4afe2a8e098b6e0442483b5270fc8eefb7e22b777baf5bea36d5c842ff",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/candidate.diff",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/candidate.diff",
+      "sha256": "797fef9ed8b333e462299be4265b067226926dd6b2215b03fa937cd5eb497a3a",
+      "before_sha256": null,
+      "after_sha256": "797fef9ed8b333e462299be4265b067226926dd6b2215b03fa937cd5eb497a3a",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/generator-check.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/generator-check.json",
+      "sha256": "cd613c167bbefc4713946f4b15095a695ba88814d020b0325fb23f9624d9a32a",
+      "before_sha256": null,
+      "after_sha256": "cd613c167bbefc4713946f4b15095a695ba88814d020b0325fb23f9624d9a32a",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/input-verification.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/input-verification.json",
+      "sha256": "cd8d7f6b3653b2456fba5b326b0aacc05c41c26ce871ce510f5b6019a12c0271",
+      "before_sha256": null,
+      "after_sha256": "cd8d7f6b3653b2456fba5b326b0aacc05c41c26ce871ce510f5b6019a12c0271",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/installed-ajv-green.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/installed-ajv-green.json",
+      "sha256": "01bccbbe8354ce725268833416a0f707e40c13c3cc9373386e238a67c200efcf",
+      "before_sha256": null,
+      "after_sha256": "01bccbbe8354ce725268833416a0f707e40c13c3cc9373386e238a67c200efcf",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/offline-npm-ci.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/offline-npm-ci.json",
+      "sha256": "6db272c3c7e30164f4a592f92c1d4077dcdc5916d5872e38cde89334d4bbe068",
+      "before_sha256": null,
+      "after_sha256": "6db272c3c7e30164f4a592f92c1d4077dcdc5916d5872e38cde89334d4bbe068",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/original-missing-ajv-red.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/original-missing-ajv-red.json",
+      "sha256": "4c8c74f33755c7fc00adf156f74349ade928f0de3b8e752c1337932831e4d570",
+      "before_sha256": null,
+      "after_sha256": "4c8c74f33755c7fc00adf156f74349ade928f0de3b8e752c1337932831e4d570",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/original-wiring-red.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/original-wiring-red.json",
+      "sha256": "688da41cb2f86596b91c1ba1eca3976ce1075c347d6568b963c8648202ee3e64",
+      "before_sha256": null,
+      "after_sha256": "688da41cb2f86596b91c1ba1eca3976ce1075c347d6568b963c8648202ee3e64",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-claims.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-claims.json",
+      "sha256": "28ab39cd57cc318641a4afaaca9ba595e4c20ee0af6772dcea2bc0a27bc0e54e",
+      "before_sha256": null,
+      "after_sha256": "28ab39cd57cc318641a4afaaca9ba595e4c20ee0af6772dcea2bc0a27bc0e54e",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-mismatch-results.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatch-results.json",
+      "sha256": "13f38c1d5ec5ec2aeb79d3ab05ddc28630a5e184319cdc85ccbe124916789909",
+      "before_sha256": null,
+      "after_sha256": "13f38c1d5ec5ec2aeb79d3ab05ddc28630a5e184319cdc85ccbe124916789909",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-mismatches-final.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatches-final.json",
+      "sha256": "aa83229c3ec06557e09b1969931451a98e633c042a69a00d61e025cc3fe015fc",
+      "before_sha256": null,
+      "after_sha256": "aa83229c3ec06557e09b1969931451a98e633c042a69a00d61e025cc3fe015fc",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-mismatches-fixed.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatches-fixed.json",
+      "sha256": "29201c6a9708652e271283e2fac5ebe091a6dc069d2fe826a34175762d3ec723",
+      "before_sha256": null,
+      "after_sha256": "29201c6a9708652e271283e2fac5ebe091a6dc069d2fe826a34175762d3ec723",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.json",
+      "sha256": "6c37c3843685d7f68704766b70a1d8830496d9eec642b866203494d36b2eb755",
+      "before_sha256": null,
+      "after_sha256": "6c37c3843685d7f68704766b70a1d8830496d9eec642b866203494d36b2eb755",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.py",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.py",
+      "sha256": "83eada323379a6411de61b7cfc058e588e899fd01f182a048de078b5c7fbfb4a",
+      "before_sha256": null,
+      "after_sha256": "83eada323379a6411de61b7cfc058e588e899fd01f182a048de078b5c7fbfb4a",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/preflight-report-before-edit.md",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/preflight-report-before-edit.md",
+      "sha256": "5a95a7f8c011c3ef5afe5b8032f6032f38787e0eb4b0c0af90a3494cc5b7bd64",
+      "before_sha256": null,
+      "after_sha256": "5a95a7f8c011c3ef5afe5b8032f6032f38787e0eb4b0c0af90a3494cc5b7bd64",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/record-command.py",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/record-command.py",
+      "sha256": "56a7ebe7b04536b481c2786d3ea874914bcab3696900b3a11f0170fd9c25195c",
+      "before_sha256": null,
+      "after_sha256": "56a7ebe7b04536b481c2786d3ea874914bcab3696900b3a11f0170fd9c25195c",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/report-validation.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/report-validation.json",
+      "sha256": "7c659a1ceea70ea166621cf62de8ce66a267e97653adadb0e485922aa3d8766a",
+      "before_sha256": null,
+      "after_sha256": "7c659a1ceea70ea166621cf62de8ce66a267e97653adadb0e485922aa3d8766a",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/rollback-check.py",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/rollback-check.py",
+      "sha256": "c118a86c56752a233e31eda6cc60adda480244a5c1d54298b7d2ac96b166a9a0",
+      "before_sha256": null,
+      "after_sha256": "c118a86c56752a233e31eda6cc60adda480244a5c1d54298b7d2ac96b166a9a0",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/rollback-results.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/rollback-results.json",
+      "sha256": "cd6903e1dde1f7773a9f735691c497c8f7c55d079b00ca1dc9d3e20c9a7857bc",
+      "before_sha256": null,
+      "after_sha256": "cd6903e1dde1f7773a9f735691c497c8f7c55d079b00ca1dc9d3e20c9a7857bc",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/rollback.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/rollback.json",
+      "sha256": "009c72a8cffbcaf1286e7ab25d46b0410a1b9ac5ed6d57b57c6354a37b81878b",
+      "before_sha256": null,
+      "after_sha256": "009c72a8cffbcaf1286e7ab25d46b0410a1b9ac5ed6d57b57c6354a37b81878b",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/source-preservation.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/source-preservation.json",
+      "sha256": "4f79977b555147b6b85fd2acf073b9089190292b07b3538f3e07950a75a32ca2",
+      "before_sha256": null,
+      "after_sha256": "4f79977b555147b6b85fd2acf073b9089190292b07b3538f3e07950a75a32ca2",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/structure.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/structure.json",
+      "sha256": "11fa5b7d5769dd80be199f8a532964eab5b68e4766c1716ac92f614ce02a63d0",
+      "before_sha256": null,
+      "after_sha256": "11fa5b7d5769dd80be199f8a532964eab5b68e4766c1716ac92f614ce02a63d0",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/structured-output-suite.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/structured-output-suite.json",
+      "sha256": "9d465ccbc2446e157e215e9d44969c5382f43f3287f806ac6e538705fbb99a78",
+      "before_sha256": null,
+      "after_sha256": "9d465ccbc2446e157e215e9d44969c5382f43f3287f806ac6e538705fbb99a78",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "sha256": "76dc246c713b6f507e0466fb622adbd94c3114faa2863f6abd56fc66ce7665e5",
+      "before_sha256": null,
+      "after_sha256": "76dc246c713b6f507e0466fb622adbd94c3114faa2863f6abd56fc66ce7665e5",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-004/wiring-green.json",
+      "output_path": "work/specs/shared-review-launch-repair/verification/T-004/wiring-green.json",
+      "sha256": "e98ecb948307ebc996034b8f084745e7f6dfb0ee50b1f3f82313c0bff53e7208",
+      "before_sha256": null,
+      "after_sha256": "e98ecb948307ebc996034b8f084745e7f6dfb0ee50b1f3f82313c0bff53e7208",
+      "mode": 420
+    },
+    {
+      "path": "reports/implementation/shared-review-launch-repair/T-004.md",
+      "output_path": "work/reports/implementation/shared-review-launch-repair/T-004.md",
+      "sha256": "266f4c37db646ba7eee2e5719a68e9b26df89a4b6c108f3175ee8f87825f0e5c",
+      "before_sha256": null,
+      "after_sha256": "266f4c37db646ba7eee2e5719a68e9b26df89a4b6c108f3175ee8f87825f0e5c",
+      "mode": 420
+    }
+  ],
+  "application_scope": "Apply only delivered paths, never recursively copy output/work; support input copies, node_modules, npm-cache and tmp are not deliverables",
+  "input_preservation": {
+    "verified": 62,
+    "unchanged_in_work": 61,
+    "source_modes_preserved": true
+  },
+  "local_verification": {
+    "wiring_checks": 26,
+    "registration_order_negative_mutations": 27,
+    "evidence_field_negative_mutations": 97,
+    "structured_output_tests_passed": 13,
+    "test_013": "PASS (local fixture)",
+    "generator_check": "PASS",
+    "offline_dependency_install": "PASS",
+    "task_source_rollback": "PASS",
+    "report_validator": "IMPLEMENTATION_REPORT_OK"
+  },
+  "downstream": {
+    "full_bash_runner": "NOT RUN",
+    "full_powershell_runner": "NOT RUN",
+    "full_transport_traceability": "NOT RUN",
+    "native_windows": "NOT RUN",
+    "exact_head_ci": "NOT RUN",
+    "combined_rollback": "NOT RUN",
+    "independent_review": "NOT RUN",
+    "formal_quality_gate": "NOT RUN",
+    "merge": "NOT RUN",
+    "postmerge": "NOT RUN"
+  },
+  "task_state_transition": "none; In Progress retained"
+}

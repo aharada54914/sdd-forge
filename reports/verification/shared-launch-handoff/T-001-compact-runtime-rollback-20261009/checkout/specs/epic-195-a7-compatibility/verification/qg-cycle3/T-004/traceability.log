@@ -1,0 +1,22 @@
+REQ -> AC -> TEST -> evidence chain gate. The first command proves
+traceability.json is still a faithful mechanical derivation of the reviewed
+traceability.md; the second is the gate itself. T-004 is high tier, so
+requirement-traceability is a required contract check
+(references/risk-gate-matrix.md).
+
+$ sh -c 
+      python3 specs/epic-195-a7-compatibility/verification/qg-backfill/derive-traceability-json.py --check
+      derive_rc=$?
+      echo
+      echo "$ sh plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-195-a7-compatibility/traceability.json ."
+      sh plugins/sdd-quality-loop/scripts/check-traceability.sh \
+         specs/epic-195-a7-compatibility/traceability.json .
+      gate_rc=$?
+      [ "$derive_rc" -eq 0 ] && [ "$gate_rc" -eq 0 ]
+
+derive-traceability-json: traceability.json is in sync with traceability.md (7 link(s)).
+
+$ sh plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-195-a7-compatibility/traceability.json .
+Traceability check passed for epic-195-a7-compatibility: 7 link(s).
+
+exit status: 0

@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-designsyncconsent-impl-a1r1-b-seq0481",
+  "host_session_id": "SESS-impl-a1r1-b-designsyncconsent-0481",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "4cf6b85b313a37d1b812828d2cecef9d58bf7d5e43f3e4daddebc5c54d8b2b81"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "5cb7e7c1d53cc2d6515a2cdb50ad956a68bd1a290cfa734f791a346f0434f527"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+      "sha256": "0133a4f158c70fc5330127b2ca77876707d129dbd37fa2fc54aa90f979fca2c0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+      "sha256": "0e3f19cbf97f5bf5e5c790e25dec386942dbe5b90e5b1a7346b6c46af9e89b1e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+      "sha256": "9bb48a72f9f36a9d69b6ffd55a6311ae5fc09a3146bfbcd3cf010e7b3117abdc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+      "sha256": "ce9404be82c1be499d78a0dcac5a7f011f134d57def1c81d6af9bdab9ca38c7f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every named architectural/technical decision in design.md carries an explicit rationale. design.md:240-242 (Design Decisions, 'Resolved here'): step-split decision justified ('Chosen over an in-place conditional because the cheaper option leaves #139 and #140 without an attachment surface'), consent-after-capability-detection ordering justified ('Otherwise an absent DesignSync tool produces a consent prompt for an upload that cannot occur -- user-hostile, and it would break AC-013's auth-failure branch'), three-valued outcome space justified ('costs one line now and a flow re-cut later'). design.md:43-47 (Architecture Overview) restates the same rationale for the flowchart split, and explicitly names and rejects an alternative ('keep one step and add a conditional... fails REQ-006 on both counts'). design.md:301-317 gives a three-option comparison table for the OQ-8 test-placement decision with a stated winner and reason. No 'we will use X' statement found without an accompanying because/rationale clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:296-318 and design.md:349-374 record OQ-1, OQ-2, OQ-3 and OQ-8 as resolved by human decision on 2026-08-04, each restated with Owner/Blocked-Implementation/Resolution fields. That resolution was not propagated to three of the four layer documents, which still present these questions as open and blocking, and this is a direct, citable contradiction rather than a mere completeness gap: security-spec.md:45,71,81 still carries the literal unfilled placeholder 'OQ-1 scope' in the consent table, the trust-boundary mermaid diagram and the B1 boundary row; security-spec.md:126 states outright 'Unresolved by design -- this is exactly OQ-1 and OQ-2', which is false given the recorded resolution; security-spec.md:176 (Residual Risk R2) still frames expiry/withdrawal as an open question ('Whether that is the intent is OQ-1/OQ-2') even though design.md:388 itself states 'The four blocking Open Questions are closed, which retires this risk rather than mitigating it'; security-spec.md:185-187 lists OQ-1/OQ-2/OQ-3 in its own Open Questions section with 'Blocks REQ-001...' and no resolved annotation, and OQ-8 is entirely absent from that list. infra-spec.md:45 states 'The task decomposition cannot be finalised before OQ-8 is answered' as a live blocking condition, directly contradicting requirements.md REQ-008 part (c) and design.md:373 ('the task plan no longer branches on an unanswered question'); infra-spec.md:15,64,73,119 repeat OQ-8 as pending/conditional throughout the CI/CD Sequence and its own Open Questions list. ux-spec.md:31 states 'OQ-1 -- the consent scope unit is what the disclosure must name in one word; the prompt cannot be written until it is decided. Blocks REQ-001, AC-002', contradicting the resolved scope. Concrete failure mode: a reviewer or implementer relying on security-spec.md (design.md:76 calls it 'Load-bearing') or infra-spec.md for task sequencing will conclude OQ-1/OQ-2/OQ-3/OQ-8 are still open and may re-litigate or block on a question the human already closed. Secondary, lower-weight evidence: within design.md's own Open Questions section (design.md:380-382), OQ-7 and OQ-9 under 'Still open -- none blocking' name no role-owner (only the hedging AC), and OQ-10 is attributed to a document ('owned by security-spec.md') rather than a role, which does not satisfy 'identify who owns the resolution (a role, not TBD)' for those entries."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present, so the absent-investigation Major-finding branch does not apply. design.md:340-345 Assumptions are each grounded: the file:line re-verification instruction cites WFI-011 (a stated repository convention); the protected-file/CI-registration re-verification instruction cites the shared-state finding at investigation.md INV-013/INV-014/INV-017 (also re-derived independently in requirements.md's Assumptions, lines 274-276); the DesignSync-tool-semantics assumption cites investigation.md INV-007 ('finalize_plan's payload is therefore unknown from this repository'); the 'loop has never run here' assumption cites investigation.md INV-010 directly. All four are grounded in cited INV-xxx findings rather than asserted as unexamined defaults."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has no '## Constraint Compliance' heading (grep returns zero matches), so the Fallback (Major, keyword-scan) branch applies rather than the Critical branch. Scanning requirements.md for 'must not'/'must'/'may not'/'never'/'byte-identical' style constraints and checking design.md: REQ-001's 'must not re-prompt... consent must not be assumed' is addressed by design.md:96-106 (Loop step 3's three outcomes); REQ-002's 'disclosure must not overstate its own completeness' is addressed by design.md:128 (the OQ-6 bullet) and the AC-005 mapping at design.md:264; REQ-005's 'may not be weakened' invariant is addressed by design.md:56-58 (Capability Detection/Ensure section marked Untouched); REQ-006's 'must not... presume an interactive human' is addressed by design.md:134-135 (Loop step 5); REQ-007/AC-022's CHANGELOG byte-identical constraint is addressed by design.md:62 (Components table, 'Untouched'); BL-004's 'never written by an agent' is addressed by design.md:60,210 (protected staging). No requirements.md constraint keyword was found unaddressed in design.md. (The layer-document staleness around OQ-1/2/3/8 is a distinct defect and is filed under OPEN-QUESTIONS-RESOLVABLE rather than duplicated here, since it is not a 'must not'/numeric/regulatory constraint omission within design.md itself.)"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:319-326 ('## Deployment and CI Plan') states the deployment target (none -- 'No service, no artifact, no build', cross-referenced to infra-spec.md#deployment-topology, which gives an Environments table at infra-spec.md:80-86 showing 'production: N/A'), the CI pipeline changes required (design.md:325, infra-spec.md:44-68: tests/design-system-contract.tests.{sh,ps1} extended and registered in tests/run-all.{sh,ps1}, agent-applicable; CI registration of .github/workflows/test.yml tracked as a separate staged human patch per R-OQ-8 part 3), and the migration-execution-order bullet is inapplicable because Data Plan (design.md:184-195) declares no schema/data changes. Feature-flag strategy is correctly absent: this is a direct, atomic skill-text edit with no incremental-rollout mechanism in this repository (design.md:328-338 Global Constraints; infra-spec.md Environments table shows no staged-rollout surface), so the 'if rolled out incrementally' condition does not trigger."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:184-195 ('## Data Plan') states plainly: 'No data model, no persistence, no migration... No migration and no backfill follow, which is why infra-spec.md's Rollback section can state a revert is complete.' The only on-disk artifacts touched are a free-form Markdown section gaining named fields and unchanged-shape HTML mockups -- neither is a database/schema entity. infra-spec.md:102-115 confirms the rollback carries 'no migration, no state, and no cache.' Per the check's own rule, a Data Plan stating no data changes is a PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "security-spec.md's 'What Leaves The Machine' table (security-spec.md:11-20) and Trust Boundaries table (security-spec.md:79-84) name the claude.ai/design integration and its six calls (list_projects, create_project, list_files, get_file, finalize_plan, write_files) with purpose and destination, but no failure behaviour is stated anywhere for the push call itself failing in flight (network error, timeout, auth revoked after Capability Detection passed, service outage). design.md's Loop step 6 (design.md:137) states only 'Push. finalize_plan then write_files. [call pair unchanged: SKILL.md:85]' with no error-handling clause. The only failure-mode language present in the whole specification set is AC-013's Capability Detection branch (design.md:56, 'Untouched... both branches preserved verbatim'), which fires before consent resolution and before any push attempt (tool absent or auth fails at selection time) -- it does not cover the case where the tool is available, consent is granted, and the finalize_plan/write_files call itself then fails. Concrete failure mode: an implementer following design.md has no stated guidance on whether a failed push is reported, retried, or leaves the granted consent unspent for a retry, and no TEST-* row in acceptance-tests.md exercises this path. This is a real gap given how exhaustively this specification otherwise treats adjacent failure modes (the tool-absent/auth-failure branches, the ds_profile:none leak risk, the different-scope/different-destination re-gating). E6's payload opacity (finalize_plan's contract) is separately and honestly hedged via OQ-6/AC-005, which is acceptable and not the basis of this finding."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md has no literal '## Goals'/'## User Stories' headings (it is organised as REQ-001..REQ-008 instead); design.md's Test Strategy 'Requirement roll-up' (design.md:254-256) maps every REQ-* to its full set of ACs, and the Loop/Components sections implement each REQ. The Components table (design.md:51-67) lists only files/artifacts the issue and requirements.md name; the three #140-reserved Design-Source fields (Egress-Consent-Party, Egress-Consent-At, Ds-Upload-Consent-Setting, design.md:164-166) are explicitly marked 'added by #140' and not implemented here, which is the correct non-scope-creep treatment required by AC-020. Design System Compliance (design.md:78-82) correctly states N/A (ds_profile: none) and introduces no UI library or styling framework; this repository has no project-level design-system/ contract to conflict with."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The feature's principal high-risk surface is a security/authorization (egress-consent) change -- security-spec.md:3 states it is 'Load-bearing... a relaxation of a data-egress control.' design.md's Test Strategy Coverage table (design.md:258-288) names a concrete acceptance-test artifact for every AC touching that surface, e.g. AC-012 (record characterised as audit trace, not authorization) -> TEST-018 (design.md:271); AC-017/AC-018 (single named pre-upload choke point, no bypass, no interactivity precondition) -> TEST-025/026/027 (design.md:276-277); AC-019 (three-valued consent outcome including the denied case) -> TEST-028/029/030 (design.md:278). These are acceptance-test artifacts named in design.md, which is acceptable evidence under this check. The one gap identified elsewhere (missing push-call failure-behaviour statement, see INTEGRATION-IDENTIFIED) is a missing design claim rather than an unverified stated claim, so it is not double-counted here."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in this repository (verified: 'ls domain' returns 'No such file or directory' at the repository root), so the Domain-Model-Status: Approved / domain-contract.json precondition for this check is absent."
+    }
+  ]
+}

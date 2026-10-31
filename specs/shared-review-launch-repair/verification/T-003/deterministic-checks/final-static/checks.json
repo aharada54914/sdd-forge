@@ -1,0 +1,36 @@
+[
+  {
+    "check": "lint",
+    "command": [
+      "/tmp/shared-launch-static-20261008/bin/ruff",
+      "check",
+      "--no-cache",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/host-review-preflight.tests.py"
+    ],
+    "exit_code": 0,
+    "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "check": "typecheck",
+    "command": [
+      "/tmp/shared-launch-static-20261008/bin/mypy",
+      "--cache-dir",
+      "/tmp/shared-launch-t003-production-mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml"
+    ],
+    "exit_code": 0,
+    "log_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+  },
+  {
+    "check": "workflow",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+    ],
+    "exit_code": 0,
+    "log_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+  }
+]

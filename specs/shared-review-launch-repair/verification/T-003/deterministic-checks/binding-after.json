@@ -1,0 +1,122 @@
+[
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "expected": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f",
+    "actual": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/baseline-generator.json",
+    "expected": "94d231628c45150ad23ba2581dab6482ee1cdcc37f558d6537805b707dad5596",
+    "actual": "94d231628c45150ad23ba2581dab6482ee1cdcc37f558d6537805b707dad5596"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/baseline-host.json",
+    "expected": "5dbfd8c90284e684c47b8a23b161a1bb7b0b4473ba38940d19b03259db850145",
+    "actual": "5dbfd8c90284e684c47b8a23b161a1bb7b0b4473ba38940d19b03259db850145"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/baseline-parity.json",
+    "expected": "3d50b8af57dd7e1c0468f5eb4c4dbbbd5fbc850d634b513be17701bdd2b1ee0d",
+    "actual": "3d50b8af57dd7e1c0468f5eb4c4dbbbd5fbc850d634b513be17701bdd2b1ee0d"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/candidate.diff",
+    "expected": "c9b9a3c35fbef026f409a68f5d89d6073ad561c6a06f9f77ca3303e57c07b38d",
+    "actual": "c9b9a3c35fbef026f409a68f5d89d6073ad561c6a06f9f77ca3303e57c07b38d"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/diagnostics.json",
+    "expected": "770e410492e735aef8a335047f99b8e73ce38029894828a1f4b6fe346103acbb",
+    "actual": "770e410492e735aef8a335047f99b8e73ce38029894828a1f4b6fe346103acbb"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/execution-sources.json",
+    "expected": "1aec4ec37c8c6ab92c519d55657027ff8c70699e11df5b163f5bdb26b4477c1a",
+    "actual": "1aec4ec37c8c6ab92c519d55657027ff8c70699e11df5b163f5bdb26b4477c1a"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/final-generator.json",
+    "expected": "4e90947812323bacc9b5e615ffbf1e2d5b7098af3125c21ce795c86da49524a0",
+    "actual": "4e90947812323bacc9b5e615ffbf1e2d5b7098af3125c21ce795c86da49524a0"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/final-parity.json",
+    "expected": "f779a2361f3d5b3c306adb2bfedc8f6bd87244458b01fc4641d4bd63a174d37a",
+    "actual": "f779a2361f3d5b3c306adb2bfedc8f6bd87244458b01fc4641d4bd63a174d37a"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/focused-host.json",
+    "expected": "82334dc2d9e88a24ad26f720373eeaf95721b4351f2c81e90f091a88836e47dc",
+    "actual": "82334dc2d9e88a24ad26f720373eeaf95721b4351f2c81e90f091a88836e47dc"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/guard-preflight-mismatches.json",
+    "expected": "b3802bdb1401c617b21cabd8bbfe675a8bcfc6e265173d6044ea42febd8881c7",
+    "actual": "b3802bdb1401c617b21cabd8bbfe675a8bcfc6e265173d6044ea42febd8881c7"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/identity-hash-preflight.json",
+    "expected": "b6602bbdeb623061a87c92368a22341aed77527de6c6f414fd3349da83dec3b5",
+    "actual": "b6602bbdeb623061a87c92368a22341aed77527de6c6f414fd3349da83dec3b5"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/input-verification.json",
+    "expected": "7c3a09470c54be6109f84114aa6fe9480ea35debb885e0667b3a22660750edb8",
+    "actual": "7c3a09470c54be6109f84114aa6fe9480ea35debb885e0667b3a22660750edb8"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/isolated-regression-execution.json",
+    "expected": "b90e93eaf112e14f8340ca6b6c1972d111b20c8e24bcbf4486b7ac3098d6ad4d",
+    "actual": "b90e93eaf112e14f8340ca6b6c1972d111b20c8e24bcbf4486b7ac3098d6ad4d"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/preflight-execution.json",
+    "expected": "421ceec41b310f5c7b1dd47810edbec3b64ac57628903eec97f674a77d3b05db",
+    "actual": "421ceec41b310f5c7b1dd47810edbec3b64ac57628903eec97f674a77d3b05db"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/preflight-guards.json",
+    "expected": "16377349d904fdb2ea84fd6626da4f3f8de0f7208e5600bfca3251e7da3d8bea",
+    "actual": "16377349d904fdb2ea84fd6626da4f3f8de0f7208e5600bfca3251e7da3d8bea"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/preflight-mismatches.json",
+    "expected": "b58a6f1349bd3a97c461f7372f200871692cb6633ff2fa593f7b4cdadcdba8f6",
+    "actual": "b58a6f1349bd3a97c461f7372f200871692cb6633ff2fa593f7b4cdadcdba8f6"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/preflight-report.md",
+    "expected": "6672cb4c6364eaad19cd029db250476135f1801358c81b6846b674bfbf84b35e",
+    "actual": "6672cb4c6364eaad19cd029db250476135f1801358c81b6846b674bfbf84b35e"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/provenance.json",
+    "expected": "52c6f7785ecd8d80ccb392c466fc5266b232b9c02111227ed5ccb532f627f94e",
+    "actual": "52c6f7785ecd8d80ccb392c466fc5266b232b9c02111227ed5ccb532f627f94e"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/regression-mutations.json",
+    "expected": "adde8d606ef81709518a62ddf584b9059e50051a4e09763ce388c0d6bd36b775",
+    "actual": "adde8d606ef81709518a62ddf584b9059e50051a4e09763ce388c0d6bd36b775"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/report-validation.json",
+    "expected": "00218a6fc63193f8c2b1649e5250ea5190e0c8b15430df62164731811a46d362",
+    "actual": "00218a6fc63193f8c2b1649e5250ea5190e0c8b15430df62164731811a46d362"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/runtime-environment.json",
+    "expected": "f830001aaa94510e298e0f255c9f35308fa5a0cc63fa632dc140ef33b00ed9fb",
+    "actual": "f830001aaa94510e298e0f255c9f35308fa5a0cc63fa632dc140ef33b00ed9fb"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/source-integrity.json",
+    "expected": "7fc891d881109c0cd052f68e420e6c669f13377e8dfb9ecefe2b75e6b5ece78b",
+    "actual": "7fc891d881109c0cd052f68e420e6c669f13377e8dfb9ecefe2b75e6b5ece78b"
+  },
+  {
+    "path": "specs/shared-review-launch-repair/verification/T-003/structure.json",
+    "expected": "146bdee25782d28a43dd2fe057098758724c81e19644f9173f79c55494140898",
+    "actual": "146bdee25782d28a43dd2fe057098758724c81e19644f9173f79c55494140898"
+  }
+]

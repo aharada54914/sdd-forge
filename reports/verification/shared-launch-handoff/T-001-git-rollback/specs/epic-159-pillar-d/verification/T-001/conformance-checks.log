@@ -1,0 +1,61 @@
+=== TEST-001: canonical source list verbatim (AC-001) ===
+   - 参照する正典ソース: Anthropic 公式 docs（models overview）/ Anthropic
+PASS: Anthropic source clause present
+     blog、OpenAI developers docs（Codex）/ OpenAI blog、各 CLI（Claude Code /
+PASS: OpenAI + CLI release-notes clause present
+     Codex CLI / Copilot CLI）のリリースノート
+PASS: Claude Code / Codex CLI / Copilot CLI enumerated
+
+=== TEST-002: four check items + D2 connection/manual fallback + marker literal (AC-002) ===
+   - チェック項目: モデル ID の有効性 / 新モデル・新機能の有無 /
+PASS: check items line 1/2 present
+     effort・ツール対応の変化 / v2 レジストリとの乖離
+PASS: check items line 3/4 present
+     (`.github/workflows/model-freshness-check.yml`) が既に検出・起票済みで
+PASS: D2 automated-flow file reference present
+PASS: D2 dedup-check / manual fallback wording present
+     `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
+PASS: stable title marker literal present verbatim
+     動で issue を起票する。手動起票する issue のタイトルには必ず
+PASS: manual-issue-title requirement stated
+
+=== TEST-003: matrix trailing columns on all six rows + suite re-run (AC-003) ===
+| Tier | Provider | Model family | Reasoning effort | 最終確認日 | 参照ソース |
+PASS: header gains both trailing columns
+PASS: all six data rows carry the trailing column pair (found 6)
+ok: turn-first model routing structure is defined
+PASS: tests/agent-model-routing.tests.sh (unedited) re-run green
+
+=== TEST-004: explicit checklist reminder tied to Mechanism: model-routing (AC-004) ===
+2. **能力リフレッシュチェック**: `Mechanism: model-routing` の WFI を Draft する前に確認する
+   `Mechanism: model-routing` の WFI を Draft する前に、以下を確認する:
+PASS: checklist reminder ties to Mechanism: model-routing WFIs
+
+=== TEST-015: host-neutral prose, no host-specific conditional branch (AC-015) ===
+PASS: no host-specific conditional branch found in the capability-refresh step block (lines 494-512)
+
+=== git diff: existing agent-capability-matrix.md cells unchanged (AC-003) ===
+NOTE: see raw diff below for manual confirmation
+diff --git a/docs/agent-capability-matrix.md b/docs/agent-capability-matrix.md
+index 7447216..2a72614 100644
+--- a/docs/agent-capability-matrix.md
++++ b/docs/agent-capability-matrix.md
+@@ -129,8 +129,8 @@ identifier, written as the lexicographically smaller `provider/model`.
+-| Tier | Provider | Model family | Reasoning effort |
+-|---|---|---|---|
+-| lightweight | Anthropic | Haiku | low |
+-| standard | Anthropic | Sonnet | medium |
+-| strong | Anthropic | Opus | high |
+-| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low |
+-| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |
+-| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |
++| Tier | Provider | Model family | Reasoning effort | 最終確認日 | 参照ソース |
++|---|---|---|---|---|---|
++| lightweight | Anthropic | Haiku | low | 未確認 | Anthropic official docs (models overview) |
++| standard | Anthropic | Sonnet | medium | 未確認 | Anthropic official docs (models overview) |
++| strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
++| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
++| standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
++| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh | 未確認 | OpenAI developers docs (Codex) |
+
+ALL CONFORMANCE CHECKS COMPLETED

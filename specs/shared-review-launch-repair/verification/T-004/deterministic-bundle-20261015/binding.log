@@ -1,0 +1,11 @@
+{
+  "run_id": "c3d9b63a-ad5e-4e90-bc50-5d0d387c7a4f",
+  "inputs_verified": 333,
+  "manifest_sha256": "d890705ac6f4731e28a6733c25aca12d4a969759b2c66b427901d63e34f940ca",
+  "delivery": "DELIVERY_OK",
+  "verdict": "PASS",
+  "critical": 0,
+  "major": 0,
+  "minor": 4,
+  "wrapper_sha256": "7692e32d59b0610d1f55e3abb5613524f693f337839975e4738e61fde1ab7a3e"
+}

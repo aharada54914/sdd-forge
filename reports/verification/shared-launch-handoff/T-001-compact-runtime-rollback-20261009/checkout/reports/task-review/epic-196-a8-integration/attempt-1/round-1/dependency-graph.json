@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 1,
+  "nodes": ["T-001","T-002","T-003","T-004","T-005","T-006","T-007"],
+  "edges": [],
+  "generated_at": "2026-08-08T14:25:15Z"
+}

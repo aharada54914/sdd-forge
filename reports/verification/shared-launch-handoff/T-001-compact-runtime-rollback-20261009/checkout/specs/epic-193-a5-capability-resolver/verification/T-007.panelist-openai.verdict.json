@@ -1,0 +1,15 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-007",
+  "feature": "epic-193-a5-capability-resolver",
+  "input_digest": "e0847cbdd29b2ef6cab32f9497d810f28d78a0db0a300b03b589f4751d826ce4",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "consent": {
+    "kind": "sudo",
+    "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
+  },
+  "blind": true,
+  "verdict": "PASS",
+  "findings": []
+}

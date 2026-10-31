@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0170",
+  "host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0170",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "49faa858c8df0a4a4a8ac63247cbe6e01aa3f37c467c01260c73f23494300ed3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "9f05a83675ea68923fdfccf1868bce49104ffff6ad02325511580749cd2f22df"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "35244f9e76ebfa5b1e5c94884c969a7830e3ba4a9780425cce44499679d1378f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 specifies exact deletion semantics (whole line + terminator, column-0 anchor, any field value, LF/CRLF, task-stage-only scope, sh/ps1 byte-parity) and is fully covered by AC-001..AC-004 with concrete exit-code/output/diagnostic assertions in acceptance-tests.md TEST-001..004; Edge Cases in requirements.md enumerate the boundary conditions (quoted-text masking, indented non-matches, multiple lines, pre-existing line, no-trailing-newline) an implementer/verifier needs."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The single stated goal REQ-001 is traced to AC-001 through AC-004, each explicitly tagged '(REQ-001)', and mapped 1:1 to TEST-001..004; no goal lacks a corresponding acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001/AC-002 specify exit codes and exact diagnostic substrings ('workflow-state: ok', 'stage-provenance'/'task plan hash is stale'); AC-003 specifies byte-identical normalized forms; AC-004 specifies identical exit statuses/first diagnostic rule IDs and a file-verifiable registration in tests/run-all.sh - all externally observable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md 'Non-goals' explicitly excludes check-task-state content validation, hook-guard rule changes, spec-stage/impl-stage normalization, identity ledger, registry schema, other validators, and retroactive re-hashing of existing contracts, bounding the fix to task-stage normalization in the two named validator twins."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "'Security Boundaries' states the column-0/exact-prefix anchoring constraint and compensating controls (hook guard, check-task-state) that remain in force; 'Roles and Permissions' constrains live-path application to a human-copy procedure with a SHA-256 manifest (per Risks); 'Assumptions' states the pwsh 7.x and --registry entry-point dependencies material to testing."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Three risks in 'Risks' (over-broad masking, sh/ps1 normal-form divergence, botched live apply to protected gate scripts) each carry an explicit mitigation tied to a specific acceptance criterion (AC-002; AC-003/AC-004) or process control (staged TDD, SHA-256 manifest, existing suite re-run at gate)."
+    }
+  ]
+}

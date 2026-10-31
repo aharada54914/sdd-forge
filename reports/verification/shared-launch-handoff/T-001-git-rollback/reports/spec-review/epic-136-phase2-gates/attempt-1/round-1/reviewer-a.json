@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase2-spec-a-seq0186",
+  "host_session_id": "SESS-spec-a-epic136phase2-0186",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase2-gates/requirements.md",
+      "sha256": "f702a7c27829806762fca33ca3ebe74caa82c209f3badcba7ac920264c750c7d"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/acceptance-tests.md",
+      "sha256": "4e1718b6e5cf2019ab290e83aa8ef4035acc8529d6185ef02ceb93d779ee0fd9"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase2-gates/attempt-1/round-1/precheck-result.json",
+      "sha256": "b353211a600542049f55170f86ad49cf1871e7f77c9500d5c7ad2e6d53c4d75c"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-005 define observable guards, fixed signature behavior, path-validation outcomes, deterministic policy exits, and generated-artifact controls mapped to TEST-001 through TEST-013."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Phase 2 goal has one or more named acceptance criteria: REQ-001 to AC-001/002, REQ-002 to AC-003/004, REQ-003 to AC-005/006, REQ-004 to AC-007/009, and REQ-005 to AC-010/013."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance rows name concrete commands, exit outcomes, static source structure, fixture output, generated files, CI order, and manifest rejection behavior."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals exclude a general shell interpreter, runtime JSON loading, token-format changes, broad lexical matching, and all authority bypasses."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification fixes PS5.1 XOR behavior, forced-full precedence over --lite, exact policy boundaries, immutable runner/human-copy authority, and R-10 inventory including the CI workflow."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk guard, signature, evidence-path, escalation, and generation claims each have positive and negative acceptance tests; critical code-generation includes stale, poisoned-load, and manifest tamper cases."
+    }
+  ]
+}

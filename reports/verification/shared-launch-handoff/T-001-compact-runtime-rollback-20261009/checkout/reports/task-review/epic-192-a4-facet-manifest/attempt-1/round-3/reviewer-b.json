@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0329",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0329",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/requirements.md", "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/acceptance-tests.md", "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/design.md", "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/tasks.md", "sha256": "c1d1f001a9b60207a716f4135b8306204c9de9184d5250164f39103493c93b3a"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/traceability.md", "sha256": "b3db2423b7ce5038284bbe9ed419846c063e096964a46b365f2b6098f0485b0e"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/ux-spec.md", "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/frontend-spec.md", "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/infra-spec.md", "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/security-spec.md", "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-3/precheck-result.json", "sha256": "0c92640c6ed9d9984b4a2a8cf5c32c38bf04ba13ea4e5ebe49b961c32a42d432"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-3/integrated-summary.json", "sha256": "7a91da7ccf72daf5bf02257694e58963e342523af7df844b22419f8411cbeb89"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001/T-002/T-003 (Risk: high) each touch a public-API-contract sentinel surface (contracts/facet-manifest.schema.json, contracts/capability-summary.schema.json, contracts/context-projection.schema.json — each consumed downstream by Epic A3's check-component-coverage or Epic A5's Resolver, per design.md Cross-Layer Dependencies), consistent with risk-classification-policy.md's high-tier 'public API contracts' trigger. T-004 (Risk: high) implements REQ-004's Policy-Weakening fail-closed contract, a 'silent defect causes material harm' surface per its own Risk Rationale and security-spec.md's B3 boundary. T-005 (Risk: medium) is verification/packaging work over already-high-classified logic (byte-identical parity, vendored-copy drift gate, provider-neutrality scan) with no new sensitive-surface logic of its own; its Risk Rationale explicitly reasons this. No task touches authentication, authorization, payment, PII storage, or data migration (design.md Data Plan: 'Migration Strategy: none'; Security Boundaries: no PII). No task is over-classified (none of high/critical tasks are UI-copy/CSS/docs/test-only)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Re-verified independently against the current tasks.md: T-001, T-002, T-003, and T-004 (all Risk: high) each carry a Done-When 'TDD evidence' item with (a) RED/GREEN evidence captured at specs/epic-192-a4-facet-manifest/verification/T-00N/{red,green}-sh.log, and (b) the exact text 'An independent quality-gate verdict (a named reviewer distinct from the implementing agent) records PASS.' This confirms the round-2 Critical finding (T-003/T-004 missing the reviewer-distinctness qualifier) is now fixed and matches sibling tasks T-001/T-002. No Risk: critical task exists in this feature (T-005 is medium, Required Workflow: acceptance-first), so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Done-When item counts: T-001=6, T-002=5, T-003=7, T-004=5, T-005=7 — all at or under the 8-item oversizing indicator. T-005 explicitly documents, in its own 'Note on scope breadth (TASK-SIZE)' paragraph, why its two work areas (vendored-copy --check extension and the facet-manifest-parity suite) are bundled rather than split, citing a genuine interdependency (AC-032's installed-layout fixtures exercise the vendored copies the --check gate protects) with no independent value to either half alone. No fragmentation: all 5 tasks are substantial multi-file schema+validator+test or CLI-script+test units, not single-function/file edits."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every functional task's cited acceptance criteria include explicit negative/edge-path fixtures: T-001 — AC-002 (required-field deletion matrix), AC-003 (duplicate rejection), AC-004 (both if/then/else branches), AC-005 (out-of-enum operator rejection), AC-008 (upgrade_reasons absence rejected), AC-009 (malformed digest, minItems violation), AC-017/AC-018 (malformed/non-allowlisted pointer rejection), AC-028 (five negative diagnostic-id fixtures), AC-041 (warn-without-reason rejection), AC-047/AC-048 (duplicate/out-of-order rejection); T-002 — AC-012/AC-014 (missing-field and extra-property rejection), AC-029 (non-zero exit fixtures); T-003 — AC-015 (source-omission edge case), AC-030 (still-array-shaped rejection), AC-042 (both/neither oneOf-branch rejection); T-004 — AC-019..027, AC-039, AC-040, AC-044..046 comprehensively cover the weakened/indeterminate/argument-error branch table, the feature's densest edge-case surface."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. No test task in this feature declares itself as a literal unit/integration/end-to-end test whose label could contradict its actual scope; acceptance-tests.md's own framing fixes every TEST-NNN as a 1:1 acceptance-criterion mapping (AC-NNN <-> TEST-NNN), and every test task's Done When explicitly cites specific AC-NNN IDs (e.g., T-001 cites AC-001..AC-011, AC-017, AC-018, AC-028, AC-034, AC-035, AC-041, AC-047, AC-048; T-004 cites AC-019..AC-027, AC-039, AC-040, AC-044..AC-046), satisfying the check's 'acceptance tests must reference a specific AC-NNN' criterion for every suite in scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001, T-002, T-003, and T-004 (all Risk: high) each carry an explicit `Rollback:` field describing a git-revert procedure for their two-commit landing plan, and explicitly address the one protected surface touched (human-copy .github/workflows/test.yml staging), stating that a revert re-stages a corrected candidate for a human to re-cp. T-005 (Risk: medium, not required by this check) also carries a Rollback field."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Shared append-only files (tests/run-all.sh/.ps1, specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml, human-copy/MANIFEST.sha256, CHANGELOG.md, tests/fixtures/facet-manifest/) are each edited by multiple tasks, but every editor is covered by the strict linear Blockers chain T-001 (none) -> T-002 (T-001) -> T-003 (T-001,T-002) -> T-004 (T-001,T-002,T-003) -> T-005 (T-001,T-002,T-003,T-004), matching the check's own carve-out for Blockers-enforced shared-file ordering. Each task's own primary schema/script files (contracts/facet-manifest.schema.json T-001 only; contracts/capability-summary.schema.json T-002 only; contracts/context-projection.schema.json T-003 only; compare-facet-manifest-staleness.* T-004 only) have no cross-task overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-004's Blocker on T-001 is a genuine functional dependency (compare-facet-manifest-staleness invokes T-001's Discovery contract and validate-facet-manifest schema-conformance check at branch 0, design.md API/Contract Plan). T-005's Blockers on T-001..T-004 are genuine functional dependencies (the parity suite directly exercises all four scripts and needs all three vendored schema copies to exist, design.md Test Strategy item 6). T-002's Blocker on T-001, and T-003's Blockers on T-001/T-002, are non-functional but explicitly and correctly reasoned in Global Constraints as shared-append-only-file (tests/run-all.sh/.ps1, human-copy test.yml) ordering requirements, not unexplained or spurious inflation of the critical path. No task's scope depends on another task's output without a declared Blocker."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

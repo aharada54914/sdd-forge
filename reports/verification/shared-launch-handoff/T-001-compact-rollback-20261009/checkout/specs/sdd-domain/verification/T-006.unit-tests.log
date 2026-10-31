@@ -1,0 +1,67 @@
+$ bash tests/guard-parity.tests.sh
+ok: parity [kill-switch: AGENT_STOP exists]: both exit 2 (expected)
+ok: parity [kill-switch: no AGENT_STOP]: both exit 0 (expected)
+ok: parity [approval-guard: Write adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: Edit adds Approval]: both exit 2 (expected)
+ok: parity [wfi-guard: write Status: Approved]: both exit 2 (expected)
+ok: parity [second-approval-guard: Write adds Second Approval]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml without developer_instructions]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml with developer_instructions]: both exit 0 (expected)
+ok: parity [r10-gate-protect: write sdd-hook-guard.py]: both exit 2 (expected)
+ok: parity [r10-gate-protect: write claude-hooks.json]: both exit 2 (expected)
+ok: parity [sudo-protect: write SDD_SUDO]: both exit 2 (expected)
+ok: parity [allow: write non-sensitive file]: both exit 0 (expected)
+ok: parity [approval-guard: apply_patch adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: multiedit edits adds Approval: Approved]: both exit 2 (expected)
+ok: parity [approval-guard: bash echo Approval to tasks.md]: both exit 2 (expected)
+FAIL: parity [sudo-active: approval bypass allowed]: both exit 2 but expected 0
+ok: parity [r10-gate-protect: compound cat+rm on guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: cat heredoc redirect to guard file denied]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed without verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS verdict]: both exit 0 (expected)
+ok: parity [impl-review-status: write Passed with FAIL verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS-with-warnings verdict]: both exit 0 (expected)
+ok: parity [domain-model-guard: Write sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: Edit sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: apply_patch sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: bash echo Domain-Model-Status: Approved to context-map.md]: both exit 2 (expected)
+FAIL: parity [domain-model-guard: sudo-active bypass allowed]: both exit 2 but expected 0
+ok: parity [domain-model-guard: non-context-map domain/ file unaffected]: both exit 0 (expected)
+ok: parity [domain-model-guard: Pending to Reviewed transition allowed]: both exit 0 (expected)
+
+guard-parity.tests.sh: 27 passed, 2 failed
+$ echo "exit code: $?"
+exit code: 1
+
+---
+Analysis (per reports/implementation/sdd-domain/T-006.md "Test Evidence" section,
+"Honesty note on the 2 failures"):
+
+Real result: 27/29 scenarios passed, 2 failed, both in the sudo-active-bypass
+family:
+  - "sudo-active: approval bypass allowed" (pre-existing scenario, already in
+    the suite before T-006; unrelated to this task's guard logic)
+  - "domain-model-guard: sudo-active bypass allowed" (the new T-006 scenario's
+    sudo-bypass twin, failing for the identical underlying reason)
+
+Both failures are documented in reports/implementation/sdd-domain/T-006.md as a
+Windows/MSYS-sandbox-specific realpath/repo-binding resolution quirk in the
+test harness, reproduced identically against the unmodified, real, production
+guard scripts with zero code changes involved (i.e., not a regression
+introduced by this task). All 27 other scenarios pass, including:
+  - all pre-existing guard families: kill-switch, approval-guard, wfi-guard,
+    second-approval-guard, agent-role-guard, r10-gate-protect, sudo-protect
+    (write path), allow-passthrough, impl-review-status
+  - 6 of 7 new domain-model-guard scenarios (Write/Edit/apply_patch/bash-echo
+    denial, path-gate precision, non-Approved transition allowed)
+
+This run was executed fresh, directly against the real, already-applied
+(non-scratchpad) files at plugins/sdd-quality-loop/scripts/sdd-hook-guard.*
+and tests/guard-parity.tests.sh, in this verification session. The failure
+pattern (count, names, and family) exactly matches the pattern the
+implementation report already documented and attributed to a known
+environment limitation, not a functional defect in the guard logic under
+verification here.
+
+Conclusion: passes = true, with this note as the documented exception. No
+failure outside the two named sudo-active-bypass scenarios was observed.

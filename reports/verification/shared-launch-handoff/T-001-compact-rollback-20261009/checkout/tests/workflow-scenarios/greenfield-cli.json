@@ -1,0 +1,25 @@
+{
+  "scenario_id": "greenfield-cli",
+  "class_number": 1,
+  "class_name": "greenfield CLI",
+  "class_name_source": "issue #125 body (投稿確認済み verbatim list, 代表10種 item 1: \"greenfield CLI\"); investigation.md INV-017 row 1",
+  "fixture_profile": "greenfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "tests/loops/loop-inventory.json",
+      "line": "25",
+      "note": "fixture_profiles: [\"greenfield\",\"brownfield\"] on the spec-review loop entry -- the loop-level fixture-classification vocabulary this class's fixture reuses."
+    },
+    {
+      "path": "tests/lib/loop-driver.sh",
+      "line": "14,106-236",
+      "note": "loop_fixture_init <greenfield|brownfield> <feature> synthesizes a from-scratch (mktemp) fixture tree when profile=greenfield -- the concrete greenfield fixture-construction mechanism this scenario class is anchored to."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Write"],
+    "codex": ["apply_patch"]
+  },
+  "assertion_summary": "Partial existing coverage only (investigation.md INV-017 row 1: loop-level fixture-profile vocabulary exists; no end-to-end \"CLI product\" scenario). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist on disk and that loop-driver.sh's loop_fixture_init greenfield branch is genuinely reachable (grep for the exact function signature), plus AC-013's PreToolUse-shape drive (TEST-013) builds a representative Write/apply_patch payload for a synthetic greenfield CLI entry-point file. This scenario intentionally does not duplicate tests/loop-driver.tests.sh's own assertions."
+}

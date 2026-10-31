@@ -1,0 +1,87 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-008",
+  "category": "app-dev-efficiency",
+  "cycle": 2,
+  "verdict": "PASS",
+  "meta_change": true,
+  "anti_goodhart_answer": "NO. The change does not make any gate, grader, threshold, audit criterion, or run-record metric easier to satisfy without improving the underlying outcome. check-task-state.sh and check-evidence-bundle.sh (both under plugins/sdd-quality-loop/scripts) are not in the Proposed Change table and remain unmodified; a live run of `sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-mcp/tasks.md` on this checkout still FAILs with 'evidence file missing' / 'evidence bundle failed validation' messages exactly as the WFI describes -- confirming no weakening occurred. The new golden fixtures (ci-mcp.expected.json, evidence-deep-verify.expected.json) pin the CURRENT, already-permanently-broken failure state (exitCode 1, per-task 'evidence bundle failed validation' messages) rather than fabricating a passing result; this follows the pre-existing sdd-forge-refactor.expected.json precedent verified on disk (exitCode 1, five failure messages recorded as expected). check-evidence-bundle.sh (under plugins/sdd-quality-loop/scripts) binds every artifact to a SHA-256 hash -- verified by reading it directly (its sha256-mismatch fail path) -- so the 21 bundles for ci-mcp/evidence-deep-verify cannot be made to silently pass by regeneration; pinning the failure functions as a tamper-detection net, not a relaxation.",
+  "non_decreasing_guard": {
+    "gates_or_checks_removed": 0,
+    "gates_or_checks_added": "GOLDEN_FEATURES array count increases from 6 to 8 in both mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts tests ('live shell comparison' and 'recorded fixture comparison'), confirmed by direct read of the file (lines 30-37, 92-138). No existing gate script, contract check, or evidence-bundle validation is removed or weakened.",
+    "target_metric_self_graded": false,
+    "target_metric_instrument": "Target-Metric ('bundle-referenced verification artifacts missing from a fresh clone, per newly completed feature') is computed via check-evidence-bundle.sh plus `git ls-files --error-unmatch` (Verification Plan step 1), neither of which is a target file in this WFI's Proposed Change table. The metric is not computed by the golden test files this WFI does modify.",
+    "verdict": "PASS"
+  },
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 0,
+    "auditor_a_pass_count": 8,
+    "auditor_a_verdict": "PASS"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four required elements are present in ## Verification Metric / ## Verification Plan. (1) Metric named: 'Target-Metric: bundle-referenced verification artifacts missing from a fresh clone, per newly completed feature (count of unique paths)' -- follows the same custom-Target-Metric pattern already established by Applied WFI-005/006/007 in the retrospective's 'Applied WFI Horizon Check' table, not a standard Comparison-table row, which is consistent with precedent. (2) Baseline/target: 'Baseline: 116 unique missing paths ... Target: 0 for the next completed feature.' (3) Task cycles: 'Horizon: next completed feature retrospective' (1 feature cycle). (4) Threshold: Verification Plan step 1 states 'The proposal succeeds on this axis only if the missing count is 0.'"
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: 21 evidence bundles across 2 features (ci-mcp T-001..T-013, evidence-deep-verify T-001..T-008), 116 unique missing artifact paths, risk tiers high 15/medium 4/low 2 -- widespread, not isolated. Change scope: 2 new EVIDENCE-LOSS.md records, 2 one-line GOLDEN_FEATURES array additions, 2 recorded fixture JSON files -- a bounded, targeted documentation-and-pinning response, explicitly not a full structural fix because the Root Cause Hypothesis explains regeneration is technically excluded by the SHA-256 binding and a categorical gate-logic fix is out of scope by design ('noted as a candidate follow-up for a separate WFI'). Scope matches what is achievable given the stated constraint; not over- or under-scoped."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified WFIs in docs/workflow-improvements/ are WFI-001, WFI-002, WFI-003, WFI-004 (Status: Verified, confirmed by grep). All four target only AGENTS.md in their ## Proposed Change tables. WFI-008's Proposed Change targets specs/ci-mcp/verification/EVIDENCE-LOSS.md (new), specs/evidence-deep-verify/verification/EVIDENCE-LOSS.md (new), the golden task-state test file and its record script under mcp/sdd-forge-mcp, and two new fixture JSON files -- no overlap with any Verified WFI's applied file. No conflict identified."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "None of the six Proposed Change target files are under plugins/. The friction's root cause (gitignore nesting gap + ephemeral worktree deletion) is a project-side artifact-tracking accident, not enforced plugin logic, and the WFI explicitly declines to modify the plugin's check-task-state and check-evidence-bundle scripts. Feasibility confirmed on disk: GOLDEN_FEATURES arrays exist and are plain TypeScript arrays in mcp/sdd-forge-mcp/ (project-side, not plugins/); the known-failure-fixture pattern already works in production (mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json pins exitCode 1 with five failure messages); running the plugin's task-state check against specs/ci-mcp/tasks.md on this checkout reproduces the exact failure class described ('evidence file missing', 'evidence bundle failed validation'). The Expected Effect (misdiagnosis -> 0, zero weakening of verification) is plausibly achievable through the proposed project-side documentation and golden-pinning alone, independent of any plugin change."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: app-dev-efficiency requires concrete project detail in ## Root Cause Hypothesis and ## Proposed Change. Root Cause Hypothesis names feature slugs ('ci-mcp', 'evidence-deep-verify'), concrete paths ('specs/**/verification/*.log', 'verification/qg/T-NNN/'), and specific worktrees ('sdd-forge-p4', 'sdd-forge-p5'). Proposed Change table names exact file paths (specs/ci-mcp/verification/EVIDENCE-LOSS.md, the golden task-state test file, etc.). No genericization found after Cycle 1 revisions."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "Expected Effect item 2 states the Target-Metric drops 'to 0, once the `7d0ea44` re-include lands on main,' and Verification Plan step 4 only 'Confirm[s]' the dependency landed rather than requiring it as an action this WFI performs. The actual structural fix (the .gitignore nested re-include on branch chore/track-verification-evidence-logs, commit 7d0ea44) is explicitly excluded from this WFI's own Proposed Change table ('Dependency (not a direct target of this WFI, no duplicate application)'). If that unrelated branch is not merged before the next completed feature, Target: 0 will not be met through no fault of anything this WFI's Proposed Change actually does, making the quantitative target partly contingent on an external, untracked-by-this-WFI action rather than solely on the changes proposed here."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Category: app-dev-efficiency does not create a GitHub Issue."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "See top-level anti_goodhart_answer and non_decreasing_guard fields. (1) No gate/grader/threshold made easier to satisfy: the plugin's task-state and evidence-bundle checks are untouched and were confirmed by live execution to still FAIL with the same message classes. (2) Non-decreasing guard holds: GOLDEN_FEATURES count increases 6->8 (verified by reading task-state-golden.test.ts and record-golden-fixtures.ts), 0 removed. (3) Target-Metric is computed by check-evidence-bundle.sh + git ls-files, an instrument this WFI does not modify -- not self-graded."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "severity": "Minor",
+      "description": "Expected Effect item 2's path to Target: 0 depends on merging branch chore/track-verification-evidence-logs (commit 7d0ea44), which is explicitly out of scope for this WFI's own Proposed Change and only 'confirmed' (not actioned) in the Verification Plan.",
+      "quoted_evidence": "Bundle-referenced verification artifacts missing from a fresh clone for newly completed features drops from 116 unique paths accumulated this period (ci-mcp + evidence-deep-verify, unrecoverable) to 0, once the `7d0ea44` re-include lands on main."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "check_id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "section": "## Verification Plan",
+      "change": "Amend Verification Plan step 4 from a passive confirmation to an explicit precondition/owner: state that if `.gitignore` on main does not yet contain `!specs/**/verification/**/*.log` at the time of the next completed feature's retrospective, the Target-Metric comparison is deferred (not scored as a miss against this WFI) until the dependency lands, and name who/what is responsible for merging `chore/track-verification-evidence-logs` (commit `7d0ea44`) before that horizon.",
+      "rationale": "Prevents the WFI's own quantitative target from being scored as failed due to an external, out-of-scope dependency not merging in time, while keeping the dependency's landing a required precondition for a valid comparison."
+    }
+  ]
+}

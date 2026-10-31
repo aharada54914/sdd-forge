@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-implementation/scripts/select-agent-model.sh plugins/sdd-implementation/scripts/select-agent-model.ps1 tests/agent-model-routing.tests.sh docs/adr/0012-effort-tier-decoupling.md
+== start: 2026-07-18T05:52:07Z ==
+Placeholder scan passed.
+== end: 2026-07-18T05:52:07Z ==
+EXIT_CODE: 0

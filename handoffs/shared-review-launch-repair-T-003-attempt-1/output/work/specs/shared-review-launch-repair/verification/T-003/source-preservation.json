@@ -1,0 +1,344 @@
+{
+  "base_revision_from_admitted_inventory": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "entries": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+      "after_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+      "changed": false
+    },
+    {
+      "path": "AGENTS.md",
+      "before_sha256": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7",
+      "after_sha256": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7",
+      "changed": false
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "before_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "after_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "changed": false
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "before_sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b",
+      "after_sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b",
+      "changed": false
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "before_sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "after_sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "changed": false
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-003-attempt-1/before-byte-inventory.json",
+      "before_sha256": "efec2b31dbd48d8188947f86f7a51ebf517a94ee3a8bc9e0ee50b49b3aedb9c5",
+      "after_sha256": "efec2b31dbd48d8188947f86f7a51ebf517a94ee3a8bc9e0ee50b49b3aedb9c5",
+      "changed": false
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-003-attempt-1/dot-path-repair.md",
+      "before_sha256": "7fbfc4482b7d15406062a1a668afa471c6cbf8353673ba9bd09cf5bfbbb102c2",
+      "after_sha256": "7fbfc4482b7d15406062a1a668afa471c6cbf8353673ba9bd09cf5bfbbb102c2",
+      "changed": false
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-003-attempt-1/registry-topology.json",
+      "before_sha256": "4d63d134a4a950b51510cf7d3c84ece7635a4faa70d4cb0f9f5c275cd560306e",
+      "after_sha256": "4d63d134a4a950b51510cf7d3c84ece7635a4faa70d4cb0f9f5c275cd560306e",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "before_sha256": "fb9047658a0640644401a777100cd638970a7d9a31aba1c3d5a8bc71bbdb0f05",
+      "after_sha256": "fb9047658a0640644401a777100cd638970a7d9a31aba1c3d5a8bc71bbdb0f05",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "before_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "after_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "before_sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+      "after_sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "before_sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "after_sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "before_sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "after_sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "before_sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+      "after_sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "before_sha256": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+      "after_sha256": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "before_sha256": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3",
+      "after_sha256": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "before_sha256": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+      "after_sha256": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "before_sha256": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+      "after_sha256": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "before_sha256": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5",
+      "after_sha256": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "before_sha256": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+      "after_sha256": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "before_sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+      "after_sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "before_sha256": "a520d69a04751df0630e641d6424d0f13f7f6ee299824fd98387279879215bc4",
+      "after_sha256": "a520d69a04751df0630e641d6424d0f13f7f6ee299824fd98387279879215bc4",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "before_sha256": "8df36c4c8041e136ba350cc877518ecfd8e62989253713b0bea27adbc02ad6b8",
+      "after_sha256": "8df36c4c8041e136ba350cc877518ecfd8e62989253713b0bea27adbc02ad6b8",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "before_sha256": "6537e32f47bbeaa87ad645162b45ce0f78e70826d7108ca8a0fb462827051015",
+      "after_sha256": "6537e32f47bbeaa87ad645162b45ce0f78e70826d7108ca8a0fb462827051015",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "before_sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "after_sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "before_sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "after_sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+      "before_sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+      "after_sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "before_sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "after_sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "before_sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+      "after_sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "before_sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+      "after_sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "before_sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "after_sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "before_sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "after_sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "before_sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "after_sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "before_sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "after_sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "before_sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "after_sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "changed": false
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "before_sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "after_sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "changed": false
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "before_sha256": "a2d0b04a160c198d6c45396721e07253f96191a26a5d073f717a5834e986c80f",
+      "after_sha256": "a2d0b04a160c198d6c45396721e07253f96191a26a5d073f717a5834e986c80f",
+      "changed": false
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "before_sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3",
+      "after_sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3",
+      "changed": false
+    },
+    {
+      "path": "reports/verification/shared-review-launch-integration.md",
+      "before_sha256": "91e9e12ebee94367d463b134d7f79aa8ce212d095ff8a82e1560ec5c32486829",
+      "after_sha256": "91e9e12ebee94367d463b134d7f79aa8ce212d095ff8a82e1560ec5c32486829",
+      "changed": false
+    },
+    {
+      "path": "scripts/check-sdd-structure.sh",
+      "before_sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6",
+      "after_sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "before_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+      "after_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/authority.md",
+      "before_sha256": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0",
+      "after_sha256": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "before_sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+      "after_sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "before_sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+      "after_sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "before_sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+      "after_sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "before_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+      "after_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "before_sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+      "after_sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/tasks.md",
+      "before_sha256": "86c5ed962df71c755a9bbb16d4d51f29c8417f982eb7b450049f70886cbbcc1a",
+      "after_sha256": "86c5ed962df71c755a9bbb16d4d51f29c8417f982eb7b450049f70886cbbcc1a",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/traceability.md",
+      "before_sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+      "after_sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+      "changed": false
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "before_sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+      "after_sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+      "changed": false
+    },
+    {
+      "path": "specs/workflow-state-registry.json",
+      "before_sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8",
+      "after_sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8",
+      "changed": false
+    },
+    {
+      "path": "tests/guard-parity.tests.sh",
+      "before_sha256": "d66881b314ed64de98dac682d1dd9ae3e9462d762d718b172aa52c1f7ca95823",
+      "after_sha256": "d66881b314ed64de98dac682d1dd9ae3e9462d762d718b172aa52c1f7ca95823",
+      "changed": false
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "before_sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+      "after_sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+      "changed": false
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "before_sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+      "after_sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+      "changed": false
+    },
+    {
+      "path": "tests/run-all.sh",
+      "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+      "after_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+      "changed": false
+    },
+    {
+      "path": "handoffs/shared-review-launch-repair-T-003-attempt-1/source-modes.json",
+      "before_sha256": "2e296abc140b8ed645504f0c4585efdf29492202e698d4ad54ddb182c5345a6e",
+      "after_sha256": "2e296abc140b8ed645504f0c4585efdf29492202e698d4ad54ddb182c5345a6e",
+      "changed": false
+    }
+  ],
+  "all_56_inputs_byte_identical": true,
+  "existing_eight_registrations_preserved": true,
+  "unrelated_invariant_keys_preserved": true
+}

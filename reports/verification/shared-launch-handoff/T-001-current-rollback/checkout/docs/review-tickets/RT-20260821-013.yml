@@ -1,0 +1,42 @@
+ticket_id: RT-20260821-013
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-011"
+  files:
+    - "reports/implementation/risk-adaptive-layer/T-011.md"
+    - "specs/risk-adaptive-layer/verification/T-011.evidence.json"
+summary: >-
+  Dogfood never exercised a high/critical self-spec provenance bundle despite
+  an explicit Goal clause, and drew a dual-runtime conclusion from one runtime
+problem: |
+  QG evaluator (seq 0821, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T072500Z.md) accepted two Majors. The dogfood
+  evidence is authentic - the evaluator reproduced it command-for-command,
+  byte-identical in the eval suite's case, all 8 artifact hashes intact after
+  14 months. No completion-faking.
+
+  1. The Goal names "(for high/critical tasks) provenance" and Done-When says
+     "evidence BUNDLES" (plural); exactly one exists, T-011.evidence.json at
+     risk medium, which takes the branch that skips signature and
+     review_verdict enforcement. The critical-tier controls the feature adds
+     (bundle signature, dirty-tree rejection) were never exercised against
+     the self-spec; the report restates the plural clause as singular and
+     ticks it.
+  2. The Regression section concludes "all three suites pass" - 3 of 5 named
+     suites, zero PowerShell - and the report's own reproduction command for
+     check-traceability (require-evidence) errors on the ps1 twin. Fail-closed
+     and the CLI break is check-traceability's (RT-20260821-008), but T-011
+     produced no ps1 evidence for its own dual-runtime conclusion.
+expected_fix:
+  - "Generate and validate a high/critical self-spec provenance bundle (e.g. against T-007 or a high task) so the signature and dirty-tree controls are actually dogfooded, and correct the Done-When wording the report narrowed"
+  - "Re-run the dogfood gate row set on the PowerShell twin and record that evidence, or cite the sibling ps1 suite runs, so the dual-runtime conclusion has evidence"
+references:
+  - "reports/quality-gate/20260821T072500Z.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "specs/risk-adaptive-layer/acceptance-tests.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

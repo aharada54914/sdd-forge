@@ -1,0 +1,5 @@
+Commit: 020cf7c test: add failing review contract foundation coverage
+Command: bash tests/review-contract-foundation.tests.sh
+Observed before implementation:
+tests/review-contract-foundation.tests.sh: line 17: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-review-loop/scripts/review-contract-validate.sh: No such file or directory
+Exit status: 127

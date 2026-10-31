@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-159-pillar-b/traceability.json
+== start: 2026-07-16T13:38:34Z ==
+Traceability check passed for epic-159-pillar-b: 4 link(s).
+== end: 2026-07-16T13:38:34Z ==
+EXIT_CODE: 0

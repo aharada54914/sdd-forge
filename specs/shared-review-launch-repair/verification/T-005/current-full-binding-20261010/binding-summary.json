@@ -1,0 +1,95 @@
+{
+  "results": [
+    {
+      "suite": "host-review-preflight",
+      "exit_code": 0,
+      "summaries": [
+        "Ran 7 tests in 0.030s"
+      ],
+      "skip_lines": []
+    },
+    {
+      "suite": "spec-review-verify-inputs",
+      "exit_code": 0,
+      "summaries": [
+        "Ran 2 tests in 13.998s"
+      ],
+      "skip_lines": []
+    },
+    {
+      "suite": "review-conditional-inputs",
+      "exit_code": 0,
+      "summaries": [
+        "Ran 16 tests in 22.452s"
+      ],
+      "skip_lines": []
+    },
+    {
+      "suite": "review-context-boundary",
+      "exit_code": 0,
+      "summaries": [
+        "Ran 3 tests in 0.002s",
+        "PASS: 116; FAIL: 0",
+        "PASS: 84; FAIL: 0",
+        "PASS: 84; FAIL: 0"
+      ],
+      "skip_lines": []
+    },
+    {
+      "suite": "supplemental-delivery-declaration",
+      "exit_code": 0,
+      "summaries": [
+        "Ran 17 tests in 24.022s"
+      ],
+      "skip_lines": []
+    },
+    {
+      "suite": "review-agent-isolation",
+      "exit_code": 0,
+      "summaries": [
+        "PASS: 26; FAIL: 0"
+      ],
+      "skip_lines": []
+    }
+  ],
+  "compared_rows_stable": true,
+  "ledger_before_sha256": "767cb5fd9c4d909e5cf19beb34266cf1ffc7aea6819b0de1bf368f9abbb42c21",
+  "ledger_after_sha256": "767cb5fd9c4d909e5cf19beb34266cf1ffc7aea6819b0de1bf368f9abbb42c21",
+  "ledger_unchanged": true,
+  "historical_execution_is_owner_execution": false,
+  "formal_gate": "NOT RUN",
+  "native": "NOT RUN",
+  "windows": "NOT RUN",
+  "ci": "NOT RUN",
+  "prior_current_binding_matches_all_620": true,
+  "current_matches_attempt6": 614,
+  "historical_copy_hashes_match": true,
+  "evidence_sha256": {
+    "README.md": "56bda7c6d9d2f3d0f665267a06cef473ce18689eac867488dbfd51bd26d0702b",
+    "comparison-after.json": "955ca0da82a9142fdb4be7cd40392982ad0d28bc2c46051d043ae59c0f2be76e",
+    "comparison-before.json": "c173860dc1d829093535afcc6af34f5239da16ff40e3ab30dc7d909f33577b36",
+    "diff-attribution.json": "7638af385c3dfa216ca2b6f03a7acc0eef0db7022d78852d5771af6bff73ff4e",
+    "finalize.py": "babf31937488d6de53fd1d821427e63e965f499c1734077e5c64f25da892b5af",
+    "host-review-preflight.json": "8c55df9c5b060c6693ce1c5b3b797783cf5c822afbe7938ad0315faada5f1f21",
+    "host-review-preflight.log": "2877b82073039fefcf12283b0d538516b890231b1bcd7bcc44e17d2cad282972",
+    "plugins__sdd-review-loop__scripts__launch-impl-review.py.diff": "b5652e895748f1ca293268bf5875fe256adf927a7cd7a7908da908f7384ed8c7",
+    "plugins__sdd-review-loop__scripts__probe-nontty-review.py.diff": "5580b068505f0551fd784a0b99d51926d032cefe13a70971641c8609d181620c",
+    "plugins__sdd-review-loop__scripts__validate-nontty-spec-launch.py.diff": "505c88185c57ee8b38bd39398df46c737554f36ab86d60c1969ddeeae593a5f4",
+    "results.json": "3d565b20440c8b3447e79ac9628a06a13205cccf5c22baf30a8f4fbbe60ca6bd",
+    "review-agent-isolation.json": "d33160ff6001bc98179302e463ac16ef6315ac2100df1dddd88c3290b5093877",
+    "review-agent-isolation.log": "f5024597c726672e2b966ddcdde160e9e76aed56707fc67fee75c16c421280d8",
+    "review-conditional-inputs.json": "6baa08c9934b9ba4b5536514e0d635ae16a21a4ffff0b3db40d8ce8906af49a4",
+    "review-conditional-inputs.log": "f3e49be444f9534dce441e29df857474b16a49021315458ed7913b5d1b78a7f0",
+    "review-context-boundary.json": "0d91b1b22a06e55bb897ad048f8d813e766e163d63e53975f2c76405bc0aefac",
+    "review-context-boundary.log": "f59ef1e1c066475aeb592777c326c6e19906caa2598c6e5d07e385c74dd572e3",
+    "run.py": "a08bf9d730d00047484471966629dcee3b26bb5e0529bc98e01d466c3bd08d46",
+    "spec-review-verify-inputs.json": "621a4dae43d93ee53c1cc7f9881e485fca5887bd190c4aa43b46b1147315583c",
+    "spec-review-verify-inputs.log": "7db28e6aa4e904c6ba17ff62a856ac71544e799c5ac19913cd9761877e071eb7",
+    "summary.json": "e13a465bddea5e04edfea8741906ea7638c4885e2686b84c0ed7b28bfb1bb147",
+    "supplemental-delivery-declaration.json": "668405add1f2671f9ffcdff1c7e28dffaeff45aea29fc0241109e7d8886cb58f",
+    "supplemental-delivery-declaration.log": "0e5ace8d5dac9f27f7c647d01b98b50185eccf26a70ad11f5cdbf89a85a0e12f",
+    "tests__quality-nontty-transport.tests.py.diff": "213098dc152d426fd86b585fea056db19631f3c27e2d58ec5a9e4300f0d671e7",
+    "tests__task-structured-output.tests.py.diff": "afeccc00d073e80cb917d91a039e96e1516765d6ba1de8bbc7512e3850db2302",
+    "tests__unified-launch-order.tests.py.diff": "bff4a028cd5f332deb01bf20bfab30727831d25207846ea4a666d6e3eecc6c74"
+  }
+}

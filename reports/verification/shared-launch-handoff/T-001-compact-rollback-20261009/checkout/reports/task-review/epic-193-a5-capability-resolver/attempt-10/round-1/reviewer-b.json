@@ -1,0 +1,84 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 10,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a10r1-seq0814",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a10r1-0814",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "f3c4b50ad9190178be26b3bab47bc36744d3080c5d88990527cd3d8d3f06d031"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/precheck-result.json", "sha256": "f4f27313cfe45b37cb382b9ee38f60dfbd9665f77915a471609be0a94e417999"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/integrated-summary.json", "sha256": "2461453233081d8845b1d175927ab6f12b9c6dbdb1f1c7dd18736bbaa393d0ec"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Confirmed via `git diff b62874e9 -- specs/epic-193-a5-capability-resolver/tasks.md` that the only change since the prior clean PASS (attempt-9/round-2, reports/task-review/epic-193-a5-capability-resolver/attempt-9/round-2/reviewer-b.json) is T-003's human-authorized `Status: Implementation Complete` -> `Status: Done` lifecycle flip (line 748) -- a valid post-implementation state in this provenance re-review, not a scope or Risk-tier change. Every task's Risk tier remains consistent with its scope: T-002/T-003/T-004/T-007/T-008 (high) each touch a sentinel-adjacent surface (Block-diagnostic authorship, transactional live-filesystem commit, or provenance-binding tamper-evidence) with no re-validation downstream; T-001/T-005/T-006/T-009/T-010 (medium) are schema-authoring or test-only tasks adding no new production code path. No low/medium task touches auth/payment/PII/migration/breaking-API surfaces, and no high/critical task's scope is UI-copy/CSS/docs/test-only. (Advisory, TYPE-H convergence rule: this content is byte-identical to what attempt-9/round-2 reviewed and PASSed.)"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. T-002 (line ~592), T-003 (line ~985), T-004, T-007, and T-008 each retain a Done When 'TDD evidence' item requiring RED (fixtures against a deliberately broken implementation) and GREEN (fixture set against the correct implementation) plus 'An independent quality-gate verdict records PASS.' Verified directly by reading T-003's own Done When section (tasks.md lines 958-989), unchanged from the prior review except for the unrelated Status-line flip above it. No Risk: critical task exists in this package, so the second-approver/signed-bundle requirement does not apply. This check is TYPE-D and was independently re-verified against current tasks.md content, not merely carried forward."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-003's Done When retains four verifiable items and its Scope one implementation area (steps 4-9 extension) plus fixture authoring, consistent with sibling tasks T-002/T-004/T-007. No task exceeds three distinct implementation areas or eight Done-When items, and no task's scope is a bare single-file rename with no integration concern. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-003's error-path coverage still explicitly includes AC-057 (registry-swapped-during-validation, TEST-057) and AC-058 (affected-component-absent-from-context, TEST-058), present in acceptance-tests.md lines 97-98 as dedicated Block-fixture rows with exit/detail/empty-array assertions. Every functional task (T-002/T-003/T-004/T-007) is paired with an extensive Block-diagnostic matrix of error-path fixtures spanning all sixteen REQ-002 rows. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-005 (match suite) and T-009 (parity suite) are integration-scoped, invoking the assembled multi-step engine as a real subprocess across multiple components/runtimes; T-006's CLI/discovery/Lite suites target the single CLI's argument/discovery/track boundary consistent with their declared scope; T-008's provenance-binding suite targets the validator module; T-010's metamorphic suite exercises the full multi-component pipeline consistent with its declared full-pipeline scope. No declared test type mismatches its actual scope. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Risk: high task carries an explicit `Rollback:` field, verified directly for T-003 (tasks.md line 852: 'revert this task's two commits (B then A, or both)...') and confirmed present for T-002/T-004/T-007/T-008 by the unchanged surrounding structure. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The shared `resolve-project-context.{py,sh,ps1}` file (T-002/T-003/T-004/T-007) and shared `tests/resolve-project-context-block.tests.sh`/`.ps1` file (T-002 creates, T-003/T-004/T-007 append) are each edited in a strict, Blockers-enforced append-only sequence (T-002->T-003->T-004->T-007), consistent with the legitimate multi-task scope-sharing exception. No uncoordinated overlap found. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Cross-checked every task's ### Blockers section against its own Depends On prose: T-002->T-001; T-003->T-002; T-004->T-001,T-003; T-005->T-002,T-004; T-006->T-004,T-005; T-007->T-004; T-008->T-001,T-006,T-007; T-009->T-002..T-008; T-010->T-004,T-007,T-008,T-009. Each edge traces to a genuine functional data dependency or a documented shared-CI-registration-file ordering need; no spurious or missing blocker found. (Advisory, TYPE-H convergence rule: byte-identical to attempt-9/round-2's reviewed content and PASS verdict.)"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001..T-010) are new-feature build/test-authoring tasks for the Capability Resolver; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

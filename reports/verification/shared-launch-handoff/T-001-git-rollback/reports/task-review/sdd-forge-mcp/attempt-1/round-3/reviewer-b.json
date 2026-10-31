@@ -1,0 +1,98 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-sddforgemcp-a1r3-20260704-b9f6",
+  "host_session_id": "hs-task-b-7ea701ba-0017",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "58017dedc614d1f2d62bbe55830904ad78fddcb0e1c8b49dd8c1034d568f7e1e"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/integrated-summary.json",
+      "sha256": "01fd403f87709351ac8664bab81970edad4d97b94a81ddba6f10f173534e44d3"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 8 high-risk tasks touch sentinel surfaces named in risk-classification-policy.md (quality-gate decision inputs, public API contract, security chokepoint). T-006/T-007 medium and T-008 low are consistent with their Risk Rationale. No mismatch found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 8 Risk: high tasks carry both Red->Green evidence and independent-review-verdict-recorded Done When items. No critical-tier task exists."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When counts range 4-8 (T-001/T-004 at exactly 8, within threshold). Scope areas within 3; T-001's four sub-parts are one tightly-coupled bootstrap chokepoint module, not sequential independent phases. No oversizing or fragmentation."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional tasks map to error-path ACs (AC-002/003/004/012/014/016/017, cannot-parse fixtures for T-003/T-011). T-009's happy-path-only AC-013 is acceptable because resources are documented thin pass-through views whose error paths are inherited from upstream tasks' tests."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Unit tests target single modules; integration tests involve 2+ components; TEST-005 is correctly e2e over the full protocol workflow; TEST-011/016 match their static+runtime dual scope. No mismatched label."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 high-risk tasks carry a Rollback: field specifying commit revert, several citing uninstall.sh --mcp sdd-forge-mcp, consistent with infra-spec.md. Medium/low tasks also carry Rollback fields."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No uncoordinated file overlap. T-010's next-command.ts replaces T-004's stub with proper Blockers ordering (create-then-replace). Test directories each owned by exactly one task."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers edge verified against scope dependency; all 20 edges genuine, no spurious blocker, and no missing blocker that would cause integration failure (T-005's use of T-003's parser output is guaranteed transitively via T-004)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope; all 11 tasks are net-new feature implementation."
+    }
+  ]
+}

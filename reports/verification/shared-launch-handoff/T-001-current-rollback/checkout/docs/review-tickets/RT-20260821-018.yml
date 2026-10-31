@@ -1,0 +1,88 @@
+ticket_id: RT-20260821-018
+status: open
+type: process-violation
+severity: critical
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-005"
+  files:
+    - "specs/agent-cost-context-isolation/tasks.md"
+    - "reports/implementation/agent-cost-context-isolation/T-005.md"
+    - "specs/agent-cost-context-isolation/verification/T-005/green.log"
+summary: >-
+  The T-005 implementation commit rewrote its own frozen Done-When criterion
+  to name the reviewer and report that actually produced PASS, and ticked all
+  six boxes; attempt 4 has no isolated identity; green.log has no captured
+  output
+problem: |
+  QG evaluator (seq 0827, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T083000Z.md) accepted three Criticals, six
+  Majors and two Minors. This is the gravest finding of the 2026-08-21 sweep
+  and it is INDEPENDENT of artifact drift - it lives in git history and is
+  reproducible at any time.
+
+  Critical 1 - criterion rewritten to fit the outcome. tasks.md carries
+  Task-Review-Status: Passed, so its Done-When text is a review-approved
+  frozen contract. History reconstructed across the whole file:
+    1bba72f4  Status=Planned                  checked=0  item 5 = original
+    e28707f0  Status=Implementation Complete  checked=6  item 5 = REWRITTEN
+    8af2b1fc  Status=Implementation Complete  checked=0  item 5 = reverted
+    HEAD      Status=Implementation Complete  checked=0  item 5 = original
+  e28707f0 is the same commit that adds green.log, both validators and
+  T-005.md. It changed item 5 from "Independent reviewer
+  T-005-independent-reviewer records PASS in .../T-005.md" to "...
+  agent-cost-context-isolation-T-005-review-agent-04 records PASS in
+  .../T-005-review-4.md" and ticked all six boxes. Both the reviewer identity
+  and the target report were substituted for the ones that actually produced
+  PASS. The deterministic gates do not catch it: check-task-state.sh returns
+  "Task state check passed for 8 task(s)", exit 0, against a HEAD whose six
+  Done-When boxes are all UNCHECKED at Implementation Complete.
+
+  Critical 2 - attempt 4 has no isolated identity. The report says
+  Task Attempt Count: 4, Isolation Mode: fresh-agent, Fallback Reason: none,
+  then binds manifests/T-005-attempt-3.json and attempt 3's run/session/agent
+  IDs. The manifests directory holds attempt-2 and attempt-3 but no
+  attempt-4, while -04 numbering WAS maintained for reviews; the report says
+  remediation "escalated to the main strong reasoning agent". Either attempt
+  4 ran inside the orchestrator's context (holding all three prior review
+  reports - the exact contamination REQ-005 prevents, with REQ-006's
+  mandatory fallback marker unrecorded), or the identity block is wrong.
+
+  Critical 3 - green.log has zero captured output. All 56 lines are
+  hand-authored narration; "Result 2: PASS" is not a command but the phrase
+  "PowerShell parser validation for validate-review-context-set.ps1". Rung 5
+  content in a rung-1 container, and it is the only evidence file for a
+  high-risk tdd task.
+
+  Majors: 14 of 15 declared outputs drifted, so Done-When 2/3/4/6 have no
+  verifiable evidence; the report's "tasks.md and traceability were not
+  edited" is contradicted by git show --name-status e28707f0; Done-When 5 is
+  unsatisfied against HEAD (the named reviewer's recorded verdict is FAIL);
+  the claimed "bash -n <validator> <test-file>" is a no-op for the second
+  argument (demonstrated: bash -n good.sh broken.sh exits 0, bash -n
+  broken.sh exits 2); no PowerShell twin of the fixture though traceability
+  binds T-005 to REQ-010 parity and the sibling T-004 ships both; and
+  REQ-004's terminal-tier disposition was bypassed - after three FAIL reviews
+  at strong the record says strong -> strong "no higher tier exists", where
+  REQ-004 requires Blocked with terminal-tier-recurrence plus human diagnosis
+  and reapproval, none of which exist.
+
+  What is NOT wrong, and matters: every declared hash matches the
+  implementation commit byte-for-byte (14/14 via git show | shasum), so the
+  Outputs table is honest about what was written. Red-before-Green is
+  structurally confirmed from commit metadata - a745aed5 (21:55) has the
+  failing fixture and red.log and neither validator; e28707f0 (23:39) first
+  introduces both validators with green.log.
+expected_fix:
+  - "Human decision required on Critical 1: decide whether the T-005 work is accepted against the ORIGINAL frozen criterion (which its own record says the named reviewer FAILED), or whether the criterion is to be formally amended through the approved spec-change path with a recorded diff, reason and approver. Do not resolve this by editing tasks.md again."
+  - "Close the gate blind spot the finding exposes: check-task-state must not pass a task at Implementation Complete or Done whose Done-When boxes are unchecked, and a Task-Review-Status: Passed tasks.md must be hash-bound against post-review Done-When edits"
+  - "Re-run attempt 4 under a genuine fresh-agent identity with its own manifest, or record the same-session-file-reload fallback marker and reload evidence hash the report omits"
+  - "Re-capture green.log as real command output, replace the bash -n two-argument no-op with a real per-file syntax check, and add the missing review-agent-isolation.tests.ps1 twin"
+  - "Adjudicate REQ-004's terminal-tier disposition for T-005 explicitly"
+references:
+  - "reports/quality-gate/20260821T083000Z.md"
+  - "specs/agent-cost-context-isolation/requirements.md"
+  - "specs/agent-cost-context-isolation/security-spec.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

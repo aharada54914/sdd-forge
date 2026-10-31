@@ -1,0 +1,18 @@
+{
+  "boundary_failure": {
+    "cited_line": 459,
+    "actual_line_459": "    (.stage != \"quality\" and ((keys | sort) == (base_keys | sort)))",
+    "construct_locations": [
+      {
+        "line": 461,
+        "text": "  .schema == \"review-context-invocation/v2\" and"
+      }
+    ]
+  },
+  "isolation_failure": {
+    "required_path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+    "manifest_admitted": false,
+    "exists_in_fixture": false,
+    "additional_undeclared_dependency": "Historical Git objects are required by tests/review-agent-isolation.tests.sh:265-270,877-883 and were not read."
+  }
+}

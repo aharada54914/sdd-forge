@@ -1,0 +1,114 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196a8integration-impl-a3r2-b-seq0757",
+  "host_session_id": "SESS-impl-a3r2-b-epic196a8integration-0757",
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every technology/architecture decision in design.md carries an explicit rationale (Ed25519 + RFC 8785 JCS formalized as ADR-0028 per ADR-0008's established bar; sh/PowerShell thin wrappers matching the sdd-hook-guard multi-runtime-wrapper precedent; the 5-cell semantic matrix replacing an earlier 6-cell direct product with a stated self-contradiction rationale). No bare 'we will use X' decision without a because/matching-precedent clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Open Questions (OQ-001, OQ-002) do not use the literal 'Blocks Implementation:'/'Resolution Path:' field labels, but the required content is present in substance: OQ-001 names its owner (the Phase 2/3 implementer) and its resolution path (confirmed empirically before any automated E2E path is built around it), and design.md's Design Decisions section states the deferral does not block this package's own scope. OQ-002 is marked resolved with a citation to design.md's Coverage Scope table."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/epic-196-a8-integration/investigation.md exists, so the investigation-absence rule does not trigger. Each requirements.md Assumptions entry is grounded: Epic A1/A5/A7 unmerged status cites INV-008/INV-009 and specific worktree names; the ADR-0019, .gitattributes and installer-stability assumptions cite concrete file paths."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md's SKIP Allowlist Activation Gate contradicts requirements.md AC-015's and AC-028's own hard-failure trigger language, and design.md's round-2 reconciliation subsection ('Relationship to requirements.md's own SKIP language') addresses only AC-006's softer 'until Epic A1 merges' phrasing. It never mentions AC-015's separate sentence -- 'a SKIP surviving validate-live-host-proof after Epic A1 merges is a non-zero-exit hard failure, never a passing state' (requirements.md:389) -- nor AC-028's parallel 'reports a non-zero exit on any missing, SKIP-after-merge, FAIL, stale ... record' (requirements.md:536). Both state a single-clause trigger: merge alone converts a surviving SKIP into a hard failure. design.md's mechanism is a two-clause predicate requiring BOTH that the owning task has started AND that the artifacts exist on main, and design.md says so in direct opposition to that text: 'never merely until Epic A1 merges'; 'a case can stay a valid, non-failing SKIP for a period after Epic A1 actually merges, for as long as its own owning task has not yet started'; and the Risks section's 'AC-006/AC-015/AC-016 can each remain a valid, non-failing SKIP for an unbounded period after Epic A1's own canonical artifacts actually land on main'. security-spec.md's B3 boundary and STRIDE row state the identical trade-off by name against AC-006, AC-015, AC-016. validate-live-host-proof's contract reports exit 0 'pending' for a pre-activation SKIP regardless of Epic A1's merge state -- the literal behavior AC-015/AC-028 say must be a non-zero-exit hard failure once Epic A1 has merged. requirements.md, acceptance-tests.md and tasks.md are frozen for this round, so this is an unresolved contradiction rather than a stale artifact. Concrete failure mode: a Phase 2/3 implementer or CI cannot determine from the normative documents whether a still-present SKIP after Epic A1 merges is a passing or failing state for AC-015/AC-028 -- the two documents give opposite answers for the same event."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This is an internal test-infrastructure specification with no response-time/throughput/latency/SLA statement; the closest numeric threshold (nonce 24-hour TTL) is a replay control, not a performance requirement."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Deployment / CI Plan names the deployment target (existing tests/run-all.{sh,ps1} and .github/workflows/test.yml 3-OS matrix, reusing the cli-hook-enforcement/main test job pattern), the CI pipeline changes required, and a feature-flag-equivalent rollout mechanism (the SKIP Allowlist Activation Gate governing when REQ-003's live-host proof becomes a required gate). No schema changes exist, so migration-execution-order is not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states no migration is required because every data entity is a net-new file with no prior version. The one write against pre-existing data (marking consumed_by_record on an existing nonce-ledger entry) is explicitly characterized as additive metadata, not a schema migration."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's External Integrations section names the three CLI integrations (Claude Code, Codex, Copilot) and their read-only consumption contract. Contract detail and unavailability behavior are fixed elsewhere in the same document and cross-referenced consistently: the Classification Table marks each CLI's headless invocation contract as automated-pending-confirmation/manual-required with OQ-001 as the named gating fact, and the Live-Host Semantic Matrix names the correctly-detected-unavailable failure states plus their REQ-006 manual-fallback evidence path."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-007 goal maps to a design.md component/section, and design.md's Layer Specifications and Cross-Layer Dependencies sections cite requirements.md's Non-goals to bound scope. No component, schema or endpoint in design.md lacks a corresponding AC; ADR-0028 implements AC-026's already-stated two-party-attestation requirement rather than introducing new scope."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (live-host session authenticity/authorization B1, forgery-resistance B4, classification-mismatch/synthetic-substitution B5) each name a concrete validation path: validate-live-host-proof's named error codes, Test Strategy items 5/8/10, and security-spec.md's Security Tests table. No PII, payment or UI critical-journey surface is present."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in this repository, so the Approved-domain-model precondition this check requires is absent."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json",
+      "sha256": "4cb4bb15f2de1e8d3222aaf079e70011b21bb240f4b35d746ed6bbe2b0832919"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "b3cd3bc5a0b4a908b1bac518c80149f55bc95f4a5d01388c46a5d2f8a9a0c261"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "cd8048b30777d10869b6144c23845eb8a7656e12f01d2ee2159df13b531acd82"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "57d2fe6b722691d06e34ccb7325c30bc045eced805376974c974aa348835f9e4"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "2b707290e5ea1c5e7267687d82ff18f6cbcf91a74134c388c0f4022795d6e5e4"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    }
+  ]
+}

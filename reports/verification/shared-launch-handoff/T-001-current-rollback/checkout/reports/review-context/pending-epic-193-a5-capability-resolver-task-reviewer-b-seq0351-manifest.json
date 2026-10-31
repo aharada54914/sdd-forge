@@ -1,0 +1,31 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a3r1-seq0351",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a3r1-0351",
+  "sequence": 351,
+  "previous_record_sha256": "c6843d9322d3f0b73d827e35ab4b5ae51d880c44e6bbcae2b3f8c965edbd137e",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ae293d6dae26d8183330c4f0351299ca6a9130c5a1510a87683e26e05f708a62",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+    {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "5021fb1bf20b2ed19f6c608ad429ae1bdbb71807c0c950a073753db53ef076e0"},
+    {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+    {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-3/round-1/precheck-result.json", "sha256": "08b06ad070faf627b8845e9b7613f3b6ba4eb29138348495e6bd206f7741b6e3"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-3/round-1/integrated-summary.json", "sha256": "472e007501049e015156800c09b03fd87afcf73c455a60e76fda5da5f187d668"}
+  ]
+}

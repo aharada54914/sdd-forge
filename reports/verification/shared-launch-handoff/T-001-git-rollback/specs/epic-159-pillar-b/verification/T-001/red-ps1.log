@@ -1,0 +1,72 @@
+=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ===
+ok: TEST-001 (AC-001): bump-version.sh exits 0 when both loop suites are stubbed passing
+ok: TEST-001 (AC-001): a plugin manifest now carries the new version string 9.9.9
+ok: TEST-001 (AC-001): README.md current-release line carries the new version string
+ok: TEST-001 (AC-001): tests/validate-repository.ps1 carries the new version string
+=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ===
+FAIL: TEST-002 (AC-002): expected bump-version.sh to exit non-zero when loop-consistency.tests.sh is stubbed failing, but it exited 0
+FAIL: TEST-002 (AC-002): git status --porcelain is non-empty after the run:  M .agents/plugins/marketplace.json
+ M .claude-plugin/marketplace.json
+ M README.md
+ M plugins/sdd-bootstrap/.claude-plugin/plugin.json
+ M plugins/sdd-bootstrap/.codex-plugin/plugin.json
+ M plugins/sdd-bootstrap/.plugin/plugin.json
+ M plugins/sdd-domain/.claude-plugin/plugin.json
+ M plugins/sdd-domain/.codex-plugin/plugin.json
+ M plugins/sdd-domain/.plugin/plugin.json
+ M plugins/sdd-implementation/.claude-plugin/plugin.json
+ M plugins/sdd-implementation/.codex-plugin/plugin.json
+ M plugins/sdd-implementation/.plugin/plugin.json
+ M plugins/sdd-lite/.claude-plugin/plugin.json
+ M plugins/sdd-lite/.codex-plugin/plugin.json
+ M plugins/sdd-lite/.plugin/plugin.json
+ M plugins/sdd-quality-loop/.claude-plugin/plugin.json
+ M plugins/sdd-quality-loop/.codex-plugin/plugin.json
+ M plugins/sdd-quality-loop/.plugin/plugin.json
+ M plugins/sdd-review-loop/.claude-plugin/plugin.json
+ M plugins/sdd-review-loop/.codex-plugin/plugin.json
+ M plugins/sdd-review-loop/.plugin/plugin.json
+ M plugins/sdd-ship/.claude-plugin/plugin.json
+ M plugins/sdd-ship/.codex-plugin/plugin.json
+ M plugins/sdd-ship/.plugin/plugin.json
+ M tests/repository-release-validation.tests.sh
+ M tests/validate-repository.ps1
+=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ===
+FAIL: TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0
+FAIL: TEST-003 (AC-003): git status --porcelain is non-empty after the run:  M .agents/plugins/marketplace.json
+ M .claude-plugin/marketplace.json
+ M README.md
+ M plugins/sdd-bootstrap/.claude-plugin/plugin.json
+ M plugins/sdd-bootstrap/.codex-plugin/plugin.json
+ M plugins/sdd-bootstrap/.plugin/plugin.json
+ M plugins/sdd-domain/.claude-plugin/plugin.json
+ M plugins/sdd-domain/.codex-plugin/plugin.json
+ M plugins/sdd-domain/.plugin/plugin.json
+ M plugins/sdd-implementation/.claude-plugin/plugin.json
+ M plugins/sdd-implementation/.codex-plugin/plugin.json
+ M plugins/sdd-implementation/.plugin/plugin.json
+ M plugins/sdd-lite/.claude-plugin/plugin.json
+ M plugins/sdd-lite/.codex-plugin/plugin.json
+ M plugins/sdd-lite/.plugin/plugin.json
+ M plugins/sdd-quality-loop/.claude-plugin/plugin.json
+ M plugins/sdd-quality-loop/.codex-plugin/plugin.json
+ M plugins/sdd-quality-loop/.plugin/plugin.json
+ M plugins/sdd-review-loop/.claude-plugin/plugin.json
+ M plugins/sdd-review-loop/.codex-plugin/plugin.json
+ M plugins/sdd-review-loop/.plugin/plugin.json
+ M plugins/sdd-ship/.claude-plugin/plugin.json
+ M plugins/sdd-ship/.codex-plugin/plugin.json
+ M plugins/sdd-ship/.plugin/plugin.json
+ M tests/repository-release-validation.tests.sh
+ M tests/validate-repository.ps1
+=== TEST-004 (AC-004): no-bypass self-check (real scripts/bump-version.sh) ===
+FAIL: TEST-004 (AC-004): loop-gate marker comment not found in scripts/bump-version.sh
+=== TEST-005 (AC-005): loop-gate precedes the first mutation step (real scripts/bump-version.sh) ===
+FAIL: TEST-005 (AC-005): loop-gate invocation line not found in scripts/bump-version.sh
+=== TEST-006 (AC-006): CI-resilience + self-registration ===
+ok: TEST-006 (AC-006, CI-resilience): fixture-root normalization uses Resolve-Path (pwd -P equivalent)
+ok: TEST-006 (AC-006, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): this suite drives no real validator (non-use declaration)
+FAIL: TEST-006 (AC-006): bump-version-gate.tests.ps1 is NOT registered in tests/run-all.ps1 and/or .github/workflows/test.yml
+
+bump-version-gate.tests.ps1: 7 passed, 7 failed

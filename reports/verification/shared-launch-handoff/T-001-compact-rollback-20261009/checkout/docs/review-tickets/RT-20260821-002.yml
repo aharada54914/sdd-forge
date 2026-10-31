@@ -1,0 +1,38 @@
+ticket_id: RT-20260821-002
+status: open
+type: spec-drift
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-009"
+  files:
+    - "specs/risk-adaptive-layer/requirements.md"
+    - "specs/risk-adaptive-layer/tasks.md"
+    - "specs/risk-adaptive-layer/traceability.md"
+summary: >-
+  REQ-010 (Codex agents declare cost-aware model routing) was deliberately not
+  implemented, but the reversal reached only 3 of 7 approved locations and no
+  approver-signed spec-change record exists
+problem: |
+  QG evaluator (seq 0819, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T051500Z.md) accepted one Major.
+  requirements.md:44 and :66, tasks.md:323, and traceability.md:20 still
+  assert shipped Codex agents declare cost-aware model routing in their role
+  files; acceptance-tests.md:17, agent-capability-matrix.md:138-142, and
+  traceability.json:87 assert the deliberate opposite (runtime --model and
+  --effort at the call site, no pinning in role files). git show --stat
+  46d10834 proves T-009 touched only the two markdown docs and no Codex role
+  file. This feature's own REQ-005 requires spec changes to carry diff +
+  reason + approver; grep across the frozen spec files finds only the rule,
+  no record.
+expected_fix:
+  - "Human decision: either record an approver-signed spec-change/waiver artifact adopting the runtime-routing interpretation of REQ-010, or direct implementation of model declarations in the Codex role files"
+  - "If the waiver route is taken, reconcile the four stale locations by the repository's frozen-doc procedure (staged human-copy patch), not by agent edit"
+  - "Re-run the quality gate for T-009 after the record exists"
+references:
+  - "reports/quality-gate/20260821T051500Z.md"
+  - "specs/risk-adaptive-layer/acceptance-tests.md"
+  - "docs/agent-capability-matrix.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

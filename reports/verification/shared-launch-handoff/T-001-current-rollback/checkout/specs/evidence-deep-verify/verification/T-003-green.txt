@@ -1,0 +1,24 @@
+# T-003 GREEN evidence — evidence-deep-verify signature boundary (REQ-008 / AC-011 / AC-014)
+# Run: node --test tests/no-secrets/deep-verify-signature.test.js tests/readonly/deep-verify-static-check.test.js
+#
+# echoSignature() weakening from the RED run has been reverted (git diff on
+# src/tools/evidence.ts is empty). All 5 new guard tests pass against the real
+# T-001/T-002 implementation, which already satisfied REQ-008/ADR-0008 (no key read,
+# no HMAC verification, signature echoed with verified:false FIXED). No hardening change
+# to evidence.ts was required; T-003 adds the canary no-secrets test and the extended
+# read-only/no-exec/no-key static scan as regression guards.
+
+=== GREEN RUN (real implementation) ===
+✔ AC-011: signature is echoed as present/verified:false without reading any signing key (3.989708ms)
+✔ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (2.593625ms)
+✔ AC-011: a thrown path (unreadable bundle) never carries the canary key value (1.676042ms)
+✔ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (1.723917ms)
+✔ src/tools/evidence.ts reaches the disk only through path-guard's guarded helpers (0.191542ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.323958

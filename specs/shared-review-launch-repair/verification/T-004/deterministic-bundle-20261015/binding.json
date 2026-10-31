@@ -1,0 +1,12 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-004/deterministic-bundle-20261015/verify-binding.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:38.568663+00:00",
+  "finished_at": "2026-10-14T15:11:38.639788+00:00"
+}

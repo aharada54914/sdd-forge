@@ -1,0 +1,25 @@
+{
+  "scenario_id": "unreadable-contract-traceability",
+  "class_number": 10,
+  "class_name": "unreadable contract / traceability corruption",
+  "class_name_source": "issue #125 body (代表10種 item 10: \"unreadable contract・traceability 破損\"); investigation.md INV-017 row 10",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "tests/gates.tests.sh",
+      "line": "1854",
+      "note": "T-005.8: an invalid-JSON traceability.json fails with the correct \"invalid JSON\" message."
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts",
+      "line": "15,137",
+      "note": "error envelope: a malformed-JSON evidence bundle maps to cannot-parse through the deep-verify MCP tool."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Edit"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Existing coverage at both gate-script and MCP-tool level (investigation.md INV-017 row 10). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist and each still contains its cited marker text (\"invalid JSON\" / \"cannot-parse\"), plus TEST-013's PreToolUse-shape drive builds a representative Edit/exec_command payload for a synthetic corrupted traceability.json edit. This scenario intentionally does not duplicate either existing suite's own assertions."
+}

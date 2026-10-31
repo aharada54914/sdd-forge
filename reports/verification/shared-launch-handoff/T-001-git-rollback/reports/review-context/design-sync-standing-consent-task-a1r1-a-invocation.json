@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "design-sync-standing-consent",
+  "run_id": "RUN-design-sync-standing-consent-task-task-reviewer-a-seq0554",
+  "host_session_id": "SESS-task-task-reviewer-a-design-sync-standing-consent-0554",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "3a97a1e40a3ba9f01db3ac116fe2ee9a35cb136af995b4517f13bd7af06241ed",
+  "previous_record_sha256": "f4a3f5d4663283010cc41c856d2a309543e3eed138057d4e3401dc5534871a75",
+  "sequence": 554,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/design-sync-standing-consent/attempt-1/round-1/dependency-graph.json",
+      "sha256": "f27c7dff7328dbfe5917c5e83a9d10e21faed97f60b8b26d98bc7d3d32da259d"
+    },
+    {
+      "path": "reports/task-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "9ce48d8cd60af379a3d6f988a8312969dd0cc3a6ceea5402f99f72700708ab14"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/design.md",
+      "sha256": "dd05aee2b474a3f1e330d22acd120f9c50a66a61f95ea58f44afcc8d6ba98ac5"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/tasks.md",
+      "sha256": "907f8ee3ea010fa5a31ddc5f0c5a85efa29a05babd0b397c35281c91e2a619bb"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/traceability.md",
+      "sha256": "5ed00a950c2ffb43d525493effbe46d77bdf145704535fafe15e17ff6e7ff2a1"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    }
+  ]
+}

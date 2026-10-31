@@ -1,0 +1,16 @@
+diff --git a/contracts/capability-registry.json b/contracts/capability-registry.json
+--- a/contracts/capability-registry.json
++++ b/contracts/capability-registry.json
+@@ -5,6 +5,12 @@
+     {
+       "id": "check-update-migration",
+       "stage": "implementation",
+       "blocking": true,
+       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
++    },
++    {
++      "id": "check-installed-plugin-drift",
++      "stage": "implementation",
++      "blocking": true,
++      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+     }

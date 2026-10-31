@@ -1,0 +1,110 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-189-a1-project-context",
+  "task_id": "T-010",
+  "run_id": "RUN-epic-189-a1-project-context-qg-T-010-seq0366",
+  "host_session_id": "SESS-qg-epic-189-a1-project-context-T-010-0366",
+  "sequence": 366,
+  "previous_record_sha256": "66a71f1d29f9c8b6e5f5239e29bee90c7216b380b532c640c4321dabdd5a4e80",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "05639267eab6c397c0919cbc62d5f2ed4d0ac1223ac2dc698a89c52c6eb87785",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/design.md",
+      "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/tasks.md",
+      "sha256": "e5d9b793920a33f2010d1688aa469fcd81201b9f307cfdb0adea2fdb335fc56d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/traceability.md",
+      "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/ux-spec.md",
+      "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+      "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/infra-spec.md",
+      "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/security-spec.md",
+      "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-189-a1-project-context/T-010.md",
+      "sha256": "73ee36989f6dc96f51ea2eb9f71ba046ff13a237368e22b965137e7fd7c010d6"
+    },
+    {
+      "path": "tests/hook-guard-epic-a1-boundary.tests.sh",
+      "sha256": "8a2e11dc9acf6623597f2cf0e445821cd18bd986ce33ab42c9432d973088fdec"
+    },
+    {
+      "path": "tests/hook-guard-epic-a1-boundary.tests.ps1",
+      "sha256": "b6fbff05968b7c63eaa55c6a8c49ca6223b293a1e60648039cdc380d9fb0d14f"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "1951210189c3302da31c877845308f2ae5caeebe0fd0455817e3d24783856fca"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "b08dddfe1b8957d4fe7276614bc663d87a9aad8ca93db9e0c79b097c360a07e3"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml",
+      "sha256": "506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
+      "sha256": "461e5c8facb41d44ba20d74cffdf7a29ff3992e7dc84a12061479f0302723ed4"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-010/red-posix.log",
+      "sha256": "a47e0326ef05e5af0284b45bb11f4933dd24cfc3aeb39ab81d7081383aec17ad"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-010/red-powershell.log",
+      "sha256": "45c9eb13ba7bc8b998db0360c5f031e6fd230b22e8c4641bce938ef759ae49a9"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-010/green-posix.log",
+      "sha256": "bd54716d7c9fb70a6607c7b890b399e44c9cd060e7f8b48d693ff3f150948122"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-010/green-powershell.log",
+      "sha256": "375f6b693c5172f2d673f7a71236d795e2f435360a65f0fd06a4b452a488b53d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-010/mutation-battery-posix.log",
+      "sha256": "825ac380bf54fe2728079ff555911dc6b5296d2597286015c2b6338395810d65"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "5a0920568c026b9eedf28f92cab6e02c6b7f585c5202e2a46173ed84a9f1bfb2"
+    }
+  ]
+}

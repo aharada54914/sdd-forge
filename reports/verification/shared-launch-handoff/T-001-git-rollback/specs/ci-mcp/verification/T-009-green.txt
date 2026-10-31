@@ -1,0 +1,63 @@
+T-009 installer 拡張(install.sh / install.ps1 パリティ) — GREEN evidence
+Required Workflow: tdd
+
+Source files restored to their ci-mcp-extended state (install.sh, install.ps1
+— VALID_MCPS / MCP_LIST / ValidateSet / default array += "ci-mcp", usage/help
+text updated, and the new token-guidance notice added: install.sh prints it
+in the top-level success section gated on `mcp_selected "ci-mcp" &&
+MCP_NODE_OK`; install.ps1 prints it from Write-InstallSummary gated on
+`($Mcp -contains "ci-mcp") -and $script:McpNodeOk`, before the
+-Target=FilesOnly early return so it still fires when only files are placed).
+
+=== bash: tests/install.tests.sh ===
+Command: bash tests/install.tests.sh
+Exit code: 0
+
+...
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+...
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+
+Results: 35 passed, 0 failed.
+SH_EXIT:0
+
+(The new (v-ci) scenario — "ok: -Mcp ci-mcp installs only the selected MCP,
+with token guidance" — plus the extended (t)/(v)/(w2)/(y)/(z)/(aa)/(ab)
+assertions are included in the 35/0.)
+
+=== pwsh: tests/install.tests.ps1 ===
+Command: pwsh -NoProfile -NonInteractive -File tests/install.tests.ps1
+Exit code: 0
+
+...
+ok: -Mcp sdd-forge-mcp installs only the selected MCP
+ok: -Mcp local-env-mcp installs only the selected MCP
+ok: -Mcp ci-mcp installs only the selected MCP, with token guidance
+ok: -Mcp bogus-mcp is rejected
+ok: -Mcp "" (empty) is rejected
+...
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+Installer integration tests passed.
+PS1_EXIT:0
+
+=== mcp/ci-mcp full suite (regression check — untouched by T-009) ===
+Command: cd mcp/ci-mcp && node scripts/run-tests.mjs
+Exit code: 0
+tests 137
+pass 137
+fail 0
+
+All three suites are green. No pre-existing (sdd-forge-mcp / local-env-mcp)
+scenario changed behavior; only ci-mcp-specific assertions moved from FAIL to
+ok relative to T-009-red.txt.

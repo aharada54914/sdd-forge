@@ -1,0 +1,19 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "/tmp/shared-launch-static-20261008/bin/ruff",
+    "check",
+    "--config",
+    "tests/shared-launch-python/pyproject.toml",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:51.475535+00:00",
+  "finished_at": "2026-10-14T15:11:51.525877+00:00"
+}

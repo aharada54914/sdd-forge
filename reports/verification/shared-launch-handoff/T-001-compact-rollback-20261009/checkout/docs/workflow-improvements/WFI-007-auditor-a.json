@@ -1,0 +1,64 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-007",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All citations verify exactly: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:265 matches only reports/implementation/$feature/$task_id.md for stage:role == quality:sdd-evaluator (confirmed against the script text). All 8 flat-path citations verify against origin/main at the exact lines cited: implement-task/SKILL.md:100 ('Create `reports/implementation/<task-id>.md`'), agent-delegation-policy.md:30, implementation-policy.md:38, implement-tasks/SKILL.md:191, visual-verify-loop/SKILL.md:58, deterministic-check-policy.md:140, AGENTS.template.md:34, and lite-gate/SKILL.md:29 -- all contain the flat-path pattern as described. The 'Concrete harm' bullet (8 reports first committed flat, bulk 9-file git mv in commit e3c148e) matches the commit's actual message and reports/quality-gate/2026-07-09T021500Z-evidence-deep-verify-T-007.md:40 quote verifies verbatim. This period's FP-02 attribution (reports/retrospective/2026-07-09T0245Z-evidence-deep-verify.md, section header 'FP-02: Installed plugin skill files still document the pre-canonicalization flat implementation-report path') is correctly labeled, unlike WFI-006's cross-feature citation."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific mechanism: the independent-evaluator launch boundary was hardened to require the canonical per-feature directory, but the implementation-phase plugin's own skill/reference files and the shared bootstrap constitution template were never updated to match and are read verbatim by every implementation-phase worker, so the contradiction is structural (reproduces on every task of every full-track feature) rather than an individual drafting slip, and is only caught at gate time as a hard launch-boundary failure. It also explicitly scopes out the lightweight track with a specific reason (path-agnostic validator, no launch-boundary invocation) rather than leaving the boundary implicit -- this is a mechanism explanation, not a restatement of the symptom ('paths don't match')."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Root Cause Hypothesis, the Proposed Change Description column, and Expected Effect use only generic terms ('independent-evaluator launch boundary', 'implementation-phase plugin', 'lightweight track' -- the correct required substitution for `sdd-lite` per wfi-category-guide.md Section 2 -- and 'quality verification gate' is not used incorrectly). No forbidden bare term (e.g. `sdd-lite`, `implement-task`, `sdd-quality-loop` as gate-concept prose) appears outside the Target File column; all plugins/ path strings found by the forbidden-term scan are literal Target File citations, matching the WFI-005 precedent."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All 8 Target File rows name specific files (not directories) with non-vague descriptions (each names the precise instruction being corrected, e.g. 'the session-resumption instruction that names the report to re-read'), but every row sits inside plugins/, which is a Major finding regardless of description: `plugins/sdd-implementation/skills/implement-task/SKILL.md`, `.../references/agent-delegation-policy.md`, `.../references/implementation-policy.md`, `plugins/sdd-implementation/skills/implement-tasks/SKILL.md`, `plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md`, `plugins/sdd-quality-loop/references/deterministic-check-policy.md`, `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md`, and `plugins/sdd-lite/skills/lite-gate/SKILL.md` (confirmation-only 'No change' row, but still a Target File inside plugins/). Confirmed applied via `git diff origin/main --stat -- plugins/` (all 7 changed files match the 7 'Same path correction' rows one-for-one)."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Names a specific metric (implementation-report artifacts requiring a gate-phase path move/rename before the independent-evaluator launch boundary accepts them, per feature) and a quantitative target (baseline 9 this period -- 8 task reports + 1 addendum, matching commit e3c148e's 9 renamed files -- decreasing to 0 in the next completed feature), plus an explicit non-decreasing-guard statement."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Exactly one primary Target-Metric is named, with Baseline (9, evidence-deep-verify, 2026-07-09, decomposed as 8 task reports + 1 traceability addendum), Target (0), and Horizon/checkpoint (next completed feature retrospective) all present and unambiguous."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The plan specifies two independent observable signals (a rename/move commit touching reports/implementation/ between first commit and gate acceptance, or a launch-boundary PATH failure in a gate report), a pass/fail threshold (count == 0), and a secondary specific check (grep all 8 corrected plugin files for the flat-path pattern, confirm zero remaining occurrences outside the confirmed-excluded lite-gate/SKILL.md). Not a generic 'check if things improved' plan."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All 8 Proposed Change rows target files inside plugins/ (see CHANGE-CONCRETE for the full list). Per wfi-category-guide.md Section 1, a plugin-improvement WFI's application mechanism is a GitHub Issue created after audit completion, not a direct Proposed Change table edit to plugins/ files. This is reinforced by the WFI's own source material: the current retrospective's own Proposed Improvements table and Disposition paragraph for this exact candidate both state the target should route 'via GitHub Issue' / 'the GitHub Issue lane per wfi-category-guide.md -- not directly editable by a project-side WFI' (reports/retrospective/2026-07-09T0245Z-evidence-deep-verify.md:63, :71) -- i.e. the retrospective's own authors anticipated this content would go through the Issue lane, not a direct Target File table inside the WFI. The WFI's Category comment argues direct application is acceptable 'because this repository is the plugins' own source tree,' but this does not change the mechanical Target-File-location rule, and WFI-005 (also drafted against this same repository) was held to the identical NO-PLUGIN-SCOPE-CREEP standard in its own audit."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Proposed Change",
+      "change": "Remove the 8 direct plugins/ file edits from the Proposed Change table. Replace them with a single row whose Target File is the GitHub Issue that wfi-audit-cycle creates per wfi-category-guide.md Section 4, carrying the same 7 path corrections (and the lite-gate out-of-scope confirmation) into the Issue body verbatim -- the content is otherwise sound and well-evidenced.",
+      "rationale": "Resolves both CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP Major findings: plugins/ paths are out of scope for a WFI's direct Proposed Change table regardless of description quality or same-repository ownership; the category guide's own routing mechanism for plugin-improvement WFIs is a GitHub Issue, which the source retrospective's own Disposition paragraph for this exact candidate already specified."
+    }
+  ]
+}

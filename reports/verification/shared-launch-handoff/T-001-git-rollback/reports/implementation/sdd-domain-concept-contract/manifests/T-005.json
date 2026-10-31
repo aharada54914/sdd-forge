@@ -1,0 +1,69 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-005",
+  "run_id": "sddconcept-t-005-run-01",
+  "session_id": "sddconcept-t-005-session-01",
+  "agent_instance_id": "sddconcept-t-005-agent-01",
+  "model_tier": "standard",
+  "provider": "anthropic",
+  "model": "sonnet",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-08-18T23:41:40Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e712b8a38beafe2352c52226df1d95668aa3ccb4fe073a14efaf344a69918d8a"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/design.md",
+      "sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/tasks.md",
+      "sha256": "5be293fc118985afe57b7b5277feb81206483df0caa286055cfca97aa6ab3abe"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/security-spec.md",
+      "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"
+    },
+    {
+      "path": "contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.sh",
+      "sha256": "4613aacd33ed9c30956f218374a300503e25ddfa936e478759ca2a1253e152e4"
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "sha256": "ab0ee183b42e7515e877568158624688d25f3ce08e7cbfcc4e6d02accc334a60"
+    },
+    {
+      "path": "tests/sdd-domain/contract-schema.Tests.ps1",
+      "sha256": "5c1f3e5530a36fee1a55813ec711e910a1804510f44eb043198513ed45c4d912"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/sdd-domain/contract-v2-schema.Tests.ps1",
+    "CHANGELOG.md",
+    "specs/sdd-domain-concept-contract/verification/T-005/red.log",
+    "specs/sdd-domain-concept-contract/verification/T-005/green.log",
+    "reports/implementation/sdd-domain-concept-contract/T-005.md"
+  ]
+}

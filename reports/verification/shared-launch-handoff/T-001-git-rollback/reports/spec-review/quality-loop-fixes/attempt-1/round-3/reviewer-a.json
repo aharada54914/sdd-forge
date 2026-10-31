@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-qualityloopfixes-spec-a1r3-a-seq0324",
+  "host_session_id": "SESS-spec-a1r3-a-qualityloopfixes-0324",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-3/precheck-result.json",
+      "sha256": "567d39d90416e45d1d02fc18c26da266ffb81332a10e2f3733cf44c8e20cf7f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "9c0a4d9a6a374f181a071944a608cd805b68ebcdbf71d62c54123fe100e9d667"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 7 goals (REQ-001..REQ-007) carry concrete, file:line-anchored, script-observable contracts (e.g. REQ-001's new `<task-id> <feature> [reports-dir]` CLI with exit-2 usage error; REQ-005's enumerated jq -r sites lines 178-185,187,250-258,275,305). REQ-004's SKILL.md prose step is calibrated to document/skill-conformance review (TEST-019/020/021/031, 'reviewed against exact wording at PR time'), matching the calibration doc's False-Positive Guard exemption for prose-only deliverables (no disable-model-invocation script to exercise). No requirement lacks an observable validation path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal maps to a contiguous AC block: REQ-001->AC-001..007, REQ-002->AC-008..012, REQ-003->AC-013..018+AC-032, REQ-004->AC-019..021+AC-031, REQ-005->AC-022..026, REQ-006->AC-027..028, REQ-007->AC-029..030. Round-1's AC-031 (positive continuation branch) and round-2's AC-032 (path-traversal negative case) close the previously-missing branches for REQ-004 and REQ-003 respectively; branch enumeration is now exhaustive for every REQ (positive/negative/no-op paths each have a distinct AC, e.g. REQ-002's blocked/not-blocked-missing-header/not-blocked-body-text trio AC-008/009/010)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001..030 and the round-added AC-031/AC-032 each specify an externally observable signal: exit codes (AC-001,003,015,016,032), printed/absent digest lines (AC-015,016,018,032), exact anchored regex matches (AC-002,008,009,010), file-diff emptiness (AC-006,026), and grep-based self-checks (AC-007,028). AC-032 in particular is concrete: nonzero exit, stderr violation, sentinel-token-absent-from-bundle (grep-verifiable), no digest line. No AC states unmeasurable intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes 6 items that could otherwise expand scope: the directory-move remedy (rejected, OQ-3), restoring WFI-010's header-association concern, a general-purpose Markdown table parser, a general coverage-manifest schema outside cross-model-verify, extending PROTECTED_GATE_SUFFIXES to validate-review-context-set.sh, and a .ps1 twin for Stream 4. OQ-3's resolution also confirms the only documented caller of the changed CLI is updated in-feature, bounding blast radius."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (B1-B4) states trust boundaries, data classification, and required containment discipline for the declared-outputs check and the CRLF fix; Roles and Permissions plus two explicit protected-file carve-outs (ship/SKILL.md, .github/workflows/test.yml) define the human-approval boundary via human-copy staging with MANIFEST.sha256; REQ-006/AC-028 states the bash-3.2/PowerShell-exit compatibility constraint; Non-goals states the migration constraint (directory-move rejected due to ~121-file blast radius)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section lists 5 concrete risks, each tied to a specific validation surface: the breaking-CLI risk to AC-006 (human-copy staged prose+script land together); the Stream-2 coverage-gap risk to AC-011 (dedicated fixture); the Stream-3 path-traversal risk to AC-014's containment-reuse and the round-2-added AC-032/TEST-032 dedicated negative-case test; the .sh/.ps1 parity-drift risk to REQ-006/AC-028; and the dual-carve-out risk to the shared MANIFEST.sha256 mitigation. No high-risk claim is left without a mapped AC or recorded manual-verification path (e.g. AC-025 for the Windows-CI capability-probe flip)."
+    }
+  ]
+}

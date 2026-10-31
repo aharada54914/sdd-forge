@@ -1,0 +1,125 @@
+T-004 acceptance re-run, both runtimes, captured 2026-08-25 against the current tree, after
+this session's cross-model-panel remediation of three sh/ps1 twin divergences the anthropic
+slot recorded:
+  (a) the named-SKIP dependency list rendered with a TRAILING SPACE in Bash ('(Epic A4 )')
+      and without one in PowerShell ('(Epic A4)'). Cause: 'sed s/+$/ /', a typo for
+      's/+$//'. Fixed, and the emitted shape is now asserted in BOTH twins, so the
+      divergence cannot silently return.
+  (b) the Bash anchor-fingerprint extractor used a greedy '.\*sha256:' and took the LAST
+      digest in the sed span while the PowerShell twin's lazy match took the FIRST. They
+      agreed only because the span currently holds exactly one. Bash now takes the first.
+  (c) 'sed -n ...p | head -1' under 'set -o pipefail' coupled schema_from_design's status to
+      SIGPIPE. Replaced with a pipe-free awk. Measured: the hazard needs sed output to exceed
+      the pipe buffer, so the two-match case the finding names would NOT have tripped it;
+      the class is removed anyway.
+
+Both twins now emit byte-identical SKIP lines (verified by cmp) and both report 44/0.
+The suite's own 116-case mutation proof (mutation-proof.sh) was re-run against the modified
+suite: 116 killed, 0 survived.
+
+$ TZ=UTC LC_ALL=C bash tests/structural-compatibility.tests.sh
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+PASS: F4 named skip line renders in the twin-identical shape
+SKIP: F4/AC-007 (Epic A4): Reserved-reference absence awaits Epic A4
+PASS: F3 named skip line renders in the twin-identical shape
+SKIP: F3/AC-042 (Epic A1): structural identity awaits Epic A1
+PASS: F5 compound skip line renders in the twin-identical shape
+SKIP: F5/AC-043 (A1+A6): compound dependency not merged
+PASS: F6 compound skip line renders in the twin-identical shape
+SKIP: F6/AC-043 (A1+A6): compound dependency not merged
+PASS: Bash aggregate runner registers this shipped suite
+44 passed, 0 failed
+
+$ TZ=UTC LC_ALL=C pwsh -NoProfile -File tests/structural-compatibility.tests.ps1
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+PASS: F4 named skip line renders in the twin-identical shape
+SKIP: F4/AC-007 (Epic A4): Reserved-reference absence awaits Epic A4
+PASS: F3 named skip line renders in the twin-identical shape
+SKIP: F3/AC-042 (Epic A1): structural identity awaits Epic A1
+PASS: F5 compound skip line renders in the twin-identical shape
+SKIP: F5/AC-043 (A1+A6): compound dependency not merged
+PASS: F6 compound skip line renders in the twin-identical shape
+SKIP: F6/AC-043 (A1+A6): compound dependency not merged
+PASS: PowerShell aggregate runner registers this shipped suite
+44 passed, 0 failed
+
+$ bash specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh   # tail
+PASS: PowerShell aggregate runner registers this shipped suite
+44 passed, 0 failed
+MUTATION SUMMARY: 116 killed, 0 survived

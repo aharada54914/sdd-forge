@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "second-approval-mask",
+  "attempt": 2,
+  "round": 1,
+  "nodes": ["T-001"],
+  "edges": [],
+  "generated_at": "2026-07-12T10:24:26Z"
+}

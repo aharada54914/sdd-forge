@@ -1,0 +1,114 @@
+ok 1 - F1 constructs successfully
+ok 2 - F1 returns an existing directory
+ok 3 - F1 returns a physically normalized root
+ok 4 - F1 root is outside the real repository
+ok 5 - F1 root is fresh
+ok 6 - F1 omits AGENTS marker file
+ok 7 - F1 omits project context
+ok 8 - F2 constructs successfully
+ok 9 - F2 returns an existing directory
+ok 10 - F2 returns a physically normalized root
+ok 11 - F2 root is outside the real repository
+ok 12 - F2 root is fresh
+ok 13 - F2 writes AGENTS marker file
+ok 14 - F2 writes the lite marker
+ok 15 - F2 omits project context
+ok 16 - F3 valid constructs successfully
+ok 17 - F3 valid returns an existing directory
+ok 18 - F3 valid returns a physically normalized root
+ok 19 - F3 valid root is outside the real repository
+ok 20 - F3 valid root is fresh
+ok 21 - F3 valid omits AGENTS marker file
+ok 22 - F3 valid writes project context
+ok 23 - F3 valid is syntactically valid restricted YAML
+ok 24 - F3 valid has the expected schema field
+ok 25 - F3 invalid constructs successfully
+ok 26 - F3 invalid returns an existing directory
+ok 27 - F3 invalid returns a physically normalized root
+ok 28 - F3 invalid root is outside the real repository
+ok 29 - F3 invalid root is fresh
+ok 30 - F3 invalid omits AGENTS marker file
+ok 31 - F3 invalid writes project context
+ok 32 - F3 invalid is syntactically valid restricted YAML
+ok 33 - F3 invalid has the expected schema field
+ok 34 - F4 valid constructs successfully
+ok 35 - F4 valid returns an existing directory
+ok 36 - F4 valid returns a physically normalized root
+ok 37 - F4 valid root is outside the real repository
+ok 38 - F4 valid root is fresh
+ok 39 - F4 valid omits AGENTS marker file
+ok 40 - F4 valid writes project context
+ok 41 - F4 valid is syntactically valid restricted YAML
+ok 42 - F4 valid has the expected schema field
+ok 43 - F4 invalid constructs successfully
+ok 44 - F4 invalid returns an existing directory
+ok 45 - F4 invalid returns a physically normalized root
+ok 46 - F4 invalid root is outside the real repository
+ok 47 - F4 invalid root is fresh
+ok 48 - F4 invalid omits AGENTS marker file
+ok 49 - F4 invalid writes project context
+ok 50 - F4 invalid is syntactically valid restricted YAML
+ok 51 - F4 invalid has the expected schema field
+ok 52 - F3 invalid YAML differs from valid YAML in exactly the schema field
+ok 53 - F4 invalid YAML differs from valid YAML in exactly the schema field
+ok 54 - F3 valid has the expected validate-approval-sidecar verdict
+ok 55 - F3 invalid has the expected validate-approval-sidecar verdict
+ok 56 - F4 valid has the expected validate-approval-sidecar verdict
+ok 57 - F4 invalid has the expected validate-approval-sidecar verdict
+ok 58 - legacy none marker-present constructs successfully
+ok 59 - legacy none marker-present returns an existing directory
+ok 60 - legacy none marker-present returns a physically normalized root
+ok 61 - legacy none marker-present root is outside the real repository
+ok 62 - legacy none marker-present root is fresh
+ok 63 - legacy none marker-present writes AGENTS marker file
+ok 64 - legacy none marker-present writes the lite marker
+ok 65 - legacy none marker-present omits project context
+ok 66 - legacy none marker-absent constructs successfully
+ok 67 - legacy none marker-absent returns an existing directory
+ok 68 - legacy none marker-absent returns a physically normalized root
+ok 69 - legacy none marker-absent root is outside the real repository
+ok 70 - legacy none marker-absent root is fresh
+ok 71 - legacy none marker-absent omits AGENTS marker file
+ok 72 - legacy none marker-absent omits project context
+ok 73 - legacy --full marker-present constructs successfully
+ok 74 - legacy --full marker-present returns an existing directory
+ok 75 - legacy --full marker-present returns a physically normalized root
+ok 76 - legacy --full marker-present root is outside the real repository
+ok 77 - legacy --full marker-present root is fresh
+ok 78 - legacy --full marker-present writes AGENTS marker file
+ok 79 - legacy --full marker-present writes the lite marker
+ok 80 - legacy --full marker-present omits project context
+ok 81 - legacy --full marker-absent constructs successfully
+ok 82 - legacy --full marker-absent returns an existing directory
+ok 83 - legacy --full marker-absent returns a physically normalized root
+ok 84 - legacy --full marker-absent root is outside the real repository
+ok 85 - legacy --full marker-absent root is fresh
+ok 86 - legacy --full marker-absent omits AGENTS marker file
+ok 87 - legacy --full marker-absent omits project context
+ok 88 - legacy --lite marker-present constructs successfully
+ok 89 - legacy --lite marker-present returns an existing directory
+ok 90 - legacy --lite marker-present returns a physically normalized root
+ok 91 - legacy --lite marker-present root is outside the real repository
+ok 92 - legacy --lite marker-present root is fresh
+ok 93 - legacy --lite marker-present writes AGENTS marker file
+ok 94 - legacy --lite marker-present writes the lite marker
+ok 95 - legacy --lite marker-present omits project context
+ok 96 - legacy --lite marker-absent constructs successfully
+ok 97 - legacy --lite marker-absent returns an existing directory
+ok 98 - legacy --lite marker-absent returns a physically normalized root
+ok 99 - legacy --lite marker-absent root is outside the real repository
+ok 100 - legacy --lite marker-absent root is fresh
+ok 101 - legacy --lite marker-absent omits AGENTS marker file
+ok 102 - legacy --lite marker-absent omits project context
+ok 103 - invalid argument tuple is rejected: unknown absent disabled-legacy valid none
+ok 104 - invalid argument tuple is rejected: Present absent disabled-legacy valid none
+ok 105 - invalid argument tuple is rejected: absent unknown disabled-legacy valid none
+ok 106 - invalid argument tuple is rejected: absent absent unknown valid none
+ok 107 - invalid argument tuple is rejected: absent absent disabled-legacy unknown none
+ok 108 - invalid argument tuple is rejected: absent absent disabled-legacy valid --unknown
+ok 109 - invalid argument tuple is rejected: absent absent disabled-legacy valid --FULL
+ok 110 - invalid argument tuple is rejected: present absent disabled-legacy valid none
+ok 111 - invalid argument tuple is rejected: absent absent disabled-legacy valid none extra
+ok 112 - a missing fifth argument reaches the explicit arity guard
+ok 113 - sourced builder is not registered as an independent suite
+RESULT: PASS=113 FAIL=0

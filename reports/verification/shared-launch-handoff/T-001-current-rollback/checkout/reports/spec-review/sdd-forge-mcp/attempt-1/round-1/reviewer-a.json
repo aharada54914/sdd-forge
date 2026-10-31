@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-sddforgemcp-a1r1-20260704-e42b",
+  "host_session_id": "hs-spec-a-7ea701ba-0002",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "95762a14ae3579024a7fbfe2fc58c36a020198a735a8c8d9521aa06b7a715261"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+      "sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope REQ (requirements.md lines 29-72) states a decision procedure or checkable artifact: REQ-005 requires a golden test matching check-task-state.sh across the 6 existing specs; REQ-006 lists concrete allowlist/denylist entries and traversal rules; REQ-008 requires CI verification that rebuilt src/ matches committed dist/; REQ-011 requires a deterministic mapping with an explicit cannot-determine fallback. All map to Planned tests in acceptance-tests.md (TEST-001..014) with concrete test targets, so an implementer/verifier has enough to validate later."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-002 lists 8 named core tools (list_active_specs, get_spec_status, get_task_state, list_approved_tasks, list_blocked_tasks, list_review_tickets, get_quality_gate_summary, get_next_sdd_command), but acceptance-tests.md only traces REQ-002 to AC-005, whose test target is an Inspector smoke test invoking a representative tool, not all 8. Likewise REQ-007 (root is fixed at startup via --root > SDD_FORGE_ROOT > cwd, with no runtime change mechanism) has no acceptance criterion at all in the traceability table. A task author scoping verification work cannot tell whether per-tool behavioral acceptance (beyond golden/evidence/resource-specific ACs already covering get_task_state, evidence tools, and resources) or root-immutability is expected to be tested, versus assumed covered by the smoke test. This is a specification-level gap (acceptance criteria are a Phase 1 artifact) rather than a later quality-gate issue, and it is Major because it is a missing observable acceptance criterion for stated goals, not a contradiction or safety boundary."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria in acceptance-tests.md specify externally observable outcomes: AC-001 exact match of verdict/failures[] against check-task-state.sh exit code/messages; AC-003/004 rejection of specific traversal inputs and absence of denylist content in responses; AC-010 CI byte-level dist/src rebuild equivalence; AC-011 static absence of write APIs plus unchanged repo mtime/content pre/post execution. These are concrete, checkable artifacts rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals section (lines 74-82) explicitly excludes knowledge-mcp/local-env-mcp, all write tools (Approval changes, SDD_SUDO, tasks.md transitions), Cursor/VS Code integration, CI artifact retrieval via gh, npm registry publish, and evidence signature verification execution, closing off the areas where this read-only server could otherwise expand into write or execution duties."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: REQ-006 names concrete allowlist paths (specs/, reports/, docs/review-tickets/, docs/workflow-improvements/, AGENTS.md) and denylist items (SDD_SUDO flag file, SDD_EVIDENCE_KEY/_FILE, ~/.sdd/evidence-key, .env); the Security Boundaries table (lines 152-159) states trust boundaries B1/B2 with fail-closed path handling; REQ-007 fixes root-resolution precedence; REQ-008/Assumptions require Node.js >= 20 only, no npm install at runtime; REQ-009 requires bash 3.2 compatibility for installer scripts."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's high-risk claim ('parser misjudgment leads to false quality-gate pass since this server's output feeds quality-gate decisions') has an explicit validation surface: REQ-005 and AC-001/TEST-001 require a golden test asserting exact equivalence with check-task-state.sh across all 6 existing specs, run continuously in CI per the acceptance-tests.md Notes section."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-196-a8-integration",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0779",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0779",
+  "manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-2/round-1/dependency-graph.json", "sha256": "26016cdfd69ee7a100d1d92150ec7b214ea0d25fa733e7bbf4587d5a7aca6a3d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-2/round-1/precheck-result.json", "sha256": "ca234e376f88693dd5549c4af88f487c8be845b4a1c0a85d5e534df66df78065"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md", "sha256": "3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md", "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "Every AC-NNN cited in tasks.md Requirements fields (AC-001 through AC-030 across T-001..T-008) resolves to a real row in acceptance-tests.md, which enumerates exactly AC-001-AC-030. No dangling ID found."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "All 8 tasks' Blockers fields use 'None' or comma-separated T-NNN lists (T-003: T-002; T-007: T-001, T-002, T-003, T-005, T-006; T-008: T-001, T-005). No range notation or prose. Matches precheck-result.json's blockers_format_valid: true."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "REQ-001 (T-001), REQ-002 (T-003), REQ-003 (T-004, T-005, T-008), REQ-004 (T-006), REQ-005 (T-002, T-003), REQ-006 (T-005, T-007), REQ-007 (T-007) all appear in at least one task's Requirements field. No requirements.md REQ is uncovered."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "traceability.md's Acceptance Mapping table assigns all 30 ACs (AC-001-AC-030) to exactly one task each, and cross-checking against tasks.md Requirements fields confirms the same assignment (e.g. AC-028 -> T-005, AC-024 -> T-003 share). No AC is unaccounted for."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "Every task (T-001..T-008) cites at least one REQ-NNN in its Requirements field (e.g. T-003: REQ-002 + REQ-005 share). No orphan tasks."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "T-001 ('...test driver') and T-004 ('Extend tests/cli-hook-enforcement.ps1...') are the only titles matching the test/spec/verify trigger, and both carry explicit AC references (T-001: AC-001-006; T-004: AC-012, AC-017). No orphaned test task."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "Post-implementation provenance re-review lifecycle rule applied per invocation context: all 8 tasks carry Approval: Approved (sudo 2026-08-08T16:33:11Z) -- a workflow-bypass-mode audit mark -- and Status: Planned, which is within the allowed set {Planned, In Progress, Blocked, Implementation Complete, Done}."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "All 8 Risk/Required-Workflow pairs match risk-gate-matrix.md (medium->acceptance-first for T-001/T-003/T-006/T-007; high->tdd for T-002/T-004/T-005/T-008). Consistent with precheck-result.json workflow_match_precheck: PASS."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "Enumerating every task's Requirements-field AC list totals exactly 30 entries covering AC-001-AC-030 with no repeats; T-003's AC-024 is the only cross-REQ 'share' reference and appears in no other task's Requirements field."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "Every Blockers reference (T-003->T-002; T-007->T-001/T-002/T-003/T-005/T-006; T-008->T-001/T-005) resolves to a task ID present in dependency-graph.json's nodes array (T-001..T-008)."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "BLOCKERS-FORMAT is PASS so this check runs. dependency-graph.json edges (T-003->T-002; T-007->{T-001,T-002,T-003,T-005,T-006}; T-008->{T-001,T-005}) form a DAG with no path revisiting a node."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "tasks.md is byte-identical (sha256 3568d38c...) to the content bound by attempt-1 round-3's persisted task-review PASS evidence. On independent inspection, no title or scope combines distinct feature concerns: T-001's 'fixture and test driver' and T-008's 'Classify...and author its draft SKIP records' both tie the second clause directly to verification/artifact-recording of the first clause (exception 1), and T-008's bundled HUMAN APPLY STEP is scoped housekeeping for the same security boundary its Risk Rationale names as one integrated concern. No finding to suppress; advisory note only for transparency given prior attempt-1/round-3 PASS at reports/task-review/epic-196-a8-integration/attempt-1/round-3/."},
+    {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Major", "finding": "tasks.md is byte-identical to attempt-1 round-3's pinned content. Done When items across all 8 tasks name concrete TEST-NNN references, machine-checkable oracles (e.g. T-006's copied_bytes_sha256, T-005's named error codes), and independent quality-gate verdicts; none uses forbidden vague verbs (ensure/consider/works correctly) without a concrete target, and none requires editing a frozen artifact (T-007 explicitly places investigation.md/requirements.md/design.md/acceptance-tests.md edits Out of Scope). No finding to suppress."},
+    {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Major", "finding": "All 8 task IDs (T-001..T-008) appear in traceability.md's Task Mapping table; all 7 REQ IDs (REQ-001..REQ-007) in traceability.md exist in requirements.md. Layer Spec cells cite infra-spec.md#deployment-topology/#cicd-sequence/#environments/#data-residency-and-retention/#observability, security-spec.md#trust-boundaries, and frontend-spec.md#technology-stack, all of which resolve to real headings verified in the hash-bound layer files; REQ-007's 'N/A -- cross-layer only' entry is the sole reasoned exception, matching the stated pattern."}
+  ],
+  "findings": []
+}

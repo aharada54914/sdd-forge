@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "b3b0b97dfdf56eced42c97b9a6cf94bd2d188afc0eeb6f36bab64a9774935eb6",
+  "acceptance_sha256": "f10ae2912f1add647384211769811e20f21cd46fa44f0637a65958b41a961337",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "bbf52a45f392b9727a34094d4cd9a849d5ab741a1aa82969b6687e27b2f1f0cb",
+  "edit_summary": "Enumerated the exhaustive layer-template contract, added uppercase and underscore slug boundaries, and replaced assumptions with repository-backed decisions.",
+  "reset": false,
+  "generated_at": "2026-06-29T12:55:00Z"
+}

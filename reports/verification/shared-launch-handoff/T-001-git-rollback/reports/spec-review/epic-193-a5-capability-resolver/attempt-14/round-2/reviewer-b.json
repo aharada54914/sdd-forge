@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a14r2-seq0880",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a14r2-0880",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "19add7136f081c2651fbb5ecec08a5ee3e869112dd3e15681a2ca47626ae1aea"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "3630e70fe17611a8adc056de00d594cce1a7663fd3acf34087c845b726ae1c72"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-2/precheck-result.json", "sha256": "839d6a0d5ef5e235e24af2bff5b12737d0aefd61fdf980d2a91fbe4fbb2c2ba6"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-2/integrated-summary.json", "sha256": "28e73c79aecd2b171e1a13a24c269834508f5179a1e8dca00c62e9064fc33065"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's amended Ruling Annotations block (:928-951) now states plainly that the three owner rulings (a)/(A)/(B) are recorded in investigation.md, mirrored in acceptance-tests.md's own marked rows, and, since ruling (G), in design.md's own annotated sites — this reads unambiguously as a pointer to a Phase-2 document out of this gate's scope, not as new behavioral content requiring further disambiguation. No term, actor, state, input, or output central to REQ-001..REQ-008 or the amended AC-016/AC-056 rows was left underspecified by this round's edit."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "investigation.md's Ruling (G) executed-amendment paragraph (:2860-2871) now cites the two containment-refusal verification artifacts (tests/resolve-project-context-block.tests.sh, sha256 a06cb73c...; verification/T-007/green-shipped-sh.log:365, sha256 739c528d...) with each artifact's own SHA-256 and the binding commit fa59914ef6957a21fe3de8b9fc8d9edaee35f1e1 — resolving round 1's Critical (bare-path citation violating the calibration's Amendment Re-Review Context evidence-bar element 4). requirements.md's own Ruling Annotations mirror enumeration (:928-951) was correspondingly widened to name design.md as a third annotated-sites document, matching acceptance-tests.md's own scope, closing the under-inclusiveness that had left the two documents' cross-references out of step. No new conflict between requirements.md, acceptance-tests.md, and investigation.md was introduced by either edit; both amend citation completeness only, per each document's own 'no behavioral requirement changed' statement."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's AC-038 through AC-059 rows (added across prior rounds and untouched by this round) independently fixture crash-mid-transaction recovery (AC-047), pre/post-publication TOCTOU races (AC-039/AC-040/AC-048/AC-049), symlinked and out-of-directory publication targets (via the ruling (a)/(A) markers now bound to AC-011/AC-012/AC-039/AC-047/AC-049), zero-affected-component and zero-match states (AC-018, AC-009), duplicate-facet aggregation both cross- and same-Capability (AC-043/AC-052), and the two dual-artifact-scope sub-cases of output-schema-validation-failed (AC-055). This round's edit touched none of this coverage and introduced no new untested branch."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (:1433-1458) states each of its three assumptions with an explicit fallback plan if the assumption fails (a design.md follow-up edit; a re-verification-then-alternate-sequencing step; a re-verification-at-implementation-start disclaimer), and Open Questions OQ-001/OQ-002 (:1460-1467) are explicitly left to a named future epic/caller rather than silently assumed, with OQ-003 marked resolved by this revision. This round's edit did not touch these sections and introduces no new unresolved assumption."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-059/TEST-059 (added under ruling E, unchanged this round) locks a repository-wide grep self-check that the Resolver performs no write to any *.approval.json sidecar, sdd/.approved-context/ path, or guard-invariants.json — the deny-list counterpart to the Security Boundaries bullet naming this same boundary. This is a concrete, testable approval/irreversible-change boundary; this round's edit does not touch it and introduces no regression."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The requirements/acceptance-tests pair fixes CLI shape, exit codes, the closed 16-value diagnostic enum, field-by-field output rules delegated to already-Passed sibling epics, and a fully enumerated Ruling Annotations bounding rule now consistently naming all three frozen documents (investigation.md, acceptance-tests.md, design.md) as annotated sites. Nothing in this round's edit requires a downstream reviewer to invent missing product behavior; the citation completeness fix improves, rather than degrades, downstream readiness by removing an ambiguous cross-document pointer."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (Glob for domain/context-map.md returned no matches), so the domain-conformance precondition is absent; recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

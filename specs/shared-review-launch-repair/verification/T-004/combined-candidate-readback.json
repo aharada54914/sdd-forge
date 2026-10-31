@@ -1,0 +1,808 @@
+[
+  {
+    "path": ".github/workflows/test.yml",
+    "expected": {
+      "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "contracts/task-input-manifest.schema.json",
+    "expected": {
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1",
+    "expected": {
+      "sha256": "aa1593b9349c0de434a8125a4d15d3a050ff93fc90f538456520aa2b5ad00dbe",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "aa1593b9349c0de434a8125a4d15d3a050ff93fc90f538456520aa2b5ad00dbe",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+    "expected": {
+      "sha256": "40f35e11b76a30ab38f183a772f1f18a35b0b2be8aaab399b012afeb4e96fa68",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "40f35e11b76a30ab38f183a772f1f18a35b0b2be8aaab399b012afeb4e96fa68",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+    "expected": {
+      "sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "expected": {
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+    "expected": {
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "expected": {
+      "sha256": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+    "expected": {
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "expected": {
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "expected": {
+      "sha256": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "expected": {
+      "sha256": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "expected": {
+      "sha256": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "expected": {
+      "sha256": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "expected": {
+      "sha256": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "expected": {
+      "sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "expected": {
+      "sha256": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+    "expected": {
+      "sha256": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+    "expected": {
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+    "expected": {
+      "sha256": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "expected": {
+      "sha256": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "expected": {
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+    "expected": {
+      "sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+    "expected": {
+      "sha256": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "expected": {
+      "sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+    "expected": {
+      "sha256": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "expected": {
+      "sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "expected": {
+      "sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "expected": {
+      "sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+    "expected": {
+      "sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+    "expected": {
+      "sha256": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+    "expected": {
+      "sha256": "ed64eb57ca2db43810205a9b214ec2a7246cd5d6ca8d82798609c0afb5a315b3",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "ed64eb57ca2db43810205a9b214ec2a7246cd5d6ca8d82798609c0afb5a315b3",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+    "expected": {
+      "sha256": "5743d637684e6d16ba452386b19fb944b00557ee3f399e3e101252e7c0d6187d",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "5743d637684e6d16ba452386b19fb944b00557ee3f399e3e101252e7c0d6187d",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+    "expected": {
+      "sha256": "238e835d6283ac2489fc0b2df3786384e051c7c044d7032425c9e0e80474ee90",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "238e835d6283ac2489fc0b2df3786384e051c7c044d7032425c9e0e80474ee90",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+    "expected": {
+      "sha256": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+    "expected": {
+      "sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "expected": {
+      "sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "expected": {
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "expected": {
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    "expected": {
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+    "expected": {
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "expected": {
+      "sha256": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/quality-nontty-transport.tests.py",
+    "expected": {
+      "sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/review-agent-isolation.tests.sh",
+    "expected": {
+      "sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/review-conditional-inputs.tests.py",
+    "expected": {
+      "sha256": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/review-context-boundary.tests.sh",
+    "expected": {
+      "sha256": "f8d6a0835d28285e74543f587798e9e4bba73bf15ff1c97ee19ea41cca1a8cff",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "f8d6a0835d28285e74543f587798e9e4bba73bf15ff1c97ee19ea41cca1a8cff",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/review-hash-normalization.tests.ps1",
+    "expected": {
+      "sha256": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/review-scratch-history.tests.py",
+    "expected": {
+      "sha256": "9b201b1434ba2198a51cfedb6b838ed8bb98ee2ba6983ace296b7f3566bf6cff",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "9b201b1434ba2198a51cfedb6b838ed8bb98ee2ba6983ace296b7f3566bf6cff",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/run-all.ps1",
+    "expected": {
+      "sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/run-all.sh",
+    "expected": {
+      "sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+      "mode": 493
+    },
+    "actual": {
+      "sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+      "mode": 493
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/shared-launch-build.tests.py",
+    "expected": {
+      "sha256": "5e37fd8c3e2947bd6c11ed3c0c8405272dea6a17d445028d11d0dc074b308449",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "5e37fd8c3e2947bd6c11ed3c0c8405272dea6a17d445028d11d0dc074b308449",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/shared-launch-python-requirements.txt",
+    "expected": {
+      "sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/shared-launch-python/pyproject.toml",
+    "expected": {
+      "sha256": "9e5e7a146ad8db69f39f4342f391ff24c3fd108d55c4b69b6a2fef6c9445ec12",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "9e5e7a146ad8db69f39f4342f391ff24c3fd108d55c4b69b6a2fef6c9445ec12",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/spec-review-verify-inputs.tests.py",
+    "expected": {
+      "sha256": "2bd313dd08284d5a7598bba5d2615c0a68ad3761091e32319ccf5c14c4d07d40",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "2bd313dd08284d5a7598bba5d2615c0a68ad3761091e32319ccf5c14c4d07d40",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/supplemental-delivery-declaration.tests.py",
+    "expected": {
+      "sha256": "71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/t001-evaluation-preparation.tests.py",
+    "expected": {
+      "sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/task-context-isolation.tests.ps1",
+    "expected": {
+      "sha256": "13f5e17504fbcfda9d682f1ed656772fbf67c52ac6be07c586bd318aeb49e208",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "13f5e17504fbcfda9d682f1ed656772fbf67c52ac6be07c586bd318aeb49e208",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/task-context-isolation.tests.sh",
+    "expected": {
+      "sha256": "8215907fec7fcf618387112bed1d769b5ffa94153a57a0ccfdeb4c6d25aad51c",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "8215907fec7fcf618387112bed1d769b5ffa94153a57a0ccfdeb4c6d25aad51c",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/task-structured-output.tests.py",
+    "expected": {
+      "sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/traceability-freeze-contract.tests.py",
+    "expected": {
+      "sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/unified-launch-order.tests.py",
+    "expected": {
+      "sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  },
+  {
+    "path": "tests/unified-task-launch.tests.py",
+    "expected": {
+      "sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "mode": 420
+    },
+    "actual": {
+      "sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "mode": 420
+    },
+    "owner_preserved": true,
+    "baseline_preserved": true
+  }
+]

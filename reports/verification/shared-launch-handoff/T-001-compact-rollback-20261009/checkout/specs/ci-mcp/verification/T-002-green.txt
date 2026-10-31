@@ -1,0 +1,56 @@
+$ npm test
+# (pretest: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs enumerating dist-test/tests/**/*.test.js)
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> ci-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ ok() builds a success envelope (0.545166ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.069417ms)
+✔ ErrorCode union matches the contract error.code enum exactly (10 codes) (0.495833ms)
+✔ the 7 pre-existing codes and the 3 ci-mcp additions are all present (0.057167ms)
+✔ buildServer() constructs a server with zero tools registered (T-001 scope) (2.160292ms)
+✔ buildServer() never reads a GitHub token env var during construction (0.305625ms)
+✔ 401 always maps to auth-missing with details.status:401, never upstream-error (1.02775ms)
+✔ 403 with x-ratelimit-remaining:0 maps to rate-limited (0.09575ms)
+✔ 403 with retry-after maps to rate-limited (0.712292ms)
+✔ 403 without any rate-limit indicator maps to upstream-error with details.status:403 (never path-denied) (0.095958ms)
+✔ 404 maps to not-found (0.0595ms)
+✔ 429 maps to rate-limited (0.052625ms)
+✔ 5xx maps to upstream-error (0.073584ms)
+✔ 2xx is not an error (returns undefined) (0.048041ms)
+✔ network failure maps to upstream-error (0.056ms)
+✔ AC-011: rate-limited details carry only a non-sensitive reset time, never a token (0.140542ms)
+✔ AC-011: malformed x-ratelimit-reset header is ignored (details omits the field, still rate-limited) (0.055208ms)
+✔ error message strings are fixed and non-sensitive (never echo header/body content) (0.05375ms)
+✔ GET is the only HTTP method ever issued, host is fixed to api.github.com (0.492792ms)
+✔ path segments cannot change the host even when they look like a host or contain separators (0.104417ms)
+✔ no other HTTP method literal (POST/PUT/PATCH/DELETE) appears in github-client.ts source (0.19225ms)
+✔ Authorization header is attached only when a token is provided (0.098209ms)
+✔ successful 2xx response resolves to ok:true with the parsed body (0.07575ms)
+✔ AC-010: 401 maps deterministically to auth-missing and never leaks the upstream body (0.083417ms)
+✔ AC-010: 403 with rate-limit indicator maps deterministically to rate-limited and never leaks the upstream body (0.098625ms)
+✔ AC-010: 403 without indicator maps deterministically to upstream-error and never leaks the upstream body (0.042667ms)
+✔ AC-010: 404 maps deterministically to not-found and never leaks the upstream body (0.053833ms)
+✔ AC-010: 429 maps deterministically to rate-limited and never leaks the upstream body (0.080958ms)
+✔ AC-010: 500 maps deterministically to upstream-error and never leaks the upstream body (0.053791ms)
+✔ AC-010: 503 maps deterministically to upstream-error and never leaks the upstream body (0.040833ms)
+✔ AC-010: network failure (fetch throws) maps to upstream-error (0.086209ms)
+✔ a non-JSON upstream body on an otherwise-2xx response yields upstream-error (not a thrown exception) (0.073417ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.513083
+
+npm test exit code: 0
+
+$ npx tsc --noEmit
+(no output)
+typecheck exit code: 0

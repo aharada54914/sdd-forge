@@ -1,0 +1,133 @@
+==============================================================================
+T-001 SELF-CHECK EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29 (UTC), same run as green.log
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+Every block below is the verbatim stdout of the command named above it, run
+from the repository root /Users/jrmag/Projects/active/sdd-forge-wt-phase4
+(worktree, branch feature/epic-136-phase4).
+==============================================================================
+
+------------------------------------------------------------------------------
+AC-015 LEG -- fresh SUFFIX match of the 4 paths this task writes against
+PROTECTED_GATE_SUFFIXES and PHASE2_HUMAN_COPY_TARGETS, re-read live from
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js at
+implementation time (NOT carried forward from investigation.md's or tasks.md's
+authoring-time snapshot). Matching is by path SUFFIX, matching the guard's own
+rule, not by substring.
+
+COMMAND: node -e '<suffix comparison over the generated invariants module>'
+------------------------------------------------------------------------------
+PROTECTED_GATE_SUFFIXES entries: 42
+PHASE2_HUMAN_COPY_TARGETS entries: 18
+mcp/sdd-forge-mcp/src/tools/evidence.ts -> gate matches: 0, human-copy matches: 0
+contracts/sdd-forge-mcp-tools.v1.schema.json -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/dist/index.js -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts -> gate matches: 0, human-copy matches: 0
+TOTAL MATCHES ACROSS ALL 4 PATHS: 0
+AC-015 LEG: PASS (zero matches)
+
+------------------------------------------------------------------------------
+RE-VERIFY item 2 (tasks.md Global Constraints) -- mcp/sdd-forge-mcp/package.json's
+private/publishConfig/files/exports fields. requirements.md Assumptions makes
+these the factual basis for REQ-005/BL-004's `required`-not-`optional` choice.
+Re-read at implementation start; the basis holds (private, unpublished, no
+publishConfig/files/exports).
+
+COMMAND: node -e '<read mcp/sdd-forge-mcp/package.json>'
+------------------------------------------------------------------------------
+private: true
+publishConfig: null
+files: null
+exports: null
+
+------------------------------------------------------------------------------
+NO-VERSION-LITERAL SELF-CHECK -- no version string mutated anywhere outside
+scripts/bump-version.sh (which this task does not touch at all).
+
+COMMAND: git diff -U0 -- mcp/sdd-forge-mcp/src/tools/evidence.ts \
+  contracts/sdd-forge-mcp-tools.v1.schema.json \
+  mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts \
+  | grep -E '^\+' | grep -vE '^\+\+\+' | grep -E '[0-9]+\.[0-9]+\.[0-9]+'
+------------------------------------------------------------------------------
+(none)
+
+COMMAND: git status --short -- scripts/bump-version.sh
+------------------------------------------------------------------------------
+(empty = untouched)
+
+------------------------------------------------------------------------------
+OUT-OF-SCOPE / FROZEN SURFACES CONFIRMED UNTOUCHED. Covers the hash-bound spec
+documents (requirements.md, design.md, acceptance-tests.md, traceability.md),
+the T-005-owned doc surfaces (CHANGELOG.md, USERGUIDE.md), and the guard/CI
+surfaces this task must not touch.
+
+COMMAND: git status --short -- .github/workflows plugins CHANGELOG.md USERGUIDE.md \
+  specs/epic-136-phase4-mcp/requirements.md specs/epic-136-phase4-mcp/design.md \
+  specs/epic-136-phase4-mcp/acceptance-tests.md specs/epic-136-phase4-mcp/traceability.md
+------------------------------------------------------------------------------
+(empty = none modified)
+
+COMMAND: git status --short   (whole working tree, before the report commit)
+------------------------------------------------------------------------------
+ M contracts/sdd-forge-mcp-tools.v1.schema.json
+ M mcp/sdd-forge-mcp/dist/index.js
+ M mcp/sdd-forge-mcp/src/tools/evidence.ts
+ M mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+ M specs/epic-136-phase4-mcp/tasks.md
+?? specs/epic-136-phase4-mcp/verification/
+
+------------------------------------------------------------------------------
+REPOSITORY GATE: ./scripts/check-sdd-structure.sh
+------------------------------------------------------------------------------
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+EXIT: 0
+
+------------------------------------------------------------------------------
+REPOSITORY GATE: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh
+
+Run three ways. The two runs over the files this task actually changes both
+pass. The whole-directory run reports 2 findings, and BOTH are lines of
+captured test-runner output inside this task's own red.log/green.log -- the
+PASS line of an unrelated, pre-existing test whose NAME contains the marker
+literal (mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts:129,
+`test("src/ contains no TODO/FIXME/stub/placeholder markers", ...)`). They are
+not placeholders in this task's deliverables. The logs are left byte-verbatim
+rather than edited, matching this repository's established precedent: tracked
+verification logs already carry the same marker literals on their own PASS
+lines, e.g. specs/agent-cost-context-isolation/verification/T-008/green.log:474
+and :692, and specs/cross-model-verification/verification/T-003.green.log --
+both committed and both scanning clean at their own feature's gate. The
+scanner's own usage note ("Pass changed production files (not test fixtures)")
+scopes it to production files, which is the run recorded first below.
+------------------------------------------------------------------------------
+COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+  mcp/sdd-forge-mcp/src/tools/evidence.ts \
+  contracts/sdd-forge-mcp-tools.v1.schema.json \
+  mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+Placeholder scan passed.
+EXIT: 0
+
+COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+  specs/epic-136-phase4-mcp/{tasks,requirements,design,acceptance-tests,traceability,investigation,security-spec,infra-spec,ux-spec,frontend-spec}.md
+Placeholder scan passed.
+EXIT: 0
+
+COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-136-phase4-mcp
+Placeholder scan FAILED (2 finding(s)):
+ - specs/epic-136-phase4-mcp/verification/T-001/green.log:200:✔ src/ contains no TODO/FIXME/stub/placeholder markers (1.186541ms)
+ - specs/epic-136-phase4-mcp/verification/T-001/red.log:191:✔ src/ contains no TODO/FIXME/stub/placeholder markers (1.39225ms)
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+EXIT: 1
+
+(Both findings are ✔ PASS lines of the unrelated static-check suite, echoed
+verbatim by this task's own captured npm test output. Disclosed here and in the
+implementation report rather than silently edited out of the evidence.)
+
+------------------------------------------------------------------------------
+DIST PARITY (AC-010 leg) -- recorded in green.log for the build itself; the
+post-commit re-verification is recorded in dist-parity.log.
+------------------------------------------------------------------------------

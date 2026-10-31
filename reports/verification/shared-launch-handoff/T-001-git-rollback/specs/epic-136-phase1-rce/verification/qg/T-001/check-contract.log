@@ -1,0 +1,3 @@
+Command: bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase1-rce/verification/T-001.contract.json .
+
+Verification contract passed for task T-001.

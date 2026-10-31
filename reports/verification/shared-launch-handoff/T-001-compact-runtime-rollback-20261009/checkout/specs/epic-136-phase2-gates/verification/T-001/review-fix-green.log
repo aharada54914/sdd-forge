@@ -1,0 +1,22 @@
+RT-20260715-001 GREEN verification, 2026-07-15T06:26:00Z
+
+Commands used the staged manifest-bound candidates through `GUARD_PY`,
+`GUARD_JS`, and `GUARD_PS1`:
+
+```text
+> powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-tokenizer.tests.ps1
+phase2-guard-tokenizer.tests.ps1: 13 passed, 0 failed
+exit 0
+
+> bash tests/phase2-guard-tokenizer.tests.sh
+ok: 18 manifest-bound candidate hashes matched their exact protected targets
+ok: legal: terminal quoted escaped pipe plus standalone fd duplicate (all exit 0)
+ok: all prior protected-write denial cases remained exit 2 in all runtimes
+phase2-guard-tokenizer.tests.sh: 19 passed, 0 failed
+exit 0
+```
+
+The only staged implementation change is JavaScript tokenizer escape-pair
+indexing (`i += 2` to `i += 1`); the loop's ordinary increment then advances
+once to the following byte, matching the Python and PowerShell while-loop
+semantics.

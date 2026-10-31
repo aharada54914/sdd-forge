@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-b-seq0215",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a2-0215",
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Design Decisions section (lines 404-445) states a rationale for every inline decision: OQ-4 direct mktemp-local invocations rationale (design.md:298-301,413-415); OQ-5 full-parity port justified by explicit rejection of the two alternatives (design.md:366-374); OQ-6 no loop-driver.ps1 change needed with line citations (design.md:418-420); CANONICAL_BASENAMES non-extension with ownership-boundary rationale (design.md:427-437); downstream-review-precheck-parity non-extension citing issue scope and the self-healing signal (design.md:438-445). No 'we will use X' statement lacking a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Open Questions section (design.md:527-535) contains zero open entries: 'None blocking. All investigation.md OQ-1..OQ-7 are resolved above with design decisions', and the two additional decisions are recorded as resolved."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Assumptions entries (design.md:513-525) are grounded: loop-driver.ps1 existence-guard dispatch stability (INV-016/017/021, re-verified with exact line citations); check-placeholders grep-exit-code branching stability (INV-012, already landed at HEAD); the .sh line-citation staleness note has its basis stated inline. investigation.md is present, so the fallback rule does not apply."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md has a Constraint Compliance section (design.md:502-511, 6 rows), triggering the Primary/TYPE-D rule. requirements.md's Edge Cases (requirements.md:468-483) impose four explicit must-constraints tied to AC-018/TEST-018 CI-resilience conformance (acceptance-tests.md:27, REQ-001/REQ-002): INV-029 bash-3.2 empty-array-under-set-u safety, INV-030 macOS TMPDIR pwd -P normalization, INV-031 Windows jq CRLF stripping, INV-032 real-validator Windows-CRLF fragility gating via the capability probe. A grep of design.md confirms zero matches for INV-029..032, 'pwd -P', 'tr -d', 'bash-3.2', 'set -u', 'CRLF', 'validator', or 'AC-018' anywhere including the Constraint Compliance table. Concrete and material: the HITL and WFI-audit legs each create their own new mktemp fixture roots (design.md:171-172, 225-226) NOT created via loop_fixture_init (which normalizes with pwd -P internally), so nothing commits these new roots to INV-030's normalization, nor does the 0->1->2->3 sweep logic commit to INV-029's bash-3.2-safe array handling; a competent implementer following design.md alone could produce a suite that fails on macOS CI or bash 3.2 despite AC-018/TEST-018 requiring exactly this resilience. Per this check's contract, a constraint with no compliance statement is a Critical finding when a Constraint Compliance section exists. Concrete fix: add Constraint Compliance rows (or a CI-resilience subsection) explicitly stating how each new suite satisfies INV-029..032, naming the pwd -P call sites for the new HITL/WFI-audit mktemp roots and confirming which (if any) new leg needs the validator capability probe."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only performance requirement (AC-006/REQ-005 runtime budget) is addressed directly by Test Strategy item 4 (design.md:387-392) sourcing the shared assert_runtime_budget/LOOP_SUITE_BUDGET_SECONDS helper plus a threshold-0 negative self-check; infra-spec.md:74-89 states the suite is expected to run well under budget."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Deployment / CI Plan (design.md:490-500) names the target (existing 3-OS matrix, deterministic lane), the CI pipeline changes (two new suite pairs join run-all and test.yml; the two new .ps1 scripts need zero new CI steps), and rollback (reviewed revert per item). Migration Strategy: none, so no migration-execution-order statement is required."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan states Existing Data Affected: none and Migration Strategy: none (design.md:157-162); only a committed inert fixture directory and mktemp-scoped synthetic fixtures are involved. A Data Plan stating no data changes is a PASS per this check's rule."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "External Integrations states None (design.md:484-488). The only external-adjacent reference (gh) is documented as categorically unreachable by construction and verified by a grep-based self-check (AC-004/TEST-004, design.md:238-240)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components table row (design.md:64-74) and Cross-Layer Dependencies row (design.md:124-131) maps 1:1 to a requirements Goal (REQ-001=T-001/#145, REQ-002=T-002/#146, REQ-003=T-003/#147, REQ-004=T-004/#174, REQ-005 cross-host, REQ-006 doc-following); no unrequested component; all three User Stories covered."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each high-risk design claim names a concrete validation path: skill-prose drift risk -> AC-005/TEST-005 real-document cross-check; HITL CHECK-wiring fragility -> AC-002/TEST-002 mandatory canary; precheck-port weakened-subset integrity -> AC-013/AC-016, also named in security-spec.md's STRIDE B2 row. No auth/PII/payment/fullstack surface exists requiring more."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "99ed87ddd1037adf4a1d728e2854d0dc3d956c426752cf69089236dcba3da995"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/investigation.md",
+      "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/ux-spec.md",
+      "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+      "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/precheck-result.json",
+      "sha256": "ef27d728545c61302c94488be068ba44b62d6240ab769ff2ee32e2ddbb62fe4e"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/integrated-summary.json",
+      "sha256": "f5fba8a8a0db165e3cb739ce68f375ca3fee5a186269e13e04cf1d6e983bf903"
+    }
+  ]
+}

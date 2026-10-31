@@ -1,0 +1,11 @@
+ok: capture and promote commands are executable
+ok: default capture matches canonical and is read-only
+ok: write-candidate writes an exact candidate without changing canonical
+ok: manifest records the pinned SHA, fixed environment, and every target/script hash
+ok: CI-set refuses with no file touched
+ok: approved-by-omitted refuses with no file touched
+ok: default capture exits non-zero on drift
+ok: guarded promotion copies candidate to canonical
+ok: manifest/counterpart mismatches fail closed
+ok: candidate output is gitignored
+10 passed, 0 failed

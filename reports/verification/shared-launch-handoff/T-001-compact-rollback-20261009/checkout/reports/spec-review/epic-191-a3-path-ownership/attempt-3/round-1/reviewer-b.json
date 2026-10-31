@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a3r1-seq0670",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a3r1-0670",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "a3d710ca599f42b6c67f6df88887578d73b8d610b463238b9a79f00019636d69"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-3/round-1/precheck-result.json", "sha256": "12898af4a3995d20cd0ad169cecaf7b163ecb3a37030361133544a62e7c991f3"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-3/round-1/integrated-summary.json", "sha256": "22c792fc4d1b8e0217361fd2d1cefb18486868a39bfc591a1bdec247122b5e1e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md fixes concrete, byte-level semantics throughout (Field Definitions section; REQ-001's `**`/`*`/NFC/case rules; REQ-003's NUL-safe git-diff framing and rename contract; REQ-004's three derived states with explicit hard-error/exit-code contracts per state), leaving no term, actor, state, input, or output for two implementers to diverge on. One narrative slip was reviewed and set aside under the calibration Finding Evidence Gate: Dependencies (line ~270) labels `check-contract.{sh,ps1,py}` 'a fourth protected-file family... in addition to guard-invariants.json+siblings and .github/workflows/test.yml' — only two families are named beside it, an off-by-one in prose. This is not FAIL-worthy: the concrete list of protected-file touch points is independently and consistently enumerated elsewhere (Roles and Permissions, AC-036), so no implementer decision is actually affected — it fails the Finding Evidence Gate's downstream-failure-mode requirement. Self-disclosure: while investigating this same question, a directory-scoped Grep of mine (procedural error, not evidence) surfaced 2 lines of design.md content outside my manifest; not used as evidence for this or any other finding."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Traced the 2026-08-11 conditional-activation ruling across all six locations it touches in requirements.md (Problems, Goals/REQ-004 applicability sub-bullet, Non-goals, Main Workflows step 4, Security Boundaries, Edge Cases) and confirmed each states the same file-absent/present-valid/present-malformed three-way boundary with no divergent claim. Confirmed AC-035's TEST-035a/b/c (check-contract-side) and REQ-004's present-but-malformed sub-bullet plus AC-035/TEST-035d (Gate-side) are explicitly disambiguated as never-merge-able in both requirements.md and acceptance-tests.md, and AC-056/TEST-056 (resolver-side) is likewise explicitly distinguished from TEST-035d. No direct conflict found between requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's 56 rows cover the material negative/boundary/failure paths implied by requirements.md: unparseable `--config` for both the resolver (TEST-056) and the Gate (TEST-035d), the three-way project-context.yaml absent/valid/malformed activation boundary (TEST-035a/b/c), NFC collision (TEST-010), unsupported metacharacters (TEST-006), empty include list and empty diff (TEST-008), renameLimit exceeded and unrelated-histories merge-base failure (TEST-023, TEST-019), invalid-UTF-8/TAB/LF paths (TEST-021), single-writer TOCTOU retry-then-fail (TEST-025), all 4 submodule/symlink cases (TEST-024), manifest missing/unreadable hard error (TEST-028), Fail-6's WARN/N-A paths (TEST-033/034), and a positive/negative selective-staleness matrix (TEST-040). This closes the a2r3-round Major (present-but-malformed config) via TEST-035d/TEST-056, which requirements.md documents as the direct remediation."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every bullet in requirements.md's Assumptions section is either bound to a deterministic fail-closed fixture that resolves it at verification time (AC-011 schema-conformance fixture for the Epic A1 field-shape assumption; AC-042/AC-044 for the Epic A1 template assumption) or is recorded as an explicit forward Dependency with a documented-blocker fallback rather than a silent assumption (REQ-005/AC-037 for the Epic A1 canonicalizer; REQ-004's Facet-Manifest hard-error contract for the Epic A4 dependency). investigation.md's OQ-001 is marked Resolved with a normative rule (Fail-6 adapter_paths, cross-referenced to AC-033); requirements.md's own Open Questions section marks OQ-002 with an adopted resolution (middle path; T-001 Done gated on AC-011) rather than leaving it genuinely open."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md's Roles and Permissions section fixes two human-only boundaries in scope: task Approval (Draft to Approved, 'never performed in this spec-phase package') and human-copy application (cp + SHA-256 verification) for every protected-file candidate. Both are testable, not merely asserted: AC-036/TEST-036 verify the staged six-file candidate set plus MANIFEST.sha256, `generate-guard-invariants.py --check` exit 0 against the staged tree, and live-file byte-identity before/after; AC-055/TEST-055 verify the check-contract producer-digest pass against the staged check-contract candidate. This follows the same testable human-copy pattern this repository's investigation.md (INV-007) documents as already established precedent."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md fixes concrete algorithms (exact glob-matching semantics, NUL-safe git-diff collection, three-state Gate applicability derivation, full-input ownership_digest scope) and acceptance-tests.md supplies 56 acceptance-criterion-mapped test rows, so no product-behavior decision is left for a downstream design reviewer to invent. Remaining unknowns (Epic A1 schema/canonicalizer/template, Epic A4 Facet Manifest) are explicitly scoped as named forward Dependencies with fail-closed fixtures (AC-011, AC-037, AC-028), not unresolved product questions bleeding into the design gate."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Glob check for `domain/*` at the repository root (the sole permitted out-of-manifest check for this ID) returned no files — no `domain/` directory exists at the project root, so this check's applicability precondition is not met and it is recorded as skipped."
+    }
+  ]
+}

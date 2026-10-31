@@ -1,0 +1,5 @@
+Requirement-traceability check passed for T-006:
+ - tasks.md T-006 -> REQ-005; REQ-005 in requirements.md and traceability.md; T-006 in traceability.md
+ - AC/TEST-014,015,019,020,043,046 present in acceptance-tests.md, referenced by T-006, and implemented in the suite
+ - NOTE: AC-019 generator half remains feature-wide UNMET (T-003 gap; TEST-019(a) regression-locks the shape) -
+   recorded so feature completion does NOT mark AC-019 satisfied without a closing decision.

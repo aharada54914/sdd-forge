@@ -1,0 +1,7 @@
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disabled suite must remain in fallback
+        if: false
+        run: bash ./tests/ci-suite-wiring.tests.sh

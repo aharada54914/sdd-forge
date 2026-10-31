@@ -1,0 +1,26 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: getJobLog not yet implemented in src/tools/actions.ts — the
+# pretest compile fails, so no tests can run. This is the genuine
+# failing-first (Red) state for T-013 (tests/tools/get-job-log.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/tools/get-job-log.test.ts(13,10): error TS2305: Module '"../../src/tools/actions.js"' has no exported member 'getJobLog'.
+tests/tools/get-job-log.test.ts(45,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(46,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(47,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(48,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(49,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(76,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(77,15): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(77,80): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(78,36): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(78,63): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(79,15): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(80,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(95,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/get-job-log.test.ts(96,18): error TS18046: 'result.data' is of type 'unknown'.
+
+npm test exit code: 2

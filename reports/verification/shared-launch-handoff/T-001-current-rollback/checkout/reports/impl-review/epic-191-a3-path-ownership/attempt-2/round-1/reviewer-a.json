@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-a-a2r1-seq0671",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-191-a3-path-ownership-a2r1-0671",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "5ef30332ee9a78da6a6a72604dd53081a6381d93ca5f8b9bd39d0654da8424eb"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-2/round-1/precheck-result.json", "sha256": "099396c8cebe17ac886e86d01fe474c85cde6a09c0caa8003d0655cec8e24f01"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "deterministic script + Implementation Gate check + reference documentation",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 57-132) gives a detailed ASCII pipeline diagram naming top-level component boundaries (resolver, git-diff collector, ownership_digest emitter, check-component-coverage Gate, the independent --diagnose command, T-005/T-006), describes integration with existing components (quality-gate's ## Process, check-contract's required-check-set, Epic A1's project-context.yaml schema consumed not redefined, ADR-0021 context_binding), and names technology per layer via file extensions in the diagram plus the immediately-adjacent ## Components table's explicit Technology column (Python master, Bash/PowerShell wrappers, JSON/Markdown/YAML config surfaces). Frontend/data layers are explicitly N/A with justification elsewhere in design.md (Layer Specifications table, Data Plan: 'No database, no runtime storage'). This is well beyond a one-sentence description."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture diagram's arrows form a linear pipeline (project-context.yaml -> resolve-component-paths.py -> git-diff collector -> ownership_digest emitter -> check-component-coverage -> quality-gate ## Process / check-contract required-check-set), plus two independent, non-feeding-back branches (resolve-component-paths --diagnose; T-005/T-006). No component pair has both A->B and B->A: check-contract reads check-component-coverage's evidence at verification time, but check-component-coverage does not depend on check-contract. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 357-433) specifies Data Entities (component path config, resolver output, ownership_digest, Gate verdict record, human-copy staged files), Existing Data Affected ('guard-invariants.json, generate-guard-invariants.py and its generated siblings, check-contract.{sh,ps1,py}, and .github/workflows/test.yml are read but never written'), and Migration Strategy ('none. No database, no runtime storage, and no schema migration exists anywhere in this feature' with explicit rationale). All three required sub-fields present."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 435-547) lists every new CLI entry point (resolve-component-paths, its --diagnose subcommand, check-component-coverage) with invocation shape (flags = request schema), exit-code contract (response/error schema, cross-referenced to the Data Plan's evidence-record shape), and the exact protected-file edits (guard-invariants.json, generate-guard-invariants.py, risk-gate-matrix.md, check-contract.*). Nothing is described as deprecated or breaking-changed, and every affected artifact row is additive (new script, or existing file gaining new entries) with no removal of prior behavior other than the explicitly-withdrawn (never-shipped) default-shared-paths.md reference doc."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 886-903) explicitly incorporates requirements.md's own (much more detailed) Security Boundaries section by reference and adds specifics; security-spec.md (a normative refinement of design.md per role instructions) provides five named trust boundaries B1-B5 with a Mermaid diagram, an Authorization table naming the auth/authz mechanism at each boundary (human-only cp for protected paths, deterministic script-level checks, no authentication mechanism given no network surface), an explicit Data Classification table showing no PII is handled (internal-only artifacts: Gate verdict record, ownership_digest, human-copy staging), and an OWASP Mapping table covering Broken Access Control, Software/Data Integrity Failures, Security Misconfiguration, Cryptographic Failures (N/A, justified), and Identification/Authentication Failures (N/A, justified)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'deterministic script + Implementation Gate check + reference documentation' (design.md header) — not fullstack. ux-spec.md and frontend-spec.md both explicitly declare no browser/client UI surface exists ('N/A — no change: this feature has no UX surface' / 'introduces no browser/client UI and no new runtime service'), matching the intent of the enumerated cli/library skip values; there is no Frontend Plan or frontend/backend boundary to check for consistency."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 549-647) names five concrete suite names (component-path-resolver, component-path-diff-basis, check-component-coverage, ownership-digest, component-path-ownership-parity) with their .sh/.ps1 file paths, registration surface (tests/run-all.sh/.ps1, .github/workflows/test.yml human-copy), and per-suite AC-NNN coverage mapping for acceptance-criteria verification. Integration-boundary testing is covered (check-component-coverage suite tests resolver output against Facet Manifest and check-contract's producer-digest verification; component-path-ownership-parity directly diffs the two wrapper-pair runtimes). No fullstack user-journey/E2E requirement applies since there is no UI (ux-spec.md/frontend-spec.md N/A)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in ## Architecture and ## API / Contract Plan is defined in ## Components (resolve-component-paths.py/.sh/.ps1, its --diagnose subcommand, check-component-coverage.py/.sh/.ps1, guard-invariants.json, generate-guard-invariants.py + generated siblings, risk-gate-matrix.md, check-contract.{sh,ps1,py}, quality-gate/SKILL.md, the fixture tree, all five test-suite pairs, the ADR, CHANGELOG.md), or is an established external component from another epic explicitly scoped as consumed-not-redefined and documented in investigation.md/requirements.md (project-context.yaml/Epic A1 schema, Epic A1's canonicalizer, Epic A4's Facet Manifest, Epic A1's provider-bindings adapter_paths field). design.md explicitly clarifies that the diagram's 'git-diff collector (T-002)' and 'ownership_digest emitter (T-003)' labels are internal stages of the single resolve-component-paths.py component, not separate undefined components."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md references the new ADR at 'docs/adr/0025-component-path-ownership-resolver-semantics.md' in three places (design.md:158 Components table, design.md:311-312 ADR Change Log, design.md:988/991 Risks), each time only hedged as 'provisional, re-verified at drafting time.' That path does not exist on disk: docs/adr/0025-* is occupied by two unrelated ADRs (0025-human-copy-transactional-bundle.md, 0025-risk-adaptive-adversarial-review-lane.md). The actual resolver-semantics ADR exists at docs/adr/0027-component-path-ownership-resolver-semantics.md, whose own text states 'Numbering note: re-verified with `ls docs/adr/` on 2026-08-08. ADR numbers 0025 and 0026 were occupied after the original draft, so this decision was renumbered to the next free slot, 0027.' No occurrence of '0027' appears anywhere in the current spec package (requirements.md, design.md, acceptance-tests.md). A reader or downstream traceability tool following design.md's own citation to verify the glob-matching algorithm, Fail-condition definitions, or applicability-derivation decision will not find them at the stated path, and could instead land on two unrelated ADRs sharing the stale number. This is squarely the ADR-PRESENT failure mode: a referenced ADR document that does not exist as a file at the path design.md currently states."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No design-system/ directory exists at the repository root (verified via `ls -d design-system/` -> No such file or directory), and design.md's ## Design System Compliance section independently records 'N/A — `ds_profile: none`. No UI application, no mockup, no visualization.' — matching the check's explicit skip condition. Check skipped; PASS per check definition."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the repository root (verified via `ls -d domain/` -> No such file or directory; this is the one permitted filesystem check per review-context-boundary.md). Check does not apply; PASS per check definition."
+    }
+  ]
+}

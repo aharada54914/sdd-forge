@@ -1,0 +1,32 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "tests/review-context-boundary.tests.sh"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work",
+  "stdin": "DEVNULL",
+  "environment_overrides": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/cache",
+    "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/config",
+    "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/data",
+    "XDG_STATE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/state",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/dotnet",
+    "NPM_CONFIG_CACHE": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/npm-cache",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POWERSHELL_TELEMETRY_OPTOUT": "1",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "GIT_CEILING_DIRECTORIES": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output"
+  },
+  "started_at": "2026-10-08T19:37:35.777683+00:00",
+  "ended_at": "2026-10-08T19:37:36.217181+00:00",
+  "seconds": 0.439445583964698,
+  "exit_code": 1,
+  "timed_out": false,
+  "stdout": "review-context-boundary.stdout.log",
+  "stderr": "review-context-boundary.stderr.log"
+}

@@ -1,0 +1,227 @@
+[
+  {
+    "label": "intact baseline",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated mutation RED plugins/sdd-quality-loop/references/guard-invariants.json",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "generate-guard-invariants: protected_gate_suffixes must be the exact baseline/inventory union\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/references/guard-invariants.json",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+      "mutated": "e551522a1b6a6b980088a1037743405f1ced50d4ce302247a891aa34fd7d94f4",
+      "restored": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf"
+    }
+  },
+  {
+    "label": "isolated mutation RED plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "generate-guard-invariants: protected_gate_suffixes must be the exact baseline/inventory union\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3",
+      "mutated": "653145e2832313e1a2be60d66a0a19b4b5a6222932a1fd2ad49aa0b6617430f8",
+      "restored": "aa042413415a71fd77f73f6a2c45115e908215c9a16e0bc8e09dad95decbfba3"
+    }
+  },
+  {
+    "label": "isolated stale projection RED plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "guard invariants are stale: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+      "mutated": "1d563449011b37f2102e5ce2b9128202d9cdf551932c43e0f9c6a200f9e97f9f",
+      "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+    }
+  },
+  {
+    "label": "isolated stale projection RED plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "guard invariants are stale: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+      "mutated": "19186dd6558ff41ce62b8b5a80ada2aae1fe4f053dac27be040217e5d0748320",
+      "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+    }
+  },
+  {
+    "label": "isolated stale projection RED plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "guard invariants are stale: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5",
+      "mutated": "b91b4eb27827aa36dc51fc7f34b91fc39c3be31326147b66d0e7843ebed2deee",
+      "restored": "4443d790fae3cc0545d4d7d238ce93abc7476a545368f234a64d69a11f8764d5"
+    }
+  },
+  {
+    "label": "isolated stale projection RED plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "guard invariants are stale: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py\n"
+  },
+  {
+    "label": "restored-byte GREEN plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/preflight/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "hashes": {
+      "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+      "mutated": "3dbcaf18b1535c10cebd11bc00fdbbb5b39628ca1dd80856016e83b2d6b6033d",
+      "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+    }
+  }
+]

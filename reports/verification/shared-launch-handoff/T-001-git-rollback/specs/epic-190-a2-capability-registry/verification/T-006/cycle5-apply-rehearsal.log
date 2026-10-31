@@ -1,0 +1,21 @@
+PRE-APPLY LIVE: protected_gate_suffixes=77  phase2_human_copy_targets=26
+========================================================================
+REHEARSE apply of: specs/epic-189-a1-project-context/human-copy
+  seeded 18/18 manifest targets from live
+  applied 18 staged candidates
+    protected_gate_suffixes    before=77 after=77 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+    phase2_human_copy_targets  before=26 after=26 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+========================================================================
+REHEARSE apply of: specs/epic-136-phase2-gates/human-copy
+  seeded 19/19 manifest targets from live
+  applied 19 staged candidates
+    protected_gate_suffixes    before=77 after=77 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+    phase2_human_copy_targets  before=26 after=26 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+========================================================================
+REHEARSE apply of: specs/epic-190-a2-capability-registry/human-copy
+  seeded 7/7 manifest targets from live
+  applied 7 staged candidates
+    protected_gate_suffixes    before=77 after=77 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+    phase2_human_copy_targets  before=26 after=26 removals=0 additions=0  SUPERSET-OR-EQUAL OK
+========================================================================
+REHEARSAL OVERALL: ZERO REMOVALS ACROSS ALL BUNDLES

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "5cb3b9a64bba519a7eda125e376718a1afabc8e32ee3944ddd4094a4c5d12110",
+  "acceptance_sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "ee595725f8f2d62490014865da7ef22a351e30f703463080ff600b66571b5ede",
+  "edit_summary": "Defined category-level bilingual coverage: each category retains at least one Japanese probe, adds at least three new English layer-specific probes, and translation pairs are not required.",
+  "reset": false,
+  "generated_at": "2026-06-29T13:07:44Z"
+}

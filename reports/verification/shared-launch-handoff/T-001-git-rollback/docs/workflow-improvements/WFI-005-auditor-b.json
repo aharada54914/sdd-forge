@@ -1,0 +1,63 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-005",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 2,
+    "auditor_a_pass_count": 6,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four elements present. (1) Metric row named: Target-Metric: gate artifacts manually retrofitted to satisfy a deterministic consumer, per feature (count). (2) Baseline and target stated: Baseline: 23 retrofits + 1 unusable-waiver blocker (2026-07-07 sdd-domain retrospective) / Target: 0. (3) Cycle count stated: Horizon: next completed feature retrospective (one cycle). (4) Threshold stated: the proposal succeeds only if the count is 0 and the new template-validator parity twin tests are present and green in the same run, plus a secondary check that no contract carries an attempted-but-rejected waiver for placeholder-scan. No missing element."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: FP-05 documents 4 independent template/validator contract gaps, manifesting as 23 individual artifact retrofits across all 11 sdd-domain implementation reports and all 11 quality-gate reports, plus 1 unusable-waiver hard blocker on 2 Risk:high task contracts (T-005, T-011) -- widespread, cross-cutting friction, not an isolated one-feature event. Change scope: two template edits (Task ID + Outputs table line; Feature line), one policy-text correction, and a new twin parity test suite (2 files) that gates this exact drift class at commit time going forward. Multi-part, root-cause-targeted change proportional to a multi-gap, cross-feature friction pattern. Proportional."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scanned docs/workflow-improvements/ for Status: Verified WFIs: WFI-001 (Verified, app-dev-efficiency, targets AGENTS.md high-risk-task preflight subsection), WFI-002 (Verified, plugin-improvement, targets AGENTS.md review-gate-precheck-fallback subsection), WFI-003 (Verified, plugin-improvement, targets AGENTS.md evidence-identity-fields subsection), WFI-004 (Verified, plugin-improvement, targets AGENTS.md post-review-freeze/provenance-re-review rules). None of their Proposed Change tables touch plugins/sdd-implementation/templates/implementation-report.template.md, plugins/sdd-quality-loop/templates/quality-report.template.md, plugins/sdd-quality-loop/references/deterministic-check-policy.md, or any tests/template-validator-parity.tests.* file -- the four files WFI-005 targets. All four Verified WFIs are confined to disjoint AGENTS.md subsections. No overlap, no conflict."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The WFI does not claim the plugin-side fixes (template/policy edits) can be achieved without modifying plugin files -- it routes them through a GitHub Issue (plugin-improvement lane), the sanctioned mechanism per Section 1 of the category guide. The only change claimed as directly applicable on the project side is the new tests/template-validator-parity.tests.sh/.ps1 pair, a genuinely project-side addition following the repository established twin-test convention (verified 7 existing parity.tests.sh files). Verified check-contract.py _pass4_risk_tier: COMPILE_CHECKS = lint/typecheck/build only, confirming placeholder-scan is excluded from any waiver path at any tier, matching the WFI problem-evidence claim exactly. Verified implementation-report.template.md has no Task ID line or Outputs table, and quality-report.template.md has no Feature line while check-evidence-bundle.sh regex expects one. Template-side fixes are genuine plugin-file-scoped fixes, correctly deferred to the Issue lane. Category/mechanism (plugin-improvement / tools) correctly assigned; no architectural misclassification."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: plugin-improvement. Scanned Root Cause Hypothesis, Proposed Change Change Description, and Expected Effect against every forbidden term in wfi-category-guide.md Section 2. Zero matches in the restricted line range. The 3 matches of plugin-specific strings (validate-review-context-set.sh, quality-report.template.md, deterministic-check-policy.md) fall exclusively within Problem Evidence, which Section 2 explicitly permits citing raw metric names and report paths as they appear in retrospective reports. No forbidden term introduced or left in a restricted section after Cycle 1 revisions."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Target is 0 retrofits/blockers in the next completed feature, against a baseline of 23 retrofits + 1 unusable-waiver blocker. The friction mechanism is a static template/policy-text gap, not a probabilistic process step, and the proposed change directly patches the exact three gaps that produced 100 percent of the counted retrofits. Driving a deterministic, template-caused defect to 0 after the template is fixed is plausible, not optimistic. No advisory needed."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: plugin-improvement, so this check applies. Problem Evidence summarizes cleanly in 2-3 generic sentences. The Proposed Change table has 3 rows with concrete, generic target-file descriptions sufficient to populate the Section 4 issue template. Expected Effect states a quantitative target (23 retrofits plus 1 blocker to 0) in generic terms. No row would produce an empty or vague issue body."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true, strict lane applies. (1) Easier-to-satisfy: NO. Verified directly in check-contract.py: COMPILE_CHECKS = lint/typecheck/build is the only waivable set under _pass4_risk_tier; placeholder-scan is never in that set, so it is already unwaivable at every risk tier today. The proposed policy-text edit changes prose from a documented-but-nonfunctional waiver path to text stating placeholder-scan cannot be waived, describing the tool existing strict behavior more accurately, not touching check-contract.py, not loosening any check. The template edits add required fields that already-strict validators demand, an additive tightening, not loosening. (2) Non-decreasing guard: before, 0 template-validator parity tests exist for this drift class; after, plus 2 (tests/template-validator-parity.tests.sh and its .ps1 twin), 0 removed. Count strictly increases; no decrease to justify. (3) Target-Metric independence: Target-Metric is manually-retrofitted-artifact count measured by inspecting git history and gate-report compensation notes at the next retrospective, an external observational count, not computed by the parity test suite or by the templates/policy text this WFI modifies. The instrument that computes the Target-Metric is untouched by this change."
+    }
+  ],
+  "proposed_revisions": []
+}

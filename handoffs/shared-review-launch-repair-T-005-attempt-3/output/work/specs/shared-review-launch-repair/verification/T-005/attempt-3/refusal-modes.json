@@ -1,0 +1,9 @@
+{
+  "observation": "Post-refusal read-only stat of exact admitted source and copied files",
+  "files": [
+    {"path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh", "snapshot_mode": "0444", "work_mode": "0444"},
+    {"path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh", "snapshot_mode": "0444", "work_mode": "0444"}
+  ],
+  "interpretation": "shutil.copy2 preserved immutable snapshot mode 0444. These files have no executable bit, consistent with the directly invoked shell scripts returning Permission denied. This is not evidence of a production logic regression or an automatic approval-review rejection.",
+  "action": "No chmod, alternate executor, production edit, or retry after refusal. Further verification stopped."
+}

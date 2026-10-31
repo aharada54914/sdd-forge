@@ -1,0 +1,26 @@
+# RED evidence -- registry-discovery (pwsh), against deliberately broken stubs
+$ pwsh -NoProfile -File tests/registry-discovery.tests.ps1
+not ok: AC-027 installed-layout (claude-code): capability-registry.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (claude-code): capability-registry.schema.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (codex-cli): capability-registry.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (codex-cli): capability-registry.schema.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (copilot-cli): capability-registry.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json did not resolve via packaged copy (rc=0 out=/stub-always-this-wrong-path err=)
+not ok: AC-027 version-mismatch: Registry bad-schema did not fail closed as expected (rc=0 err=)
+not ok: AC-027 version-mismatch: schema-file bad-id did not fail closed as expected (rc=0 err=)
+not ok: AC-027 version-mismatch: schema-file missing-schema-key did not fail closed as expected (rc=0 err=)
+not ok: AC-027 version-mismatch: catalog bad-schema did not fail closed as expected (rc=0 err=)
+not ok: AC-027 neither-location-resolves: expected fail-closed diagnostic naming attempted paths (rc=0 err=)
+not ok: AC-027 vendored-copy-drift: --check unexpectedly passed against a stale vendored copy
+ok: AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree
+ok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)
+ok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh
+ok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=6 fail=15 ----
+registry-discovery suite FAILED (6 passed, 15 failed)
+exit: 1

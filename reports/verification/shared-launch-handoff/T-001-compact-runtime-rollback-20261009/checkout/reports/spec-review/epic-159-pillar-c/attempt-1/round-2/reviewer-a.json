@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-c-spec-spec-reviewer-a-seq0286",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-c-0286",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-009 each carry concrete, measurable artifacts (file/schema existence, byte-identical hash checks, enumerated JSON keys, argv-composition assertions) traced 1:1 to AC-001..AC-052/TEST-001..TEST-052. The round-2 'Effort-resolution priority' block (requirements.md REQ-002) gives a decidable two-branch algorithm: under `welded`, effort is always the v1-equivalent value (role_defaults inert, confirmed by AC-011's dedicated inert-golden case); under `matrix`, a strict 4-step chain (`--requested-effort` > `risk_effort_matrix[risk]`+escalation > `role_defaults[role].default_effort` > model `default_effort`) resolves `effort_source`, covered by AC-012/TEST-012's 5-case attribution. Non-blocking residual: the combination of `--requested-effort` supplied together with `--effort-policy welded` is not given an explicit inert-vs-override carve-out the way `role_defaults` explicitly received one ('regardless of whether --role is also supplied'), and no AC/TEST exercises that specific combination; AC-012 frames the priority-order block as controlling for effort_source attribution, and that block's chain is defined only 'under --effort-policy matrix', which gives a decidable default reading (inert under welded, mirroring role_defaults) sufficient for a T-002/T-005 implementer to proceed without requiring a third clarification round."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goals bullet (REQ-001..REQ-009) has at least one matching AC: REQ-001→AC-001..005; REQ-002→AC-006..013; REQ-003→AC-014..020; REQ-004→AC-021..026,AC-051; REQ-005→AC-027..034; REQ-006→AC-035..040,AC-052; REQ-007→AC-041..046; REQ-008→AC-047,AC-048; REQ-009→AC-049,AC-050. Round-2-touched IDs carry matching REQ attribution in both files: requirements.md tags AC-011/AC-012 '(REQ-002)', AC-051 '(REQ-004)', AC-052 '(REQ-006)'; acceptance-tests.md's table rows for AC-011/AC-012/AC-051/AC-052 list the identical REQ column values."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 52 acceptance criteria describe externally observable artifacts (file contents/SHA-256, JSON key presence/values, exit codes, run-record field population, assembled CLI argv) rather than intent statements. The round-2 additions are concretely observable: AC-051 specifies `effort_applied=null` plus a populated `effort_degraded_reason` keyed by resolved `effort_control` (not host identity) in the emitted run record; AC-052 specifies non-zero exit, a diagnostic message, and zero `codex` invocations for enumerated out-of-vocabulary `--model`/`--effort` shapes (whitespace, leading `-`/`--`, `;`, non-canonical effort strings) — both verifiable without a live LLM call, consistent with the acceptance-tests.md Notes section's explicit no-real-invocation scoping for TEST-001..034/035..040/051/052."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes: model-generation refresh (deferred to issue #149's own 'D3'), rewriting/teaching the codex CLI to parse TOML comments, the unrelated risk-adaptive-release-gating work, making `matrix` the Phase-1 default, building an automated CI gate for the T-007/A3 ordering (left as OQ-003, documented procedure only), direct edits to any protected gate file, edits to the four named enforcement-chain test files, and tasks.md/traceability.md. This boundary set is unaffected by the round-2 edit and remains coherent with the Phase 1/Phase 2 split stated throughout Goals and Field Definitions."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table states four explicit trust boundaries (B1 registry/selector input validation parity with v1; B2 protected-gate-file write prohibition with human-copy procedure; B3 Codex CLI argument sourcing, now backed by an executable AC-052 rejection surface rather than construction-only assertion; B4 run-record truthfulness, now stated host-independently and keyed on resolved `effort_control` per REQ-004's AC-051 addition). Roles and Permissions plus the Assumptions/REQ-007 prerequisite gate (AC-045/AC-046, A3 commit `2d8c6a5` ancestry) state explicit approval/migration boundaries; REQ-009/AC-049/AC-050 state the version-bump-only-via-`scripts/bump-version.sh` constraint carried from prior epics."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every entry in the Risks section names a concrete validation surface: Critical (protected-file write bug) → AC-019's write-target-resolution self-check; High (golden-baseline staleness) → AC-007's mandatory mutation-based negative self-check; High (T-007 landing before A3/T-001..006) → AC-045/AC-046 prerequisite-gate proof; Medium (shared registration-surface churn) → per-task serialized-commit convention; Medium (TOML-comment/selector drift) → AC-038 cross-check; Low (new .ps1 file skipped registration) → AC-027's self-registration grep. Round-1's flagged high-risk gap for Security Boundary B3 (CLI-argument-injection claim asserted only by construction) is now closed by AC-052/TEST-052's executable rejection-lock, matching the boundary table's own updated B3 description."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-c/attempt-1/round-2/precheck-result.json",
+      "sha256": "af0323c0f2390373a7aaad3180735543b4f76b1e2a6ca51347fcb4ef89a13d65"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "e994ed038cdd066d9f6ea175133c4eacfa9369826299b18883da1faf08c8210c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "edc9cf2ecc7141cf9a6004b77ec563bbf74cdc6f14fd278ab666cd8d22348ecf"
+    }
+  ]
+}

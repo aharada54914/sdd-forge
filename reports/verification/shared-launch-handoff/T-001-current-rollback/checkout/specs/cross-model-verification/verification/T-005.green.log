@@ -1,0 +1,103 @@
+# T-005 Green Log — collection layer runners + skill + panelist agents
+
+## bash (collection-layer.tests.sh)
+
+=== CL-001: detect-panel graceful degrade (no CLIs) ===
+ok: CL-001a: no CLIs in PATH → exit 1 (graceful degrade, not crash)
+ok: CL-001b: warning message emitted to stderr
+ok: CL-001c: warning names missing CLIs
+=== CL-002: detect-panel --quiet suppresses warning ===
+ok: CL-002a: --quiet still exits 1 on no CLIs
+ok: CL-002b: --quiet produces no output
+=== CL-003: detect-panel detects stub codex CLI ===
+ok: CL-003a: codex stub in PATH → exit 0
+ok: CL-003b: 'gpt' slug emitted
+=== CL-004: detect-panel detects stub gemini CLI ===
+ok: CL-004a: gemini stub in PATH → exit 0
+ok: CL-004b: 'gemini' slug emitted
+=== CL-005: detect-panel detects both CLIs ===
+ok: CL-005a: both stubs in PATH → exit 0
+ok: CL-005b: both 'gpt' and 'gemini' slugs emitted
+=== CL-006: detect-panel rejects unknown argument ===
+ok: CL-006: unknown arg → exit 2
+=== CL-007: runner scripts present ===
+ok: CL-007: detect-panel.sh present
+ok: CL-007: detect-panel.ps1 present
+ok: CL-007: run-panelist-gpt.sh present
+ok: CL-007: run-panelist-gpt.ps1 present
+ok: CL-007: run-panelist-gemini.sh present
+ok: CL-007: run-panelist-gemini.ps1 present
+=== CL-008: run-panelist-gpt graceful degrade (no codex) ===
+ok: CL-008a: run-panelist-gpt no CLI → exit 1 (graceful degrade)
+ok: CL-008b: run-panelist-gpt emits informative message
+=== CL-009: run-panelist-gemini graceful degrade (no gemini) ===
+ok: CL-009a: run-panelist-gemini no CLI → exit 1 (graceful degrade)
+ok: CL-009b: run-panelist-gemini emits informative message
+=== CL-010: runner required arg validation ===
+ok: CL-010: run-panelist-gpt.sh missing --task → exit 2
+ok: CL-010: run-panelist-gemini.sh missing --task → exit 2
+=== CL-011: TOML agent files contain developer_instructions ===
+ok: CL-011: sdd-panelist-gpt.toml has developer_instructions
+ok: CL-011: sdd-panelist-gemini.toml has developer_instructions
+=== CL-012: SKILL.md present with required frontmatter ===
+ok: CL-012a: SKILL.md present
+ok: CL-012b: SKILL.md has name frontmatter
+ok: CL-012c: SKILL.md has disable-model-invocation: false
+ok: CL-012d: SKILL.md mentions blind and parallel
+=== CL-013: panelist agent .md files have disallowedTools ===
+ok: CL-013: panelist-gpt.md has disallowedTools with Write
+ok: CL-013: panelist-gemini.md has disallowedTools with Write
+
+Results: 32 passed, 0 failed
+
+## pwsh (collection-layer.tests.ps1)
+
+=== CL-001: detect-panel graceful degrade (no CLIs) ===
+ok: CL-001a: no CLIs in PATH -> exit 1 (graceful degrade)
+ok: CL-001b: warning message emitted to stderr
+ok: CL-001c: warning names missing CLIs
+=== CL-002: detect-panel -Quiet suppresses warning ===
+ok: CL-002a: -Quiet still exits 1 on no CLIs
+ok: CL-002b: -Quiet produces no output
+=== CL-003: detect-panel detects stub codex ===
+ok: CL-003a: codex stub in PATH -> exit 0
+ok: CL-003b: 'gpt' slug emitted
+=== CL-007: runner scripts present ===
+ok: CL-007: detect-panel.sh present
+ok: CL-007: detect-panel.ps1 present
+ok: CL-007: run-panelist-gpt.sh present
+ok: CL-007: run-panelist-gpt.ps1 present
+ok: CL-007: run-panelist-gemini.sh present
+ok: CL-007: run-panelist-gemini.ps1 present
+=== CL-008: run-panelist-gpt graceful degrade (no codex) ===
+ok: CL-008a: run-panelist-gpt no CLI -> exit 1 (graceful degrade)
+ok: CL-008b: run-panelist-gpt emits informative message
+=== CL-009: run-panelist-gemini graceful degrade (no gemini) ===
+ok: CL-009a: run-panelist-gemini no CLI -> exit 1 (graceful degrade)
+ok: CL-009b: run-panelist-gemini emits informative message
+=== CL-010: runner required arg validation ===
+ok: CL-010: run-panelist-gpt.ps1 missing --task -> exit 2
+ok: CL-010: run-panelist-gemini.ps1 missing --task -> exit 2
+=== CL-011: TOML agent files contain developer_instructions ===
+ok: CL-011: sdd-panelist-gpt.toml has developer_instructions
+ok: CL-011: sdd-panelist-gemini.toml has developer_instructions
+=== CL-012: SKILL.md present with required frontmatter ===
+ok: CL-012a: SKILL.md present
+ok: CL-012b: SKILL.md has name frontmatter
+ok: CL-012c: SKILL.md has disable-model-invocation: false
+ok: CL-012d: SKILL.md mentions blind and parallel
+=== CL-013: panelist agent .md files have disallowedTools ===
+ok: CL-013: panelist-gpt.md has disallowedTools with Write
+ok: CL-013: panelist-gemini.md has disallowedTools with Write
+
+Results: 27 passed, 0 failed
+
+## Notes
+
+- pwsh suite omits CL-004..006 (gemini/both-stubs and bad-arg) which are
+  covered fully in bash; the core graceful-degrade behaviour is verified
+  by CL-001..003 and CL-008..009 in both runtimes.
+- Tests run entirely offline (no real codex/gemini invocations); stubs via
+  isolated PATH only.
+- CL-011 confirms developer_instructions present in both TOML files, which
+  satisfies the sdd-hook-guard agent-role requirement.

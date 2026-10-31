@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 2,
+  "reviewer_a_run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0172",
+  "reviewer_b_run_id": "RUN-second-approval-mask-spec-spec-reviewer-b-seq0173",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0172",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-second-approval-mask-0173",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

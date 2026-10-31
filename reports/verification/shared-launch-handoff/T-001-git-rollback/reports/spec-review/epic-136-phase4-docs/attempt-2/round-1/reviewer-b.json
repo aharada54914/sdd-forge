@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-spec-a2r1-b-seq0396",
+  "host_session_id": "SESS-spec-a2r1-b-epic136phase4docs-0396",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-2/round-1/integrated-summary.json",
+      "sha256": "37c28432fa34a1e1296119812d8b152878617b6163fb721a07040bee863d61b0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-2/round-1/precheck-result.json",
+      "sha256": "2e281c4c14742debaf04c15e6c0477db0723ce1cbc4eed57d9ee8906c78ea4b2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "a14622eb7aca57a65b1304ac0458341b4d352789019b0bb293a9bb2af3fe8e7e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "b40ed552b1981c7d8f53c5ed4819ddc91d8caaba86e3eb01d706b347d3536e14"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, env var semantics (SDD_PANELIST_TIMEOUT parsing/defaults), exit-code taxonomy, and the per-runtime escalation table are concrete enough that independent implementers would converge on the same observable behavior. No unresolved vague term found that would produce divergent, test-passing implementations, beyond the item captured under EDGE-CASE-COVERAGE (which is a test-coverage gap rather than a text-clarity ambiguity, since the literal POSIX kill-to-single-pid reading is unambiguous on its own terms)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The attempt-1 BLOCKED contradiction (PowerShell table calling Kill($true) 'not a second mechanism' while Edge Case 7's counterpart presupposed a soft-request stub) is resolved: requirements.md:60 now states plainly 'No soft-request step precedes it, and none is to be added,' and acceptance-tests.md:66-70 states the PowerShell suite 'carries no (b) sub-case' without describing any stub behavior inconsistent with that. BL-004's dual-runtime parity constraint is explicitly reinterpreted as outcome-level parity rather than mechanism-mirroring, which reconciles rather than conflicts with the asymmetric escalation table. No other direct conflict found between requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:57-60 and acceptance-tests.md:64-72 add a 'no orphan of any child the stub spawned' assertion to the PowerShell (a) sub-case only, justified by Kill($true)'s tree-kill semantics. The identical risk applies to POSIX: the table's POSIX row specifies only SIGTERM/SIGKILL to a single stored pid with liveness checked via 'kill -0 <pid>', and TEST-004(a)'s POSIX sub-case asserts only that the stub's own PID is dead, not that any descendant it spawned is gone. Edge Case 2 states the general orphan risk but is satisfied by 'the child is gone' -- the immediate child only. Downstream failure: a POSIX implementation using the literal, natural reading of the table (signal to the stored pid alone, no process-group targeting) would pass every stated acceptance test while leaving a vendor-CLI-spawned grandchild process orphaned holding a live API session -- precisely the class of defect the spec explicitly engineered a PowerShell-only test to catch. This belongs at spec review because it is a Phase-1 acceptance-test gap, not an implementation defect: BL-004's parity requirement and the spec's own 'not simply less covered' framing invite a symmetry check that fails in the POSIX direction here."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three listed Assumptions are resolved or explicitly bounded: the SIGTERM-termination assumption is paired with a required escalation test (Edge Case 7 / TEST-004(b)); the install.sh citation's provenance gap is disclosed with the load-bearing claim shown to rest independently on a first-hand command -v result; and the file:line staleness risk is addressed by an explicit re-verification instruction. All three prior investigation Open Questions (rate-limiting, MCP checklist authority, residual-risk placement) are resolved by name in AC-002, AC-013, and AC-014 respectively, not left dangling."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No human approval, governance, or irreversible-change boundary is introduced by this feature. The only waiver reference ('unless the task is explicitly waived', INV-005) describes pre-existing check-cross-model behavior that BL-002 explicitly keeps unchanged; this feature adds no new approval gate. No such boundary is in scope, so SKIP applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the scoped item captured under EDGE-CASE-COVERAGE, the specification gives implementation-policy review concrete exit codes, env-var semantics, a per-runtime mechanism table, a full edge-case list mapped to specific tests, and resolved open questions -- it does not require a design reviewer to invent core product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Confirmed via Glob that no domain/ directory exists at the target project root. No Bounded-Context field appears in the feature's spec files. Per check definition, absence of domain/ requires recording the check as skipped and emitting SKIP."
+    }
+  ]
+}

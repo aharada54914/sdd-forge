@@ -1,0 +1,5 @@
+Command: pwsh -NoLogo -NoProfile -File tests/human-copy-runner-contract.tests.ps1
+Exit: 1
+Result: 19 passed, 1 failed
+Failure: TEST-000d: non-protected CI wiring draft is missing: specs/epic-194-a6-lite-integration/drafts/T-001-ci-steps.yml
+

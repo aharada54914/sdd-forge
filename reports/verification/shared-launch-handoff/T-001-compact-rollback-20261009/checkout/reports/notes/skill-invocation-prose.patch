@@ -1,0 +1,77 @@
+--- a/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+@@ -18,9 +18,12 @@
+ Use the impl-review-loop skill for feature <slug>
+ ```
+ 
+-Claude Code:
++Claude Code — internal skill, not directly invocable (`user-invocable: false`).
++Reached by entering at `/sdd-bootstrap:bootstrap` and following this file; the argument
++shape below is what the orchestrator supplies, not a slash command:
++
+ ```
+-/sdd-review-loop:impl-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
++impl-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
+ ```
+ 
+ Flags:
+--- a/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md
+@@ -18,9 +18,12 @@
+ Use the task-review-loop skill for feature <slug>
+ ```
+ 
+-Claude Code:
++Claude Code — internal skill, not directly invocable (`user-invocable: false`).
++Reached by entering at `/sdd-bootstrap:bootstrap` and following this file; the argument
++shape below is what the orchestrator supplies, not a slash command:
++
+ ```
+-/sdd-review-loop:task-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
++task-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
+ ```
+ 
+ Flags:
+--- a/plugins/sdd-lite/skills/lite-spec/SKILL.md
++++ b/plugins/sdd-lite/skills/lite-spec/SKILL.md
+@@ -18,10 +18,12 @@
+ Source: <issue URL or 要件テキスト>
+ ```
+ 
+-Claude Code:
++Claude Code — internal skill, not directly invocable (`user-invocable: false`).
++Reached by entering at `/sdd-bootstrap:bootstrap` and following this file; the argument
++shape below is what the orchestrator supplies, not a slash command:
+ 
+ ```txt
+-/sdd-lite:lite-spec <source>
++lite-spec <source>
+ ```
+ 
+ ## Preconditions
+--- a/plugins/sdd-ship/skills/ship/SKILL.md
++++ b/plugins/sdd-ship/skills/ship/SKILL.md
+@@ -329,7 +329,10 @@
+      `[sdd-ship] --verify passed but no tasks have Cross-Model: enabled. Add
+      the field to task entries that require panelist verification.`
+    - On lite track, `--verify` is silently ignored with the same warning.
+-2. Invoke `/sdd-quality-loop:quality-gate specs/<feature>/tasks.md#T-NNN`.
++2. Enter the quality-gate skill for `specs/<feature>/tasks.md#T-NNN` by
++   reading and following
++   `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`. It is an
++   internal skill (`user-invocable: false`); there is no slash command.
+ 3. **PASS (Done)**: task transitions to Done. Continue to next task.
+ 4. **BLOCKED (review tickets created)**: stop immediately. Print:
+    `[sdd-ship] Quality gate blocked for T-NNN. Review tickets written to
+@@ -415,7 +418,10 @@
+ 
+ - If `--retro` flag was passed, or if all tasks in the feature (not just the
+   targeted subset) have reached Done for the first time in this session:
+-  invoke `/sdd-quality-loop:workflow-retrospective specs/<feature>`.
++  enter the workflow-retrospective skill for `specs/<feature>` by reading
++  and following
++  `plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md`
++  (internal skill; there is no slash command).
+ - Print a summary: number of tasks implemented, number Done, any remaining
+   non-Done tasks (with their current Status).
+ 

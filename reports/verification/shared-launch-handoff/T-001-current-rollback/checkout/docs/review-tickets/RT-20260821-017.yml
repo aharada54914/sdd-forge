@@ -1,0 +1,70 @@
+ticket_id: RT-20260821-017
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-006"
+  files:
+    - "tests/retrospective-loop.tests.sh"
+    - "specs/agent-cost-context-isolation/verification/T-006/green.log"
+    - "reports/implementation/agent-cost-context-isolation/T-006.md"
+summary: >-
+  The fixture-backed determinism test passes in an empty directory with no
+  repository present; green.log is hand-composed narration; no red.log; and
+  the report has no canonical Outputs section
+problem: |
+  QG evaluator (seq 0828, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T081500Z.md) accepted five Majors.
+
+  1. retrospective-loop.tests.sh:164-283 is offered as the fixture-backed
+     remediation of a prior review Major, but it tests no production
+     artifact. Its `root` is the test's own mktemp -d; it never opens the
+     SKILL, the template, or any repo path. Measured: lines 55-283 extracted
+     to a standalone script and run in an EMPTY DIRECTORY with no repository
+     present printed "ok: retrospective fixture derives exact counts 3/2/2/2"
+     and exited 0. The test writes its own fixtures, re-implements the
+     selection/tie-break/de-dup algorithm inline, and asserts its own output
+     equals a hardcoded constant. Two further probes: replacing 42 lines of
+     pinned literals in the real artifacts kept it green, and appending rules
+     that INVERT the documented algorithm also kept it green. Major rather
+     than Critical because design.md scopes the deliverable to Markdown
+     templates, so string-presence is legitimate for the artifact that
+     exists - the defect is the report's claim that determinism was
+     validated.
+  2. No red.log, though Required Workflow is acceptance-first. Siblings
+     T-002/003/004/005 each have both logs.
+  3. green.log is hand-composed narration. Line 15 records
+     "COMMAND: git diff --check -- <T-006 allowed tracked outputs>", an
+     unexpanded placeholder never executed as written; lines 2/4/6 record
+     RESULT: PASS for bash -n invocations, which print nothing on success.
+     Lines 12-13 do reproduce byte-identically today, so it is not wholly
+     fabricated. check-placeholders.sh cannot catch this - a probe file with
+     that exact line passed.
+  4. No "## Outputs" section; declarations exist only as the legacy
+     "## Output Paths And Hashes" bullets. Measured grep -c across the
+     feature: T-001..T-005 = 1 each, T-006 = 0. Commit 7f0f273b added these
+     appendices to T-001..T-004 and skipped T-006.
+  5. Done-When 1-3 unverifiable: TEST-004 binds to turn-first-workflow.tests.sh
+     and items 2-3 exercise validate-implementation-report.sh, both drifted
+     and excluded. The drift is temporal, not fabrication - all five declared
+     hashes match the tree exactly at commit 9ad373e5 (2026-07-01), then
+     seven later unrelated commits invalidated them.
+
+  Done-When 4 (retrospectives expose the four metrics) IS met by real
+  execution. A non-vacuity probe also confirms the string-presence half of
+  the suite is real: a blind sed deletion of one pinned rule produced
+  "not ok: ... missing deterministic rule: lexicographically smallest
+  canonical path", exit 1.
+expected_fix:
+  - "Make the determinism test exercise the delivered artifact: read the real SKILL.md and template from the repository rather than re-implementing the algorithm over self-written fixtures, and prove non-vacuity by mutating the production file, not the test's own copy"
+  - "Capture a real red.log for the acceptance-first cycle and re-capture green.log as actual command output with exit codes"
+  - "Add a canonical '## Outputs' table to T-006.md (the legacy bullets only parse because WFI-038 taught the boundary that grammar)"
+  - "Re-gate with a manifest naming reports/quality-gate/20260821T081500Z.md as gate_report_declaration so the drifted suite and validator become readable, then verify Done-When 1-3 behaviorally"
+references:
+  - "reports/quality-gate/20260821T081500Z.md"
+  - "specs/agent-cost-context-isolation/acceptance-tests.md"
+  - "specs/agent-cost-context-isolation/design.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

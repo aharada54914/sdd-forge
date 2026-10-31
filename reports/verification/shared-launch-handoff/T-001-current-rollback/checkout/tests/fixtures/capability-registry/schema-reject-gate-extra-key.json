@@ -1,0 +1,7 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {"id": "extra-key-gate", "stage": "artifact", "blocking": false, "unexpected": "nope"}
+  ],
+  "capabilities": []
+}

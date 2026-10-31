@@ -1,0 +1,134 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase3",
+  "attempt": 3,
+  "round": 2,
+  "feature_type": "CI/test-infrastructure hardening feature -- four independent new-test-suite/CI-lane-restructuring streams with no GUI, API, or data layer (design.md line 5); closest to a cli/library-shaped classification, not fullstack.",
+  "legacy_design": false,
+  "requirements_sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "design_sha256": "2e03b014b01995e24915d023840e5784156ccf0e08562543798df65ef79c66bd",
+  "layer_sha256": {
+    "ux-spec.md": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008",
+    "frontend-spec.md": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6",
+    "infra-spec.md": "78db64f86bf9cc4c08aa7fa663195935948d5a5b84f52979ffc6beeb1e1e2062",
+    "security-spec.md": "75a4b4fa4db0c46a617fab88138126a2f867c863b05fb7197f9de7efae50105a"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "round-2: reviewer A PASS, reviewer B NEEDS_WORK (1 Major: DEPLOYMENT-CONCRETE). Round 1's batch-composition sweep is confirmed resolved by both reviewers against the real artifacts (staged-candidate shasum matches MANIFEST.sha256; run-all.sh lines 37/47/48/49; run-all.ps1 empty). Reviewer B's new finding is a distinct, genuine defect the earlier sweep did not touch: design.md's Architecture node, Protected-File Statement and Global Constraints -- plus infra-spec.md, tasks.md and traceability.md -- describe the staged candidate as being the file at specs/epic-136-phase3/human-copy/.github/workflows/test.yml, but that file does not exist; the directory holds only MANIFEST.sha256, and the agent-authored bytes live at specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml. Reviewer B empirically confirmed the cause by invoking sdd-hook-guard.py against the human-copy path and observing exit 2: _is_protected_gate_file matches by suffix, so the human-copy prefix earns no carve-out and the agent cannot write that name at all. Fix plan for round 3: state the two-path mechanism explicitly everywhere -- the human-copy path is the DESTINATION the human places the candidate at and the name MANIFEST.sha256 checksums, the verification/T-003 draft is where the agent-authored bytes actually are -- which keeps design.md consistent with the frozen requirements.md (which names only the destination and is therefore not wrong). Second leg of the same finding: CHANGELOG.md's already-released v1.12.0 entry for #125 still says Stream C's CI-step registration is deferred to a follow-on feature, contradicting the batch that shipped; corrected forward in the current section rather than by rewriting released history.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "with-findings",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase3-impl-a3r2-a-seq0439",
+      "host_session_id": "SESS-impl-a3r2-a-epic136phase3-0439",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/integrated-summary.json",
+          "sha256": "ce3dfba528e5fddc005e1b3c5444324e91d7399052969c3b3971778893075034"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/precheck-result.json",
+          "sha256": "6ca2c009e326ddb2b7925f78b637912aa7597c5a9914ff52bcaafe9c9347f2ba"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+          "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+          "sha256": "2e03b014b01995e24915d023840e5784156ccf0e08562543798df65ef79c66bd"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+          "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+          "sha256": "78db64f86bf9cc4c08aa7fa663195935948d5a5b84f52979ffc6beeb1e1e2062"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+          "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+          "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+          "sha256": "75a4b4fa4db0c46a617fab88138126a2f867c863b05fb7197f9de7efae50105a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+          "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase3-impl-a3r2-b-seq0440",
+      "host_session_id": "SESS-impl-a3r2-b-epic136phase3-0440",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/integrated-summary.json",
+          "sha256": "6b4bb932c6109618533b858b12f41f1934de0a72ec2ff3c9c829b071e074fca4"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/precheck-result.json",
+          "sha256": "6ca2c009e326ddb2b7925f78b637912aa7597c5a9914ff52bcaafe9c9347f2ba"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+          "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+          "sha256": "2e03b014b01995e24915d023840e5784156ccf0e08562543798df65ef79c66bd"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+          "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+          "sha256": "78db64f86bf9cc4c08aa7fa663195935948d5a5b84f52979ffc6beeb1e1e2062"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+          "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+          "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+          "sha256": "75a4b4fa4db0c46a617fab88138126a2f867c863b05fb7197f9de7efae50105a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+          "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+        }
+      ]
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic136phase3-a3r2",
+  "timestamp": "2026-08-02T04:57:17Z"
+}

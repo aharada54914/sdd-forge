@@ -1,0 +1,89 @@
+# WFI Audit Report — Cycle 1
+
+## Header
+
+| Field | Value |
+|---|---|
+| WFI-ID | WFI-061 |
+| Category | plugin-improvement |
+| Cycle | 1 of 2 |
+| Auditor Agent | wfi-auditor-a |
+| Verdict | NEEDS_REVISION |
+| Critical Findings | 0 |
+| Major Findings | 2 |
+| Minor Findings (Advisory) | 0 |
+| Generated | 2026-09-04T06:21:05Z |
+
+## Verdict: NEEDS_REVISION
+
+NEEDS_REVISION on two Major findings, both confined to Chain B of ## Why-Why Analysis: the chain has only 2 levels (minimum 3) and its terminal Because names a different mechanism than the Root Cause Hypothesis bullet it is declared to terminate. Zero Critical findings; the attempt-1 Critical (plugin identifiers in Proposed Change) is resolved.
+
+Audit attempt 2. Attempt 1 (same cycle) returned BLOCKED with one Critical
+(CATEGORY-LANGUAGE-MATCH) and structural Majors; that verdict and the applied
+revisions are preserved in git history (commit b2706e6c).
+
+---
+
+## Findings
+
+### Critical Findings
+
+None.
+
+### Major Findings
+
+- [MAJOR] ROOT-CAUSE-PLAUSIBLE — Chain B's terminal (final, level-2) Because names a different mechanism than the Root Cause Hypothesis bullet it is declared to terminate. Root Cause Hypothesis bullet 2 states: "the skill's `## Implementation` section predates the guard's agent-denial rule and was never reconciled — the Quick Start was updated to \"human-only\" while the Implementation section kept its agent-addressed imperative steps (`SKILL.md:105` vs `SKILL.md:9-11`)." That sentence is near-verbatim Chain B Level 1's Because, not Level 2's. Chain B's actual terminal Because (Level 2) reads: "an agent that follows the Implementation section reads as trying to escalate its own privileges, the correct behaviour (refuse, hand the human the procedure) currently looks like disobeying a skill, and the incorrect behaviour (splitting the literal to dodge the substring test) is both easy and available." This is a different mechanism (behavioural/optics consequence of the contradiction) than the hypothesis's stated mechanism (unreconciled documentation after a policy change). The WFI's own label "Terminal cause (Chain B) = Root Cause Hypothesis, second bullet" asserts an equivalence the chain does not actually establish. Chain A does not exhibit this problem: its hypothesis synthesizes Level 1's operand/conjunction defect with Level 3's word-boundary/name-prefix-collision defect, both of which are the same underlying code-level mechanism the terminal Because (Level 3) describes, so Chain A's hypothesis-to-terminal-cause mapping is accepted as consistent.
+- [MAJOR] WHY-CHAIN-VALID — Chain B ('defect (1): the skill instructs what the guard forbids') contains only 2 numbered why-levels ("1. Why does the skill still instruct..." and "2. Why does that matter beyond tidiness..."), below the required minimum of 3. Quoted in full: Level 1 — "Why does the skill still instruct the agent to write the flag file? Because the `## Implementation` section predates the guard's agent-denial rule and was never reconciled..."; Level 2 — "Why does that matter beyond tidiness? Because an agent that follows the Implementation section reads as trying to escalate its own privileges... — (hypothesis; consistent with the 2026-09-02 session...)". No Level 3 exists before the chain is declared terminal ("Terminal cause (Chain B) = Root Cause Hypothesis, second bullet"). Chain A meets the minimum (3 levels, anchored, chained, evidenced, terminates at a controllable mechanism, not padded) and is not flagged. Only Chain B fails the Present/minimum-depth sub-check.
+
+### Minor Findings (Advisory)
+
+None.
+
+---
+
+## Auditor Reasoning
+
+### EVIDENCE-CITED
+Result: PASS
+Evidence: Problem Evidence contains no retrospective-metric or RT-ticket claims requiring that form of traceability (confirmed: no RT-ID appears anywhere in WFI-061.md, and docs/review-tickets/ contains no file discussing the consent-token guard). Instead it cites four file:line references, all verified against the current repository: SKILL.md:105 ('## Implementation' agent-addressed steps) and SKILL.md:9-11 (Quick Start 'human-only' language) both match plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md as read; sdd-hook-guard.py:100-103's quoted Japanese/English denial message matches SDD_SUDO_WRITE_MSG verbatim in plugins/sdd-quality-loop/scripts/sdd-hook-guard.py; and sdd-hook-guard.py:1454-1464's quoted `_shell_targets_sdd_sudo` body (the whole-string SDD_SUDO_NAME test followed by SHELL_SUDO_WRITE_RE.search) matches the function at those exact line numbers. The WFI also explicitly and correctly discloses its baseline is 'session-observed (2026-09-02), NOT retrospective-sourced' rather than passing off session claims as report-sourced metrics. No vague, uncited assertions found.
+
+### ROOT-CAUSE-PLAUSIBLE
+Result: FAIL
+Evidence: Chain B's terminal (final, level-2) Because names a different mechanism than the Root Cause Hypothesis bullet it is declared to terminate. Root Cause Hypothesis bullet 2 states: "the skill's `## Implementation` section predates the guard's agent-denial rule and was never reconciled — the Quick Start was updated to \"human-only\" while the Implementation section kept its agent-addressed imperative steps (`SKILL.md:105` vs `SKILL.md:9-11`)." That sentence is near-verbatim Chain B Level 1's Because, not Level 2's. Chain B's actual terminal Because (Level 2) reads: "an agent that follows the Implementation section reads as trying to escalate its own privileges, the correct behaviour (refuse, hand the human the procedure) currently looks like disobeying a skill, and the incorrect behaviour (splitting the literal to dodge the substring test) is both easy and available." This is a different mechanism (behavioural/optics consequence of the contradiction) than the hypothesis's stated mechanism (unreconciled documentation after a policy change). The WFI's own label "Terminal cause (Chain B) = Root Cause Hypothesis, second bullet" asserts an equivalence the chain does not actually establish. Chain A does not exhibit this problem: its hypothesis synthesizes Level 1's operand/conjunction defect with Level 3's word-boundary/name-prefix-collision defect, both of which are the same underlying code-level mechanism the terminal Because (Level 3) describes, so Chain A's hypothesis-to-terminal-cause mapping is accepted as consistent.
+
+### WHY-CHAIN-VALID
+Result: FAIL
+Evidence: Chain B ('defect (1): the skill instructs what the guard forbids') contains only 2 numbered why-levels ("1. Why does the skill still instruct..." and "2. Why does that matter beyond tidiness..."), below the required minimum of 3. Quoted in full: Level 1 — "Why does the skill still instruct the agent to write the flag file? Because the `## Implementation` section predates the guard's agent-denial rule and was never reconciled..."; Level 2 — "Why does that matter beyond tidiness? Because an agent that follows the Implementation section reads as trying to escalate its own privileges... — (hypothesis; consistent with the 2026-09-02 session...)". No Level 3 exists before the chain is declared terminal ("Terminal cause (Chain B) = Root Cause Hypothesis, second bullet"). Chain A meets the minimum (3 levels, anchored, chained, evidenced, terminates at a controllable mechanism, not padded) and is not flagged. Only Chain B fails the Present/minimum-depth sub-check.
+
+### CATEGORY-LANGUAGE-MATCH
+Result: PASS
+Evidence: No forbidden term from wfi-category-guide.md Section 2 appears in ## Root Cause Hypothesis, ## Why-Why Analysis (Why/Because text), ## Proposed Change (Change Description column), or ## Expected Effect. Proposed Change row 2 correctly uses the required generic substitution 'workflow bypass mode' in its Change Description in place of the forbidden term `sdd-sudo`. The literal string `sdd-sudo` and the plugin name `sdd-quality-loop` appear only in the ## Category section and in Target File paths (e.g. `plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md`) and in ## Problem Evidence file:line citations — all of which are outside the four scanned sections or are explicitly exempted direct-citation content, per the check's own scope and the guide's Target File carve-out (Section 4 template shows Target File as a literal `<file>` distinct from the generic Change Description).
+
+### CHANGE-CONCRETE
+Result: PASS
+Evidence: All three rows name a specific file (not a directory): `plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md`, and `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` (+ named `.js`/`.ps1`/`.sh` twins) for rows 2 and 3. Each Change Description names a concrete mechanism (retitle+audience sentence+fallback procedure for row 1; operand-relation narrowing with named match conditions for row 2; word-boundary rule with named effect for row 3) — none is vague ('improve the process'/'add guidance'). All three Target Files are under `plugins/`, which is a Major finding under the shared plugins/ rule UNLESS the NO-PLUGIN-SCOPE-CREEP carve-out applies. Carve-out verified here on the same three conditions applied under NO-PLUGIN-SCOPE-CREEP below: (1) Category: plugin-improvement is declared at line 13; (2) the ## Category section (lines 15-20) states in its own words that 'This repository is the source of truth for the `sdd-quality-loop` plugin... the proposed change travels as a repository commit to those paths'; (3) a ## GitHub-Issue section is present (line 30-32) stating 'GitHub-Issue: PENDING — to be created by wfi-audit-cycle', an explicit statement of when the tracking issue is filed (after this audit cycle, per the plugin-improvement lane). All three conditions hold, so the carve-out applies and the plugins/ paths are not a finding here.
+
+### EFFECT-MEASURABLE
+Result: PASS
+Evidence: ## Expected Effect names a specific metric — 'denials of read-only commands mentioning the consent token' — and states a quantitative target: 'reduce read-only-command denials mentioning the consent token from 3 observed in one session (2026-09-02) to 0, while keeping denials of genuine write/delete attempts against the flag file at 100%.' The metric name avoids all forbidden plugin-specific terms (uses 'consent token', not `sdd-sudo`) and is not one of the pre-existing review-gate metrics from Section 2's table, but the guide requires generic (non-role-named) language, not membership in that specific table, and this metric satisfies that. No unquantified language such as 'fewer review cycles' or 'improved quality' is used.
+
+### VERIFICATION-METRIC-DEFINED
+Result: PASS
+Evidence: ## Verification Metric names exactly one primary metric ('denials of read-only commands mentioning the consent token') with baseline (3, session-observed 2026-09-02), target (0), and an explicitly separate, clearly subordinated guardrail metric labeled '(non-regression, not an improvement target)' so there is no ambiguity about priority between two primaries. Checkpoint is stated: 'after the next 10 agent sessions that invoke a guard-evaluated shell command mentioning the consent token.' Baseline source is explicitly labeled 'session-observed... NOT retrospective-sourced' with an honest note that the current retrospective does not track this friction — this is a disclosed limitation, not a missing baseline.
+
+### VERIFICATION-PLAN-SPECIFIC
+Result: PASS
+Evidence: ## Verification Plan is specific and mechanical: numbered ALLOW/DENY unit-test cases naming exact commands (grep, mkdir/chmod script, printf/rm/mv/tee, Edit/Write/apply_patch calls), a mutation-check step for each narrowing (operand restriction and word-boundary rule), and a re-run of the existing guard suite. Item 5 explicitly addresses the absence of a retrospective row for this friction ('this friction has no retrospective metric row today') and commits to a concrete remedy ('add a consent-token denial count column to the next retrospective run') rather than a generic 'we will check if things improved' statement. This is not vague.
+
+### NO-PLUGIN-SCOPE-CREEP
+Result: PASS
+Evidence: All three Proposed Change rows name Target Files under `plugins/` (`plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md`; `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` + twins, twice). The carve-out is applied on the same three conditions as under CHANGE-CONCRETE, verified identically: (1) `Category: plugin-improvement` is declared; (2) the `## Category` section states this repository is the plugin's source of truth and that the change travels as a repository commit, in its own words; (3) `## GitHub-Issue` is present with 'GitHub-Issue: PENDING — to be created by wfi-audit-cycle', an explicit statement of when the tracking issue is filed. All three conditions hold, so none of the three rows is a Major finding under this check.
+
+---
+
+## Proposed Revisions
+
+### Revision 1
+**Section:** ## Why-Why Analysis
+**Change:** Add a third numbered level to Chain B whose Why interrogates Level 2's Because (the escalation-optics consequence) and whose Because is the actual terminal, evidence-grounded process cause — e.g. "3. Why was the Implementation section never reconciled with the Quick Start's human-only language? Because no authoring or review step for this skill cross-checks agent-addressed sections against the guard's denial rules when either changes — the Quick Start edit and the guard's `SDD_SUDO`-denial rule (`sdd-hook-guard.py:100-103`) each landed independently with no corresponding audit of `## Implementation`. — Evidence: `SKILL.md:105` vs `SKILL.md:9-11` vs `sdd-hook-guard.py:100-103` (same citations as Level 1), (hypothesis) for the absence of a cross-check step." Then update the terminal-cause pointer so "Terminal cause (Chain B) = Root Cause Hypothesis, second bullet" refers to this new Level 3, and reword Root Cause Hypothesis bullet 2 if needed so it matches the new terminal Because rather than Level 1's.
+**Rationale:** Resolves both the WHY-CHAIN-VALID minimum-depth finding (Chain B currently has only 2 levels) and the ROOT-CAUSE-PLAUSIBLE terminal-mismatch finding (the current Level 2 Because, about escalation optics, is a different mechanism than the stated Root Cause Hypothesis bullet 2, which actually restates Level 1). Adding a third level that reaches the unreconciled-process cause and re-pointing the terminal-cause label makes the chain's last Because and the hypothesis name the same mechanism, as the check requires.

@@ -1,0 +1,59 @@
+{
+  "task_id": "T-005",
+  "feature": "design-sync-scan",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "94493e7d858ef22cf8acfe1a40b9fbd262e564d17a2d2cdda088f93b3a8c2a84",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-005.md",
+  "verification_contract": "specs/design-sync-scan/verification/T-005.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-scan/verification/T-005.contract.json",
+      "sha256": "a3ed13480979d13ed56bf5fc8006c0a4315590a56b71a33d096b9d76a44cd964"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-005.md",
+      "sha256": "d0365970eeb242c31d77689676984d2b11db5efcdc1b786280cf6400d92ec345"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/standalone-sh.log",
+      "sha256": "c7cf6b5abacf841340164485a7f0b068652bad59eb59cc4d66f6067c25db01ec"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness-sh.log",
+      "sha256": "7b40a475c8e51bf01bb39b4b75ecc0b260035464c82cbdfe93d3bc2d18fe5ced"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/placeholder-T-005.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

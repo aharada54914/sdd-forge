@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-wsi-a1r1-20260627",
+  "host_session_id": "host-spec-b-wsi-a1r1-20260627",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "5bf6474e1a5cdbfe5344398d3231ced924108f9a40da7d7792352ae4f3d8b82f"
+    },
+    {
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "c9703749f3fad3bff342a029e556a73420b376f40deb26302a223d4064730e9c"
+    },
+    {
+      "path": "specs/workflow-state-integrity/investigation.md",
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "fbf90499a150b96a957c3d79059c3864368851a00174c22b9876e7145c93183b"
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "cac61fefb96b57280c8e77ece956488517beafccd2ff5af0a9dce55055067b29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 says Draft/Planned tasks may exist only after the predecessor stages \"required by their phase\" are valid, but it neither defines the phase associated with each state nor identifies the required predecessor stages. Two implementers could therefore permit Draft or Planned tasks at different Spec/Impl/Task review states, and a verifier cannot derive the intended state matrix. This is product workflow behavior that must be fixed in the Phase 1 specification, not an implementation-policy choice. The ambiguity is Major because it can produce incompatible lifecycle enforcement and task decomposition."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The requirements, constraints, non-goals, investigation safety constraints, and acceptance criteria consistently require fail-closed Spec-to-Impl-to-Task ordering while preserving existing approval, evidence, lite, install, and uninstall behavior; no direct conflict or impossible acceptance condition is present."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 expressly constrains Draft/Planned task boundary states, but AC-005 covers only Approved, In Progress, Implementation Complete, and Done, while no other acceptance criterion exercises Draft or Planned against valid and invalid predecessor-stage combinations. Consequently, a verifier cannot detect an implementation that mishandles the earliest lifecycle boundaries. This missing observable negative/boundary coverage belongs to specification review because acceptance coverage must be defined before design and task decomposition. It is Major because an explicit workflow invariant could remain unverified."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The investigation resolves the motivating persisted-state gap, historical incompatibility, provenance limitation, supported runtime surfaces, and parity constraints. The specification does not leave an explicit unresolved assumption that design or task decomposition must silently decide."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Approval and governance boundaries are explicitly preserved by the non-goals and constraints, including unchanged critical two-person approval, quality-gate-only Done transitions, and no sudo or manual-header bypass. AC-005, AC-010, and AC-012 provide observable preservation and bypass-regression surfaces."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004's undefined mapping from Draft/Planned task states to the predecessor review stages \"required by their phase,\" together with the absence of corresponding acceptance cases, requires the implementation-policy reviewer to invent lifecycle behavior before defining enforcement. That decision changes observable workflow eligibility and therefore belongs in the specification rather than design or task review. The issue is Major because design, contracts, tasks, and verification could encode different state-transition matrices."
+    }
+  ]
+}

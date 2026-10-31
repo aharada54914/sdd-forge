@@ -1,0 +1,496 @@
+# derived-excerpt-of: specs/epic-194-a6-lite-integration/verification/qg/shared/regression-20260828c.log
+# full-log-sha256: 2b5c99792ad3374fcc471c5ff42dcc664487560b5cbc3bddcbbbd7e1f10e2174
+# derived-utc: 2026-08-28T14:15:01Z
+# derivation: mechanical extraction of (a) this task's own suite result
+#   block(s) plus the human-copy-mirror-freshness block, and (b) the
+#   authoritative tail listing of failing suites, from the provenance-
+#   headed full run-all capture named above (which exceeds the sanitized
+#   panel bundle's 1 MiB vendor cap). The full log remains in-repo.
+# authority: the tail listing names EVERY failing suite of the run; the
+#   two listed are the documented designed-red baseline.
+
+
+===== suite block: human-copy-runner-contract =====
+==> tests/human-copy-runner-contract.tests.sh
+==> pwsh /Users/jrmag/Projects/active/sdd-forge/tests/human-copy-runner-contract.tests.ps1
+ok: TEST-000a: fixture catalog schema is recognized
+ok: TEST-000b: fixture catalog covers every required runner scenario
+ok: TEST-000c: twin suites self-register first in the Epic-194 serialized order
+ok: TEST-000d: staged CI workflow candidate contains both twin steps first in the Epic-194 serialized order
+=== TEST-001: correct payload copies cleanly, post-copy verified ===
+ok: TEST-001a: correct payload exits 0
+ok: TEST-001b: every target's installed content matches the staged payload
+=== TEST-002: undeclared fifth payload path rejected before copy ===
+ok: TEST-002a: undeclared fifth path rejected (exit 2)
+ok: TEST-002b: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-002c: manifest-only fifth target is rejected by the declared/manifest exact-set check
+ok: TEST-002d: manifest-extra rejection occurs before every live copy
+=== TEST-003: missing declared target rejected before copy ===
+ok: TEST-003a: missing declared target rejected (exit 2)
+ok: TEST-003b: rejection is specifically the payload-vs-declared exact-set mismatch
+ok: TEST-003c: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-003d: manifest missing one declared target is rejected by the declared/manifest exact-set check
+ok: TEST-003e: manifest-missing rejection occurs before every live copy
+=== TEST-004: per-target hash mismatch rejected before copy ===
+ok: TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit 2)
+ok: TEST-004b: no copy occurred before rejection (all four live files unchanged)
+=== TEST-005: control files excluded from payload-set comparison ===
+ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
+ok: TEST-005b: apply-protected-files.ps1 correctly excluded from the payload set
+ok: TEST-005c: payload set == exactly the declared targets, control files excluded
+ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
+=== TEST-006: post-copy corruption detected and reported ===
+ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
+ok: TEST-006b: failure message names post-copy re-verification
+ok: TEST-006c: failure message names the corrupted target
+ok: TEST-006d: real CLI rejects corruption injected after Copy-Payload
+ok: TEST-006e: real CLI invokes and reports post-copy re-verification
+ok: TEST-006f: real CLI diagnostic names the corrupted installed target
+=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
+ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
+ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
+=== TEST-012: mid-batch failure reports which targets are live ===
+ok: TEST-012a: the target published before the failure is reported INSTALLED (plugins/sdd-lite/references/risk-upgrade-policy.md)
+ok: TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem
+ok: TEST-012c: all 3 targets after the failure are reported NOT ATTEMPTED
+ok: TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED
+ok: TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery
+ok: TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration
+=== TEST-007: feature-scoped, not fixed-prefix, resolution ===
+ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
+=== TEST-008: case-sensitive control names and digest grammar ===
+ok: TEST-008a: a mis-cased control filename is not classified as a control path
+ok: TEST-008b: real CLI rejects a mis-cased control name as undeclared payload
+ok: TEST-008c: mis-cased control rejection identifies the exact-set violation (case-insensitive lane)
+ok: TEST-008d: mis-cased control rejection occurs before every live copy
+ok: TEST-008e: uppercase digest text is rejected by the canonical lowercase manifest grammar
+ok: TEST-008f: uppercase digest rejection identifies the canonical lowercase grammar
+ok: TEST-008g: uppercase digest rejection occurs before every live copy
+=== TEST-009: ancestor symlink escape rejected before copy ===
+ok: TEST-009a: destination ancestor symlink/reparse point is rejected
+ok: TEST-009b: escaped external target remains byte-identical (rejection occurred before copy)
+ok: TEST-009c: lexical/canonical parent traversal outside the repository is rejected
+ok: TEST-009d: deterministic substitution seam executed
+ok: TEST-009e: atomic no-follow directory open explicitly rejected the substituted ancestor
+ok: TEST-009f: substituted external target remains byte-identical
+ok: TEST-009g: repository live target remains byte-identical after the rejected race
+=== TEST-010: nested PROPOSED subtree rejected explicitly ===
+ok: TEST-010a: nested PROPOSED payload is rejected
+ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompatibility
+ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
+=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
+ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
+ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
+
+Results: 56 passed, 0 failed
+
+===== suite block: human-copy-mirror-freshness =====
+==> tests/human-copy-mirror-freshness.tests.sh
+ok: enumeration reaches specs/epic-189-a1-project-context/human-copy
+ok: enumeration reaches specs/epic-190-a2-capability-registry/human-copy
+ok: enumeration reaches specs/epic-191-a3-path-ownership/human-copy
+ok: enumeration reaches specs/epic-136-phase2-gates/human-copy
+pending: specs/design-sync-consent/human-copy carries un-applied bytes for plugins/sdd-lite/skills/lite-spec/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/design-sync-consent/human-copy carries un-applied bytes for plugins/sdd-lite/skills/lite-spec/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/impl-reviewer-a.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/impl-reviewer-b.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/task-reviewer-a.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/task-reviewer-b.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-d/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-192-a4-facet-manifest/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/mcp-readonly-preflight/human-copy carries un-applied bytes for plugins/sdd-ship/skills/ship/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/quality-loop-fixes/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/quality-loop-fixes/human-copy carries un-applied bytes for plugins/sdd-ship/skills/ship/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (candidate) -- awaiting a human apply, left alone
+ok: every manifest digest matches the staged bytes it describes
+ok: every applied human-copy mirror is byte-identical to live
+
+human-copy-mirror-freshness.tests.sh: 6 passed, 0 failed, 14 pending (informational)
+==> tests/phase2-guard-tokenizer.tests.sh
+ok: candidate hash binds exact target: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+ok: candidate hash binds exact target: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+ok: candidate hash binds exact target: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: candidate hash binds exact target: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+ok: candidate hash binds exact target: plugins/sdd-quality-loop/scripts/check-contract.ps1
+ok: candidate hash binds exact target: plugins/sdd-lite/references/risk-upgrade-policy.md
+ok: candidate hash binds exact target: plugins/sdd-lite/scripts/check-risk-upgrade.sh
+ok: candidate hash binds exact target: plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+ok: candidate hash binds exact target: plugins/sdd-lite/skills/lite-spec/SKILL.md
+ok: candidate hash binds exact target: plugins/sdd-ship/skills/ship/SKILL.md
+ok: candidate hash binds exact target: tests/guard-parity.tests.sh
+ok: candidate hash binds exact target: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+SKIP: powershell.exe is required for the cross-runtime tokenizer corpus
+phase2-guard-tokenizer.tests.sh: 12 passed, 0 failed
+==> tests/phase2-risk-upgrade.tests.sh
+SKIP: powershell.exe and cygpath are required for the cross-runtime risk corpus
+==> tests/phase2-sudo-signature-static.tests.sh
+ok: candidate is ASCII/no-BOM and uses the PS5.1 64-hex full-XOR comparator
+==> tests/self-improvement-guard.tests.sh
+TARGET_YML=/Users/jrmag/Projects/active/sdd-forge/.github/workflows/self-improvement.yml
+GUARD_SH=/Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh
+
+ok: TEST-010: id-token: write absent from permissions (OIDC not used by the pinned action) -- AC-010
+ok: TEST-010: retains used permission 'contents: write'
+ok: TEST-010: retains used permission 'pull-requests: write'
+ok: TEST-010: retains used permission 'issues: write'
+ok: TEST-011: workflow runs self-improvement-pr-guard.sh after the session -- AC-011
+ok: TEST-011: violating diff fails the guard (exit 1) -- AC-011
+ok: TEST-011: guard lists both violating paths
+ok: TEST-011: compliant diff passes the guard (exit 0) -- AC-011
+ok: TEST-014: empty changed-paths file passes vacuously (exit 0) -- AC-014
+ok: TEST-014: absent changed-paths file passes vacuously (exit 0) -- AC-014
+
+TEST-010/011/014 results: 10 passed, 0 failed
+==> tests/p0-hardening.tests.sh
+== REQ-001: wfi-audit-cycle convergence guard ==
+PASS: REQ-001 mentions Audit-Attempt
+PASS: REQ-001 mentions Human-Blocked
+PASS: REQ-001 mentions Audit-Content-Hash
+== REQ-002: sdd-ship disk-based gate limit ==
+PASS: REQ-002 disk-based limit present
+PASS: REQ-002 stale invocation-count phrasing removed
+== REQ-003: implement-tasks parallel independent set ==
+PASS: REQ-003 mentions independent set
+PASS: REQ-003 mentions SCOPE-DISJOINT
+PASS: REQ-003 mentions parallel
+PASS: REQ-003 earliest-only selection replaced
+---
+VERDICT: PASS
+==> tests/deterministic-lane-selfcheck.tests.sh
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+ok: TEST-016: job count and job names are byte-unchanged (test installers loops-routing version-gates mcp-tests local-env-mcp-tests ci-mcp-tests cli-hook-enforcement required-checks )
+ok: TEST-016: all 37 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
+ok: TEST-016: the documented, currently-empty eval-lane comment placeholder is present
+ok: TEST-016: every 'test'-job step name is a YAML-safe scalar (no unquoted flow-sequence opener)
+ok: TEST-016: the candidate parses as YAML (ruby/Psych)
+=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ===
+ok: TEST-017-RED: dropped step 'Verify generated gate-capabilities projection (Windows)' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 32 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
+ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement])
+=== TEST-018 (AC-018): sibling workflow graph isolation unchanged ===
+ok: TEST-018: the candidate does not reuse self-improvement.yml as a workflow (isolation preserved)
+ok: TEST-018: self-improvement is not a job in the candidate (isolation preserved)
+ok: TEST-018: self-improvement appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: self-improvement.yml keeps its own independent trigger (no workflow_run coupling)
+ok: TEST-018: the candidate does not reuse model-freshness-check.yml as a workflow (isolation preserved)
+ok: TEST-018: model-freshness-check is not a job in the candidate (isolation preserved)
+ok: TEST-018: model-freshness-check appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: model-freshness-check.yml keeps its own independent trigger (no workflow_run coupling)
+=== TEST-020 (AC-020): CI step per new suite, DESIGNED-RED until human-copy ===
+ok: TEST-020: the candidate runs tests/guard-dispatch-fallback.tests.sh
+ok: TEST-020: the referenced suite tests/guard-dispatch-fallback.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-dispatch-fallback.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/guard-negative-corpus.tests.sh
+ok: TEST-020: the referenced suite tests/guard-negative-corpus.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-negative-corpus.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/deterministic-lane-selfcheck.tests.sh
+ok: TEST-020: the referenced suite tests/deterministic-lane-selfcheck.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/deterministic-lane-selfcheck.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/workflow-scenarios/workflow-scenarios.tests.sh
+ok: TEST-020: the referenced suite tests/workflow-scenarios/workflow-scenarios.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/workflow-scenarios/workflow-scenarios.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate's actions/checkout pins match the live workflow (applying it regresses no landed bump)
+
+deterministic-lane-selfcheck.tests.sh: 25 passed, 0 failed, 4 designed-red (pre-human-copy)
+FAILED: tests/deterministic-lane-selfcheck.tests.sh
+==> tests/guard-ps1-ascii.tests.sh
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+==> tests/repository-release-validation.tests.sh
+Repository release validation parity tests passed: 8/8 checks.
+==> tests/template-validator-parity.tests.sh
+ok: impl-report template: heading line matches the evaluator boundary
+ok: validator pin: heading rule still present in launch boundary
+ok: impl-report template: '- Task ID:' line present
+ok: validator pin: Task ID rule still present in launch boundary
+ok: impl-report template: Outputs table row parses via the evaluator's declared-output rule
+ok: validator pin: Outputs-section parser still present in launch boundary
+ok: impl-report template: rendered report passes validate-implementation-report.sh
+ok: validator pin: Outputs-table row parser still present in validate-implementation-report.sh
+ok: quality-report template: single Feature: line with the contract feature value
+ok: validator pin: Feature rule still present in evidence-bundle validator
+ok: quality-report template: Task ID line present
+ok: quality-report template: VERDICT line present
+ok: quality-report template: Run ID line present
+ok: quality-report template: Critical count line present
+ok: quality-report template: Major count line present
+ok: quality-report template: Minor count line present
+ok: consumer pin: run-record counter accepts the canonical Task ID identity
+ok: consumer pin: severity-count parser still present in generate-evidence-bundle
+
+template-validator-parity.tests.sh: 18 passed, 0 failed
+==> tests/task-lifecycle-enum-parity.tests.sh
+ok: plugins/sdd-quality-loop/scripts/check-task-state.sh carries exactly the canonical 5-value lifecycle enum
+ok: plugins/sdd-lite/scripts/check-task-state-lite.sh carries exactly the canonical 5-value lifecycle enum
+ok: plugins/sdd-quality-loop/scripts/check-task-state.ps1 carries exactly the canonical 5-value lifecycle enum
+ok: plugins/sdd-lite/scripts/check-task-state-lite.ps1 carries exactly the canonical 5-value lifecycle enum
+ok: plugins/sdd-quality-loop/scripts/check-workflow-state.sh carries exactly the canonical 5-value lifecycle enum
+ok: plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 carries exactly the canonical 5-value lifecycle enum
+ok: non-vacuity: a mutated vocabulary is distinguished from the canonical set
+
+task-lifecycle-enum-parity.tests.sh: 7 passed, 0 failed
+==> tests/task-state-grammar-parity.tests.sh
+ok: parity [bare-approved]: full and lite agree (exit 0)
+ok: parity-ps1 [bare-approved]: both ps1 twins agree (exit 0)
+ok: parity [draft]: full and lite agree (exit 1)
+ok: parity-ps1 [draft]: both ps1 twins agree (exit 1)
+ok: parity [strict-annotated]: full and lite agree (exit 0)
+ok: parity-ps1 [strict-annotated]: both ps1 twins agree (exit 0)
+ok: parity [minutes-precision]: full and lite agree (exit 1)
+ok: parity-ps1 [minutes-precision]: both ps1 twins agree (exit 1)
+ok: parity [fractional-seconds]: full and lite agree (exit 1)
+ok: parity-ps1 [fractional-seconds]: both ps1 twins agree (exit 1)
+ok: parity [empty-annotation]: full and lite agree (exit 1)
+ok: parity-ps1 [empty-annotation]: both ps1 twins agree (exit 1)
+ok: parity [free-text]: full and lite agree (exit 1)
+ok: parity-ps1 [free-text]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-annotated]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-annotated]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-lower]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-lower]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-upper]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-upper]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-mixed]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-mixed]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-status-planned]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-status-planned]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-status-inprogress]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-status-inprogress]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-approval]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-approval]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-status]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-status]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-both-upper]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-both-upper]: both ps1 twins agree (exit 1)
+ok: extraction [strict]: validity and approver extraction agree
+ok: extraction [minutes-precision]: validity and approver extraction agree
+ok: extraction [fractional-seconds]: validity and approver extraction agree
+ok: extraction [free-text]: validity and approver extraction agree
+ok: verdict-case [canonical]: lite sh exit 0
+ok: verdict-case-ps1 [canonical]: lite ps1 exit 0
+ok: verdict-case [verdict-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-lower]: lite ps1 exit 1
+ok: verdict-case [verdict-value-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-value-lower]: lite ps1 exit 1
+ok: verdict-case [verdict-key-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-key-lower]: lite ps1 exit 1
+ok: verdict-case [task-id-lower]: lite sh exit 1
+ok: verdict-case-ps1 [task-id-lower]: lite ps1 exit 1
+
+task-state-grammar-parity.tests.sh: 46 passed, 0 failed
+==> tests/task-plan-binding-durability.tests.sh
+ok: P1: uniform plan records tasks_sha256_form=raw
+ok: P1: uniform plan records the raw digest byte-for-byte
+ok: P1: mixed plan records tasks_sha256_form=normalized (non-vacuity: same feature, flipped mixture, flipped form)
+ok: P1: mixed plan records the accepting side's normalized recipe exactly
+ok: P1: normalized and raw digests differ on the mixed plan (the recipe is not vacuous)
+ok: P1: --verify-inputs absorbs a status flip under a normalized record
+ok: P1: --verify-inputs still rejects a body edit under a normalized record
+ok: P1: a Done/done plan is classified mixed (case-sensitive uniqueness)
+ok: P2a: normalized tasks.md entry accepted when the precheck declares it
+ok: P2f: the normalized binding survives a post-precheck status flip
+ok: P2e: body edit rejected — the normalized entry still binds bytes
+ok: P2b: fresh-raw manifest rejected at reservation (round consistency)
+ok: P2d: normalized entry rejected when the precheck declared raw
+ok: P2c: the exception is unusable for any entry but the task plan
+ok: P3: normalized-recorded mid-flight evidence passes the unchanged checker
+ok: P3: the normalized binding SURVIVES a lifecycle flip (the WFI-025 property)
+ok: P3 control: the raw mid-flight binding (all a pre-WFI-025 precheck could emit) breaks on the same flip
+
+task-plan-binding-durability.tests.sh: 17 passed, 0 failed
+==> tests/schema-engine-identity.tests.sh
+ok: engine function _escape_pointer_token is byte-identical across all three validators
+ok: engine function _ecma_anchor is byte-identical across all three validators
+ok: engine function _compile_pattern is byte-identical across all three validators
+ok: engine function _type_matches is byte-identical across all three validators
+ok: engine function _resolve_ref is byte-identical across all three validators
+ok: engine function _schema_matches is byte-identical across all three validators
+ok: engine function _validate is byte-identical across all three validators
+ok: non-vacuity: a mutated engine copy is reported as diverged
+
+schema-engine-identity.tests.sh: 8 passed, 0 failed
+==> tests/loop-inventory.tests.sh
+=== TEST-001: inventory schema + registration forcing ===
+ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge/tests/loops/loop-inventory.json
+ok: TEST-001.1: schema field is loop-inventory/v1
+ok: TEST-001.2: inventory carries exactly eight loop entries
+ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-a maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-b maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-a maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-b maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-a maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-b maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair quality:sdd-evaluator maps to inventory entry quality-gate
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-a maps to inventory entry domain-review
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-b maps to inventory entry domain-review
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-task-state.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-implementation/scripts/select-agent-model.sh
+ok: TEST-001.6 (negative self-check): removing a registered entry turns registration validation red
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+ok: TEST-002.1: spec-review cap value greps to its driver source's limit
+ok: TEST-002.1: domain-review cap value greps to its driver source's limit
+ok: TEST-002.1: quality-gate cap value greps to its driver source's limit
+ok: TEST-002.2: terminal-tier is cap_kind:state and excluded from the numeric grep
+ok: TEST-002.3: exactly one cap_kind:state entry exists in the inventory
+ok: TEST-002.4 (negative self-check): a mutated cap value turns the drift lock red
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+ok: TEST-003.1: impl-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: task-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: wfi-audit carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: hitl-diagnosis carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.2: wfi-audit carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.2: hitl-diagnosis carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.3: every fixture_profiles value is greenfield or brownfield
+ok: TEST-003.4: every entry declares a non-empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+ok: TEST-004.1: loop-inventory.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-inventory.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-driver.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-driver.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-consistency.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-consistency.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-escalation.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-escalation.tests.ps1 is registered in run-all.ps1 and test.yml
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.sh: 49 passed, 0 failed, 0s elapsed
+==> tests/loop-driver.tests.sh
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.fXzoyk) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.sh: 22 passed, 0 failed, 2s elapsed
+==> tests/loop-consistency.tests.sh
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, PASS/Minor-only) green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)
+NOTE: TEST-008.14: domain-review-precheck.ps1 now exists upstream -- tests/loop-consistency.tests.ps1's named SKIP self-heals; no action needed here.
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LOOP_FIXTURE_ROOT
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-64718/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.sh: 27 passed, 0 failed, 15s elapsed
+==> tests/review-prompt-calibration.tests.sh
+ok: review prompt calibration inventory is synchronized
+==> tests/review-context-boundary.tests.sh
+ok: review-context-boundary citations match the validator (31 anchors verified)
+ok: TEST-RCB-001 (bash) verify-after-reserve passes
+ok: TEST-RCB-001 (pwsh) verify-after-reserve passes
+ok: TEST-RCB-002 (bash) verify survives unrelated ledger extension
+ok: TEST-RCB-002 (pwsh) verify survives unrelated ledger extension
+ok: TEST-RCB-003 (bash) rejected
+ok: TEST-RCB-004 (bash) rejected
+ok: TEST-RCB-005 (bash) rejected
+ok: TEST-RCB-005b (bash) rejected
+ok: TEST-RCB-003 (pwsh) rejected
+ok: TEST-RCB-004 (pwsh) rejected
+ok: TEST-RCB-005 (pwsh) rejected
+ok: TEST-RCB-005b (pwsh) rejected
+ok: TEST-RCB-006 (bash) double reservation is rejected
+ok: TEST-RCB-006 (pwsh) double reservation is rejected
+ok: TEST-RCB-007 (bash) run_id-only match names the mismatch
+ok: TEST-RCB-008 (bash) host-session-id-only match names the mismatch
+ok: TEST-RCB-007 (pwsh) run_id-only match names the mismatch
+ok: TEST-RCB-008 (pwsh) host-session-id-only match names the mismatch
+ok: TEST-RCB-009 (bash) non-extending fresh manifest is rejected
+ok: TEST-RCB-010 (bash) extending fresh manifest reserves and appends
+ok: TEST-RCB-009 (pwsh) non-extending fresh manifest is rejected
+ok: TEST-RCB-010 (pwsh) extending fresh manifest reserves and appends
+ok: validate-review-context-set reservation/verification boundary is idempotent through merges (TEST-RCB-001..010, bash+pwsh)
+==> tests/boundary-reference-authorization-parity.tests.sh
+ok: A: the verification procedure has exactly 4 steps
+ok: A: every step names its evidence source
+ok: A: no step's evidence requires anything beyond the quoted line and the manifest
+ok: A: the verification block instructs no ledger read
+ok: B: sh path_is_authorized still refuses the identity ledger
+ok: B: ps1 Test-PathIsAuthorized still refuses the identity ledger
+ok: C: both twins emit sequence= on the OK line
+
+===== authoritative tail (every failing suite of the run) =====
+guard-r10-port.tests.ps1: 60 passed, 0 failed
+
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+

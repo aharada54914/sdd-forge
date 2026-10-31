@@ -1,0 +1,67 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-010",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "attempt": 2,
+  "verdict": "PASS",
+  "prior_attempts": [
+    {
+      "attempt": 1,
+      "verdict": "BLOCKED",
+      "note": "1 Critical (CATEGORY-LANGUAGE-MATCH: literal 'quality-gate' path term in Expected Effect) + 3 Major (plugins/ targets without the WFI-006/007/009 rendered disclosure structure; two co-equal verification metrics). All three proposed revisions were applied by the orchestrator before this attempt; Audit-Attempt: 1 and the pre-revision Audit-Content-Hash are recorded in the WFI control fields."
+    }
+  ],
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "All Problem Evidence citations verified against source: the epic-136 retrospective Data Notes quote (lines 206-213) near-verbatim; epic-159 FP-03 recurrence confirmed and RUN-20260714T193722Z-epic-159-pillar-a.json actually contains gate_reports.total: 0, gate_reports.blocked: 1; line citations emit-run-record.sh:78 and :87 are byte-exact matches to the live script; the T-001 gate report confirmed 'Task ID: T-001' header (line 3, not 'Task:'), 'VERDICT: PASS' (line 5), and 'BLOCKED' appearing only in unrelated F-1 finding prose (line 45)."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Two distinct concrete mechanisms named, both verified accurate: (1) header-convention mismatch (authored against a Task:/Run ID: two-line convention vs the actual single combined 'Task ID:' header line); (2) blocked count derived from a whole-file keyword search rather than the report's own verdict field."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "No forbidden terms in the three restricted sections (Root Cause Hypothesis, Proposed Change Change-Description column, Expected Effect): all use the required generic 'quality verification gate' phrasing. Remaining literal occurrences fall inside Problem Evidence citations, the Target File column, or Verification Plan — all outside this check's scope per the guide's carve-outs."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Both GitHub-Issue Lane rows name specific real files (confirmed on disk) with non-vague, mechanism-level descriptions. The WFI Direct Target (project-side) is explicitly 'None'; the plugins/ paths are confined to the GitHub-Issue Lane sub-table, the designated plugin-improvement application mechanism, disclosed via the body-visible Audit note matching the WFI-006/007/009 precedent."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Specific metric (gate_reports.total/blocked in reports/runs/RUN-*.json vs the retrospective's own Metrics-table totals) with quantitative target ('0 discrepancy on the very next feature's run record'). The run-record's own JSON field names are the correct specificity for this Meta-Change WFI whose fix target IS the emitter."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Exactly one primary metric (Target-Metric (primary): gate_reports.total) with an explicitly labeled secondary (gate_reports.blocked, same script defect). Baseline cited to RUN-20260714T193722Z and verified against the actual JSON; Target and Horizon (next 1 completed feature's run record) present."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Plan names the exact comparison (diff against the same retrospective's Metrics table columns, both confirmed real), an exact-equality pass criterion, and an explicit fallback (remaining discrepancy keeps the WFI in Needs-Followup)."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "The WFI Direct Target (project-side) table is explicitly 'None' (zero rows). plugins/ paths appear only in the GitHub-Issue Lane sub-table — the category-defined application mechanism — with the tension disclosed in-body via the Audit note, matching the WFI-006/007/009 precedent structure that reached human Approved status under this same pattern."
+    }
+  ],
+  "proposed_revisions": [],
+  "summary": "WFI-010 (Cycle 1, attempt 2) is a well-evidenced revision. Every citation was independently verified against the live retrospectives, the run-record JSON, and the emitter script's exact lines (78, 87); the root cause names two accurate mechanisms; generic-language rules are respected in all restricted sections; verification metric/plan cite real Metrics-table columns with baseline/target/checkpoint fully specified; the category-inherent plugins/-path tension is confined to the GitHub-Issue Lane and disclosed per precedent. No Critical or Major findings; verdict PASS."
+}

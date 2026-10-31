@@ -1,0 +1,6 @@
+{"runtime": "bash", "stage": "spec", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}
+{"runtime": "bash", "stage": "impl", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}
+{"runtime": "bash", "stage": "task", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}
+{"runtime": "powershell", "stage": "spec", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}
+{"runtime": "powershell", "stage": "impl", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}
+{"runtime": "powershell", "stage": "task", "calls": 4, "child_invocations": 0, "launcher_reservations": 1}

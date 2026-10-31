@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0,
+  "reviewer_a_run_id": "spec-a-run-20260629T1249Z",
+  "reviewer_b_run_id": "spec-b-run-20260629T1253Z",
+  "reviewer_a_host_session_id": "spec-a-round2-20260629T1249Z",
+  "reviewer_b_host_session_id": "spec-b-round2-20260629T1253Z",
+  "finding_counts": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+  }
+}

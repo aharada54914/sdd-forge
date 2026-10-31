@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a123e4-c500-7902-8fd5-6093b848c705",
+    "turn": {
+      "id": "01a123e4-c62d-7833-a473-c75e02212563",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0459b9c1719a09ca016ac9b5724af081918294c0f37c863fea",
+          "text": "納品しました。\n\n- [実装報告書](work/reports/implementation/shared-review-launch-repair/T-002.md)\n- [証拠・ハッシュ一覧](delivery-index.json)\n\n指定4検証は終了コード0。報告書検証も `IMPLEMENTATION_REPORT_OK`、242件のOutputsハッシュを確認しました。ソース・凍結済み成果物の変更、入力不足はありません。\n\n未解決：コンテキスト圧縮による継続性要件と、構造REDに限定される歴史的証拠の受容は親側判断です。  \n未実施：正式評価・Windows・CI・実環境rollback。正式PASS／Doneは宣言していません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791603557,
+      "completedAt": 1791604086,
+      "durationMs": 528478
+    }
+  },
+  "emittedAtMs": 1791604086419
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/work/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-003.md"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+  "login": false,
+  "environment_overrides": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit": 0,
+  "stdout": "IMPLEMENTATION_REPORT_OK\n",
+  "stderr": ""
+}

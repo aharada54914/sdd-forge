@@ -1,0 +1,13 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+    "specs/shared-review-launch-repair/verification/T-004.evidence.json",
+    "."
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:14:53.328352+00:00",
+  "finished_at": "2026-10-14T15:14:53.439493+00:00"
+}

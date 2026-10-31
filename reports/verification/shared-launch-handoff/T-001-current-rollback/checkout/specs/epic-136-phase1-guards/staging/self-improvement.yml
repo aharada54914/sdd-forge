@@ -1,0 +1,162 @@
+name: Weekly Self-Improvement
+
+# sdd-forge 週次セルフ改善ワークフロー。
+# .github/self-improvement-prompt.md の指示に従い、リポジトリを監査して
+# Issue 起票と小さな改善 PR の作成までを自動で行う。人間はスマホで
+# Issue / PR を確認してマージをタップするだけ。
+#
+# 必要なセットアップ(初回のみ):
+#   1. ローカルで `claude setup-token` を実行し、出力されたトークンを
+#      リポジトリ Secrets に CLAUDE_CODE_OAUTH_TOKEN として登録
+#      (Claude Pro/Max のサブスクリプション枠を消費。API従量課金なし)
+#      例: gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo <owner>/<repo>
+#   2. Settings → Actions → General → Workflow permissions で
+#      "Allow GitHub Actions to create and approve pull requests" を有効化
+#      (gh api -X PUT repos/<owner>/<repo>/actions/permissions/workflow
+#       -f default_workflow_permissions=read
+#       -F can_approve_pull_request_reviews=true でも可)
+#
+# セットアップ漏れは Preflight ステップが検出し、失敗 Issue に原因を明記する。
+# 動作確認は workflow_dispatch(Actions タブ → Run workflow)で随時実行できる。
+#
+# 既知の制限: 既定の GITHUB_TOKEN で作成された PR では CI (test.yml) が
+# 自動起動しない。代わりに本ワークフロー内で Linux 実行可能なテストを
+# 実行し、結果を PR 本文に貼る。完全な 3 OS CI が必要なら GitHub App
+# トークン方式に移行する(docs 参照)。
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # 毎週月曜 00:00 UTC = 09:00 JST
+  workflow_dispatch: {}
+
+# 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
+# id-token: write は削除済み。ピン留めした
+# anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a
+# (v1.0.165) の action.yml は id-token を、入力 anthropic_federation_rule_id を
+# anthropic_organization_id と併用する workload identity federation 時のみ要求する
+# (action.yml 入力 anthropic_federation_rule_id の説明:
+#  "...the action authenticates to the Claude API by exchanging the workflow's
+#  GitHub OIDC token instead of using a static API key. Requires `id-token:
+#  write` permission." / 入力 anthropic_oidc_audience: "Audience to request on
+#  the GitHub OIDC token used for workload identity federation.")。本ワークフローは
+# claude_code_oauth_token で認証し federation 入力を一切設定しないため OIDC 交換は
+# 発生せず、id-token: write は不要。SHA を更新した際は必ず再確認すること。
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: self-improvement
+  cancel-in-progress: false
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # fail-fast: 認証情報の欠落はセッション起動前に検出し、
+      # 失敗 Issue に人間が読める原因を残す(3週連続のサイレント失敗の再発防止)。
+      - name: Preflight - verify required secrets
+        id: preflight
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "failure_reason=CLAUDE_CODE_OAUTH_TOKEN secret が未登録です。ローカルで 'claude setup-token' を実行し、'gh secret set CLAUDE_CODE_OAUTH_TOKEN' で登録してください。" >> "$GITHUB_OUTPUT"
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN secret is not set. Run 'claude setup-token' locally, then 'gh secret set CLAUDE_CODE_OAUTH_TOKEN'."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      # 決定論的 PR 前ガードのベースライン(REQ-005 / AC-011, security-spec.md B2):
+      # セッション起動前に既に open だった PR の head ref を記録し、後続ガードが
+      # セッション自身が作成した PR だけを検査できるようにする。ここでの取得失敗は
+      # ベースラインを空にする(=すべての open PR をセッション作成扱いにする)ため
+      # fail-closed 側に倒れる。
+      - name: Record pre-session open pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
+            --json headRefName --jq '.[].headRefName' \
+            > "$RUNNER_TEMP/pre_session_pr_refs.txt" \
+            || : > "$RUNNER_TEMP/pre_session_pr_refs.txt"
+
+      - name: Run Claude self-improvement session
+        # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
+        # to pick up upstream fixes; verify the SHA against the release tag.
+        # NOTE: Generated PRs will be gated by required-checks from test.yml;
+        # no auto-merge will bypass CI. Manual review & approval is required.
+        uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            このリポジトリの .github/self-improvement-prompt.md を読み、
+            そこに書かれた手順と制約に厳密に従って週次セルフ改善を実行してください。
+          claude_args: |
+            --model claude-sonnet-5
+            --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"
+            --max-turns 75
+
+      # 決定論的な PR 前ガード(REQ-005 / AC-011 / AC-014, security-spec.md B2):
+      # このランが作成した PR(ベースラインに無い head ref の open PR)を列挙し、
+      # その変更ファイルパスを一時ファイルに集約して
+      # .github/scripts/self-improvement-pr-guard.sh に渡す。強制チェーンのサーフェス
+      # (ガードスクリプト・kill-switch・check-*・plugin フック設定・reports/・
+      # docs/workflow-improvements/・.github/workflows/・保護対象 SKILL.md・
+      # .claude 設定・保護対象テスト・plugin.json)への変更があればガードが exit 1 し、
+      # このステップの失敗がラン全体を失敗させる。PR が無ければ空リスト = vacuous pass。
+      # gh/jq の取得自体が失敗した場合は set -e / pipefail でランを失敗させる(fail-closed;
+      # 未ガードの PR を通さない)。
+      - name: Enforce enforcement-chain guard on session PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          changed="$RUNNER_TEMP/session_changed_paths.txt"
+          pre_refs="$RUNNER_TEMP/pre_session_pr_refs.txt"
+          [ -f "$pre_refs" ] || : > "$pre_refs"
+          mapfile -t pre < "$pre_refs"
+          # ベースラインに無い head ref の open PR = セッションが作成した PR。
+          # その PR の変更ファイルパスだけを集約する(重複除去)。
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
+            --json headRefName,files \
+            | jq -r '.[] | select(([.headRefName] | inside($ARGS.positional)) | not) | (.files // [])[].path' \
+                --args "${pre[@]}" \
+            | sort -u > "$changed"
+          echo "セッション作成 PR に紐づく変更パス:"
+          cat "$changed" || true
+          bash .github/scripts/self-improvement-pr-guard.sh "$changed"
+
+      # 失敗時は既存の open な失敗 Issue に追記し、無ければ新規作成する
+      # (毎週の失敗で Issue が積み上がるのを防ぐ)。原因の見当も本文に残す。
+      - name: Report workflow failure as issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREFLIGHT_REASON: ${{ steps.preflight.outputs.failure_reason }}
+        run: |
+          reason="${PREFLIGHT_REASON:-Claude セッションまたは後続ステップが失敗しました。実行ログを確認してください。}"
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          body="$(printf -- '- 実行日時: %s\n- 推定原因: %s\n- 実行ログ: %s' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$reason" "$run_url")"
+          gh label create self-improvement --color 1D76DB \
+            --description "weekly automated audit" 2>/dev/null || true
+          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search '"Weekly self-improvement run failed" in:title' \
+            --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" \
+              --body "$(printf -- '再失敗:\n%s' "$body")"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" \
+              --title "Weekly self-improvement run failed ($(date -u +%Y-%m-%d))" \
+              --label self-improvement \
+              --body "$body"
+          fi

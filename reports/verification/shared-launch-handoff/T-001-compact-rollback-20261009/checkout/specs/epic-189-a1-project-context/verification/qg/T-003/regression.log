@@ -1,0 +1,399 @@
+=== bash tests/project-context-schema.tests.sh ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 41
+FAIL: 0
+exit=0
+=== pwsh tests/project-context-schema.tests.ps1 ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 41
+FAIL: 0
+exit=0
+=== bash tests/approver-registry-schema.tests.sh ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+exit=0
+=== pwsh tests/approver-registry-schema.tests.ps1 ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+exit=0
+=== bash tests/canonicalize-sdd-yaml.tests.sh ===
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .sh produce an identical SHA-256
+PASS: TEST-009 .ps1 produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .sh dispatch-not-reimplement proof (.sh alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .js dispatch-not-reimplement proof (.js alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+PASS: TEST-009 .sh denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+PASS: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted as "b: c"
+PASS: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint
+PASS: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected
+PASS: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'
+PASS: TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected
+PASS: TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted to {' k':'v'}
+PASS: TEST-REMEDY2 the multi-line coupled fixture (nested '-   k: v' + aligned sibling) now gets the construct-specific separator diagnostic, not the misleading generic one
+PASS: TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document
+PASS: TEST-REMEDY2 the tab-separator rejection names 'tab' specifically
+PASS: TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'
+PASS: TEST-REMEDY2 correct single-space '- k: v' still succeeds
+PASS: TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds
+PASS: TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted to {"<<":{...}}
+PASS: TEST-REMEDY3 the merge-key rejection names 'merge key' specifically
+PASS: TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected
+PASS: TEST-REMEDY3 merge key with a sequence value is rejected
+PASS: TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected
+PASS: TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)
+PASS: TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key
+PASS: TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds
+PASS: TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds
+PASS: TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)
+PASS: TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY3(c) mapping-side 'k:   v' (multiple spaces after ':') still succeeds (deliberate, recorded non-change)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 twin exists
+PASS: 80
+FAIL: 0
+exit=0
+=== pwsh tests/canonicalize-sdd-yaml.tests.ps1 ===
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .ps1 produce an identical SHA-256
+PASS: TEST-009 .sh produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .ps1 denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+PASS: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted
+PASS: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint
+PASS: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected
+PASS: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'
+PASS: TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected
+PASS: TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted
+PASS: TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic, not the misleading generic one
+PASS: TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document
+PASS: TEST-REMEDY2 the tab-separator rejection names 'tab' specifically
+PASS: TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'
+PASS: TEST-REMEDY2 correct single-space '- k: v' still succeeds
+PASS: TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds
+PASS: TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted
+PASS: TEST-REMEDY3 the merge-key rejection names 'merge key' specifically
+PASS: TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected
+PASS: TEST-REMEDY3 merge key with a sequence value is rejected
+PASS: TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected
+PASS: TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)
+PASS: TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key
+PASS: TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds
+PASS: TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds
+PASS: TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)
+PASS: TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY3(c) mapping-side 'k:   v' still succeeds (deliberate, recorded non-change)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: 77
+FAIL: 0
+exit=0
+=== bash tests/generate-approval-sidecar.tests.sh ===
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+PASS: TEST-011 staged signing succeeds (exit 0)
+PASS: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+PASS: TEST-011 approved-context snapshot is byte-exact with the live content file
+PASS: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes
+PASS: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256
+PASS: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation
+PASS: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+PASS: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+PASS: TEST-034 a simulated failure after the sidecar write leaves no partial artifact at the staged path
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+PASS: TEST-034 a simulated failure after the snapshot write leaves no partial artifact at the staged path
+PASS: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory
+PASS: TEST-036 golden vector's HMAC matches the hand-verified expected value
+PASS: TEST-036 mutating schema changes the HMAC
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating effective_at changes the HMAC
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+PASS: SEAM bootstrap (no live sidecar): signing succeeds
+PASS: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1
+PASS: SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE
+PASS: SEAM non-bootstrap: writes NO staged candidate
+PASS: TEST-HARDEN(a) identical primary/second approver id refused (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+PASS: TEST-HARDEN(b) an invalid-UTF-8 approver id is rejected (PREIMAGE_CANONICALIZATION_FAILED), never a traceback
+PASS: TEST-HARDEN(b) hostile-field refusal writes no staged artifact
+PASS: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2)
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+PASS: TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it
+PASS: TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 twin exists
+PASS: 57
+FAIL: 0
+exit=0
+=== pwsh tests/generate-approval-sidecar.tests.ps1 ===
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+PASS: TEST-011 staged signing succeeds (exit 0)
+PASS: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+PASS: TEST-011 approved-context snapshot is byte-exact with the live content file
+PASS: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes
+PASS: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256
+PASS: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation
+PASS: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+PASS: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+PASS: TEST-034 a simulated failure after the sidecar write leaves no partial artifact at the staged path
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+PASS: TEST-034 a simulated failure after the snapshot write leaves no partial artifact at the staged path
+PASS: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory
+PASS: TEST-036 golden vector's HMAC matches the hand-verified expected value
+PASS: TEST-036 mutating schema changes the HMAC
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating effective_at changes the HMAC
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+PASS: SEAM bootstrap (no live sidecar): signing succeeds
+PASS: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1
+PASS: SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE
+PASS: SEAM non-bootstrap: writes NO staged candidate
+PASS: TEST-HARDEN(a) identical primary/second approver id refused (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+PASS: TEST-HARDEN(b) an invalid-UTF-8/unpaired-surrogate field value is rejected (PREIMAGE_CANONICALIZATION_FAILED), never a traceback
+PASS: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2)
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+PASS: TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it
+PASS: TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 55
+FAIL: 0
+exit=0

@@ -1,0 +1,183 @@
+{
+  "task_id": "T-002",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "80584525647fccd41d560850d1b8dfa9a44439644047ab6540212a6bffe60348",
+  "quality_report": "reports/quality-gate/20261010-shared-review-launch-repair-T-002.md",
+  "verification_contract": "specs/shared-review-launch-repair/verification/T-002.contract.json",
+  "git_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/component.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/ruff.log",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/mypy.log",
+      "evidence_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-restoration-380hac14/restored-hash-parity.log",
+      "evidence_sha256": "cd016dcc27c6dc2e3d6db8946c897bc9558c9471c82fda802bf0b9a11662d4a6"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/build.log",
+      "evidence_sha256": "db975f852e59e53d089d92764f7f1ef1334895e2bf6dedb8d328ca88f25aee3e"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/placeholder.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/task-state.log",
+      "evidence_sha256": "3a16dd5381125ed075d1e04410261bfad70aa66cf4deb0a1f3c57eb59bfe5ca4"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-evidence-coverage.md",
+      "evidence_sha256": "79145fff9e1899ac20dac6000dd7d5a90071f1752ec4be9c1e9170827f71cae7"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-evidence-coverage.md",
+      "evidence_sha256": "79145fff9e1899ac20dac6000dd7d5a90071f1752ec4be9c1e9170827f71cae7"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.log",
+      "evidence_sha256": "559f6aff9bb40053c7c73cb80f8777bdd5b9153f0dc66c174831b9d81a9fee7f"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002.contract.json",
+      "sha256": "b9a49db41d3828215bd0cf3071ba783e30583dd614d62dadd916e20ef7a416a9"
+    },
+    {
+      "path": "reports/quality-gate/20261010-shared-review-launch-repair-T-002.md",
+      "sha256": "cfe6b34c87b74b2fb55a72447e153ea266992627574666b2fc3cedd442d622eb"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-evidence-coverage.md",
+      "sha256": "79145fff9e1899ac20dac6000dd7d5a90071f1752ec4be9c1e9170827f71cae7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-380hac14/restored-hash-parity.log",
+      "sha256": "cd016dcc27c6dc2e3d6db8946c897bc9558c9471c82fda802bf0b9a11662d4a6"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/build.log",
+      "sha256": "db975f852e59e53d089d92764f7f1ef1334895e2bf6dedb8d328ca88f25aee3e"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/mypy.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/task-state.log",
+      "sha256": "3a16dd5381125ed075d1e04410261bfad70aa66cf4deb0a1f3c57eb59bfe5ca4"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.log",
+      "sha256": "559f6aff9bb40053c7c73cb80f8777bdd5b9153f0dc66c174831b9d81a9fee7f"
+    }
+  ]
+}

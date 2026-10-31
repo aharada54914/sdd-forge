@@ -1,0 +1,17 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "gh",
+    "run",
+    "view",
+    "38185550821",
+    "--repo",
+    "aharada54914/sdd-forge",
+    "--json",
+    "headSha,status,conclusion,jobs,url"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:12:11.036557+00:00",
+  "finished_at": "2026-10-14T15:12:15.815249+00:00"
+}

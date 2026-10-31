@@ -1,0 +1,39 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "workflow-state-integrity",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "5bf6474e1a5cdbfe5344398d3231ced924108f9a40da7d7792352ae4f3d8b82f",
+  "acceptance_sha256": "c9703749f3fad3bff342a029e556a73420b376f40deb26302a223d4064730e9c",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-wsi-a1r1-20260627",
+      "host_session_id": "host-spec-a-wsi-a1r1-20260627",
+      "allowed_input_manifest": [
+        {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "5bf6474e1a5cdbfe5344398d3231ced924108f9a40da7d7792352ae4f3d8b82f"},
+        {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "c9703749f3fad3bff342a029e556a73420b376f40deb26302a223d4064730e9c"},
+        {"path": "specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json", "sha256": "fbf90499a150b96a957c3d79059c3864368851a00174c22b9876e7145c93183b"},
+        {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-wsi-a1r1-20260627",
+      "host_session_id": "host-spec-b-wsi-a1r1-20260627",
+      "allowed_input_manifest": [
+        {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "5bf6474e1a5cdbfe5344398d3231ced924108f9a40da7d7792352ae4f3d8b82f"},
+        {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "c9703749f3fad3bff342a029e556a73420b376f40deb26302a223d4064730e9c"},
+        {"path": "specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json", "sha256": "fbf90499a150b96a957c3d79059c3864368851a00174c22b9876e7145c93183b"},
+        {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json", "sha256": "cac61fefb96b57280c8e77ece956488517beafccd2ff5af0a9dce55055067b29"},
+        {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    }
+  ],
+  "run_id": "spec-orchestrator-wsi-a1r1-20260627",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

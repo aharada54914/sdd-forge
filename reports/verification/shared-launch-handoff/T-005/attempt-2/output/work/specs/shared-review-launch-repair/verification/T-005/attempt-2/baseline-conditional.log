@@ -1,0 +1,21 @@
+test_absence_observed (__main__.Inputs.test_absence_observed) ... ok
+test_aggregate_rejects_unsafe_and_symlink_cards (__main__.Inputs.test_aggregate_rejects_unsafe_and_symlink_cards) ... ok
+test_aggregate_selection_all_cards_only_selected_context (__main__.Inputs.test_aggregate_selection_all_cards_only_selected_context) ... ok
+test_canonical_admission_both_runtimes (__main__.Inputs.test_canonical_admission_both_runtimes) ... ok
+test_ds_requires_three_and_spec_excludes (__main__.Inputs.test_ds_requires_three_and_spec_excludes) ... ok
+test_historical_conditional_paths_need_exact_name_and_input_binding (__main__.Inputs.test_historical_conditional_paths_need_exact_name_and_input_binding) ... ok
+test_impl_design_system_completeness_both_runtimes (__main__.Inputs.test_impl_design_system_completeness_both_runtimes) ... ok
+test_invalid_schema_preserves_skip (__main__.Inputs.test_invalid_schema_preserves_skip) ... ok
+test_multiple_contexts_bind_sorted_union_without_relevance_filter (__main__.Inputs.test_multiple_contexts_bind_sorted_union_without_relevance_filter) ... ok
+test_path_boundaries (__main__.Inputs.test_path_boundaries) ... ok
+test_persisted_reservation_keeps_historical_conditional_selection (__main__.Inputs.test_persisted_reservation_keeps_historical_conditional_selection) ... ok
+test_schema_dependency_missing_blocks (__main__.Inputs.test_schema_dependency_missing_blocks) ... ok
+test_status_case_skips_and_bytes_bound (__main__.Inputs.test_status_case_skips_and_bytes_bound) ... ok
+test_strict_na_and_skip_hash (__main__.Inputs.test_strict_na_and_skip_hash) ... ok
+test_symlink_ancestor_and_broken_ds_rejected (__main__.Inputs.test_symlink_ancestor_and_broken_ds_rejected) ... ok
+test_versions (__main__.Inputs.test_versions) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 28.876s
+
+OK

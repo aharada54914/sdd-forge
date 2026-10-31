@@ -1,0 +1,15 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+    "specs/shared-review-launch-repair/verification/T-004.contract.json",
+    "reports/quality-gate/20261015-shared-review-launch-repair-T-004.md",
+    ".",
+    "specs/shared-review-launch-repair/verification/T-004.evidence.json"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:14:53.209939+00:00",
+  "finished_at": "2026-10-14T15:14:53.328227+00:00"
+}

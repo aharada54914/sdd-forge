@@ -1,0 +1,253 @@
++ epic-159-pillar-c cross-suite regression set (all six T-001..T-006 suites run back-to-back, both bash and pwsh lanes where twins exist)
+== start: 2026-07-18T05:53:31Z ==
+###### bash tests/agent-capabilities-v2.tests.sh ######
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6cc5a9dbefaee26a887900520e8e7274c361550f07289605a7ac76a4db85da1c)
+---- summary: pass=10 fail=0 ----
+ok: agent-capabilities-v2 suite passed (10 checks)
+EXIT: 0
+###### pwsh tests/agent-capabilities-v2.tests.ps1 ######
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6CC5A9DBEFAEE26A887900520E8E7274C361550F07289605A7AC76A4DB85DA1C)
+
+agent-capabilities-v2.tests.ps1: 10 passed, 0 failed
+EXIT: 0
+###### bash tests/agent-model-routing.tests.sh (T-002 + T-005 shared file, full case list) ######
+ok: turn-first model routing structure is defined
+EXIT: 0
+###### pwsh tests/agent-model-routing.tests.ps1 (T-005 new twin) ######
+Risk check passed for 1 task(s).
+Risk check FAILED:
+ - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)
+ok: turn-first model routing structure is defined (PowerShell twin)
+EXIT: 0
+###### bash tests/render-agent-frontmatter.tests.sh ######
+ok: TEST-016: --check exits non-zero when every target still has drift
+ok: TEST-016: --check reports DRIFT for every un-rendered target (unprotected and protected)
+ok: TEST-020: --check performed zero writes (all targets byte-unchanged, no human-copy dir created)
+ok: TEST-020 GREEN: --check reports OK (no drift) against a correctly-synced protected-position target
+ok: TEST-020 RED (negative self-check): mutating a synced protected-position target's x-sdd-effort value turns --check red again
+ok: TEST-019 GREEN: resolve-target-raw(Protected=1) resolves all four protected basenames under specs/epic-159-pillar-c/human-copy/, never the real path
+ok: TEST-019 GREEN (default table): the shipped TARGETS table resolves all four protected basenames to human-copy/
+ok: TEST-019 RED (widened/mis-scoped map): forcing Protected=0 on a protected basename resolves to the REAL path -- proves the resolution function is live, not vacuously safe
+ok: TEST-014: unprotected Claude .md targets keep model: unchanged and gain exactly one x-sdd-effort comment line, sourced from role_defaults
+ok: TEST-015: Codex .toml targets gain # x-sdd-model:/# x-sdd-effort: header comments; existing TOML keys untouched
+ok: TEST-017: render against real production content is a zero-diff no-op on every unprotected target's model: value (role_defaults correctly seeded)
+ok: TEST-019: a full render pass left all four protected-position targets byte-unchanged at their real path
+ok: TEST-019: corrected content for all four protected targets staged under human-copy/ with a matching MANIFEST.sha256 entry
+ok: TEST-018: a model: inherit agent is byte-unchanged after a render targeting it
+ok: TEST-018: a role-map-absent agent (domain-reviewer-a.md) is not present in the built-in TARGETS table
+ok: TEST-016: render-agent-frontmatter --check is wired into tests/validate-repository.ps1
+ok: TEST-016: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: mis-cased fixture: a role_defaults key differing only in case ('Sdd-Evaluator') is rejected, not silently matched to 'sdd-evaluator'
+ok: mis-cased fixture: a canonical_tier value differing only in case ('Strong') is rejected, not silently matched to 'strong'
+ok: self-registration: render-agent-frontmatter.tests.sh registered in tests/run-all.sh
+ok: self-registration: render-agent-frontmatter.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: all five staged candidates (four reviewer .md + test.yml) exist with a correct MANIFEST.sha256 entry
+ok: AC-019/AC-027-style: the four live protected reviewer .md files are byte-unchanged before/after this suite's own run
+---- summary: pass=23 fail=0 ----
+ok: render-agent-frontmatter suite passed (23 checks)
+EXIT: 0
+###### pwsh tests/render-agent-frontmatter.tests.ps1 ######
+ok: TEST-016: --check exits non-zero when every target still has drift
+ok: TEST-016: --check reports DRIFT for every un-rendered target (unprotected and protected)
+ok: TEST-020: --check performed zero writes (all targets byte-unchanged, no human-copy dir created)
+ok: TEST-020 GREEN: --check reports OK (no drift) against a correctly-synced protected-position target
+ok: TEST-020 RED (negative self-check): mutating a synced protected-position target x-sdd-effort value turns --check red again
+ok: TEST-019 GREEN: -ResolveTargetRaw(Protected=1) resolves all four protected basenames under specs/epic-159-pillar-c/human-copy/, never the real path
+ok: TEST-019 GREEN (default table): the shipped TARGETS table resolves all four protected basenames to human-copy/
+ok: TEST-019 RED (widened/mis-scoped map): forcing Protected=0 on a protected basename resolves to the REAL path -- proves the resolution function is live
+ok: TEST-014: unprotected Claude .md targets keep model: unchanged and gain exactly one x-sdd-effort comment line
+ok: TEST-015: Codex .toml targets gain # x-sdd-model:/# x-sdd-effort: header comments; existing TOML keys untouched
+ok: TEST-017: render against real production content is a zero-diff no-op on every unprotected target model: value
+ok: TEST-019: a full render pass left all four protected-position targets byte-unchanged at their real path
+ok: TEST-019: corrected content for all four protected targets staged under human-copy/ with a matching MANIFEST.sha256 entry
+ok: TEST-018: a model: inherit agent is byte-unchanged after a render targeting it
+ok: TEST-018: a role-map-absent agent (domain-reviewer-a.md) is not present in the built-in TARGETS table
+ok: TEST-016: render-agent-frontmatter --check is wired into tests/validate-repository.ps1
+ok: TEST-016: the staged .github/workflows/test.yml candidate registers this suite CI step(s)
+ok: mis-cased fixture: a role_defaults key differing only in case ('Sdd-Evaluator') is rejected, not silently matched to 'sdd-evaluator'
+ok: mis-cased fixture: a canonical_tier value differing only in case ('Strong') is rejected, not silently matched to 'strong'
+ok: self-registration: render-agent-frontmatter.tests.sh registered in tests/run-all.sh
+ok: self-registration: render-agent-frontmatter.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: all five staged candidates (four reviewer .md + test.yml) exist with a correct MANIFEST.sha256 entry
+ok: AC-019/AC-027-style: the four live protected reviewer .md files are byte-unchanged before/after this suite own run
+---- summary: pass=23 fail=0 ----
+ok: render-agent-frontmatter suite passed (23 checks)
+EXIT: 0
+###### bash tests/emit-run-record-feature-scope.tests.sh ######
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+ok: AC-021: schema bumps to v2 when any --effort-* flag supplied (.schema = sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (.feature = feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (.track = lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (.model_ids.main = unknown)
+ok: AC-021: effort.main has exactly the three subfields ((.effort.main | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: effort.reviewers has exactly the three subfields ((.effort.reviewers | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: v1 metrics object unchanged in v2 shape (.metrics.tasks.total = 1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: --effort-applied-main with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when --effort-main itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ({
+  "effort_applied": null,
+  "effort_degraded_reason": "effort-control-frontmatter"
+})
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased --effort-control-main value is rejected fail-closed
+ok: AC-025: no --effort-* flag supplied emits v1 schema, unchanged (.schema = sdd-run-record/v1)
+ok: AC-025: v1 shape has no effort key at all (has("effort") = false)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.sh: 36 passed, 0 failed
+EXIT: 0
+###### pwsh tests/emit-run-record-feature-scope.tests.ps1 ######
+ok: gate_reports.total counts only feat-a reports (3)
+ok: feat-b's BLOCKED report is not counted for feat-a (0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (2)
+ok: only feat-a T-002 passed on a single gate run (1)
+ok: review_tickets.major counts only feat-a tickets (1)
+ok: feat-b's critical ticket is not counted for feat-a (0)
+ok: CRLF feat-a ticket severity is counted (1)
+ok: AC-021: schema bumps to v2 when any -Effort* param bound (sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (unknown)
+ok: AC-021: effort.main has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: effort.reviewers has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: v1 metrics object unchanged in v2 shape (1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code (effort-control-frontmatter)
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed
+ok: AC-025: no -Effort* param bound emits v1 schema, unchanged (sdd-run-record/v1)
+ok: AC-025: v1 shape has no effort key at all (False)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.ps1: 36 passed, 0 failed
+EXIT: 0
+###### bash tests/run-panelist-effort.tests.sh ######
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-035 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/stub-feat/verification/T-035.panelist-openai.verdict.json
+ok: TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex (task=T-035b feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/stub-feat/verification/T-035b.panelist-openai.verdict.json
+ok: TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.sh threads --effort onto a second stdout line, verbatim
+ok: TEST-036: omitting --effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex --effort medium (task=T-036 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/stub-feat/verification/T-036.panelist-openai.verdict.json
+ok: TEST-036: the value threaded by prepare-panelist-input.sh reaches run-panelist-gpt's assembled codex argv unchanged
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-037-sdd-evaluator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/stub-feat/verification/T-037-sdd-evaluator.panelist-openai.verdict.json
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex-mini --effort low (task=T-037-sdd-investigator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/stub-feat/verification/T-037-sdd-investigator.panelist-openai.verdict.json
+ok: TEST-037: select-agent-model --host codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model --host claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-052-control feature=f)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6ZJl1JwWSa/specroot/f/verification/T-052-control.panelist-openai.verdict.json
+ok: TEST-052 positive control: a well-formed --model/--effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the run_gpt() wrapper, which unconditionally overrides PATH to the stub codex (7 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+---- summary: pass=28 fail=0 ----
+ok: run-panelist-effort suite passed (28 checks)
+EXIT: 0
+###### pwsh tests/run-panelist-effort.tests.ps1 ######
+ok: TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model
+ok: TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.ps1 threads -Effort onto a second stdout line, verbatim
+ok: TEST-036: omitting -Effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+ok: TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged
+ok: TEST-037: select-agent-model -HostName codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model -HostName claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 positive control: a well-formed -Model/-Effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the Invoke-RunGpt wrapper, which unconditionally overrides $env:PATH to the stub codex (11 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+
+run-panelist-effort.tests.ps1: 28 passed, 0 failed
+EXIT: 0
+== end: 2026-07-18T05:54:33Z ==

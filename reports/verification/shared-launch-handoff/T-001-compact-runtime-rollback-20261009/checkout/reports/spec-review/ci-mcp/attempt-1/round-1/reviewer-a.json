@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-cimcp-a1r1-20260706-d4f2",
+  "host_session_id": "hs-spec-a-8eee4773-0001",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "8710fc6a621042781869201ba60ad5ad9f0dc5f17a46773f871d293672c9a690"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/acceptance-tests.md",
+      "sha256": "160da7026c73416472e619946dd24e236b56b766c27ae4f935aa775dc2273550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/requirements.md",
+      "sha256": "22eb877c4d1b266c7f737345e87a63f055e68f0367335d5c66570f2f667efdd5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-013 each specify concrete, measurable acceptance signals: exact HTTP method restriction (GET-only, no POST/PATCH/PUT/DELETE), a 256 KiB truncation threshold with truncated/returnedBytes fields (REQ-008, AC-004), a fixed 7+3 error-code enum with explicit upstream-status mappings (REQ-006, AC-010/011), and static-check requirements for write-method absence, fs-write absence, child_process absence, and eval absence (REQ-003, AC-006/007). Every requirement traces to at least one AC with a named integration/unit/static test id and target path, giving a downstream implementer/verifier an unambiguous pass/fail signal."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five Goals bullets map to ACs: read-only CI info retrieval -> AC-001/002/003/004/005/013/015; zero write-tool exposure -> AC-006/007; token non-leakage -> AC-008/009; upstream error/rate-limit normalization -> AC-010/011; installer distribution and idempotent registration -> AC-016/017/018/019 (README doc coverage AC-019). No goal lacks a corresponding acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each AC-001..019 states an externally observable outcome: specific envelope fields returned (AC-001-005), a grep-based static-analysis PASS/FAIL (AC-006/007), byte-for-byte dist-parity rebuild comparison (AC-014), stdio tools/list tool-count smoke check (AC-015), and installer file-placement/registration-entry diffs with HOME isolation (AC-016-018). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes write operations, artifact binary download (deferred to OQ-002 with an owner and resolution path), non-Actions GitHub features (explicitly deferred to github-mcp-server/sdd-forge-mcp), GHES base-URL handling (deferred to OQ-003), gh CLI token/exec usage, and knowledge-mcp/repo-mirror (separate phase/issue). Boundaries are concrete rather than open-ended."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (B1-B3) states auth/authz requirements, data classification (internal, upstream treated as untrusted), and regulatory constraint (GitHub API ToS/rate limit) per trust boundary. REQ-005 mandates env-var-only token intake with scrubbing from response/log/error paths. Assumptions section records the required PAT scope class and records that the read-only boundary plus its static verification is to be captured as ADR-0006 with explicit 'human approval' noted as required (人間の承認対象とする), giving an explicit approval boundary."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section lists three high-risk claims, each tied to a concrete validation surface: write-tool/write-API leakage risk -> static GET-fixed check + negative tests (AC-006/007, TEST-006/007); token/log leakage risk -> mandatory canary-scrubbing test (AC-009, TEST-009); upstream API/rate-limit behavior drift -> fake-HTTP error-path tests (AC-010/011, TEST-010/011). The memory-exhaustion risk from oversized job logs is mitigated via the 256 KiB tail-priority truncation validated by AC-004/TEST-004. No high-risk claim is left without a planned validation path."
+    }
+  ]
+}

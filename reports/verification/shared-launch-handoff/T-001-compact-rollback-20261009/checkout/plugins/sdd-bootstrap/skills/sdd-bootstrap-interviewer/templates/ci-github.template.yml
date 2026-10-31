@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show repository
+        run: ls -la
+
+      - name: TODO_REPLACE_WITH_PROJECT_COMMANDS
+        run: |
+          echo "TODO_REPLACE_WITH_PROJECT_COMMANDS: replace this step with the project's lint/typecheck/test/build commands."
+          exit 1

@@ -1,0 +1,59 @@
+{
+  "task_id": "T-004",
+  "feature": "design-sync-consent",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "b1c503eae137f40a20c7db2d20540fc5a7536ae90379b5017a60effc9d5081fd",
+  "quality_report": "reports/quality-gate/20260805T142054Z-design-sync-consent-T-004.md",
+  "verification_contract": "specs/design-sync-consent/verification/T-004.contract.json",
+  "git_commit": "0e455878b6af656503d605f7afcf267c610f7bf7",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-consent/verification/T-004.contract.json",
+      "sha256": "1dae803b0d6929013c6084bf9d47b2d970bc6f7bf3da7806c3c047dbc6e74f68"
+    },
+    {
+      "path": "reports/quality-gate/20260805T142054Z-design-sync-consent-T-004.md",
+      "sha256": "5ea69876f13906a52ab8d51d462e75073e73bce5d7f42b7b3d44db64325a20e6"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-004/acceptance-mapping.md",
+      "sha256": "512932ba7fff5be7fa73dafdeae5a5a54d802ecd25d23dd43bedb5c7e4db081d"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-004/green-evidence-sh.log",
+      "sha256": "cba8664e1e9a050e9a17d64ff3ddcb8fb0323c0632e6098fda33429fb802b496"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/placeholder-T-004.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/run-all.log",
+      "sha256": "8d07f0108968efdc2b4c7799f20ed7216fd7b27ffb78e604e402b74d2e66f958"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

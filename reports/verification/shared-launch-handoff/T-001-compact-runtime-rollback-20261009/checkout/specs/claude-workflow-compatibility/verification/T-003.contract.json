@@ -1,0 +1,24 @@
+{
+  "task_id": "T-003",
+  "feature": "claude-workflow-compatibility",
+  "risk": "medium",
+  "stack": "shell",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-06-24T12:00:00Z",
+  "comment": "Default-FAIL verification contract for T-003. The task changes shell and PowerShell installer behavior plus JSON/Markdown plugin assets. Compile-oriented checks are waived because this repository has no configured linter, typechecker, or build target; acceptance and regression tests remain required.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell, PowerShell, JSON, and Markdown repository has no configured linter.", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "This repository has no configured typechecker.", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-003.unit.log", "waiver_reason": "", "requirement_ids": ["REQ-003", "REQ-006"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-003.unit.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "The required installer and CLI integration coverage is recorded under acceptance-tests and regression rather than a separate test runner category.", "requirement_ids": ["REQ-001", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "The repository has no build configuration for these shell, PowerShell, JSON, and Markdown assets.", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-003.gates.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-003.gates.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-003.acceptance.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-003.acceptance.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-003.regression.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-003.regression.log" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "The task changes CLI plugin installation assets, not a startable application; the real Claude CLI validation is covered by acceptance-tests.", "requirement_ids": ["REQ-001", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-003 is a compatibility fix without a baseline-behavior change requiring differential comparison.", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-003 has no user-facing browser UI.", "requirement_ids": ["REQ-001", "REQ-003", "REQ-004", "REQ-006"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

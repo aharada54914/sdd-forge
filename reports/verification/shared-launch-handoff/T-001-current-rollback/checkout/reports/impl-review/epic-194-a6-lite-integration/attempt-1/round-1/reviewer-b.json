@@ -1,0 +1,83 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-194-a6-lite-integration-impl-impl-reviewer-b-a1r1-seq0325",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-194-a6-lite-integration-a1r1-0325",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"},
+    {"path": "specs/epic-194-a6-lite-integration/design.md", "sha256": "77352510dec4797412931912c15ba37863b04b3f65c3ac52b2f9905b0a1b4aa4"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"},
+    {"path": "specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+    {"path": "specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"},
+    {"path": "specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"},
+    {"path": "specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-194-a6-lite-integration/attempt-1/round-1/precheck-result.json", "sha256": "13ef102c330bab7127ea28d2b89c3791143070ed029c5722935cb5c5dbf6d812"},
+    {"path": "reports/impl-review/epic-194-a6-lite-integration/attempt-1/round-1/integrated-summary.json", "sha256": "f4136dd935982e46c8dba5d67401b75b753af789f2179d10cce2119f0d127119"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every decision in design.md's Design Decisions section (field name required_lite_checks; lite-check-catalog.json 3-token seed; eleven-category-to-token mapping; merge ordering keyword-before-capability; no-re-validation-inside-check-risk-upgrade; Step 2b no-op/unmapped rules; OQ-002 candidate (a) selection) states explicit rationale (e.g. 'chosen because...', 'Selected because it is available at the exact pre-generation position...', design.md lines 850-963). Component-table technology choices (PowerShell runner 'mirroring Epic-136's own runner shape'; no new .py/.js master under Global Constraints 'Cross-runtime parity') are each accompanied by a stated reason. No unjustified 'We will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's and requirements.md's '## Open Questions' sections (design.md:1074-1081, requirements.md:1153-1183) contain no unresolved entries: OQ-001, OQ-002, and OQ-003 are each marked CLOSED/RESOLVED by 'orchestrator ruling 2026-07-22', with the resolving authority named and the concrete resolved behavior stated normatively in design.md's Architecture/API-Contract-Plan/Design Decisions sections (e.g. OQ-002 candidate (a) selected, ship-time recheck retained as mandatory second stage, design.md:924-963). No literal 'Blocks Implementation:'/'Resolution Path:' field labels are used (grep confirmed), but since no entry remains open/pending, there is no unresolved question lacking an owner or resolution path for this check to fail on. Layer-spec Open Questions sections (ux/frontend/infra/security-spec.md) each state 'None'."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (45 KB, INV-001..INV-021). All four requirements.md Assumptions (lines 1129-1152) are explicitly grounded in cited investigation.md findings: A2/A3/A4 schema stability -> INV-002; A5's current-text field-naming grounding -> INV-004 (restated with Risks cross-reference); lite-gate/SKILL.md unprotected status -> INV-008; no Capability Pack exists yet -> INV-013. design.md's own Assumptions section (lines 1057-1072) restates the same three grounded assumptions design-elaborated. No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (lines 1042-1055; Primary/TYPE-D path applies). A repository-wide grep of requirements.md for the fallback keyword set ('must not', 'shall not', 'within N ms', 'maximum N', 'compliant with', 'compatible with', performance/SLA terms) returned zero matches -- requirements.md declares no explicit performance/regulatory/compatibility numeric constraint. The two generic constraints design.md's Constraint Compliance section does address (1ファイル500行以内; 型安全・エラーハンドリング) are both covered with rationale. requirements.md's own Security Boundaries constraints (fail-closed behavior, no new write surface) are separately restated and design-elaborated in design.md's own Security Boundaries section (lines 987-1024) with no contradiction found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A targeted grep for performance/latency/throughput/concurrency/SLA/response-time/p95/p99 keywords across requirements.md returned zero matches; the feature is a Phase-1, no-runtime-service design (infra-spec.md Scaling Strategy: 'no runtime service, no concurrency model of its own... single, deterministic, synchronous invocation')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1031-1040) states the CI pipeline impact concretely (existing generate-gate-capabilities.py --check drift cycle re-runs unmodified; no new CI job; future tests/*.tests.sh/.ps1 pairs wired into .github/workflows/test.yml the same way sibling epics' pairs are). infra-spec.md (required layer doc, explicitly stated to 'expand design.md's Deployment / CI Plan') supplies deployment target detail via its Environments table (local dev / CI GitHub Actions / staging-production N/A, with rationale 'no runtime service, no cloud deployment') and CI/CD Sequence diagram. Feature-flag strategy is not applicable -- this Phase 1 package ships no runtime-toggleable feature (no incremental rollout of a live capability). Migration execution order is addressed: no database exists (infra-spec.md Data Residency and Retention: 'No database, no migration, no runtime storage anywhere in this feature'); the only 'schema changes' are additive JSON-Schema/catalog-file field/value additions with a stated additive-only migration rule (requirements.md REQ-001 item 3, AC-002) and a stated rollback path (infra-spec.md Rollback: git revert for unprotected files, anchored-runner re-application for protected files)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan (lines 350-481) declares only additive JSON-Schema-fragment and catalog-value changes (Registry lite_policy v1.1 third key; new contracts/lite-check-catalog.json; contracts/lite-upgrade-reason-catalog.json catalog_version bump) -- no relational-database column or table changes exist anywhere in this feature (infra-spec.md Data Residency and Retention: 'No database, no migration, no runtime storage anywhere in this feature'), so the check's trigger condition (column/table schema changes) is not met, equivalent to a 'No data changes' Data Plan for migration-planning purposes. A migration rule is nonetheless stated (requirements.md REQ-001 item 3: v1 Registry instances remain schema-valid with no change, absent key defaults to []) and a rollback strategy is stated (infra-spec.md Rollback section: standard git revert for unprotected/data-file changes; anchored-runner re-application with corrected MANIFEST.sha256 for protected-path changes). No table exceeds 10k rows since no table exists."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section (line 1026-1029) states 'None. Every artifact this design reads or extends is already internal to this repository (Registry, Capability Summary, sdd-lite scripts/skills)' -- no third-party service or external API is referenced anywhere in design.md, acceptance-tests.md, or the four layer specs (grep-verified: no payment/SaaS/webhook/external-URL reference found). The internal cross-epic script invocations this feature does make (A2's evaluate-predicate CLI at REQ-005's pre-generation gate; the A4/A5-owned validate-capability-summary schema validator at REQ-003) are same-repo, same-process, deterministic subprocess calls (not independently-available external services), and are each documented with purpose and contract in design.md's Cross-Layer Dependencies section (lines 292-333), Architecture diagram, and API / Contract Plan, and in frontend-spec.md's Dependencies table (Status/Purpose/Alternative columns, lines 37-42)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table (lines 134-147) maps to a specific REQ-001..REQ-005 in requirements.md's Goals section, and every requirements.md REQ-001..REQ-006 has a corresponding design.md Architecture/API-Contract-Plan/Test-Strategy elaboration. The one new component not literally named in requirements.md's Goals bullets -- the feature-scoped anchored human-copy runner -- is itself a design-only contract fix for a gap requirements.md's own Dependencies section already flags (Major [M3]), not an implemented artifact, and is explicitly scoped as 'a future implementation task authors and has this runner security-reviewed... this design fixes the contract, not the code' (design.md:265-268), so it does not constitute scope creep. All requirements.md User Stories (Capability author, lite-spec invoker, lite-gate invoker, Registry maintainer, human reviewer) are addressed by REQ-001/REQ-002/REQ-004/REQ-005 respectively in design.md."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization changes (protected-file human-copy boundary B5; Lite-check command-discovery injection-prevention grammar B4). Each is given a concrete, named validation path: security-spec.md's Security Tests table (lines 160-173) maps boundary B4 to design.md Test Strategy item 7 ('lite-gate-summary-consumption', paired bash+ps1 negative fixtures for path traversal/symlink/option-like ids, AC-015/AC-016) and boundary B5 to Test Strategy item 17 ('human-copy-runner-contract', AC-031). PII/payment/externally-visible-contract-change surfaces are absent (design.md External Integrations: 'None'; no PII data handled by this feature itself). No fullstack critical-user-journey surface exists (no UI, ux-spec.md/frontend-spec.md: 'N/A -- no UI')."
+    }
+  ]
+}

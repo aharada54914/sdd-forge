@@ -1,0 +1,9 @@
+{
+  "schema": "provider-terms/v1",
+  "comment": "Provider-name-contamination allowlist consulted case-insensitively by validate-capability-registry.py's check (g), REQ-003(g), ADR-0018's provider-neutrality boundary. This list is itself provider-neutral data (it names providers only to detect their names, the same way a profanity filter's word list is not itself profane) and is expected to grow as new providers are named in real Provider Bindings (ADR-0018 item 4).",
+  "categories": {
+    "cloud_provider": ["azure", "aws", "amazon", "gcp", "google-cloud"],
+    "distribution_channel": ["app-store", "google-play", "ms-store", "microsoft-store"],
+    "workflow_runtime_product_name": ["durable-functions", "step-functions", "lambda", "s3", "cosmos-db", "dynamodb", "argo"]
+  }
+}

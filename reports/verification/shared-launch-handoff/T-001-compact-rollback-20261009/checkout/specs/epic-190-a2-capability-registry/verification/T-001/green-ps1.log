@@ -1,0 +1,2 @@
+capability-registry-schema: 6 accept + 16 reject fixtures pass; canonical instance valid.
+exit: 0

@@ -1,0 +1,200 @@
+[
+  {
+    "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "baseline": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8",
+    "candidate": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+    "baseline_mode": 292,
+    "actual": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8",
+    "owner_now": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+    "old_disposable_now": "ed45dbaf5974a7c58ce16d264092f67bf419ef3e634f2e55c06c7f25e7c95af8"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "baseline": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963",
+    "candidate": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+    "baseline_mode": 292,
+    "actual": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963",
+    "owner_now": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+    "old_disposable_now": "e473b6674b28cc2ee63774dd8403b505f315e481b785372e00ab1afe59c58963"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "baseline": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca",
+    "candidate": "9b635597729d85e4808b850c76961af2c0853213d40e52bf7a88efa4580b6d70",
+    "baseline_mode": 292,
+    "actual": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca",
+    "owner_now": "9b635597729d85e4808b850c76961af2c0853213d40e52bf7a88efa4580b6d70",
+    "old_disposable_now": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "baseline": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20",
+    "candidate": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+    "baseline_mode": 292,
+    "actual": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20",
+    "owner_now": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+    "old_disposable_now": "ad390c434f23f173ac4c4f8ee23d421e48218c439b15e88c9fafb1270d0a8d20"
+  },
+  {
+    "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "baseline": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "candidate": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "baseline_mode": 292,
+    "actual": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "owner_now": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "old_disposable_now": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "baseline": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+    "candidate": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+    "baseline_mode": 292,
+    "actual": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+    "owner_now": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+    "old_disposable_now": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "baseline": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "candidate": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "baseline_mode": 292,
+    "actual": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "owner_now": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "old_disposable_now": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+  },
+  {
+    "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    "baseline": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+    "candidate": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+    "baseline_mode": 292,
+    "actual": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+    "owner_now": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+    "old_disposable_now": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+  },
+  {
+    "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+    "baseline": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd",
+    "candidate": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+    "baseline_mode": 292,
+    "actual": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd",
+    "owner_now": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+    "old_disposable_now": "069b7a6ac7b9bb93ff17c344ee707befa3bf3e479ad86f98b1f8056ff7c957cd"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "baseline": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+    "candidate": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+    "baseline_mode": 292,
+    "actual": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+    "owner_now": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+    "old_disposable_now": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+    "baseline": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b",
+    "candidate": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+    "baseline_mode": 292,
+    "actual": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b",
+    "owner_now": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+    "old_disposable_now": "6347f6744beeb29556ec60b8cc878b4c7d62862188c616a14a6851e313bee79b"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "baseline": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d",
+    "candidate": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+    "baseline_mode": 292,
+    "actual": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d",
+    "owner_now": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+    "old_disposable_now": "1ca0bda6f1df0f208995a310f48206695e236bc5f7555bfdaa99671b5be50a7d"
+  },
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "baseline": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+    "candidate": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+    "baseline_mode": 292,
+    "actual": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+    "owner_now": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+    "old_disposable_now": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333"
+  },
+  {
+    "path": "tests/quality-nontty-transport.tests.py",
+    "baseline": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8",
+    "candidate": "ca0989cf661c8e1945dd996690be36c68cad7cc17401d02af4dc640c8578a862",
+    "baseline_mode": 292,
+    "actual": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8",
+    "owner_now": "ca0989cf661c8e1945dd996690be36c68cad7cc17401d02af4dc640c8578a862",
+    "old_disposable_now": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8"
+  },
+  {
+    "path": "tests/unified-task-launch.tests.py",
+    "baseline": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+    "candidate": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+    "baseline_mode": 292,
+    "actual": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+    "owner_now": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+    "old_disposable_now": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e"
+  },
+  {
+    "path": "tests/unified-launch-order.tests.py",
+    "baseline": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+    "candidate": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+    "baseline_mode": 292,
+    "actual": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4",
+    "owner_now": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+    "old_disposable_now": "c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "baseline": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39",
+    "candidate": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+    "baseline_mode": 292,
+    "actual": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39",
+    "owner_now": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+    "old_disposable_now": "9b5bd9691f038486e3fd804ee5112f162f7f52a5a4593a74d018f9934bfdee39"
+  },
+  {
+    "path": "tests/review-conditional-inputs.tests.py",
+    "baseline": null,
+    "candidate": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570",
+    "baseline_mode": null,
+    "actual": null,
+    "owner_now": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570",
+    "old_disposable_now": null
+  },
+  {
+    "path": "tests/shared-launch-build.tests.py",
+    "baseline": null,
+    "candidate": "5e37fd8c3e2947bd6c11ed3c0c8405272dea6a17d445028d11d0dc074b308449",
+    "baseline_mode": null,
+    "actual": null,
+    "owner_now": "5e37fd8c3e2947bd6c11ed3c0c8405272dea6a17d445028d11d0dc074b308449",
+    "old_disposable_now": null
+  },
+  {
+    "path": "tests/shared-launch-python-requirements.txt",
+    "baseline": null,
+    "candidate": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+    "baseline_mode": null,
+    "actual": null,
+    "owner_now": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+    "old_disposable_now": null
+  },
+  {
+    "path": "tests/shared-launch-python/pyproject.toml",
+    "baseline": null,
+    "candidate": "9e5e7a146ad8db69f39f4342f391ff24c3fd108d55c4b69b6a2fef6c9445ec12",
+    "baseline_mode": null,
+    "actual": null,
+    "owner_now": "9e5e7a146ad8db69f39f4342f391ff24c3fd108d55c4b69b6a2fef6c9445ec12",
+    "old_disposable_now": null
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+    "baseline": null,
+    "candidate": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea",
+    "baseline_mode": null,
+    "actual": null,
+    "owner_now": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea",
+    "old_disposable_now": null
+  }
+]

@@ -1,0 +1,22 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Exit: 1
+
+FAIL: TEST-012: gpt default must be extractable from runner source
+FAIL: TEST-003: gpt source-derived default case is runnable
+FAIL: TEST-003: gpt rejects '0' before vendor invocation (exit=0 called=True)
+FAIL: TEST-003: gpt rejects '-5' before vendor invocation (exit=0 called=True)
+FAIL: TEST-003: gpt rejects 'abc' before vendor invocation (exit=0 called=True)
+FAIL: TEST-012: gemini default must be extractable from runner source
+FAIL: TEST-003: gemini source-derived default case is runnable
+FAIL: TEST-003: gemini rejects '0' before vendor invocation (exit=0 called=True)
+FAIL: TEST-003: gemini rejects '-5' before vendor invocation (exit=0 called=True)
+FAIL: TEST-003: gemini rejects 'abc' before vendor invocation (exit=0 called=True)
+FAIL: TEST-012: PowerShell runner source defaults must match (gpt='' gemini='')
+measurement: TEST-004(a) runner=gpt elapsed_ms=32166 limit_ms=10000 stub_pid=28911 stub_alive=0 child_pid=28913 child_alive=0 exit=0 verdict=1
+FAIL: TEST-004(a): gpt returns within the wall-clock bound with no stub or child alive
+FAIL: TEST-005: gpt timeout exits 1 without a verdict
+measurement: TEST-004(a) runner=gemini elapsed_ms=32141 limit_ms=10000 stub_pid=29049 stub_alive=0 child_pid=29051 child_alive=0 exit=0 verdict=1
+FAIL: TEST-004(a): gemini returns within the wall-clock bound with no stub or child alive
+FAIL: TEST-005: gemini timeout exits 1 without a verdict
+
+Results: 34 passed, 15 failed

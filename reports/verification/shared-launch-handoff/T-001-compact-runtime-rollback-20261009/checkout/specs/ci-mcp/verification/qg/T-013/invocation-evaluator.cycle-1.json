@@ -1,0 +1,78 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-mcp",
+  "task_id": "T-013",
+  "run_id": "qg-eval-cimcp-t013-20260708-e10a",
+  "host_session_id": "hs-qg-eval-cimcp-0114",
+  "sequence": 114,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "c6c003fe610dbc8995028343befbfa6223b5ca8ec391fd91993e6ed7ecab5a4a",
+  "previous_record_sha256": "2730122fb5124696e39fbd136140e68ebc9f86ec6bfaa791799d16a96a2a77cd",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/ci-mcp/T-013.md",
+      "sha256": "c608d2170f9daea6d9bd8056be5fac2c6266b2ba28d8ad0f63ffffa98829ec9b"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "54cd5709161e7817832d9a34453890d6a70a32ca76d92dd4cf299fde93542df5"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.json",
+      "sha256": "6f06c5691978c25ba88e16ee1d2978611e0922fc42925277c7726cb6ec1d7e2b"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "37ea3aa32862cc2c65ddf3b0c13dd11e4e362d1750402df04ff1ccf61bf6298a"
+    },
+    {
+      "path": "mcp/ci-mcp/src/tools/actions.ts",
+      "sha256": "d63c89c0d49cd55f8da95f1a79eab18a09f9b5d179b0128d1c76596f23cc3ed7"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/tools/get-job-log.test.ts",
+      "sha256": "9861e970104a62ea733f1cf6887a054938311d7504b0938bfad378ecaf611ac9"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/envelope/server-startup.test.ts",
+      "sha256": "47f49210dd762162e102f45f6f305ce76ab5b76f77981329fbfde0bac961345d"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-013-red.txt",
+      "sha256": "4412b054dba1d30ca02faf1f80fe7a9e59cd82ba1e5e513b5d43f4e34b3ff1aa"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-013-green.txt",
+      "sha256": "0c2db497f6ce128ea4da9da41ffa1bbd95b64729ca302869ea84f3eb099242c7"
+    }
+  ]
+}

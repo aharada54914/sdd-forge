@@ -1,0 +1,5 @@
+# T-011 placeholder-scan on changed artifact (traceability.json)
+date(UTC): 2026-06-14T01:51:05Z
+$ check-placeholders.sh specs/risk-adaptive-layer/traceability.json
+Placeholder scan passed.
+exit=0

@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "evidence-deep-verify",
+  "task_id": "T-001",
+  "run_id": "qg-eval-evidence-deep-verify-T-001-20260709-076b",
+  "host_session_id": "hs-qg-eval-T-001-0129",
+  "sequence": 129,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "601ee45af6b81b742702fd8095ad436317be6127ff6853177608ac6b854e736c",
+  "previous_record_sha256": "c336acd7e20dcd2eca95a29fda54fe82cab6ff34989cd0fff386ae2266f3b90d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/evidence-deep-verify/T-001.md",
+      "sha256": "fb0e265898477a6896b5388083e7191a5a8706b31a7e77995482cd2cc8b22f62"
+    },
+    {
+      "path": "specs/evidence-deep-verify/acceptance-tests.md",
+      "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"
+    },
+    {
+      "path": "specs/evidence-deep-verify/design.md",
+      "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/requirements.md",
+      "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"
+    },
+    {
+      "path": "specs/evidence-deep-verify/security-spec.md",
+      "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/tasks.md",
+      "sha256": "409f85a8c209722463a5f3530685229a15801132ca46820e816c6a7230bd4e63"
+    },
+    {
+      "path": "specs/evidence-deep-verify/traceability.json",
+      "sha256": "7b2d3148b0c3b3dabbacce5f7a9c619753e5b0c34f31e20f3cc1479815003201"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/evidence.ts",
+      "sha256": "216f8186c48f79400b77b7a5dfc32ccb65edb7c1a53af26c80f8caffa14ba0d3"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-helpers.ts",
+      "sha256": "70dbe855ea99ff6afe7f66e0390d632123e459bce01d44e8db1440f67a4990eb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts",
+      "sha256": "74f885ca9476b29117b38cb066de1a67c1c9e0b6e14421640070b28847041902"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts",
+      "sha256": "da34a3fe0d277fc38fff2501aa176a0b9cb1b79d790655badaae8691dc34cca9"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-001-red.txt",
+      "sha256": "06c9b5238e6f221b92626d687aca67176afd5294c751a7839dfe66c4c79fac19"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-001-green.txt",
+      "sha256": "460154e43ab2572b1858e14153398550d12ad25852f727eb05620b0a11312f64"
+    }
+  ]
+}

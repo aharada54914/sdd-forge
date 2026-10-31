@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a14r2-seq0879",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a14r2-0879",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "19add7136f081c2651fbb5ecec08a5ee3e869112dd3e15681a2ca47626ae1aea"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "3630e70fe17611a8adc056de00d594cce1a7663fd3acf34087c845b726ae1c72"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-2/precheck-result.json", "sha256": "839d6a0d5ef5e235e24af2bff5b12737d0aefd61fdf980d2a91fbe4fbb2c2ba6"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ (001-008) is decomposed into fixture-level, independently-triggerable Acceptance Criteria (e.g. AC-010's 'each of the sixteen REQ-002 diagnostic-id rows has its own independently-triggerable fixture'; AC-022/AC-023's byte-identical dual-invocation and dual-runtime comparisons; AC-047/AC-049's crash-injection and rollback-assertion fixtures) with concrete, machine-checkable pass conditions (schema conformance, exit codes, byte comparisons, sha256/ordinal drift checks). No in-scope requirement lacks an observable validation path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal (REQ-001 through REQ-008) traces to multiple Acceptance Criteria in the requirements.md table's own Requirement column (e.g. REQ-001 -> AC-001-009/AC-038/AC-043/AC-052/AC-059; REQ-003 -> AC-015/AC-016; REQ-004 -> AC-017-021/AC-044/AC-050/AC-051/AC-054; REQ-007 -> AC-029-031/AC-042/AC-046/AC-053; REQ-008 -> AC-033/AC-034). No goal is left without a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify externally observable artifacts and behavior throughout: schema-conformance checks against contracts/*.schema.json, exit-code contracts (AC-013), byte-identical output comparisons (AC-016/AC-022/AC-023), stable-sort assertions (AC-024), and file-existence/non-existence assertions on Blocked runs (AC-011). None rely on unobservable internal intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes building the Resolver scripts themselves, editing any Epic A1-A4 contract file, adding a required_lite_checks field to the Registry schema, re-implementing check-component-coverage's Fail conditions, and implementing/invoking compare-facet-manifest-staleness (requirements.md lines 849-879). Boundaries are concrete, not merely asserted."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's single Critical concerned investigation.md's Ruling (G) Executed-amendment paragraph citing the containment-refusal block-test suite and the T-007 green log by bare path only, violating the Amendment Re-Review Context calibration's element 4 (a commit reference or SHA-256 is required for every later-phase artifact the entry references, never a bare path). The current bytes cite both artifacts fully: tests/resolve-project-context-block.tests.sh with sha256 a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890, and specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log:365 with sha256 739c528d4cd96ff8110badc30ea7d80915a4eedc61f6d67fc07f77a3f6e29482, both explicitly 'as of commit fa59914ef6957a21fe3de8b9fc8d9edaee35f1e1' (investigation.md, Ruling (G) section) -- a full, unabbreviated commit hash plus SHA-256 for each, satisfying element 4. The companion edit completes requirements.md's Ruling Annotations mirror enumeration (requirements.md lines 928-936) to state that, since ruling (G) (2026-09-03), the annotations are also mirrored 'in design.md's own annotated sites', closing the under-inclusiveness (the rule previously named only investigation.md and acceptance-tests.md as mirror targets despite ruling (G) having extended annotations into design.md). A sampling sweep of the rest of the '## Amendment Re-Review Context' section (investigation.md lines 792-2884, which contains ruling (G)) found every other later-phase-artifact reference already carrying a commit hash and/or SHA-256 (e.g. investigation.md lines 1301-1313's panelist-verdict/cross-model JSON citations, lines 2720-2721's human-copy/test-file citations), so the fix is not offset by a newly-surfaced sibling omission. No contradiction, missing constraint, or unbounded scope remains on this axis."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section ties each named high-risk claim to a concrete validation surface: the Lite-track required-enforcement blocking gap is tied to AC-009/AC-010's fixture matrix and Dependencies' named Epic A2 prerequisite; the anchor-fingerprint drift risk is tied to AC-053's recorded sha256/ordinal pair and the deferred caller-contract suite; the transactional-publication complexity risk is tied to Epic A1's own reference implementation and this package's own B1/B6/B8 fixtures (AC-038-040, AC-047-051, AC-054)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists in this repository (confirmed by glob), so the target project has no domain/ directory with an Approved domain model. Check is not applicable and is recorded as skipped per the calibration's own skip condition."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef",
+  "acceptance_sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "fb43bd537c1e6a0e337f17fc2cb3d5320d6904145a28e402c80337207f70adb9",
+  "edit_summary": "REQ-005 gains an explicit block on OQ-005 at parity with REQ-002's block on OQ-007, closing the round-1 DOWNSTREAM-READINESS finding",
+  "reset": false,
+  "generated_at": "2026-08-04T14:32:50Z"
+}

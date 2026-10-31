@@ -1,0 +1,52 @@
+[
+  {
+    "case": "valid-mode-restoration",
+    "exit_code": 0,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "traversal",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "absolute",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "duplicate-input",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "duplicate-inventory",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "invalid-mode",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "noninteger-mode",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "hash-mismatch",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "unpinned-mode-change",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  },
+  {
+    "case": "external-root",
+    "exit_code": 1,
+    "assertion": "expected outcome and unchanged synthetic source"
+  }
+]

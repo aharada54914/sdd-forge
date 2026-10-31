@@ -1,0 +1,183 @@
+Class C of the PR #244 failure set: version-gates (windows-latest), step
+"Test component-path-diff-basis suite (pwsh)", GitHub Actions run
+31755520663 / job 94630322035.
+
+Defect: tests/component-path-diff-basis.tests.ps1 created the TEST-021 fixture
+"src/desktop/tab<TAB>name.ts" on disk. Win32 reserves 0x00-0x1F in a path
+component, so Set-Content throws "The filename, directory name, or volume
+label syntax is incorrect."; under this file's $ErrorActionPreference = "Stop"
+that terminated the whole suite at TEST-021, and TEST-022..TEST-025,
+DEFECT-002 and the registration self-check were never reached.
+
+Distinct from Class A (78d79cd5, TEST-024 cloned-submodule git identity, the
+ubuntu leg). The windows leg fails earlier and for an unrelated filesystem
+reason.
+
+Host for every run below: macOS (darwin 25.5.0), PowerShell 7.6.2, APFS.
+APFS accepts TAB in a filename, so the windows-latest condition is reproduced
+by mutation rather than by platform: a disposable copy of the suite whose
+Set-Content call site is replaced by a throw carrying Win32's own message.
+Only that one line differs from the committed suite; the skip branch and
+TEST-021.3 below run for real.
+
+===========================================================================
+0. MECHANISM CONFIRMED FIRST (pre-fix behaviour, isolated)
+===========================================================================
+An unhandled Set-Content failure under $ErrorActionPreference = "Stop"
+terminates the script rather than producing a FAIL line:
+
+    $ErrorActionPreference = "Stop"
+    Write-Output "before"
+    "x" | Set-Content -LiteralPath "/nonexistent-dir-xyz/tab`tname.ts" -Encoding utf8
+    Write-Output "after"
+
+  -> prints "before", the Set-Content error, exit 1. "after" never printed.
+
+That is the CI symptom: everything after the failing line is lost.
+
+===========================================================================
+1. COMMITTED SUITE, unmutated, on this POSIX host (TEST-021.1 runs)
+===========================================================================
+$ pwsh -NoProfile -File tests/component-path-diff-basis.tests.ps1
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a direct call to the product function itself (dot-sourced from resolve-component-paths.ps1; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+component-path-diff-basis.tests.ps1: 18 passed, 0 failed
+exit=0  (no Skipped: line -- nothing was skipped)
+
+$ bash tests/component-path-diff-basis.tests.sh
+
+Results: 18 passed, 0 failed.
+exit=0
+
+===========================================================================
+2. MUTANT A -- filesystem refuses the TAB name (the windows-latest
+   condition). Expect: suite SURVIVES to the end, TEST-021.1 visibly
+   skipped, TEST-021.3 substitutes, same 18/0 tally, exit 0.
+===========================================================================
+=== TEST-021: NUL-safe framing ===
+skip - TEST-021.1: end-to-end CLI round-trip of a TAB-containing path -- this host's filesystem will not create the fi
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a d
+ok: TEST-021.3: the real NUL-delimited framing keeps a literal TAB inside a single path token rather than splitting on
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constant
+ok: TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning,
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink'
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed, confirm
+=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ===
+ok: DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnosti
+=== registration self-check ===
+component-path-diff-basis.tests.ps1: 18 passed, 0 failed
+Skipped: 1 (unmet host prerequisite)
+exit=0
+
+===========================================================================
+3. MUTANT B -- non-vacuity, framing. Mutant A plus the real Split-NulBytes
+   broken to split on 0x09 as well as 0x00. Expect TEST-021.3 to FAIL.
+===========================================================================
+=== TEST-021: NUL-safe framing ===
+skip - TEST-021.1: end-to-end CLI round-trip of a TAB-containing path -- this host's filesystem will not create the fi
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a d
+FAIL: TEST-021.3: expected the TAB-containing path to survive NUL framing as a single token, but the real Get-TrackedD
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constant
+ok: TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning,
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink'
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed, confirm
+=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ===
+ok: DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnosti
+=== registration self-check ===
+component-path-diff-basis.tests.ps1: 17 passed, 1 failed
+Skipped: 1 (unmet host prerequisite)
+exit=1
+
+Note: this mutation is what caught a defect in TEST-021.3's own first
+draft. Splitting the token makes the NEXT token be read as a status word,
+so the real Get-TrackedDiff THROWS rather than returning a wrong value.
+With no catch, that throw escaped and killed the suite (exit 1, no FAIL
+line, TEST-022..025 lost) -- reintroducing the exact failure mode this
+change removes. TEST-021.3 now catches it and reports a FAIL, and the
+run above reaches the registration self-check.
+
+===========================================================================
+4. MUTANT C -- non-vacuity, decode. Mutant A plus ConvertTo-PathStrict
+   silently rewriting TAB to a space (fail-closed behaviour on invalid
+   UTF-8 left intact, so TEST-021.2 is unaffected and only the TAB
+   contract moves). Expect TEST-021.3 to FAIL on the byte comparison.
+===========================================================================
+=== TEST-021: NUL-safe framing ===
+skip - TEST-021.1: end-to-end CLI round-trip of a TAB-containing path -- this host's filesystem will not create the fi
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a d
+FAIL: TEST-021.3: expected exactly 1 entry byte-identical to the TAB-containing path, got 1 entries: src/desktop/tab n
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constant
+ok: TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning,
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink'
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed, confirm
+=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ===
+ok: DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnosti
+=== registration self-check ===
+component-path-diff-basis.tests.ps1: 17 passed, 1 failed
+Skipped: 1 (unmet host prerequisite)
+exit=1
+
+===========================================================================
+5. ADJACENT SUITES that read this file (twin-symmetry audit)
+===========================================================================
+$ bash tests/component-path-ownership-parity.tests.sh
+
+Results: 21 passed, 0 failed
+exit=0
+$ pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+
+Results: 21 passed, 0 failed
+exit=0
+
+TEST-047's twin audit is unaffected by design: it greps both twins for
+the literal assertion ids TEST-020.1, TEST-022.1 and TEST-024.1..4, none
+of which this change touches. TEST-021.3 is deliberately ps1-only -- the
+bash twin runs only where the on-disk fixture works, so a sh port would
+be dead code there.
+
+===========================================================================
+6. SCOPE, STATED HONESTLY
+===========================================================================
+Not verified here: a real windows-latest runner. No Windows host was
+available, so the NTFS rejection is reproduced by mutation (section 2)
+rather than observed. What sections 2-4 do establish is that WHEN the
+filesystem refuses the name, the suite runs to completion, says so in
+its output, and still asserts AC-021's TAB round-trip against the real
+parsing functions -- and that the substitute assertion fails on both a
+framing regression and a decode regression. Whether windows-latest takes
+that branch at all can only be confirmed by a real CI cycle.
+
+Also not covered by TEST-021.3, and stated rather than implied: that git
+itself emits such a path NUL-delimited under -z. Only TEST-021.1's
+end-to-end fixture covers that, which is why it stays preferred on every
+host whose filesystem can hold the name.

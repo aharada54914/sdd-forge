@@ -1,0 +1,69 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-006",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The T-004/T-007 primary citations verify exactly: reports/implementation/evidence-deep-verify/T-004.md:79-86 (BLOCKED/190-of-191 snapshot text), reports/quality-gate/2026-07-09T020500Z-evidence-deep-verify-T-004.md:41 (Minor/Accepted finding, matching quoted text), reports/implementation/evidence-deep-verify/T-007.md:80,166 (flat path + '197, pass 197'), and reports/quality-gate/2026-07-09T021500Z-evidence-deep-verify-T-007.md:40 (matching quoted text) -- all confirmed. However, the frequency/history bullet misattributes its sdd-domain citation: 'sdd-domain's recorded it inside its broader FP-05 (5 tasks)'. sdd-domain's actual FP-05 ('Gate-tooling contract drift', reports/retrospective/2026-07-07T0633Z-sdd-domain.md:166) has Frequency '4 independent gaps... 2 of them observed as live blockers this period' and covers Task-ID-line/Feature-line/placeholder-waiver/round>1 format gaps (the WFI-005 theme), not stale-narrative drift. The '5 tasks' stale-evidence finding actually lives at sdd-domain's FP-02 ('Stale evidence in implementation reports (hashes/prose drift after fixes)', reports/retrospective/2026-07-07T0633Z-sdd-domain.md:107-119, 'Frequency: 6 occurrences across 5 tasks'). WFI-006 cites the wrong FP number for this data point (this same mislabeling also appears verbatim in the source retrospective's FP-01 paragraph at reports/retrospective/2026-07-09T0245Z-evidence-deep-verify.md:47, but the WFI carries the error forward uncorrected into its own Problem Evidence and Expected Effect/Verification Metric baseline text)."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific mechanism: neither the report template nor the quality verification gate's process instructions state that a report's numbers/statuses/paths are commit-scoped and may be superseded by a later same-feature event (another task's edit to the same surface, or a gate-phase artifact normalization); nothing in the process reconciles the frozen report against gate-time reality, so the mismatch is only caught when a reviewer happens to notice it -- this explains recurrence across models/risk tiers rather than restating the symptom ('reports go stale')."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Root Cause Hypothesis, the Proposed Change Description column, and Expected Effect use only generic terms ('quality verification gate', 'implementation phase', 'gate process', 'independent gate reviewer'). 'sdd-quality-loop' and 'quality-gate' appear only inside the Target File column as literal repository paths (plugins/sdd-quality-loop/skills/quality-gate/SKILL.md), matching the WFI-005 precedent that path citations in the Target File column are not prose usage and are not flagged."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Both Proposed Change rows name specific files (not directories) with non-vague descriptions, but both Target Files sit inside plugins/, which is a Major finding regardless of description: Row 1 -- `plugins/sdd-implementation/templates/implementation-report.template.md` (Add a 'Snapshot Notice' line...); Row 2 -- `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` (Add one instruction to the gate process...). Confirmed applied via `git diff origin/main` (7 lines added to the template, 6 lines added to SKILL.md step 9), so the description is concrete and truthful -- the finding is scope, not vagueness."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Names a specific metric (stale-narrative-vs-current-state Minor findings per feature, recorded in quality verification gate reports) and a quantitative target (baseline 2 this period, decreasing to at most 1 in the next completed feature), plus an explicit non-decreasing-guard statement (no check/gate/threshold removed)."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Exactly one primary Target-Metric is named, with Baseline (2, evidence-deep-verify, 2026-07-09 -- prior periods listed only as disclosed historical context, not competing primary baselines), Target (<=1), and Horizon/checkpoint (next completed feature retrospective) all present."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The plan names the exact finding-text pattern to scan for in every quality verification gate report next cycle, cites the two specific gate report rows that anchor the current-period count (2026-07-09T020500Z-evidence-deep-verify-T-004.md:41 and 2026-07-09T021500Z-evidence-deep-verify-T-007.md:40), states a pass/fail threshold (<=1), and adds a secondary specific check (Snapshot Notice line present from first commit; no reviewer edits to a frozen implementation report)."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Both Proposed Change rows target files inside plugins/: Row 1 -- `plugins/sdd-implementation/templates/implementation-report.template.md`; Row 2 -- `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`. Per wfi-category-guide.md Section 1, a plugin-improvement WFI's application mechanism is a GitHub Issue created after audit completion, not a direct Proposed Change table edit to plugins/ files. This is reinforced by the WFI's own source material: the current retrospective's own Proposed Improvements table recommends the target as 'AGENTS.md / implementation-report checklist (project-side; require a final prose/count/path refresh pass immediately before gate submission)' (reports/retrospective/2026-07-09T0245Z-evidence-deep-verify.md:70), and the earlier ci-mcp retrospective made the identical project-side recommendation (reports/retrospective/2026-07-08T033000Z.md:80) -- both point to a project-side AGENTS.md target, not the two plugins/ files this WFI actually proposes."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Problem Evidence",
+      "change": "In the 'Frequency and history' bullet, change the sdd-domain citation from \"sdd-domain's recorded it inside its broader FP-05 (5 tasks)\" to \"sdd-domain's recorded it as FP-02 ('Stale evidence in implementation reports', 6 occurrences across 5 tasks: T-005, T-006, T-007, T-008, T-011)\", citing reports/retrospective/2026-07-07T0633Z-sdd-domain.md:107-119 instead of the FP-05 section.",
+      "rationale": "Resolves the EVIDENCE-CITED Major finding: the cited FP number does not match the row that actually contains the '5 tasks' stale-evidence data; FP-05 is a different friction class (format/contract-drift gaps already addressed by WFI-005)."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Replace both plugins/ rows with a single row whose Target File is the GitHub Issue that wfi-audit-cycle creates per wfi-category-guide.md Section 4 (carrying the same Snapshot Notice and gate-process-instruction content into the Issue body verbatim). If a project-side companion is warranted, add a separate row targeting AGENTS.md (the target the source retrospective itself recommends, reports/retrospective/2026-07-09T0245Z-evidence-deep-verify.md:70) with a concrete project-root change, e.g. an implementation-report checklist reminder to record current values before gate submission.",
+      "rationale": "Resolves both CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP Major findings: plugins/ paths are out of scope for a WFI's direct Proposed Change table regardless of description quality; the category guide's own routing mechanism for plugin-improvement WFIs is a GitHub Issue, and the retrospective sources this WFI draws from already recommended a project-side AGENTS.md target."
+    }
+  ]
+}

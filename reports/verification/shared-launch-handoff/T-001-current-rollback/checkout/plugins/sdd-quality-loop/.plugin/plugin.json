@@ -1,0 +1,11 @@
+{
+  "name": "sdd-quality-loop",
+  "description": "Independently verify Implementation Complete tasks, run differential baseline checks, retrospect on workflow performance, and decide Done.",
+  "version": "1.18.0",
+  "author": {
+    "name": "Harada"
+  },
+  "skills": "skills/",
+  "hooks": "hooks/copilot-hooks.json",
+  "agents": "copilot-agents/"
+}

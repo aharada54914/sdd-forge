@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a1r1-a-seq0338",
+  "host_session_id": "SESS-spec-a1r1-a-epic136phase3-0338",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-1/precheck-result.json",
+      "sha256": "86810430732577c8ea338554437f7dbeaed452ca0f7b4795240ae94613d6e228"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f9bdcbb869193221920031429b43eb73d8ecc8367048f46ec0629482b84d150c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "3c416b5b00a2fdd33e2a90a8801e08f93b25b0c9c7e84748ae58d5c8e105595f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md:194-264 (Goals REQ-001..REQ-006) each name an exact new suite file, exact fixture/PATH combination, and exact decision-parity assertion (e.g. REQ-001 lines 194-206 enumerates 6 distinct PATH-availability/precedence branches x 2 emit modes; REQ-002 lines 207-215 names the 3 defect-class payloads x 4 runtime surfaces x 3 tool_name shapes). acceptance-tests.md:15-37 (TEST-001..023) gives a Test Type/Test Target cell for every AC sufficient for a downstream test author to write the fixture without further design input (e.g. TEST-006 line 20 names the exact precedence-proof mechanism: 'each a marker-writing stub -> only the pwsh-named stub's marker is observed'). REQ-003 (Stream C) is the one exception and is explicitly marked Status=Blocked rather than silently presented as testable now (acceptance-tests.md:26-29, 71-75), so it does not undermine testability of the in-scope, unblocked requirements. Minor: REQ-003's own testability is entirely contingent on an external ADR-0010 approval outside this feature's control (requirements.md:659-663), which is correctly flagged rather than concealed."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every stated Goal in requirements.md:194-264 has a 1:1 mapped AC row in acceptance-tests.md:15-37: REQ-001(194-206)->AC-001..007(rows 15-21), REQ-002(207-215)->AC-008..011(rows 22-25), REQ-003(216-228)->AC-012..015(rows 26-29, marked Blocked but still mapped), REQ-004(229-237)->AC-016..018(rows 30-32), REQ-005(238-248)->AC-019..020(rows 33-34), REQ-006(249-264)->AC-021..023(rows 35-37). No REQ-NNN in the Goals section is left without at least one matching AC-NNN; the acceptance-tests.md header itself (lines 3-6) states the 1:1 TEST-NNN<->AC-NNN numbering convention explicitly, making the trace mechanically checkable rather than only assertion-based."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:229-233 states REQ-004's goal as 'Restructure `.github/workflows/test.yml`'s single `test` job into named deterministic-lane job(s) ... updating `required-checks`' `needs:` list to preserve BL-001's exact pass/fail semantics' -- a job-graph-level change that necessarily creates new job entities to be added to `needs:`. requirements.md:428-432 (AC-017) restates this as '`required-checks`' `needs:` list is updated so every job that now covers a step formerly inside the single `test` job is present, directly or via a job-dependency chain'. But acceptance-tests.md:30 (TEST-016) describes the actual observable target as '`.github/workflows/test.yml`'s `test` job steps each gain a `[deterministic]` name prefix' -- a step-rename inside the SAME single job, not a job split -- and acceptance-tests.md:31 (TEST-017) then states the self-check confirms '`required-checks: needs: [test, cli-hook-enforcement]` membership confirmed unchanged', directly contradicting requirements.md's own AC-017 text that the `needs:` list 'is updated'. A task author cannot determine from these two Phase-1 artifacts alone whether Stream D must split `test.yml`'s single job into multiple named jobs (each added to `required-checks.needs`, per requirements.md AC-017) or merely rename step display strings within the unchanged single job while leaving `needs:` untouched (per acceptance-tests.md TEST-016/TEST-017) -- the two documents describe mutually exclusive observable end-states for the same AC-017/TEST-017 pairing. This is a specification-review-owned contradiction because it sits entirely inside the two allowed Phase-1 artifacts (requirements.md and acceptance-tests.md), not a design-phase implementation-detail gap the calibration doc says to defer (spec-review-calibration.md:65-67 only excuses missing 'concrete implementation architecture', not an internally contradictory description of the acceptance criterion's own observable outcome). Severity Major per calibration's ladder ('ambiguous requirement, missing observable acceptance criterion ... that will cause downstream mismatch') rather than Critical, since the contradiction is resolvable by amending one artifact and does not make the whole document unreviewable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Non-goals section (266-304) lists six explicit exclusions each tied to a concrete file/issue-number boundary: editing the 4 R-10-protected suites directly (268-271, naming `tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`, `tests/constant-parity.tests.sh`); inventing Stream C's fixture vocabulary or implementing it ahead of ADR-0010 Accepted (272-277); migrating the existing `tests/scenario.tests.sh` scenarios (278-281); treating Stream D as a bugfix for a live mixed-lane defect (282-285); epic #136 Phase 4 issues #128-135 and design-sync issues #138-140 (286-290); and `tasks.md`/`traceability.md`/`traceability.json`/`baseline-behavior.md` (296-304). Each boundary gives a downstream design/task author an unambiguous 'stop here' line rather than a vague best-practice statement."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Security Boundaries table (624-633) states four explicit trust boundaries (B1-B4) with Auth/Authz-Requirement and PII/Data-Classification columns (e.g. B3, line 630: '.github/workflows/test.yml vs. agent-direct edits ... staged under specs/epic-136-phase3/human-copy/ with MANIFEST.sha256; only a human applies either'). Roles and Permissions (519-542) states the approval boundary explicitly: the agent 'NEVER writes `.github/workflows/test.yml` directly' (527-528) and the human maintainer 'decides when ADR-0010 moves to Status: Accepted, which is the sole unblock condition for Stream C's implementation ... this decision is NOT made by this spec or by any agent session' (535-538). REQ-006 (249-264) states explicit compatibility constraints: bash 3.2 safety (avoid `declare -A`, guard empty arrays under `set -u`) and `.ps1` pure-ASCII/LF-only/no-BOM/explicit `exit N`."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Risks section (725-764) lists 5 risks (High/Medium/Medium/Low-Medium/Low), each paired with a named validation surface rather than left as an unmitigated claim: the High ADR-0010-rejection risk (727-733) is paired with the Edge Cases re-check requirement ('Stream C's Blocker (ADR-0010) must be re-checked at Phase 2 task decomposition time and again at implementation time', 611-615); the first Medium risk (test.yml staging collision, 734-740) is paired with a named design.md Global-Constraints sequencing decision; the second Medium risk (12-combination matrix silently passing, 741-747) is paired with AC-008/009/010's explicit per-combination enumeration (362-388) and acceptance-tests.md's TEST-ID traceability table; the Low-Medium risk (PATH-restricted stub false pass, 748-754) is paired with the Edge Cases PATH-assertion requirement (591-597); the Low risk (required-checks needs: gap, 755-764) is paired with AC-017's text-marker self-check and an explicit human-reviewer verification step of GitHub's actual branch-protection configuration."
+    }
+  ]
+}

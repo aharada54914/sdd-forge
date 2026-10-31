@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-159-pillar-a2",
+  "attempt": 1,
+  "round": 1,
+  "feature_type": "test-infrastructure",
+  "legacy_design": false,
+  "requirements_sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5",
+  "acceptance_sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47",
+  "design_sha256": "99ed87ddd1037adf4a1d728e2854d0dc3d956c426752cf69089236dcba3da995",
+  "layer_sha256": {
+    "ux-spec.md": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb",
+    "frontend-spec.md": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4",
+    "infra-spec.md": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5",
+    "security-spec.md": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Round 1: no prior edits (initial impl review).",
+  "prior_round_contract_sha256": "",
+  "pass_type": "none",
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-a-seq0214",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-a2-0214",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-a2/requirements.md",
+          "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+          "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/design.md",
+          "sha256": "99ed87ddd1037adf4a1d728e2854d0dc3d956c426752cf69089236dcba3da995"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/investigation.md",
+          "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/ux-spec.md",
+          "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+          "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/infra-spec.md",
+          "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/security-spec.md",
+          "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/precheck-result.json",
+          "sha256": "ef27d728545c61302c94488be068ba44b62d6240ab769ff2ee32e2ddbb62fe4e"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-b-seq0215",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a2-0215",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-a2/requirements.md",
+          "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+          "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/design.md",
+          "sha256": "99ed87ddd1037adf4a1d728e2854d0dc3d956c426752cf69089236dcba3da995"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/investigation.md",
+          "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/ux-spec.md",
+          "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+          "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/infra-spec.md",
+          "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-a2/security-spec.md",
+          "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/precheck-result.json",
+          "sha256": "ef27d728545c61302c94488be068ba44b62d6240ab769ff2ee32e2ddbb62fe4e"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/integrated-summary.json",
+          "sha256": "f5fba8a8a0db165e3cb739ce68f375ca3fee5a186269e13e04cf1d6e983bf903"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic159pillara2-a1r1",
+  "timestamp": "2026-07-16T05:10:00Z"
+}

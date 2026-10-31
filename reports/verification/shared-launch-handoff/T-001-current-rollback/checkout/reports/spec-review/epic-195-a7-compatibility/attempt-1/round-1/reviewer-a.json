@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md", "sha256": "42c17ec95ddbd0ef8de46b558c0f3755e5dd5b8df2afee754e7ea4ec469337a7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "62f27d36122b4bcceb67ed1f4a9b7d665d25a734ddbbeb0abbeb9c7a305af66b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json", "sha256": "748916d347e9bd2fcf27fa10945407aec885ca24c5c6c05dceb51cdd9c899876"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Critical", "finding": "Every in-scope goal (REQ-001-REQ-007) states a concrete, checkable target list rather than an intent statement: REQ-001 fixes nine byte-identical targets 1:1 with capture format and AC/TEST in the canonical inventory (AC-038); REQ-003 names six independent event kinds each with its own producer, ordering rule, and value-normalization rule (AC-022-AC-027); REQ-006 fixes the exact baseline script name/path/manifest fields (AC-018). No REQ was found stated only as aspiration with no measurable target."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Traced all seven Goals to acceptance criteria: REQ-001->AC-002/003/004/038; REQ-002->AC-005/006/007/030/031; REQ-003->AC-008-012/022-027/032/033/036/037/039; REQ-004->AC-013/017/029; REQ-005->AC-014-021/028; REQ-006->AC-001/018/040; REQ-007->AC-016/019-021/034/035. AC-001 through AC-040 in requirements.md match the 40 rows (TEST-001-TEST-040) in acceptance-tests.md one-to-one. No orphan goal or dangling AC found."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "Acceptance criteria describe externally observable comparisons: byte-for-byte diff across two invocations under fixed env (AC-003), event-trace field/ordering/value-normalization match against a recorded golden trace (AC-022-AC-027), static entry-count and regex checks (AC-008, AC-006), and a CI-workflow literal-string scan (AC-040). None reduce to unmeasurable intent language."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "Non-goals section explicitly excludes implementing Epics A1-A6, authoring Phase 2/3 test code/fixtures/registry edits, registering a ninth loop id, re-specifying Epic A5's deferred suite beyond three named adopted assertions, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Security Boundaries table states B1 (golden-baseline capture/update: maintainer-approved candidate-to-canonical PR only, CI/agent write-blocked) and B2 (shared registry/driver/run-record edit review rigor) with data classification stated explicitly as none rather than omitted; Roles and Permissions and REQ-006(c) fix the approval boundary for baseline promotion."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "Each named risk has a stated validation surface: the Critical cross-epic-drift risk is mitigated by REQ-007's allowlist/SKIP design and AC-035's fingerprint-drift hard-fail; the High shared-surface-blast-radius risk is mitigated by fixing exact field names/shapes in design.md before Phase 2/3 starts; the Medium check-sdd-structure.sh deviation risk is closed by a stated self-documenting Phase-2-kickoff signal (Main Workflows step 1)."}
+  ]
+}

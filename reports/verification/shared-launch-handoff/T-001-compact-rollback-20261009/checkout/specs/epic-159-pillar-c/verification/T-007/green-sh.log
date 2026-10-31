@@ -1,0 +1,32 @@
+T-007 GREEN evidence (acceptance-first/TDD required workflow) -- tests/effort-policy-flip.tests.sh
+Captured: 2026-07-21T14:56:55Z
+Post-flip state (select-agent-model --effort-policy default is now 'matrix')
+This is the SECOND (refreshed) GREEN capture, after also fixing three
+pre-existing hardcoded-default-policy assertions discovered by the
+regression pass in tests/agent-model-routing.tests.sh/.ps1 (see
+regression.log's header note) -- this suite's own 13 checks/1 skip are
+unaffected by those fixes (different file), refreshed here only for a
+single, internally consistent final evidence set.
+
+Post-flip blob sha256 (git hash-object):
+  plugins/sdd-implementation/scripts/select-agent-model.sh  = 5a46620463be2a435ca0a8264a3d50a352b02c7e
+  plugins/sdd-implementation/scripts/select-agent-model.ps1 = 792aaa18f9b68bc516d82dba73728703b3b08f47
+
+==== bash tests/effort-policy-flip.tests.sh ====
+ok: TEST-041: no --effort-policy flag resolves to matrix post-flip (effort_source=risk-matrix, effort=high; raw={"available_candidates":["openai/gpt-5.2-codex"],"canonical_tier":"strong","effort":"high","effort_control":"none","effort_source":"risk-matrix","escalation":null,"estimated_cost_per_attempt_usd":"1.0","model":"openai/gpt-5.2-codex","xhigh_reason":null})
+ok: TEST-041 (welded carve-out, OQ-004): --effort-policy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff (---- check summary: 10 targets, 0 drift ----)
+ok: TEST-043: USERGUIDE.md describes the matrix-default effort policy
+ok: TEST-043: docs/agent-capability-matrix.md describes the matrix-default effort policy
+ok: TEST-043: CHANGELOG.md describes the matrix-default effort policy
+ok: TEST-043: all three REQ-009 doc surfaces (USERGUIDE.md, docs/agent-capability-matrix.md, CHANGELOG.md) describe the matrix-default policy
+skip: TEST-044: real Codex-host smoke skipped -- SDD_ALLOW_REAL_CODEX_SMOKE not set to 1 (real 'codex' invocation is an autonomous coding-agent CLI, not opted into from an automated suite run; see reports/implementation/epic-159-pillar-c/T-007.md Unresolved Items)
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (e5d61cbc2e01dbd0726c423fd45cb739bf67ca60)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the RELEASE-COMMIT re-run against the actual tagged release is the caller's own job at release time -- this suite verifies the implementation-time HEAD, not a release tag that does not exist yet)
+ok: TEST-046: current branch (feature/epic-159-pillar-c-t007) is T-007-scoped, distinct from any T-001..T-006 branch
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh (the separate release is the caller's own, later step)
+ok: TEST-046: process-conformance proxy satisfied (full proof -- a genuinely separate GitHub PR -- is verified by the caller at PR-creation time, outside what a local test suite can observe)
+---- summary: pass=13 fail=0 skip=1 ----
+ok: effort-policy-flip suite passed (13 checks, 1 skipped)
+exit_code=0

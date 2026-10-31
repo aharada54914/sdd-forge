@@ -1,0 +1,108 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase3-impl-a1r1-a-seq0346",
+  "host_session_id": "SESS-impl-a1r1-a-epic136phase3-0346",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-136-phase3/attempt-1/round-1/precheck-result.json",
+      "sha256": "b9e0719af9631645a27a1cbfce1669a5c7b25eb806382d7988b09638e6ed50bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/design.md",
+      "sha256": "aef5f5887d730e3864492b71d9aaf0610d7b7ccc80978e1ddfc537344fea2582"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "b77c8f316aff6c905891e3ffb52cec1dab0b167e755c2e583dc5843a16dfaf6b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The `## Architecture` section (design.md:43-90) substantively covers all three required elements: component boundaries via the 4-subgraph mermaid diagram plus the Components table (design.md:94-104, e.g. `tests/guard-dispatch-fallback.tests.sh`, `sdd-hook-guard.{py,js,ps1,sh}`); integration with existing components (arrows showing GDF/GNC driving the live guard binaries, TESTYML_HC human-copying to TESTYML_LIVE, HUMAN applying the candidate); and technology choices per component (Bash/Python/Node/PowerShell/GitHub-Actions-YAML/Markdown in the Components table, appropriate for this non-UI Feature Type). However, the diagram's own `RC` node at design.md:82 reads `RC[\"required-checks (needs: updated to preserve BL-001 semantics)\"]` -- stating `needs:` is UPDATED -- which directly contradicts design.md's own repeated, explicit statements elsewhere in the same document that `needs:` stays byte-identical: design.md:353-358 (\"`required-checks`' `needs:` list is UNCHANGED in membership\"), design.md:426-428 (Design Decisions OQ-5: \"preserving `required-checks`' `needs:` membership exactly\"), design.md:529 (Constraint Compliance: \"membership UNCHANGED\"), and infra-spec.md:32 (\"UNCHANGED membership\"). This also contradicts the binding spec-level decision that `required-checks`' `needs:` is byte-unchanged. Concrete failure mode: a reader who treats the Architecture diagram as the canonical integration summary (the diagram is the section's leading artifact) could conclude the design intends to edit `needs:`, creating ambiguity about the exact required-checks contract Stream D's staged candidate must produce -- the same surface AC-017's self-check verifies. Not precheck-owned (precheck only checks hash/status). Severity calibrated to Major rather than the check's nominal Critical default because the surrounding majority of the document (5+ locations) states the correct intent clearly and this is a single mislabeled diagram node, not a missing element."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Architecture section's mermaid diagram (design.md:45-90) and Components table (design.md:94-104) describe a directed acyclic graph: new test suites (GDF, GNC) depend on live guard binaries (SHGSH/SHGPY/SHGPS/SHGJS) one-way (invoke, never written back to, per the read-only discipline stated at design.md:106-111 and Security Boundaries B1); PWSHSTUB/CWDCORPUS feed into GDF/GNC one-way; ADR0010/LOOPINV feed into WFSCEN (Stream C) one-way; TESTYML_HC feeds into TESTYML_LIVE and RC one-way, with HUMAN as the sole writer of TESTYML_LIVE. No node has an edge back to an ancestor -- e.g. `sdd-hook-guard.sh` never depends on `tests/guard-dispatch-fallback.tests.sh`, and `required-checks` never depends back on `test.yml`'s human-copy staging path. No cycle exists in either subgraph or across subgraphs."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The `## Data Plan` section (design.md:181-195) explicitly addresses all three required sub-fields: `Data Entities:` states \"none new for Streams A, B, D\" and names Stream C's one deferred new schema (the closed `greenfield`|`brownfield` scenario-schema field, design.md:183-188); `Existing Data Affected:` explicitly states \"none\" with rationale (design.md:190-193); `Migration Strategy:` explicitly states \"none. No schema changes to any existing artifact\" (design.md:195). This matches the check's requirement that a no-data-change feature explicitly state so for each sub-field rather than omitting the section."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The `## API / Contract Plan` section (design.md:197-360) is non-empty and thoroughly documents each new file's internal contract for this CLI/CI-only feature (appropriate substitute for HTTP endpoints given the declared non-UI Feature Type). However, its Stream D subsection contains a direct, load-bearing contradiction of the design's own binding constraint. design.md:339-346 states: \"the restructuring introduces ONE new job, `deterministic-tests-boundary`... that runs a single, trivial, always-green marker step immediately BEFORE the existing `test` job's own step list begins\" -- this is reiterated as a deliberate decision at design.md:426-427 (Design Decisions OQ-5: \"adds one trivial boundary-marker job\"). This directly contradicts: (1) requirements.md:231-244 REQ-004, which states \"the job graph is unchanged\" and the change is scoped \"WITHOUT splitting the job\"; (2) requirements.md:435-439 AC-016, which states \"the job count and job names are unchanged\" and specifies only \"a documented, currently-empty comment placeholder marking where a future LLM-invoking eval lane would be added\" (i.e. a YAML comment, not an actual executing job); and (3) the orchestrator-supplied binding spec-level decision that the job graph is byte-unchanged. The contradiction is corroborated by its absence elsewhere: design.md's own Architecture mermaid (SD subgraph, design.md:79-87) shows no `deterministic-tests-boundary` node, and infra-spec.md's Deployment Topology diagram (infra-spec.md:14-37) shows `TESTJOB --> RC` directly with no intervening marker job -- confirming this is an internal contradiction, not a consistently-applied design choice. Concrete failure mode: an implementer following the API/Contract Plan's literal, operational text (the section normally read for the exact shape of a human-copy-staged change) would add a real new CI job, violating AC-016's explicit job-count-unchanged requirement and the binding constraint that the job graph stay byte-unchanged -- an unimplementable, self-contradictory instruction that only a human decision can resolve. Not precheck-owned; distinct evidence from the ARCH-COVERAGE finding (different text: job COUNT vs. `needs:` membership wording)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md contains a `## Security Boundaries` section (design.md:481-490) naming four trust boundaries (B1: new-suite fixtures vs. live protected guard binaries; B2: fixture GitHub issue body vs. reading agent session; B3: `test.yml` vs. agent-direct edits; B4: fixture world vs. real repository/network/ledger state), each with an explicit Auth/Authz Mechanism column (e.g. B1: \"env-var/PATH indirection... neither suite ever opens either target file for writing\"), a Data Classification column (all rows correctly state no PII is present -- \"internal repository content only\" / \"synthetic fixtures only\"), and an OWASP Concerns column (Security Misconfiguration, Prompt Injection, Test Isolation). security-spec.md provides a materially deeper layer refinement (STRIDE analysis, Authorization table, Data Classification table, full OWASP Mapping table covering Injection/Prompt Injection/Security Misconfiguration/Broken Access Control/DoS at security-spec.md:79-87), satisfying the cross-layer normative-refinement expectation."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: design.md contains no `## Frontend Plan` or `## Backend Plan` section (confirmed by direct grep -- zero matches), so the check's scoped surface does not exist. design.md's `Feature Type:` header (design.md:5-8) is a custom descriptive sentence rather than one of the four literal skip-eligible values, but ux-spec.md:1-9 and frontend-spec.md:1-9 are both explicit N/A stubs (\"no GUI, view, dialog, menu item, or human interactive shell surface of its own\" / \"There is no browser or frontend application\"), confirming this is functionally a non-UI, CLI/CI-only feature with no frontend surface to check for consistency against the API/Contract Plan."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The `## Test Strategy` section (design.md:362-402) covers unit scope (per-stream fixture-driven suites and what each stubs/mocks, e.g. item 1's decision-parity assertions, item 2's 3x4x3 matrix enumeration discipline), integration scope (item 5: `bash tests/run-all.sh` / `pwsh tests/run-all.ps1` locally, 3-OS CI matrix as authoritative once the human-copy candidate lands), acceptance-criteria verification approach (explicit TEST-001..023 cross-references tied to AC-NNN via the Cross-Layer Dependencies table, design.md:159-168), and concrete planned verification evidence (named suite files, named self-check technique reused from `tests/workflow-state-ci-integration.tests.sh`, named staged-candidate path). Item 7 explicitly and appropriately defers Stream C's test plan pending its ADR-0010 unblock. Given the confirmed non-UI Feature Type (ux-spec.md/frontend-spec.md N/A stubs), no E2E/user-journey path is required; item 5's full-suite + 3-OS-CI-matrix regression is the closest and adequate analog."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every component referenced in `## Architecture` and `## API / Contract Plan` is defined in the Components table (design.md:94-104) or in a named subsection: `tests/guard-dispatch-fallback.tests.sh`/`tests/guard-negative-corpus.tests.sh`/`sdd-hook-guard.{py,js,ps1,sh}`/`tests/workflow-scenarios/`/`docs/adr/0010-...`/`.github/workflows/test.yml`/`tests/run-all.sh`/`tests/run-all.ps1`/`CHANGELOG.md` all have Components-table rows; the PowerShell forwarding stubs, `guard-cwd-bypass.tests.sh`'s reused corpus, `GUARD_PY`/`GUARD_JS`/`GUARD_PS1`/`GUARD_SH` env-var indirection, and the `plugins/sdd-bootstrap` entry point are each defined inline in their respective API/Contract Plan subsections (design.md:220-243, 247-268, 310-323); `tests/loops/loop-inventory.json` and `required-checks` are established system components per investigation.md INV-014/BL-001 and are further described in design.md prose. The `deterministic-tests-boundary` job (design.md:343-346) is named and described in place (satisfying this check's letter), though its self-contradictory relationship to the rest of the document is a distinct defect already captured under API-COVERAGE (Critical) -- not duplicated here per the calibration doc's evidence-gate item 4."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's `## ADR Change Log` (design.md:170-179) explicitly states \"No new ADR. This feature introduces no new vocabulary, schema, or architectural pattern of its own\" and lists the verbatim-reuse rationale for each stream. `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` is referenced only as an existing, read-only dependency (design.md:100, 128-131), not as a decision this design introduces, so the check's file-existence-verification trigger for newly-listed ADRs does not apply; confirmed present on disk regardless (`docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`, existence-only check). design.md's claim that ADR-0010's `Status: Proposed` (design.md:72, 178) is internally consistent with requirements.md's Re-verification note (\"ADR-0010's `Status: Proposed(\u4eba\u9593\u627f\u8a8d\u5f85\u3061)`\") and investigation.md INV-015 -- no internal inconsistency within the reviewed spec set, so per this review's scope this claim is not flagged (the human-side promotion to Accepted is outside this manifest and outside the internal-consistency test this check applies)."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "Non-UI, CLI/CI-only test-and-CI-hardening feature: three independently shippable new Bash test-suite files plus a protected `.github/workflows/test.yml` job-graph restructuring (human-copy staged), with a fourth stream (workflow-scenario schema) spec-defined but implementation-Blocked pending ADR-0010 approval."
+}

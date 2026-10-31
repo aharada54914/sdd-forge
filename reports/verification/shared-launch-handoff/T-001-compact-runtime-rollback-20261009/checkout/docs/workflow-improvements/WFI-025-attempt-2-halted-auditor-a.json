@@ -1,0 +1,74 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-025",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every citation in ## Problem Evidence is a git commit hash plus a reports/task-review/.../precheck-result.json artifact path (e.g. \"epic-190-a2: rebound to attempt-5 after T-007 reached Done — commit `340f0149`, artifact `reports/task-review/epic-190-a2-capability-registry/attempt-5/round-1/precheck-result.json`\"), plus a script-line citation (`task-review-precheck.sh:494`) and a scratch-copy hash demonstration. None of these is a row in the retrospective report or a file in docs/review-tickets/, and the WFI says so itself: \"These are primary artifacts rather than retrospective-table rows, and deliberately so: no retrospective covers this session, and the retrospective schema has no column for rebinds today.\" I independently verified the three cited commits exist and the cited artifacts are present in them (`git ls-tree -r 340f0149/b836a11e/726a5a0c`), and that their content is factually accurate — e.g. 726a5a0c's precheck `tasks_sha256` (`7bf1a5cd...`) matches the WFI's own scratch-copy pre-flip digest, and b836a11e's `task-review-contract.json.human_edit_summary` verbatim confirms \"both reviewers verified this themselves ... and both independently flagged that this binding is again over a mixed, non-canonical state.\" The underlying facts check out, but the check's literal evidentiary-source requirement (retrospective row or docs/review-tickets/ file) is not met by either sentence of the checklist."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific mechanism: \"The *producing* side — precheck and validator — emits only raw bytes... the accepting side is more permissive than the producing side can ever exercise, and the durable forms are unreachable for the one state that actually needs them.\" I independently confirmed this mechanism against the code: `task-review-precheck.sh:494` is exactly `tasks_sha256=$(sha256 \"${TASKS_MD}\")` (raw bytes only), and `check-workflow-state.sh`'s `reviewed_hash_accepted()` (lines 234-241) does accept all four forms the WFI describes (normalized_hash, raw sha256_file, and two rereview_normalized_hash forms). This is a producer/acceptor asymmetry, not a restatement of the symptom."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category is `plugin-improvement` (line 20), a valid category. I grepped the whole document for every Forbidden Term in wfi-category-guide.md Section 2 and found five occurrences, all outside the scanned scope: four in the Target File column (WFI-025.md:180-183, e.g. `plugins/sdd-review-loop/scripts/task-review-precheck.sh`, `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md`) and one in freestanding prose below the table (WFI-025.md:197, \"The task plan is manifested only by `task-review-loop`\"). wfi-category-guide.md Section 2 itself explicitly scopes the generic-language rule to \"## Root Cause Hypothesis / ## Proposed Change (Change Description column) / ## Expected Effect\" — Target File column and prose outside the table are not in that list, and the Change Description column cells (lines 180-183, second pipe-delimited field) and the Root Cause Hypothesis and Expected Effect sections contain zero forbidden terms."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All four rows of the ## Proposed Change table name a Target File inside plugins/, which is a Major finding regardless of description quality: Row 1 `plugins/sdd-review-loop/scripts/task-review-precheck.sh` and its `.ps1` peer; Row 2 `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh` and its `.ps1` peer; Row 3 `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md`; Row 4 `plugins/sdd-quality-loop/scripts/check-workflow-state.sh`. The Change Description text itself is concrete and non-vague in every row (e.g. Row 1: \"compute the recorded plan digest as the normalized digest rather than the raw one, and record which form was used under a new `tasks_sha256_form` field\"), but that does not cure the plugins/-path defect per the check's own \"regardless of description\" clause."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. \"Concretely, across the three features observed the task decomposition review gate reached attempts 5, 3 and 5; with a durable binding each would have stayed at attempt 1. Average task-stage attempts per feature falls from 4.3 to 1.0.\" This names a specific metric using generic terminology (\"task decomposition review gate\", \"task-stage attempts\" — matching Section 2's required substitution for `task-review-loop`) and states a quantitative target (4.3 → 1.0)."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Exactly one primary metric is named (\"number of task-stage rebinds attributable solely to a `Status:` transition, per feature\"), and target (0) and checkpoint (\"measured over the next 3 features that complete the task decomposition review gate\") are both present. But item 1's explicit requirement — \"Current baseline value from the retrospective report\" — is not met: the WFI states outright, \"This baseline is taken from direct observation of the commits and task-review artifacts cited in `## Problem Evidence`, not from a retrospective table row: no retrospective covers this session, and no retrospective column tracks rebinds today.\" I confirmed against reports/retrospective/2026-08-05T145740Z-design-sync-consent.md that no row in its Metrics, Friction Patterns, or Improvement Verification Plan tables covers task-stage rebinds — the WFI's self-description is accurate, but the baseline is still not sourced from the retrospective report as the check requires."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. Item 5 of ## Verification Plan: \"The next retrospective adds a `task-stage rebinds attributable to a status transition` row to its Improvement Verification Plan table, populated per feature over the measurement window and compared against this WFI's baseline (average 1.0 per feature) and target (0).\" This names the specific new retrospective row that will be compared in the next cycle, which is as specific as is possible given the metric does not exist in the retrospective schema yet."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every Target File in ## Proposed Change is inside plugins/: `plugins/sdd-review-loop/scripts/task-review-precheck.sh` (+ .ps1 peer), `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh` (+ .ps1 peer), `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md`, `plugins/sdd-quality-loop/scripts/check-workflow-state.sh`. None is AGENTS.md, CLAUDE.md, a project-root workflow doc, or a specs/ template file. Note on the carve-out referenced in this run's task instructions: my role definition for CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP contains no carve-out clause of any kind — both checks state unconditionally that a plugins/ path is a Major finding 'regardless of description' / regardless of anything else. I found no three-condition exception text anywhere in my instructions, so I am applying the checks exactly as written to me, with no exception granted for Category: plugin-improvement."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Problem Evidence",
+      "change": "File a review ticket in docs/review-tickets/ (e.g. RT-<date>-NNN.yml) documenting the three observed rebind incidents with their commit hashes and artifact paths (340f0149/epic-190-a2, b836a11e/epic-194-a6, 726a5a0c/epic-191-a3) and the scratch-copy hash demonstration, then cite that RT-ID in ## Problem Evidence in place of (or alongside) the direct commit citations.",
+      "rationale": "Satisfies EVIDENCE-CITED's literal requirement that citations trace to a real docs/review-tickets/ file, without altering any of the underlying facts, which I independently verified as accurate."
+    },
+    {
+      "section": "## Verification Metric",
+      "change": "Cite the same review ticket proposed above as the source of the Baseline value, e.g. \"Baseline: 3 rebinds across 3 features (RT-<date>-NNN), average 1.0 per feature.\"",
+      "rationale": "Resolves VERIFICATION-METRIC-DEFINED's requirement that the baseline be traceable to a real report artifact rather than only to prose inside the WFI itself, using the same ticket created for the EVIDENCE-CITED fix."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Human clarification needed: escalate to the orchestrator/human approver whether NO-PLUGIN-SCOPE-CREEP's unconditional plugins/ prohibition is meant to apply to Category: plugin-improvement WFIs at all, given that this WFI's Mechanism: tools change is inherently to plugin scripts (task-review-precheck.sh, validate-review-context-set.sh, check-workflow-state.sh) and its own preamble states this repository is the plugins' source of truth. No textual revision to the Target File column can resolve this without either changing what is actually being fixed or receiving a ruling that the check does not apply to this category.",
+      "rationale": "CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP are structurally in tension with the plugin-improvement category as this WFI (and the category guide's own flowchart) frames it; I have no authority in my role definition to waive either check, so this requires a human/policy decision rather than a WFI-text fix."
+    }
+  ]
+}

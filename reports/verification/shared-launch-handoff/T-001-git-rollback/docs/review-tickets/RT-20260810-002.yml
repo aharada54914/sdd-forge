@@ -1,0 +1,63 @@
+ticket_id: RT-20260810-002
+status: open
+type: cycle-limit-reached
+severity: major
+review_cycles: 3
+target:
+  feature: "epic-191-a3-path-ownership"
+  task: "T-005"
+  files:
+    - "specs/epic-191-a3-path-ownership/verification/T-005/"
+    - "reports/implementation/epic-191-a3-path-ownership/T-005.md"
+summary: "T-005 の QG cycle 上限 (3) 到達。両 Major とも verdict 後に是正済みで、残るのは fresh session での再ゲート 1 サイクルのみ"
+problem: |
+  cycle 3 (seq 0655) は Major 2 件で NEEDS_WORK。挙動そのものは全サイクルを
+  通じて健全と確認されており、欠けていたのは記録された証跡だった。
+
+  1. Done-When 7 (acceptance-first の RED/GREEN) の RED 成果物が存在しな
+     かった。`verification/T-005/` には GREEN ログ 2 本しかなく、同一 feature
+     の T-001/T-002/T-004 はいずれも RED ログを持つ。さらに verification
+     ディレクトリは Outputs から除外されていたため、仮に書いても manifest
+     規則下の評価者は読めなかった。
+  2. CHANGELOG.md の宣言ハッシュがゲート実行中に stale 化した。並行セッション
+     が同ファイルを書き換えたため。
+
+  cycle 3 の評価者が自力再現で確認した健全性:
+  - cycle 2 の 3 つの false green はすべて閉鎖。PowerShell 版が bash 版と
+    同一挙動に
+  - 6 つの negative サブケースすべてが対応する変異のみを kill することを
+    両ランタイムで実証 (cycle 2 で残っていた .6 も `0b2a18dd` で解消)
+  - 評価者が独自に考案した 5 種類の乖離 (重複エントリ、非正準の case 違い、
+    classification/components 双方欠落、非マッピング要素、null components)
+    すべてで「製品が拒否するものは suite も捕捉し、受理するものは受理する」
+  - AC-042/AC-044 は artifact 不在・乖離の両方で fail-closed
+  - 両ランタイム 66/0
+
+  すなわち「RED の挙動は本物だが記録されていない」状態だった。
+proposed_resolution: |
+  是正は完了済み。残るのは再ゲートのみ。
+
+  完了分:
+  - RED 証跡を実走で 2 軸取得し `component-path-resolver.RED.log` と `-ps1`
+    双子として保存。ABSENT 軸 (template 削除した使い捨て clone) は両ランタイム
+    62/4、DIVERGENT 軸 (実 template の隔離コピーで `specs/**` 削除) は 64/2。
+    ABSENT が 4 失敗なのは、clone 内実行では TEST-011.3/.4 の CWD 相対
+    スキーマパスも同時に不在になるため — 想定より完全な fail-closed 実証で
+    あり齟齬ではない。実 `contracts/project-context.template.yaml` は
+    `afb8ae3a...` のままバイト不変を確認済み
+  - RED/GREEN 4 本すべてを Outputs に宣言。根拠も明記
+    (`evaluator_output_is_declared` は宣言行のみを認可するため)
+  - GREEN ログ 2 本を現行 suite 状態で再生成 (`3227b747` 時点で 3 コミット分
+    古かった)
+  - CHANGELOG.md の「除外」記述と宣言行の自己矛盾を解消
+
+  残: fresh session で evaluator を 1 サイクル予約・起動する。予約は必ず
+  `validate-review-context-set.sh <manifest> <repo-root> --reserve` に
+  行わせる (台帳への手書き追記は禁止)。PASS なら quality-gate として
+  Status: Done を記録する。
+
+  重要 (運用): ゲート実行中に同じワークツリーへ書き込むエージェントを
+  走らせないこと。本タスクの Major 2 はまさにそれが原因で、評価者は
+  「セッションを直列化しない限りゲートは壊れ続ける」と記録している。
+requires_human_decision: false
+created: 2026-08-10

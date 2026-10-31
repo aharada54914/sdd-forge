@@ -1,0 +1,129 @@
+{
+ "task_id": "T-013",
+ "feature": "ci-mcp",
+ "risk": "high",
+ "required_workflow": "tdd",
+ "stack": "code",
+ "spec_revision": "",
+ "created": "2026-07-08T00:00:00Z",
+ "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session. Canonical shared evidence (typecheck.log/build.log/tests.log, all EXIT:0, 137/137 tests) copied from specs/ci-mcp/verification/qg/_shared/ per batch instructions; not re-run. Lint evidence is tsc --noEmit (strict) as the project's static-analysis gate; no separate eslint toolchain is configured (same convention as sdd-forge-mcp/local-env-mcp high-tier contracts).",
+ "checks": [
+  {
+   "id": "lint",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "typecheck",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/typecheck.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "build",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/build.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "placeholder-scan",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/check-placeholders.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "task-state-check",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/check-task-state.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  },
+  {
+   "id": "unit-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "specs/ci-mcp/verification/T-013-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-013-green.txt"
+  },
+  {
+   "id": "acceptance-tests",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "specs/ci-mcp/verification/T-013-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-013-green.txt"
+  },
+  {
+   "id": "regression",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/tests.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "specs/ci-mcp/verification/T-013-red.txt",
+   "green_evidence": "specs/ci-mcp/verification/T-013-green.txt"
+  },
+  {
+   "id": "requirement-traceability",
+   "required": true,
+   "passes": true,
+   "evidence": "specs/ci-mcp/verification/qg/T-013/check-traceability.log",
+   "waiver_reason": "",
+   "requirement_ids": [
+    "REQ-002",
+    "REQ-008"
+   ],
+   "red_evidence": "",
+   "green_evidence": ""
+  }
+ ]
+}

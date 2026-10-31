@@ -1,0 +1,19 @@
+Acceptance-first red run (before docs/THREAT-MODEL.md was extended)
+
+Command: bash -n tests/cross-model.tests.sh && bash tests/cross-model.tests.sh
+Exit: 1
+Relevant output:
+=== TEST-007/008/013: threat-model security cross-references ===
+FAIL: TEST-007: OWASP table must map LLM01 through LLM10 exactly once
+FAIL: TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control
+FAIL: TEST-013: MCP cross-reference must cover three servers with posture and primary sources
+Results: 58 passed, 3 failed
+
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Exit: 1
+Relevant output:
+=== TEST-007/008/013: threat-model security cross-references ===
+FAIL: TEST-007: OWASP table must map LLM01 through LLM10 exactly once
+FAIL: TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control
+FAIL: TEST-013: MCP cross-reference must cover three servers with posture and primary sources
+Results: 56 passed, 3 failed

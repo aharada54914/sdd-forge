@@ -1,0 +1,42 @@
+# design-sync-standing-consent, T-005 (issue #140, DS-31) -- ONE staged
+# candidate.
+#
+# The sha256 below is the content of
+#   specs/design-sync-standing-consent/verification/T-005/staged-workflow-candidate.draft.yml
+# which is the byte-exact content a human must place at the staged candidate
+# path in this directory. The agent cannot write that path itself: sdd-hook-guard
+# denies every agent write whose path ends with a protected suffix
+# (plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4, and :18
+# for PHASE2_HUMAN_COPY_TARGETS), and the suffix match has no human-copy
+# carve-out (sdd-hook-guard.py:1001-1015).
+#
+# Human steps (all human-performed; tasks.md T-005 Done-When, infra-spec.md
+# CI/CD Sequence):
+#   1. copy the draft to
+#      <this dir>/.github/workflows/test.yml
+#   2. verify:  cd <this dir> && shasum -a 256 -c MANIFEST.sha256   (must say OK)
+#   3. apply the staged candidate to the live .github/workflows/test.yml,
+#      optionally bundled with DS-29's own still-outstanding
+#      run-all/design-system-contract CI registration (requirements.md OQ-5;
+#      infra-spec.md "Bundling with DS-29's own outstanding patch") -- this
+#      task does not decide that, and does not itself stage DS-29's own
+#      registration, which is out of this feature's scope.
+#
+# The only change from the live file: exactly one new step per OS-matrix leg,
+# appended to the `test` job immediately before "Upload test logs" --
+# "Test design-sync-standing-consent suite (pwsh)" (if: runner.os ==
+# 'Windows') and "Test design-sync-standing-consent suite (bash)" (if:
+# runner.os != 'Windows'), invoking
+# tests/design-sync-standing-consent.tests.{ps1,sh} respectively. No existing
+# step is touched; job count, job names, and required-checks' needs: are
+# byte-unchanged (verified by diff against the live file, not asserted).
+#
+# Until step 3 above lands, TEST-054 (this feature's own
+# tests/design-sync-standing-consent.tests.{sh,ps1}) stays red against the
+# live tree -- the designed fail-closed state (tasks.md T-005 Done-When;
+# acceptance-tests.md's "Deferred (non-blocking verification)" section), not
+# a defect.
+#
+# The path below is the workflow's own repository-relative path so that
+# `shasum -a 256 -c` run from this directory checks the placed candidate.
+eecb968cce94ed1126df01b57649485c85bc2a421b0fc71dda793ad6ea148519  .github/workflows/test.yml

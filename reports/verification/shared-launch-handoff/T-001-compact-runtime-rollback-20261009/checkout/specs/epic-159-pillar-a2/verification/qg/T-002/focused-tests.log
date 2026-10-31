@@ -1,0 +1,183 @@
++ bash tests/check-placeholders-brownfield.tests.sh && pwsh -File tests/check-placeholders-brownfield.tests.ps1 && bash tests/loop-consistency.tests.sh && pwsh -File tests/loop-consistency.tests.ps1
+== start: 2026-07-16T04:33:24Z ==
+
+###### bash tests/check-placeholders-brownfield.tests.sh ######
+=== TEST-007: canonical brownfield seed existence + three documented categories ===
+ok: TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker
+ok: TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker
+ok: TEST-007.3 (AC-007): specs/brownfield-seed-demo/tasks.md is bootstrap-complete (header/Task-Review-Status/T-NNN block with Status,Risk,Risk Rationale,Required Workflow/Blockers section)
+ok: TEST-007.4 (AC-007): specs/brownfield-seed-demo/tasks.md carries no unresolved {{...}} template placeholder
+=== TEST-008: marker-free CHANGED_FILES.txt subset passes (Case A) ===
+ok: TEST-008.1 (AC-008): CHANGED_FILES.txt manifest exists
+ok: TEST-008.2 (AC-008): check-placeholders.sh invoked with only the marker-free changed-files subset exits 0
+ok: TEST-008.3 (AC-008, negative self-check): CHANGED_FILES.txt lists neither marker-bearing file
+=== TEST-009: full seed directory fails with BOTH pre-existing markers (Case B) ===
+ok: TEST-009.1 (AC-009): check-placeholders.sh invoked with the full seed directory exits 1
+ok: TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding
+ok: TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding
+ok: TEST-009.4 (AC-009, negative self-check): the marker-free service.py does not appear in the findings
+ok: TEST-009.5 (AC-009, negative self-check): the marker-free tasks.md does not appear in the findings
+=== Self-registration: run-all.sh / run-all.ps1 / test.yml ===
+ok: REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml
+ok: REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml
+
+check-placeholders-brownfield.tests.sh: 14 passed, 0 failed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/check-placeholders-brownfield.tests.ps1 ######
+=== TEST-007: canonical brownfield seed existence + three documented categories ===
+ok: TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker
+ok: TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker
+ok: TEST-007.3 (AC-007): specs/brownfield-seed-demo/tasks.md is bootstrap-complete (header/Task-Review-Status/T-NNN block with Status,Risk,Risk Rationale,Required Workflow/Blockers section)
+ok: TEST-007.4 (AC-007): specs/brownfield-seed-demo/tasks.md carries no unresolved {{...}} template placeholder
+=== TEST-008: marker-free CHANGED_FILES.txt subset passes (Case A) ===
+ok: TEST-008.1 (AC-008): CHANGED_FILES.txt manifest exists
+ok: TEST-008.2 (AC-008): check-placeholders.ps1 invoked with only the marker-free changed-files subset exits 0
+ok: TEST-008.3 (AC-008, negative self-check): CHANGED_FILES.txt lists neither marker-bearing file
+=== TEST-009: full seed directory fails with BOTH pre-existing markers (Case B) ===
+ok: TEST-009.1 (AC-009): check-placeholders.ps1 invoked with the full seed directory exits 1
+ok: TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding
+ok: TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding
+ok: TEST-009.4 (AC-009, negative self-check): the marker-free service.py does not appear in the findings
+ok: TEST-009.5 (AC-009, negative self-check): the marker-free tasks.md does not appear in the findings
+=== Self-registration: run-all.sh / run-all.ps1 / test.yml ===
+ok: REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml
+ok: REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml
+
+check-placeholders-brownfield.tests.ps1: 14 passed, 0 failed
+---- exit: 0 ----
+
+###### bash tests/loop-consistency.tests.sh ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, PASS/Minor-only) green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)
+NOTE: TEST-008.14: domain-review-precheck.ps1 now exists upstream -- tests/loop-consistency.tests.ps1's named SKIP self-heals; no action needed here.
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LOOP_FIXTURE_ROOT
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-51801/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.sh: 27 passed, 0 failed, 13s elapsed
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-consistency.tests.ps1 ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK 5268a36b776d4403a7fc68d4bed840086222d904aa53129ebf52fd7c95ac23df
+REVIEW_CONTEXT_OK bbbeb39df3dad6558ba57ea4e779e58cd989e0ade677b6130c4e6e25abd1d70b
+REVIEW_CONTEXT_OK 6995591421d40a6f2b8315ba86fe66a3b92ba8d96a9db8d12e8295824ccb01ee
+REVIEW_CONTEXT_OK cf88be541f5ad6b96e761b9bf00f9a2cc72d33cddaeb39287a1e9f842556e766
+REVIEW_CONTEXT_OK a53f2d43a1f8ccfdfe14ef31a39d972f7e54995a51420947adf61ff3a2a9ae60
+REVIEW_CONTEXT_OK c407f3240950a4a8b1f5cb6036799f15bfdc425850d1b65a3516433820b7403b
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK 048686831d97ef2239ae20238c92de29335bf046d3fc27fff1e355ac5e172685
+REVIEW_CONTEXT_OK 2f2c9f2922c0dc8fb3796e929730900336770ed945cd04b7d209e38ed23213b4
+REVIEW_CONTEXT_OK d850e719c5d5d4e4f1c35e08563e8ee36f6dd299066ac0be4f1bc266e0ee50f7
+REVIEW_CONTEXT_OK 3d8922099b3344f4b777cf24922b68a41912ce1f07879f07944f974a0dace8e7
+REVIEW_CONTEXT_OK 849f6047cd82a3b6f082dffad1cb30c0a90866850f7af7b9aa2d7a0cc8937b02
+REVIEW_CONTEXT_OK 03c369b4aaf9f3ca4416a6472be6f70f2f30d7c5882ba72de9bcb38dfe34afd0
+REVIEW_CONTEXT_OK 4e5cb77a2e65880bbe2936a3e08ca598a3f995011169abf6d33165f54e85cdba
+REVIEW_CONTEXT_OK 9c47672b950bba1f6d88edc5fc6ccbae755f949c8d8d9d25aaef292d6001f971
+REVIEW_CONTEXT_OK 7ea3209c4c4c7362099b384eb4d95d25907dbe59eb640490e2be5dc35e974593
+REVIEW_CONTEXT_OK 3c75b7d517fe06d959690b7f39e8e14b7c1f3d48c39c009089db1c976d0b32ed
+REVIEW_CONTEXT_OK ca4b12411be0ee05b8021c9c75dec88681603fdd198362fd4a739a30949af583
+REVIEW_CONTEXT_OK 30e114f2f529b7b201c61b63ac9a8cf53bbd9dc78f6d8897c223f756c3f89ed8
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK 29239f7a56129f85768a82648a19419e72d10bed576bde7f1ebcb2dc1cf48c1b
+REVIEW_CONTEXT_OK 07b954420402ae0febc612f1f4026aa36240f47047b892664114ac9c3feae840
+REVIEW_CONTEXT_OK 4e2fee727e5bfaae465b699f8790146d7198111fda5d216f22cd6696d77f230b
+REVIEW_CONTEXT_OK da87a3e310d77d1e5636e81bff2f24e71ce61086e5b7efb16c9cdc34c22177a0
+REVIEW_CONTEXT_OK 21a28bab52b2c3e1f470e9107c526b543b6252d809888dff539c6377e538a6bd
+REVIEW_CONTEXT_OK b39c3591197c2f57185a15eab77e250e1282dd8fa0553fdfa2ef90d2abd96510
+REVIEW_CONTEXT_OK e3d6eeb102f7ab63e53b491785afd60ed2a7f6bc8d622900e398a210b84fb11d
+REVIEW_CONTEXT_OK a602813a44b0e762b21df936ab902cfbea50a24cbe911356eda12bc31eedcd8c
+REVIEW_CONTEXT_OK 4122c2539fb3f35a09da6f73722780be910f26926b76ea4e017b0f47eedff858
+REVIEW_CONTEXT_OK 6f3c18d8d1c8bb71f25e63bc6a129a49f07aa06dfd83cf47a22afe69382e86dd
+REVIEW_CONTEXT_OK 9a99606089ceba30bd7b290d5635b6fab93d860c05441857212ff5a280cd064a
+REVIEW_CONTEXT_OK d8005eec363768724a38fa16001009b65f2a4a54453c9e47fe3a193186c77a80
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 572a700ed459e63a9cc5f6e6669465a810dfb0defc824ef88c3914362377348f
+REVIEW_CONTEXT_OK 35ecb5ab27ad81ef0bbb08216b69783498b728d2ff541ba97ced1e6ccca114b3
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 1bdab81d7ad9d2f767c9c132741fa59759dd591e9491fee3bc3a2d2cd6d341f9
+REVIEW_CONTEXT_OK 42fc37a6c048455fc126107544ce8d70b7f8d89e8b299d031dfab8580bf921fb
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK b8f2b7b8c7d36e3f8a321b182ff651a1e05defdc0285fd8b40869d845474c454
+REVIEW_CONTEXT_OK b849ae0dd831a8ab6821cc2281926e36c43bf674c92b2c91f9a90a4a321d7300
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+REVIEW_CONTEXT_OK 764b2099f1fdbd6e41ecf708d943f2dd2e33c1a24149b13307c065a6acc562d5
+REVIEW_CONTEXT_OK ebab1fdfb411edb00391d350d148c21f3c92d4e7b56dc9483a65d457af8cdbce
+REVIEW_CONTEXT_OK 60fc080ad6c184749e2bad663d22ee04cbb2dc4bb836a0b47e15c5de759f4ad6
+REVIEW_CONTEXT_OK f2dddf314c9674cb8419d5246f4281a84b88c646340313dab9e5af7739147585
+REVIEW_CONTEXT_OK 876a5e17d31ffeae08bda32a8c655bb1cb1115718fb8ef3decb71c009e623e64
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK 564779f893e4b5999e7b81118b0508faf9880ec2934ba231b8db68147c5d805f
+REVIEW_CONTEXT_OK b7f7e77e14871cf5b91c2b9ade9056da3f12f05bff2bdbf24ac53688b91d439b
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK cd851adb225f577d7b4c6e06908a8554db9f302e59358e600b59aea1d671901f
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 91fbd8e8ad853d5abcde0b515d21d3b3d8902718cafa308b8bf95330310e1e06
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 5266596b3273ce002baeb4993e0b9f625b32c73de1e6e2d03dac50abc00f6fd4
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-63118/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 27 passed, 0 failed, 28s elapsed
+---- exit: 0 ----
+
+SUMMARY: brownfield_sh_exit=0 brownfield_ps1_exit=0 consistency_sh_exit=0 consistency_ps1_exit=0
+== end: 2026-07-16T04:34:06Z ==
+EXIT_CODE: 0

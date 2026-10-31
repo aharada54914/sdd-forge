@@ -1,0 +1,28 @@
+{
+  "feature": "second-approval-mask",
+  "generated_by": "quality-gate machine-readable companion; traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-004",
+        "TEST-005"
+      ],
+      "evidence": [
+        "specs/second-approval-mask/verification/T-001/green.log",
+        "specs/second-approval-mask/verification/qg/T-001/focused-tests.log"
+      ]
+    }
+  ]
+}

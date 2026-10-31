@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a4r2-b-seq0426",
+  "host_session_id": "SESS-spec-a4r2-b-epic136phase3-0426",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-4/round-2/integrated-summary.json",
+      "sha256": "8fb02c59706093d534b506dbc4abf42fa68795a5a2cac91d835d53a812d11480"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-4/round-2/precheck-result.json",
+      "sha256": "5bbddda5825c57f792d447095e4c140880d0f04df6652471564e3a75ea39fff1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "92e82fc78e561f16d38e112268c18854194c8ab80998e3bbcbb1d649163e2345"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Field Definitions section (lines 523-570) gives closed-set, testable definitions for every load-bearing term used across REQ-001..006 (guard-runtime surface, tool_name shape with exact literal values, PATH-restricted subshell, decision parity, combined suite, human-copy staging, preventive restructuring). Every AC in acceptance-tests.md names an exact file, exact combination count, and exact pass/fail condition (e.g. AC-008's 4-runtime x 3-tool_name-shape = 12 named combinations, AC-017's byte-unchanged needs: list check). No term or scope was found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Round 1's Critical finding is closed on the current text's own merits. The Re-verification note (requirements.md:26-105) now self-qualifies at its own outset (line 80: 'This paragraph is a spec-authoring-time snapshot in full, not a current-state claim') and flags its two superseded entries inline in the same list, not merely by forward reference: line 97 'ADR-0010's `Status: Proposed(...)` (**SUPERSEDED** - now `Accepted`, commit `67015a5`)' and line 99 '`tests/workflow-scenarios/` did not yet exist (**SUPERSEDED** - Stream C's T-004 has since created it)'. This resolution does not depend solely on the downstream Stream C status record's 'governs the whole document, above and below' declaration (lines 130-136) - the note itself is now self-contained and does not require a reader to look past it for correction. I re-grepped the full document for residual unqualified present-tense claims: the two remaining 'Status: Proposed' occurrences (lines 727, 763) are both explicitly framed as 'held at spec-authoring time - an authoring-time snapshot, not a current-state claim' / 're-verified current at spec-authoring time' inside RESOLVED Assumptions/OQ-2 discussion, and no unqualified '`tests/workflow-scenarios/` does not exist' string remains anywhere (confirmed via full-file grep). The Problems-section instance (lines 196-198) is past-tense-scoped ('did not exist when this problem was recorded'). No other cross-requirement, cross-AC, or Non-goal/Goal conflict was found elsewhere in the document."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material negative/boundary paths implied by the requirements are each mapped to a concrete test: fail-closed deny_unavailable (AC-005/TEST-005, both --emit exit and --emit copilot sub-cases required), the 3-defect-class x 4-runtime x 3-tool_name-shape denial matrix (AC-008..011/TEST-008..011, 12 named combinations each), the RED-then-GREEN self-check proving an intentionally dropped CI step name is caught (AC-017/TEST-017), and AC-014/TEST-014's non-fatal discovered-defect pinning against a named allowlist. No implied failure mode in requirements.md's Edge Cases section (fail-closed uniformity, PATH-restriction fixture correctness, PowerShell-stub sufficiency, Stream D step-preservation) lacks a corresponding observable acceptance outcome."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every entry in the Assumptions section (lines 703-745) states the currently-known value plus an explicit RE-VERIFY-at-implementation-time instruction (WFI-013 discipline), rather than leaving an unresolved decision blocking task decomposition - e.g. the identity-ledger tail, PROTECTED_GATE_SUFFIXES membership, and ADR-0010's now-Accepted status are all stated as spec-authoring-time facts with a named re-verification action, not open questions. All six Open Questions (OQ-1..OQ-6) are explicitly marked RESOLVED with the resolving decision and its rationale recorded inline."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Two human-approval boundaries are in scope and testable: (1) human-copy staging of the R-10-protected CI workflow - the agent NEVER writes that file directly for any stream (Roles and Permissions), verified by AC-016/AC-020's staged-candidate-vs-live-file self-checks (live file's grep-based self-check for each new suite basename stays red until a human applies the staged candidate, AC-020); (2) ADR-0010's Status transition to Accepted, explicitly attributed to human decision alone ('that decision was NOT made by this spec or by any agent session', Roles and Permissions) and gating Stream C's REQ-003/AC-012..015 scope. Both boundaries have a concrete, checkable pass/fail condition."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md and acceptance-tests.md together give exact file paths, exact line-number evidence, closed-set field definitions, and a 1:1 AC-to-TEST-ID mapping across all 23 criteria, with explicit Global-Constraints-level pointers (e.g. Non-goals/OQ-4 on the single shared test.yml human-copy batch, Main Workflows items 2 and 4) that name exactly what design.md must still decide (internal ordering of edits within one reviewed diff) versus what is already spec-level-settled (the batch count). No missing product-behavior decision was found that would force a downstream implementation-policy reviewer to invent scope."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in this worktree (confirmed via glob for `domain/*` and `domain/context-map.md`, zero matches), so the Domain-Model-Status/domain-contract.json precondition is absent. Recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

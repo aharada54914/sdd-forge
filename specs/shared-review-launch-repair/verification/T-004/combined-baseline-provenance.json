@@ -1,0 +1,143 @@
+{
+  "head": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "additional_baseline_inputs": [
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "fd086938cdffbdc63ca6caf2c8beb89d29d68210182b5b9f41d71e4abab9064b",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1",
+      "sha256": "35c4981f2b5eebb164223b4dd943c4ba90e9e5281b45c6e22d1bd1903f3428b2",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+      "sha256": "b837c4409d3ea17e72c047bd2639e7cecb4a90f55c740170f313589f407f9267",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "sha256": "434b6aec802ad129f42cd7c606bc4a512ba4e6422315b6cd97cf64b291dcca0d",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "f07d84cb96c2661f8725b3a27f474ade6509d0184946d3551e002439ee42436e",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "e37af15bfa44cc04029e65f25602fe9bc617594e847b9af3bceeb450e31367f5",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "344e035ea9313d0d39a1972e9c1084d9cfaf8afa6e31802222fe9df44c3b1757",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "7818d14498781683739c2238339db55dea3d9cd6f907741673b60379a9afc821",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "ab7900a4e6ac25f6233642b86a40cb1071b68ea782bbcc718379065f3d5c6f9e",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "f919a53dd72d450fd3a37fabefc431d683e3d567cb1cfe7689d5ced1c8095f4c",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "777a8a0f880f52a066b111daf6f8e204381f6a3604c77a70a3dce0070b0b9197",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "sha256": "179fdb17ca1d8afa6044396ef497dd764353ea814d66c835147ceccd2909786b",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "sha256": "72e03cfad7d35f8eb444fdd8db82b2aab705bdc33882e3dd4750d4a8017a47c4",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "sha256": "ac2532f6450dde24b78e4ab7b577a04ef9b1e8d165a180152737789b5ac6fb85",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "sha256": "81e345db1d1d96acec6a5ddd2159e01d6653cfb879ad2cf2a032e20b887b4c1b",
+      "mode": 493,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "sha256": "0bf80235d96f4cc1f438d4a01df19a3f5e3b8e35548999495d97283b3fb1713b",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/review-agent-isolation.tests.sh",
+      "sha256": "7f53e9c031a3d2883dc3f7a4c39a95520fbd7765fc45c2419b1022fc3335a808",
+      "mode": 493,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/review-context-boundary.tests.sh",
+      "sha256": "789c4a7b7d00b4f20f3d623784236ef0557b5d37f6cf5be8fb8eb57a4f9da6b1",
+      "mode": 493,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/review-scratch-history.tests.py",
+      "sha256": "6757aee629a1827448d912268c3e31f82d67f55080a1cac0fc862f5f7c709756",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "57ec5e6657afb475b93bae4f998d7c2a5fdb0df8df9ff6be25e24bc19016ad20",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "5af4435a91487ce2b7e825677b86966bfc5bc6f952e2dfabf7920b12dfb52dd5",
+      "mode": 493,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.ps1",
+      "sha256": "82641c89fc1b79a3077f18323fd3ac4a7f98aa7dd026e8173c26c9bffd566575",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.sh",
+      "sha256": "6b12e9ddd97327606d67d28a4e165ce3391afba28cfeaa04d68379f50f77fd9b",
+      "mode": 420,
+      "source": "baseline Git HEAD blob and mode"
+    }
+  ]
+}

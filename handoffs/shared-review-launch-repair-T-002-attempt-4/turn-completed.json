@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a12434-0673-7350-8804-0f487e843da6",
+    "turn": {
+      "id": "01a12434-07c1-7c51-8637-6e305af513ff",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0a3792c9bea7090f016ac9c9610c9881918eed97323b0b6d23",
+          "text": "納品しました。\n\n- [実装レポート](work/reports/implementation/shared-review-launch-repair/T-002.md)\n- [証拠・ハッシュ索引](delivery-index.json)\n\n指定4テストは最終実行すべて終了コード0。レポート検証も `IMPLEMENTATION_REPORT_OK`。初回の環境不備ログも保存済みです。ソース・凍結文書・元レポートは変更していません。\n\n未実施：親側の独立評価・正式品質判定、Windows・CI検証。Doneにはしていません。  \n留意点：歴史的RED・復元証拠の限界と、今回のコンテキスト圧縮を明記しています。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791608752,
+      "completedAt": 1791609188,
+      "durationMs": 436557
+    }
+  },
+  "emittedAtMs": 1791609188626
+}

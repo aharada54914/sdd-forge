@@ -1,0 +1,25 @@
+ok: TEST-016: --check exits non-zero when every target still has drift
+ok: TEST-016: --check reports DRIFT for every un-rendered target (unprotected and protected)
+ok: TEST-020: --check performed zero writes (all targets byte-unchanged, no human-copy dir created)
+ok: TEST-020 GREEN: --check reports OK (no drift) against a correctly-synced protected-position target
+ok: TEST-020 RED (negative self-check): mutating a synced protected-position target's x-sdd-effort value turns --check red again
+ok: TEST-019 GREEN: resolve-target-raw(Protected=1) resolves all four protected basenames under specs/epic-159-pillar-c/human-copy/, never the real path
+ok: TEST-019 GREEN (default table): the shipped TARGETS table resolves all four protected basenames to human-copy/
+ok: TEST-019 RED (widened/mis-scoped map): forcing Protected=0 on a protected basename resolves to the REAL path -- proves the resolution function is live, not vacuously safe
+ok: TEST-014: unprotected Claude .md targets keep model: unchanged and gain exactly one x-sdd-effort comment line, sourced from role_defaults
+ok: TEST-015: Codex .toml targets gain # x-sdd-model:/# x-sdd-effort: header comments; existing TOML keys untouched
+ok: TEST-017: render against real production content is a zero-diff no-op on every unprotected target's model: value (role_defaults correctly seeded)
+ok: TEST-019: a full render pass left all four protected-position targets byte-unchanged at their real path
+ok: TEST-019: corrected content for all four protected targets staged under human-copy/ with a matching MANIFEST.sha256 entry
+ok: TEST-018: a model: inherit agent is byte-unchanged after a render targeting it
+ok: TEST-018: a role-map-absent agent (domain-reviewer-a.md) is not present in the built-in TARGETS table
+ok: TEST-016: render-agent-frontmatter --check is wired into tests/validate-repository.ps1
+ok: TEST-016: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: mis-cased fixture: a role_defaults key differing only in case ('Sdd-Evaluator') is rejected, not silently matched to 'sdd-evaluator'
+ok: mis-cased fixture: a canonical_tier value differing only in case ('Strong') is rejected, not silently matched to 'strong'
+ok: self-registration: render-agent-frontmatter.tests.sh registered in tests/run-all.sh
+ok: self-registration: render-agent-frontmatter.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: all five staged candidates (four reviewer .md + test.yml) exist with a correct MANIFEST.sha256 entry
+ok: AC-019/AC-027-style: the four live protected reviewer .md files are byte-unchanged before/after this suite's own run
+---- summary: pass=23 fail=0 ----
+ok: render-agent-frontmatter suite passed (23 checks)

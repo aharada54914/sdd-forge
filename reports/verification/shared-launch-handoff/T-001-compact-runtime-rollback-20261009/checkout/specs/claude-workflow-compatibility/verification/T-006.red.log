@@ -1,0 +1,2 @@
+not ok: task missing predecessor statuses should fail
+exit=1

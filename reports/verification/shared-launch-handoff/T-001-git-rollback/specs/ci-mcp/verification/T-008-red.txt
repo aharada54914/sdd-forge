@@ -1,0 +1,70 @@
+T-008 acceptance-first evidence — Red (baseline before T-008 implementation)
+=============================================================================
+
+T-008 is a `Required Workflow: acceptance-first` task (medium risk, dist +
+CI-plumbing addition per tasks.md). Per the workflow, the acceptance tests
+(AC-014 dist-parity, AC-015 Inspector smoke) are written first and observed
+to genuinely fail/be-inapplicable before the dist bundle and CI job exist.
+
+1) Baseline: no committed dist bundle exists yet
+-------------------------------------------------
+$ git status --porcelain dist/
+?? mcp/ci-mcp/dist/
+
+$ git log --oneline -- dist/
+(no output — dist/ has never been committed to this branch)
+
+AC-014 (dist-parity) is a rebuild-and-diff check against a COMMITTED
+dist/index.js. With no committed bundle, there is nothing to diff against —
+the acceptance criterion cannot be satisfied yet.
+
+2) Baseline: attempting to run the bundled server fails (genuine failure,
+   not a skip)
+--------------------------------------------------------------------------
+Reproduced by temporarily removing the (locally, transiently built)
+dist/index.js and invoking it directly with `node` (bypassing the smoke
+test's self-healing `before()` build hook, to capture the real failure the
+hook exists to prevent):
+
+$ mv dist/index.js dist/index.js.bak
+$ node dist/index.js < /dev/null
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module '.../mcp/ci-mcp/dist/index.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    ...
+    code: 'MODULE_NOT_FOUND',
+    requireStack: []
+Node.js v24.13.0
+exit code: 1
+
+$ mv dist/index.js.bak dist/index.js   # restored
+
+This is the genuine Red state AC-015 (Inspector CLI smoke: stdio startup +
+tools/list of the 5 tools) is written against: without a committed,
+buildable dist entrypoint, the Inspector CLI (which spawns
+`node dist/index.js` as a real child process over stdio) has nothing to
+spawn.
+
+3) Baseline: full test suite before the smoke suite existed
+-------------------------------------------------------------
+$ npm test
+...
+ℹ tests 135
+ℹ suites 0
+ℹ pass 135
+ℹ fail 0
+...
+npm test exit code: 0
+
+(135 = the T-001..T-007/T-012/T-013 suites; 0 smoke tests, since
+tests/smoke/inspector-smoke.test.ts did not yet exist.)
+
+Green phase (T-008-green.txt) adds:
+  - mcp/ci-mcp/dist/index.js, committed, esbuild single-file bundle
+  - tests/smoke/inspector-smoke.test.ts (AC-015): 2 new tests (tools/list
+    exact-5, tools/call auth-missing sanity check) — suite total 135 -> 137
+  - dist-parity rebuild-and-diff (AC-014), verified locally and wired into
+    .github/workflows/test.yml as the ci-mcp-tests job

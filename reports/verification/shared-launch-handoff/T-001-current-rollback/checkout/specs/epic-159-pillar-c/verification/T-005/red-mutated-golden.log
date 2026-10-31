@@ -1,0 +1,4 @@
+=== TEST-028 mutated-golden RED demonstration (pre-existing TDD evidence) ===
+Golden baseline (unmutated, AC-028/TEST-028 expected): 'openai/gpt-5.2-codex strong'
+Actual output against mutated golden fixture: 'openai/gpt-5.1-codex standard'
+not ok: mutated golden fixture output ('openai/gpt-5.1-codex standard') diverges from the golden baseline ('openai/gpt-5.2-codex strong') -- TEST-028's byte-identical assertion against the UNMUTATED golden would correctly go RED here, proving the comparison is live, not vacuous

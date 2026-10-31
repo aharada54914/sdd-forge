@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-designsyncconsent-impl-a1r1-a-seq0479",
+  "host_session_id": "SESS-impl-a1r1-a-designsyncconsent-0479",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "5cb7e7c1d53cc2d6515a2cdb50ad956a68bd1a290cfa734f791a346f0434f527"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+      "sha256": "0133a4f158c70fc5330127b2ca77876707d129dbd37fa2fc54aa90f979fca2c0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+      "sha256": "0e3f19cbf97f5bf5e5c790e25dec386942dbe5b90e5b1a7346b6c46af9e89b1e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+      "sha256": "9bb48a72f9f36a9d69b6ffd55a6311ae5fc09a3146bfbcd3cf010e7b3117abdc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+      "sha256": "ce9404be82c1be499d78a0dcac5a7f011f134d57def1c81d6af9bdab9ca38c7f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:6-47 '## Architecture Overview' describes (1) top-level component boundaries via the 'four edit surfaces' table (design.md:10-18: the loop itself, reconciliation sites, protected staging, verification suites) and the Components table (design.md:49-67); (2) how the feature integrates with existing components via the mermaid flow (design.md:27-39) showing the new Consent Resolution / Pre-Upload Check Point stages splicing into the existing design-sync-loop steps, plus prose (design.md:21-47) explaining why the fused step is split and what alternative was rejected; (3) technology choices per layer, stated as explicit N/A with rationale for UX/Frontend (no rendered surface, no build output) and addressed for Infrastructure/Security (design.md:69-77 Layer Specifications table), consistent with Feature Type (design.md:4, no application code). This runs about 40 lines with a diagram and a rejected-alternative discussion, not a one-sentence description. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "design.md's Architecture Overview (6-47) and Components table (49-67) contain no explicit component-dependency declarations ('X depends on Y'); the mermaid diagram (27-39) is a process/workflow flow (Generate -> Consent Resolution -> ... -> Review -> back to Generate), not a component dependency graph, and its cyclical edge is an intentional regeneration loop (also asserted structurally by AC-009/TEST-014, design.md:151), not a circular import. SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative -- none found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:184-195 '## Data Plan' states 'No data model, no persistence, no migration' and enumerates the two touched on-disk artifacts (the Design-Source section fields, and the generated mockups directory) each with Shape and Change columns, noting the record change is 'Additive... No rewrite of existing spec directories' and mockups are 'unchanged in shape.' Line 195 closes with 'No migration and no backfill follow.' Although the section does not use the literal sub-field labels 'Data Entities:' / 'Existing Data Affected:' / 'Migration Strategy:', its prose unambiguously covers all three: no new entities, the specific existing artifacts affected are named with their change shape, and migration strategy is explicitly 'no migration required' with rationale. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:84-182 '## API and Contract Plan' does not enumerate REST/RPC endpoints because none exist (Feature Type at design.md:4 is a workflow/policy skill change with no application code, consistent with frontend-spec.md:5 'no browser, no bundle, no build output'). In place of endpoints the section fully specifies the actual interface contract this feature introduces: the SKILL.md Loop's target shape (design.md:90-146) and the Design-Source consent-record field table (design.md:157-166, with Field/Meaning/'This feature'/'#140' columns and explicit extensibility rules at 168). Cross-Layer Dependencies (design.md:214-222) names downstream consumers of this contract (#139, #140) with the REQ/AC/Verification that bind them. This is the appropriate substitute for an endpoint list on a feature with no networked API; no application interface is left unspecified. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:197-206 '## Security Boundaries' names B1-B4 and explicitly defers authoritative treatment to security-spec.md (design.md:199: 'The authoritative treatment is security-spec.md ... which is a normative layer of this specification'). requirements.md:296-318 and design.md:349-378 record that OQ-1 (the consent-scope unit, which is the authentication/authorization mechanism at boundaries B1 and B4) was resolved by the human on 2026-08-04 as 'feature and session; both must match.' security-spec.md was not updated to match: it still contains the literal unresolved placeholder text describing the auth mechanism at boundary B1 (security-spec.md:81, table cell 'human consent, once per OQ-1 scope') and at B4 in the trust-boundary diagram (security-spec.md:71, 'per OQ-1 scope'), and the 'Under Whose Consent' table (security-spec.md:45, 'once per OQ-1 scope'). security-spec.md's own '## Open Questions' section (183-189) still lists OQ-1 through OQ-5 as open, with OQ-1/OQ-2 marked as blocking REQ-001/REQ-004, with no acknowledgment anywhere in the file of the 2026-08-04 resolutions documented in requirements.md and design.md. A reader consulting the document design.md names as authoritative for these boundaries would find an unresolved auth-mechanism placeholder and a blocking open question that both requirements.md and design.md say was closed -- an internal contradiction in the normative security refinement on exactly the item this check requires ('the authentication/authorization mechanism at each boundary'). Major: a downstream implementer or later reviewer consulting security-spec.md as ground truth would be misled into treating the scope rule as still undecided."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "Feature Type declared at design.md:4 is 'feature (workflow/policy change to an existing internal skill; no application code)' -- not fullstack. frontend-spec.md:5 states 'N/A -- no browser, no bundle, no build output' and ux-spec.md:5 states 'N/A -- no rendered, interactive, or GUI surface'; design.md contains no '## Frontend Plan' or '## Backend Plan' section. SKIP: no frontend/backend surface exists for this feature type."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:248-317 '## Test Strategy' contains an exhaustive AC->TEST->'Delivered by' coverage table (258-288) covering every AC-001..AC-029 against acceptance-tests.md's TEST-001..TEST-050, naming the exact skill-text location each assertion targets. 'How the assertions are written' (290-297) states the verification approach per assertion class (structural order-parsing for TEST-010/014, field-name assertion not heading-presence for TEST-015, per-site not global sweeps for TEST-033-036, dual-runtime parity rules). Concrete planned evidence is named throughout: exact suite files (tests/design-system-contract.tests.{sh,ps1}), block IDs (DS-006, DS-001-017), and registration targets (tests/run-all.{sh,ps1}). 'The verification surface is itself in question' (299-317) states the CI-registration plan and explicitly flags which criterion (AC-024) stays red until a human-applied step lands, rather than glossing over it. No fullstack E2E/user-journey requirement applies (no UI, per ux-spec.md:5). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Components referenced in design.md's Architecture Overview (6-47) and API and Contract Plan (84-182) -- design-sync-loop/SKILL.md and its named subsections, sdd-bootstrap-interviewer/SKILL.md, docs/workflow-guide.md, lite-spec/SKILL.md, claude-design-workflow.md, tests/design-system-contract.tests.{sh,ps1}, tests/run-all.{sh,ps1}, .github/workflows/test.yml -- are all defined as rows in the Components table (design.md:49-67). The DesignSync tool and its six call names (list_projects, create_project, list_files, get_file, finalize_plan, write_files), referenced at design.md:150,241,344 and throughout the API and Contract Plan, are not in the Components table but are established system components per investigation.md INV-007 (investigation.md:92-96) and INV-022 (investigation.md:246-250). No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:224-232 '## ADR Change Log' lists one decision in 'Proposed' status ('number TBD') rather than asserting a numbered file exists, so there is no referenced-but-missing ADR file to check (confirmed: no docs/adr/0025-*.md exists yet, consistent with the section's own re-derivation instruction at design.md:232). The entry addresses exactly the architectural departure the design introduces (splitting the fused push step into consent resolution -> pre-upload check point -> upload, design.md:21-47) with an argument for and against creating the ADR, and defers the decision explicitly to a maintainer call (design.md:230) rather than silently omitting it. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "The target project has no design-system/ directory (verified via ls: 'No such file or directory'), and design.md:80 '## Design System Compliance' records exactly 'N/A -- ds_profile: none.' SKIP: ds_profile is none / no design-system/ directory exists."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "The target project has no domain/ directory (verified via ls: 'No such file or directory'), so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist. SKIP: no domain/ directory / no approved domain model exists for this project."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "feature (workflow/policy change to an existing internal skill; no application code)"
+}

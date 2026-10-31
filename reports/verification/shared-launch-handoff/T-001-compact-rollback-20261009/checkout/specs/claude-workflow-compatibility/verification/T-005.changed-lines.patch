@@ -1,0 +1,269 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 4a537f2..d3d4947 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -7,5 +7,8 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
+-1. Use `sdd-bootstrap-interviewer` to create specifications and Draft tasks.
+-2. A human reviews the specification and changes selected tasks to Approved.
+-3. Use `implement-task` for one Approved task.
+-4. Use `quality-gate` for independent verification and the Done decision.
+-5. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
++1. Use `sdd-bootstrap-interviewer` Phase 1 to create requirements, design, and acceptance tests.
++2. Run `spec-review-loop` with its independent reviewers; resolve findings until `Spec-Review-Status: Passed`.
++3. Run `impl-review-loop` with separate independent reviewers; resolve findings until `Impl-Review-Status: Passed`.
++4. Use `sdd-bootstrap-interviewer` Phase 2 to create Draft tasks, then run `task-review-loop` with separate independent reviewers until `Task-Review-Status: Passed`.
++5. A human reviews the specification and changes selected tasks to Approved.
++6. Use `implement-task` for one Approved task.
++7. Use `quality-gate` for independent verification and the Done decision.
++8. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
+diff --git a/README.md b/README.md
+index 908eea9..87ccca3 100644
+--- a/README.md
++++ b/README.md
+@@ -25,0 +26,6 @@ flowchart TD
++    subgraph sr["仕様レビュー"]
++        S{spec-review-loop\n2体×最大3ラウンド}
++        SR[人間: requirements.md / acceptance-tests.md 修正 / --reset]
++        S -- NEEDS_WORK / BLOCKED --> SR --> S
++    end
++
+@@ -54 +60,2 @@ flowchart TD
+-    D1 --> E
++    D1 --> S
++    S -- PASS / PASS-with-warnings --> E
+@@ -60,0 +68 @@ flowchart TD
++    style S fill:#dbeafe,stroke:#3b82f6
+@@ -66,0 +75 @@ flowchart TD
++    style sr fill:#eff6ff,stroke:#3b82f6
+@@ -75 +84 @@ flowchart TD
+-> **LITE トラック** (`spec_profile: lite`): impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
++> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
+@@ -96,4 +105,5 @@ flowchart LR
+-- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して2体の独立したブラインドレビュアー（A: 構造健全性、B: 実装可能性/リスク）が最大3ラウンドのレビューを実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
+-- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して2体の独立したブラインドレビュアー（A: 構造カバレッジ14チェック、B: 品質/リスク8チェック）が最大3ラウンドのレビューを実施します。依存関係サイクル検出・Blockers 正準形式検証を含む。
+-- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` が Phase 1（仕様・設計・受入テスト）と Phase 2（タスク・トレーサビリティ）に分割され、`impl-review-loop` 通過を Phase 2 の前提条件とします。
+-- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
++- **仕様レビューループ (`spec-review-loop`)**: requirements.md と acceptance-tests.md に対して `spec-reviewer-a/b` が独立してレビューし、`Spec-Review-Status: Passed` になるまで実装方針レビューを開始させません。
++- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
++- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
++- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
++- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
+diff --git a/docs/contributor/skill-reference-detail.md b/docs/contributor/skill-reference-detail.md
+index 153b7e5..d1d830b 100644
+--- a/docs/contributor/skill-reference-detail.md
++++ b/docs/contributor/skill-reference-detail.md
+@@ -154,2 +154 @@ Source: https://github.com/example/product/issues/42
+-- `specs/<feature>/tasks.md` (各タスクは `Approval: Draft`、`Status: Planned`)
+-- `specs/<feature>/traceability.md`
++- `specs/<feature>/tasks.md` と `specs/<feature>/traceability.md`（`spec-review-loop` と `impl-review-loop` が独立した PASS を記録した後にだけ生成）
+@@ -158,0 +158,7 @@ Source: https://github.com/example/product/issues/42
++**三段階の独立レビュー**
++
++Phase 1 の後、`spec-review-loop`（`spec-reviewer-a/b`）→ `impl-review-loop`
++（`impl-reviewer-a/b`）を順に実行します。Phase 2 の後には
++`task-review-loop`（`task-reviewer-a/b`）を実行します。各 stage の reviewer は
++fresh context を使い、他 stage の raw report を読むことはできません。
++
+@@ -680,0 +687,22 @@ Use the lite-gate skill for specs/<feature>/tasks.md#T-001
++### spec-review-loop
++
++**目的**
++
++`requirements.md` と `acceptance-tests.md` を `spec-reviewer-a` と
++`spec-reviewer-b` が独立してレビューします。valid PASS contract によってのみ
++`Spec-Review-Status: Passed` が書かれ、その後に `impl-review-loop` を実行できます。
++
++**呼び出し例**
++
++```txt
++# Codex
++Use the spec-review-loop skill for feature <slug>
++
++# Claude Code
++/sdd-review-loop:spec-review-loop --feature <slug>
++/sdd-review-loop:spec-review-loop --feature <slug> --edit-summary "acceptance criteria clarified"
++/sdd-review-loop:spec-review-loop --feature <slug> --reset
++```
++
++---
++
+diff --git a/docs/contributor/workflow-detail.md b/docs/contributor/workflow-detail.md
+index ad7e8e7..05f233c 100644
+--- a/docs/contributor/workflow-detail.md
++++ b/docs/contributor/workflow-detail.md
+@@ -4,0 +5,20 @@
++## フル・レビュー連鎖
++
++Phase 1 の成果物は、次の順序で三つの**独立した**レビューを通過します。各
++stage は別の reviewer A/B 定義と fresh context を使い、他 stage の raw report
++を読めません。
++
++```mermaid
++flowchart LR
++    P1[Phase 1: requirements / design / acceptance] --> S[spec-review-loop\nspec-reviewer-a / b]
++    S -->|PASS| I[impl-review-loop\nimpl-reviewer-a / b]
++    I -->|PASS| P2[Phase 2: tasks / traceability]
++    P2 --> T[task-review-loop\ntask-reviewer-a / b]
++    T -->|PASS| A[Human approval → implementation]
++```
++
++`spec-review-loop` が `Spec-Review-Status: Passed` を書く唯一の機構です。
++その有効な PASS contract がなければ `impl-review-loop` は開始せず、同様に
++`task-review-loop` は implementation-policy review の有効な PASS を要求します。
++この前提が崩れた仕様変更では、三段階を順に再実行してください。
++
+diff --git a/docs/skill-reference.md b/docs/skill-reference.md
+index 1199316..7753166 100644
+--- a/docs/skill-reference.md
++++ b/docs/skill-reference.md
+@@ -3 +3 @@
+-6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる17のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
++6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる18のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+@@ -15 +15,2 @@
+-| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
++| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
++| **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
+@@ -37 +38 @@
+-仕様化フェーズのトップレベルルーターです。`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate` の各モードをサブスキルにルーティングし、Phase 1 → impl-review-loop → Phase 2 → task-review-loop → 承認ゲートの全フローを管理します。
++仕様化フェーズのトップレベルルーターです。`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate` の各モードをサブスキルにルーティングし、Phase 1 → spec-review-loop → impl-review-loop → Phase 2 → task-review-loop → 承認ゲートの三段階独立レビューを管理します。
+diff --git a/docs/troubleshooting.md b/docs/troubleshooting.md
+index 415aa4b..550dab5 100644
+--- a/docs/troubleshooting.md
++++ b/docs/troubleshooting.md
+@@ -116,0 +117,68 @@
++### Claude Code に `/sdd-bootstrap:run` などのコマンドが表示されない
++
++**症状：** Claude Code で plugin をインストールした後も、`/sdd-bootstrap:run`
++などの SDD コマンドが候補に表示されない。
++
++**対応：**
++1. インストール対象の manifest を先に検証します。plugin ルートを指定してください。
++   ```bash
++   claude plugin validate plugins/sdd-bootstrap
++   ```
++2. 登録済み plugin を確認します。
++   ```bash
++   claude plugin list
++   ```
++3. 古いまたは失敗した登録があれば、最新版を再インストールします。
++   ```bash
++   claude plugin install sdd-bootstrap@sdd-plugins --scope user
++   ```
++4. Claude Code で `/reload-plugins` を実行してから、`/sdd-bootstrap:run` を
++   再度確認します。
++
++`install.sh` と `install.ps1` は selected plugin の manifest を検証してから
++marketplace を登録します。`plugin validate` が失敗した場合は、原因を修正して
++からインストールを再実行してください。
++
++### Codex で SDD スキルを利用できない
++
++**症状：** Codex で SDD のスキルが見つからない、または Claude Code 用の
++`/sdd-bootstrap:run` をそのまま入力しても起動しない。
++
++**対応：**
++1. Codex 用の marketplace と plugin を登録します。
++   ```bash
++   ./install.sh --target Codex --plugins sdd-bootstrap,sdd-ship
++   ```
++2. Codex が認識している plugin を確認します。
++   ```bash
++   codex plugin list
++   ```
++3. Codex では slash command ではなく、スキル名を指定して依頼します。
++   ```txt
++   Use the sdd-bootstrap:run skill.
++   Mode: feature
++   Source: <issue URL または要件>
++   ```
++
++Claude の manifest 修正は Claude Code の validator 互換性に限定しています。
++Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は変更せず、
++インストーラー試験で `codex plugin add` を継続して検証します。
++
++### 三段階レビューが次の段階へ進まない
++
++**症状：** `impl-review-loop` または `task-review-loop` が predecessor を検証できず停止する。
++
++**対応：** フルトラックでは三つの**独立した**レビューを順に通します。
++
++1. `/sdd-review-loop:spec-review-loop --feature <feature>` を実行し、
++   `requirements.md` の `Spec-Review-Status: Passed` と valid PASS contract を確認
++2. `/sdd-review-loop:impl-review-loop --feature <feature>` を実行し、
++   `design.md` の `Impl-Review-Status: Passed` と valid PASS contract を確認
++3. Phase 2 で tasks を生成してから
++   `/sdd-review-loop:task-review-loop --feature <feature>` を実行
++
++各 stage は専用の reviewer A/B を fresh context で起動します。前段が
++`NEEDS_WORK` または `BLOCKED` の場合、該当する canonical input を人間が修正し、
++`--edit-summary` または `--reset` で同じ stage を再実行してください。status header
++だけを手作業で書き換えて次段を通すことはできません。
++
+diff --git a/docs/workflow-guide.md b/docs/workflow-guide.md
+index 2102142..2ba823c 100644
+--- a/docs/workflow-guide.md
++++ b/docs/workflow-guide.md
+@@ -29,0 +30,8 @@ flowchart TD
++    subgraph sr["仕様レビュー"]
++        S{spec-review-loop\n2体×最大3ラウンド}
++        SR[人間: requirements.md / acceptance-tests.md 修正]
++        SX[人間: 仕様を抜本見直し\n--reset]
++        S -- NEEDS_WORK --> SR --> S
++        S -- BLOCKED --> SX --> S
++    end
++
+@@ -57 +65,2 @@ flowchart TD
+-    D --> E
++    D --> S
++    S -- PASS / PASS-with-warnings --> E
+@@ -65,2 +74,2 @@ flowchart TD
+-    P --> S[workflow-retrospective\nオプション]
+-    S --> T([WFI 承認・改善])
++    P --> W[workflow-retrospective\nオプション]
++    W --> T([WFI 承認・改善])
+@@ -67,0 +77 @@ flowchart TD
++    style S fill:#dbeafe,stroke:#3b82f6
+@@ -73,0 +84 @@ flowchart TD
++    style sr fill:#eff6ff,stroke:#3b82f6
+@@ -79 +90 @@ flowchart TD
+-> **LITE トラック** (`spec_profile: lite`): impl-review-loop / task-review-loop はスキップ。Phase 1 → Phase 2 が直結し、lite-gate で品質保証。
++> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。Phase 1 → Phase 2 が直結し、lite-gate で品質保証。
+@@ -154,4 +165,5 @@ stateDiagram-v2
+-| **3a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>契約 JSON / ADR<br/>`design.md` に `Impl-Review-Status: Pending` | 要件・設計の骨格は整っているか？Open Questions が過剰でないか？ |
+-| **3b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `reports/impl-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ design.md に `Impl-Review-Status: Passed` | ARCH-COVERAGE・SECURITY-COVERAGE 等 18チェックが全通過か？ NEEDS_WORK なら design.md 修正して再実行 |
+-| **3c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md` | `Impl-Review-Status: Passed` が確認されてから生成される。タスク粒度は適正か？ |
+-| **3d. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `reports/task-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ tasks.md に `Task-Review-Status: Passed` | REQ-COVERAGE・DEPENDENCY-CYCLE 等 22チェックが全通過か？ NEEDS_WORK なら tasks.md 修正して再実行 |
++| **3a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>契約 JSON / ADR<br/>`requirements.md` に `Spec-Review-Status: Pending` | 要件・設計の骨格は整っているか？Open Questions が過剰でないか？ |
++| **3b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `reports/spec-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ requirements.md に `Spec-Review-Status: Passed` | `spec-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら requirements/acceptance-tests を修正して再実行 |
++| **3c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `reports/impl-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ design.md に `Impl-Review-Status: Passed` | `impl-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら design.md 修正して再実行 |
++| **3d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md` | `Impl-Review-Status: Passed` が確認されてから生成される。タスク粒度は適正か？ |
++| **3e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `reports/task-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ tasks.md に `Task-Review-Status: Passed` | `task-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら tasks.md 修正して再実行 |
+@@ -167 +179 @@ stateDiagram-v2
+-> **LITE プロファイル (`spec_profile: lite`)**: ステップ 3b/3d のレビューゲートはスキップされます。acceptance-tests.md が不在の場合も同様。
++> **LITE プロファイル (`spec_profile: lite`)**: ステップ 3b/3c/3e のレビューゲートはスキップされます。acceptance-tests.md が不在の場合も同様。
+@@ -173,0 +186 @@ stateDiagram-v2
++- `spec-review-loop` で仕様レビュー → 独立 Reviewer-A/B が PASS
+@@ -193,2 +206,4 @@ stateDiagram-v2
+-| **2b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 修正方針の妥当性が確認されたか？ |
+-| **2c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md` (最小修正) | タスクは最小修正に絞られているか？ |
++| **2b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `Spec-Review-Status: Passed` in requirements.md | 独立した spec-reviewer-a/b が修正対象・再現条件・回帰条件を検証したか？ |
++| **2c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 独立した impl-reviewer-a/b が修正方針の妥当性を確認したか？ |
++| **2d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md` (最小修正) | タスクは最小修正に絞られているか？ |
++| **2e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `Task-Review-Status: Passed` in tasks.md | 独立した task-reviewer-a/b が最小修正の依存関係と検証可能性を確認したか？ |
+@@ -209,2 +224,4 @@ stateDiagram-v2
+-| **3b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | リファクタ設計が循環依存・構造問題を生んでいないか？ |
+-| **3c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | tasks.md<br/>traceability | タスクの粒度と依存関係が正しいか？ |
++| **3b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `Spec-Review-Status: Passed` in requirements.md | 独立した spec-reviewer-a/b が BL 同値の受入条件を検証したか？ |
++| **3c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 独立した impl-reviewer-a/b が循環依存・構造問題を検証したか？ |
++| **3d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | tasks.md<br/>traceability | タスクの粒度と依存関係が正しいか？ |
++| **3e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `Task-Review-Status: Passed` in tasks.md | 独立した task-reviewer-a/b がタスクの依存関係と検証可能性を確認したか？ |
+diff --git a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+index ae5c0f3..76429a2 100644
+--- a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
++++ b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+@@ -93 +93 @@ Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated
+-2. Invoke `/spec-review-loop --feature <feature>`.
++2. Invoke `/sdd-review-loop:spec-review-loop --feature <feature>`.
+@@ -98 +98 @@ Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated
+-   `/spec-review-loop --reset --feature <feature>`.
++   `/sdd-review-loop:spec-review-loop --reset --feature <feature>`.

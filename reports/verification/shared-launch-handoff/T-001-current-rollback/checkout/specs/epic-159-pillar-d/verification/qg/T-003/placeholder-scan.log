@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh .github/workflows/model-freshness-check.yml .github/scripts/check-model-freshness.sh tests/model-freshness-check.tests.sh tests/model-freshness-check.tests.ps1
+== start: 2026-07-19T09:25:09Z ==
+Placeholder scan passed.
+== end: 2026-07-19T09:25:09Z ==
+EXIT_CODE: 0

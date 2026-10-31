@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "PASS",
+  "warningCount": 0,
+  "reviewer_a_run_id": "spec-a-evdeepverify-a1r2-20260708-4d2b",
+  "reviewer_a_host_session_id": "hs-spec-a-evdeepverify-0119",
+  "reviewer_b_run_id": "spec-b-evdeepverify-a1r2-20260708-8e3c",
+  "reviewer_b_host_session_id": "hs-spec-b-evdeepverify-0120",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  }
+}

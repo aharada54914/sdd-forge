@@ -1,0 +1,81 @@
+ticket_id: RT-20260712-002
+status: resolved
+resolution: |
+  Resolved 2026-07-12 via fix-by-review-ticket (test-only remediation; guard
+  twins byte-unchanged). tests/guard-r10-port.tests.ps1 extended 25 -> 58
+  scenarios: one write-denial fixture for every ProtectedGateSuffixes entry
+  (all 30, incl. guard self-protection and the previously untested classes)
+  plus the entire ProtectedGatePluginJsonSuffixes branch (relative + absolute
+  forms for all three dot-dir entries and a non-dot-dir negative), forgery
+  fixtures for the edit/multiedit payload branches, and copilot emit-mode
+  decision parity. tests/run-all.sh now runs guard-ps1-ascii.tests.sh (POSIX
+  array) and guard-r10-port.tests.ps1 (pwsh block, SKIP only when pwsh is
+  absent). The ASCII check's default TARGET is the live plugins path
+  (GUARD_PS1 override kept). Attempt-2 RED 12/46 vs the pre-port .ps1
+  (red-attempt2.log), GREEN 58/0 vs the live twins (green-attempt2.log).
+  Attempt-2 implementation report recorded (T-001.md, Task Attempt Count: 2).
+  Fresh blind panel on rebuilt bundle (input_digest 8a8a9f1e...): 3x PASS,
+  check-cross-model consensus PASS (3 distinct vendors). Isolated evaluator
+  re-run (ledger seq 185): PASS with independent corpus-completeness
+  verification. Quality gate resumes for T-001 Done.
+type: test-coverage-gap
+severity: major
+target:
+  feature: epic-136-phase1-guards
+  task: T-001
+  files:
+    - tests/guard-r10-port.tests.ps1
+    - tests/guard-ps1-ascii.tests.sh
+    - tests/run-all.sh
+summary: T-001 cross-model panel unanimous NEEDS_WORK — the ps1 parity corpus covers only ~7 of 31 protected-table entries although requirements.md flags "parity fixtures must exercise every protected suffix class, not a sample" as the Critical-risk mitigation; the ProtectedGatePluginJsonSuffixes branch has zero fixtures and the ASCII suite is not wired into run-all.
+problem: |
+  Blind three-vendor cross-model verification for T-001 (2026-07-12, input
+  digest 29c7ab73...) returned NEEDS_WORK from all three panelists;
+  check-cross-model recorded consensus FAIL
+  (specs/epic-136-phase1-guards/verification/T-001.cross-model.json).
+  Converged Major findings:
+  1. TEST-001 parity corpus samples the protected table (7 groups) instead of
+     exercising EVERY protected-suffix class as required by requirements.md
+     Risks (Critical), T-001 Scope, and design.md Test Strategy #2. Untested:
+     kill-switch.{js,sh,ps1}, check-evidence-bundle.{sh,ps1,py},
+     validate_path.py, .claude/settings.local.json, three protected test
+     files, the four review-loop agent .md files, task-review-loop SKILL.md,
+     hooks.json/copilot-hooks.json, the guard's own self-protection entry,
+     and — structurally most significant — the entire
+     ProtectedGatePluginJsonSuffixes branch (distinct matching loop), which
+     has zero fixtures.
+  2. AC-015's "runs in the test suite" clause: neither guard-ps1-ascii.tests.sh
+     nor guard-r10-port.tests.ps1 is registered in tests/run-all.sh, and the
+     ASCII check's default TARGET is the frozen staged human-copy rather than
+     the live guard path.
+  Panel Minors worth folding in: forgery corpus covers only the write-tool
+  payload shape (edit/multiedit branches untested); no copilot-emit-mode
+  scenario for the new denials.
+  IMPORTANT CONTEXT: the independent isolated evaluator (ledger seq 168)
+  returned PASS for the implementation itself, verifying the staged .ps1
+  with an out-of-corpus 13-case adversarial harness that included the
+  plugin.json/copilot-hooks suffix branch — all three twins agreed. The
+  defect is spec-mandated EVIDENCE COVERAGE, not any known behavioral
+  divergence. Status remains Implementation Complete; Done is blocked by the
+  cross-model consensus FAIL.
+expected_fix: |
+  Extend tests/guard-r10-port.tests.ps1 so the write-denial parity corpus
+  exercises every protected-suffix class (both suffix tables, including all
+  ProtectedGatePluginJsonSuffixes entries and the guard self-protection
+  entries), add edit/multiedit forgery-branch scenarios and one
+  copilot-emit-mode denial scenario; register guard-r10-port.tests.ps1 and
+  guard-ps1-ascii.tests.sh in tests/run-all.sh; default the ASCII check's
+  TARGET to the live plugins path (keep GUARD_PS1 override for staged runs).
+  This is "missing tests for clear requirements" (auto-fix allowed). Then
+  produce an attempt-2 implementation report for T-001 (updated Outputs
+  table), re-run the blind panel on a rebuilt sanitized bundle, and re-run
+  the isolated evaluator before the quality gate resumes.
+references:
+  - specs/epic-136-phase1-guards/verification/T-001.cross-model.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-anthropic.verdict.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-openai.verdict.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-google.verdict.json
+  - specs/epic-136-phase1-guards/requirements.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

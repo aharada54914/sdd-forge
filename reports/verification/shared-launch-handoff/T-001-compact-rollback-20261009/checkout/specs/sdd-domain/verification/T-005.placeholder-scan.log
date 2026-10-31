@@ -1,0 +1,14 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-domain/skills/domain-review-loop/SKILL.md
+Placeholder scan passed.
+EXIT: 0
+
+# Re-run after quality-gate wording fix (2026-07-07): the two cycle-1
+# findings (lines 69, 106 -- the English word "placeholder" used in prose
+# describing implemented normalized-hash and pseudo-feature-slug logic,
+# not stub markers) were resolved by meaning-preserving rewording
+# ("fixed sentinel value" / "stable, canonical stand-in value").
+# Original failing run for the record:
+#   Placeholder scan FAILED (2 finding(s)):
+#    - plugins/sdd-domain/skills/domain-review-loop/SKILL.md:69
+#    - plugins/sdd-domain/skills/domain-review-loop/SKILL.md:106
+#   EXIT: 1

@@ -1,0 +1,118 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "local-env-mcp",
+  "task_id": "T-009",
+  "run_id": "qg-eval-localenvmcp-t009-20260706-f7d0",
+  "host_session_id": "hs-qg-e9-6503d1ba-0020",
+  "sequence": 52,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "1c54f8fbb339691ca5fc7f0f19f97e8ec66deb2c2b085bec23c504e7258e007a",
+  "previous_record_sha256": "fab703d9faf90b6da9776e2d148a9fb2a22a8b43501d838aa912fbfb07eb9f96",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/local-env-mcp/T-009.md",
+      "sha256": "65e7edb102ff0ae9cad1242b4878ac316780be500a202b4b17fdbaba7bacea67"
+    },
+    {
+      "path": "specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "specs/local-env-mcp/design.md",
+      "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"
+    },
+    {
+      "path": "specs/local-env-mcp/tasks.md",
+      "sha256": "0c5c58918720495222bfdd6713d4e45ff78345bd08b484aa711fcc25cea9fe0c"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.md",
+      "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.json",
+      "sha256": "01761c18fd4c4ebffc2693ea42db7e4352a8071af4c631fb7c71cd36d8876546"
+    },
+    {
+      "path": "specs/local-env-mcp/ux-spec.md",
+      "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283"
+    },
+    {
+      "path": "specs/local-env-mcp/frontend-spec.md",
+      "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b"
+    },
+    {
+      "path": "specs/local-env-mcp/infra-spec.md",
+      "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"
+    },
+    {
+      "path": "specs/local-env-mcp/security-spec.md",
+      "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "uninstall.sh",
+      "sha256": "0680d93e8be70e427f40eda9f4d0868b9dc2ce74a19c7a798ac20f5815d0c96b"
+    },
+    {
+      "path": "uninstall.ps1",
+      "sha256": "b63b4e027dce08d32244a69e2c10a46da1a96f5ab0661a106a54a8b18386808c"
+    },
+    {
+      "path": "tests/uninstall.tests.sh",
+      "sha256": "1fe256e5b72d1a553e76c1113d2f79d57e19a63c1a94fcfe82e8addd4eff8ae7"
+    },
+    {
+      "path": "tests/uninstall.tests.ps1",
+      "sha256": "ea01aaa2ff2f3203349550ce7bb6105afeb669e031d9a35e919cf955f4ee611f"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-009-red.txt",
+      "sha256": "654671ed3d263495feaf15d2df8b5335544836cd9d19a5265516fc334264cb5b"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-009-green.txt",
+      "sha256": "e68b326c01747c10e0c8fcf4f4d674e321909ab9ab72116364bb94a6c55bd4f9"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/T-009.contract.json",
+      "sha256": "108f16b3db86686f25699473eace985c3755d424cf203b0fbde31eaaece40a28"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/check-placeholders.log",
+      "sha256": "9dab1523b168068c13e21b7fd6ed3afa65c5882f33f40e26da27e174d7654c17"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/check-risk.log",
+      "sha256": "11e7d101fb8fab61ead5114ce89b1189c0e35c51e5aeec25752e3ea089418c20"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/check-task-state.log",
+      "sha256": "38219552b7a848b48c142f8884c5f9c06ca08e94a9248ab34bae15e258de09d8"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/check-traceability.log",
+      "sha256": "4b5e8bf6ea004bc731fe1dccbce00195960fa930efeaf17e663fa979adcc4cc6"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/check-workflow-state.log",
+      "sha256": "10bdfa8e4d11ab228c8e88c5301331fe18bc0220240234b9a22e1e1e0be23b9e"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-009/tests.log",
+      "sha256": "8c322c27559eaf3573ba41b568d979a65306bacb3ef587b53707dc7afbf258aa"
+    }
+  ]
+}

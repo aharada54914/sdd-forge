@@ -1,0 +1,1070 @@
+#!/usr/bin/env bash
+# install.sh — SDD plugins installer for macOS and Linux
+# Mirrors install.ps1 behavior exactly.
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------------------
+REPOSITORY="aharada54914/sdd-forge"
+REF="main"
+INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
+TARGET="All"
+PLUGINS="sdd-bootstrap,sdd-ship"
+SKIP_PLUGIN_INSTALL=0
+SKIP_AGENT_INSTALL=0
+SOURCE_DIRECTORY=""
+SKIP_MCP=0
+MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
+
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
+# The ~/.codex/config.toml block for each selected MCP is delimited by a
+# per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
+# a block can be idempotently added, replaced, or removed without touching any
+# other content a user has in that file. No single-MCP marker constant is
+# defined here because the installer ships more than one MCP.
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+usage() {
+    cat >&2 <<EOF
+Usage: install.sh [options]
+
+  --repository <owner/repo>      Default: aharada54914/sdd-forge
+  --ref <ref>                    Default: main
+  --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
+  --target All|Codex|Claude|Copilot|FilesOnly
+                                 Default: All
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain
+                                 Default: sdd-bootstrap,sdd-ship
+  --skip-plugin-install          Skip registering plugins with CLI tools
+  --skip-agent-install           Skip copying Codex agent TOML files
+  --source-directory <path>      Use a local directory instead of downloading
+  --skip-mcp                     Skip placing and registering all MCP servers
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp,ci-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp,ci-mcp
+
+Environment:
+  SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
+  SDD_CURSOR_DIR        Override the ~/.cursor directory used for Cursor MCP registration
+  SDD_VSCODE_USER_DIR   Override the VS Code user-profile directory used for MCP registration
+
+  Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
+EOF
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --repository)       [[ $# -gt 1 ]] || usage; REPOSITORY="$2"; shift 2 ;;
+        --ref)              [[ $# -gt 1 ]] || usage; REF="$2"; shift 2 ;;
+        --install-root)     [[ $# -gt 1 ]] || usage; INSTALL_ROOT="$2"; shift 2 ;;
+        --target)           [[ $# -gt 1 ]] || usage; TARGET="$2"; shift 2 ;;
+        --plugins)          [[ $# -gt 1 ]] || usage; PLUGINS="$2"; shift 2 ;;
+        --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
+        --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
+        --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
+        --skip-mcp)         SKIP_MCP=1; shift ;;
+        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
+        *) echo "Unknown option: $1" >&2; usage ;;
+    esac
+done
+
+# Validate --target
+case "$TARGET" in
+    All|Codex|Claude|Copilot|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, or FilesOnly)" >&2; usage ;;
+esac
+
+# Validate --plugins
+# bash 3.2 treats the zero-element array produced by `read -ra` on an empty
+# string as unset under `set -u`, so reject an empty list before the read.
+if [[ -z "$PLUGINS" ]]; then
+    echo "Invalid plugin name: (empty) (must be one of: $VALID_PLUGINS)" >&2
+    exit 1
+fi
+IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
+for p in "${PLUGIN_LIST[@]}"; do
+    valid=0
+    for v in $VALID_PLUGINS; do
+        [[ "$p" == "$v" ]] && valid=1 && break
+    done
+    if [[ $valid -eq 0 ]]; then
+        echo "Invalid plugin name: $p (must be one of: $VALID_PLUGINS)" >&2
+        exit 1
+    fi
+done
+
+# Validate --mcp
+MCP_SELECTION=()
+if [[ $SKIP_MCP -eq 0 ]]; then
+    if [[ -z "$MCP_LIST" ]]; then
+        echo "Invalid MCP name: (empty) (must be one of: $VALID_MCPS)" >&2
+        exit 1
+    fi
+    IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
+    for m in "${MCP_SELECTION[@]}"; do
+        valid=0
+        for v in $VALID_MCPS; do
+            [[ "$m" == "$v" ]] && valid=1 && break
+        done
+        if [[ $valid -eq 0 ]]; then
+            echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
+            exit 1
+        fi
+    done
+fi
+
+# Resolve dependencies to a fixed point. This is deliberately iterative: lite
+# adds bootstrap, and bootstrap then adds the internal review loop.
+AUTO_INCLUDED=()
+dependencies_changed=1
+while [[ $dependencies_changed -eq 1 ]]; do
+    dependencies_changed=0
+    for plugin in "${PLUGIN_LIST[@]}"; do
+        dependencies=()
+        case "$plugin" in
+            sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+            sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
+            sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
+            sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
+        esac
+        if [[ ${#dependencies[@]} -gt 0 ]]; then
+            for dep in "${dependencies[@]}"; do
+                case ",$PLUGINS," in
+                    *,"$dep",*) ;;
+                    *)
+                        PLUGINS="$PLUGINS,$dep"
+                        PLUGIN_LIST+=("$dep")
+                        AUTO_INCLUDED+=("$dep")
+                        dependencies_changed=1
+                        ;;
+                esac
+            done
+        fi
+    done
+done
+if [[ ${#AUTO_INCLUDED[@]} -gt 0 ]]; then
+    echo "Note: dependency resolution auto-included: ${AUTO_INCLUDED[*]}." >&2
+fi
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+run_plugin_command() {
+    local cmd="$1"; shift
+    local rc=0
+    "$cmd" "$@" || rc=$?
+    if [[ $rc -ne 0 ]]; then
+        # Use printf %q so multi-word arguments are unambiguous in the message.
+        local quoted_args
+        printf -v quoted_args '%q ' "$@"
+        echo "Error: '$cmd ${quoted_args% }' failed with exit code $rc." >&2
+        return 1
+    fi
+}
+
+# External CLIs report an already-present marketplace, MCP server, or plugin as
+# an error, not as success. WFI-041: propagating that as fatal made every
+# re-run of the installer on an installed machine roll the install root back to
+# the previous version while reporting an error about something unrelated.
+# "Already there" is the desired end state, so match the CLIs' own wording and
+# treat it as success. Every other non-zero exit stays fatal.
+IDEMPOTENT_REGISTRATION_RE='already (registered|exists|added|installed|configured)'
+
+# claude reports an existing plugin installation as *success*, so a plain
+# re-run leaves the cache a version behind. These two patterns drive the
+# upgrade path in install_claude_plugins.
+CLAUDE_ALREADY_INSTALLED_RE='already installed'
+CLAUDE_UPGRADE_RE='updated from [^ ]+ to [^ ]+'
+
+run_idempotent_plugin_command() {
+    # Like run_plugin_command, but tolerates the "already there" outcome.
+    # Args: <label> <cmd> [args...]
+    # stdout and stderr are captured so both can be scanned (the CLIs disagree
+    # about which stream carries the message), then re-emitted on their
+    # original streams so the caller still sees exactly what the CLI said.
+    local label="$1"; shift
+    local cmd="$1"; shift
+    local out_file err_file rc=0
+    out_file="$(mktemp)"
+    err_file="$(mktemp)"
+    "$cmd" "$@" >"$out_file" 2>"$err_file" || rc=$?
+    cat "$out_file"
+    cat "$err_file" >&2
+    if [[ $rc -eq 0 ]]; then
+        rm -f "$out_file" "$err_file"
+        return 0
+    fi
+    if cat "$out_file" "$err_file" | grep -Eqi "$IDEMPOTENT_REGISTRATION_RE"; then
+        rm -f "$out_file" "$err_file"
+        echo "Note: ${label} is already registered; keeping the existing registration."
+        return 0
+    fi
+    rm -f "$out_file" "$err_file"
+    local quoted_args
+    printf -v quoted_args '%q ' "$@"
+    echo "Error: '$cmd ${quoted_args% }' failed with exit code $rc." >&2
+    return 1
+}
+
+target_requires() {
+    # Returns 0 if $TARGET is exactly the given value (hard-error context)
+    [[ "$TARGET" == "$1" ]]
+}
+
+install_codex_plugins() {
+    local marketplace_root="$1"
+    if ! command -v codex >/dev/null 2>&1; then
+        if target_requires Codex; then
+            echo "Error: Codex CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Codex CLI was not found. Codex registration was skipped." >&2
+        return 0
+    fi
+    run_idempotent_plugin_command "the Codex sdd-plugins marketplace" \
+        codex plugin marketplace add "$marketplace_root" || return 1
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            run_idempotent_plugin_command "Codex plugin '${p}'" \
+                codex plugin add "${p}@sdd-plugins" || return 1
+        done
+    fi
+}
+
+install_claude_plugins() {
+    local marketplace_root="$1"
+    if ! command -v claude >/dev/null 2>&1; then
+        if target_requires Claude; then
+            echo "Error: Claude Code CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Claude Code CLI was not found. Claude registration was skipped." >&2
+        return 0
+    fi
+    # Validate every selected manifest before marketplace registration. A
+    # rejected manifest must not leave a partially registered Claude install.
+    for p in "${PLUGIN_LIST[@]}"; do
+        run_plugin_command claude plugin validate "${marketplace_root}/plugins/${p}" || return 1
+    done
+    run_idempotent_plugin_command "the Claude sdd-plugins marketplace" \
+        claude plugin marketplace add "$marketplace_root" --scope user || return 1
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        # `claude plugin install` reports an existing installation as success
+        # and returns without upgrading, so a re-run would silently leave the
+        # cache a version behind (WFI-041). Collect those plugins and put them
+        # through the update path below.
+        local -a already_installed=()
+        local install_out rc
+        for p in "${PLUGIN_LIST[@]}"; do
+            install_out="$(mktemp)"
+            rc=0
+            claude plugin install "${p}@sdd-plugins" --scope user >"$install_out" 2>&1 || rc=$?
+            cat "$install_out"
+            if [[ $rc -ne 0 ]]; then
+                rm -f "$install_out"
+                echo "Error: 'claude plugin install ${p}@sdd-plugins --scope user' failed with exit code $rc." >&2
+                return 1
+            fi
+            if grep -Eqi "$CLAUDE_ALREADY_INSTALLED_RE" "$install_out"; then
+                already_installed+=("$p")
+            fi
+            rm -f "$install_out"
+        done
+        if [[ ${#already_installed[@]} -gt 0 ]]; then
+            upgrade_claude_plugins "${already_installed[@]}" || return 1
+        fi
+    fi
+}
+
+upgrade_claude_plugins() {
+    # Converge already-installed Claude plugins on the marketplace's current
+    # version. Reports each plugin's transition so that a run which changed
+    # nothing is distinguishable from one that upgraded.
+    local -a plugins=("$@")
+    local upgrade_out rc p transition upgraded=0
+    run_plugin_command claude plugin marketplace update sdd-plugins || return 1
+    for p in "${plugins[@]}"; do
+        upgrade_out="$(mktemp)"
+        rc=0
+        claude plugin update "${p}@sdd-plugins" >"$upgrade_out" 2>&1 || rc=$?
+        cat "$upgrade_out"
+        if [[ $rc -ne 0 ]]; then
+            rm -f "$upgrade_out"
+            echo "Error: 'claude plugin update ${p}@sdd-plugins' failed with exit code $rc." >&2
+            return 1
+        fi
+        transition="$(grep -Eoi "$CLAUDE_UPGRADE_RE" "$upgrade_out" | head -1 || true)"
+        rm -f "$upgrade_out"
+        if [[ -n "$transition" ]]; then
+            echo "sdd-forge: upgraded ${p} (${transition})"
+            upgraded=$((upgraded + 1))
+        else
+            echo "sdd-forge: ${p} was already up to date"
+        fi
+    done
+    if [[ $upgraded -eq 0 ]]; then
+        echo "sdd-forge: no Claude plugin needed an upgrade."
+    else
+        echo "sdd-forge: upgraded ${upgraded} Claude plugin(s)."
+    fi
+}
+
+install_copilot_plugins() {
+    local marketplace_root="$1"
+    if ! command -v copilot >/dev/null 2>&1; then
+        if target_requires Copilot; then
+            echo "Error: Copilot CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Copilot CLI was not found. Copilot registration was skipped." >&2
+        return 0
+    fi
+    run_idempotent_plugin_command "the Copilot sdd-plugins marketplace" \
+        copilot plugin marketplace add "$marketplace_root" || return 1
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            run_idempotent_plugin_command "Copilot plugin '${p}'" \
+                copilot plugin install "${p}@sdd-plugins" || return 1
+        done
+    fi
+}
+
+get_github_auth_token() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "Error: GitHub CLI (gh) was not found in PATH. Install it or use --source-directory." >&2
+        return 1
+    fi
+    local token=""
+    if ! token="$(gh auth token 2>/dev/null)"; then
+        echo "Error: GitHub CLI authentication is required for remote installs. Run 'gh auth login' first." >&2
+        return 1
+    fi
+    if [[ -z "$token" ]]; then
+        echo "Error: GitHub CLI did not return an auth token. Run 'gh auth login' first." >&2
+        return 1
+    fi
+    printf '%s' "$token"
+}
+
+download_authenticated_archive() {
+    local archive_path="$1"
+    local archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${REF}"
+    local token
+    token="$(get_github_auth_token)" || return 1
+    echo "Downloading authenticated archive from ${archive_url}"
+    printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/vnd.github+json"\n' "$token" |
+        curl -fsSL --config - "$archive_url" -o "$archive_path"
+}
+
+install_codex_agents() {
+    local install_root_path="$1"
+    local agent_source_dir="${install_root_path}/.codex/agents"
+    if [[ ! -d "$agent_source_dir" ]]; then
+        echo "Warning: No .codex/agents directory found in install root. Codex agent install skipped." >&2
+        return 0
+    fi
+    # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local agent_dest_dir="${codex_home}/agents"
+    # A partial copy from a prior failed run is safe to overwrite on re-run.
+    if ! {
+        mkdir -p "$agent_dest_dir"
+        for toml in "${agent_source_dir}"/sdd-*.toml; do
+            [[ -f "$toml" ]] || continue
+            cp -f "$toml" "$agent_dest_dir/"
+        done
+    }; then
+        echo "Warning: Codex agent install failed." >&2
+        return 1
+    fi
+    # Scan destination for malformed agent role files (warning only; do not modify or delete).
+    for toml_file in "${agent_dest_dir}"/*.toml; do
+        [[ -f "$toml_file" ]] || continue
+        if ! grep -Eq '^[[:space:]]*developer_instructions[[:space:]]*=' "$toml_file"; then
+            echo "Warning: Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): ${toml_file}. Add a developer_instructions entry or delete the file." >&2
+        fi
+    done
+}
+
+# ---------------------------------------------------------------------------
+# MCP: Node version check, placement, and Claude/Codex/Cursor/VS Code registration
+# ---------------------------------------------------------------------------
+mcp_selected() {
+    # Returns 0 if the given MCP name is in MCP_SELECTION.
+    local name="$1"
+    local m
+    [[ $SKIP_MCP -eq 1 ]] && return 1
+    for m in "${MCP_SELECTION[@]}"; do
+        [[ "$m" == "$name" ]] && return 0
+    done
+    return 1
+}
+
+node_version_ok() {
+    # Returns 0 if `node` is on PATH and its version is >= 22.19.0.
+    if ! command -v node >/dev/null 2>&1; then
+        echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    local version major minor patch
+    local minimum_major=22 minimum_minor=19 minimum_patch=0
+    version="$(node --version 2>/dev/null)" || version=""
+    # Stable Node releases report vNN.N.N. Fail closed on any other shape.
+    if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+        echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    # Keep arithmetic within a predictable range on Bash 3.2 and newer.
+    if (( ${#BASH_REMATCH[1]} > 9 || ${#BASH_REMATCH[2]} > 9 || ${#BASH_REMATCH[3]} > 9 )); then
+        echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    major=$((10#${BASH_REMATCH[1]}))
+    minor=$((10#${BASH_REMATCH[2]}))
+    patch=$((10#${BASH_REMATCH[3]}))
+    if (( major < minimum_major ||
+          (major == minimum_major && minor < minimum_minor) ||
+          (major == minimum_major && minor == minimum_minor && patch < minimum_patch) )); then
+        echo "Warning: Node.js >= 22.19.0 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    return 0
+}
+
+place_mcp_servers() {
+    # Copies the minimal MCP payload (dist/ + package.json) for each selected
+    # MCP from the source tree into INSTALL_ROOT/mcp/<name>/. This is
+    # independent of Git tracking state (unlike REQUIRED_PATHS) because the
+    # MCP dist/ bundle is not yet committed to the repository as of this task.
+    local source_root="$1"
+    local install_root_path="$2"
+    local name src_dir dest_dir
+    for name in "${MCP_SELECTION[@]}"; do
+        src_dir="${source_root}/mcp/${name}"
+        if [[ ! -f "${src_dir}/dist/index.js" || ! -f "${src_dir}/package.json" ]]; then
+            echo "Warning: MCP server '${name}' payload (dist/index.js, package.json) was not found under mcp/${name}. Skipping placement." >&2
+            continue
+        fi
+        dest_dir="${install_root_path}/mcp/${name}"
+        mkdir -p "${dest_dir}/dist"
+        cp -R "${src_dir}/dist/." "${dest_dir}/dist/"
+        cp -f "${src_dir}/package.json" "${dest_dir}/package.json"
+    done
+}
+
+register_claude_mcp() {
+    # Registers each selected MCP with Claude Code (user scope). Best-effort:
+    # a missing Claude CLI is a warning, mirroring install_claude_plugins.
+    local install_root_path="$1"
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Warning: Claude Code CLI was not found. Claude MCP registration was skipped." >&2
+        return 0
+    fi
+    local name entry_point
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        run_idempotent_plugin_command "MCP server '${name}'" \
+            claude mcp add "$name" --scope user -- node "$entry_point" || return 1
+    done
+}
+
+register_codex_mcp() {
+    # Idempotently adds/replaces a marker-delimited block in
+    # ~/.codex/config.toml for each selected MCP. If config.toml does not
+    # exist, registration is skipped with a warning (a new file is never
+    # created, per requirements).
+    local install_root_path="$1"
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    if [[ ! -f "$config_toml" ]]; then
+        echo "Warning: ${config_toml} was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)." >&2
+        return 0
+    fi
+    local name entry_point block_file tmp_config
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        local marker_end="# <<< ${name} <<<"
+        tmp_config="$(mktemp)"
+        # Strip any prior block for this MCP (idempotent re-registration),
+        # then append a fresh block.
+        awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            skip { next }
+            { print }
+        ' "$config_toml" > "$tmp_config"
+        {
+            cat "$tmp_config"
+            printf '\n%s\n[mcp_servers.%s]\ncommand = "node"\nargs = ["%s"]\n%s\n' \
+                "$marker_begin" "$name" "$entry_point" "$marker_end"
+        } > "${tmp_config}.new"
+        mv "${tmp_config}.new" "$config_toml"
+        rm -f "$tmp_config"
+    done
+}
+
+upsert_mcp_json() {
+    # Shared idempotent JSON upsert for IDE client MCP configs (ADR-0005).
+    # Args: <client_label> <config_file> <top_key> <entry_kind> <install_root_path>
+    # Upserts <top_key>.<name> for every selected MCP whose payload was
+    # placed, preserving all other entries and unknown top-level keys. The
+    # output is stable 2-space JSON, so re-running produces a byte-identical
+    # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
+    # never overwritten (error notice, installer continues with other
+    # clients). Node >= 22.19.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    local client_label="$1"
+    local config_file="$2"
+    local top_key="$3"
+    local entry_kind="$4"
+    local install_root_path="$5"
+    local name entry_point
+    local pairs=()
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        pairs+=("$name" "$entry_point")
+    done
+    # Guard the expansion: bash 3.2 treats a zero-element array as unset
+    # under set -u.
+    [[ ${#pairs[@]} -eq 0 ]] && return 0
+    local rc=0
+    node -e '
+const fs = require("fs");
+const [file, topKey, kind, ...pairs] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+let root = {};
+if (text.trim() !== "") {
+  try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+  if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+}
+if (root[topKey] === undefined) root[topKey] = {};
+const section = root[topKey];
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (let i = 0; i + 1 < pairs.length; i += 2) {
+  section[pairs[i]] = kind === "vscode"
+    ? { type: "stdio", command: "node", args: [pairs[i + 1]] }
+    : { command: "node", args: [pairs[i + 1]] };
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
+    if [[ $rc -eq 3 ]]; then
+        echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." >&2
+        return 0
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo "Warning: Failed to update ${config_file}. ${client_label} MCP registration was skipped." >&2
+        return 0
+    fi
+    return 0
+}
+
+register_cursor_mcp() {
+    # Idempotently upserts mcpServers.<name> into ~/.cursor/mcp.json for each
+    # selected MCP. An absent ~/.cursor directory means Cursor is not
+    # installed: skip with a notice and never create the directory (creating
+    # mcp.json inside an EXISTING directory is fine). Override the directory
+    # via SDD_CURSOR_DIR (for testing; default is the user profile).
+    local install_root_path="$1"
+    local cursor_dir="${SDD_CURSOR_DIR:-$HOME/.cursor}"
+    if [[ ! -d "$cursor_dir" ]]; then
+        echo "Warning: ${cursor_dir} was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "Cursor" "${cursor_dir}/mcp.json" "mcpServers" "cursor" "$install_root_path"
+}
+
+register_vscode_mcp() {
+    # Idempotently upserts servers.<name> into the VS Code user-profile
+    # mcp.json for each selected MCP (macOS:
+    # ~/Library/Application Support/Code/User, Linux: ~/.config/Code/User;
+    # Windows %APPDATA%\Code\User is handled by install.ps1). An absent user
+    # directory means VS Code is not installed: skip with a notice and never
+    # create the directory. Override via SDD_VSCODE_USER_DIR (for testing).
+    local install_root_path="$1"
+    local vscode_user_dir
+    if [[ -n "${SDD_VSCODE_USER_DIR:-}" ]]; then
+        vscode_user_dir="$SDD_VSCODE_USER_DIR"
+    else
+        case "$(uname -s)" in
+            Darwin) vscode_user_dir="$HOME/Library/Application Support/Code/User" ;;
+            *)      vscode_user_dir="$HOME/.config/Code/User" ;;
+        esac
+    fi
+    if [[ ! -d "$vscode_user_dir" ]]; then
+        echo "Warning: ${vscode_user_dir} was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "VS Code" "${vscode_user_dir}/mcp.json" "servers" "vscode" "$install_root_path"
+}
+
+MCP_NODE_OK=0
+
+place_mcp_servers_if_selected() {
+    # Placement (like plugin files) happens regardless of --target; only
+    # registration is target-scoped. Sets MCP_NODE_OK for callers to check
+    # before attempting registration.
+    local source_root="$1"
+    local install_root_path="$2"
+    MCP_NODE_OK=0
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 ]]; then
+        return 0
+    fi
+    if ! node_version_ok; then
+        return 0
+    fi
+    MCP_NODE_OK=1
+    place_mcp_servers "$source_root" "$install_root_path"
+}
+
+install_mcp_servers() {
+    local install_root_path="$1"
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 || $MCP_NODE_OK -ne 1 ]]; then
+        return 0
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+        register_claude_mcp "$install_root_path" || return 1
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+        register_codex_mcp "$install_root_path" || return 1
+    fi
+    # Cursor has no dedicated --target value, so it participates in All only.
+    if [[ "$TARGET" == "All" ]]; then
+        register_cursor_mcp "$install_root_path" || return 1
+    fi
+    # VS Code consumes the MCP config through Copilot, so it participates in
+    # both All and Copilot.
+    if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+        register_vscode_mcp "$install_root_path" || return 1
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Cleanup state
+# ---------------------------------------------------------------------------
+TEMPORARY_ROOT=""
+BACKUP_ROOT=""
+STAGING_ROOT=""
+NEW_INSTALL_PLACED=0
+LOCK_DIR=""
+LOCK_HELD=0
+# Set once the install root holds the new tree and only external-CLI
+# registration remains. See rollback() (WFI-041).
+REGISTRATION_STARTED=0
+
+cleanup() {
+    # Called from trap EXIT — runs on every exit path
+    if [[ -n "$STAGING_ROOT" && -d "$STAGING_ROOT" ]]; then
+        rm -rf "$STAGING_ROOT"
+    fi
+    if [[ -n "$TEMPORARY_ROOT" && -d "$TEMPORARY_ROOT" ]]; then
+        rm -rf "$TEMPORARY_ROOT"
+    fi
+    # Release the exclusive lock if we hold it.
+    # Only remove the lock directory we created — never remove a lock we do not hold.
+    if [[ $LOCK_HELD -eq 1 && -n "$LOCK_DIR" && -d "$LOCK_DIR" ]]; then
+        rm -rf "$LOCK_DIR"
+        LOCK_HELD=0
+    fi
+}
+
+rollback() {
+    # Restore previous installation on error.
+    #
+    # WFI-041: only for failures up to and including placement. Once the tree
+    # is in the install root and the run has moved on to registering it with
+    # external CLIs, reverting would discard a correct install for a failure
+    # that is not the install's — one CLI's complaint used to undo the whole
+    # upgrade. The failing registration is reported by its own call site; the
+    # tree stays at the new version and a re-run retries registration, which is
+    # now idempotent (run_idempotent_plugin_command).
+    if [[ $REGISTRATION_STARTED -eq 1 ]]; then
+        if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+            rm -rf "$BACKUP_ROOT"
+            BACKUP_ROOT=""
+        fi
+        echo "Note: registration failed, but the install root at '${INSTALL_ROOT}' was left at the newly installed version. Re-run the installer to retry registration." >&2
+        return 0
+    fi
+    if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+        if [[ -d "$INSTALL_ROOT" ]]; then
+            rm -rf "$INSTALL_ROOT"
+        fi
+        mv "$BACKUP_ROOT" "$INSTALL_ROOT"
+        BACKUP_ROOT=""
+    elif [[ $NEW_INSTALL_PLACED -eq 1 && -d "$INSTALL_ROOT" ]]; then
+        rm -rf "$INSTALL_ROOT"
+    fi
+}
+
+trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
+
+# ---------------------------------------------------------------------------
+# Resolve source
+# ---------------------------------------------------------------------------
+SOURCE_IS_LOCAL=0
+if [[ -n "$SOURCE_DIRECTORY" ]]; then
+    SOURCE_ROOT="$(cd "$SOURCE_DIRECTORY" && pwd)"
+    SOURCE_IS_LOCAL=1
+    if ! git_prefix="$(git -C "$SOURCE_ROOT" rev-parse --show-prefix 2>/dev/null)" || [[ -n "$git_prefix" ]]; then
+        echo "Error: --source-directory must be the root of a Git worktree so only tracked files can be installed." >&2
+        exit 1
+    fi
+else
+    TEMPORARY_ROOT="$(mktemp -d)"
+    download_authenticated_archive "${TEMPORARY_ROOT}/source.tar.gz"
+    tar -xzf "${TEMPORARY_ROOT}/source.tar.gz" -C "$TEMPORARY_ROOT"
+
+    SOURCE_ROOT=""
+    for d in "${TEMPORARY_ROOT}"/*/; do
+        if [[ -f "${d}.agents/plugins/marketplace.json" ]]; then
+            SOURCE_ROOT="${d%/}"
+            break
+        fi
+    done
+    if [[ -z "$SOURCE_ROOT" ]]; then
+        echo "Error: The downloaded archive does not contain an SDD plugin marketplace." >&2
+        exit 1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Validate required paths
+# ---------------------------------------------------------------------------
+REQUIRED_PATHS=(
+    ".agents/plugins/marketplace.json"
+    ".claude-plugin/marketplace.json"
+    "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
+    "plugins/sdd-bootstrap/.plugin/plugin.json"
+    "plugins/sdd-ship/.claude-plugin/plugin.json"
+    "plugins/sdd-ship/.codex-plugin/plugin.json"
+    "plugins/sdd-ship/.plugin/plugin.json"
+    "plugins/sdd-implementation/.codex-plugin/plugin.json"
+    "plugins/sdd-implementation/.plugin/plugin.json"
+    "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
+    "plugins/sdd-quality-loop/.plugin/plugin.json"
+    "plugins/sdd-lite/.codex-plugin/plugin.json"
+    "plugins/sdd-lite/.plugin/plugin.json"
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json"
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json"
+    "plugins/sdd-review-loop/.plugin/plugin.json"
+    "plugins/sdd-domain/.claude-plugin/plugin.json"
+    "plugins/sdd-domain/.codex-plugin/plugin.json"
+    "plugins/sdd-domain/.plugin/plugin.json"
+    ".codex/agents/sdd-investigator.toml"
+    ".codex/agents/sdd-evaluator.toml"
+)
+for rel in "${REQUIRED_PATHS[@]}"; do
+    if [[ ! -e "${SOURCE_ROOT}/${rel}" ]]; then
+        echo "Error: Required file is missing: ${rel}" >&2
+        exit 1
+    fi
+done
+
+# A local worktree is staged from its Git index, not by recursively copying the
+# directory. Reject a source whose required release files are present only as
+# untracked working-tree changes; otherwise the installation could report
+# success while omitting a required manifest from the staged result.
+if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
+    for rel in "${REQUIRED_PATHS[@]}"; do
+        if ! git -C "$SOURCE_ROOT" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
+            echo "Error: Required file is not Git-tracked in --source-directory: ${rel}" >&2
+            exit 1
+        fi
+    done
+fi
+
+# Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
+agent_source_dir="${SOURCE_ROOT}/.codex/agents"
+if [[ -d "$agent_source_dir" ]]; then
+    for toml_file in "${agent_source_dir}"/sdd-*.toml; do
+        [[ -f "$toml_file" ]] || continue
+        # Check for UTF-8 BOM
+        if head -c 3 "$toml_file" | LC_ALL=C grep -q "$(printf '\xef\xbb\xbf')"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+        # Check for name and developer_instructions
+        if ! grep -Eq '^name[[:space:]]*=' "$toml_file"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+        if ! grep -Eq '^developer_instructions[[:space:]]*=' "$toml_file"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+    done
+fi
+
+# ---------------------------------------------------------------------------
+# Resolve install root and safety checks
+# ---------------------------------------------------------------------------
+# Canonicalise without requiring the path to already exist.
+# Preference order: python3 (most portable), realpath -m (GNU coreutils),
+# then a pure-shell fallback that does NOT create directories or silently
+# yield a wrong path if cd fails.
+_canon_install_root() {
+    local p="$1"
+    # python3: available on macOS 12+ and virtually all Linux distros
+    if python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$p" 2>/dev/null; then
+        return 0
+    fi
+    # realpath -m: GNU coreutils; BSD realpath (macOS) does not support -m
+    if realpath -m "$p" 2>/dev/null; then
+        return 0
+    fi
+    # An absolute path with no '.'/'..' segments needs no resolution; accept it
+    # as-is. This covers default roots whose parents may not exist yet
+    # (e.g. ~/.local/share/sdd-plugins on a fresh macOS without python3).
+    case "$p" in
+        /*)
+            case "/${p}/" in
+                */./*|*/../*) : ;;
+                *) printf '%s\n' "$p"; return 0 ;;
+            esac
+            ;;
+    esac
+    # Pure-shell fallback: resolve existing parent first, then append basename.
+    # Validates that parent either exists or can be resolved; exits on cd failure
+    # rather than continuing with a wrong path.
+    local _parent _base
+    _parent="$(dirname "$p")"
+    _base="$(basename "$p")"
+    # Resolve parent without creating it (it must already exist or be creatable
+    # — we create it in the staging step only after all validation has passed).
+    local _resolved_parent
+    _resolved_parent="$(cd "$_parent" 2>/dev/null && pwd)" || {
+        echo "Error: cannot resolve parent directory of --install-root: ${_parent}" >&2
+        exit 1
+    }
+    echo "${_resolved_parent}/${_base}"
+}
+INSTALL_ROOT="$(_canon_install_root "$INSTALL_ROOT")"
+unset -f _canon_install_root
+
+# Must not be a filesystem root
+case "$INSTALL_ROOT" in
+    /) echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2; exit 1 ;;
+    *) ;;
+esac
+# Check it is not exactly a root by seeing if parent == itself
+_parent="$(dirname "$INSTALL_ROOT")"
+if [[ "$_parent" == "$INSTALL_ROOT" ]]; then
+    echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2
+    exit 1
+fi
+
+# Must differ from source directory
+_resolved_source="$(cd "$SOURCE_ROOT" && pwd)"
+if [[ "$INSTALL_ROOT" == "$_resolved_source" ]]; then
+    echo "Error: --install-root must differ from --source-directory." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Stage, swap, register
+# ---------------------------------------------------------------------------
+INSTALL_PARENT="$(dirname "$INSTALL_ROOT")"
+mkdir -p "$INSTALL_PARENT"
+
+# ---------------------------------------------------------------------------
+# Exclusive per-install-root lock (atomic mkdir; portable: no flock required)
+#
+# LOCK_DIR is a sibling of INSTALL_ROOT so separate roots never contend.
+# mkdir is atomic on POSIX — only one process can succeed for a given path.
+# Stale-lock reclaim: if the lock's mtime is older than SDD_INSTALL_LOCK_STALE
+# seconds (default 600) OR the recorded pid is not alive, the lock is reclaimed.
+# Staleness is decided by ownership first: a lock whose recorded PID is still
+# alive is NEVER reclaimed, however old it is (a long install must not be
+# evicted). Only a dead/unknown owner makes a lock eligible, and reclamation is
+# done by an atomic rename (one racer wins) followed by a re-check that the
+# claimed lock is the dead one we observed — so a racer cannot delete a fresh
+# lock another installer just created.
+# ---------------------------------------------------------------------------
+LOCK_DIR="${INSTALL_ROOT}.sdd-install.lock"
+_lock_timeout="${SDD_INSTALL_LOCK_TIMEOUT:-120}"
+_lock_stale="${SDD_INSTALL_LOCK_STALE:-600}"
+_lock_deadline=$(( $(date +%s) + _lock_timeout ))
+_lock_reclaimed=0
+
+while true; do
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
+        # We created the directory — we own the lock.
+        printf '%s\n' "$$" > "${LOCK_DIR}/pid"
+        LOCK_HELD=1
+        break
+    fi
+
+    # Lock exists — decide staleness before waiting. Ownership wins: a live
+    # recorded PID is never stale (don't evict a long-running install).
+    if [[ $_lock_reclaimed -eq 0 && -d "$LOCK_DIR" ]]; then
+        _stale=0
+        _lock_pid=""
+        if [[ -f "${LOCK_DIR}/pid" ]]; then
+            _lock_pid="$(cat "${LOCK_DIR}/pid" 2>/dev/null || true)"
+        fi
+        if [[ -n "$_lock_pid" ]]; then
+            # Owner known: stale only if that process is no longer alive.
+            if ! kill -0 "$_lock_pid" 2>/dev/null; then
+                _stale=1
+            fi
+        else
+            # Owner unknown (missing/empty pid): fall back to mtime age.
+            _lock_mtime=0
+            if _lock_mtime_raw="$(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR" 2>/dev/null)"; then
+                _lock_mtime="$_lock_mtime_raw"
+            fi
+            _now="$(date +%s)"
+            if (( _now - _lock_mtime > _lock_stale )); then
+                _stale=1
+            fi
+        fi
+        if [[ $_stale -eq 1 ]]; then
+            # Atomic, ownership-checked reclamation. Rename the stale lock to a
+            # private name (only one racer can win this rename); then verify the
+            # claimed lock is the dead-owner one we observed before removing it.
+            # If it changed underfoot (a fresh lock), put it back and retry.
+            _claim="${LOCK_DIR}.reclaim.$$.${RANDOM}"
+            if mv "$LOCK_DIR" "$_claim" 2>/dev/null; then
+                _claim_pid=""
+                if [[ -f "${_claim}/pid" ]]; then
+                    _claim_pid="$(cat "${_claim}/pid" 2>/dev/null || true)"
+                fi
+                if [[ "$_claim_pid" == "$_lock_pid" ]] && { [[ -z "$_claim_pid" ]] || ! kill -0 "$_claim_pid" 2>/dev/null; }; then
+                    rm -rf "$_claim" 2>/dev/null || true
+                else
+                    # Not the lock we observed (likely a fresh one) — restore it.
+                    mv "$_claim" "$LOCK_DIR" 2>/dev/null || rm -rf "$_claim" 2>/dev/null || true
+                fi
+            fi
+            _lock_reclaimed=1
+            continue  # retry mkdir
+        fi
+    fi
+
+    # Check timeout
+    if (( $(date +%s) >= _lock_deadline )); then
+        echo "Error: another sdd-forge install is in progress (lock: ${LOCK_DIR}). Retry later, or remove the lock if it is stale." >&2
+        exit 1
+    fi
+
+    sleep 0.5
+done
+unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtime _lock_mtime_raw _now _lock_pid _claim _claim_pid
+
+STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
+
+# A local worktree can contain credentials, caches, and nested untracked files.
+# Copy its Git index only. Downloaded archives are trusted release inputs and
+# have no local untracked state, so retain their complete archive layout.
+# The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
+# placement is handled exclusively by place_mcp_servers (dist/ + package.json
+# only, gated by --skip-mcp / --mcp / the Node >= 22.19.0 check), so staging it
+# unconditionally here would bypass that gating. tests/fixtures/ is excluded
+# too: it is Git-tracked test scaffolding, not part of the installed product,
+# and staging it here would pull test-only symlinks into every install
+# (install.ps1's staging loop refuses those on purpose; keep the two
+# installers selecting the same file set).
+if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
+    # One tar pipeline instead of a mkdir+cp process pair per tracked file.
+    # The create side reads the NUL-delimited tracked list, so content still
+    # comes from the working tree, symlinks stay symlinks (as with cp -P),
+    # untracked files still never leak in, and extraction recreates the
+    # parent directories itself.
+    git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' ':!tests/fixtures/**' \
+        | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
+        | (cd "$STAGING_ROOT" && tar -xf -)
+else
+    for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
+        [[ -e "$entry" ]] || continue
+        case "$(basename "$entry")" in
+            .git|mcp) continue ;;
+        esac
+        cp -R "$entry" "${STAGING_ROOT}/"
+    done
+fi
+
+# Backup existing install — generate a unique path without pre-creating it
+# so that `mv` renames the directory rather than moving it inside.
+if [[ -d "$INSTALL_ROOT" ]]; then
+    BACKUP_ROOT="${INSTALL_PARENT}/sdd-plugins-backup-$$-${RANDOM}${RANDOM}"
+    while [[ -e "$BACKUP_ROOT" ]]; do
+        BACKUP_ROOT="${INSTALL_PARENT}/sdd-plugins-backup-$$-${RANDOM}${RANDOM}"
+    done
+    mv "$INSTALL_ROOT" "$BACKUP_ROOT"
+fi
+
+mv "$STAGING_ROOT" "$INSTALL_ROOT"
+STAGING_ROOT=""
+NEW_INSTALL_PLACED=1
+
+RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
+
+# MCP placement mirrors plugin file placement: it happens regardless of
+# --target and is controlled only by --skip-mcp / --mcp.
+place_mcp_servers_if_selected "$SOURCE_ROOT" "$RESOLVED_INSTALL_ROOT"
+
+# ---------------------------------------------------------------------------
+# Registration
+# ---------------------------------------------------------------------------
+# Everything below registers the placed tree with external CLIs. A failure from
+# here on must not revert the install root — see rollback() (WFI-041).
+REGISTRATION_STARTED=1
+
+# Track whether codex agent install succeeded so we can warn in the summary.
+CODEX_AGENTS_FAILED=0
+
+if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+    install_codex_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
+    if [[ $SKIP_AGENT_INSTALL -eq 0 ]] && command -v codex >/dev/null 2>&1; then
+        install_codex_agents "$RESOLVED_INSTALL_ROOT" || CODEX_AGENTS_FAILED=1
+    fi
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+    install_claude_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+    install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
+fi
+install_mcp_servers "$RESOLVED_INSTALL_ROOT" || exit 1
+
+# ---------------------------------------------------------------------------
+# Success
+# ---------------------------------------------------------------------------
+echo ""
+echo "SDD plugins installed at: ${RESOLVED_INSTALL_ROOT}"
+if [[ "$TARGET" == "FilesOnly" ]]; then
+    echo "Plugin registration was skipped because --target=FilesOnly."
+fi
+# ci-mcp needs a read-only GitHub token at runtime. The installer never
+# stores a token value (REQ-010, security-spec B3); it only names the
+# environment variables the user must set for their MCP client (AC-016).
+if mcp_selected "ci-mcp" && [[ $MCP_NODE_OK -eq 1 ]]; then
+    echo ""
+    echo "ci-mcp needs a read-only GitHub token to call the GitHub Actions API."
+    echo "Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN."
+fi
+if [[ $CODEX_AGENTS_FAILED -eq 1 ]]; then
+    echo "" >&2
+    echo "WARNING: Codex agents were not installed to ~/.codex/agents." >&2
+    echo "         Re-run the installer or copy .codex/agents/sdd-*.toml manually." >&2
+fi
+
+# Remove backup on success
+if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+    rm -rf "$BACKUP_ROOT"
+    BACKUP_ROOT=""
+fi
+
+# Disarm rollback — success path
+NEW_INSTALL_PLACED=0

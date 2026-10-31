@@ -1,0 +1,74 @@
+Retained mutation-kill evidence for the AC-004 SUPPLIED-half pass-through
+fix (T-003 confirmation-panel Minor, Anthropic v3): t003_resolver_argv's
+own include_untracked parameter previously had no caller passing True
+anywhere in THIS driver (tests/resolve-project-context-block-check.py) --
+only in T-005's resolve-project-context-match-check.py, outside this
+task's own bundle. Wired the dsl-warn-unsorted-affected-components case
+(whose own resolve-component-paths stub already ignores argv content for
+its return value) to call with include_untracked=True and to capture the
+stub's own received argv to rcp-argv-capture.json.
+
+Mutation: _run_resolve_component_paths in the STAGED resolve-project-
+context.py rewritten to unconditionally omit --include-untracked from
+the downstream resolve-component-paths argv (the 'if args.include_
+untracked: tail.append(...)' branch deleted), regardless of whether the
+resolver's own CLI caller supplied the flag.
+
+Technique: full-subtree cp scratch copy of this worktree (never the real
+worktree); mutation applied only inside the scratch copy's own STAGED
+source; run via 'python3 tests/resolve-project-context-block-check.py
+--launcher sh' from inside the scratch copy.
+
+Result: RESULT: 205 passed, 1 failed -- the ONE failure is exactly the
+new assertion ('dsl-warn-unsorted-affected-components: resolve-component-
+paths invoked with --include-untracked forwarded verbatim...'), the
+captured argv now missing --include-untracked entirely. Every other
+assertion for this fixture (ordering, diagnostics, Resolver Evidence
+shape) is unaffected, confirming this fixture's own return value is
+genuinely orthogonal to the flag and the new assertion is the sole
+discriminator.
+
+Full driver output (tail) follows.
+
+----------------------------------------------------------------------
+
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 205 passed, 1 failed

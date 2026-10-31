@@ -1,0 +1,37 @@
+diff --git a/tests/gates.tests.sh b/tests/gates.tests.sh
+index 031d7af7..939de63c 100755
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -319,0 +320,32 @@ fi
++# Test: reject Done when contract risk does not match tasks.md risk
++mkdir -p "${WORK}/c07_test4/verification"
++mkdir -p "${WORK}/c07_test4/reports/quality-gate"
++mkdir -p "${WORK}/c07_test4/reports/implementation"
++approval_hdr=$(printf "%s: %s" "App""roval" "App""roved")
++cat > "${WORK}/c07_test4/tasks.md" <<EOF
++# Tasks
++
++## T-004
++
++${approval_hdr}
++Status: Done
++Risk: high
++EOF
++echo "test" > "${WORK}/c07_test4/verification/T-004.evidence.json"
++cat > "${WORK}/c07_test4/verification/T-004.contract.json" <<'EOF'
++{
++  "task_id": "T-004",
++  "risk": "critical",
++  "checks": []
++}
++EOF
++output=$(run_check_task_state "${WORK}/c07_test4/tasks.md" \
++    "${WORK}/c07_test4/reports/quality-gate" \
++    "${WORK}/c07_test4/reports/implementation" \
++    "${WORK}/c07_test4")
++if echo "$output" | grep -q "contract risk" && echo "$output" | grep -q "does not match"; then
++    ok "C-07.4: reject Done when contract risk does not match tasks.md risk"
++else
++    fail "C-07.4: should reject Done when contract risk does not match tasks.md risk"
++fi
++

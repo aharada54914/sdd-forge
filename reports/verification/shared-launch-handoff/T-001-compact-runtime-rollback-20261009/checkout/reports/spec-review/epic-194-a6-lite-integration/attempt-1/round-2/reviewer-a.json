@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a1-r2-reviewer-a-seq322",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a1-r2-reviewer-a-322",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-1/round-2/precheck-result.json","sha256":"adcc42b6f4c76481fd5bc459fbbea9d7ce7b8f0c32cfb461f59a66471fc28820"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md","sha256":"685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md","sha256":"45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md","sha256":"2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"REQ-TESTABILITY","result":"PASS","severity":"Critical","finding":"REQ-001..REQ-006 each specify concrete, checkable outcomes: exact schema shapes/keys (REQ-001, requirements.md:224-231), exit codes and triggers= ordering (REQ-002, :340-396), VERDICT/reason states (REQ-003/004, :406-543), Block position/exit-code/message shape (REQ-005, :544-586), and a fixture inventory (a)-(l) (REQ-006, :587-651). No in-scope requirement is stated only as vague intent."},
+    {"id":"GOAL-AC-TRACE","result":"PASS","severity":"Major","finding":"Acceptance Criteria table (requirements.md:756-788) traces every Goal: REQ-001->AC-001..006,029; REQ-002->AC-007..010,027,028; REQ-003->AC-011..013,026,030; REQ-004->AC-014..018,026,016; REQ-005->AC-019..021; REQ-006->AC-022. No REQ is left without at least one matching AC."},
+    {"id":"AC-OBSERVABLE","result":"PASS","severity":"Major","finding":"ACs specify externally checkable states appropriate to a Phase 1 package: exact VERDICT/exit-code/output-ordering behavior for future implementation (AC-007..009, AC-016, AC-026..028) and direct-inspection/command-exit facts for the registration commit (AC-023..025, requirements.md:780-782, verified via git status and check-sdd-structure.sh/check-workflow-state.sh exit codes)."},
+    {"id":"SCOPE-BOUNDARY","result":"PASS","severity":"Major","finding":"Non-goals section (requirements.md:653-728) lists seven explicit boundaries: no contracts/** edits, no plugins/**/scripts/**/tests/**/docs/** edits in this Phase 1 commit, no A5-Resolver/A2-evaluator/A3-path-resolver reimplementation, a fixed 3-token lite-check-catalog seed ceiling, no generate-gate-capabilities.* changes, no unilateral protected-file-inventory expansion, and no sdd-delivery/Artifact/Promotion Gate construction."},
+    {"id":"CONSTRAINTS-EXPLICIT","result":"PASS","severity":"Major","finding":"Migration rule stated explicitly (REQ-001 item 3, requirements.md:270-284); dedicated Security Boundaries section (:1090-1127) states fail-closed posture for every risky state; Roles and Permissions (:907-951) fixes the human-copy vs. direct-edit approval boundary and its implementation-time re-verification requirement (OQ-001 closure)."},
+    {"id":"RISK-VALIDATION-SURFACE","result":"PASS","severity":"Major","finding":"Risks section (requirements.md:1184-1227) names four high-risk claims (A5-Pending field-naming/aggregation dependency, intake-time-Block defense-in-depth gap, ADR-0022-prose-to-token mapping interpretation, 3-token catalog-seed narrowness), each paired with a validation surface: AC-029/TEST-029 cross-epic contract record, the mandatory REQ-005 ship-time recheck (Main Workflows step 6), and explicitly recorded low-cost catalog-version-bump follow-up paths."}
+  ]
+}

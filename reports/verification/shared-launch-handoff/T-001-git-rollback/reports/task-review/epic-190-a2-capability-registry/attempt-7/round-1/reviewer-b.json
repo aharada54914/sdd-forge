@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 7,
+  "round": 1,
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-seq0683",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-0683",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/integrated-summary.json", "sha256": "deb6ac49d441e5550250fa38f3e4f5ea9f9fec0c415afbfc7a869159fdc35b7e"},
+      {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/precheck-result.json", "sha256": "ccd0094519806b2da2a1a51f1570e930bc2b09a596c90cb80db0f144124e6780"},
+      {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+      {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"},
+      {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+      {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+      {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+      {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+      {"path": "specs/epic-190-a2-capability-registry/tasks.md", "sha256": "bff141796419376a720ce6b9978f3f3bab1a38830713a6edf0e4db91e456240d"},
+      {"path": "specs/epic-190-a2-capability-registry/traceability.md", "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"},
+      {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"}
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. No task's Risk tier is low/medium while touching a sentinel surface: security-spec.md states explicitly 'N/A -- this Epic defines no authentication mechanism' (line 68) and 'No PII, no credential, no provider-specific detail is stored by any artifact' (line 91); T-001 (medium, tasks.md:143) and T-005 (medium, tasks.md:847) touch none of authentication/authorization/payment/PII-storage/migration/externally-visible-API per their own Risk Rationale text and every task's 'Data Migration: none'/'Breaking API: no' fields (tasks.md:204,362,548,729,912,1097,1267). T-002/T-003/T-004/T-006 (high, tasks.md:300,470,662,1012) each name a concrete 'silent defect causes material harm' surface per risk-classification-policy.md's high-tier row (Security Boundary B2 predicate injection-prevention, B4 fail-closed discovery, B1 provider-neutrality plus referential integrity, and sole-editor of the seven-path protected-file registration respectively) and are not limited to UI copy/CSS/docs/test-only scope, so none is over-classified. T-007 (medium, tasks.md:1220) is explicitly test-only over four already-implemented scripts and its own Risk Rationale reasons through why high/critical would be over-classification, matching the policy's own guidance -- no over-classification present."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Every Risk: high task's Done When carries both a TDD Red-Green evidence item and an independent-review-verdict item: T-002 'TDD evidence -- RED ... and GREEN ... An independent quality-gate verdict records PASS' (tasks.md:442-445), T-003 same pattern (tasks.md:630-633), T-004 same pattern (tasks.md:816-820), T-006 same pattern plus explicit human-applied protected-bundle confirmation (tasks.md:1191-1195). This matches risk-gate-matrix.md's tier-minimum encoding of 'red->green evidence (tdd)' and 'independent-review verdict' as high-tier controls enforced via check-contract/check-evidence-bundle. No Risk: critical task exists in this feature (only T-002/T-003/T-004/T-006 are high; T-001/T-005/T-007 are medium), so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every task's Done When list stays under eight items (T-001: 4, T-002: 6, T-003: 5, T-004: 7, T-005: 5, T-006: 5, T-007: 4). No Scope section spans more than one cohesive implementation area plus its own test-suite/CI registration. T-006's title joins 'projection generator' and 'protected-file registration,' but both trace to REQ-005 and are explicitly justified by the staging-race constraint documented in Protected Files (tasks.md:65-70: 'T-006 registers all seven at once after they exist, avoiding the staging race'), with a direct repository precedent cited (epic-191-a3-path-ownership T-004). No task is fragmented into a single-function/single-file edit with no integration concern, and no 'rename X to Y'-only task exists."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found, verified directly against acceptance-tests.md. Every functional task's claimed AC-NNN rows carry explicit negative/error-path fixtures: T-001/AC-004 rejects missing-delivery_strategy-key and missing-kind-key fixtures (acceptance-tests.md:29); T-002/AC-007 asserts fail-closed false+WARN for missing/null/type-mismatched input (line 32), AC-011/AC-040 reject out-of-allowlist fields and forbidden operator tokens (lines 36, 64); T-003/AC-027 includes three per-artifact version-mismatch fixtures plus a neither-location-resolves fail-closed fixture and a vendored-copy-drift fixture (line 52); T-004/AC-014..AC-022 and AC-039 are each a dedicated Registry-mutation negative fixture yielding a named diagnostic (lines 39-47, 63); T-005/AC-024 includes unknown-fragment-id and fragment-selector-required hard-failure fixtures (line 49); T-006/AC-026 is itself a drift-detection negative canary (line 51). No functional task in this feature has only happy-path acceptance criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. acceptance-tests.md's table maps every automated Planned test to exactly one AC-NNN by row number (acceptance-tests.md:8-9), and every TEST-NNN cited from a tasks.md Done When item names its owning AC-NNN, satisfying the acceptance-test criterion for every suite. T-007's own Scope text self-declares its suite 'acceptance-first, integration-level -- each case spans at least two of the four scripts' wrapper pairs' (tasks.md:1305-1306), matching the integration-test criterion (evaluate-predicate, validate-capability-registry, generate-registry-digest, generate-gate-capabilities invoked together per TEST-031/TEST-033, acceptance-tests.md:56,58). No suite in this feature is mislabeled end-to-end or unit against a scope that does not match."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Risk: high task carries an explicit Rollback: field: T-002 'revert this task's commit(s); nothing protected is written directly' (tasks.md:367-368), T-003 'the vendored copies and discovery module are additive and independently revertible ... ordinary agent-editable files until T-006's staged registration is human-applied' (tasks.md:555-558), T-004 'revert this task's commit(s); nothing protected is written directly' (tasks.md:733-734), T-006 'the six staged protected-bundle files and .github/workflows/test.yml are NEVER part of the agent's own commit history (human-applied only) -- a revert PR must separately state whether any already-human-applied protected-file change should also be hand-reverted, and by whom' (tasks.md:1104-1109). No high/critical task omits rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The only cross-task shared files (tests/run-all.sh/.ps1 per-suite registration lines, and the single staged human-copy/.github/workflows/test.yml candidate + MANIFEST.sha256) are governed by Global Constraints' 'Serialized order T-001 -> T-002 -> T-003 -> T-004 -> T-005 -> T-006 -> T-007 for every shared-resource append' (tasks.md:92-103), and every task's Blockers field enforces that exact ordering. The one true protected-file bundle (guard-invariants.json + generate-guard-invariants.py + three generated siblings) has a single named sole editor, T-006 (tasks.md:65: 'T-006 is the sole editor of this bundle within this feature'). No two tasks list the same primary implementation/config/schema file as a concurrent, unblocked edit target."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Depends On/Blockers entry is explicitly labeled either 'functional' with the concrete consumed artifact named (e.g. T-004 on T-003: 'imports registry_discovery.py for the lite-upgrade-reason-catalog lookup,' tasks.md:692-694) or 'Global Constraints -- serialized only' (e.g. T-002 on T-001, tasks.md:328-330), matching Global Constraints' own stated convention that shared-array/shared-file append contention is itself the dependency. T-007's Depends On prose calling its T-003 relationship 'informational, not blocking' (tasks.md:1247-1249) while T-003 still appears in T-007's Blockers field (tasks.md:1349) is a wording-precision note, not a functional defect -- the Blockers field itself is correct (T-007 stages the final cumulative test.yml append after T-003's own appended candidate in the same Global-Constraints chain) and no blocker is actually missing (T-001 is satisfied transitively via T-002, itself blocked on T-001 and a direct T-007 blocker)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All seven tasks (T-001..T-007) are net-new authoring tasks ('Author the ...' per each task's title, tasks.md:135,292,462,654,839,1004,1212); none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test resolution, or incident-remediation task by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [],
+  "verdict": "PASS"
+}

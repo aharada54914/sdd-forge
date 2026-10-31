@@ -1,0 +1,20 @@
+{
+  "scenario_id": "critical-cross-model-missing",
+  "class_number": 9,
+  "class_name": "critical task cross-model missing",
+  "class_name_source": "issue #125 body (代表10種 item 9: \"critical task で cross-model 欠如\"); investigation.md INV-017 row 9",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "tests/gates.tests.sh",
+      "line": "2870-2944",
+      "note": "CM.1-CM.4: critical+cross_model:required present/missing/absent-legacy/waived, each independently PASS/FAIL-asserted."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Edit"],
+    "codex": ["apply_patch"]
+  },
+  "assertion_summary": "Strong existing coverage (investigation.md INV-017 row 9). workflow-scenarios.tests.sh's TEST-012 confirms the coverage_refs path exists and all 4 named CM.1..CM.4 labels are still present verbatim, plus TEST-013's PreToolUse-shape drive builds a representative Edit/apply_patch payload for a synthetic critical-risk task contract missing its cross_model field. This scenario intentionally does not duplicate tests/gates.tests.sh's own CM.1-CM.4 assertions."
+}

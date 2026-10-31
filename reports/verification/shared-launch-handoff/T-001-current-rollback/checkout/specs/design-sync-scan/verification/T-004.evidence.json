@@ -1,0 +1,55 @@
+{
+  "task_id": "T-004",
+  "feature": "design-sync-scan",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "94493e7d858ef22cf8acfe1a40b9fbd262e564d17a2d2cdda088f93b3a8c2a84",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-004.md",
+  "verification_contract": "specs/design-sync-scan/verification/T-004.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-scan/verification/T-004.contract.json",
+      "sha256": "07f5574325ac29ed6ca754670d385188321a238ec41659d9313e51a50d632be4"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-004.md",
+      "sha256": "885e27f81e6173dcb7894ea5556da67c376120901cb52a5aad7e3c6b71f8b97c"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-004/green.sh.log",
+      "sha256": "4f4798307b7b65652da675779c490c1b6b5c76c52bbccca51de5d52b46a5e932"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/placeholder-T-004.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

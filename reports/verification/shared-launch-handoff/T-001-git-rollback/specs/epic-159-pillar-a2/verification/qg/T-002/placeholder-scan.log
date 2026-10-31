@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-placeholders.sh /Users/jrmag/Projects/active/sdd-forge/tests/check-placeholders-brownfield.tests.sh /Users/jrmag/Projects/active/sdd-forge/tests/check-placeholders-brownfield.tests.ps1 /Users/jrmag/Projects/active/sdd-forge/tests/loop-consistency.tests.sh /Users/jrmag/Projects/active/sdd-forge/tests/loop-consistency.tests.ps1 /Users/jrmag/Projects/active/sdd-forge/tests/fixtures/loops/brownfield-seed/src/service.py /Users/jrmag/Projects/active/sdd-forge/tests/fixtures/loops/brownfield-seed/specs/brownfield-seed-demo/tasks.md /Users/jrmag/Projects/active/sdd-forge/tests/fixtures/loops/brownfield-seed/CHANGED_FILES.txt
+== start: 2026-07-16T04:34:24Z ==
+Placeholder scan passed.
+== end: 2026-07-16T04:34:24Z ==
+EXIT_CODE: 0

@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-b-a2r1-seq0672",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-191-a3-path-ownership-a2r1-0672",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "5ef30332ee9a78da6a6a72604dd53081a6381d93ca5f8b9bd39d0654da8424eb"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-2/round-1/precheck-result.json", "sha256": "099396c8cebe17ac886e86d01fe474c85cde6a09c0caa8003d0655cec8e24f01"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-2/round-1/integrated-summary.json", "sha256": "09c0d4435294928480f9aab0013fd1ba35750fff623580750be4652c0f17c1d0"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every named technology/architecture decision in design.md's Design Decisions section (Glob semantics; Path/case normalization and raw-identity preservation; shared_paths precedence; shared_paths entry shape; EXCLUDED_MATCH evidence; Fail-2/Fail-4 mutual exclusivity; Fail-5 Gate-reachable check; Fail-6 scope and adapter_paths; Capability-derived three-state Gate applicability; Protected-gate-suffix registration; Protected required-check-set registration; ownership_digest full-input binding; Dual-runtime parity harness; T-001/T-002 not hard-blocked; Cross-cutting seed inventory single canonical source) carries an explicit 'chosen because'/'corrected from an earlier draft' rationale (design.md ~lines 651-859). Technology choices (Python master + sh/ps1 wrappers) are justified via INV-008's established repository convention, restated with a Rationale column in frontend-spec.md's Technology Stack table. No inline decision found stated without justification."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's `## Open Questions` section contains only: 'Carried from requirements.md Open Questions (OQ-002; OQ-001 is resolved — see requirements.md Dependencies, Design Decisions \"Fail-6 scope\"); no new open question is introduced at design time.' For OQ-002 this entry names no owning role, has no `Blocks Implementation: yes/no` field, and has no `Resolution Path:` field, as this check requires. requirements.md's own `## Open Questions` OQ-002 entry ('whether T-001/T-002 ... should hard-block on Epic A1 merging...') likewise never names an owner or uses either mandated field — it states a decision inline ('This requirements/design pair adopts a middle path...') rather than in the required schema. Per this check's own rule, 'An open question with no owner is a Major finding.'"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-021), so the investigation-absent trigger does not apply. Every entry in requirements.md's/design.md's Assumptions sections is grounded: git-command CI-runner availability cites INV-010's existing precedent; decision-document v2 §12's field shape cites OQ-002/Dependencies and is backstopped by AC-011's fail-closed schema-conformance fixture; the Epic A1 canonicalizer and Facet Manifest forward dependencies are tracked in Dependencies with documented-blocker/fail-closed contingencies (design.md: 'the implementing task records this as a documented blocker'; requirements.md Risks: gating evaluation on derived state rather than a silent gap); the Epic A1 template assumption is backstopped by AC-042/AC-044's fail-closed fixture; design.md's own added assumption about quality-gate/SKILL.md and risk-gate-matrix.md/check-contract's tier-minimum set states it is 'verified at Phase-2 implementation time, not asserted as unconditionally permanent.' No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a `## Constraint Compliance` section (primary, TYPE-D path applies), with rows for protected-file write boundary, CI resilience, doc-following, version-bump discipline, no Registry/Epic A2 coupling, no file-presence mode selection, cross-OS path semantics, submodule/symlink reference-only boundary, and Fail-6 credential exclusion. The one explicit constraint keyword hit in requirements.md ('path and case semantics must not depend on host OS,' Target Users) is addressed by the Cross-OS path semantics row, which also cites REQ-009's dual-runtime parity harness. No layer-spec file (ux-spec.md/frontend-spec.md/infra-spec.md/security-spec.md) was found to silently override or contradict requirements.md or design.md; each restates and expands the corresponding design.md section without divergence."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A targeted scan for latency/throughput/response-time/SLA/concurrency/numeric-threshold language in requirements.md returned no genuine performance requirement (only unrelated uses of the word 'performs' as a verb)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Deployment / CI Plan` section states CI pipeline changes (five new suite pairs registered directly in tests/run-all.sh/.ps1; staged into .github/workflows/test.yml via human-copy; 'No new CI job/matrix dimension is introduced'), the rollout/feature-flag-equivalent mechanism (the three-state capability_enforcement axis explicitly framed as the rollout gate: 'No separate feature-flag mechanism, canary stage, or phased CI rollout beyond this existing capability axis is introduced'), and a deployment target (the existing CI 3-OS lane plus local script tree, corroborated by infra-spec.md's Environments table: local dev checkout + CI GitHub Actions test.yml, explicit N/A for staging/production since no runtime service exists). No schema changes exist (Data Plan: 'Migration Strategy: none'), so migration-execution-order is correctly absent from this plan."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Data Plan` states 'Migration Strategy: none. No database, no runtime storage, and no schema migration exists anywhere in this feature,' satisfying this check's 'No data changes' PASS condition. The listed Data Entities (resolver output, ownership_digest, Gate evidence record, human-copy staging artifacts) and Existing Data Affected (guard-invariants.json/generator/generated siblings/check-contract.*, read-only) describe config/evidence-record shapes and protected-file content edits, not database schema/table/column changes."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## External Integrations` states 'None. This feature calls only local git plumbing commands and (T-003) a local Epic A1 canonicalizer utility — no network call, no external service, no gh invocation.' The one cross-epic runtime dependency, Epic A1's canonicalizer, is an in-process/CLI local repository utility (decision-document v2 §18.3: 'Python single implementation'), not a third-party service or cross-service API call, and is documented with name, purpose, and failure behaviour in frontend-spec.md's Dependencies table and design.md ('if the canonicalizer does not exist in the repository at implementation time, the implementing task records this as a documented blocker'). No external system, third-party service, or cross-service API call requiring a dedicated integration table was found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every entry in design.md's Components table traces to a REQ-00N id, cross-checked against the Cross-Layer Dependencies table (e.g., resolve-component-paths.* → REQ-001; check-component-coverage.* + protected-registration bundle → REQ-004; fixtures/suites → REQ-005/006/007/009). Every requirements.md Goal (REQ-001..REQ-009) and User Story maps to a design.md T-00N deliverable in the Technical Summary. The one component design.md ever named that would have duplicated existing scope (`default-shared-paths.md`) is explicitly marked '~~withdrawn~~ — removed from scope' in the Components table, not shipped. No `design-system/` directory exists in this repository (verified directly), and design.md's Design System Compliance states 'N/A — ds_profile: none,' consistent with requirements.md/ux-spec.md/frontend-spec.md's own N/A framing (no UI surface)."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "A high-risk surface is present (security/reachability changes to protected-file registration, required-check-set membership, and producer-digest tamper-evidence) and design.md names concrete validation paths for it: acceptance-tests.md TEST-035/TEST-035a-d, TEST-036, TEST-054, TEST-055, and security-spec.md's Security Tests table (naming exact suite files, e.g., tests/check-component-coverage.tests.sh/.ps1, with stated expected results). The git-diff-collection integrity surface (NUL framing, single-writer/TOCTOU, submodule/symlink reference-only) is likewise covered by TEST-021/TEST-024/TEST-025 and security-spec.md's B4 boundary row. No unaddressed high-risk surface was found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists at the repository root (verified directly, the one permitted manifest-external check per review-context-boundary.md), so no `domain/context-map.md` with `Domain-Model-Status: Approved` and schema-valid `domain/domain-contract.json` can exist. This check does not apply to this project."
+    }
+  ]
+}

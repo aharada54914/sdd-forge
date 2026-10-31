@@ -1,0 +1,53 @@
+ticket_id: RT-20260817-005
+status: open
+type: bug
+severity: minor
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-005
+  files:
+    - plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+    - specs/epic-192-a4-facet-manifest/verification/T-004/gate-c2-mutation-proof.log
+summary: "T-004 QG (seq0762, PASS) の残 Minor 3 件: SystemExit が fail-closed を素通り・変異証跡の再現性・cycle-1 verdict の manifest 非収載"
+problem: |
+  seq0762 の quality-gate evaluator（VERDICT: PASS、Critical 0 / Major 0）が
+  検出した Minor のうち、本ゲートで即修正しなかった 3 件の記録。
+  CHANGELOG の件数陳腐化（NEW-1）と実装レポートの git-commit 誤記（NEW-3）は
+  本ゲートで修正済み。
+
+  (1) [NEW-2] compare-facet-manifest-staleness.py:301 の `except Exception` は
+  `SystemExit` を捕捉しない。実測: sibling validator を
+  `import sys; sys.exit(7)` に置換すると exit 7・stderr 0 バイト・診断なしで、
+  Major-3 で塞いだはずの fail-closed 経路を素通りする。仮に sibling が
+  `sys.exit(1)` すれば契約上の `stale` 判定と衝突する。現行の実 sibling は
+  `__main__` ガード下なので到達不能だが、将来 sibling がモジュールレベルで
+  終了するようになると Major-3 の保証が静かに失効する。
+  → `except BaseException`（KeyboardInterrupt は除外）または `SystemExit` の
+  明示捕捉に変更し、回帰ロックを追加する。
+
+  (2) [NEW-4] verification/T-004/gate-c2-mutation-proof.log:20,131 の
+  「Mutated file sha256」が第三者再現不可。evaluator が Trial 2 について
+  6 形（行削除・空行化・コメントアウト 3 種・引用符除去）、Trial 1 について
+  2 形を試したがいずれも記録値に一致しなかった。挙動記録（FAIL 行の文言）は
+  文字列単位で再現できたため偽造ではないが、変異の実 diff を記録していない
+  ため独立再現ができない。また Trial 1 の「branch 2 を branch 4 の AFTER へ
+  移動」は多義的で、強形なら 46/48、弱形なら 47/48 になる。
+  → 以後の変異証跡は sha256 ではなく `diff -u` の実体を記録する。
+
+  (3) [NEW-5] cycle-1（seq0761）の verdict 成果物が cycle-2 の evaluator
+  manifest に含まれていないため、evaluator は cycle-1 Minor の網羅性を
+  認可入力から検証できなかった（報告が列挙するのは Minor-4〜7 の 4 件だが
+  ゲートの brief は 7 件と述べる）。番号付けの解釈差か実際の欠落かが判定
+  不能。requires_human_decision: yes（framework 側の運用方針）。
+  → 以後のサイクルでは前サイクルの verdict を成果物として永続化し、
+  Outputs 表に載せて次サイクルの manifest に含める（WFI 候補）。
+expected_fix:
+  - "compare-facet-manifest-staleness.py の import 包囲を SystemExit も捕捉する形に変更し、sibling が sys.exit する変異での exit 3 を assert する"
+  - "変異証跡ログの記録方式を「変異後 sha256」から「diff -u の実体」に変更する（gate 運用ルール）"
+  - "quality-gate の evaluator manifest に前サイクルの verdict 成果物を含める運用へ変更する（WFI 候補、requires_human_decision）"
+references:
+  - "RUN-epic-192-a4-facet-manifest-qg-T-004-seq0762 evaluator NEW-2 / NEW-4 / NEW-5"
+  - "docs/review-tickets/RT-20260817-004.yml"
+auto_fix_allowed: true
+requires_human_decision: true
+review_cycles: 2

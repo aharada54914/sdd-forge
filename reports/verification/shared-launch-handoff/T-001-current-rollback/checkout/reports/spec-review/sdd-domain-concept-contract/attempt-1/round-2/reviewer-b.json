@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a1r2-seq0757",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a1r2-0757",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "007fb0d261ecebbb6eed0f03bcf97358ffa1efd0ea1b5278e43f11a3bcf276bd"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "7e4b2f9fe0d866390b9ddafb935eacacdba226422fda7e79a3d370c1996c2168"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-2/precheck-result.json",
+      "sha256": "524d303a648acdbf649100cb249e9f56ef15e792666f24559b23bed83906d66b"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-2/integrated-summary.json",
+      "sha256": "dd2e9ec7684968b8de1d4eede4405c5ed0e0bc662bd4fc6b5c51276c8c2d7a1c"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-002 (and the Field Definitions table) defines concepts[].name as 'string PascalCase' and concepts[].context as 'string kebab-case', but unlike concepts[].id, which is given an explicit regex `^CONCEPT-[A-Z][A-Z0-9-]*$`, no regex/grammar is given for PascalCase or kebab-case. REQ-004(c) requires the hand-rolled validator (per INV-005, no external JSON-Schema engine) to perform 'パターンの構造検査' (structural pattern checks). Two implementers writing the independent sh/ps1 twins would plausibly encode different regexes for PascalCase (e.g. digits, single-letter names, or acronyms like 'APIOrder'), causing the twins to diverge on edge-case names -- exactly the drift risk requirements.md itself names as R2. This is spec-review scope because it is a testable validation rule left underspecified in the artifact consumed verbatim by design/implementation; Major because it produces implementer-visible behavioral divergence rather than an unreviewable spec."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md 'Roles and Permissions' states in one sentence that this feature's artifacts are 'いずれも hook-guard 保護対象外（INV-008）で agent 編集可能' and then, in the same parenthetical, claims 'meta.status の Approved 書込制御は既存どおり v1/v2 共通で hook guard と人間の責務'. investigation.md INV-008 explicitly states hook-guard's protected-path list does NOT include `contracts/domain-contract.*` at all ('contracts 配下の保護は capability-registry 系のみ'). These directly conflict: the spec cannot simultaneously assert hook-guard provides zero protection for this path and that hook-guard is actively controlling writes to the meta.status Approved field within that same path family. A design/task author cannot determine whether an approval-boundary enforcement mechanism for meta.status exists, must be built in this feature, or is genuinely absent. This belongs to spec review because it is a direct textual self-contradiction inside a Phase-1 artifact about a governance/approval boundary, not an implementation detail. Critical per calibration ('missing approval boundary that makes the specification unreviewable' / unsafe or unauthorized workflow boundary)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md AC-001..AC-017 exercise required-field omission (AC-014), duplicate/dangling reference negatives (AC-006..AC-009, AC-011), self-contradiction (AC-010), empty concepts array (AC-016), and malformed/oversized input (AC-017), but no AC exercises a pattern-format violation for concepts[].id, concepts[].name (PascalCase), or concepts[].context (kebab-case) despite REQ-002 explicitly defining these patterns and REQ-004(c) explicitly listing 'パターンの構造検査' as a validator duty distinct from required-field/reference checks. Given the validator is hand-rolled (INV-005) with an acknowledged drift risk (R2), leaving pattern-violation enforcement completely untested is a material negative-path gap implied directly by the requirements' own enumerated checks. Spec-review scope because it is a gap in the acceptance-criteria surface, not an implementation choice; Major because it is a missing observable acceptance criterion for an explicitly required validation behavior."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md OQ-001..OQ-004 each carry a Status and proposal. OQ-003 (essence required) and OQ-004 (v2-only validator, explicit version-mismatch error) are already incorporated as binding text in requirements.md REQ-002 and REQ-004(b)/Edge Cases, and covered by AC-012/AC-014. OQ-001 (v1 schema disposal) and OQ-002 (CI/run-all registration) are explicitly deferred to a later phase/separate WFI and do not block Phase 0 design or task decomposition, since Non-goals and REQ-007 already fix Phase 0 scope as additive-only with v1 unchanged. No unresolved assumption blocks downstream design or task authorship."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md 'Roles and Permissions' explicitly puts an approval/governance boundary in scope (meta.status Approved write control), so SKIP is unavailable. As detailed under CONTRADICTION, the same paragraph both disclaims hook-guard protection for this feature's artifacts (INV-008) and asserts hook-guard controls meta.status Approved writes for the same file family. No AC in acceptance-tests.md references meta.status or verifies any enforcement of its Approved write protection. Because the requirements' own governance claim is self-contradictory and untested, a downstream implementer/task author cannot determine whether an approval boundary exists, must be built, or is absent -- the boundary is not testable in its current form. Critical per calibration's 'missing approval boundary that makes the specification unreviewable.'"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The compounding effect of the CONTRADICTION finding (self-contradictory governance boundary claim), the APPROVAL-BOUNDARY finding (untestable approval boundary), and the AMBIGUITY finding (undefined PascalCase/kebab-case pattern grammar) means a downstream implementation-policy/design reviewer would have to invent product decisions -- whether an approval-control mechanism must be newly built, and what exact regex defines valid concept names -- rather than being handed a fully bounded specification. These are concrete open decisions embedded in the current artifact text, not merely absent nice-to-haves, so this belongs to spec review's readiness gate rather than a later gate. Major per calibration: 'missing constraint... with no planned validation surface,' since none of these have a documented resolution path beyond this review."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "sdd-forge's repository root has no `domain/` directory (investigation.md INV-009: 'sdd-forge 自身に domain/ ディレクトリは存在せず'), so the check's skip condition (target project lacks domain/ with an Approved context-map and valid domain-contract.json) is met. Recorded as skipped per the check's explicit skip condition."
+    }
+  ]
+}

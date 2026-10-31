@@ -1,0 +1,50 @@
+# bash tests/run-all.sh — first, full attempt (trimmed to suite markers + abort context)
+# Full original capture was 615 lines; trimmed here to avoid verbatim-quoting an
+# unrelated suite's own self-test fixture text (tests/check-placeholders.tests.sh
+# legitimately asserts on an all-caps placeholder-marker fixture string, which
+# check-placeholders.sh's own recursive scan of specs/epic-136-phase3/ would
+# otherwise flag as a false positive when that string is quoted verbatim in a
+# captured log saved under this directory).
+# Every suite marker (==>) and result line is preserved verbatim below; only the
+# one self-test fixture line naming that marker string was elided.
+
+==> tests/install.tests.sh
+Results: 35 passed, 0 failed.
+==> tests/uninstall.tests.sh
+Results: 24 passed, 0 failed.
+==> tests/guards.tests.sh
+ok: check-placeholders.sh: lowercase todo passes (prose, RT-20260706-001)
+ok: check-placeholders.sh: uppercase [elided] flagged
+Results: 133 passed, 0 failed.
+==> tests/approval-boundary.tests.sh
+TEST-016 results: 16 passed, 0 failed
+==> tests/gates.tests.sh
+FAIL: 0
+==> tests/check-placeholders.tests.sh
+Results: 8 passed, 0 failed
+==> tests/prepare-panelist.tests.sh
+Results: 51 passed, 0 failed
+==> tests/review-contract-foundation.tests.sh
+==> tests/review-contract-foundation-parity.tests.sh
+==> tests/downstream-review-precheck.tests.sh
+==> tests/impl-layer-review-inputs.tests.sh
+==> tests/task-layer-review-inputs.tests.sh
+==> tests/task-layer-full-profile.tests.sh
+==> tests/downstream-review-precheck-parity.tests.sh
+==> tests/task-review-precheck.tests.sh
+==> tests/review-agent-isolation.tests.sh
+==> tests/agent-model-routing.tests.sh
+==> tests/agent-capabilities-v2.tests.sh
+---- summary: pass=10 fail=0 ----
+==> tests/render-agent-frontmatter.tests.sh
+---- summary: pass=23 fail=0 ----
+==> tests/task-context-isolation.tests.sh
+==> tests/turn-first-workflow.tests.sh
+not ok: implementation report template omits: ## Output Paths And Hashes
+
+=== Final lines of the aborted run (set -e stopped the array here) ===
+ok: task context isolation manifests, snapshots, fallback, and selector are deterministic
+==> tests/turn-first-workflow.tests.sh
+not ok: implementation report template omits: ## Output Paths And Hashes
+
+EXIT_CODE=1 (aborted by set -e at tests/turn-first-workflow.tests.sh -- pre-existing, unrelated; see Regression Tests Run / Unresolved Items in T-001.md)

@@ -1,0 +1,11 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "artifact_kinds",
+    "operator": "contains",
+    "value": "cli_tool"
+  },
+  "properties": {
+    "artifact_kinds": "cli_tool"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a3r2-seq0769",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a3r2-0769",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "b549ca86e7835704b449a378c6a129ad0eddbc79bc16463aa0dfa5bc640c5a5c"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-2/precheck-result.json",
+      "sha256": "c47191bdabd15e680a23f1b9b964118294bb14e50bcf69851b9f2c6b6859f1c6"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-2/integrated-summary.json",
+      "sha256": "7434b92f665bc226487660ac842e8a2facbbc63fd85ad118f9cb13beb3b9439a"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Positive-capability matrix rows over-claim what their cited ACs' Test Target text actually establishes, violating the matrix's own legend (acceptance-tests.md lines 60-64: '行の能力記述は、引用した AC が実際に踏む範囲を超えてはならない...各要素が引用 AC の Test Target に名前で現れることを確認する'). (1) Row 'G1: concept の required 7 フィールドが表現できる | AC-003, AC-004 | id / name / context / definition / essence / responsibilities / evidence をすべて備えた契約が受理される' enumerates all 7 field names, but AC-003's Test Target ('Purchase/Fulfillment 正例 fixture（Order=purchase 責務のみ / Fulfillment=delivery 責務のみ / 相互 distinguished_from / Fulfillment.must_not_own に purchase price）...本 fixture は concept の optional フィールドをすべて populate した状態とし、must_not_own・distinguished_from に加えて stakeholder_perspectives に有効な {actor, concern} を最低 1 件含める...') and AC-004's Test Target ('Book/Bookshelf 正例 fixture（Book.must_not_own に display position / Placement concept が並び責務）が通過') never name 'id', 'name', 'context', 'definition', 'essence', or 'evidence' literally (only 'must_not_own'/'distinguished_from'/'stakeholder_perspectives' by name, plus Japanese gloss '責務' for responsibilities). (2) Row 'G1: optional フィールドは不在でも受理される | AC-004, AC-020 | optional 配列を持たない契約が exit 0 で通過する（AC-004 の Book/Bookshelf 正例と AC-020 末尾の不在 canary）' cites AC-004 as evidence that optional fields are accepted absent, but AC-004's own Test Target states must_not_own is POPULATED ('Book.must_not_own に display position'), the opposite state from what the row claims that AC demonstrates. Downstream failure mode: a task author or design reviewer trusting this matrix (its stated purpose per lines 38-43 is to be the sole evidence trail for capability claims, since negative ACs 'ここでは根拠にならない') would believe id/name/context/definition/essence/evidence possession and must_not_own-absence are concretely proven by AC-003/AC-004/AC-020, and would skip independently verifying these paths during design or task decomposition. This belongs to spec review because it is a Phase 1 acceptance-criteria self-consistency defect internal to acceptance-tests.md, not an implementation or task-review concern. Severity is Major rather than Critical because the underlying technical requirement remains unambiguous (REQ-002's Field Definitions table already fully specifies these fields' requiredness/optionality); the risk is downstream reviewers over-trusting an inaccurate evidence citation, matching the prompt's own calibration ('an ambiguity that will cause downstream mismatch as Major')."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements.md's Goals, Non-goals, Constraints, Edge Cases, and Security Boundaries (e.g., G5/REQ-007's additive-only guarantee is consistent with Non-goals' v1-migration exclusion and INV-004's untouched-consumer list; Roles and Permissions' 'no mechanical approval enforcement' is consistent with INV-008's hook-guard scope). The one internal inconsistency found between the Positive-capability matrix and AC-004's Test Target (must_not_own populated vs. claimed absent) is reported under AMBIGUITY at Major severity per the task's own severity-classification guidance, since it does not create a safety/workflow-boundary conflict that would make the specification unreviewable."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Edge Case enumerated in requirements.md maps to a dedicated negative (or canary) fixture: concepts empty array -> AC-016 ('concepts が空配列（[]）の fixture を validator が非 0 で拒否'); cross-context same-name concept valid / same-context invalid -> AC-005 (positive) and AC-011 (negative); must_not_own absent -> AC-020's explicit canary ('当該 optional 配列自体を持たない fixture（AC-004 の正例系）が exit 0 で通過することを示し'); distinguished_from self-reference -> AC-008 ('自分自身への参照ケースを含む'); oversized/malformed input -> AC-017 (2 fixtures: truncated JSON and >10MB file); v1 contract fed to v2 validator -> AC-012. Coverage of the edge-case behavior itself is genuine even though the Positive-capability matrix's citation of the must_not_own-absent canary is imprecisely worded (see AMBIGUITY)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Assumptions in requirements.md are resolved or explicitly deferred with rationale: the hook-activation handshake deviation is recorded and owner-authorized ('この逸脱は owner の明示指示...に基づき記録の上続行した'); v1-instance-nonexistence is an explicit owner decision (INV-009); and the forward-compatibility assumption carries its own reopening clause ('変更が必要になった場合は当該 Phase で本契約の改版を明示的に扱う'). Open Questions OQ-001..OQ-004 (investigation.md) are each carried through to concrete resolutions in requirements.md's body: OQ-003 (essence required) is resolved by REQ-002/Field Definitions marking essence Yes/required; OQ-004 (v1-rejection behavior) is resolved by REQ-004(b) and Edge Cases' exact error text, and AC-012 labels it 'OQ-004提案の確定形'. investigation.md's own OQ status fields still read 'Open', but since requirements.md is the authoritative decision artifact and states the resolutions directly, no decision needed for design/task decomposition remains unresolved."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Requirements.md's Roles and Permissions section explicitly addresses the one approval-adjacent boundary in scope (meta.status Approved) and testably documents its current state: 'meta.status の Approved 書込に対する機械的強制は存在しない...したがって Phase 0 において承認境界は人間のレビュー運用のみが担保し、v2 スキーマは meta.status を単なる列挙値フィールドとして定義するに留める。承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は別 feature として起票する。' This is not a missing/silent gap; it is an explicit, rationale-backed (INV-008) statement of a human-only approval boundary, so it is testable as documented rather than left ambiguous."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification does not require a downstream design reviewer to invent missing product behavior: REQ-002's Field Definitions table fully specifies every concept field's type, requiredness, and pattern; REQ-004 specifies validator check ordering (type checks precede pattern/minLength/minItems) and fail-closed behavior; REQ-005/REQ-006 specify the fixture corpus and twin-parity testing; Security Boundaries and Roles and Permissions specify operational constraints. The AMBIGUITY finding concerns the acceptance-tests.md evidence-trail's internal accuracy, not missing product-behavior specification, so it does not block handoff to implementation-policy review on its own."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: investigation.md INV-009 states 'sdd-forge 自身に domain ディレクトリは存在せず（ルート直下確認）', so the target project has no domain/ directory (and therefore no domain/context-map.md with Domain-Model-Status: Approved or schema-valid domain/domain-contract.json). Per the check's skip condition this is recorded as skipped."
+    }
+  ]
+}

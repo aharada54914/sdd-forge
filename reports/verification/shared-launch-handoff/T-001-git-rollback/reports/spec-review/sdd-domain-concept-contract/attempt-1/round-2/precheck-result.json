@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "007fb0d261ecebbb6eed0f03bcf97358ffa1efd0ea1b5278e43f11a3bcf276bd",
+  "acceptance_sha256": "7e4b2f9fe0d866390b9ddafb935eacacdba226422fda7e79a3d370c1996c2168",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "104ff22e7b54b529ca168abccd8848d9a5988bc36328bfede1e0747707d2a7d3",
+  "edit_summary": "Round 1 の Major finding EDGE-CASE-COVERAGE に対応し、acceptance-tests.md に AC-016 (concepts 空配列を validator が拒否) と AC-017 (壊れた JSON / 10MB 超の異常入力に対する fail-closed 非 0 終了、best-effort パースなし) を追加。TEST ID レンジを TEST-017 まで拡張し、負例 canary の Notes を更新。requirements.md は無変更。",
+  "reset": false,
+  "generated_at": "2026-08-16T07:45:37Z"
+}

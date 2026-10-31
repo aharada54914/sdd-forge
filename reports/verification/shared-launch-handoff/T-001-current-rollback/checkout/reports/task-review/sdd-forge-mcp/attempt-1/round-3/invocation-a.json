@@ -1,0 +1,45 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "sdd-forge-mcp",
+  "run_id": "task-a-sddforgemcp-a1r3-20260704-e5d9",
+  "host_session_id": "hs-task-a-7ea701ba-0016",
+  "sequence": 16,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a9648b9ac34f3cf8ead67ef1fde69b9d72ff0e0a5f9d73ecc47b663236859b66",
+  "previous_record_sha256": "3bac57d084d1035df7a4ae642782dc7a47ea030b332d02070b1e3cc883d67b03",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/traceability.md",
+      "sha256": "9c317fb6da2074dee4012bdcf532b3ec25538d6ad81b36a6e0eca2ed2b0ec76c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "58017dedc614d1f2d62bbe55830904ad78fddcb0e1c8b49dd8c1034d568f7e1e"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/dependency-graph.json",
+      "sha256": "0177ff96bf4d191015a54381a52f2780d8922c75bd8cbd76e180cd131de86088"
+    }
+  ]
+}

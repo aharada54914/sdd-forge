@@ -1,0 +1,15 @@
+# T-005 attempt 2 native handoff
+
+- Session/agent: `01a11cbb-3dd3-7d92-9a8f-68016108fe85`; Run ID: `T-005-01a11cbb-3dd3-7d92-9a8f-68016108fe85`.
+- Turn: `01a11cbb-effd-71c1-b4e2-f29d0ebc11a6`; model gpt-6-astra/high/strong.
+- Environment-only repair authorized by parent: TMPDIR, TMP and TEMP set before native process startup to this attempt's output/tmp, both inherited process environment and native shell_environment_policy.set fields. `temp-resolution.json` proves Python tempfile.gettempdir resolves there before the turn.
+- No permission expansion: runtime root remains this attempt's output only; networkAccess=false, excludeTmpdirEnvVar=true, excludeSlashTmp=true. MCP 10 entries disabled with empty tools and null nextCursor.
+- First app-server command rejected a TOML type mismatch in environment map before creating a thread; corrected to individual dotted environment keys. This was configuration validation, not an execution permission denial; diagnostic preserved in native-stderr.log.
+- Snapshot 606 admitted files; prepare helper, individual validator and T001+T005 batch validator each returned TASK_INPUT_OK. AJV and its fixed installed dependencies included for existing structured-output tests, no network installation.
+- Prior blocked attempt, its manifest/snapshot/session and all denial logs remain unchanged in parent T-005 directory. No identity reservation or live ledger mutation.
+- Native turn completed successfully; `turn-completed.json` records status completed/error null. Implementation is staged in output only. Not an independent review, quality verdict, owner application, CI, or Done.
+- Delivery: `output/delivery-index.json` binds 75 task payload files under `output/work`: one changed test, implementation report, and T-005 attempt-2 evidence. Native final checks confirmed exact report output table, all hashes and identity fields. Do not apply scratch/cache or the input snapshot.
+- Test before hash `c75879828938c77d7a5ed52a987a739b96365fa7a469c5553bf1297ccc768ee4`; final hash `612c0b9194c014bf4cb07d8ac13d551c1243b2ade2b268c7c28be6d7e1aba50e`. Orchestrator independently read the owner target and confirmed before hash after the native tests.
+- Validation: seven Python suites total 75 tests passed; boundary driver exit 0 with 3 unittest tests, 32 citation anchors and success/failure summaries 116/0, 84/0, 84/0. Counts are separate nested-suite summaries, not a unique total. Rollback before bytes/hash plus affected 17 baseline tests passed, then final candidate reapplied and validated.
+- Canonical postappend receipt failure exercised spec/impl/task x Bash/PowerShell (six cases): actual append retained, child invocation zero, same identity retry rejected. Quality canonical integration is outside those six cases; existing shared-order/permission tests do not constitute that missing integration or native model execution evidence.
+- Parent next: verify delivery hashes and owner before hash, apply only listed payload, independently review/evaluate and run applicable current-head CI. No owner lifecycle, live ledger, reservations or Git changes were made by this execution.

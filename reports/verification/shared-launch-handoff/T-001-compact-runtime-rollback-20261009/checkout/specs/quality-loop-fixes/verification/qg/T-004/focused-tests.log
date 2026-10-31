@@ -1,0 +1,69 @@
++ bash tests/review-contract-foundation.tests.sh
+== start: 2026-07-19T17:39:05Z ==
+ok: review contract foundation validates canonical input and rejects unsafe inputs
+PASS (T-004): TEST-022/baseline: no-shim lane is green (spec fixture)
+PASS (T-004): TEST-022/baseline: no-shim lane is green (quality fixture)
+PASS (T-004): TEST-022: manifest field .stage (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .role (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .feature (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .run_id (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .host_session_id (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .sequence (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .previous_record_sha256 (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .identity_ledger_sha256 (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: conditional task_id read (line 187) survives the CRLF shim
+PASS (T-004): TEST-023: ledger @tsv batch read (lines 250-258) survives the CRLF shim
+PASS (T-004): TEST-024a: line 275 (.allowed_input_manifest[].path) survives the CRLF shim
+PASS (T-004): TEST-024b: line 305 (.allowed_input_manifest[] | [.path,.sha256] | @tsv) survives the CRLF shim
+PASS (T-004): TEST-026 (wrong sequence, no-shim lane) fails closed
+PASS (T-004): TEST-026 (wrong sequence, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (wrong previous hash, no-shim lane) fails closed
+PASS (T-004): TEST-026 (wrong previous hash, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (symlink traversal, no-shim lane) fails closed
+PASS (T-004): TEST-026 (symlink traversal, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (duplicate run/session id, no-shim lane) fails closed
+PASS (T-004): TEST-026 (duplicate run/session id, __ALL__ shim lane) fails closed
+ok: T-004 CRLF-jq-output coverage for validate-review-context-set.sh (issue #179)
+== end: 2026-07-19T17:39:05Z ==
+EXIT_CODE: 0
+(1 pre-existing ok: line from the untouched review-contract-validate.sh
+coverage + 22 new T-004 PASS assertions = 23 PASS / 0 FAIL, default bash
+lane)
+
++ env PATH=/bin:/usr/bin:/usr/sbin /bin/bash tests/review-contract-foundation.tests.sh
+== start: 2026-07-19T17:39:41Z ==
+ok: review contract foundation validates canonical input and rejects unsafe inputs
+PASS (T-004): TEST-022/baseline: no-shim lane is green (spec fixture)
+PASS (T-004): TEST-022/baseline: no-shim lane is green (quality fixture)
+PASS (T-004): TEST-022: manifest field .stage (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .role (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .feature (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .run_id (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .host_session_id (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .sequence (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .previous_record_sha256 (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: manifest field .identity_ledger_sha256 (jq -r) survives the CRLF shim
+PASS (T-004): TEST-022: conditional task_id read (line 187) survives the CRLF shim
+PASS (T-004): TEST-023: ledger @tsv batch read (lines 250-258) survives the CRLF shim
+PASS (T-004): TEST-024a: line 275 (.allowed_input_manifest[].path) survives the CRLF shim
+PASS (T-004): TEST-024b: line 305 (.allowed_input_manifest[] | [.path,.sha256] | @tsv) survives the CRLF shim
+PASS (T-004): TEST-026 (wrong sequence, no-shim lane) fails closed
+PASS (T-004): TEST-026 (wrong sequence, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (wrong previous hash, no-shim lane) fails closed
+PASS (T-004): TEST-026 (wrong previous hash, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (symlink traversal, no-shim lane) fails closed
+PASS (T-004): TEST-026 (symlink traversal, __ALL__ shim lane) fails closed
+PASS (T-004): TEST-026 (duplicate run/session id, no-shim lane) fails closed
+PASS (T-004): TEST-026 (duplicate run/session id, __ALL__ shim lane) fails closed
+ok: T-004 CRLF-jq-output coverage for validate-review-context-set.sh (issue #179)
+== end: 2026-07-19T17:39:41Z ==
+EXIT_CODE: 0
+(real bash 3.2.57(1) lane: 23 PASS / 0 FAIL, identical shape)
+
++ bash tests/review-contract-foundation-parity.tests.sh
+== start: 2026-07-19T17:39:52Z ==
+ok: review contract validators have equivalent semantic JSON output
+== end: 2026-07-19T17:39:52Z ==
+EXIT_CODE: 0
+
+=== Result: 23/23 passed (default bash lane), 23/23 passed (real bash 3.2.57(1) lane), parity suite 1/1 passed -- no designed-fail exceptions for T-004. validate-review-context-set.ps1 is out of scope for this task (INV-019) and untouched. ===

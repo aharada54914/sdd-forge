@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a3r3-seq0770",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a3r3-0770",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "7c7d401b7837af103a08b89657669e18996deadca6ee468d875a57ce2ffbec63"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-3/precheck-result.json",
+      "sha256": "76b895e9ae0f2a46682c90cf497f2e256dfe21638a6af7b3e09443975542e77e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each specify concrete patterns (e.g. id `^CONCEPT-[A-Z][A-Z0-9-]*$`), exact required/optional field sets, minLength/minItems rules, and a fail-closed exit-code contract for the validator (REQ-004). Edge Cases and Field Definitions further pin down borderline behavior (empty concepts[], self-referencing distinguished_from, oversized input). All in-scope requirements give the implementer/verifier a concrete, observable target."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-005(b) states: '(b) Book/Bookshelf の正例（Book.must_not_own に display position、Placement concept が並び責務を持つ）' — an explicit requirement that the Book concept's must_not_own be populated with 'display position'. acceptance-tests.md AC-004 (the only AC mapped to REQ-005(b), column value literally 'REQ-005(b)') was rewritten this round to state: '本 fixture は concept の optional フィールドを 1 つも持たない状態とし、must_not_own・stakeholder_perspectives・distinguished_from の 3 キーをいずれも欠落させる' — i.e. Book must have NO must_not_own at all. The string 'display position' does not appear anywhere in acceptance-tests.md (verified by grep), so no other AC covers REQ-005(b)'s content claim either. A task author or verifier reading REQ-005(b) and AC-004 together gets contradictory instructions: populate Book.must_not_own with a specific value, or leave must_not_own entirely absent from every concept in the fixture including Book. This is a genuine contradiction introduced by this round's fix (which correctly resolved the prior AC-003/AC-004-pairing gap but broke traceability of REQ-005(b)'s specific content), confined to the two Phase-1 artifacts this gate owns, so it is properly a spec-review finding rather than a downstream design ambiguity."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria are phrased in terms of exit codes, stderr line format ('1 行 1 件'), literal field names, and value-retention checks (e.g. AC-003/AC-025 confirm input values are preserved after acceptance). The Positive-capability matrix rows for G1's populated/absent states (rows 3 and 4) now literally name must_not_own / stakeholder_perspectives / distinguished_from in AC-003's and AC-004's own Test Target text in the correct states, closing the round-2 overclaim finding for those rows specifically."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes concept-test skill/bootstrap integration, interviewer/template changes, reviewer A/B check additions, reverse mode/C4 separation, v1->v2 migration tooling (INV-009), domain/ markdown artifact generation, and meta.status approval enforcement mechanisms — each tied to a named future Phase or explicit owner decision, preventing scope creep into this Phase-0 feature."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries states content-as-data handling, read-only/no-network/no-external-dependency validator constraints, and a no-secrets fixture rule. Roles and Permissions explicitly states that meta.status Approved has no mechanical enforcement and that approval is human-review-only (citing INV-008), with new enforcement machinery explicitly declared a non-goal. REQ-007 plus AC-002's SHA-256 drift lock make the v1-compatibility constraint concretely testable."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1, R2, R3 each name a concrete mitigation tied to a validation surface already present in the AC set: R1 to the fixture corpus (REQ-005/AC-003..025), R2 to REQ-006's drift-lock test between validator and schema, R3 to AC-013's sh/ps1 twin-parity check."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records that sdd-forge has no domain/ directory at the repository root ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'), so the Approved domain-context-map.md / domain-contract.json precondition for this check is absent. Skip condition applies."
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-designsyncstandingconsent-impl-a1r1-a-seq0550",
+  "host_session_id": "SESS-impl-a1r1-a-designsyncstandingconsent-0550",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "f4b0a163808eb171fc666b4d1e642d43dfde5f294e8ab4113b770ec1c3259c20"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/design.md",
+      "sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:8-40 (\"## Architecture Overview\") states component boundaries via the edit-surface table (design.md:12-19) and the Components table (design.md:42-55); describes integration with the existing DS-29 system in \"The central structural decision: wrap, don't rewrite\" (design.md:23-38) with a mermaid flow (design.md:27-36); and states technology choices per layer via the Layer Specifications table (design.md:57-64, UX/Frontend/Infra/Security each addressed, corroborated by frontend-spec.md:5 'N/A \u2014 no browser, no bundle' and infra-spec.md:5 'Nothing is deployed') plus the explicit stack statement in Deployment & CI Plan (design.md:327, 'Stack is shell'). All three required elements present with substantive (not one-sentence) treatment. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. The Architecture Overview (design.md:8-40) and Components table (design.md:42-55) describe only one-directional relations (SKILL.md step 3 reads AGENTS.md's setting; claude-design-workflow.md refers indirectly to AGENTS.md's setting; neither AGENTS.md nor claude-design-workflow.md reads back from SKILL.md) \u2014 no cycle is stated or implied."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:207-218 (\"## Data Plan\") covers all three sub-fields substantively though not under the literal sub-labels: entities/artifacts changed are enumerated in the two-row table (design.md:213-217: AGENTS.md gains one section; Design-Source section gains three named fields); existing data affected is stated explicitly ('no existing section is edited' for AGENTS.md, DS-29's five existing Design-Source fields remain untouched per AC-017/design.md:216); migration strategy is stated explicitly and was itself corrected for internal consistency in round 2 ('No new storage mechanism, no migration (round 2, ruling D...)', design.md:209). No genuine gap \u2014 an implementer has unambiguous guidance on all three points."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:70-206 (\"## API & Contract Plan\") is present and non-empty, documenting this feature's full contract surface \u2014 the AGENTS.md Project Settings key shape (design.md:74-88), SKILL.md step 3's target text (design.md:96-162), and the Design-Source record's three new field rows (design.md:171-177) \u2014 which is the only kind of 'contract' this feature has, since it introduces no HTTP endpoint, RPC, or event type (corroborated by infra-spec.md:5 'No service, container...no endpoint' and frontend-spec.md:5 'no browser, no bundle'). The section does not contain the literal phrase 'No API changes', but requirements.md's own User Stories/Overview never reference a user-facing HTTP interaction (ux-spec.md:5 confirms 'no rendered, interactive, or GUI surface'), so the absent-literal-phrase gap has no concrete downstream failure mode for an implementer or quality gate reading this document."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:220-228 (\"## Security Boundaries\") names boundaries B1/B5/B3 and explicitly designates security-spec.md as authoritative; per the orchestrator instruction to treat layer specs as normative refinements, combined coverage is: trust boundaries named (security-spec.md:45-58 mermaid + :60-67 table, boundaries B1/B4/B5/B6); authN/authZ mechanism stated per boundary, including explicit absence ('none \u2014 AGENTS.md is not schema-validated, not gated', security-spec.md:64); data classification addressed (security-spec.md:102-110, 'Data Classification and Protection' table, all entities classified Internal/non-secret with explicit 'No secret is handled' statement); OWASP-equivalent concerns addressed via STRIDE analysis (security-spec.md:81-93), with Elevation of Privilege (the closest analogue to OWASP A01 Broken Access Control) as the dominant, explicitly-named threat class for the feature's principal residual risk. No missing item found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type header (design.md:4) does not literally match the enumerated skip values (api-only/frontend-only/cli/library), but the feature has no frontend or backend layer in the sense this check targets \u2014 ux-spec.md:5 states 'N/A \u2014 no rendered, interactive, or GUI surface' and frontend-spec.md:5 states 'N/A \u2014 no browser, no bundle, no build output'; design.md itself has no '## Frontend Plan' or '## Backend Plan' section to cross-check against '## API & Contract Plan'. Skipped on substantive evidence rather than the literal enum."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:264-318 (\"## Test Strategy\") covers: unit-level scope via the per-AC/per-TEST coverage table (design.md:272-303) and the granular per-clause assertion rationale in 'How the assertions are written' (design.md:305-312); integration scope via cross-file/cross-boundary checks (TEST-018/TEST-051/TEST-052 verify AGENTS.md+SKILL.md and this feature's edits against DS-29's existing suite, design.md:288, 300-303); acceptance-criteria-to-test mapping is exhaustive (every AC-NNN through AC-031 mapped to a TEST-NNN in the coverage table); concrete planned verification evidence is named explicitly (tests/design-sync-standing-consent.tests.sh/.ps1, tests/run-all.sh/.ps1, tests/design-system-contract.tests.sh/.ps1 as the baseline regression target \u2014 design.md:314-318, acceptance-tests.md:65-69). No fullstack E2E/user-journey requirement applies (ux-spec.md:5 confirms no UI). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components referenced in Architecture Overview (design.md:8-40), Components (design.md:42-55), and API & Contract Plan (design.md:70-206) are defined: AGENTS.md, design-sync-loop/SKILL.md, claude-design-workflow.md, the Design-Source record, tests/design-sync-standing-consent.tests.{sh,ps1}, tests/run-all.{sh,ps1}, .github/workflows/test.yml, and specs/workflow-state-registry.json are all rows in the Components table (design.md:42-55). References to established prior-feature components not re-defined here \u2014 'Capability Detection' (design.md:50, with line ref), 'DesignSync' tool (design.md:145, established via investigation.md INV-301/INV-306 and requirements.md REQ-002's INV-022 citation), and the DS-29 'per-feature' step-3 branches themselves (design.md:105-112) \u2014 are each identifiable from investigation.md or the cited requirements/investigation context as established system components, not fabricated. No undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:236-246 (\"## ADR Change Log\") lists one decision as '_proposed, number TBD_' (design.md:244) \u2014 explicitly not claimed to exist as a materialized docs/adr/NNNN-*.md file, and explicitly deferred to maintainer judgment ('Whether this warrants an ADR is a maintainer call, not decided here', design.md:246). Since no concrete ADR number/file is asserted to exist, there is nothing to verify against docs/adr/ (confirmed: docs/adr/ contains 0001-0024, no design-sync-standing-consent or DS-31 entry, none expected). This is the identical pattern the predecessor feature DS-29 used for the same architectural class of decision (specs/design-sync-consent/design.md:236-244, also 'proposed, number TBD', that feature's Impl-Review-Status: Passed per requirements.md:9) \u2014 an established, previously-accepted repository convention for this exact case, not an unaddressed departure. Since an ADR entry IS listed (acknowledging the departure), the 'no new ADR listed' Major-finding trigger does not apply."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Project root has no design-system/ directory (verified: `test -d design-system` false). design.md:66-68 (\"## Design System Compliance\") records exactly 'N/A \u2014 ds_profile: none' as required by the check's stated skip condition. Recorded as skipped per the check's own instruction; emitting PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Project root has no domain/ directory (verified: `test -d domain` false), so domain/context-map.md and domain/domain-contract.json do not exist and Domain-Model-Status cannot be Approved. Recorded as skipped per the check's own instruction; emitting PASS."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "feature (project-level configuration for an existing internal skill; no application code) \u2014 design.md:4"
+}

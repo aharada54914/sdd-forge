@@ -1,0 +1,66 @@
+--- a/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
++++ b/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@ -219,6 +219,11 @@
+ 
+ 
+ BOUNDARY_PATH = 'plugins/sdd-review-loop/references/review-context-boundary.md'
++
++
++def canonical_read_paths(root, relative_paths):
++    """Render tool targets without changing relative manifest or receipt identities."""
++    return [str((root / relative).resolve()) for relative in relative_paths]
+ 
+ 
+ def diagnostic_read_paths(entries, invocation_path):
+@@ -448,6 +453,13 @@
+         if strict and data['stage'] in ('spec', 'impl') and conditional_state is not None else '')
+     return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
+             + binding + '\n'
++            + ('Read tool file_path values (canonical absolute paths):\n'
++               + json.dumps(canonical_read_paths(root, [relative, BOUNDARY_PATH] +
++                            [entry['path'] for entry in data['allowed_input_manifest']]),
++                            ensure_ascii=True) + '\n'
++               'Use these exact absolute paths for Read; do not infer a different repository root. '
++               'Keep relative paths unchanged in manifest, hash commands, receipt and output identities.\n'
++               if enforced else '')
+             + task_hash_note
+             + conditional_note
+             + control_prompt(data, receipt_text, sha(root / 'plugins/sdd-review-loop/references/review-context-boundary.md'),
+--- a/plugins/sdd-review-loop/scripts/probe-nontty-review.py
++++ b/plugins/sdd-review-loop/scripts/probe-nontty-review.py
+@@ -136,8 +136,9 @@
+               + '\n'.join(str(index) + '. Bash ' + command
+                           for index, command in enumerate(hash_commands, 1)) +
+               '\nThen Read each of these files with limit=1, in this order:\n' +
+-              '\n'.join(read_paths) +
+-              '\nThen Bash ' + chained_bash + '\nFinally Read ' + outside +
++              '\n'.join(transport.canonical_read_paths(ROOT, read_paths)) +
++              '\nThen Bash ' + chained_bash + '\nFinally Read ' +
++              transport.canonical_read_paths(ROOT, [outside])[0] +
+               ('\nAfter that final Read, submit one StructuredOutput JSON object and make '
+                'no further tool calls.' if stage in transport.JSON_REVIEW_STAGES else ''))
+     command = transport.claude_command(ROOT, session, role_name, role,
+--- a/tests/quality-nontty-transport.tests.py
++++ b/tests/quality-nontty-transport.tests.py
+@@ -453,6 +453,21 @@
+                 policy, _ = TRANSPORT.launch_policy(root, invocation, receipt_path,
+                                                     root / 'policy.json')
+             self.assertIn(command, json.loads(policy)['bash_commands'])
++            # Absolute tool targets must match the pinned scope, while identities stay relative.
++            relative_reads = [relative, TRANSPORT.BOUNDARY_PATH, 'source.md']
++            targets = TRANSPORT.canonical_read_paths(root, relative_reads)
++            self.assertEqual(targets, json.loads(policy)['read_paths'])
++            self.assertEqual(relative_reads, [relative, TRANSPORT.BOUNDARY_PATH, 'source.md'])
++            sampled = TRANSPORT.diagnostic_read_paths(data['allowed_input_manifest'], relative)
++            self.assertTrue(set(TRANSPORT.canonical_read_paths(root, sampled)).issubset(targets))
++            with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})):
++                rendered = TRANSPORT.expected_prompt(root, invocation, receipt_path).decode()
++            self.assertIn('Read tool file_path values (canonical absolute paths):\n' +
++                          json.dumps(targets, ensure_ascii=True), rendered)
++            self.assertIn('"invocation": "' + relative + '"', rendered)
++            probe_source = (ROOT / 'plugins/sdd-review-loop/scripts/probe-nontty-review.py').read_text()
++            self.assertIn('transport.canonical_read_paths(ROOT, read_paths)', probe_source)
++            self.assertIn('transport.canonical_read_paths(ROOT, [outside])[0]', probe_source)
+             self.assertEqual(set(control['hash_commands']),
+                              set(json.loads(policy)['bash_commands']) -
+                              {command})

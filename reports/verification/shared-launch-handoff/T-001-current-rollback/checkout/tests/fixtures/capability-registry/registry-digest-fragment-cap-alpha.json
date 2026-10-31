@@ -1,0 +1,9 @@
+{
+  "capabilities": [
+    {"id": "cap-alpha", "gate_ids": ["gate-z", "gate-a"], "label": "Alpha"}
+  ],
+  "gates": [
+    {"id": "gate-a", "weight": 1.0, "label": "alpha"},
+    {"id": "gate-z", "weight": 1e+0, "label": "zeta"}
+  ]
+}

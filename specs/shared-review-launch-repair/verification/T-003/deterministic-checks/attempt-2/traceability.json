@@ -1,0 +1,30 @@
+{
+  "feature": "shared-review-launch-repair",
+  "links": [
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-011a",
+        "TEST-011b",
+        "TEST-011c",
+        "TEST-011d",
+        "TEST-011e",
+        "TEST-011f",
+        "TEST-012a",
+        "TEST-012b",
+        "TEST-012c",
+        "TEST-012d",
+        "TEST-013"
+      ],
+      "evidence": [
+        "specs/shared-review-launch-repair/verification/T-003/focused-host.json",
+        "specs/shared-review-launch-repair/verification/T-003/regression-mutations.json",
+        "specs/shared-review-launch-repair/verification/T-003/final-generator.json",
+        "specs/shared-review-launch-repair/verification/T-003/final-parity.json"
+      ]
+    }
+  ]
+}

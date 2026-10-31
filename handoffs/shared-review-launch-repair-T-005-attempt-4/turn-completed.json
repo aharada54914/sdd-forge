@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11d13-ddd9-7783-9e74-924b17c3b341",
+    "turn": {
+      "id": "01a11d14-8258-72f2-9384-4497f069e92c",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0991dee715db41d2016ac7f709b5c08191b3131eed2932e496",
+          "text": "T-005 attempt 4 の再検証が完了しました。\n\n- 指定8スイートすべて終了コード0。追加fixture検証11件も期待どおり。\n- snapshot 609件・作業コピー607件の内容／モード変更なし。\n- テンプレート全項目と証跡44件のハッシュを照合済み。\n\n[実装報告書](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work/reports/implementation/shared-review-launch-repair/T-005.md) · [実行証跡](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work/specs/shared-review-launch-repair/verification/T-005/attempt-4/execution-summary.json)\n\nネイティブモデル起動・Windows・独立レビュー・品質ゲート・CIは未実施。正式PASS／Doneとはしていません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791489245,
+      "completedAt": 1791489806,
+      "durationMs": 561093
+    }
+  },
+  "emittedAtMs": 1791489806909
+}

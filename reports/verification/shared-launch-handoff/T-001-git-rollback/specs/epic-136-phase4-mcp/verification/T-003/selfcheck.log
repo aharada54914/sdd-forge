@@ -1,0 +1,470 @@
+==============================================================================
+T-003 SELF-CHECK EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29 (UTC), AFTER Commit A (a4977219) landed
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+This artifact holds the one-shot command outputs behind T-003's Done When
+shared legs and behind the two claims that would otherwise survive only as
+prose in the implementation report:
+
+  1. RE-VERIFY at implementation start (tasks.md Global Constraints, WFI-013)
+  2. BL-006: the guard constants and resolveGuardedDirectory are byte-identical
+  3. The guard-ORDERING proof (security-spec.md B3) -- structural AND executable
+  4. The MUTATION EXPERIMENT: the naive refactor B3 names is caught by this
+     task's own tests, so the ordering assertions are provably not vacuous
+  5. AC-006 / BL-003: listGuardedFiles' observable behaviour is byte-identical,
+     measured against the PRE-CHANGE function rather than against its own
+     wrapper
+  6. Repository gates, version-literal self-check, untouched-path proof
+==============================================================================
+
+
+==============================================================================
+1. RE-VERIFY at this task's actual implementation start
+==============================================================================
+
+tasks.md Global Constraints require these to be re-checked live, not assumed
+from the file's authoring-time snapshot and not carried forward from T-001's or
+T-002's runs.
+
+--- 1a. PROTECTED_GATE_SUFFIXES / PHASE2_HUMAN_COPY_TARGETS membership ---
+Read live from
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js and
+SUFFIX-matched (the guard's own rule, not substring) against every path this
+task writes.
+
+SCHEMA_VERSION: 1
+PROTECTED_GATE_SUFFIXES entries: 42
+PHASE2_HUMAN_COPY_TARGETS entries: 18
+  mcp/sdd-forge-mcp/src/path-guard.ts  gate=0  humanCopy=0
+  mcp/sdd-forge-mcp/dist/index.js  gate=0  humanCopy=0
+  mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts  gate=0  humanCopy=0
+  specs/epic-136-phase4-mcp/verification/T-003/red.log  gate=0  humanCopy=0
+  specs/epic-136-phase4-mcp/verification/T-003/green.log  gate=0  humanCopy=0
+  specs/epic-136-phase4-mcp/verification/T-003/selfcheck.log  gate=0  humanCopy=0
+  specs/epic-136-phase4-mcp/verification/T-003/dist-parity.log  gate=0  humanCopy=0
+  reports/implementation/epic-136-phase4-mcp/T-003.md  gate=0  humanCopy=0
+  specs/epic-136-phase4-mcp/tasks.md  gate=0  humanCopy=0
+
+Zero matches on both tuples for all 9 paths (AC-015 leg). No human-copy staging
+is involved anywhere in this task.
+
+--- 1b. mcp/sdd-forge-mcp/package.json ---
+private: true | version: 0.1.0 | publishConfig: undefined | files: undefined | exports: undefined
+
+requirements.md Assumptions makes exactly these the factual basis for
+REQ-005/BL-004's `required`-not-`optional` choice, and the basis still holds.
+(T-003 itself adds no schema field at all, so this re-verify is recorded for
+continuity rather than because this task depends on it.)
+
+--- 1c. CHANGELOG.md's `## Unreleased` section ---
+# Changelog
+
+## Unreleased
+
+## v1.12.0 (2026-07-28)
+
+Not applicable to this task and deliberately not touched: CHANGELOG.md and
+USERGUIDE.md are T-005's single doc-follow concern (this task's Out of Scope).
+Confirmed unmodified by `git status --short` over both paths -- see section 6.
+
+
+==============================================================================
+2. BL-006: no allowlist/denylist entry added or removed
+==============================================================================
+
+The three guard-rule constants and the guard function itself were extracted
+verbatim from `git show HEAD~1:mcp/sdd-forge-mcp/src/path-guard.ts` and from the
+landed file, and hashed.
+
+=== COMMAND: extract + sha256 the ALLOWLISTED_DIRECTORIES / ALLOWLISTED_FILES /
+             DENYLISTED_BASENAMES block from both revisions ===
+BL-006 constants block sha256 BEFORE: 58fcc1a70bfce7b2cc00d28361b2e8600562e5e57b6e22c7969cd9730352c719
+BL-006 constants block sha256 AFTER : 58fcc1a70bfce7b2cc00d28361b2e8600562e5e57b6e22c7969cd9730352c719
+BL-006 identical: True | bytes: 802
+
+=== COMMAND: extract + sha256 resolveGuardedDirectory from both revisions ===
+resolveGuardedDirectory sha256 BEFORE: b2dc10ec9483092bf568b5454ae467ca33b0382720018e58dfd8ff721abc06f2
+resolveGuardedDirectory sha256 AFTER : b2dc10ec9483092bf568b5454ae467ca33b0382720018e58dfd8ff721abc06f2
+resolveGuardedDirectory identical: True | bytes: 1138
+
+The function that OWNS the shape / allowlist / denylist checks is therefore
+untouched by this task, byte for byte. isAllowlisted, isDenylisted,
+validateInputShape and isWithin are likewise unmodified (they fall inside the
+unchanged region above / below and appear in no hunk of `git show HEAD --stat`
+for this file beyond the two blocks quoted in section 3).
+
+
+==============================================================================
+3. The guard-ORDERING proof (security-spec.md Boundary B3), structural
+==============================================================================
+
+--- 3a. The landed function, mcp/sdd-forge-mcp/src/path-guard.ts:293-332 ---
+
+  293  export function listGuardedFilesWithDiagnostics(
+  294    root: SddRoot,
+  295    relDir: string,
+  296  ): GuardedListResult {
+  297    const guardResult = resolveGuardedDirectory(root, relDir);
+  298    if (!guardResult.ok) {
+  299      return { files: [], errors: [{ path: relDir, reason: guardResult.error.message }] };
+  300    }
+  301
+  302    const files: string[] = [];
+  303    const errors: GuardedListError[] = [];
+  304    const walk = (absDir: string, relPrefix: string): void => {
+  305      let entries: string[];
+  306      try {
+  307        entries = readdirSync(absDir);
+  308      } catch (error) {
+  309        errors.push({ path: relPrefix, reason: errorMessage(error) });
+  310        return;
+  311      }
+  312      for (const entry of entries) {
+  313        const absEntryPath = join(absDir, entry);
+  314        const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+  315        let stats: ReturnType<typeof statSync>;
+  316        try {
+  317          stats = statSync(absEntryPath);
+  318        } catch (error) {
+  319          errors.push({ path: relEntryPath, reason: errorMessage(error) });
+  320          continue;
+  321        }
+  322        if (stats.isDirectory()) {
+  323          walk(absEntryPath, relEntryPath);
+  324        } else if (stats.isFile()) {
+  325          files.push(relEntryPath);
+  326        }
+  327      }
+  328    };
+  329
+  330    walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
+  331    return { files, errors };
+  332  }
+
+Read off the source directly:
+
+  * line 297 -- resolveGuardedDirectory is the FIRST statement of the function.
+    It is at function-body scope, not inside any `try`.
+  * lines 298-300 -- its failure returns IMMEDIATELY. `errors` (line 303) and
+    `walk` (line 304) do not even exist yet at that point, so no `readdirSync`
+    or `statSync` can have been reached on a denied path. The denial's `errors`
+    entry is built inline from `guardResult.error.message`, i.e. from the
+    guard's own hard-deny text, and is structurally distinct from the
+    error-COLLECTION path that lines 309/319 use.
+  * the first `try` in the whole function is at line 306, three lines after the
+    guard has already succeeded, and it is inside `walk`, which is only ever
+    invoked at line 330 with `guardResult.data.resolvedPath` -- a path the
+    guard has already approved. There is no code path on which `walk` runs
+    against an unapproved path.
+  * the two `catch` blocks (308, 318) push to `errors` and then `return` /
+    `continue` exactly as the pre-change bare `catch {}` blocks did. Validation
+    and error-collection are therefore in disjoint regions of the function.
+
+--- 3b. The walk body vs. the pre-change listGuardedFiles body, diffed ---
+
+`diff -u` between the region `const results: string[] = [] ... return results;`
+of HEAD~1's listGuardedFiles and the region
+`const files: string[] = [] ... return { files, errors };` of the new function:
+
+--- walk.before.txt
++++ walk.after.txt
+@@ -1,9 +1,11 @@
+-  const results: string[] = [];
++  const files: string[] = [];
++  const errors: GuardedListError[] = [];
+   const walk = (absDir: string, relPrefix: string): void => {
+     let entries: string[];
+     try {
+       entries = readdirSync(absDir);
+-    } catch {
++    } catch (error) {
++      errors.push({ path: relPrefix, reason: errorMessage(error) });
+       return;
+     }
+     for (const entry of entries) {
+@@ -12,17 +14,18 @@
+       let stats: ReturnType<typeof statSync>;
+       try {
+         stats = statSync(absEntryPath);
+-      } catch {
++      } catch (error) {
++        errors.push({ path: relEntryPath, reason: errorMessage(error) });
+         continue;
+       }
+       if (stats.isDirectory()) {
+         walk(absEntryPath, relEntryPath);
+       } else if (stats.isFile()) {
+-        results.push(relEntryPath);
++        files.push(relEntryPath);
+       }
+     }
+   };
+
+   walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
+-  return results;
++  return { files, errors };
+ }
+
+Every changed line is one of exactly four things: the accumulator rename
+(results -> files), the added `errors` accumulator, the two `catch {}` ->
+`catch (error) { errors.push(...) }` conversions, and the return shape. The
+walk's CONTROL FLOW is untouched: still `return` past a top-level readdirSync
+failure, still `continue` past a per-entry statSync failure, same recursion,
+same isDirectory/isFile branch. REQ-003 adds visibility, not a stricter walk.
+
+
+==============================================================================
+4. MUTATION EXPERIMENT -- the ordering assertions are NOT vacuous
+==============================================================================
+
+A structural argument that the guard runs first is worth little if the tests
+would pass anyway. So the naive refactor security-spec.md B3 names was actually
+APPLIED to the landed path-guard.ts and this task's own suite was re-run
+against it.
+
+The mutant (applied on top of Commit A, then discarded -- see 4c):
+
+  -  const guardResult = resolveGuardedDirectory(root, relDir);
+  -  if (!guardResult.ok) {
+  -    return { files: [], errors: [{ path: relDir, reason: guardResult.error.message }] };
+  -  }
+  -
+     const files: string[] = [];
+     const errors: GuardedListError[] = [];
+     const walk = (absDir: string, relPrefix: string): void => { ...unchanged... };
+
+  -  walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
+  +  let absScanDir: string;
+  +  try {
+  +    const guardResult = resolveGuardedDirectory(root, relDir);
+  +    if (!guardResult.ok) {
+  +      errors.push({ path: relDir, reason: guardResult.error.message });
+  +    }
+  +    absScanDir = guardResult.ok
+  +      ? guardResult.data.resolvedPath
+  +      : join(root.path, relDir);
+  +  } catch (error) {
+  +    errors.push({ path: relDir, reason: errorMessage(error) });
+  +    return { files, errors };
+  +  }
+  +  walk(absScanDir, relDir.replace(/\/+$/, ""));
+     return { files, errors };
+
+This is deliberately the SUBTLE version of the defect, not a strawman: the
+mutant still records the denial in `errors[]`, still uses the guard's own
+message, and still puts the right `path` on the entry. A test that merely
+asserted `errors.length >= 1` and checked the reason text would pass against
+it. What the mutant also does -- silently -- is let the walk proceed against
+the denied directory, which is precisely B3's "a denylist rejection ...
+silently reinterpreted as a mere I/O error rather than a hard deny".
+
+--- 4a. Result: 5 of the 13 cases FAIL against the mutant ---
+
+=== COMMAND: node --test dist-test/tests/path-security/list-guarded-files-diagnostics.test.js  (mutant in place) ===
+✔ TEST-005 sub-case (a) (AC-005): a genuinely empty, readable allowlisted directory returns { files: [], errors: [] }
+✖ TEST-005 sub-case (b1) (AC-005): a relDir that does not exist returns files: [] plus the not-found guard reason
+✖ TEST-005 sub-case (b2) (AC-005, security-spec B3): a READABLE, NON-EMPTY directory outside the allowlist is denied BEFORE any walk-level readdirSync
+✖ TEST-005 sub-case (b3) (AC-005, security-spec B3): a denylisted directory reached through an allowlisted parent is denied BEFORE any walk-level readdirSync
+✔ TEST-005 sub-case (c1) (AC-005): a mid-walk statSync failure is reported while every readable sibling is still collected
+✔ TEST-005 sub-case (c2) (AC-005): a mid-walk readdirSync failure is reported while siblings both before and after it are still collected
+✖ TEST-005 (AC-005): the three sub-cases are distinguishable by errors.length and never collapse into one another
+✔ TEST-006 (AC-006): quality-report.ts's own aggregation fixture lists byte-identically through both functions
+✔ TEST-006 (AC-006): review-ticket.ts's own aggregation fixture lists byte-identically through both functions
+✔ TEST-006 (AC-006): report-lookup.ts's nested reports-directory scan shape lists byte-identically through both functions
+✔ TEST-006 (AC-006): the real repository directories the 3 call sites scan list byte-identically through both functions
+✖ TEST-006 (AC-006): every guard-failure class still collapses to [] for the legacy function
+✔ TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed to opt into the diagnostics function
+ℹ tests 13
+ℹ pass 8
+ℹ fail 5
+node --test EXIT: 1
+
+The two cases security-spec.md B3's "Verified by" column names -- sub-case (b2)
+(allowlist) and sub-case (b3) (denylist) -- are both in the failing set. So is
+the failure-class sweep, and so is the "distinguishable by errors.length" case.
+The three sub-cases that legitimately have nothing to do with guard ordering
+((a), (c1), (c2)) correctly stay green, which is the control showing the
+mutant was targeted rather than merely breaking everything.
+
+--- 4b. The failure message, verbatim, for the allowlist sub-case ---
+
+✖ TEST-005 sub-case (b2) (AC-005, security-spec B3): a READABLE, NON-EMPTY directory outside the allowlist is denied BEFORE any walk-level readdirSync
+  AssertionError [ERR_ASSERTION]: the allowlist check must short-circuit before the walk; a non-empty files[] here means the walk ran on a denied path
+  + actual - expected
+
+  + [
+  +   'plugins/some-plugin/nested/notes.md',
+  +   'plugins/some-plugin/script.sh'
+  + ]
+  - []
+
+That is the defect made visible: under the mutant, listGuardedFilesWithDiagnostics
+returns the CONTENTS of a directory the allowlist denies. Because
+listGuardedFiles is a thin wrapper over it, the same two paths would have been
+handed to report-lookup.ts, quality-report.ts and review-ticket.ts. The test
+catches it.
+
+--- 4c. The mutant was discarded and the tree re-verified clean ---
+
+The mutant was never committed. It was applied to the working tree only, on top
+of Commit A, and only `npm run pretest`'s gitignored dist-test/ output was
+regenerated from it; mcp/sdd-forge-mcp/dist/index.js was NOT rebuilt while the
+mutant was in place, so the committed bundle never saw it.
+
+=== COMMAND: restore mcp/sdd-forge-mcp/src/path-guard.ts from the HEAD blob ===
+saved snapshot sha256: fa6740da48fd6f46c29a8ab396693383373ff3bc38a4027ef7b4f4edc1e6b809
+HEAD blob     sha256: fa6740da48fd6f46c29a8ab396693383373ff3bc38a4027ef7b4f4edc1e6b809
+RESTORED from the HEAD blob (byte-identical to the saved pre-mutant snapshot)
+
+=== COMMAND: git status --short  (whole tree, after restore) ===
+?? specs/epic-136-phase4-mcp/verification/T-003/
+(end of status -- no tracked file is modified; the only untracked entry is this
+ task's own verification directory)
+
+=== COMMAND: shasum -a 256 mcp/sdd-forge-mcp/src/path-guard.ts ===
+fa6740da48fd6f46c29a8ab396693383373ff3bc38a4027ef7b4f4edc1e6b809
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm test  (post-restore re-run) ===
+ℹ tests 227
+ℹ pass 227
+ℹ fail 0
+ℹ skipped 0
+npm test EXIT: 0
+
+
+==============================================================================
+5. AC-006 / BL-003: listGuardedFiles' observable behaviour is byte-identical
+==============================================================================
+
+The weak version of this claim is "listGuardedFiles(...) deepEquals
+listGuardedFilesWithDiagnostics(...).files", which after the change is true by
+construction (the wrapper returns that very array) and therefore proves
+nothing about PRESERVATION. The strong version -- comparing the post-change
+function against the PRE-change function -- was measured instead.
+
+Method: a harness (session scratchpad, not committed) imports the compiled
+`listGuardedFiles` and runs it over a fixed battery of 25 fixture cases,
+emitting a stable JSON document recording, per case, the raw return value, the
+sorted return value, the length, and whether the call threw. It was run TWICE
+against identical fixtures: once at the pristine 9091f96b tree BEFORE the new
+test file existed and BEFORE any src/ edit, and once after the implementation
+landed.
+
+The 25 cases:
+  * 6 real-repository directories the 3 call sites actually scan
+    (docs/review-tickets, docs/workflow-improvements, reports/quality-gate,
+    reports/impl-review, reports/retrospective, reports/task-review).
+    `specs` and `reports/implementation` are deliberately EXCLUDED because
+    this task itself writes files under both, so their listing legitimately
+    changes between the two runs; excluding them is disclosed here rather than
+    quietly omitted.
+  * the exact synthetic fixtures quality-report.test.ts, review-ticket.test.ts
+    and report-lookup.ts's scan shape build (cases B, B2 trailing-slash,
+    B3 parent-directory, C, D)
+  * nested-walk cases (E, E2)
+  * every guard-failure class: not-found, outside-allowlist, denylisted
+    basename, parent traversal, absolute path, empty path, backslash path,
+    file-not-a-directory, symlink escaping the allowlist (F, G, H, I1-I4, J, N)
+  * both mid-walk failure shapes: dangling symlink (statSync) and a mode-0o000
+    subdirectory (readdirSync) -- cases L and M
+
+=== COMMAND: shasum -a 256 pre-change-snapshot.json post-change-snapshot.json ===
+58bc6c96fce56553fc41e2f72bb472ee1417b21c1bd5921b9d67990bf89545be  pre-change-snapshot.json
+58bc6c96fce56553fc41e2f72bb472ee1417b21c1bd5921b9d67990bf89545be  post-change-snapshot.json
+
+=== COMMAND: diff pre-change-snapshot.json post-change-snapshot.json ===
+diff EXIT: 0   (no output -- the two documents are byte-identical)
+
+=== COMMAND: case and path totals in the snapshot ===
+cases: 25 | total paths listed: 1093
+
+1093 listed paths across 25 fixtures, identical raw ORDER included, before and
+after. Combined with the fact that no pre-existing test was modified and all
+214 of them still pass (section 4c: 227 = 214 + this task's 13 new cases),
+this is the behaviour-preservation evidence for BL-003.
+
+--- 5b. Selected per-case values (from the identical snapshots) ---
+  A empty-readable-allowlisted-dir          len=0  []
+  B quality-report-consumer-fixture         len=3  ["reports/quality-gate/.gitkeep","reports/quality-gate/T-001.md","reports/quality-gate/T-002.md"]
+  B2 trailing-slash                         len=3  (same three)
+  C review-ticket-consumer-fixture          len=3  ["docs/review-tickets/.gitkeep","docs/review-tickets/RT-20260701-010.yml","docs/review-tickets/RT-broken.yml"]
+  D report-lookup-consumer-fixture          len=3  ["reports/implementation/demo/T-001.md","reports/implementation/demo/T-002.md","reports/implementation/other/T-003.md"]
+  E nested-walk                             len=3  ["specs/f/a.md","specs/f/sub/b.md","specs/f/sub/deep/c.md"]
+  F not-found                               len=0  []
+  G outside-allowlist-readable-dir          len=0  []
+  H denylisted-basename-readable-dir        len=0  []
+  I1 parent-traversal                       len=0  []
+  I2 absolute                               len=0  []
+  I3 empty                                  len=0  []
+  I4 backslash                              len=0  []
+  J file-not-directory                      len=0  []
+  L dangling-symlink-midwalk                len=2  ["reports/scan/a-sib.md","reports/scan/z-sib.md"]
+  M unreadable-subdirectory                 len=2  ["reports/perm/other/z.md","reports/perm/top.md"]
+  N symlink-escaping-allowlist              len=0  []
+No case threw, before or after.
+
+
+==============================================================================
+6. Repository gates, version-literal self-check, untouched paths
+==============================================================================
+
+=== COMMAND: ./scripts/check-sdd-structure.sh ===
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+check-sdd-structure EXIT: 0
+(the same two pre-existing advisories T-001's and T-002's runs recorded)
+
+=== COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/sdd-forge-mcp/src/path-guard.ts ===
+Placeholder scan passed.
+EXIT: 0
+(the scanner's usage line says "Pass changed production files (not test
+ fixtures)"; mcp/sdd-forge-mcp/src/path-guard.ts is this task's ONLY changed
+ production file -- dist/index.js is generated, not authored)
+
+=== COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts ===
+Placeholder scan passed.
+EXIT: 0
+(informational: the new test file is clean too)
+
+--- 6a. The whole-directory scan, and the disclosed false positive ---
+The whole-directory run (check-placeholders.sh specs/epic-136-phase4-mcp) was
+deliberately NOT used as this task's gate, following the scanner's own usage
+line. It is expected to remain red for the reason T-001's selfcheck.log already
+documents in full, and this task adds 2 more instances of the same false
+positive:
+
+=== COMMAND: grep -c "TODO/FIXME/stub/placeholder" <this task's captured logs> ===
+specs/epic-136-phase4-mcp/verification/T-003/red.log:0
+specs/epic-136-phase4-mcp/verification/T-003/green.log:1
+specs/epic-136-phase4-mcp/verification/T-003/dist-parity.log:1
+
+=== COMMAND: grep -n "TODO/FIXME/stub/placeholder" mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts ===
+129:test("src/ contains no TODO/FIXME/stub/placeholder markers", () => {
+
+Both hits are the captured ✔ PASS line of that unrelated, pre-existing test,
+whose NAME contains the marker literal. They are evidence that src/ is clean,
+not placeholders in this task's deliverables. The logs are left byte-verbatim
+rather than edited, because editing captured verification output to satisfy a
+scanner would falsify the evidence. Disclosed for the quality gate's explicit
+acceptance alongside T-001's and T-002's.
+
+--- 6b. No version literal changed ---
+=== COMMAND: git diff HEAD~1 HEAD -U0 -- <this task's src+test files> | grep '^+' | grep -Ec '[0-9]+\.[0-9]+\.[0-9]+' ===
+0
+=== COMMAND: git status --short -- scripts/bump-version.sh ===
+(empty = untouched)
+
+--- 6c. Forbidden / hash-bound paths untouched ---
+=== COMMAND: git status --short -- .github/workflows/ plugins/ CHANGELOG.md USERGUIDE.md contracts/ ===
+(empty = untouched)
+
+=== COMMAND: git status --short -- specs/epic-136-phase4-mcp/{requirements,design,acceptance-tests,traceability,security-spec,infra-spec,ux-spec,frontend-spec,investigation}.md ===
+(empty = untouched)
+
+No SDD_SUDO flag file was created, edited, consulted, or deleted at any point,
+and no `--no-verify` was used on either commit. `stash@{0}` (T-002's parked
+aborted attempt) was never popped, inspected, or applied.
+==============================================================================

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "ae87f0f246de8d2c3fdccafe71545bd6f5d4f40c4fba19aa8192134a57d0658c",
+  "acceptance_sha256": "d455fd5f8596c43b79fb92e42b6e18a95ac493d0789a61087679b657669b93e8",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "43f060d84a7496a6b945e93d0104c9f5b51e229a936158eebf61c36da51dee82",
+  "edit_summary": "Amendment ec45cd29 resolves all three a2r1 findings: (1) Critical CONTRADICTION - the dated 2026-08-11 supersession now extends to Main Workflows step 4 and Security Boundaries bullet 1, which state that in disabled-legacy state the tier minimum does not catch an unprotected SKILL.md edit and the guarantee re-arms when sdd/project-context.yaml lands, fail-closed for a malformed file; (2) Major RISK-VALIDATION-SURFACE - AC-035 restates the malformed-config fail-closed guarantee (plain file-presence predicate, no YAML parser) and binds the activation boundary to a three-way fixture; (3) Major EDGE-CASE-COVERAGE - acceptance-tests.md revised: TEST-035 pins the active state, new TEST-035a/b/c specify the absent/present-valid/present-malformed fixture, and the absent-to-present transition was added to requirements.md Edge Cases.",
+  "reset": false,
+  "generated_at": "2026-08-11T08:06:14Z"
+}

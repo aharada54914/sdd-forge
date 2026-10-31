@@ -1,0 +1,3 @@
+contracts/zero.json
+contracts/one/schema.json
+contracts/two/schema.json

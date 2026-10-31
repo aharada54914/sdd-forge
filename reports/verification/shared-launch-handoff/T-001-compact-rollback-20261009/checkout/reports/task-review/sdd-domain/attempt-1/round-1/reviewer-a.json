@@ -1,0 +1,108 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "RUN-20260706T0500Z-task-reviewer-a-r1",
+  "host_session_id": "SESS-task-a-sdd-domain-a1r1",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"},
+    {"path": "specs/sdd-domain/tasks.md", "sha256": "9748491fb86b5584432c3b057b6472f54f5c58594a13e59de639498f4e579865"},
+    {"path": "specs/sdd-domain/traceability.md", "sha256": "c09d6656c9877db7f5381ce08279695e904521e44fbe6e9c61108952f722e5d4"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/sdd-domain/attempt-1/round-1/precheck-result.json", "sha256": "af196271bcf484824b9b90ca8d355630f326f901cea3df4f8cd8cf971d33f0a2"},
+    {"path": "reports/task-review/sdd-domain/attempt-1/round-1/dependency-graph.json", "sha256": "5cd39353ba5d8df57c677bc5a933e03e5fcdcf896fbf8d4a08b5e8668864f235"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN IDs referenced in tasks.md Requirements fields (AC-001..AC-017, used across T-001..T-010) resolve to real criteria in acceptance-tests.md (AC-001 through AC-017 all present). No dangling IDs."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task's Blockers field is either the literal 'None' (T-001, T-006) or a comma-separated list of valid T-NNN IDs (e.g. T-002: 'T-001'; T-004: 'T-002, T-003, T-005'; T-010: 'T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009'). No range notation or prose found. Matches precheck's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-011 (11 total) all appear in at least one task's Requirements field: REQ-001(T-001,T-004,T-010), REQ-002(T-001,T-002,T-004), REQ-003(T-002,T-003), REQ-004(T-005), REQ-005(T-006), REQ-006(T-007), REQ-007(T-008), REQ-008(T-007), REQ-009(T-001,T-010), REQ-010(T-009), REQ-011(T-002). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001 through AC-017 (17 total) all appear in at least one task's Requirements field, e.g. AC-005/AC-006/AC-014/AC-017 in T-005, AC-009/AC-015 in T-008, AC-012 in T-009. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks (T-001..T-010) cite at least one REQ-NNN in their Requirements field (e.g. T-005: 'REQ-004, AC-005, AC-006, AC-014, AC-017'; T-009: 'REQ-010, AC-012'). The 'Global Constraints' section preceding T-001 is project-wide context, not a task, and is correctly excluded from this check."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test', 'spec', or 'verify' (case-insensitive) and no task's scope is exclusively test-file changes -- every task's Planned Files include substantive non-test artifacts (SKILL.md files, plugin.json manifests, agent definitions, scripts) alongside its test files. No orphaned test task exists to evaluate."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks declare 'Approval: Draft' and 'Status: Planned' (verified at lines 50/52, 124/126, 210/212, 276/278, 357/359, 461/463, 547/549, 638/640, 718/720, 785/787), matching the round-1 attempt-1 requirement."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 10 tasks declare valid Risk/Required Workflow pairs matching the risk-gate-matrix: T-001 low/test-after, T-002 medium/acceptance-first, T-003 medium/acceptance-first, T-004 medium/acceptance-first, T-005 high/tdd, T-006 high/tdd, T-007 medium/acceptance-first, T-008 medium/acceptance-first, T-009 low/test-after, T-010 low/test-after. precheck-result.json confirms workflow_match_precheck: PASS; no mismatches found on independent verification."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-016 is claimed as a primary test target by both T-002 (Requirements: '...AC-016') and T-004 (Requirements: '...AC-016') with no differentiated verification in T-002. T-002's Done When list (lines 183-196) contains only artifact-set-generation and stage-resume verification items ('artifact-set.Tests.ps1 proves a fixture run produces all eight artifact paths...', 'A re-run against an already-checkpointed stage resumes rather than restarting from stage 1') -- no item verifies AC-016's actual subject matter (update-mode re-run of edited+downstream stages in confirmation mode, upstream byte-identical, status reset to Pending). T-004 is the sole owner of that verification via 'tests/sdd-domain/update-mode.Tests.ps1' (explicit Done-When item at line 341-344). T-002's citation of AC-016 in its Requirements field has no distinguishing scope or test evidence, unlike the acceptable AC-004 split (T-002 vs T-003, direct-seed-intake vs reverse-seed, each with its own differentiated Done-When test) or the acceptable AC-001/AC-011 splits (T-004/T-010 and T-001/T-010, skill-level vs repo-wide validate-repository verification, each explicit in Out-of-Scope text)."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers field (T-001 through T-009) exists in dependency-graph.json's nodes array (['T-001'..'T-010']) and in tasks.md itself. All 20 edges in dependency-graph.json reference only existing node IDs. No dangling blocker references."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Traced dependency-graph.json's 20 edges via DFS from every node; the graph is a DAG rooted at T-001/T-006 (no outgoing edges) with T-010 as the sole sink depending on all others. No path revisits a node (e.g. T-004 -> T-005 -> T-001 terminal; T-004 -> T-003 -> T-002 -> T-001 terminal). No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Task titles/scopes using 'and' were checked: T-001 ('scaffold and domain-contract schema') bundles two inert, foundational scaffolding artifacts with no independent behavior -- acceptable housekeeping bundle. T-004 ('mode routing and update mode') treats update as one of the routed modes, not a separate concern. T-005 ('domain-review-loop, domain-reviewer-a/b, and cross-model-verify wiring') is one coherent review/approval-gate pipeline stage. T-007 ('domain-sync and DOMAIN-CONFORMANCE reviewer checks') shares one trigger condition (approved domain/ model present/absent), one AC-010 absence-regression requirement, and combined Done-When verification -- a single downstream-consumption integration concern, not two distinct features. No task combines two independent feature concerns under 'and'."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks' Done When lists avoid forbidden vague verbs ('ensure', 'consider', 'verify is correct', 'works correctly', unqualified 'review'/'confirm'/'update'). Each task's boilerplate items ('traceability.md updated with T-NNN -> <exact REQ/AC list> mapping') name the exact file and exact content change. Every task additionally names a concrete verification artifact beyond the boilerplate: e.g. T-002 'tests/sdd-domain/artifact-set.Tests.ps1 proves a fixture run produces all eight artifact paths...and validates against the T-001 schema'; T-003 'Fixture investigation.md produces a non-empty candidate seed with at least one candidate context and one candidate term'; T-006 fixture list with explicit accept/reject outcomes; T-010 'tests/validate-repository.ps1 passes cleanly (7 plugins, 26 skills, 6 public skills, all manifests version-locked)'. No task lacks an inspectable, measurable completion criterion."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 10 task IDs (T-001..T-010) appear in traceability.md's Code Target column. All 11 REQ IDs cited in traceability.md (REQ-001..REQ-011) exist in requirements.md. Full-profile layer-spec anchors verified against actual headings: REQ-001->ux-spec.md#scope-and-user-journeys (heading 'Scope and User Journeys' confirmed), REQ-002->ux-spec.md#interaction-sequence (confirmed), REQ-003->ux-spec.md#component-states (confirmed), REQ-005->security-spec.md#authorization (confirmed), REQ-007->security-spec.md#security-tests (confirmed), REQ-009->infra-spec.md#cicd-sequence (confirmed via 'CI/CD Sequence'), REQ-010->infra-spec.md#observability (confirmed), REQ-011->ux-spec.md#accessibility (confirmed); REQ-004/REQ-006/REQ-008 carry reasoned 'N/A -- cross-layer only: <reason>' values per the calibration's allowed alternative. No dangling references in either direction."
+    }
+  ]
+}

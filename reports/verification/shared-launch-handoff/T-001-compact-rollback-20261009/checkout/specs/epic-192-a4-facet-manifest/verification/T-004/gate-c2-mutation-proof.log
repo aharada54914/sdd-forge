@@ -1,0 +1,237 @@
+=== gate-c2-mutation-proof: seq0761 remediation ===
+Original file sha256 (before any mutation, and confirmed identical after
+both trials' restore):
+85fa821d9949c5a148b23d91f9a1043a80f8d8c35ce1d08e9184d63588fa5e87  plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+
+Summary:
+- Trial 1 (Major-1): mutated tree -> 47/48 both runtimes, exactly the
+  "Major-1 lock" assertion FAILs, 0 collateral regressions. Restored,
+  sha256-verified byte-identical to the original above.
+- Trial 2 (Major-2): mutated tree -> 47/48 both runtimes, exactly the
+  "Major-2 lock: 'schema'..." assertion FAILs, 0 collateral regressions.
+  Restored, sha256-verified byte-identical to the original above.
+- Post-restore confirmation run (both trials' restore, final state):
+  48/48 both runtimes, 0 failures (see the final "confirm-green" run
+  executed immediately after this log was captured, recorded separately in
+  green-sh.log/green-ps1.log's own re-run for the T-004.md report).
+
+Trial 1: Major-1 mutation -- branch 2 (major-forced) moved to AFTER branch 4
+Mutated file sha256 (pre-restore):
+a6cd05f848fa7c0e333ca4a9176ea80fe62728dd0c65582e610fa700dab2855c  plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+
+--- bash suite run against mutated tree ---
+ok: TEST-019 digest-only-change not-stale lock: base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-020 same-gate-ID attribute-change stale lock: base-old.json vs gate-blocking-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-021 evidence-inclusion lock (reversed): base-old.json vs evidence-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-022 minimum-enforcement-tightening lock: minimum-enforcement-old.json vs minimum-enforcement-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-023 Policy-Weakening short-circuit lock: base-old.json vs projection-digest-only-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(1) fail-closed lock (indeterminate): base-old.json vs registry-digest-only-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(2) forward-compatibility sub-case (not-weakened): base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-039 unchanged-digests WARN-only lock: base-old.json vs no-axis-change-semantic-differs-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(1) ownership-axis not-weakened -> not stale: base-old.json vs ownership-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(2) ownership-axis indeterminate -> Block: base-old.json vs ownership-digest-only-new.json -> blocked:weakening-verdict-indeterminate:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 all-changed-axes lock (registry not-weakened, ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:policy-weakening-blocked:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 fixed-axis-order precedence lock (registry indeterminate wins over ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-025 patch-tier no-op lock: base-old.json vs patch-bump-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-026(1) minor-tier impact assessment, semantic output changed: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-026(2) minor-tier impact assessment, semantic output unchanged: base-old.json vs minor-bump-unchanged-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-027(1) major-tier forced-regardless lock: base-old.json vs major-bump-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: TEST-027(2) Block precedence over major-tier forced-stale: base-old.json vs major-bump-block-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-045(1) branch-3 fix: minor bump reaches ordinary comparison: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-045(2) branch-3 fix parity: minor-rule-set bump reaches ordinary comparison: base-old.json vs minor-rule-set-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-044 missing --old-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --old-manifest'
+ok: TEST-044 missing --new-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --new-manifest'
+ok: TEST-044 missing --projection-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --projection-weakening'
+ok: TEST-044 missing --registry-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --registry-weakening'
+ok: TEST-044 missing --ownership-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --ownership-weakening'
+ok: TEST-044 missing --resolver-version-bump: exit=3, stdout empty, stderr contains 'the following arguments are required: --resolver-version-bump'
+ok: TEST-044 invalid --projection-weakening enum: exit=3, stdout empty, stderr contains 'argument --projection-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --registry-weakening enum: exit=3, stdout empty, stderr contains 'argument --registry-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --ownership-weakening enum: exit=3, stdout empty, stderr contains 'argument --ownership-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --resolver-version-bump enum: exit=3, stdout empty, stderr contains 'argument --resolver-version-bump: invalid choice: 'bogus''
+ok: TEST-044 schema-invalid --old-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /old-manifest/schema: missing required property 'schema''
+ok: TEST-044 schema-invalid --new-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /new-manifest/schema: missing required property 'schema''
+ok: manifest-unreadable: nonexistent --old-manifest path fails closed (exit=3, diagnostic on stderr)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=3, diagnostic present, no traceback)
+ok: TEST-046 patch declared against an actual minor diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor declared against an actual minor-rule-set diff (version unchanged): exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor' but the two manifests' own resolver block actually differs at tier 'minor-rule-set''
+ok: TEST-046 minor-rule-set declared against an actual resolver.version change: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor-rule-set declared against an unchanged rule_set_revision: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'none''
+ok: TEST-046 patch declared against an actual major diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'major''
+FAIL: Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ: expected exit=1 stdout=[facet-manifest-staleness: stale:major-version-forced] stderr=[], got exit=1 stdout=[facet-manifest-staleness: stale:semantic-output-changed] stderr=[]
+ok: Major-2 lock: 'feature' is a compared semantic-output field: base-old.json vs feature-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'affected_components' is a compared semantic-output field: base-old.json vs affected-components-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'required_facets' is a compared semantic-output field: base-old.json vs required-facets-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'lite_eligibility' is a compared semantic-output field: base-old.json vs lite-eligibility-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'schema' is a compared semantic-output field (classify() unit check, schema's own const keyword forbids a real fixture pair)
+ok: Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)
+ok: multi-component semver lock: patch declared against a minor+patch actual diff is rejected: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds: base-old.json vs multi-component-bump-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-staleness: 47 passed, 1 failed
+sh exit=1
+
+--- pwsh suite run against mutated tree ---
+ok: TEST-019 digest-only-change not-stale lock: base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-020 same-gate-ID attribute-change stale lock: base-old.json vs gate-blocking-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-021 evidence-inclusion lock (reversed): base-old.json vs evidence-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-022 minimum-enforcement-tightening lock: minimum-enforcement-old.json vs minimum-enforcement-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-023 Policy-Weakening short-circuit lock: base-old.json vs projection-digest-only-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(1) fail-closed lock (indeterminate): base-old.json vs registry-digest-only-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(2) forward-compatibility sub-case (not-weakened): base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-039 unchanged-digests WARN-only lock: base-old.json vs no-axis-change-semantic-differs-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(1) ownership-axis not-weakened -> not stale: base-old.json vs ownership-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(2) ownership-axis indeterminate -> Block: base-old.json vs ownership-digest-only-new.json -> blocked:weakening-verdict-indeterminate:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 all-changed-axes lock (registry not-weakened, ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:policy-weakening-blocked:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 fixed-axis-order precedence lock (registry indeterminate wins over ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-025 patch-tier no-op lock: base-old.json vs patch-bump-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-026(1) minor-tier impact assessment, semantic output changed: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-026(2) minor-tier impact assessment, semantic output unchanged: base-old.json vs minor-bump-unchanged-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-027(1) major-tier forced-regardless lock: base-old.json vs major-bump-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: TEST-027(2) Block precedence over major-tier forced-stale: base-old.json vs major-bump-block-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-045(1) branch-3 fix: minor bump reaches ordinary comparison: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-045(2) branch-3 fix parity: minor-rule-set bump reaches ordinary comparison: base-old.json vs minor-rule-set-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-044 missing --old-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --old-manifest'
+ok: TEST-044 missing --new-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --new-manifest'
+ok: TEST-044 missing --projection-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --projection-weakening'
+ok: TEST-044 missing --registry-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --registry-weakening'
+ok: TEST-044 missing --ownership-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --ownership-weakening'
+ok: TEST-044 missing --resolver-version-bump: exit=3, stdout empty, stderr contains 'the following arguments are required: --resolver-version-bump'
+ok: TEST-044 invalid --projection-weakening enum: exit=3, stdout empty, stderr contains 'argument --projection-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --registry-weakening enum: exit=3, stdout empty, stderr contains 'argument --registry-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --ownership-weakening enum: exit=3, stdout empty, stderr contains 'argument --ownership-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --resolver-version-bump enum: exit=3, stdout empty, stderr contains 'argument --resolver-version-bump: invalid choice: 'bogus''
+ok: TEST-044 schema-invalid --old-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /old-manifest/schema: missing required property 'schema''
+ok: TEST-044 schema-invalid --new-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /new-manifest/schema: missing required property 'schema''
+ok: manifest-unreadable: nonexistent --old-manifest path fails closed (exit=3, diagnostic on stderr)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=3, diagnostic present, no traceback)
+ok: TEST-046 patch declared against an actual minor diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor declared against an actual minor-rule-set diff (version unchanged): exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor' but the two manifests' own resolver block actually differs at tier 'minor-rule-set''
+ok: TEST-046 minor-rule-set declared against an actual resolver.version change: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor-rule-set declared against an unchanged rule_set_revision: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'none''
+ok: TEST-046 patch declared against an actual major diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'major''
+FAIL: Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ: expected exit=1 stdout=[facet-manifest-staleness: stale:major-version-forced] stderr=[], got exit=1 stdout=[facet-manifest-staleness: stale:semantic-output-changed] stderr=[]
+ok: Major-2 lock: 'feature' is a compared semantic-output field: base-old.json vs feature-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'affected_components' is a compared semantic-output field: base-old.json vs affected-components-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'required_facets' is a compared semantic-output field: base-old.json vs required-facets-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'lite_eligibility' is a compared semantic-output field: base-old.json vs lite-eligibility-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'schema' is a compared semantic-output field (classify() unit check, schema's own const keyword forbids a real fixture pair)
+ok: Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)
+ok: multi-component semver lock: patch declared against a minor+patch actual diff is rejected: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds: base-old.json vs multi-component-bump-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+facet-manifest-staleness: 47 passed, 1 failed
+ps1 exit=1
+
+==================================================================
+Trial 2: Major-2 mutation -- "schema" removed from SEMANTIC_FIELDS
+Mutated file sha256 (pre-restore):
+3b1ac097c324bcded1c7a348bd9542772fd06eb23de46b6d0eb4643238393b03  plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+
+--- bash suite run against mutated tree ---
+ok: TEST-019 digest-only-change not-stale lock: base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-020 same-gate-ID attribute-change stale lock: base-old.json vs gate-blocking-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-021 evidence-inclusion lock (reversed): base-old.json vs evidence-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-022 minimum-enforcement-tightening lock: minimum-enforcement-old.json vs minimum-enforcement-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-023 Policy-Weakening short-circuit lock: base-old.json vs projection-digest-only-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(1) fail-closed lock (indeterminate): base-old.json vs registry-digest-only-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(2) forward-compatibility sub-case (not-weakened): base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-039 unchanged-digests WARN-only lock: base-old.json vs no-axis-change-semantic-differs-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(1) ownership-axis not-weakened -> not stale: base-old.json vs ownership-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(2) ownership-axis indeterminate -> Block: base-old.json vs ownership-digest-only-new.json -> blocked:weakening-verdict-indeterminate:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 all-changed-axes lock (registry not-weakened, ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:policy-weakening-blocked:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 fixed-axis-order precedence lock (registry indeterminate wins over ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-025 patch-tier no-op lock: base-old.json vs patch-bump-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-026(1) minor-tier impact assessment, semantic output changed: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-026(2) minor-tier impact assessment, semantic output unchanged: base-old.json vs minor-bump-unchanged-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-027(1) major-tier forced-regardless lock: base-old.json vs major-bump-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: TEST-027(2) Block precedence over major-tier forced-stale: base-old.json vs major-bump-block-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-045(1) branch-3 fix: minor bump reaches ordinary comparison: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-045(2) branch-3 fix parity: minor-rule-set bump reaches ordinary comparison: base-old.json vs minor-rule-set-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-044 missing --old-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --old-manifest'
+ok: TEST-044 missing --new-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --new-manifest'
+ok: TEST-044 missing --projection-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --projection-weakening'
+ok: TEST-044 missing --registry-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --registry-weakening'
+ok: TEST-044 missing --ownership-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --ownership-weakening'
+ok: TEST-044 missing --resolver-version-bump: exit=3, stdout empty, stderr contains 'the following arguments are required: --resolver-version-bump'
+ok: TEST-044 invalid --projection-weakening enum: exit=3, stdout empty, stderr contains 'argument --projection-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --registry-weakening enum: exit=3, stdout empty, stderr contains 'argument --registry-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --ownership-weakening enum: exit=3, stdout empty, stderr contains 'argument --ownership-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --resolver-version-bump enum: exit=3, stdout empty, stderr contains 'argument --resolver-version-bump: invalid choice: 'bogus''
+ok: TEST-044 schema-invalid --old-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /old-manifest/schema: missing required property 'schema''
+ok: TEST-044 schema-invalid --new-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /new-manifest/schema: missing required property 'schema''
+ok: manifest-unreadable: nonexistent --old-manifest path fails closed (exit=3, diagnostic on stderr)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=3, diagnostic present, no traceback)
+ok: TEST-046 patch declared against an actual minor diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor declared against an actual minor-rule-set diff (version unchanged): exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor' but the two manifests' own resolver block actually differs at tier 'minor-rule-set''
+ok: TEST-046 minor-rule-set declared against an actual resolver.version change: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor-rule-set declared against an unchanged rule_set_revision: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'none''
+ok: TEST-046 patch declared against an actual major diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'major''
+ok: Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ: base-old.json vs major-bump-semantic-changed-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'feature' is a compared semantic-output field: base-old.json vs feature-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'affected_components' is a compared semantic-output field: base-old.json vs affected-components-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'required_facets' is a compared semantic-output field: base-old.json vs required-facets-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'lite_eligibility' is a compared semantic-output field: base-old.json vs lite-eligibility-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+FAIL: Major-2 lock: 'schema' field check failed: FAIL status='fresh' reason='metadata-only-refresh'
+ok: Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)
+ok: multi-component semver lock: patch declared against a minor+patch actual diff is rejected: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds: base-old.json vs multi-component-bump-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-staleness: 47 passed, 1 failed
+sh exit=1
+
+--- pwsh suite run against mutated tree ---
+ok: TEST-019 digest-only-change not-stale lock: base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-020 same-gate-ID attribute-change stale lock: base-old.json vs gate-blocking-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-021 evidence-inclusion lock (reversed): base-old.json vs evidence-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-022 minimum-enforcement-tightening lock: minimum-enforcement-old.json vs minimum-enforcement-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-023 Policy-Weakening short-circuit lock: base-old.json vs projection-digest-only-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(1) fail-closed lock (indeterminate): base-old.json vs registry-digest-only-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-024(2) forward-compatibility sub-case (not-weakened): base-old.json vs registry-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-039 unchanged-digests WARN-only lock: base-old.json vs no-axis-change-semantic-differs-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(1) ownership-axis not-weakened -> not stale: base-old.json vs ownership-digest-only-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-040(2) ownership-axis indeterminate -> Block: base-old.json vs ownership-digest-only-new.json -> blocked:weakening-verdict-indeterminate:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 all-changed-axes lock (registry not-weakened, ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:policy-weakening-blocked:ownership (exit=2, stdout pinned, stderr empty)
+ok: branch-1 fixed-axis-order precedence lock (registry indeterminate wins over ownership weakened): base-old.json vs multi-axis-mixed-verdict-new.json -> blocked:weakening-verdict-indeterminate:registry (exit=2, stdout pinned, stderr empty)
+ok: TEST-025 patch-tier no-op lock: base-old.json vs patch-bump-new.json -> fresh:unchanged (exit=0, stdout pinned, stderr empty)
+ok: TEST-026(1) minor-tier impact assessment, semantic output changed: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-026(2) minor-tier impact assessment, semantic output unchanged: base-old.json vs minor-bump-unchanged-new.json -> fresh:metadata-only-refresh (exit=0, stdout pinned, stderr empty)
+ok: TEST-027(1) major-tier forced-regardless lock: base-old.json vs major-bump-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: TEST-027(2) Block precedence over major-tier forced-stale: base-old.json vs major-bump-block-new.json -> blocked:policy-weakening-blocked:projection (exit=2, stdout pinned, stderr empty)
+ok: TEST-045(1) branch-3 fix: minor bump reaches ordinary comparison: base-old.json vs minor-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-045(2) branch-3 fix parity: minor-rule-set bump reaches ordinary comparison: base-old.json vs minor-rule-set-bump-changed-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: TEST-044 missing --old-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --old-manifest'
+ok: TEST-044 missing --new-manifest: exit=3, stdout empty, stderr contains 'the following arguments are required: --new-manifest'
+ok: TEST-044 missing --projection-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --projection-weakening'
+ok: TEST-044 missing --registry-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --registry-weakening'
+ok: TEST-044 missing --ownership-weakening: exit=3, stdout empty, stderr contains 'the following arguments are required: --ownership-weakening'
+ok: TEST-044 missing --resolver-version-bump: exit=3, stdout empty, stderr contains 'the following arguments are required: --resolver-version-bump'
+ok: TEST-044 invalid --projection-weakening enum: exit=3, stdout empty, stderr contains 'argument --projection-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --registry-weakening enum: exit=3, stdout empty, stderr contains 'argument --registry-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --ownership-weakening enum: exit=3, stdout empty, stderr contains 'argument --ownership-weakening: invalid choice: 'bogus''
+ok: TEST-044 invalid --resolver-version-bump enum: exit=3, stdout empty, stderr contains 'argument --resolver-version-bump: invalid choice: 'bogus''
+ok: TEST-044 schema-invalid --old-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /old-manifest/schema: missing required property 'schema''
+ok: TEST-044 schema-invalid --new-manifest: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: schema-invalid: /new-manifest/schema: missing required property 'schema''
+ok: manifest-unreadable: nonexistent --old-manifest path fails closed (exit=3, diagnostic on stderr)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=3, diagnostic present, no traceback)
+ok: TEST-046 patch declared against an actual minor diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor declared against an actual minor-rule-set diff (version unchanged): exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor' but the two manifests' own resolver block actually differs at tier 'minor-rule-set''
+ok: TEST-046 minor-rule-set declared against an actual resolver.version change: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: TEST-046 minor-rule-set declared against an unchanged rule_set_revision: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'minor-rule-set' but the two manifests' own resolver block actually differs at tier 'none''
+ok: TEST-046 patch declared against an actual major diff: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'major''
+ok: Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ: base-old.json vs major-bump-semantic-changed-new.json -> stale:major-version-forced (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'feature' is a compared semantic-output field: base-old.json vs feature-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'affected_components' is a compared semantic-output field: base-old.json vs affected-components-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'required_facets' is a compared semantic-output field: base-old.json vs required-facets-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: Major-2 lock: 'lite_eligibility' is a compared semantic-output field: base-old.json vs lite-eligibility-change-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+FAIL: Major-2 lock: 'schema' field check failed: FAIL status='fresh' reason='metadata-only-refresh'
+ok: Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)
+ok: multi-component semver lock: patch declared against a minor+patch actual diff is rejected: exit=3, stdout empty, stderr contains 'facet-manifest-staleness: resolver-version-bump-inconsistent: declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor''
+ok: multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds: base-old.json vs multi-component-bump-new.json -> stale:semantic-output-changed (exit=1, stdout pinned, stderr empty)
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+facet-manifest-staleness: 47 passed, 1 failed
+ps1 exit=1

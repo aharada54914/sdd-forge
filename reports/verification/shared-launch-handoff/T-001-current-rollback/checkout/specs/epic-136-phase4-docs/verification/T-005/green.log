@@ -1,0 +1,30 @@
+T-005 acceptance evidence
+Date: 2026-08-04
+
+Test Command: bash -n tests/cross-model.tests.sh && bash tests/cross-model.tests.sh
+Test Result: PASS
+Relevant output:
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+Results: 64 passed, 0 failed
+
+Test Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Test Result: PASS
+Relevant output:
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+Results: 62 passed, 0 failed
+
+Test Command: runtime/residual citation-target audit; git diff --check; forbidden-scope diff audit
+Test Result: PASS
+Relevant output:
+CITATION_TARGETS_OK (16 references)
+SCOPE_OK
+
+Registration evidence:
+- tests/run-all.sh:33 registers tests/cross-model.tests.sh.
+- tests/run-all.ps1:16 registers tests/cross-model.tests.ps1.

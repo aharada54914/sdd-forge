@@ -1,0 +1,19 @@
+{
+  "schema": "task-review-contract/v1",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "none",
+  "round": 1,
+  "attempt": 2,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "da2aa02b868bcf62162366973be5c19e5b7a2ceb2fe212c3d19e2d210e1ea576",
+  "acceptance_sha256": "919361f04ebcc2fbb6dcb70bc7a0b2ae2f6d217f6ded0304149d21e7d7d56352",
+  "tasks_sha256": "60b235ad0959a596e7a69f19c859bf74fc913c3d3ebda64c124a478ec050be3f",
+  "human_edit_summary": "Attempt 2 started after human-directed high-risk evidence and blocker updates.",
+  "timestamp": "2026-06-23T00:00:00Z"
+}

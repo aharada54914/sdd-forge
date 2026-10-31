@@ -1,0 +1,61 @@
+### MUTATION PROOF (fix 3): --json / -Json is accepted in BOTH runtimes
+### comment_id=3777341713
+2026-08-13T23:40:27Z
+
+Advertised at resolve-component-paths.py:14 (usage text) and
+specs/epic-191-a3-path-ownership/design.md:444 (API / Contract Plan).
+design.md is frozen and hash-bound, so removing the flag from the advertised
+API would need the provenance re-review path. Implementing was chosen instead:
+JSON is already the unconditional output of every mode in both runtimes and
+neither has an alternative format, so the flag is a pure accept-and-ignore.
+
+-- [0] RED: parent commit ca1dac14 --
+   python3 resolve-component-paths.py ... --json
+     rc=2  stdout_bytes=0
+     stderr: MA_CONTRACT]                                   [--diagnose]                                   [--provider-bindings PROVIDER_BINDINGS] resolve-component-paths.py: error: unrecognized arguments: --json 
+   pwsh -File resolve-component-paths.ps1 ... -Json
+     rc=2  stdout_bytes=0
+     stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: -Json 
+
+-- [1] GREEN: with the flag implemented --
+   python3 resolve-component-paths.py ... --json
+     rc=0  stdout_bytes=985
+   pwsh -File resolve-component-paths.ps1 ... -Json
+     rc=0  stdout_bytes=985
+
+   no-op proof: output with and without the flag is byte-identical in both runtimes
+     py  without=2ee6e16934059a9b6831e4969766a38ba95c1088deba2179769d8ebebbb9f43c
+     py  with   =2ee6e16934059a9b6831e4969766a38ba95c1088deba2179769d8ebebbb9f43c
+     ps1 without=d12afbc2ca49d91cd0772fab4db571337d06fdc1f127b246547d6698c0862382
+     ps1 with   =d12afbc2ca49d91cd0772fab4db571337d06fdc1f127b246547d6698c0862382
+     -> DIVERGENCE
+
+-- [2] MUTANT: delete the argparse declaration for --json --
+   python3 (mutant) ... --json
+     rc=2  stdout_bytes=0
+     stderr: MA_CONTRACT]                                   [--diagnose]                                   [--provider-bindings PROVIDER_BINDINGS] resolve-component-paths.py: error: unrecognized arguments: --json 
+   pwsh (mutant, -Json param removed) ... -Json
+     rc=2  stdout_bytes=0
+     stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: -Json 
+
+-- [3] RESTORED --
+   python3 ... --json
+     rc=0  stdout_bytes=985
+   pwsh -File ... -Json
+     rc=0  stdout_bytes=985
+
+-- Appendix: correcting the cross-runtime line above --
+The '-> DIVERGENCE' verdict in section [1] is an artifact of MY comparison, not
+a product divergence: it hashed RAW bytes across runtimes, and the two runtimes
+differ in JSON whitespace/line endings by design. The repository's own parity
+oracle (tests/component-path-ownership-parity.tests.sh) compares CANONICAL JSON
+via 'jq -S -c'. Re-measured on that basis:
+  canonical py  without --json = 046b65e328a096b8be59df98a3598ead2cf3d0718c07e27e2f594626d547dc80
+  canonical py  with    --json = 046b65e328a096b8be59df98a3598ead2cf3d0718c07e27e2f594626d547dc80
+  canonical ps1 without -Json  = 046b65e328a096b8be59df98a3598ead2cf3d0718c07e27e2f594626d547dc80
+  canonical ps1 with    -Json  = 046b65e328a096b8be59df98a3598ead2cf3d0718c07e27e2f594626d547dc80
+  -> all four identical: the flag is an accepted no-op AND cross-runtime parity holds
+
+  Raw-byte no-op claim (the one that matters for 'no-op'), per runtime:
+    python3: with == without  -> yes
+    pwsh   : with == without  -> yes

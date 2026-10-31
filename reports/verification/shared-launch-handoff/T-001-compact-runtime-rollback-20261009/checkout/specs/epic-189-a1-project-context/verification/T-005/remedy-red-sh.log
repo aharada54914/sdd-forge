@@ -1,0 +1,47 @@
+=== Building the mutated stand-in (whole-component-removal branch neutered to fail OPEN) ===
+mutation applied: 1 occurrence replaced
+
+=== TEST-031 (6a) against the MUTATED (fail-open) stand-in: expect the new assertion's claim to FAIL ===
+{
+  "categories": {
+    "capability_enforcement_weakened": "not_weakened",
+    "capability_removed": "n/a",
+    "component_path_narrowed": "not_weakened",
+    "criticality_lowered": "n/a",
+    "production_write_path_changed": "n/a",
+    "provider_allowlist_widened": "n/a",
+    "public_distribution_descoped": "n/a",
+    "required_gate_removed": "n/a",
+    "spec_profile_full_to_lite": "not_weakened"
+  },
+  "cooldown_hours": null,
+  "policy_weakening": false,
+  "two_person_required": false
+}
+PASS: TEST-031 (6a)'s claim (component_path_narrowed == weakened, policy_weakening == True) genuinely FAILS against the mutated (fail-open) stand-in (got component_path_narrowed=not_weakened, policy_weakening=False) -- CONFIRMS the assertion has real detection power for this regression class
+
+=== TEST-031 (6b) against the SAME mutated stand-in: the mirror (addition) case is orthogonal to this branch and should be unaffected ===
+{
+  "categories": {
+    "capability_enforcement_weakened": "not_weakened",
+    "capability_removed": "n/a",
+    "component_path_narrowed": "not_weakened",
+    "criticality_lowered": "n/a",
+    "production_write_path_changed": "n/a",
+    "provider_allowlist_widened": "n/a",
+    "public_distribution_descoped": "n/a",
+    "required_gate_removed": "n/a",
+    "spec_profile_full_to_lite": "not_weakened"
+  },
+  "cooldown_hours": null,
+  "policy_weakening": false,
+  "two_person_required": false
+}
+PASS: TEST-031 (6b) still correctly reports not_weakened against the mutated stand-in (the addition case never reaches the mutated branch, as expected)
+
+=== Sanity: the REAL (unmodified) production detector still correctly detects the removal ===
+PASS: the REAL, unmodified detector correctly reports weakened for the same fixture (production behavior unaffected by this proof)
+PASS: 3
+FAIL: 0
+
+NOTE: the FAIL count above measures the mutated stand-in's own bug detection (this script's own PASS/FAIL bookkeeping, not the test suite's); a FAIL count of 0 here means the detection-power proof itself succeeded, i.e. the new TEST-031 (6a) assertion's underlying claim genuinely does not hold against the mutated code.

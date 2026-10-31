@@ -1,0 +1,198 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-006",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-006-c2-seq0816",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-006-c2-0816",
+  "sequence": 816,
+  "previous_record_sha256": "1d83f4e513fe8c229b5f8a2c6ec7ad80b16198805df459fc36c3e3b33f3b8821",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "d180448914196b6fe1b4442de9495dc3cead492f572ace849d18537f6f351821",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "44e002761001f3424d4e84ecc5255e2fe553b20528ca77917c716d4b62144b37"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-006.contract.json",
+      "sha256": "293b977ac433f373ca2b6f4541b74e48e1510bf791387ebcffeeb7a932a510e1"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-006.md",
+      "sha256": "22ebcc0995c5ccd06ecfa76cfe74c90d97a596b9221be9c4fd3d94a5bd531542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-ps1.log",
+      "sha256": "af34995bc586381915ffbaa68904bb01b234794d5e4faedffc3035e1fbfb3ba8"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-sh.log",
+      "sha256": "ada2c22393b33cd0951621f35ac926361772654bda60672017199a30073482df"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/placeholder-scan.log",
+      "sha256": "15378fb3ee83d4d9243e1701796db40d96cd23afeec7d6db7e21f003615f6548"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/regression.log",
+      "sha256": "fd8d0a79a639204424a8d75180c0628da1cedd19c1e525119945ed7d478f50f0"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/task-state.log",
+      "sha256": "810e888723789bd4d424e0a7b5f93b96c98bc1a6041ad26ae857b21afdc2524e"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "979dddf1daed1b68c4166f0cd15e9d1371c840d88f88959933df660567f57db8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/project-context.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/resolve-component-paths.py",
+      "sha256": "f310576b7da26432e7ba9b52eabb94c98b0ff1305adddc2b1a7511eb09af1564"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-registry.json",
+      "sha256": "fa3ee6f2317cd27bcdbc08fddd04e4ed8ca7b26bed6d049ea167b2e889b77fa3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-registry.schema.json",
+      "sha256": "8c01dcbb31a3802a02e32cbd80a37779fb9ce8710b150920b5adfdfe9fe22a41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-summary.schema.json",
+      "sha256": "d8dd02960581109b81690f3c620fb48ddd30a49214fd2ff28638c1bb404a3720"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/context-projection.schema.json",
+      "sha256": "550a77008c3918f59b71db718ffe6c1ec4bf63a7c514cc3a757043d827650d0f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/facet-manifest.schema.json",
+      "sha256": "bfaab164c3dd8e14db6e47a42897b3e3877731e808c06207d5bd56b9a745b77e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/resolver-evidence.schema.json",
+      "sha256": "9141eb2492d067d24f8ebe02d31d2b2ae063600735bd839091e5c9064ae4f471"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/capability-registry.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/full-pipeline/generate-registry-digest.py",
+      "sha256": "1662b2124d602fe99957879ac28b80cf7f6d267a87a778d40ebf34f4ded1d944"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/full-pipeline/project-context.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/generate-registry-digest.py",
+      "sha256": "5c6875a0901677f10fddefb56c880c6f4654e481a2964c6b093d6db341bef053"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/project-context-full.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/project-context-lite.yaml",
+      "sha256": "4d21bc8a7754bd8b5c313a704e7557ace2058a0449a3a46858dbdc1bed10ccc8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/resolve-component-paths.py",
+      "sha256": "c2a693a30dd1bb9b6cfaf61421e0797059e05628583e9dd0c8b0ea5e33918d83"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/validate-capability-registry.py",
+      "sha256": "269564ec65357ea29f01ec49bda30d15387038acf7425c4e9322999ab326ca58"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/capability-registry.json",
+      "sha256": "d8afff8c3008846e9d7ba7455d8bc33dae6cc1d5fd798f15ce028443bf558b41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/generate-registry-digest.py",
+      "sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/project-context.yaml",
+      "sha256": "4d21bc8a7754bd8b5c313a704e7557ace2058a0449a3a46858dbdc1bed10ccc8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/capability-registry.json",
+      "sha256": "d8afff8c3008846e9d7ba7455d8bc33dae6cc1d5fd798f15ce028443bf558b41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/generate-registry-digest.py",
+      "sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/project-context.yaml",
+      "sha256": "9ad92bd8afdc7e829ea773e67059726b40fd673932a3f13ed1e3fc2a591c873e"
+    },
+    {
+      "path": "tests/resolve-project-context-cli-check.py",
+      "sha256": "67a7d06c1b5469372f35d353bcab001bd7457c91a95fc3f664751f403b962756"
+    },
+    {
+      "path": "tests/resolve-project-context-cli.tests.ps1",
+      "sha256": "61153fa28ddf1909c38708bdde22eccff911a63839bb91ebbe2c7ef31ab7db31"
+    },
+    {
+      "path": "tests/resolve-project-context-cli.tests.sh",
+      "sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b"
+    },
+    {
+      "path": "tests/resolve-project-context-discovery-check.py",
+      "sha256": "fd4a449a75cf5a5f9b8fe1c319c6fdf7355a9dbfd5d7d50b266599839d980db8"
+    },
+    {
+      "path": "tests/resolve-project-context-discovery.tests.ps1",
+      "sha256": "2b9fac6192b5f651acb7ecbb1d5f99472542211e3b043fee903ffce3e692b90b"
+    },
+    {
+      "path": "tests/resolve-project-context-discovery.tests.sh",
+      "sha256": "473bcd9ca3bed825c36cab551f3da248c194d68b93dae84bef7edfdf25890b95"
+    },
+    {
+      "path": "tests/resolve-project-context-lite-check.py",
+      "sha256": "14649243a6d5d250d3b8c1c311c53bd620e3dbb99d3c1de645906e25111a3186"
+    },
+    {
+      "path": "tests/resolve-project-context-lite.tests.ps1",
+      "sha256": "c0ca5c01ae07e0c70c9820c7408ca7af422623fdcc7ef7745996476372946764"
+    },
+    {
+      "path": "tests/resolve-project-context-lite.tests.sh",
+      "sha256": "01cc8b4dec48ca616daa618ac379e40adc9f2624d96e74c88e54f81ca03b96b2"
+    }
+  ]
+}

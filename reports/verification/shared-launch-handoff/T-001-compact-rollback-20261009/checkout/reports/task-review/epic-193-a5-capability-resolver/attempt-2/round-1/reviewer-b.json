@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a2r1-seq0345",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a2r1-0345",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "c16f9e2f06c96f1e1ade9e76b8254e0d9ccea5ad3e561d20bd149683d8c12335"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "893beb282d898c38f658e4cf9c78d7437d29eb93f894a12bf7f5294f104d06d8"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-1/precheck-result.json", "sha256": "87a9aaef1c0512e4b3938e2bb832b61f26c28937e0e7931c68cb9f90937293b8"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-1/integrated-summary.json", "sha256": "591aa77381862308a0265137a090df3f0aca695f9be166a8ca5642e004be13a5"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No mismatch found. Tasks touching sentinel surfaces are correctly high: T-002/T-003/T-004 (core evaluation-engine steps, 'silent defect causes material harm' rationale citing risk-classification-policy.md's high-tier row) and T-006 (the ONLY code path with an irreversible live-filesystem write — a genuine data-mutation sentinel surface). T-007 (validate-resolver-evidence, a provenance-binding/tamper-evidence validator) is correctly high on the same rationale as Epic A3's check-component-coverage precedent. No task with Risk: low/medium touches authentication, payment, PII, migration, or a live-mutating API contract: T-001 (schema authoring, medium) has no upstream dependency and its defects are T-007-catchable per its own Risk Rationale; T-005/T-008/T-009 (medium) are pure test-authoring tasks adding no new production code path, correctly distinguished from the high-risk engine tasks they exercise. Conversely no high/critical task is scoped to only UI copy/CSS/docs/test-only changes."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All five Risk: high tasks (T-002, T-003, T-004, T-006, T-007) carry a 'TDD evidence' Done When bullet with explicit RED (fixtures against a deliberately broken/absent implementation) and GREEN (fixtures against the correct implementation) plus 'An independent quality-gate verdict records PASS' (T-002 Done When bullet 5; T-003 bullet 5; T-004 bullet 6; T-006 bullet 9; T-007 bullet 6). No task is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply this round."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004's own title reads '...track-branch and Evidence-assembly stage (steps 10-13), and its `match` suite' — literally joining two deliverables with 'and,' matching this check's own listed multi-phase-title indicator. Its Scope/Done When bundle (a) four non-trivial production sub-steps (10a/10b track branch, 11 Evidence assembly, 12 output-schema self-validation with its own B3 exception case, 13 TOCTOU pre-publication recheck), (b) an entirely new `resolve-project-context-match` suite spanning 11 distinct TEST IDs (TEST-003, 004, 005, 006, 007, 008, 016, 043, 044, 052, 056) covering 12 acceptance criteria (AC-003 through AC-008, AC-016, AC-043, AC-044, AC-052, AC-056), (c) 3 more block-suite fixtures appended to the shared diagnostic file, and (d) new suite/CI registration (`tests/run-all.*` + staged `test.yml` + `MANIFEST.sha256`). This is a materially larger single-task footprint than any sibling: T-002/T-003 each own 5 block fixtures with no comparable full-pipeline suite; T-001/T-005/T-007/T-008 each author 4 tests. The engine-splitting remedy (T-002/T-003/T-004 along design.md's step boundaries) correctly resolved the prior round's 'whole 14-step engine undivided' finding, but the large `match` suite — which functionally could be isolated into its own downstream task blocked by T-004 (leaving T-004 itself still TDD-verified via its own 3 block fixtures), mirroring the same by-first-reachable-step split already used successfully for the block-suite fixtures — was not similarly separated, leaving T-004 oversized relative to its own siblings."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task carries explicit edge-case/error-path acceptance criteria alongside happy-path criteria: T-001 (schema) includes AC-019's if/then-branch and required-field-omission/wrong-type/wrong-enum negative fixtures alongside its happy-path AC-017/018/020. T-002/T-003/T-004/T-006 collectively implement and test the full sixteen-row REQ-002 Block-diagnostic matrix (AC-010 through AC-015, AC-038 through AC-041, AC-047 through AC-049, AC-055) — this feature's engine tasks are majority edge-case-oriented by design. T-007's TEST-021 covers all twelve validator check-ids (all error/edge conditions) plus one clean fixture. No functional task is happy-path-only."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md structures every TEST-NNN as a 1:1 mapping to a specific AC-NNN (the document's own stated convention, line 4-5), satisfying the acceptance-test rule ('must reference a specific AC-NNN') for every test task's suite. Where scope additionally implies integration/e2e-level testing, the declared behavior matches: T-004's `match` suite genuinely invokes the assembled CLI as a real subprocess chaining `canonicalize-sdd-yaml`+`resolve-component-paths`+`generate-registry-digest`+`evaluate-predicate` (2+ system components); T-008's parity suite spans `.py`/`.sh`/`.ps1` runtime invocations of the same pipeline. No test task's declared scope is mislabeled as a single-function-boundary unit test while actually exercising multiple components."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five Risk: high tasks carry an explicit `Rollback:` field: T-002 ('revert this task's two commits...if the human-copy candidate...was already applied to the live protected path...a revert PR states explicitly whether a human should also hand-revert'), T-003 and T-004 (identical pattern naming the correct prior version to revert to), T-006 (identical pattern naming T-004's prior version), T-007 ('nothing protected is touched'). No high/critical task lacks rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three files shared across multiple tasks each follow a verified, fully-ordered Blockers chain with no uncoordinated overlap: (1) `tests/resolve-project-context-block.tests.sh`/`.ps1` — T-002 creates, T-003/T-004/T-006 each append-only, with direct Blockers edges T-003->T-002, T-004->T-003 (within its T-001/T-002/T-003 set), T-006->T-004, and each task's own Scope explicitly states it never touches an earlier contributor's fixtures. (2) `resolve-project-context.{py,sh,ps1}` — identical chain and edit-range discipline (T-002 steps 0-3, T-003 steps 4-9, T-004 steps 10-13, T-006 crash-recovery+step 14), each range non-overlapping. (3) `MANIFEST.sha256` edits split into two independently-ordered concerns that both correctly trace back to T-004 as common ancestor: CI-registration entries (T-001->T-002->T-004->T-005->T-007->T-008->T-009, each task's own new suite entry) and script-hash-update entries (T-002->T-003->T-004->T-006, the same chain as the script file itself) — each task's own MANIFEST.sha256 edit is correctly ordered relative to its own governing chain."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The seven-task CI-registration order (Global Constraints, 'Test-suite/CI-registration serialization': T-001 -> T-002 -> T-004 -> T-005 -> T-007 -> T-008 -> T-009) now carries a direct Blockers edge for every consecutive pair, closing attempt-1 round-3's DEPENDENCY-OVERLAP finding: T-002 Blockers T-001; T-004 Blockers explicitly include T-002 (in addition to T-001/T-003, 'closing the exact class of gap round-3... named'); T-005 Blockers T-004; T-007 Blockers explicitly include T-005 (in addition to T-001/T-006); T-008 Blockers include T-007 (within its six-task list); T-009 Blockers include T-008 (within its four-task list). Every other Blockers entry across T-001..T-009 traces to a stated, verifiable functional dependency (e.g., T-004's dependency on T-001 for step-12 schema self-validation; T-007's dependency on T-006 for a real TRANSACTION.json fixture shape) with no unexplained or logically-unnecessary edge found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004's title ('...track-branch and Evidence-assembly stage (steps 10-13), and its `match` suite') explicitly joins two deliverables, matching this check's multi-phase-title indicator. Its combined scope (four production sub-steps including a two-branch track decision, Evidence assembly, schema self-validation with its own exception case, and a TOCTOU recheck) plus authoring an entirely new 11-test-ID `match` suite (TEST-003/004/005/006/007/008/016/043/044/052/056, 12 ACs) plus 3 more block-suite fixtures plus new suite/CI registration is materially larger than any sibling task (T-002/T-003 each own only 5 block fixtures; T-001/T-005/T-007/T-008 each author only 4 tests). The `match` suite could be isolated into its own downstream task blocked by T-004, mirroring the successful by-first-reachable-step split already applied to the block-suite fixtures, while T-004 itself remains independently TDD-verified via its own 3 block fixtures."
+    }
+  ]
+}

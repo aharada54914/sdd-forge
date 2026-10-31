@@ -1,0 +1,20 @@
+# RED evidence -- capability-registry-schema (bash)
+$ bash tests/capability-registry-schema.tests.sh --red-check
+RED: schema-reject-capability-missing-delivery-strategy.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-conditional-facets-extra-key.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-conditional-facets-missing-facet.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-conditional-facets-missing-when.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-delivery-strategy-kind-empty.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-delivery-strategy-missing-kind.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-extra-conditions-key.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-gate-extra-key.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-lite-policy-eligible-nonboolean.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-lite-policy-missing-eligible.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-minimum-enforcement-bad.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-missing-implementation-ref.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-required-facets-non-string.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-review-check-ids-empty-string.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-review-check-ids-non-string.json wrongly accepted by permissive schema (expected)
+RED: schema-reject-top-level-extra-key.json wrongly accepted by permissive schema (expected)
+RED check complete: 16 reject fixtures pass under the permissive schema.
+exit: 0

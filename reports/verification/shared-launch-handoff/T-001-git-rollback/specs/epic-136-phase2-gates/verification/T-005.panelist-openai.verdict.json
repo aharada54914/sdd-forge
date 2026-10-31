@@ -1,0 +1,15 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "openai",
+  "model": "codex-cli-default",
+  "verdict": "PASS",
+  "findings": [],
+  "blind": true,
+  "input_digest": "853a20c16192b826dbbbf736a0a4787e3f4701e918009275f18f0fe70824cc78",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-005 Cross-Model: enabled"
+  }
+}

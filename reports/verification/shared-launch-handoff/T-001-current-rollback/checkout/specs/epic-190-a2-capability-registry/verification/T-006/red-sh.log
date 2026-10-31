@@ -1,0 +1,14 @@
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+not ok: TEST-025(2): fresh output diverges from the golden expected projection
+not ok: TEST-025(3): _generated block malformed (FAIL:source,schema_version,sha256,notice)
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+not ok: TEST-025(5): capability_gate_map / gates filtering incorrect
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+not ok: TEST-026(2): expected non-zero exit + 'stale' diagnostic -- actual (rc=0): 
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+not ok: TEST-026(4): expected fail-closed on missing Registry -- actual (rc=0): 
+ok: run-all.sh registers this suite
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=7 fail=5 ----
+generate-gate-capabilities suite FAILED (7 passed, 5 failed)

@@ -1,0 +1,8 @@
+{
+    "schema":  "phase2-contract-path-golden/v1",
+    "field":  "evidence",
+    "case":  "posix-absolute",
+    "expected_exit":  1,
+    "stdout":  "Verification contract FAILED for task T-003-FIXTURE:\n - check \u0027unit-tests\u0027 evidence is an absolute path: /tmp/phase2-contract-absolute.log\n",
+    "stderr":  ""
+}

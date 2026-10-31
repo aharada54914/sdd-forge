@@ -1,0 +1,368 @@
+==============================================================================
+T-001 RED EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29T02:40:51Z
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+STAGE: RED. Two independent proofs, both captured BEFORE any edit to
+mcp/sdd-forge-mcp/src/tools/evidence.ts:
+  (a) contracts/sdd-forge-mcp-tools.v1.schema.json's
+      $defs.traceabilityComparisonData.required now lists
+      "unreadableContracts", so every ok evidence_compare_to_traceability
+      response matches NO data.oneOf branch and the existing real-ajv
+      conformance suite goes red.
+  (b) the new TEST-001/TEST-002/TEST-011/TEST-017 assertions run against
+      the not-yet-existing unreadableContracts field.
+
+--- git status, proving src/ and dist/ are untouched at capture time ---
+ M contracts/sdd-forge-mcp-tools.v1.schema.json
+ M mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+(no 'mcp/sdd-forge-mcp/src/' or 'mcp/sdd-forge-mcp/dist/' line above)
+
+--- git diff --stat ---
+(empty = no src/ or dist/ change)
+
+==============================================================================
+COMMAND: cd mcp/sdd-forge-mcp && npm test
+==============================================================================
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (96.72575ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (11.848083ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (7.574917ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (6.89ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (5.03825ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (5.516458ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (11.113375ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (8.343875ms)
+✔ get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority (8.557708ms)
+✔ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (11.11175ms)
+✔ every tool's input schema never declares a root parameter (5.445333ms)
+✔ invalid feature argument shape is rejected as invalid-input (5.779458ms)
+✔ AC-004: an artifact absent on disk is classified missing without throwing (verdict fail) (6.193875ms)
+✔ AC-005: an oversize artifact is too-large and an allowlist-escaping path is path-denied (no throw) (8.657666ms)
+✔ AC-017: a non-64-hex recorded sha is invalid-recorded-sha (not mismatch) even when the file exists (2.444334ms)
+✔ AC-017: a malformed recorded sha co-occurring with a missing file still converges to invalid-recorded-sha + fail (2.393417ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (2.431708ms)
+✔ accepts a file exactly at the 2 MiB limit (6.665792ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.651792ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (0.378125ms)
+✔ isSddRoot is true for a properly-shaped SDD root (1.119417ms)
+✔ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (79.037167ms)
+✔ evidence_get_bundle: synthetic, echoes signature value without verifying it (4.865541ms)
+✔ evidence_get_bundle: not-found for a task with no evidence.json (5.556ms)
+✔ evidence_get_bundle: invalid-input for a malformed taskId (5.12075ms)
+✔ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (1.394958ms)
+✔ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (7.758708ms)
+✔ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (42.932541ms)
+✔ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (11.783584ms)
+✔ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (5.255041ms)
+✔ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (8.113041ms)
+✔ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (1.844208ms)
+✔ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (2.607791ms)
+✔ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (2.785458ms)
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (309.965958ms)
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (4.484709ms)
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (4.638041ms)
+✔ evidence_compare_to_traceability: not-found when traceability.md does not exist (2.27875ms)
+✖ TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches (2.687833ms)
+✖ TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable (3.653667ms)
+✔ TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id (0.26425ms)
+✔ every evidence tool rejects a malformed feature argument as invalid-input (2.724709ms)
+✔ AC-012: consistent bundle -- check-evidence-bundle.sh and evidence_deep_verify both pass (371.122458ms)
+✔ AC-012: tampered on-disk artifact -- check-evidence-bundle.sh and evidence_deep_verify both fail (330.038041ms)
+✔ AC-012: spec drift on a high-risk bundle -- check-evidence-bundle.sh and evidence_deep_verify both fail (202.491875ms)
+✔ AC-012: tampered recorded artifact hash -- check-evidence-bundle.sh and evidence_deep_verify both fail (176.290167ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (7571.052125ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (706.991792ms)
+✔ phase1-not-started: requirements.md does not exist (100.853917ms)
+✔ spec-review: requirements.md exists but Spec-Review-Status is not Passed (1.685125ms)
+✔ spec-review: requirements.md has no Spec-Review-Status header at all (2.531375ms)
+✔ impl-review: design.md exists but Impl-Review-Status is not Passed (1.607ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (1.061792ms)
+✔ phase2-not-started: design.md Passed but tasks.md does not exist (1.296458ms)
+✔ task-review: tasks.md exists but Task-Review-Status is not Passed (1.497791ms)
+✔ approval-gate: Task-Review-Status Passed but every task is Draft (1.738417ms)
+✔ implementation: an Approved task is Planned (1.46725ms)
+✔ implementation: an Approved task is In Progress (2.257541ms)
+✔ quality-gate: every Approved task is Implementation Complete (3.406334ms)
+✔ done: every Approved task is Done (5.651208ms)
+✔ blocked: a Blocked task takes priority even when another task is Planned/Approved (1.619375ms)
+✔ cannot-determine: malformed feature name is rejected before any file access (0.893834ms)
+✔ auto-select: exactly one active feature -> resolved without a feature argument (3.963708ms)
+✔ auto-select: zero active features -> cannot-determine naming none-active (7.731291ms)
+✔ auto-select: multiple active features -> cannot-determine naming all candidates (9.570042ms)
+✔ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (350.112708ms)
+✔ AC-011: signature is echoed as present/verified:false without reading any signing key (23.591417ms)
+✔ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (6.309667ms)
+✔ AC-011: a thrown path (unreadable bundle) never carries the canary key value (2.192834ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (2.719333ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (3.349458ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (1.734584ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (1.022542ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (2.183042ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (3.409708ms)
+✔ Done with evidence.json but missing contract.json fails (3.439542ms)
+✔ Done with an empty contract.json fails (2.541334ms)
+✔ Done with a contract.json whose task_id does not match fails (4.098917ms)
+✔ Done with no quality-gate report mentioning the task id fails (2.26175ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (2.758958ms)
+✔ Implementation Complete without a matching implementation report fails (3.06225ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (2.877667ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (2.6185ms)
+✔ critical Done without a distinct Second Approval fails (9.330542ms)
+✔ critical Done where both approvals are the same person fails (4.207459ms)
+✔ critical Done where either approver is 'sudo' fails (4.877875ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (9.661541ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (6.359ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (6.43825ms)
+✔ critical risk Done bundle without a signature object fails (10.584917ms)
+✔ duplicate task ids are reported and the verdict is fail (3.573167ms)
+✔ an invalid Status value is reported and the verdict is fail (2.643167ms)
+✔ a missing Approval line is reported and the verdict is fail (8.314833ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (1.796958ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (2.052792ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (2.077208ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (1.627ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (1.580084ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (1.425334ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (2.49425ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (2.68725ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (3.689333ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (1.641333ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (1.527875ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (0.836ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (1.810833ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (1.106083ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (1.06775ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (1.058125ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (1.754959ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (0.402208ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (2.191417ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (1.870792ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (1.357083ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (1.331209ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (0.982ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (2.230958ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (0.895334ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (4.70325ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (1.087041ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (5.459208ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (1.978208ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (1.004291ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (0.957167ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (0.957125ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (21.38125ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (19.094042ms)
+✔ synthetic: well-formed report with all fields parses every value (3.6565ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (1.993ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (1.623208ms)
+✔ listQualityReports aggregates reports and failures across a directory (1.808334ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (5.6435ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (9.083208ms)
+✔ synthetic: well-formed ticket parses all optional fields (1.36325ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (1.037708ms)
+✔ cannot-parse: invalid YAML syntax (1.445834ms)
+✔ cannot-parse: missing required fields (3.763916ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (2.925666ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (2.856666ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (3.364709ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (4.493958ms)
+✔ denies reads under a .git/ directory (1.576167ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (1.227667ms)
+✔ denies .env files reached via an allowlisted directory (1.243333ms)
+✔ never includes file contents or the offending value in the denial message or details (0.896542ms)
+✔ rejects a relative path containing a parent traversal segment (2.442375ms)
+✔ rejects an absolute path argument outright (1.348584ms)
+✔ rejects an empty path as invalid input (1.564917ms)
+✔ rejects a path argument containing backslashes (1.861709ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (1.433209ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (1.01975ms)
+✔ allows a legitimate allowlisted file to be read (1.286416ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (38.454875ms)
+✔ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (2.238458ms)
+✔ src/tools/evidence.ts reaches the disk only through path-guard's guarded helpers (0.468583ms)
+✔ src/ contains no filesystem write API references (5.07075ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (1.39225ms)
+✔ resources/list + resources/templates/list together expose all 5 sdd:// resources (27.315166ms)
+✔ sdd://active-specs matches list_active_specs exactly (84.99875ms)
+✔ sdd://spec/{feature} matches get_spec_status exactly (9.242167ms)
+✔ sdd://tasks/{feature} matches get_task_state exactly (8.531584ms)
+✔ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (5.422917ms)
+✔ sdd://review-tickets matches list_review_tickets exactly (8.712375ms)
+✔ sdd://quality-reports matches get_quality_gate_summary exactly (13.597167ms)
+✔ resolved root is frozen and immutable after construction (1.79625ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (1.7455ms)
+✔ changing cwd after resolution does not affect the already-resolved root (0.799666ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.54225ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (0.7895ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.727542ms)
+✔ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (398.300708ms)
+✔ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (231.31975ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (440.228167ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (1590.877416ms)
+✔ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (88.992459ms)
+✔ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (10.194041ms)
+✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (5.861375ms)
+✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (5.480083ms)
+✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (2.741834ms)
+✖ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (9.535042ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two calls, same connection (16.327708ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two independently seeded, independently connected servers (11.950334ms)
+✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (3.813583ms)
+✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (10.234541ms)
+✔ AC-007: a missing git_commit is shape-invalid + verdict fail (10.139375ms)
+✔ AC-007: a short git_commit is shape-invalid + verdict fail (7.116292ms)
+✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (5.675541ms)
+✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (3.748667ms)
+✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (2.074583ms)
+✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (8.255375ms)
+✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (3.9335ms)
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (4.344375ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (3.656292ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (2.114958ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (3.860708ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (3.723875ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (6.594083ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.795084ms)
+✔ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (13.318083ms)
+✔ error envelope: an invalid taskId maps to invalid-input through the tool (38.596ms)
+✔ error envelope: an invalid feature maps to invalid-input through the tool (4.078959ms)
+✔ error envelope: a missing bundle maps to not-found through the tool (3.696792ms)
+✔ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (2.884084ms)
+✔ AC-001: a fully consistent bundle verifies as pass with no failures (4.341917ms)
+✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (4.223875ms)
+✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (2.102333ms)
+✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (1.813417ms)
+✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (1.8775ms)
+ℹ tests 208
+ℹ suites 0
+ℹ pass 202
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8347.117042
+
+✖ failing tests:
+
+test at dist-test/tests/evidence/evidence.test.js:343:1
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (309.965958ms)
+  AssertionError [ERR_ASSERTION]: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:355:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:371:1
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (4.484709ms)
+  AssertionError [ERR_ASSERTION]: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:380:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:396:1
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (4.638041ms)
+  AssertionError [ERR_ASSERTION]: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:419:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:610:1
+✖ TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches (2.687833ms)
+  AssertionError [ERR_ASSERTION]: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at callCompare (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:606:12)
+      at async TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:614:22)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:653:1
+✖ TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable (3.653667ms)
+  AssertionError [ERR_ASSERTION]: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at callCompare (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:606:12)
+      at async TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:657:22)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:139:1
+✖ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (9.535042ms)
+  AssertionError [ERR_ASSERTION]: evidence_compare_to_traceability ok envelope does not conform to the v1 contract: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"artifacts"},"message":"must have required property 'artifacts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"unreadableContracts"},"message":"must have required property 'unreadableContracts'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"taskId"},"message":"must have required property 'taskId'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at assertConforms (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:30:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:154:13)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+EXIT CODE: 1
+
+==============================================================================
+RED-STAGE REGRESSION-PIN MEASUREMENT (pre-change matches/mismatches)
+Captured: 2026-07-29T02:42:01Z
+
+The ajv envelope gate inside the new test fails first (the schema-first
+RED change), so the new test cannot itself report the pre-change
+matches/mismatches. This measurement calls the PRE-change
+evidenceCompareToTraceability directly -- the copy compiled into
+mcp/sdd-forge-mcp/dist-test/src/tools/evidence.js by the RED run's own
+pretest step, before any src/ edit -- against a byte-equivalent copy of
+the same fixture, and records the observed values the GREEN assertions
+then pin.
+
+COMMAND: node <scratchpad>/pre-change-baseline.mjs $PWD/mcp/sdd-forge-mcp
+------------------------------------------------------------------------------
+ok: true
+response keys: ["kind","feature","matches","mismatches"]
+has unreadableContracts: false
+matches: 4
+mismatches.length: 1
+mismatches: [
+  {
+    "subject": "T-001 contract -> REQ-ID",
+    "issue": "check \"unit-tests\" cites requirement \"REQ-909\", which traceability.md's REQ -> Task table never declares"
+  }
+]
+(MCP arg, unused: /Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp )

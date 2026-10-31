@@ -1,0 +1,39 @@
+{
+ "schema": "task-reviewer-b/v1",
+ "stage": "task",
+ "role": "task-reviewer-b",
+ "feature": "local-env-mcp",
+ "attempt": 2,
+ "round": 1,
+ "run_id": "task-b-localenvmcp-a2r1-20260706-9e7b",
+ "host_session_id": "hs-task-b4-6503d1ba-0011",
+ "manifest": {"allowed_inputs": [
+  {"path": "specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"},
+  {"path": "specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"},
+  {"path": "specs/local-env-mcp/design.md", "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"},
+  {"path": "specs/local-env-mcp/tasks.md", "sha256": "720afc5a6a94eb5f5cca73dd6deee5dc9a73a974e65a91e119ef87f3f5709664"},
+  {"path": "specs/local-env-mcp/traceability.md", "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"},
+  {"path": "specs/local-env-mcp/ux-spec.md", "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283"},
+  {"path": "specs/local-env-mcp/frontend-spec.md", "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b"},
+  {"path": "specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"},
+  {"path": "specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"},
+  {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+  {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+  {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+  {"path": "reports/task-review/local-env-mcp/attempt-2/round-1/precheck-result.json", "sha256": "d53dcb4bff3b96fb0163f3cbafbaec11909633d34f66fd6accd3936a80834099"},
+  {"path": "reports/task-review/local-env-mcp/attempt-2/round-1/integrated-summary.json", "sha256": "20a635985801cbf04706f02470d5d37f2a67577edbdba9c9199d16d52de65de4"}
+ ]},
+ "verdict": "PASS",
+ "checks": [
+  {"id": "RISK-APPROPRIATE", "result": "PASS", "severity": "Major", "finding": "All 10 tiers consistent with actual scope per risk-classification-policy.md sentinel surfaces. High tasks each name a sensitive surface: T-001/T-002 command-execution/injection chokepoint (probe-engine allowlist, input schema; security-spec B1/B2), T-003 secrets/quasi-PII leakage (REQ-005, Information Disclosure), T-006 installer MCP-placement data-mutation (REQ-007) + Node<20 gate, T-007/T-008 user IDE-config file mutation (~/.cursor/mcp.json, VS Code; B3, ADR-0005), T-009 destructive uninstall of user entries (REQ-010, B3). T-004 medium (dist/CI, no sensitive surface, CI-detectable). T-005/T-010 low are genuinely doc/traceability-only with no control-flow/data/security impact - no over-classification. No auth/payment/PII/migration/external-contract surface is under-classified."},
+  {"id": "HIGH-CRITICAL-EVIDENCE", "result": "PASS", "severity": "Critical", "finding": "No critical-tier task exists (highest is high), so second-approver/signed-bundle not required. All 7 high tasks (T-001,T-002,T-003,T-006,T-007,T-008,T-009) carry both mandatory Done When items: 'Red->Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される' (e.g., T-001 lines 40-41, T-007 lines 237-238, T-009 lines 299-300). All also declare Required Workflow: tdd, consistent with risk-gate-matrix high tier."},
+  {"id": "TASK-SIZE", "result": "PASS", "severity": "Major", "finding": "No oversized task: Done When item counts are T-001=7, T-002=7, T-003=5, T-004=6, T-005=5, T-006=6, T-007=7, T-008=5, T-009=5, T-010=4 - none exceed 8. Titles use '+' to join cohesive sub-parts of one area (e.g., T-001 foundation/probe-engine/envelope are one server-foundation area), not sequential multi-phase work. No fragmentation: there are not >=3 tasks each a single trivial edit; every task is a substantive unit."},
+  {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "Every functional task carries an edge/error-path AC: T-001->AC-004 (timeout 2s/8KiB output/kill error-path), T-002->AC-003 (allowlist外 -> invalid-input), T-003->AC-005 (canary secret non-leak negative), T-006->AC-009 + Node<20 gate edge (Done When line 203), T-007->AC-015 (broken-JSON failsafe), T-008->AC-013 (parity incl. Node<20 + failsafe), T-009->AC-012 (other user entries intact). requirements.md Edge Cases (uninstalled CLI, hang/large output, java stderr, allowlist外 name, missing/broken IDE config, Node<20) are all mapped to error-path ACs."},
+  {"id": "TEST-TYPE-MATCH", "result": "PASS", "severity": "Major", "finding": "Declared test types match scope in acceptance-tests.md and each references a specific AC-NNN: TEST-001 unit(snapshot)->AC-001, TEST-002 integration->AC-002, TEST-003 unit+static->AC-003, TEST-004 integration(error-path)->AC-004, TEST-005 integration(no-secret grep)->AC-005, TEST-006 static(grep)->AC-006, TEST-007 smoke->AC-007, TEST-008 CI dist-parity->AC-008, TEST-009-013/015 integration(installer harness)->respective ACs, TEST-014 doc review->AC-014. Static/snapshot/smoke/integration assignments align with each target surface; tasks cite the ACs in their Done When."},
+  {"id": "ROLLBACK-PLAN", "result": "PASS", "severity": "Major", "finding": "All 7 high tasks carry an explicit Rollback: field: T-001 (line 18, revert + infra-spec Rollback ref), T-002 (57), T-003 (92), T-006 (189, existing path reverts), T-007 (221, uninstall/manual key removal + broken-JSON failsafe), T-008 (254), T-009 (284, 'installer 管理名のみ削除' design/test guard). infra-spec.md#rollback provides the feature-level single-revert procedure."},
+  {"id": "SCOPE-DISJOINT", "result": "PASS", "severity": "Major", "finding": "Shared-file writes all carry enforced Blockers ordering with distinct purposes: src/index.ts T-002(create)->T-003(add diagnostics) via T-003 Blockers T-002; install.sh + tests/install.tests.sh T-006(VALID_MCPS/MCP_LIST core + AC-009/Node-gate)->T-007(Cursor/VS Code register + AC-010/011/015) via T-007 Blockers T-005,T-006; traceability.md written only by T-010, design.md addendum by T-005. No two tasks modify the same file for the same purpose without ordering (legitimate creator->extender sharing)."},
+  {"id": "DEPENDENCY-OVERLAP", "result": "PASS", "severity": "Major", "finding": "Blockers reflect genuine artifact dependencies with no spurious or missing links: T-002<-T-001 (envelope/allowlist/probe-engine), T-003<-T-002 (server/index), T-004<-T-003 (bundles full src incl. diagnostics), T-006<-T-004 (installer places built dist), T-007<-T-005,T-006 (needs OQ-001-resolved registration format + installer core), T-008<-T-007 (ps1 parity of sh behavior), T-009<-T-007,T-008 (uninstall symmetric to both register paths), T-010<-all. T-005 and T-001 correctly carry no blockers (independent). Consistent with reviewer A's passing DEPENDENCY-COMPLETE and DEPENDENCY-CYCLE checks (integrated-summary)."},
+  {"id": "BUGFIX-DIAGNOSTIC-PATH", "result": "SKIP", "severity": "Major", "finding": "SKIP: no bugfix or debugging task in scope. All of T-001-T-010 are greenfield feature implementation (new MCP server, installer extension, docs); none is scoped as bugfix/regression/debugging/incident remediation."}
+ ],
+ "findings": []
+}

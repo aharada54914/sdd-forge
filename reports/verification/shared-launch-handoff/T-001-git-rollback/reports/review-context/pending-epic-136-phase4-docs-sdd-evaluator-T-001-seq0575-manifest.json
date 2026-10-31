@@ -1,0 +1,94 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-136-phase4-docs",
+  "task_id": "T-001",
+  "run_id": "RUN-epic-136-phase4-docs-qg-T-001-seq0575",
+  "host_session_id": "SESS-qg-epic-136-phase4-docs-T-001-0575",
+  "sequence": 575,
+  "previous_record_sha256": "f29b197e24869894d254900d02c078771aa51470c1aba15732afae2594b3c633",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "069d62407c3b806892222aedb8cdae832e4bab200efcab87c9486fefba2fab95",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "sha256": "cd2b17d7f9d5874694f9dbe433e3ed2e69d68665f28aa0a7fc78a23f34bb664c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "sha256": "5c4799ae97e7168e991c96edeefdc06b18682ff4e0dcb83120cda2a59f963668"
+    },
+    {
+      "path": "reports/implementation/epic-136-phase4-docs/T-001.md",
+      "sha256": "a5e19d94d33c6f3738f56cb7b295ac669ffef80db26ca2e98226ff179c7f5b45"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/design.md",
+      "sha256": "d98f046a8127125e4e75244aab06645070e4faccf32ea1e82cd8a82ae3027984"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/tasks.md",
+      "sha256": "bde8e4efd408cee605ed2c4f452a88bc2e7a5b935b8ccd5609b296233fbb61ed"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/traceability.md",
+      "sha256": "c1b8a57dc0b2b086bdec4538b7704eb52e63585161533e6f6b242704dfc378e7"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/cycle2-green.log",
+      "sha256": "24f6498abbe8e427f13755757276fd3014d8825dce099c1e28b833b1fc5f7657"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/cycle3-green.log",
+      "sha256": "04f24f20109e511c313ecfb272274505b88c9e9c0d387b5b171ad25c4fcc60ca"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/green.log",
+      "sha256": "0b5caea6d8b25fa98bb3d7edd640aaf2e4ffe506ec1d89783b412367c0bd73ef"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/red.log",
+      "sha256": "51d09bf927047b05bd3ecf9530d6998755b40577cd9ffbea92fc8d013e94c166"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/review-red.log",
+      "sha256": "d8d48f7986e9cb392b4640e93b49af7c0888a57835e8702e1b34ed8f6fa4701c"
+    },
+    {
+      "path": "tests/cross-model.tests.sh",
+      "sha256": "4649533ba53a9a819e7e3b5dbba0a7084a582be0ea544d3be99766c52dbe56e6"
+    }
+  ]
+}

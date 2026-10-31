@@ -1,0 +1,1 @@
+{"evidence": [{"children": [{"operator": "contains", "outcome": "match", "path": "artifact_kinds"}], "operator": "any", "outcome": "match", "path": null}], "result": true}

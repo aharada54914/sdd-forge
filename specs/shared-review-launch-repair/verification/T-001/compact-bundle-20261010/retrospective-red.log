@@ -1,0 +1,18 @@
+test_compact_command_verifies_all_640_inputs_and_rejects_mutations (current_tests.QualityTransport.test_compact_command_verifies_all_640_inputs_and_rejects_mutations) ... ERROR
+
+======================================================================
+ERROR: test_compact_command_verifies_all_640_inputs_and_rejects_mutations (current_tests.QualityTransport.test_compact_command_verifies_all_640_inputs_and_rejects_mutations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/tests/quality-nontty-transport.tests.py", line 73, in test_compact_command_verifies_all_640_inputs_and_rejects_mutations
+    command = control['compact_command']
+              ~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'compact_command'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.060s
+
+FAILED (errors=1)
+
+Exit: 1
+

@@ -1,0 +1,195 @@
+T-004 Acceptance Evidence: esbuild bundle + dist-parity + Inspector smoke
+Workflow: acceptance-first (per tasks.md T-004 Required Workflow)
+Run ID: impl-t-004-20260705-10da4f
+
+===============================================================================
+ACCEPTANCE-FIRST ORDERING (checks authored/executed BEFORE final dist)
+===============================================================================
+
+1. mcp/local-env-mcp/tests/smoke/inspector-smoke.test.ts was authored first,
+   asserting AC-007 (Inspector CLI tools/list == exactly the 3 local-env-mcp
+   tools) and an additional tools/call sanity check on get_os_info.
+2. The dist-parity procedure (build -> hash -> rebuild -> hash -> diff) below
+   was defined and executed before the dist/index.js bundle that ships with
+   this task was finalized/committed.
+3. Only after both checks were defined and run green was the final committed
+   dist/index.js produced (it is byte-identical to every intermediate build
+   below, since esbuild output is deterministic for this bundle).
+
+===============================================================================
+AC-007: MCP Inspector CLI smoke (stdio startup + tools/list == 3 tools)
+===============================================================================
+
+Test file: mcp/local-env-mcp/tests/smoke/inspector-smoke.test.ts
+Devdependency added: @modelcontextprotocol/inspector@0.22.0 (pinned, same
+version as mcp/sdd-forge-mcp/package.json).
+
+Precondition proven: dist/index.js was ABSENT before this run (fresh task,
+never built before). The smoke suite's before() hook built it on demand via
+`npm run build`, proving the "smoke test must actually run, not be silently
+skipped" requirement.
+
+Command:
+  cd mcp/local-env-mcp
+  npx tsc -p tsconfig.test.json
+  node --test dist-test/tests/smoke/inspector-smoke.test.js
+
+Result:
+  ✔ inspector CLI: server starts over stdio and tools/list reports exactly the 3 local-env-mcp tools (224.952333ms)
+  ✔ inspector CLI: tools/call get_os_info returns a schema-shaped ok envelope (194.241541ms)
+  ℹ tests 2
+  ℹ pass 2
+  ℹ fail 0
+
+Assertion detail: tools/list response tool names, sorted, equal exactly:
+  ["get_os_info", "get_toolchain_versions", "list_available_clis"]
+
+AC-007: PASS
+
+===============================================================================
+AC-008: dist-parity (rebuild from src == byte-identical to committed dist)
+===============================================================================
+
+Local proof procedure (build twice; diff):
+
+1. Build #1 was produced implicitly by the smoke test's on-demand build
+   (npm run build invoked from tests/smoke/inspector-smoke.test.ts before()).
+   SHA-256 of build #1 (mcp/local-env-mcp/dist/index.js):
+     c5336f895ec9366cf30fd3f2c06fae9e96b22a3a97f684f5b6203db02eb32f14
+
+2. Build #1 output was copied aside for comparison (scratchpad, outside the
+   repo) before rebuilding.
+
+3. Command: cd mcp/local-env-mcp && npm run build
+   Output:
+     > local-env-mcp@0.1.0 build
+     > esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+       dist/index.js  1.1mb
+     Done in 15ms
+
+4. SHA-256 of build #2 (mcp/local-env-mcp/dist/index.js, rebuilt):
+     c5336f895ec9366cf30fd3f2c06fae9e96b22a3a97f684f5b6203db02eb32f14
+
+5. `diff build1.js build2.js` exit code: 0 (byte-identical, zero differences).
+
+Conclusion: two independent builds from the same src produced byte-identical
+output (same SHA-256, zero diff lines). This is the same check the CI
+dist-parity job performs via `git diff --exit-code -- dist/` after `npm run
+build` against the committed bundle.
+
+AC-008 (local proof): PASS
+AC-008 (CI enforcement): authored as a CI job step (see implementation report
+"Working Notes" section, "CI job for orchestrator to apply") — the
+orchestrator applies this job to .github/workflows/test.yml; this agent's
+sandbox does not have write access to that file.
+
+No esbuild banner or non-default flags were required: the sdd-forge-mcp
+build script uses no --banner:js, and the local-env-mcp bundle built and ran
+correctly (proven by the passing Inspector smoke test above) without one.
+package.json "build" script matches sdd-forge-mcp's exactly:
+  esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+===============================================================================
+FULL SUITE REGRESSION (T-001..T-003 + T-004 smoke, single run)
+===============================================================================
+
+Command:
+  cd mcp/local-env-mcp && npm test
+  (runs pretest: tsc -p tsconfig.test.json, then node scripts/run-tests.mjs)
+
+Full output:
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> local-env-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-004: successful probe yields available + normalized first-line version (194.183125ms)
+✔ AC-004: multi-line output is normalized to first line only (252.772042ms)
+✔ AC-004: stderr-stream CLI (java-style) reads version from stderr (362.693083ms)
+✔ AC-004: timeout (>2s) kills the process and reports probeError=timeout (2003.560917ms)
+✔ AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large (179.155458ms)
+✔ AC-004: missing CLI reports probeError=not-found (spawn ENOENT) (2.17475ms)
+✔ AC-004: nonzero exit reports probeError=nonzero-exit (226.416166ms)
+✔ AC-004: probeError values are all within the contract enum (2003.483958ms)
+✔ AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response) (4008.891ms)
+✔ AC-004: TTL cache reuses a prior result within the window (no re-probe) (12.369708ms)
+✔ AC-003: exposed input JSON schema has only `names`, additionalProperties:false (1.569958ms)
+✔ AC-003: input schema exposes NO command / args / path / exec-style field (0.17875ms)
+✔ AC-003: `names` enum accepts ONLY the 14 allowlist names (0.692583ms)
+✔ AC-003: out-of-enum name -> invalid-input envelope, no probe run (0.173208ms)
+✔ AC-003: extra property -> invalid-input envelope (0.125917ms)
+✔ AC-003: path/command string fields -> invalid-input envelope (0.14975ms)
+✔ AC-003: `names` must be an array (a bare string is rejected) (0.112459ms)
+✔ AC-003: invalid input never produces an entries array (no probe executed) (0.0965ms)
+✔ AC-005: logStartup emits exactly the allowlisted startup fields (0.64275ms)
+✔ AC-005: logStartup output is a single JSON line terminated by exactly one newline (0.082875ms)
+✔ AC-005: logFatal emits exactly the allowlisted fatal fields (6.211583ms)
+✔ AC-005: logFatal accepts a non-Error value without leaking its structure (0.340542ms)
+✔ AC-005: scrubber redacts the home directory path from a fatal message (0.474709ms)
+✔ AC-005: scrubber redacts the username from a fatal message (0.309792ms)
+✔ AC-005: scrubber redacts the hostname from a fatal message (0.31425ms)
+✔ AC-005: scrubber redacts a long environment-variable value from a fatal message (0.307792ms)
+✔ AC-005: logFatal scrubs secrets carried in the error message (0.311166ms)
+✔ AC-005: server startup + all three tools leak no secrets to stdout or stderr (2509.236875ms)
+✔ ok() builds a success envelope (1.492541ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.105792ms)
+✔ ErrorCode union matches the contract error.code enum exactly (0.158042ms)
+✔ allowlist has exactly the 14 required CLIs in order (0.0555ms)
+✔ every allowlist entry has name/command/args/versionStream; java uses -version+stderr (0.084916ms)
+✔ allowlist command names contain no shell metacharacters or path separators (0.0765ms)
+✔ src/ contains no filesystem write API references (3.264208ms)
+✔ src/ uses no child_process.exec / spawn / fork / eval (execFile only) (0.921834ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (0.359291ms)
+✔ inspector CLI: server starts over stdio and tools/list reports exactly the 3 local-env-mcp tools (273.226792ms)
+✔ inspector CLI: tools/call get_os_info returns a schema-shaped ok envelope (215.7875ms)
+✔ AC-001: get_os_info returns an ok envelope (1.056125ms)
+✔ AC-001: get_os_info data conforms to the contract osInfoData schema (0.396542ms)
+✔ AC-001: get_os_info exposes exactly the 8 contract fields, no more (0.10625ms)
+✔ AC-001: get_os_info never leaks hostname / username / home directory values (1.450708ms)
+✔ AC-001: get_os_info values match the process/os APIs it reports on (0.103834ms)
+✔ AC-002: get_toolchain_versions returns an ok envelope of kind toolchain-versions (283.301917ms)
+✔ AC-002: a resolvable CLI is available:true with a normalized version string (3.291375ms)
+✔ AC-002: a deterministically-missing CLI is available:false; response still ok:true (233.509542ms)
+✔ AC-002: every entry name is within the contract cliName enum (3.5835ms)
+✔ AC-002: get_toolchain_versions with no names probes the full 14-CLI allowlist (31.91525ms)
+✔ AC-002: list_available_clis returns kind cli-availability with name+available only (30.210208ms)
+ℹ tests 50
+ℹ suites 0
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9299.796209
+
+===============================================================================
+TYPECHECK
+===============================================================================
+
+Command: cd mcp/local-env-mcp && npx tsc --noEmit
+Result: exit code 0, no output (clean)
+
+===============================================================================
+COMMITTED BUNDLE
+===============================================================================
+
+Path: mcp/local-env-mcp/dist/index.js
+SHA-256: c5336f895ec9366cf30fd3f2c06fae9e96b22a3a97f684f5b6203db02eb32f14
+Size: 1,134,698 bytes
+
+This is the exact bundle produced by both builds in the dist-parity proof
+above (identical hash). It is the artifact to be committed by the
+orchestrator.
+
+===============================================================================
+SUMMARY
+===============================================================================
+
+AC-007: PASS (Inspector CLI smoke — stdio startup + tools/list == 3 tools)
+AC-008: PASS locally (build/rebuild byte-identical); CI enforcement authored
+        for orchestrator application to .github/workflows/test.yml
+Full suite: 50/50 PASS (48 T-001..T-003 regression + 2 new smoke tests)
+Typecheck: PASS (0 errors)

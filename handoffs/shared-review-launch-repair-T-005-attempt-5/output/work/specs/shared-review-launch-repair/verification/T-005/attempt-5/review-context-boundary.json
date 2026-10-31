@@ -1,0 +1,15 @@
+{
+  "label": "review-context-boundary",
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "tests/review-context-boundary.tests.sh"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+  "stdin": "DEVNULL",
+  "started_at": "2026-10-08T22:18:39.952210+00:00",
+  "ended_at": "2026-10-08T22:18:40.095149+00:00",
+  "elapsed_seconds": 0.143,
+  "exit_code": 1
+}

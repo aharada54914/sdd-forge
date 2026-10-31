@@ -1,0 +1,106 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-b",
+  "task_id": "T-002",
+  "run_id": "RUN-epic159pillarb-qg-T-002-seq0248",
+  "host_session_id": "SESS-qg-epic159pillarb-T-002-0248",
+  "sequence": 248,
+  "previous_record_sha256": "41039c3b6c6ebea3ea0f6746ccb7c265a687c761902302efe80abb1d82b8e65f",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "445a4421c8a7e275aacac11e9b16fe576c065e5516faca0c47bf96f9507382d0",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/tasks.md",
+      "sha256": "b85eeed5df6d2fe656c3034cffba99581eda5e167b7cfec64b1503c0f0e0115b"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.md",
+      "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.json",
+      "sha256": "ebc32a8d7630e01084c279050032ab40935115349768c4fab2aca391744bd7dc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-159-pillar-b/T-002.md",
+      "sha256": "89985bfa9094f1d505c43a633907a22d0620f929c8301139f0697fc5beb5ce9c"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "105cdbe3df3870ee897faa7cacdce765e85462d7d575fe4a3f130936ab0cf03d"
+    },
+    {
+      "path": "tests/release-loop-gate.tests.sh",
+      "sha256": "c566f816338511cb895c13b9ca64fbdbb848242ad94a37ebc2d3cb91afabfa44"
+    },
+    {
+      "path": "tests/release-loop-gate.tests.ps1",
+      "sha256": "d1bcedc0385bcd3a7403de261ef35fd8de844de1a2b6565043df76f3e2d647f7"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "5c265cdd13c62e58334ffb7b770facebc153ac3ebd1b7a534dfb13d2332ae009"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "20bb18d55e115620f9cfc406e4c1f8a6bb5634f2d36f6bb2c2259aed1a240be8"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "553e04b5b7e43491b454f4ea403abee51f6865f9cb0e9dc7035ff44e1851b1ad"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "ff387ecc507a7b1568e508c8e3f64f1994548cf96e55adaf2db8d1c6a2c256bf"
+    },
+    {
+      "path": "docs/contributor/release-runbook.md",
+      "sha256": "7511625e38e33d03c4d1d07f225143d1387e2c6515cd6a05d8a0ec495f827c4c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-002/red-sh.log",
+      "sha256": "39ea1116d7db54e3026f3ace5745877a0a81b2b4220cf36069608e29b2a5b1dd"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-002/red-ps1.log",
+      "sha256": "9db1921c958b7dea08b554c4e476d39872edebc698d834d207bcab10c51f2c5d"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-002/green-sh.log",
+      "sha256": "7bbaf31ebc27cca9a71d12c78c4bd0af29ca22ddd3a5254775afe91f00398997"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/verification/T-002/green-ps1.log",
+      "sha256": "5ea3006ccbe12272741ee8b2213d34bdb212afd428aa516871c5099d87e92b0d"
+    }
+  ]
+}

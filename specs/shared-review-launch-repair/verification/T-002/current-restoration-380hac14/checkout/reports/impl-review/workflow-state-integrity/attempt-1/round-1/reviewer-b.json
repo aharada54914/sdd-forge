@@ -1,0 +1,29 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "2878B414-D58A-4179-B0D0-3A3B63E00780",
+  "host_session_id": "19CB80D9-945C-4D77-90C2-C5EE59B9CF9E",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"},
+    {"path":"reports/impl-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json","sha256":"d150abcf80ea8464b2df563b88d7dc266395b661321c4cf57b19787f29949a55"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/design.md","sha256":"62bdfdb0af10568c4f95e058ba97577229f41a8e5bfa233c577f21c7bdffa0d3"},
+    {"path":"specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"DECISION-JUSTIFIED","result":"PASS","severity":"Major","finding":"design.md Architecture and State model justify the authoritative registry as preventing implicit legacy signals, paired adapters as preserving portable enforcement, and review-contract reuse as common identity/shape validation; Compatibility and versioning explains the minor release as backward-compatible enforcement and metadata."},
+    {"id":"OPEN-QUESTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"design.md contains no Open Questions entries; no unresolved owner, blocking classification, or resolution path is present."},
+    {"id":"ASSUMPTIONS-VALID","result":"PASS","severity":"Major","finding":"design.md contains no Assumptions entries, and its repository-state claims are grounded by investigation.md INV-001 through INV-008."},
+    {"id":"NO-REQ-CONTRADICTION","result":"PASS","severity":"Critical","finding":"design.md addresses the applicable requirements.md Constraints through a versioned registry schema, bounded pre-v1.3.0 legacy declarations, continued quality-gate requirements for Done, and synchronized plugin/marketplace versioning; no direct constraint contradiction was found. ADR existence is owned by impl-reviewer-a and is not duplicated here."},
+    {"id":"PERF-ADDRESSED","result":"PASS","severity":"Major","finding":"No performance requirements found in requirements.md."},
+    {"id":"DEPLOYMENT-CONCRETE","result":"FAIL","severity":"Major","finding":"design.md has no Deployment / CI Plan section. Its Integration section names workflow jobs but does not identify the deployment/release target or explicitly state whether rollout needs a feature flag and whether CI needs environment variables or secrets. This leaves release and CI rollout implementation ambiguous; the check contract classifies an absent plan as blocking Major."},
+    {"id":"MIGRATION-PLANNED","result":"PASS","severity":"Major","finding":"design.md Architecture and Migration add repository artifacts and historical records but declare no database table or column changes; therefore no database migration path, rollback, or >10k-row impact plan is required."},
+    {"id":"INTEGRATION-IDENTIFIED","result":"PASS","severity":"Major","finding":"design.md references only repository-internal scripts, workflow entry points, and the existing review-contract foundation; it introduces no external system, third-party service, or cross-service API call requiring an integration contract and outage behavior."},
+    {"id":"DESIGN-WITHIN-SCOPE","result":"PASS","severity":"Major","finding":"design.md Architecture, State model, Integration, Migration, Failure behavior, and Compatibility and versioning cover all four requirements.md Goals: persistent-state enforcement, preservation of existing gates, bounded historical migration, and POSIX/PowerShell parity. No unrelated component, data model, or endpoint is introduced."},
+    {"id":"VERIFICATION-PATH-CONCRETE","result":"FAIL","severity":"Major","finding":"design.md Security considerations makes high-risk claims that path traversal and symlink escapes fail, malformed artifacts fail closed, and spec/registry content is never executed, but design.md names no command, CI job, acceptance-test artifact, metric, or review artifact that validates those security claims. Without a concrete design-level validation path, implementation and the downstream gate cannot determine the required security evidence; this is blocking Major under the check contract."}
+  ]
+}

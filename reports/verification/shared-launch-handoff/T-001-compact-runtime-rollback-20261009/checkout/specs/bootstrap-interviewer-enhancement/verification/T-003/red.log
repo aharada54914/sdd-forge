@@ -1,0 +1,10 @@
+Command: ./tests/bootstrap-interview-guidance.tests.sh
+Exit: 1
+
+Before implementation, TEST-006, TEST-009, TEST-010, TEST-017, and TEST-018
+failed. The bank lacked the eight layer-aware categories, the full-profile
+workflow declared only three Phase 1 documents, and no bounded optional
+visualization guide or create-only layer behavior existed.
+
+PASS: 3
+FAIL: 26

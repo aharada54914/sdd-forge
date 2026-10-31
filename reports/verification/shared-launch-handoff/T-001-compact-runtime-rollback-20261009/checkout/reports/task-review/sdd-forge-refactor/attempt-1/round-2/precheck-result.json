@@ -1,0 +1,12 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "sdd-forge-refactor",
+  "attempt": 1,
+  "round": 2,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "cfe6feb0337bc9553c0524f03a3587b3d4adaf8165e69baa880b0848cf496f45",
+  "requirements_sha256": "313f469e013ba1cb31f8fe88403fcaa31a1985e4eefb7f75267be285dbebd41c",
+  "acceptance_sha256": "5a3a2e19d5321246318019a4997366e8ff3ba0d67ccd5cf7b198d35c8781da80",
+  "generated_at": "2026-06-21T00:44:31Z"
+}

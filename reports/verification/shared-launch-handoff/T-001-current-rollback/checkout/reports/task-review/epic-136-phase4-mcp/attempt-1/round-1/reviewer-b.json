@@ -1,0 +1,126 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task-review",
+  "role": "reviewer-b",
+  "feature": "epic-136-phase4-mcp",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase4-mcp-task-task-reviewer-b-seq0381",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-mcp-0381",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "eb149529542f0201854524d572045bbf8a61af71df08b9fd4f6f7e3b640340cc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "6e8c8d5d47ed5bcf231872d2c73abdcdf22537f43b62a982d98adb5f64893b92"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "fb50896916fc130021b7c80088f4b494d4209f013d6ea0f3143e125751501c41"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/tasks.md",
+      "sha256": "6206f23d0c14285bce6fe66b37d9e2b0118d2d32166762313d8cf80561c906eb"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/traceability.md",
+      "sha256": "3fb25f19703b477b5017bab556cb770b92f2bad069cba3ae7050e26f1a268906"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002/T-004 all edit contracts/sdd-forge-mcp-tools.v1.schema.json's `required` arrays on additionalProperties:false objects (confirmed at schema lines 284/324/347 for evidenceMissingData/traceabilityComparisonData/evidenceDeepVerifyData respectively) -- an externally-visible MCP tool-response contract every client validates against. That is a sentinel surface (\"externally-visible API contracts\") independently of the private/unpublished-npm-package framing tasks.md's own Risk Rationale cites; classifying it below high would itself be the miscalibration. Each of the four Risk Rationale blocks (tasks.md T-001 lines ~165-187, T-002 ~427-445, T-003 ~689-713, T-004 ~956-979) also grounds `high` in an independent, verified STRIDE finding from security-spec.md (B1 Information Disclosure for T-001, B2 Spoofing-of-assurance re: risk:critical task evidence trust for T-002, B3 Elevation-of-Privilege/access-control choke point for T-003 -- confirmed path-guard.ts:31/39/48 hold ALLOWLISTED_DIRECTORIES/ALLOWLISTED_FILES/DENYLISTED_BASENAMES -- and B4 Tampering of the Done-transition gate for T-004), each explaining why NOT critical (BL-001/BL-002/BL-005/BL-006, read-only, no crypto/write path). T-005 is correctly `low`: its Planned Files are CHANGELOG.md and USERGUIDE.md only, matching the policy's cosmetic/docs tier verbatim. No task's scope is UI/CSS/doc/test-only while classified high, and no sentinel-surface task is classified low/medium."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks (T-001 tasks.md:382-394, T-002:642-652, T-003:906-917, T-004:1218-1232) carry both required Done-When items verbatim: a 'TDD Red -> Green evidence ... explicitly separated' item naming concrete RED (schema-first `required` addition turning the ajv suite red, plus new assertions failing, captured before any src/ edit) and GREEN stages, and 'An independent review verdict, recorded by a named reviewer distinct from the implementing agent, plus an independent quality-gate verdict' item. None of the four is Risk: critical, so the second-approver/signed-bundle leg does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Done-When checkbox counts are T-001=7, T-002=7, T-003=7 (TEST-005's 3 sub-cases collapse to one item), T-004=6, T-005=4 -- all <=8. No task title implies sequential phases (all are single-verb 'Add X' / 'Route X' / 'Doc-follow' titles). Each task's multi-file Scope (evidence.ts + schema + dist/index.js + tests) is a single coherent field-addition wrapped by tasks.md's own explicit 'one commit per functional task' convention (Global Constraints ~lines 67-78), not an accretion of unrelated concerns -- confirmed by direct grep that each task's cited line ranges in evidence.ts are non-overlapping and scoped to one function/interface (T-001: TraceabilityComparisonData:270, evidenceCompareToTraceability:312, loop:362; T-002: EvidenceDeepVerifyData:457, evidenceDeepVerify:704; T-004: EvidenceMissingData:156, evidenceFindMissing:183, block:217-222). No task is fragmented to a single rename/one-line edit with no broader concern."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task pairs a happy-path AC with a dedicated error/edge AC: T-001 AC-001 (missing/unparsable contract.json, an error path) + AC-017 (non-Done task edge case); T-002 AC-018 (signature.present:false and gitCommit.shapeValid:false sub-cases, requirements.md Edge Cases ~526-535); T-003 AC-005 sub-cases (b) guard-validation failure and (c) mid-walk readdirSync/statSync failure; T-004 AC-007 (directory-scan failure -> undeterminable, an error path distinct from AC-008's happy-path regression). T-005 is documentation-only and out of this check's functional-task scope."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 and T-004 declare integration and justify it with >=3 real, non-mocked components each (MCP InMemoryTransport client/server, real parsers, real ajv validator, plus real parseTaskState for T-004) -- confirmed evidence.test.ts:27-30 imports connectFixture/getEnvelopeValidator/parseTaskState and lines 46-347 already run getEnvelopeValidator() inline. T-002 declares integration for TEST-003/004/018 (same real-component pattern in deep-verify-contract-conformance.test.ts) but correctly separates TEST-016 as a narrower document/schema-content-conformance type (literal string read, not ajv) rather than mislabeling it integration. T-003 declares unit and is scoped to path-guard.ts's own exported functions with no MCP client/server/mocking (matches denylist.test.ts/traversal-and-symlink.test.ts house style) -- single module boundary. T-005 declares 'document conformance (review)', an honest non-code label for a prose-only task. Each task-level type is also flagged as deliberately overriding acceptance-tests.md's stale hash-frozen 'unit' column label with the technically accurate task-level type, which is a correct, not mismatched, override."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit `Rollback:` field describing a reviewed single-commit revert (T-001 tasks.md:251-256, T-002:513-517, T-003:778-784, T-004:1063-1067), and each correctly reasons about revert ordering relative to its neighbors given the shared dist/index.js and cross-task import (T-003 notes it must be reverted together with T-004 if T-004 has landed since T-004 imports its export; T-004 notes its own revert must go first for the same reason) -- consistent with the real functional dependency confirmed in design.md's anyFileContainingWithDiagnostics implementation, which literally calls listGuardedFilesWithDiagnostics."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared files -- dist/index.js (T-001..T-004), contracts/sdd-forge-mcp-tools.v1.schema.json (T-001/T-002/T-004, confirmed disjoint $defs blocks at schema lines 284/324/347), evidence.ts (T-001/T-002/T-004, confirmed disjoint line ranges via grep), and tests/evidence/evidence.test.ts (T-001 and T-004 both) -- are all covered by the single enforced linear Blockers chain T-001->T-002->T-003->T-004->T-005 (tasks.md Global Constraints ~82-107 plus each task's own Blockers section), so no two tasks land concurrently against a shared file. This is the 'downstream task ordered via Blockers' exception, generalized from a 2-task create/test pair to a 5-task linear chain; every shared-file pair I found has a Blockers path between them (T-004<-...<-T-001 transitively)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Verified the T-002<-T-001 and T-003<-T-002 'shared-artifact serialization, not functional' claim directly against source: evidenceDeepVerify (evidence.ts:704-783) calls only parseEvidenceBundle/classifyArtifact/canonicalArtifactsDigest/recomputeSpecRevision/verifyGitCommit/verifyContractBinding/verifyReportBinding/echoSignature -- none of which touch evidenceCompareToTraceability's unreadableContracts logic, so T-002 genuinely consumes nothing T-001 produces. T-003's Planned Files (path-guard.ts, dist/index.js, one new test file) touch neither evidence.ts nor the schema, confirming it has no functional tie to T-002. Conversely T-004<-T-003 is a real code dependency: design.md's anyFileContainingWithDiagnostics implementation literally calls listGuardedFilesWithDiagnostics(root, relDir), which does not exist before T-003 lands. T-005<-T-004 covers all 3 landed fields transitively through the linear chain (T-005 need not separately declare T-001/T-002 as blockers). The dist/index.js single-bundle-regenerated-per-commit constraint (confirmed real: esbuild output, not a mergeable multi-file diff) independently justifies a total ordering across all four src-touching tasks even though REQ-001/002 and REQ-003/004 are functionally independent per design.md Global Constraints -- so the shared-artifact edges are not spurious, merely correctly NOT mislabeled as functional. No missing blocker was found in the reverse direction either."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 and T-004 are scoped as resolving confirmed investigation Findings (#131 Finding A-5 / #132 Finding B-12 continued) and each carries a dedicated '### Reproduction and Root Cause (recorded before implementation)' section: T-001 (tasks.md:268-282) cites the exact silent-skip symptom at evidence.ts:362-366 (verified byte-identical by direct read), names the root cause (the `continue` discards contractResult.error), and points to AC-011/TEST-011 as the regression proof closing the previously-untested branch. T-004 (tasks.md:1077-1094) cites the exact conflation symptom at evidence.ts:217-222 (verified byte-identical by direct read) plus listGuardedFiles' three-failure-classes-collapse-to-[] behavior at path-guard.ts:261-266, names the root cause, and points to AC-008/TEST-008 as the regression proof. T-002 and T-003 are correctly not bugfix-scoped (T-002 only surfaces already-computed, already-correct values; T-003 adds a wholly new function while leaving the existing one byte-identical per BL-003/AC-006) and appropriately omit this section."
+    }
+  ],
+  "findings": []
+}

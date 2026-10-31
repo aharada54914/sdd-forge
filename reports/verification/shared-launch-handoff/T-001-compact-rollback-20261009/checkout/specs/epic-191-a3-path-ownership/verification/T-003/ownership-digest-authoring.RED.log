@@ -1,0 +1,36 @@
+$ bash tests/ownership-digest.tests.sh
+tests/ownership-digest.tests.sh: line 163: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py: Permission denied
+FAIL: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+FAIL: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ok: TEST-038B: context_binding, resolver metadata, and ownership_input are excluded from semantic output comparison
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040A: ownership freshness matrix semantic=1 digest=1
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040B: ownership freshness matrix semantic=1 digest=1
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040C: ownership freshness matrix semantic=0 digest=1
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040D: ownership freshness matrix semantic=0 digest=1
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/desktop/**"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/*"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/*"]' (quote glob patterns beginning with '[')
+resolve-component-paths: config error: unsupported YAML construct at start of scalar: '["src/*"]' (quote glob patterns beginning with '[')
+FAIL: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+FAIL: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+FAIL: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+2 passed / 11 failed
+EXIT_CODE=1

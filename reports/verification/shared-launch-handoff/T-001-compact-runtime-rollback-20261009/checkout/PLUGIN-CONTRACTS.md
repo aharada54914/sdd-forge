@@ -1,0 +1,465 @@
+# Plugin Contracts
+
+This document defines the inter-plugin interfaces for sdd-forge. These contracts
+govern how plugins communicate and hand off control at version boundaries.
+
+## implement-tasks → quality-gate (v0.12.0+)
+
+**Source**: `plugins/sdd-implementation/skills/implement-tasks/SKILL.md`
+**Target**: `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`
+
+### Handoff Preconditions
+
+Before invoking quality-gate, implement-tasks must verify:
+
+1. **All approved tasks implemented**: Every task with `Approval: Approved` in
+   `specs/<feature>/tasks.md` has reached `Implementation Complete` status.
+2. **No blocked tasks**: No task with `Approval: Approved` is in `Blocked` status.
+3. **Dependency order satisfied**: All `### Blockers` references between tasks
+   have been resolved in dependency order.
+
+### Signal Format
+
+implement-tasks signals handoff by announcing completion in the session and
+invoking quality-gate as the next skill. There is no machine-written file for
+this handoff — the session continuity is the signal.
+
+### Precondition Assertion (quality-gate preflight)
+
+quality-gate should verify on entry:
+- At least one task exists in `Implementation Complete` state
+- Every task with `Approval: Approved` is in `Implementation Complete` state (not `Draft` or `Blocked`)
+- All `### Blockers` references between tasks have been resolved in dependency order
+
+If preconditions are not met, quality-gate should pause and report the gap
+rather than proceeding with an incomplete implementation set.
+
+---
+
+## sdd-ship → internal plugins (v0.15.0+)
+
+**Source**: `plugins/sdd-ship/skills/ship/SKILL.md`
+**Targets**: sdd-implementation (implement-tasks), sdd-quality-loop (quality-gate, lite-gate via sdd-lite), sdd-bootstrap (sdd-adopt preflight)
+
+### Orchestration Contract
+
+sdd-ship is a thin orchestrator. It does not re-implement logic from its dependencies:
+
+1. **Implementation**: delegates entirely to `/sdd-implementation:implement-tasks` (full track) or `/sdd-implementation:implement-task` in document order (lite track).
+2. **Quality gate (full)**: delegates to `/sdd-quality-loop:quality-gate` per task. BLOCKED verdict halts the batch immediately.
+3. **Quality gate (lite)**: delegates to `/sdd-lite:lite-gate` per task. FAIL verdict halts the batch.
+4. **Cross-model verify**: delegates to `/sdd-quality-loop:cross-model-verify` only when `--verify` flag is present AND the task has `Cross-Model: enabled`.
+5. **Retrospective**: delegates to `/sdd-quality-loop:workflow-retrospective` when `--retro` is passed or all tasks reach Done for the first time in the session.
+
+### Security Invariants
+
+- sdd-ship must never invoke `sdd-sudo` or create/modify `SDD_SUDO`.
+- sdd-ship must never set `Approval: Approved` on any task.
+- sdd-ship must never modify files under `plugins/sdd-quality-loop/hooks/` or any `sdd-hook-guard.*` script.
+- sdd-ship must never push to remote or create pull requests without explicit user instruction.
+
+### Track Detection (ADR-0023)
+
+Track selection resolves in three ordered steps, and the order is itself the
+contract. Collapsing steps 1 and 2 into a single "is there a usable Project
+Context?" test is the track-selection fail-open ADR-0023 exists to close: an
+attacker who can induce a validation failure against an existing Project
+Context (sidecar tampering, replay, a key-rotation window) would thereby
+regain the permissive flag-first behaviour.
+
+1. **Physical presence** — is `sdd/project-context.yaml` present on disk?
+   This is a filesystem test alone. A validator outcome never answers it.
+2. **Approval validity** — when the file IS present,
+   `validate-approval-sidecar` (REQ-005) must PASS before any of its content
+   is trusted.
+3. **Precedence** — only a present-AND-valid Project Context reaches the
+   ADR-0023 rule: once a Project Context exists, a CLI flag may move
+   selection in the stricter direction only.
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+Resolutions:
+
+- `COMPATIBILITY_FALLBACK` — apply the pre-ADR-0023 priority order below,
+  unchanged. **C1 is the only case that reaches it.**
+- `PROJECT_CONTEXT_INVALID` — stop, and report that name. The Project Context
+  exists but its approval could not be verified, for any REQ-005 reason
+  (missing sidecar, content-schema violation, hash mismatch, HMAC mismatch,
+  unregistered or duplicate approver identity, a not-yet-reached
+  `effective_at`). C2 is **never** treated as C1: a present-but-invalid
+  Project Context must not silently inherit the fallback's permissive
+  behaviour, and must not proceed under an implicit `full` or `lite`
+  selection either.
+- `PROMOTE_FULL` — the flag is stricter than the declared profile; execute as
+  `full`, no error.
+- `NO_OP_LITE` / `NO_OP_FULL` — the flag already matches the declared
+  profile; proceed on that profile.
+- `ERROR_STOP` — `--lite` against a `full` profile would loosen the declared
+  profile. Stop with an explicit message. It is never silently ignored and
+  never silently honoured.
+
+#### Compatibility fallback (no Project Context)
+
+Reached only from case C1, and unchanged from the pre-ADR-0023 contract:
+
+1. `--full` flag → FULL (verifies acceptance-tests.md + traceability.md exist)
+2. `--lite` flag → LITE
+3. `spec_profile: lite` in AGENTS.md → LITE
+4. Default → FULL
+
+### Hook-activation handshake wiring
+
+Every Capability-Mode-relevant entry point runs this handshake as its first
+action, before it trusts any Project Context content. The tool never performs
+the probe write itself — only a real, host-intercepted tool call from the
+agent's own session counts as evidence.
+
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — returns a fresh
+   single-use nonce and the canary target `sdd/.hook-canary-sentinel`. If a
+   sentinel from an earlier run is already present, perform and record one
+   cleanup attempt first; the new challenge proceeds either way.
+2. The agent session makes its **own** real tool-call attempt against that
+   canary target, using the per-runtime template the challenge carries, and
+   records the raw result verbatim.
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+4. `HOOK_ACTIVE` — continue. Any other outcome — stop with
+   `CAPABILITY_RUNTIME_UNAVAILABLE`. Never fall back to legacy behaviour
+   silently: a handshake that could not observe a genuine, nonce-matched
+   denial has not proven the guard is enforcing anything.
+
+<!-- /sdd:handshake-wiring -->
+
+**Future-entry-point contract (REQ-010).** Any Capability-Mode-relevant entry
+point a later epic introduces MUST invoke this same handshake as its first
+Capability-Mode-relevant action, before trusting `HOOK_ACTIVE`-gated
+behaviour. This is a Done-condition dependency for those epics, not a
+suggestion.
+
+---
+
+## sdd-bootstrap design-system artifacts → consumers (v1.8.0+)
+
+**Producer**: `plugins/sdd-bootstrap` (design-sync-loop, routed from sdd-bootstrap-interviewer / lite-spec)
+**Consumers**: `plugins/sdd-implementation` (implement-task, visual-verify-loop), `plugins/sdd-quality-loop` (quality-gate, check-design-system)
+
+### Artifact Contract
+
+The target application owns a project-level `design-system/` directory at its
+repository root (one per project, distinct from per-feature `specs/<feature>/`):
+
+- `design-system/design-tokens.json` — machine-readable tokens. MUST validate
+  against `contracts/design-system.contract.v1.schema.json` (strict meta
+  envelope: `schema` const `design-system-contract/v1`, semver `version`,
+  `generated_by`, `profile`). Token groups follow the W3C DTCG format
+  (`$type`/`$value`); groups beyond color/typography/spacing are allowed.
+- `design-system/design-system.md` — rules and reasons. Required sections:
+  `## Layer 1 — Tokens (machine-extracted)`, `## Layer 2 — Do / Don't
+  (component conventions)`, `## Layer 3 — Review checklist (human-curated)`,
+  `## Change Process`.
+- `design-system/ui-patterns.md` — universal interaction conventions. Required
+  sections: `## Actions`, `## Dialogs`, `## Icons`, `## Flow`, `## States`,
+  `## Cognitive Load`.
+- `design-system/build/` — optional generated token outputs; never
+  authoritative.
+
+Templates for all three artifacts live in
+`plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/`.
+
+### Handoff Rules
+
+- The producer creates the directory from the templates only when
+  `ds_profile: custom` is selected; `ds_profile: none` produces nothing.
+  External seeds (ui-ux-pro-max MASTER.md, Figma DTCG exports) are inputs that
+  map into these artifacts; the artifacts are always authoritative.
+- Consumers read the artifacts and never create or rewrite them. Conformance
+  findings flow through review checklists and the advisory visual-verify-loop;
+  the deterministic `check-design-system` gate
+  (`plugins/sdd-quality-loop/scripts/check-design-system.{sh,ps1}`) reports
+  warn-level findings and does not block. The gate was introduced in v1.8.0
+  with a stated promotion to error level two releases after introduction; as
+  of v1.15.0 that window has passed and the gate still runs warn-phase
+  (`SDD_DESIGN_SYSTEM_ENFORCE=error` escalates to failure on demand). The
+  promotion of the default remains a pending human decision.
+- Absence contract: when `design-system/` does not exist, every consumer skips
+  with a recorded reason — absence never blocks a workflow.
+
+---
+
+## sdd-domain domain model → consumers (v1.9.0+)
+
+**Producer**: `plugins/sdd-domain` (domain-interviewer, domain-reverse, domain-review-loop, routed from the public `domain-model` entry skill)
+**Consumers**: `plugins/sdd-bootstrap` (sdd-bootstrap-interviewer, via domain-sync), `plugins/sdd-review-loop` (spec-reviewer-a/b, impl-reviewer-a/b), `plugins/sdd-quality-loop` (quality-gate, check-domain-conformance, workflow-retrospective)
+
+### What sdd-domain reads
+
+- `domain/` artifacts it owns and regenerates itself: `domain-story.md`,
+  `event-storming.md`, `ubiquitous-language.md`, `context-map.md`,
+  `aggregates/*.md`, `message-flow.md`, `c4-container.md`,
+  `domain-contract.json`.
+- `investigate-codebase`'s `specs/<feature>/investigation.md` output, read
+  only by `domain-reverse` to build a candidate seed — never written to.
+- `tasks.md`-mediated consent is not used for cross-model verification;
+  `domain-review-loop` invokes `prepare-panelist-input.sh` /
+  `check-cross-model.sh` directly under human (`SDD_SUDO`-style)
+  authorization instead.
+
+### What sdd-domain writes
+
+The target project owns a project-level `domain/` directory at its
+repository root (one per project, not per feature, distinct from
+per-feature `specs/<feature>/`):
+
+- `domain/domain-contract.json` — machine-readable contract. MUST validate
+  against `contracts/domain-contract.v1.schema.json` (`schema` const
+  `domain-contract/v1`). Regenerated from the approved Markdown artifacts
+  after every stage change.
+- `domain/domain-story.md`, `domain/event-storming.md`,
+  `domain/ubiquitous-language.md`, `domain/context-map.md`,
+  `domain/aggregates/*.md`, `domain/message-flow.md`,
+  `domain/c4-container.md` — the seven-stage Markdown artifact set, each
+  checkpointed to disk before the next stage begins (resumable on
+  interruption).
+- A `Domain-Model-Status` field (Pending / Approved) inside `domain/`,
+  gated on `domain/context-map.md`: only a human may set it to Approved;
+  `sdd-hook-guard` rejects an agent-authored write of the approved value
+  (a valid `SDD_SUDO` token permits it, matching the `tasks.md`
+  approval-guard pattern).
+
+### Handoff Rules
+
+- The producer creates `domain/` only via an explicit, opt-in
+  `/sdd-domain:domain-model` run; it is never created implicitly by
+  bootstrap or any other plugin.
+- Consumers read `domain/domain-contract.json` and the Markdown artifacts
+  and never create or rewrite them. `domain-sync` is the sole injection
+  point into `sdd-bootstrap-interviewer`'s Phase 1 output (a
+  `Bounded-Context:` field in generated `requirements.md`, aggregate-card
+  references in `design.md`) — the flow is strictly unidirectional
+  (domain model → downstream specs); feedback in the other direction
+  returns only via WFI/diagnose triggering a new `domain-model update` run,
+  never a direct write back into `domain/`.
+- `spec-reviewer-a/b` and `impl-reviewer-a/b` add a DOMAIN-CONFORMANCE
+  observation to their fixed check list; `check-domain-conformance`
+  (`plugins/sdd-quality-loop/scripts/check-domain-conformance.{sh,ps1}`) is
+  a warn-phase-only deterministic gate (`SDD_DOMAIN_ENFORCE=error`
+  escalates to failure on demand). It was introduced in v1.9.0 with a
+  stated default flip to error two releases after introduction, by human
+  edit, mirroring `check-design-system`; as of v1.15.0 that window has
+  passed and the default is still `warn`. Flipping the default remains a
+  pending human decision.
+  `workflow-retrospective` aggregates its warn findings into domain-drift
+  metrics (term-deviation count, boundary-violation count) when they have
+  been recorded in quality-gate reports.
+- Absence contract: when `domain/` does not exist, every hook, sync step,
+  and gate skips with exactly one recorded skip line — absence never
+  blocks a workflow, and existing workflows produce byte-identical
+  artifacts (AC-010).
+- Cross-plugin file ownership: sdd-domain never reads another plugin's
+  files by relative filesystem path at runtime. Where a technical-default
+  basis cites an existing file (e.g. `c4-container.template.md`),
+  sdd-domain ships its own adapted copy under its own skill's
+  `templates/` rather than reading across the plugin boundary.
+
+---
+
+## `agent-model-capabilities/v2` registry schema (v1.11.0+, epic-159-pillar-c T-001)
+
+**Source**: `contracts/agent-model-capabilities.v2.json`
+**Consumers**: `plugins/sdd-implementation/scripts/select-agent-model.sh`/`.ps1`
+(T-002, schema auto-detection), `render-agent-frontmatter.sh`/`.ps1` (T-003,
+`role_defaults` seed), `tests/agent-capabilities-v2.tests.sh`/`.ps1` (the
+parity lock below).
+
+`contracts/agent-model-capabilities.v2.json` (schema
+`agent-model-capabilities/v2`) decouples effort from canonical tier — the
+v1 registry (`contracts/agent-model-capabilities.json`, schema
+`agent-model-capabilities/v1`) welds each model to exactly one effort
+value (`haiku`→`low`, `sonnet`→`medium`, `opus`→`high`); v2 lets a model
+support several efforts and lets a caller select among them per
+invocation. v1 remains FROZEN — byte-identical for the duration of this
+feature — and both files coexist; v2 becomes the sole consulted registry
+only once a future, separately-released task flips the selector's default
+policy.
+
+### Top-level shape
+
+```json
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {
+      "name": "anthropic/opus",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "frontmatter", "codex-cli": "none" }
+    },
+    {
+      "name": "openai/gpt-5.2-codex",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high", "xhigh"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "none", "codex-cli": "flag" }
+    }
+  ],
+  "risk_effort_matrix": {
+    "low": "low",
+    "medium": "medium",
+    "high": "high",
+    "critical": "high",
+    "escalation_bump": true
+  },
+  "role_defaults": {
+    "sdd-evaluator": { "minimum_tier": "strong", "default_effort": "high" },
+    "sdd-investigator": { "minimum_tier": "lightweight", "default_effort": "low" },
+    "spec-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "impl-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "task-reviewer": { "minimum_tier": "standard", "default_effort": "medium" }
+  }
+}
+```
+
+### Field semantics
+
+- `models[].supported_efforts` — a non-empty array of efforts (`low` /
+  `medium` / `high` / `xhigh`) the model may be invoked at; supersedes v1's
+  single-element `efforts` array.
+- `models[].default_effort` — must be a member of that model's
+  `supported_efforts`; the value `welded`-policy selection resolves to and
+  the last-priority fallback under `matrix`-policy selection.
+- `models[].effort_control` — a per-host map (`claude-code`, `codex-cli`
+  keys), each one of `flag` (the host accepts a CLI effort argument a
+  caller can apply), `frontmatter` (the host can only record effort as
+  documentation), or `none` (no effort concept for that model/host pairing
+  at all).
+- `risk_effort_matrix` — maps `low`→`low`, `medium`→`medium`, `high`→`high`,
+  `critical`→`high`, and carries `escalation_bump: true`. `xhigh` never
+  appears as a direct mapped value — only reachable via an explicit
+  `--requested-effort xhigh` override or an escalation bump, both still
+  gated by the selector's existing `--xhigh-reason` requirement.
+- `role_defaults` — a per-role table (`spec-reviewer`, `impl-reviewer`,
+  `task-reviewer`, `sdd-evaluator`, `sdd-investigator`), each entry naming
+  a `minimum_tier` and a `default_effort`. Consumed both by
+  `select-agent-model --role` and by `render-agent-frontmatter` as the
+  single source of truth for generated agent-definition files.
+
+### Parity lock
+
+`tests/agent-capabilities-v2.tests.sh`/`.ps1` asserts a two-directional
+parity invariant between v1 and v2: every v1 model name exists in v2 with
+the identical `canonical_tier`, and every effort in that v1 model's
+`efforts` array is a member of its v2 `supported_efforts` array (v1 ⊆ v2,
+not equality — v2 may add efforts a v1 model did not carry, e.g.
+`openai/gpt-5.1-codex-max`'s v1 `efforts` already includes both `high` and
+`xhigh`). The same suite asserts `contracts/agent-model-capabilities.json`
+(v1)'s SHA-256 is unchanged before and after its own run, and includes a
+mutation-based negative self-check (a scratch copy of v2 with a
+v1-required effort stripped from one model's `supported_efforts`) proving
+the parity assertion is live rather than vacuously true.
+
+## `render-agent-frontmatter` script contract (v1.11.0+, epic-159-pillar-c T-003)
+
+**Source**: `render-agent-frontmatter.sh`/`.ps1` (repository root)
+**Reads**: `contracts/agent-model-capabilities.v2.json`'s `role_defaults`
+(above)
+**Writes**: the six unprotected Claude `.md`/Codex `.toml` role-mapped
+agent files directly; the four R-10 protected review-loop reviewer `.md`
+files ONLY under `specs/epic-159-pillar-c/human-copy/<repository-relative
+path>` + a `MANIFEST.sha256` SHA-256 entry, never their real path
+**Consumers**: `tests/validate-repository.ps1` (`--check`, wired into the
+existing check sequence); `.github/workflows/test.yml` (this suite's own
+bash/pwsh CI steps, staged the same human-copy way as `.github/workflows/test.yml`
+itself is R-10 protected); `run-panelist-gpt`/Codex-startup argv assembly
+(a future task's cross-check against the rendered `# x-sdd-model:`/
+`# x-sdd-effort:` reference comments, AC-038)
+
+For each `role -> { kind: claude|codex, path, protected }` entry in the
+script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
+`sdd-investigator` each with one Claude `.md` + one Codex `.toml` target;
+`spec-reviewer` with two unprotected Claude `.md` targets; `impl-reviewer`/
+`task-reviewer` each with two PROTECTED Claude `.md` targets):
+
+- **Claude `.md` targets**: rewrites ONLY the `model:` frontmatter line
+  (sourced from `role_defaults[role].minimum_tier`'s paired `anthropic/*`
+  registry model name) and inserts/refreshes a trailing
+  `<!-- x-sdd-effort: <role_defaults[role].default_effort> -->` comment
+  line immediately after the frontmatter's closing `---` — a Markdown
+  comment outside the YAML frontmatter block, so it never participates in
+  the agent-loader's frontmatter parsing. A `model: inherit` target is left
+  completely untouched (structural exclusion, not merely skipped-by-value).
+- **Codex `.toml` targets**: inserts/refreshes two `# x-sdd-model: <m>` /
+  `# x-sdd-effort: <e>` comment lines at the top of the file, sourced from
+  the first `codex-cli`-`flag`-controlled registry model matching
+  `role_defaults[role].minimum_tier`. These are documentation-only
+  reference markers, never a Codex-CLI-parsed configuration surface — every
+  existing TOML key (`name`, `description`, `sandbox_mode`,
+  `developer_instructions`) is left byte-unchanged.
+- **Protected targets**: the identical corrected content is computed but
+  written ONLY to the human-copy staging path; the real protected path is
+  never opened for write. The write-target resolution FUNCTION itself
+  (exercised directly via `--resolve-target-raw`/`--resolve-target` on the
+  `.sh` twin, `-ResolveTargetRawPath`/`-ResolveTargetRole` on the `.ps1`
+  twin) makes this a structural guarantee, independent of and in addition
+  to the R-10 `sdd-hook-guard` enforcement.
+
+`--check` performs the identical read-and-compute step but never writes
+anywhere: it diffs computed content against on-disk content at every
+target's real path — including the four protected targets' real paths (a
+read, not a write) — and exits non-zero if any target has drifted. A
+non-zero exit against only the four protected targets means a human
+maintainer has not yet applied the staged `specs/epic-159-pillar-c/human-copy/`
+candidates, not that the script attempted an illegal write.
+
+---
+
+## Plugin Dependency Declarations
+
+The `Depends On` column is authoritative for the six plugins the installers
+handle (`sdd-bootstrap`, `sdd-ship`, `sdd-implementation`, `sdd-quality-loop`,
+`sdd-lite`, `sdd-review-loop`): `install.sh` and `install.ps1` resolve exactly
+those edges to a fixed point when auto-including plugins, so any change to them
+must be made in all three places together. `sdd-domain` is listed below for
+completeness only — it is outside the installer allowlist, so the column states
+no installer fact about it.
+
+| Plugin | Depends On | Notes |
+|--------|------------|-------|
+| sdd-ship | sdd-bootstrap, sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite | orchestrates all implementation and verification phases |
+| sdd-lite | sdd-bootstrap, sdd-implementation, sdd-quality-loop | check-task-state-lite mirrors check-task-state logic; transitively pulls in sdd-review-loop via sdd-bootstrap |
+| sdd-bootstrap | sdd-review-loop | pulls in the internal review loop; optionally consumes `domain/` via domain-sync when present |
+| sdd-implementation | (none) | invokes quality-gate at the implement-tasks handoff, but declares no installer dependency |
+| sdd-review-loop | (none) | standalone; auto-included by sdd-bootstrap, and transitively by sdd-lite and sdd-ship |
+| sdd-quality-loop | (none) | standalone; optionally reads `domain/domain-contract.json` via check-domain-conformance when present |
+| sdd-domain | n/a — outside the installer allowlist | not installable via `--plugins`; obtained from the marketplace instead (see README). Standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop. Whether it should join the allowlist is open in issue #291 |
+
+---
+
+## Non-normative notes
+
+Nothing in this section defines a contract. It records forward-looking
+considerations only; the normative interfaces are the sections above.
+
+### Future consideration — cross-plugin script references
+
+There is currently no cross-plugin script reference: sdd-lite ships its own
+`check-task-state-lite`, and no plugin reads another plugin's scripts
+directory at runtime. If a future refactoring were to merge
+`check-task-state-lite` into `check-task-state` (via a `--lite` flag),
+sdd-lite would at that point gain a runtime dependency on the
+sdd-quality-loop scripts directory, and that dependency would have to be
+declared in `plugins/sdd-lite/.plugin/plugin.json` before the merge
+proceeded. No such refactoring is planned or in progress.

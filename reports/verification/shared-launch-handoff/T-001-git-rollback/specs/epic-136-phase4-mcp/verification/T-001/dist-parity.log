@@ -1,0 +1,81 @@
+==============================================================================
+T-001 DIST-PARITY + POST-COMMIT RE-VERIFICATION -- epic-136-phase4-mcp
+Captured: 2026-07-29 (UTC), AFTER the implementation commit landed.
+
+AC-010 leg. ADR-0003 (docs/adr/0003-mcp-dist-bundle-distribution.md) and
+design.md Global Constraints require the rebuilt dist/ bundle in the SAME
+commit as its src/ change; CI's ubuntu-latest-only
+`git diff --exit-code -- dist/` step in the existing mcp-tests job
+(.github/workflows/test.yml:385-432) goes red between a split pair. This log
+records that rebuilding from the landed commit reproduces the COMMITTED bundle
+byte-identically -- i.e. the check CI runs is green here.
+
+Implementation commit: 0bbfb9d950f92d2e9a01613cae071fcb9255efc9
+==============================================================================
+
+------------------------------------------------------------------------------
+COMMAND: git show --stat --oneline HEAD
+------------------------------------------------------------------------------
+0bbfb9d9 feat(mcp): surface unreadableContracts on evidence_compare_to_traceability (#131)
+ contracts/sdd-forge-mcp-tools.v1.schema.json      |  14 +-
+ mcp/sdd-forge-mcp/dist/index.js                   |   5 +-
+ mcp/sdd-forge-mcp/src/tools/evidence.ts           |  26 ++
+ mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts | 384 +++++++++++++++++++++-
+ specs/epic-136-phase4-mcp/tasks.md                |   2 +-
+ 5 files changed, 424 insertions(+), 7 deletions(-)
+
+(The schema diff, the TypeScript change, the regenerated dist/index.js and the
+tests are all present in this ONE commit -- no schema-only or
+implementation-only partial land, and the single-commit revert in this task's
+Rollback section returns both surfaces to their exact pre-task state.)
+
+------------------------------------------------------------------------------
+COMMAND: cd mcp/sdd-forge-mcp && npm run build
+------------------------------------------------------------------------------
+  dist/index.js  1.3mb ⚠️
+
+⚡ Done in 16ms
+
+------------------------------------------------------------------------------
+COMMAND: git diff --exit-code -- mcp/sdd-forge-mcp/dist/
+------------------------------------------------------------------------------
+(no output)
+git diff --exit-code -- mcp/sdd-forge-mcp/dist/ EXIT: 0
+
+DIST PARITY: CLEAN. Rebuilding from the landed commit reproduces the committed
+bundle byte-identically.
+
+------------------------------------------------------------------------------
+COMMAND: grep -c "unreadableContracts" mcp/sdd-forge-mcp/dist/index.js
+------------------------------------------------------------------------------
+3
+
+(The committed bundle genuinely carries the new field -- the parity check above
+is not passing vacuously against a stale bundle.)
+
+------------------------------------------------------------------------------
+COMMAND: cd mcp/sdd-forge-mcp && npx tsc --noEmit          (post-commit re-run)
+------------------------------------------------------------------------------
+(no output)
+tsc EXIT: 0
+
+------------------------------------------------------------------------------
+COMMAND: cd mcp/sdd-forge-mcp && npm test                  (post-commit re-run)
+------------------------------------------------------------------------------
+✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (2.955875ms)
+✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (4.96475ms)
+✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (4.350625ms)
+✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (2.426958ms)
+ℹ tests 208
+ℹ suites 0
+ℹ pass 208
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9018.451042
+
+(Tail of the run. GREEN is re-confirmed AFTER the regenerated dist/index.js is
+committed, as this task's Done-When requires -- 208 passed / 0 failed, the same
+totals as green.log, against a baseline of 205 passed / 0 failed measured
+before any change in this task.)

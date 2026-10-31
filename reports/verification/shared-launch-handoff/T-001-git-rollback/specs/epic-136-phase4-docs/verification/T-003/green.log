@@ -1,0 +1,39 @@
+T-003 test-after evidence — 2026-08-04
+
+Command: bash -n tests/cross-model.tests.sh
+Result: PASS (exit 0)
+
+Command: pwsh -NoLogo -NoProfile -Command '<parse tests/cross-model.tests.ps1>'
+Result: PASS — POWERSHELL_PARSE_OK
+
+Command: bash tests/cross-model.tests.sh
+Result: PASS (exit 0) — Results: 58 passed, 0 failed
+Task assertions:
+- TEST-001: CLI absent states exit, no-verdict, and gate propagation
+- TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+- TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+- TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+- TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+- TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+- CM-003: no verdicts -> exit 2 (tool error)
+
+Command: pwsh -NoLogo -NoProfile -File tests/cross-model.tests.ps1
+Result: PASS (exit 0) — Results: 56 passed, 0 failed
+Task assertions:
+- TEST-001: CLI absent states exit, no-verdict, and gate propagation
+- TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+- TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+- TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+- TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+- TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+- CM-003: no verdicts -> exit 2 (tool error)
+
+Command: git diff --check
+Result: PASS (exit 0)
+
+Scope checks:
+- No runner or gate implementation changed.
+- No protected gate file or CI workflow changed.
+- No file under specs/epic-136-phase4-docs changed.
+- The original fail-closed paragraph preceding the new taxonomy is unchanged.
+- The later no-verdict exit-code statement was explicitly corrected from 1 to 2 under the human decision; both values are non-zero, so the fail-closed posture is unchanged.

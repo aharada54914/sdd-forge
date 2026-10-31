@@ -1,0 +1,11 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: facet-native
+  capability_enforcement: advisory
+components:
+  - id: comp-a
+    paths:
+      include:
+        - comp-a/**
+shared_paths: []

@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-003, fresh run this session)
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/local-env-mcp/src/diagnostics.ts mcp/local-env-mcp/src/index.ts
+Placeholder scan passed.
+
+exit 0

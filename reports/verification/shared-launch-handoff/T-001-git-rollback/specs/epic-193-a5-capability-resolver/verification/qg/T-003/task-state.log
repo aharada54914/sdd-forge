@@ -1,0 +1,8 @@
+$ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+Evidence bundle passed for task T-002.
+Task state check passed for 10 task(s).
+exit=0

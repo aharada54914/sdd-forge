@@ -1,0 +1,108 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "RUN-20260706T0510Z-task-reviewer-a-a2r1",
+  "host_session_id": "SESS-task-a-sdd-domain-a2r1",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"},
+    {"path": "specs/sdd-domain/tasks.md", "sha256": "dcfdd58eefb4ec46870423cb67c9c6ecea72518a9da2a2ec8ebcdf96fc2facd1"},
+    {"path": "specs/sdd-domain/traceability.md", "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/sdd-domain/attempt-2/round-1/precheck-result.json", "sha256": "a18f0958652a379c0b9f6937a6d84c0fd236222f598d9c226b8143e168c90fb4"},
+    {"path": "reports/task-review/sdd-domain/attempt-2/round-1/dependency-graph.json", "sha256": "323d76a0fde7add7b70740b9c5a576853a74c70df8c6b84b17fcf63437ac73f6"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN IDs referenced in tasks.md Requirements fields resolve to matching entries in acceptance-tests.md's table. No dangling AC IDs found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks' Blockers fields use either the literal 'None' or comma-separated T-NNN lists. No ranges or prose found. Matches precheck-result.json's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-011 all appear in at least one task's Requirements field."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001 through AC-017 all appear in at least one task's Requirements field. AC-016 is now solely owned by T-004 after removal from T-002."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks have a non-empty Requirements field citing at least one REQ-NNN ID. No orphan tasks found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test', 'spec', or 'verify', and no task's scope is exclusively test-file changes. No orphaned test tasks."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks declare 'Approval: Draft' and 'Status: Planned'. This is attempt 2 round 1 (a re-attempt); the subsequent-round rule is satisfied."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 11 tasks declare Risk and Required Workflow with correct risk-gate-matrix pairing. Matches precheck-result.json workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-011 is claimed under the Requirements field of both T-001 and T-010 with no differentiated verification in T-001. T-001's Done When list contains no item testing any AC-011 criterion; T-001's own Out of Scope section explicitly excludes 'validate-repository.ps1 expectation updates (T-010)'. Only T-010's Done When actually verifies AC-011. Fix: remove AC-011 from T-001's Requirements field and its traceability-mapping Done-When line, leaving T-010 as sole owner."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers field exists in dependency-graph.json's nodes array. No dangling task references."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cycle detection over dependency-graph.json's edges found no cycle. All edges resolve to a valid topological order."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Task titles/scopes joined by 'and' each address one coherent concern. No task connects two distinct, decoupled feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Done When list contains only generic boilerplate with no task-specific item naming a concrete verification command, test file, or evidence artifact for its own scope -- unlike every other task. T-001's Scope describes tests/sdd-domain/contract-schema.Tests.ps1 with valid/corrupt fixtures, but this concrete evidence is never restated as an observable Done-When criterion. Fix: add a Done-When item naming the specific test file and fixture outcomes."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 task IDs appear in traceability.md's Code Target column. All requirement IDs exist in requirements.md. Full-profile layer anchors verified present. Reasoned N/A entries for REQ-004, REQ-006, REQ-008 each state a cross-layer rationale."
+    }
+  ]
+}

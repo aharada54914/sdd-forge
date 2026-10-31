@@ -1,0 +1,14 @@
+$ pwsh -NoProfile -File tests/ownership-digest.tests.ps1
+usage: canonicalize-sdd-yaml.py [-h] [--hash-only]
+                                [--input-format {yaml,json}]
+                                file
+canonicalize-sdd-yaml.py: error: unrecognized arguments: -InputFormat json -HashOnly
+FAIL: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+FAIL: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ParentContainsErrorRecordException: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/tests/ownership-digest.tests.ps1:202
+Line |
+ 202 |          $metadataMutant.context_binding.ownership_digest = 'sha256:'  …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | The property 'context_binding' cannot be found on this object. Verify
+     | that the property exists.
+EXIT_CODE=1

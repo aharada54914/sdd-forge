@@ -1,0 +1,5 @@
+# T-006 gate-time live hook-config hash confirmation (2026-07-12T07:36:14Z)
+## expected (staged human-copy, T-006 Outputs row): 09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d
+09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d  plugins/sdd-quality-loop/hooks/claude-hooks.json
+09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d  specs/epic-136-phase1-guards/human-copy/claude-hooks.json
+cmp: live == staged (byte-identical)

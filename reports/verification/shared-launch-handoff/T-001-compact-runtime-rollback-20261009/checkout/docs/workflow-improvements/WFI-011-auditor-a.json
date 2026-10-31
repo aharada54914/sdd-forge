@@ -1,0 +1,58 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-011",
+  "category": "app-dev-efficiency",
+  "cycle": 1,
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "All Problem Evidence citations verified against real files: retrospective FP-01 ('2 occurrences across 2 of the feature's 4 tasks (50%)') matches the WFI's '2 of ... 4 tasks' claim; requirements.md:24 ('six script-enforced loops') and quality-gate report 2026-07-14T191311Z-epic-159-pillar-a-T-001.md F-2 ('the spec's \"six script-enforced loops\" assumption was inaccurate. Flagged for retrospective.') both confirmed verbatim; requirements.md:432-434 and design.md:265 ('first direct driver') and quality-gate report ...T-004.md F-3 ('OQ-4's spec premise ... is factually wrong ... Recorded as spec drift for the spec owner; flagged for retrospective.') both confirmed verbatim. No vague or untraceable statements found."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "The hypothesis names a specific mechanism, not a restatement: investigation-phase factual assertions are not required to cite grep/file:line evidence the way implementation-phase claims are, so false premises are caught only incidentally when a task's own Scope/Done-When section happens to mandate an adjacent grep pass ('cap values from driver sources' for T-001, 'python3/resume-script coverage' for T-004 — both independently verified present in specs/epic-159-pillar-a/tasks.md T-001 Scope and T-004 Scope). This is a causal explanation of the failure mode, not a symptom restatement."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Category: app-dev-efficiency. Root Cause Hypothesis names the feature slug 'epic-159-pillar-a' and task IDs 'T-001 and T-004'; this satisfies the required concrete-detail bar (feature slug or task ID cited in Root Cause or Proposed Change)."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Row: AGENTS.md § Rules / 'Add a rule: when investigation.md, requirements.md, or design.md assert a specific, checkable factual claim about existing repository behavior ..., the assertion must cite the specific grep/file:line evidence it rests on in the document itself. Spec-review and task-review should treat an uncited factual claim of this kind as a structural gap, not accept it on the strength of prose alone.' Target file is specific (AGENTS.md § Rules, confirmed to exist at AGENTS.md:109) and the description states a concrete, checkable rule, not vague language like 'improve the process'."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Expected Effect names the specific metric ('count of Minor quality-gate findings in the class \"spec-authored factual premise about existing repository behavior, proven wrong only during implementation-time grep verification\"') and states a quantitative target: 'from 2 (this period, out of 4 tasks) toward 0 in the next feature.'"
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Exactly one primary Target-Metric named; Baseline: 2 (epic-159-pillar-a, this period: T-001 F-2, T-004 F-3) matches the retrospective's Improvement Verification Plan table row for WFI-011 verbatim; Target: 0; checkpoint given via Horizon: 'within the next 2 completed features that include a bootstrap/investigation phase.'"
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Plan references the specific retrospective rows that will be compared next cycle: 'report the count in that retrospective's Friction Patterns / Repeat Finding Rate row, directly comparable to this period's baseline of 2,' and specifies which report sections will be re-scanned (Specification Differences, Critical Review Cycles)."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Sole Proposed Change row targets AGENTS.md § Rules, a project-root workflow file confirmed to exist with a ## Rules section at AGENTS.md:109. No path under plugins/ appears in the table."
+    }
+  ],
+  "proposed_revisions": []
+}

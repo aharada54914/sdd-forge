@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-spec-a1r1-b-seq0389",
+  "host_session_id": "SESS-spec-a1r1-b-epic136phase4docs-0389",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-1/integrated-summary.json",
+      "sha256": "11c97b00e933c4b6b69a451bc448dfcf9d70201fb66bd7d1205a3eabd6744bef"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-1/precheck-result.json",
+      "sha256": "d82d8163c203b1c6bdf9b9e3cb729e984956153fef00418ccdd8f9bbc54660f5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b5334e495f163f4a93b83d23ba736a6581f5afa71ff7b8b2998d565c0e06d436"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "7d1e18f6e28b5d020b1c27c8f87abcacb92b020fe5b460fb3088a108292d1d20"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-001/AC-001 require the taxonomy to name 'CLI returns malformed output' with a stated exit code, verdict-file production, and gate propagation, but no artifact in scope establishes current runner behaviour for this mode. investigation.md's quoted excerpt of run-panelist-gpt.sh:216-220 shows only an exit-code check, no output-shape validation, and INV-001/INV-002 document only 'absent CLI' and 'non-zero exit'. It is therefore unclear whether documenting 'malformed output' means writing down existing (unshown) behaviour, or requires NEW validation logic that REQ-002/REQ-003 never mention and Non-goals never excludes. The scope boundary between 'document existing behaviour' and 'implement new behaviour' is drawn clearly for the timeout and the absent/error path but not for this one taxonomy row. Two implementers would reasonably diverge on both the exit code written and whether new code is needed at all."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two acceptance criteria are read down by their own tests to something weaker than the requirement text promises. (1) REQ-001 demands three things per failure mode (exit code, whether a verdict file is produced, propagation to the gate verdict). AC-001 already narrows to two, dropping the verdict-file element. TEST-001 narrows further, asserting only the presence of the five mode names and an exit code adjacent to each -- the propagation assertion is gone entirely. (2) AC-009 contains an internal tension: it demands a stated trust assumption and at least one mitigation per surface, then narrows its own verification to a literal-string search for the surface's identifier -- a method that confirms only that a token appears somewhere, not that a trust assumption or mitigation accompanies it. TEST-009 implements exactly that weak reading, so a document that name-drops hooks.state in an unrelated sentence would pass while never satisfying REQ-005's substance. In both cases an implementer optimizing to the executable AC/test text produces a document that passes review while retaining exactly the unverified-claim gap REQ-006 exists to close."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two material negative paths implied by the requirements' own chosen mechanism are untested. (1) Edge Case 1 commits to a polled deadline mechanism precisely because timeout(1) is unavailable. A polling loop is not atomic with process completion: the CLI can exit successfully in the same interval the poller is about to declare the deadline exceeded. Edge Case 3 addresses only 'CLI killed mid-write', not this boundary race, and TEST-004/005/006 all use SDD_PANELIST_TIMEOUT=1 against a stub that sleeps 30s -- a huge margin that only exercises the unambiguous 'clearly hung' case. (2) The Assumptions section anticipates a CLI that ignores SIGTERM, but TEST-004's stub is a plain sleep command, which terminates on the very first SIGTERM by default disposition -- no test sub-case ever forces the SIGKILL-escalation branch, so a buggy or absent escalation implementation would still pass every specified test."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 requires docs/THREAT-MODEL.md to carry 'an OWASP LLM Top 10 mapping and an MCP security cross-reference.' investigation.md's Open Questions for #134 explicitly flags the second element unresolved. This is never answered in requirements.md's Assumptions section. Consequently REQ-004's 'MCP security cross-reference' half has zero corresponding acceptance criterion: AC-007/AC-008 test only the OWASP table, and TEST-007/TEST-008 confirm the same -- no TEST anywhere tests an MCP security cross-reference. Unlike the SIGTERM/SIGKILL assumption, which IS explicitly deferred to design, this one is neither resolved nor flagged as a decision needed -- it is simply silently required and then untested, so an implementer could satisfy every stated AC for REQ-004 while omitting the MCP cross-reference entirely."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The requirements do change runtime behaviour and add SDD_PANELIST_TIMEOUT despite both source issues being labelled documentation, but this is not a quietly-assumed new approval boundary. BL-005, grounded in INV-017's direct read of guard-invariants.generated.js:5, confirms none of this feature's targets is in PROTECTED_GATE_SUFFIXES, so the repository's own human-copy governance trigger was affirmatively checked and correctly does not apply. The consequence of a timeout is REQ-003's explicit reuse of the already-existing absent/error mechanism, including its already-documented 'unless the task is explicitly waived' human override, so no new unwaivable gate is created. The bound is environment-configurable following an established repository convention, making the value operator-overridable rather than an irreversible unilateral decision."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004's 'MCP security cross-reference' clause has no acceptance criterion, no test, and no resolved Open Question. A design/implementation-policy reviewer inheriting this specification would have to invent, unguided, what 'MCP security cross-reference' concretely means for this repository -- which checklist to cite, what format it takes, what would count as satisfying it -- since nothing in the reviewed artifacts answers this and no acceptance criterion would catch an implementation that omits it entirely."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory, domain/context-map.md, or domain/domain-contract.json is referenced anywhere in the reviewed specification artifacts, and none of the documents declares a Bounded-Context field. Recorded as skipped per the check's explicit skip condition."
+    }
+  ]
+}

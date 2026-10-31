@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "7414700381acbb2a9607e7b69a0b16f30a0d414665aff05217a0fa0a1dbb4fef",
+  "requirements_sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d",
+  "acceptance_sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d",
+  "design_sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6",
+  "traceability_sha256": "936326098722de9761eec54689a77cd8346b50bacfc9d1c44970f549d9efc474",
+  "layer_sha256": {"ux-spec.md":"4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11","frontend-spec.md":"3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed","infra-spec.md":"39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999","security-spec.md":"53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+  "input_sha256": "5381fd917cccff7ffa74df4b671740ebe4c25116184b2b2c289c4569589ab750",
+  "generated_at": "2026-08-17T09:47:29Z"
+}

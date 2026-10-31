@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0798",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0798",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/integrated-summary.json",
+      "sha256": "12e6d6bb34af9ea12711eab139911e4bf1fef447691a41a7dd5dfd8079088b1e"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
+      "sha256": "fe37da8623c5545a6fb3fc84983e5d98f2f8021ba603b46f3d80f96d8587dfd7"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "670aeb76586e8552d02cdbb2e5e5ad023334230dd1967dfcb53b701cddb9ae56"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No new ambiguous term, actor, state, input, or output surfaced in this round's material; requirements.md/acceptance-tests.md maintain the fingerprint/line-cited specificity established across prior rounds."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "1) investigation.md's '## Amendment Re-Review Context' still contains, verbatim and unedited, three truncated SHA-256 back-references at investigation.md:291, :294, and :421; the Round-8 extension supplies full values elsewhere but does not rewrite the truncated citations themselves, and the document's own claim that this 'cures' them (investigation.md:668-670) is the same 'full value exists elsewhere' argument this reviewer role already rejected last round when the full value sat above rather than below the abbreviation. A full value recorded ~340 lines below is not stronger evidence than one recorded a few lines above. 2) Independently, the Round-8 extension amends investigation.md with no accompanying human-ruling/authorization statement at all, unlike every prior sub-entry -- missing evidence-bar element 3. Per spec-review-calibration.md:102-106, either gap alone means 'the declaration does not apply: judge phase-sequencing exactly as the default Phase-1 calibration above requires, with no benefit of the doubt.' Since Spec-Review-Status is still Pending and requirements.md references Phase 2/3 deliverables solely through this non-conforming entry, those references revert to an unsuppressed phase-sequencing contradiction. Critical because the suppression this section grants is binary across the whole package."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's enumerated AC/TEST rows continue to cover Context-absent, Context-invalid, and Context-present/enforcement-varied fixture rows, named-SKIP boundary handling, and negative-path event-trace assertions; no material gap surfaced."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The AC-026 ordering-vs-firing-condition assumption is explicitly tracked as OQ-004 (open) with a stated resolution path and a paired High Risks entry, consistent across requirements.md and the AC-026 row's Notes pointer -- the 'explicitly marked as a decision needed' pattern the check requires, not a silent gap."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The Round-8 extension, which amends the hash-pinned investigation.md itself (adding three new superseding-fingerprint citations), carries no human-ruling or authorization statement of any kind -- contrast every other sub-entry in the same section, and Round-7's explicit 'Authorization: none newly required' at :603. Evidence-bar element 3 ('a verbatim, dated quotation of the human's approval statement authorizing the post-implementation amendment') is missing for this amendment, with no benefit of the doubt. A verifier cannot determine whose authorization covers this edit to a frozen Phase 1 artifact, so the approval boundary the whole declaration exists to prove is not established for this content. Matches this same document's own precedent of a prior, analogous authorization gap being rated Critical APPROVAL-BOUNDARY and terminating an earlier attempt BLOCKED."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Because the Amendment Re-Review Context declaration does not conform this round, an implementation-policy reviewer inheriting this package would have to independently re-litigate a spec-review-scoped evidence-bar question -- whether the package's numerous later-phase references are legitimately disclosed or an unauthorized phase-sequencing violation -- rather than receiving a settled answer."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain directory and no domain context map exist in this worktree, and requirements.md contains no Bounded-Context field -- the check's skip condition is met."
+    }
+  ],
+  "verdict": "NEEDS_WORK"
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "fb24e6ff-7274-4721-b239-860d3d080fd7",
+  "host_session_id": "13ce29ec-1253-48ad-94bf-405491a1852e",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/precheck-result.json", "sha256": "376d0a244b0ef0944615d7d9c4bbe434d7b30650ad64b6d15a2054c53a90ad17"},
+    {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/dependency-graph.json", "sha256": "e39053c585df8fff5f528a3e2a14936488268958c51021721ad081bf049f8e03"},
+    {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path": "specs/workflow-state-integrity/tasks.md", "sha256": "a99b43dabd571782f27ed1318816fb9399027f177a5795348aac27541f9aa4bc"},
+    {"path": "specs/workflow-state-integrity/traceability.md", "sha256": "b4fcc6e4e28c6d21db73298fe58a6da81b16475451056461208c464f08c9d99e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "result": "PASS", "severity": "Critical", "finding": "Every AC reference in T-001 through T-006 resolves to AC-001 through AC-014 in acceptance-tests.md."},
+    {"id": "BLOCKERS-FORMAT", "result": "PASS", "severity": "Major", "finding": "All six tasks declare Blockers as either None or canonical comma-separated T-NNN identifiers; blockers_format_valid is true."},
+    {"id": "REQ-COVERAGE", "result": "PASS", "severity": "Critical", "finding": "REQ-001 through REQ-012 are each referenced by at least one of T-001 through T-006."},
+    {"id": "AC-COVERAGE", "result": "PASS", "severity": "Critical", "finding": "AC-001 through AC-014 are each referenced by at least one task Requirements field."},
+    {"id": "ORPHAN-TASK", "result": "PASS", "severity": "Major", "finding": "Every task T-001 through T-006 references at least one valid REQ-NNN identifier."},
+    {"id": "ORPHAN-TEST", "result": "PASS", "severity": "Major", "finding": "No task is an exclusively test-file task or has a title containing test, spec, or verify; implementation tasks that include tests explicitly reference applicable AC identifiers."},
+    {"id": "INITIAL-STATE", "result": "PASS", "severity": "Major", "finding": "In attempt 3 round 1, all tasks remain Approval: Draft and Status: Planned; no task is agent-approved or has an invalid status."},
+    {"id": "RISK-WORKFLOW-FORMAT", "result": "PASS", "severity": "Critical", "finding": "T-001 through T-005 pair Risk: high with tdd, and T-006 pairs Risk: medium with acceptance-first; precheck workflow_match_precheck is PASS."},
+    {"id": "NO-DUPLICATE-AC", "result": "PASS", "severity": "Major", "finding": "Each AC identifier is assigned to exactly one task, so no same-level primary acceptance target is duplicated."},
+    {"id": "DEPENDENCY-COMPLETE", "result": "PASS", "severity": "Major", "finding": "Every blocker reference resolves to a dependency-graph node among T-001 through T-006."},
+    {"id": "DEPENDENCY-CYCLE", "result": "PASS", "severity": "Critical", "finding": "The graph edges T-003→T-001/T-002, T-004/T-005→T-003, and T-006→T-004/T-005 form an acyclic dependency graph."},
+    {"id": "SINGLE-CONCERN", "result": "PASS", "severity": "Major", "finding": "Each task has one coherent concern: transition repair, registry/migration records, portable validation, repository/CI integration, quality/review-gate integration, or release metadata."},
+    {"id": "OBSERVABLE-DONE", "result": "PASS", "severity": "Major", "finding": "Each task names inspectable commands, suite outcomes, fixture behavior, verification logs, or implementation reports; T-001 through T-005 include Red-to-Green log paths and T-006 names validation commands and its report path."},
+    {"id": "TRACEABILITY-SYNC", "result": "PASS", "severity": "Major", "finding": "traceability.md contains Task Mapping entries for T-001 through T-006, and all mapped requirement identifiers resolve to REQ-001 through REQ-012 in requirements.md."}
+  ]
+}

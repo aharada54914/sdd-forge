@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "task-a-epic136guards-a1r2-20260712-b6c7",
+  "host_session_id": "hs-task-a-epic136guards-0162",
+  "manifest": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/tasks.md",
+      "sha256": "dc33045db132bdcb2e33aa283c951eb5bf65b4e0ffc6eab894cb80e4bd64b50d"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/traceability.md",
+      "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/ux-spec.md",
+      "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+      "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-2/precheck-result.json",
+      "sha256": "38a3fc5a0819dcfc45173e6d58c79c188db760e58b94cffa1f555e86417d1744"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-2/dependency-graph.json",
+      "sha256": "c445b464ba8c61540fbc0645a987eb2c0bbb3b31cdce011f44141431d5f10ae1"
+    }
+  ],
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN referenced in tasks.md Done When resolve to acceptance-tests.md (AC-001..AC-016); Requirements fields cite only REQ-NNN. No dangling AC."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six Blockers valid: T-001 'T-002', T-004 'T-003', others 'None'. Matches blockers_format_valid:true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each covered by exactly one task. No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-016 each map to exactly one task via traceability Acceptance Mapping and Done When. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task declares a Requirements field naming one REQ-NNN. No orphan tasks."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No test-only task; every task pairs new tests with implementation/config/doc changes and cites AC-NNN."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six tasks Approval: Draft, Status: Planned (round-2 rule satisfied)."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Risk/Workflow pairings match the matrix (T-001/T-002 critical/tdd; T-003..T-006 high/tdd). workflow_match_precheck:PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each AC assigned to exactly one task; no AC repeated across tasks."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Both Blockers references (T-002, T-003) exist in dependency-graph.json nodes."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT PASS so ran. Edges T-001->T-002 and T-004->T-003 are disjoint simple edges; no cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "'and' bundles sub-parts of one requirement (T-001 both R-10 checks per REQ-001; T-005 two REQ-005 actions per issue #114; T-002 same fix in .py/.js for parity). One issue = one commit."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No forbidden vague phrasing; every Done When names a concrete test file/TEST-ID, report, quality-gate verdict, cross-model consensus, signed bundle, or named second approver; doc-only T-004 names ship/SKILL.md fields/rule."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task has a traceability Task Mapping row; every REQ in traceability exists in requirements; layer anchors resolve to real headers; UX/Frontend N/A consistent."
+    }
+  ],
+  "findings": [],
+  "verdict": "PASS"
+}

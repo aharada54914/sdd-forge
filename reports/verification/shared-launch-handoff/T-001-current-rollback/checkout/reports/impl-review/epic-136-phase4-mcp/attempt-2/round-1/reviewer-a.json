@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase4mcp-impl-a2r1-a-seq0378",
+  "host_session_id": "SESS-impl-a2r1-a-epic136phase4mcp-0378",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-2/round-1/precheck-result.json",
+      "sha256": "20884a96e2c4cede9edec2b631a031f1b982e5a1b21f343c0672c35a6bae0779"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "d722965cd3a5916d35defd5314b3a1bb6a18f214bcca28cc39628680b1351c60"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 37-87) gives a mermaid diagram naming top-level component boundaries (evidence.ts subgraph, path-guard.ts+report-lookup.ts subgraph, contracts schema subgraph) with labeled interaction edges, verified accurate against the real call graph (evidence.ts:361-378 per-task loop -> parseVerificationContract; evidence.ts:704-783 evidenceDeepVerify -> echoSignature/verifyGitCommit; evidence.ts:217 -> anyFileContaining -> path-guard.ts:261-294 listGuardedFiles). Integration with existing components is explicit ('all 4 affected tools ... keep their exact existing {feature, taskId?} input contract', lines 81-84). Technology choices per layer are given via the adjacent ## Components table (lines 89-101: TypeScript, JSON Schema, esbuild output, node:test+ajv, Markdown) and ## Layer Specifications (lines 127-134, Frontend/UX explicitly N/A for this api-only feature). All 3 required elements present; not a one-sentence description."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency edges in design.md's mermaid diagram (lines 39-79): ECTT->PVC->UC; EDV->HRC, EDV->VCB; LGF->LGFD (wrapper depends on new fn, one direction); AFC->AFCD->LGFD (wrapper chain, one direction); EFM->AFCD->{UD,MISSPRESENT}. No back-edge exists from any downstream node (UC/HRC/UD/TCD/EDVD/EMD/DIST/PARITY) to an upstream node. Graph is a DAG; no cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md lines 170-191) has all 3 required sub-fields: Data Entities ('none new ... plus one new plain data shape (GuardedListError)'), Existing Data Affected ('none read differently'), Migration Strategy ('none. No schema changes to any artifact OUTSIDE contracts/sdd-forge-mcp-tools.v1.schema.json'). Each explicitly states the no-new-persistent-data rationale appropriate to this schema-only, non-DB feature."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md lines 193-586) names all 3 changed MCP tools (evidence_compare_to_traceability, evidence_deep_verify, evidence_find_missing) plus 2 new internal functions, gives TS request/response shapes and JSON-schema diffs for each, and states no deprecation/breaking change ('no tool is added/removed/renamed', line 25). Verified the 3 named $defs entries (traceabilityComparisonData, evidenceDeepVerifyData, evidenceMissingData) exist in contracts/sdd-forge-mcp-tools.v1.schema.json with the exact pre-change required/additionalProperties values design.md's diffs assume as their base."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 765-773) names 3 trust boundaries (B1 reason/note vs. secret material, B2 filesystem read-only, B3 policy-text vs. enforcement), states the auth/authz mechanism at each (read-only/allowlist-bounded, verbatim string reuse, no new crypto path), addresses data classification ('internal repository paths and parse-error text only', 'internal, non-secret'), and names OWASP concerns per boundary (Information Disclosure, Broken Access Control, Security Misconfiguration). Cross-consistent with requirements.md's own Security Boundaries table (lines 537-545) and the dedicated security-spec.md STRIDE/OWASP tables. All 4 required items present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md line 5: 'Feature Type: api-only (additive MCP tool-response-contract change; no frontend/UI ...)'). ux-spec.md and frontend-spec.md both confirm N/A/no-UI-surface stubs consistent with this classification."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 588-671) covers unit scope per changed function (TEST-001/002, TEST-003/004, TEST-005/006, TEST-007/008 each naming exact test files/paths, e.g. mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts, verified to be a real, new-file location consistent with the existing tests/path-security/ directory), integration scope (item 4's cross-boundary evidenceFindMissing/task-validation.ts parity check, naming 3 real existing suites: tests/parser/done-state.test.ts, tests/golden/task-state-golden.test.ts, tests/next-command/next-command.test.ts, all confirmed to exist), acceptance-criteria mapping via the AC-NNN/TEST-NNN table in acceptance-tests.md, and concrete command/CI evidence (npm test, npx tsc --noEmit, git diff --exit-code -- dist/, the existing mcp-tests 3-OS job). No critical-user-journey/E2E requirement applies (non-UI, api-only feature). Advisory note (non-blocking, Minor): the 'Parity Impact of REQ-004' prose (design.md lines 461-463) states an unqualified 'if and only if' invariant between evidenceFindMissing's missing-union-undeterminable and parseTaskState's done-quality-gate-report-missing; given design.md's own listGuardedFilesWithDiagnostics semantics (lines 315-354, continues past a mid-walk readdirSync/statSync failure and collects partial files), this general claim is not universally true for a partial-success-with-error scan, since task-validation.ts's unchanged anyFileContaining wrapper (report-lookup.ts:27-37, thin-wrapped per BL-003) drops errors and sees only non-empty matches. The concrete Test Strategy item 4(b) plan is correctly scoped to TEST-007/TEST-008's own top-level 'directory is unlistable' fixtures (line 618-620), which do satisfy the claim, so AC-007/AC-008's planned verification evidence itself is not broken by this over-generalization."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in ## Architecture / ## API / Contract Plan (evidence.ts, path-guard.ts, report-lookup.ts, quality-report.ts, review-ticket.ts, task-validation.ts, contracts/sdd-forge-mcp-tools.v1.schema.json, dist/index.js, tests/*, USERGUIDE.md, CHANGELOG.md) is defined in the ## Components table (design.md lines 89-101), including an explicit UNCHANGED row and rationale for quality-report.ts/review-ticket.ts and a separate detailed UNCHANGED row for task-validation.ts naming its exact import/call sites. Cross-verified all named files exist at the claimed paths in the repository."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 155-168) states no new ADR is introduced and explains why (purely additive, re-surfaces already-computed values, no new architectural pattern), referencing docs/adr/0003-mcp-dist-bundle-distribution.md, docs/adr/0008-evidence-deep-verify-no-signature-crypto.md, docs/adr/0009-evidence-deep-verify-match-host-canonical-formulas.md -- all 3 confirmed to exist at the claimed paths, with 0008/0009 confirmed 'Status: Proposed' exactly as design.md/investigation.md INV-016 state. No new architectural decision is being made by this feature that would require its own ADR; fallback PASS condition applies (no ADRs referenced as new, no undocumented architectural departure found)."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No design-system/ directory exists in this repository (verified via ls). design.md's ## Design System Compliance (line 138) also independently records 'N/A -- ds_profile: none', matching the check's own skip condition. Skipped per the check's applicability rule; PASS emitted."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (verified via ls), so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist either. Skipped per the check's applicability rule; PASS emitted."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "api-only"
+}

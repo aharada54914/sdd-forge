@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a4-r1-reviewer-a-seq775",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a4-r1-reviewer-a-775",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "7af2b9555801bd9b7e616f4eb0603e16c866ba11f7655cfcaa57ad548977277b"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-1/precheck-result.json", "sha256": "5870e42cba3801866cc16516bad51666437673194dff16f5d3446ebd649a8263"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each state exact, measurable behavior (schema field sets, exit codes, output-string shapes, insertion points, catalog contents) unchanged in kind by this amendment round; the three corrected sites (Dependencies/Non-goals/Assumptions) do not remove or weaken any requirement's testability."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-006 traces to at least one AC in the Acceptance Criteria table (AC-001..AC-031), and the amendment touched only prose in Dependencies/Non-goals/Assumptions, not the REQ/AC table itself; coverage is unchanged and still complete."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001..AC-031 describe concrete, externally observable outcomes (exact schema shapes, exit codes, output-line ordering, VERDICT values); this is unaffected by the amendment round."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals remains extensive and the contracts/** boundary itself stays unambiguous ('This feature does not author or edit ... or any other file under contracts/**'); the defect found in this same bullet (see CONSTRAINTS-EXPLICIT) is a wrong supporting fact about which named files are protected, not an absence of an explicit boundary, so it is reported there rather than here."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's amended Non-goals, first bullet, states: 'all four exist today and belong to Epic A2/A4 ..., and the first three of those named are R-10 protected in the live guard-invariants.json (protected_gate_suffixes and phase2_human_copy_targets)' -- the four named files, in listed order, are contracts/capability-registry.schema.json, contracts/capability-registry.json, contracts/capability-summary.schema.json, contracts/facet-manifest.schema.json, so 'the first three' asserts capability-summary.schema.json is R-10 protected. The same sentence cites 'the Amendment Re-Review Context's third entry, 2026-08-25' as its authority. But that entry's own 'What changed is access, not shape' paragraph (investigation.md, Amendment Re-Review Context, third entry) states the actual three R-10-protected files are 'contracts/capability-registry.schema.json, contracts/capability-registry.json and contracts/lite-upgrade-reason-catalog.json' -- a materially different third file (lite-upgrade-reason-catalog.json is not even one of the four files this Non-goals bullet enumerates), and capability-summary.schema.json is never described anywhere in investigation.md as R-10/guard-invariants-protected (grepped: it is only ever 'content-frozen'/A4-owned, INV-005). Downstream failure mode: a future implementation task deciding which of the four now-existing contracts files require human-copy staging vs. a direct/other application path, relying on this bullet's cited authority, will be told capability-summary.schema.json is protected by a citation that, read directly, says something else. This is a self-contained contradiction between two Phase-1 documents this gate owns (requirements.md and its own cited investigation.md section), discoverable by reading them side by side -- not an implementation-time question, and not resolvable by later-phase evidence. Separately, and not part of this FAIL: the Assumptions bullet's INV-013-citation withdrawal ('No Capability Pack exists yet ... its former citation ... is withdrawn ... a Capability Pack is a distinct artifact from the Registry instance (ADR-0018)') was reviewed as the flagged judgment call. Its conclusion is defensible on the terms it states (Capability Pack vs. Registry-instance is a real, pre-existing distinction the package already uses elsewhere, e.g. 'Target Users'), and it honestly discloses the weakening ('synthetic is a weaker claim than when this bullet was written') rather than overclaiming; it does not independently justify a FAIL, though the argument would be stronger if it noted that the live durable-workflow Capability's lite_policy cannot yet carry required_lite_checks (the v1.1 field this feature designs), which is the sharper reason every REQ-006 fixture remains synthetic."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims carry a stated validation surface: A5-not-yet-Passed risk is tracked via AC-029/Assumptions/Risks and the A6->A5 cross-epic-contract note; the catalog-seed-narrowness and reason-tokenization risks are tied to the catalog's own additive-versioning mechanism and a named future spec-review follow-up. Unaffected by this amendment round's three corrected sites."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (Glob on repository root returned no match for 'domain'), so this check's applicability condition is not met; recorded as skipped per the calibration."
+    }
+  ]
+}

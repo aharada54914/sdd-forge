@@ -1,0 +1,19 @@
+# Command: npm run typecheck && npm test  (from mcp/local-env-mcp)
+# Captured: 2026-07-05T11:17:58Z
+# TDD RED phase: no-secrets tests reference src/diagnostics.ts, which does not yet exist.
+# Expected: typecheck fails (cannot find module ./diagnostics.js) and/or test:compile fails; suite cannot reach green.
+# ---------------------------------------------------------------------------
+## typecheck (tsc --noEmit):
+
+> local-env-mcp@0.1.0 typecheck
+> tsc --noEmit
+
+## typecheck exit code: 0
+# ---------------------------------------------------------------------------
+## test (pretest tsc -p tsconfig.test.json, then run-tests):
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/no-secrets/diagnostics.test.ts(20,52): error TS2307: Cannot find module '../../src/diagnostics.js' or its corresponding type declarations.
+# --- test exit code: 2 ---

@@ -1,0 +1,20 @@
+=== SEAM bootstrap (sh) ===
+staged: /private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/t003-seam/stage-bootstrap-sh
+nonce: e4ba67fb47c2965c3f1f663c0832b0078a0220fe08dd6efeec6051c8b25b1934
+EXIT CODE: 0
+--- staged sidecar content ---
+{
+  "approval_epoch": 1,
+  "context_sha256": "sha256:814be91d61b46921c66c505299bc15643a06bd9ad1eda46eb10c161675363c4a",
+  "effective_at": null,
+  "hmac": "d765eaf6c774d9b58934a7ba9fddf8ce520dbbd1e43f663a3f9ecd672030137a",
+  "predecessor_context_sha256": null,
+  "primary_approval": {
+    "approved_at": "2026-07-30T13:54:31Z",
+    "approver": "alice",
+    "status": "Approved"
+  },
+  "schema": "sdd-project-context-approval/v1",
+  "second_approval": null,
+  "weakening_verdict": null
+}

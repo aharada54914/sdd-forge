@@ -1,0 +1,152 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-136-phase3",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "2f1d0cdd71e999d859f167624b49348eb2c076daafb16f2c3ec91a7872cdd7fb",
+  "created": "2026-07-28T14:24:02Z",
+  "comment": "Default-FAIL verification contract for T-003 (high, tdd -- risk-gate-matrix.md requires tdd at high/critical; tasks.md T-003 Risk Rationale, security-sensitive: true, issue #126). Populated after reports/quality-gate/20260728T140322Z-epic-136-phase3-T-003.md recorded VERDICT: PASS (RUN-epic-136-phase3-qg-T-003-seq0365, round 3 of 3 evaluated rounds -- the only task needing three -- 1 residual Minor, Accepted) for tests/deterministic-lane-selfcheck.tests.sh (TEST-016..018/020, AC-016..018/020): TDD RED then GREEN separated in specs/epic-136-phase3/verification/T-003/red-green-evidence.log (TEST-017-RED: dropped step correctly failed the coverage check, proving non-vacuity; TEST-017-GREEN: all baseline step names present with the [deterministic] prefix). Full pre-apply run recorded exit=1 (specs/epic-136-phase3/verification/T-003/selfcheck-run.log, 22 passed/0 failed/3 designed-red -- the designed fail-closed state per AC-020, not a defect) and the post-human-copy simulation recorded exit=0 (specs/epic-136-phase3/verification/T-003/post-apply-sim.log, 25 passed/0 designed-red). Re-confirmed under real /bin/bash 3.2.57 (specs/epic-136-phase3/verification/T-003/bash32-run.log). GUARD DEVIATION disclosed in the QG report: sdd-hook-guard denies agent writes to any path ending with the protected workflow suffix, including the human-copy staging path, so the real staged candidate was authored at a non-protected draft path (specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml, built via build-candidate.py) -- the human-copy placement, live application, and GitHub branch-protection re-confirmation remain outstanding human actions (Cannot-Verify Items), not part of this task's Done-When scope. Shell/Markdown/YAML stack (test-infrastructure files, the staged draft candidate, plus this JSON contract) waives the three compile-oriented checks (lint/typecheck/build); the candidate's own YAML validity is exercised by TEST-016's ruby/Psych parse check inside the referenced logs. Landing commits per the QG report: d59fdda8 (staged draft candidate + self-check + MANIFEST) + faa00fd5 (report + CHANGELOG) + ea7b72b4 (round-1 remediation) + 54eb13f1 (round-2 remediation: quote the prefix, gate YAML validity) + fe8618fd (round-2 minor: stale counts).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus staged YAML draft candidate and JSON contract file (stack: shell); bash -n parse validity and the candidate's YAML validity (ruby/Psych) are exercised implicitly by every green run recorded in selfcheck-run.log/post-apply-sim.log.",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files or the staged YAML draft candidate.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/post-apply-sim.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-136-phase3/verification/T-003/red-green-evidence.log",
+      "green_evidence": "specs/epic-136-phase3/verification/T-003/post-apply-sim.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what the self-check already exercises against the real staged-candidate/live-workflow comparison; the human-copy application and GitHub branch-protection re-confirmation are guard-enforced human actions recorded as Cannot-Verify Items in the quality-gate report, not an automatable integration surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/post-apply-sim.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-136-phase3/verification/T-003/red-green-evidence.log",
+      "green_evidence": "specs/epic-136-phase3/verification/T-003/post-apply-sim.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/bash32-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files or the staged YAML draft candidate.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/selfcheck-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/selfcheck-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-003/bash32-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's self-check suite fully covers its own staged-candidate surface via the RED/GREEN and post-apply-simulation logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is a documented, deliberate restructuring (design.md API/Contract Plan); byte-invariance outside the single test job (job graph and required-checks needs preserved) is the applicable behavior comparison, proven in the RED/GREEN evidence.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are a staged CI workflow candidate, manifest, and doc files only (ux-spec.md and frontend-spec.md are N/A stubs for this CI/test-hardening feature).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

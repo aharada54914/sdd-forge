@@ -1,0 +1,65 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "agent-cost-context-isolation",
+  "run_id": "impl-integrated-20260630-0326",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "library",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21",
+  "acceptance_sha256": "6887ad149fffdb23e8d0dcde8c7f6b8bf664e7ef8a8b2ba76bab79b2c02a0012",
+  "design_sha256": "7373ad19278d446df82a57967aea6d2eb6c27b65cec20653bc5b4c1b8a24056f",
+  "layer_sha256": {
+    "ux-spec.md": "926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74",
+    "frontend-spec.md": "0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d",
+    "infra-spec.md": "2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d",
+    "security-spec.md": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-full-20260630-0322",
+      "host_session_id": "impl-session-a-full-20260630-0322",
+      "allowed_input_manifest": [
+        {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+        {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"6887ad149fffdb23e8d0dcde8c7f6b8bf664e7ef8a8b2ba76bab79b2c02a0012"},
+        {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7373ad19278d446df82a57967aea6d2eb6c27b65cec20653bc5b4c1b8a24056f"},
+        {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+        {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+        {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+        {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+        {"path":"reports/impl-review/agent-cost-context-isolation/attempt-1/round-1/precheck-result.json","sha256":"cdde592a2dbac3bba4a25e7904e4052bfca4a07a2acc540c8352b9ec2b63e769"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-full-20260630-0325",
+      "host_session_id": "impl-session-b-full-20260630-0325",
+      "allowed_input_manifest": [
+        {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+        {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"6887ad149fffdb23e8d0dcde8c7f6b8bf664e7ef8a8b2ba76bab79b2c02a0012"},
+        {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7373ad19278d446df82a57967aea6d2eb6c27b65cec20653bc5b4c1b8a24056f"},
+        {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+        {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+        {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+        {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+        {"path":"reports/impl-review/agent-cost-context-isolation/attempt-1/round-1/precheck-result.json","sha256":"cdde592a2dbac3bba4a25e7904e4052bfca4a07a2acc540c8352b9ec2b63e769"},
+        {"path":"reports/impl-review/agent-cost-context-isolation/attempt-1/round-1/integrated-summary.json","sha256":"cd1d051214e60ffe281f16ec86a52f66ceb7954ea878ffe323b33e3d90f6bb0f"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Expanded the full-profile infrastructure and security layer specifications before review; both independent reviewers passed the corrected complete input set.",
+  "timestamp": "2026-06-30T03:26:00Z"
+}

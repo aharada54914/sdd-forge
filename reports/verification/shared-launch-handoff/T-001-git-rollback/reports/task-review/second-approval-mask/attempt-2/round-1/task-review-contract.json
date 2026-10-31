@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "second-approval-mask",
+  "run_id": "RUN-second-approval-mask-task-a2round1-host",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "none",
+  "round": 1,
+  "attempt": 2,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41",
+  "acceptance_sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e",
+  "design_sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58",
+  "tasks_sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5",
+  "traceability_sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482",
+  "layer_sha256": {
+    "ux-spec.md": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff",
+    "frontend-spec.md": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833",
+    "infra-spec.md": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e",
+    "security-spec.md": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+  },
+  "workflow_match_precheck": "PASS",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-second-approval-mask-task-task-reviewer-a-seq0180",
+      "host_session_id": "SESS-task-task-reviewer-a-second-approval-mask-0180",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/second-approval-mask/requirements.md",
+          "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+        },
+        {
+          "path": "specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+        },
+        {
+          "path": "specs/second-approval-mask/design.md",
+          "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+        },
+        {
+          "path": "specs/second-approval-mask/tasks.md",
+          "sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5"
+        },
+        {
+          "path": "specs/second-approval-mask/traceability.md",
+          "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+        },
+        {
+          "path": "specs/second-approval-mask/security-spec.md",
+          "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+        },
+        {
+          "path": "specs/second-approval-mask/infra-spec.md",
+          "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+        },
+        {
+          "path": "specs/second-approval-mask/ux-spec.md",
+          "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+        },
+        {
+          "path": "specs/second-approval-mask/frontend-spec.md",
+          "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-1/precheck-result.json",
+          "sha256": "848c38a90702c897e50e6c417edea1080b2c1fe27b5fec359194634fc49acf96"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-1/dependency-graph.json",
+          "sha256": "1ed750249c30a9f78159373f16cc94e06b9526c973a5524e72c8b7122d1f15af"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-second-approval-mask-task-task-reviewer-b-seq0181",
+      "host_session_id": "SESS-task-task-reviewer-b-second-approval-mask-0181",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/second-approval-mask/requirements.md",
+          "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+        },
+        {
+          "path": "specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+        },
+        {
+          "path": "specs/second-approval-mask/design.md",
+          "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+        },
+        {
+          "path": "specs/second-approval-mask/tasks.md",
+          "sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5"
+        },
+        {
+          "path": "specs/second-approval-mask/traceability.md",
+          "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+        },
+        {
+          "path": "specs/second-approval-mask/security-spec.md",
+          "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+        },
+        {
+          "path": "specs/second-approval-mask/infra-spec.md",
+          "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+        },
+        {
+          "path": "specs/second-approval-mask/ux-spec.md",
+          "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+        },
+        {
+          "path": "specs/second-approval-mask/frontend-spec.md",
+          "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-1/precheck-result.json",
+          "sha256": "848c38a90702c897e50e6c417edea1080b2c1fe27b5fec359194634fc49acf96"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-1/integrated-summary.json",
+          "sha256": "72c2108a6e7f0953a745ca7faa9da54bed1318fc921020d8bef9ae63c77dbd99"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-07-12T10:40:36Z"
+}

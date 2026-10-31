@@ -1,0 +1,20 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-006",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "anthropic",
+  "model": "claude-code-default",
+  "verdict": "PASS",
+  "findings": [
+    {"id":"F-001","severity":"info","summary":"RenameRelative allocates structureSize (24 on 64-bit, 16 on 32-bit) plus name.Length bytes. The FILE_RENAME_INFO header ends at nameOffset=20 on 64-bit, so the buffer is 4 bytes larger than the strict minimum. This is safe; the comment referencing the minimum-size contract is correct."},
+    {"id":"F-002","severity":"minor","summary":"In PublishAll's catch handler, CleanupUnpublished is invoked before re-throwing. If CleanupUnpublished itself throws (e.g., FileDispositionInfo set fails), the original rename exception is replaced by the cleanup exception, which may complicate post-failure diagnosis. This does not affect the security or correctness of published files and is an accepted operational trade-off."},
+    {"id":"F-003","severity":"info","summary":"Get-RepositoryRoot performs path-based filesystem traversal before AnchoredCopySession is constructed. This pre-anchor traversal cannot be fully avoided without a caller-supplied root; the -RepositoryRoot parameter provides that escape. All security-critical copy, hash, and rename paths operate exclusively through the anchored session."},
+    {"id":"F-004","severity":"info","summary":"The staged MANIFEST.sha256 contains exactly 18 entries in inventory order with lowercase-64-hex digests separated by two spaces, matching the Get-ManifestDigests parser contract and the phase2_human_copy_targets inventory declared in requirements.md."},
+    {"id":"F-005","severity":"info","summary":"The native rename API addendum records that SetFileInformationByHandle returns Win32 87 on the reviewed PS5.1/NTFS host when RootDirectory is non-null, triggering NtSetInformationFile with the same handles, leaf buffer, and replacement flag. Any other error or NtSetInformationFile failure aborts before post-install verification; no path-based fallback exists. ADR 0011 and the human decision of 2026-07-14 authorize this specific fallback."},
+    {"id":"F-006","severity":"info","summary":"TEST_FIXTURE_SOURCE_SUBSTITUTION, TEST_FIXTURE_PARENT_SUBSTITUTION, TEST_FIXTURE_AFTER_PREPARE_ITEM, and TEST_FIXTURE_BEFORE_RENAME comment markers are present in the C# source at the expected injection points, consistent with the isolated fixture-only instrumented runner contract required by TEST-013."},
+    {"id":"F-007","severity":"info","summary":"RED evidence (55 passed / 13 failed) maps cleanly to the 13 expected failing contracts listed in the critical preflight table. GREEN evidence (68/68 PowerShell, 33/33 Bash, generator --check pass, workflow-state ok) satisfies AC-013 and the regression rerun of TEST-001 through TEST-004. The security review confirms no credential, token, or API-key literals in staged artifacts."}
+  ],
+  "blind": true,
+  "input_digest": "cd3c5d65606f0c809a6616ef91ac785d4e2eba00bb4464ae54210567a0c3afe6",
+  "consent": {"kind":"human-flag","ref":"tasks.md T-006 Cross-Model: enabled"}
+}

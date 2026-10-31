@@ -1,0 +1,13 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 1,
+  "round": 2,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "6e11f53a2ee0502a6fb8202d48a6c8619a36da882bbafa44dfd0b65610024d9d",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "generated_at": "2026-06-27T03:10:34Z"
+}

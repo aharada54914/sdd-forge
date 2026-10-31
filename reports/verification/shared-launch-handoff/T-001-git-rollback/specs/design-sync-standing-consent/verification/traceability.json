@@ -1,0 +1,90 @@
+{
+  "feature": "design-sync-standing-consent",
+  "generated_by": "wave9-quality-gate-preprocessing 2026-08-08 (derived from specs/design-sync-standing-consent/traceability.md's Requirement Coverage table, which is itself transcribed from requirements.md/acceptance-tests.md/design.md at Phase 2 authoring time)",
+  "schema": "traceability/v1",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-031"],
+      "tests": ["TEST-001", "TEST-002", "TEST-003", "TEST-004", "TEST-005", "TEST-055", "TEST-056"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-002/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-005", "AC-006"],
+      "tests": ["TEST-006", "TEST-007"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-002/green-sh.log",
+        "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-007", "AC-008", "AC-009", "AC-030", "AC-010"],
+      "tests": ["TEST-008", "TEST-009", "TEST-010", "TEST-011", "TEST-012"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-011", "AC-012", "AC-013", "AC-014"],
+      "tests": ["TEST-013", "TEST-014", "TEST-015", "TEST-016", "TEST-017", "TEST-018"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-015"],
+      "tests": ["TEST-019", "TEST-020", "TEST-021", "TEST-022", "TEST-023", "TEST-024", "TEST-025"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/step3-abc-new-dewhitespaced.txt"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-016", "AC-017", "AC-018", "AC-019", "AC-029"],
+      "tests": ["TEST-026", "TEST-027", "TEST-028", "TEST-029", "TEST-030", "TEST-031", "TEST-032", "TEST-033", "TEST-034", "TEST-035", "TEST-036", "TEST-037", "TEST-038", "TEST-039", "TEST-040", "TEST-041", "TEST-042", "TEST-043"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-020", "AC-021"],
+      "tests": ["TEST-044", "TEST-045"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-022", "AC-023", "AC-024"],
+      "tests": ["TEST-046", "TEST-047", "TEST-048", "TEST-049", "TEST-050"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-004/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-025", "AC-026"],
+      "tests": ["TEST-051", "TEST-052"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-003/dsc29-post-edit-sh.log",
+        "specs/design-sync-standing-consent/verification/T-004/dsc29-post-edit-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-010",
+      "acs": ["AC-027", "AC-028"],
+      "tests": ["TEST-053", "TEST-054"],
+      "evidence": [
+        "specs/design-sync-standing-consent/verification/T-001/red-baseline-sh.log",
+        "specs/design-sync-standing-consent/verification/T-005/candidate-selfcheck-sh.log"
+      ]
+    }
+  ]
+}

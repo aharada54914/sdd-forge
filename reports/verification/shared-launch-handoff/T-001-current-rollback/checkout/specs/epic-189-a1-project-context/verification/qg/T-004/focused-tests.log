@@ -1,0 +1,24 @@
+=== focused: bash tests/approver-registry-schema.tests.sh ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+bash-exit=0
+=== focused: pwsh ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+pwsh-exit=0

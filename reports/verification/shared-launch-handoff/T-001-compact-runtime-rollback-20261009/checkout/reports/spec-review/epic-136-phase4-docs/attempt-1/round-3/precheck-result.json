@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "7f3fe2c3a56cd291287a498c59b04cb1e35be319db5e6c926565be472cfaace9",
+  "acceptance_sha256": "7d439134de57d99a86430ea1d0fbc941d7db452d2abc00852f805e35e72d8780",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "bf21f14cb4de910eb7af2f861b63e8984614481d098be1db8f405efc71377ea0",
+  "edit_summary": "Round-2 remediation: 4 Major + 1 Minor addressed. AC-004/AC-005 rescoped from 'shell runner' to all four runners, with a per-runtime pass-bar table stating the PowerShell mechanism (Start-Process -PassThru + WaitForExit(ms), Kill(true) as the SIGTERM-then-SIGKILL analogue) and its liveness assertion; AC-004 also now scopes its 'terminates the stub' clause to the timeout path so it no longer contradicts TEST-004(c). TEST-004/TEST-005 Target column changed to all 4 runners and both detail sections gained the PowerShell sub-case mapping. New AC-014/TEST-014 resolves investigation OQ-3 for #134 as yes: THREAT-MODEL.md gains a residual-risk entry for the unbounded panelist, marked closed and naming SDD_PANELIST_TIMEOUT. TEST-003 sub-case classification corrected from 'first three/last three' (6 of 7) to first four valid / last three invalid.",
+  "reset": false,
+  "generated_at": "2026-07-31T13:51:37Z"
+}

@@ -1,0 +1,1960 @@
+# Panelist Input Bundle
+# task_id: T-006
+# feature: epic-136-phase1-guards
+# input_digest: a7030d78e1a5fa17ca1d75b2245f2920862310b3bd03ecb7316ce31f6cef9fd6
+# consent: human-flag
+# WARNING: This file is sanitized for external LLM review.
+#          Do not include secrets, absolute paths, or private URLs.
+
+# Panel Input Bundle Manifest — T-006 (epic-136-phase1-guards)
+
+This bundle contains the feature specification documents followed by the
+ACTUAL implementation artifacts for T-006. Each artifact section begins with a
+marker line of the form `===== artifact: <repo-relative path> (sha256: ...) =====`.
+
+Included implementation artifacts:
+- `specs/epic-136-phase1-guards/human-copy/claude-hooks.json` (sha256 `09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d`)
+- `specs/epic-136-phase1-guards/human-copy/T-006.MANIFEST.sha256` (sha256 `942f273ca67c5349ce06dc0ee48b5afd505b52eaf88384b8c73b0fce3e107504`)
+- `tests/claude-bash-matcher.tests.sh` (sha256 `444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762`)
+- `specs/epic-136-phase1-guards/verification/T-006/red.log` (sha256 `2b0f603bde01b3244f8478c90095e2bcabe7a0676418fadce76c26b68d664e73`)
+- `specs/epic-136-phase1-guards/verification/T-006/green.log` (sha256 `4c291824bffb2b668bf4b62c573cc2ce00792fa79f9fbb5fd909962847dd8aed`)
+- `specs/epic-136-phase1-guards/verification/qg/T-006/focused-tests.log` (sha256 `026104c34624c6b897b1d551e476741aa47f382d0df9b291e5b0bdcf00e95d72`)
+
+Workflow-state note (pre-gate semantics): this cross-model panel runs BEFORE
+the independent quality gate, as an input to it. Therefore, by design at this
+point in the workflow: tasks.md shows `Status: Implementation Complete` (not
+Done); the Done When items for the independent quality-gate PASS and the
+cross-model consensus are intentionally still unchecked; and traceability.md
+Status remains `Planned` until the quality gate records its report. These are
+process-state facts, not evidence gaps: the implementation evidence you are
+asked to judge is the artifact set above (matcher content, test source,
+RED log, GREEN log, and the gate-time focused-suite rerun log).
+# Requirements: epic-136-phase1-guards
+
+Spec-Review-Status: Passed
+Source Issues: https://github.com/aharada54914/sdd-forge/issues/109,
+https://github.com/aharada54914/sdd-forge/issues/110,
+https://github.com/aharada54914/sdd-forge/issues/112,
+https://github.com/aharada54914/sdd-forge/issues/113,
+https://github.com/aharada54914/sdd-forge/issues/114,
+https://github.com/aharada54914/sdd-forge/issues/160
+Epic: https://github.com/aharada54914/sdd-forge/issues/136 (Phase 1 remainder)
+
+## Overview
+
+Close the remaining Phase 1 enforcement gaps in the SDD deterministic gate
+chain. Six independent hardening items: (1) the PowerShell guard twin lacks the
+R-10 protected-gate-file write denial and the Impl-Review-Status forgery
+check that the Python and Node twins enforce; (2) the R-10 write-target
+analysis in the Python and Node twins can be bypassed by changing the working
+directory and referencing a protected file by basename; (3) the quality-gate
+cycle limit (three gate reports, then Escalate-Human) exists only as prose in
+the ship skill and has no deterministic script; (4) cross-model verification
+for critical or security-sensitive tasks silently depends on a human
+remembering the `--verify` flag; (5) the weekly self-improvement workflow
+holds broader GitHub permissions than it demonstrably needs and has no
+deterministic guard between its automated session and the pull requests it
+creates; (6) the Claude Code hook configuration does not route Bash tool
+calls to the guard at all, so a protected-file write launched through Bash is
+never intercepted under stock Claude Code (investigation verdict of issue
+#116, follow-up tracked as issue #160).
+
+## Target Users
+
+- Maintainers who rely on the deterministic gate chain to hold even when an
+  agent misbehaves or is prompt-injected.
+- Windows operators whose dispatcher falls back to the PowerShell guard twin
+  when `python3`/`node` are unavailable.
+- Operators running `/sdd-ship:ship` who need the cycle limit and the
+  cross-model requirement to be machine-checked rather than remembered.
+- Reviewers auditing automated weekly self-improvement pull requests.
+
+## Problems
+
+- `sdd-hook-guard.ps1` contains no R-10 protected-path table, no shell
+  write-target analysis for protected files, and no Impl-Review-Status
+  forgery check (symbol grep is zero); on a Windows host without `python3`
+  and `node`, the dispatcher's `.ps1` fallback lets an agent overwrite gate
+  scripts or self-declare `Impl-Review-Status: Passed`.
+- `has_protected_path` in `sdd-hook-guard.py:1161-1164` (and the equivalent
+  logic in `sdd-hook-guard.js`) matches the protected path as a substring of
+  the command text; `cd plugins/sdd-quality-loop/scripts && rm
+  sdd-hook-guard.py` resolves write targets by basename and escapes the
+  comparison.
+- The only infinite-loop protection for the quality gate is prose in
+  `plugins/sdd-ship/skills/ship/SKILL.md:137-147`; every other safety
+  boundary in the chain is script-plus-test enforced.
+- `plugins/sdd-ship/skills/ship/SKILL.md:123-129` runs cross-model
+  verification only when `--verify` was passed and the task opts in with
+  `Cross-Model: enabled`; forgetting the flag on a critical task skips panel
+  verification without any diagnostic.
+- `.github/workflows/self-improvement.yml:32-36` grants `contents`,
+  `pull-requests`, `issues`, and `id-token` write permissions, and the trust
+  boundary between the automated Claude session and the created PR is
+  enforced only by prompt text.
+- `plugins/sdd-quality-loop/hooks/claude-hooks.json:16` matches only
+  `Edit|Write|MultiEdit|apply_patch`; the Codex configuration
+  (`hooks/hooks.json:16`) additionally matches
+  `Bash|bash|shell|exec_command|exec`. Under stock Claude Code the guard is
+  never invoked for Bash, so every Bash-mediated protected-file write is
+  unguarded (issue #116 verdict; issue #160).
+
+## Goals
+
+- REQ-001: Port the R-10 protected-gate-file write denial (protected-suffix
+  table, shell write-target analysis, read-only short-circuit) and the
+  Impl-Review-Status forgery check from `sdd-hook-guard.py`/`.js` to
+  `sdd-hook-guard.ps1` so that all three guard twins deny the same
+  operations with the same decision semantics. The ported `.ps1` logic must
+  incorporate the REQ-002 working-directory fix and remain ASCII-only for
+  Windows PowerShell 5.1 compatibility. (Issue #109)
+- REQ-002: First add a failing (RED) regression test proving that a shell
+  command of the form `cd <protected-dir> && rm <protected-basename>`
+  currently passes the guard; then fix the write-target analysis in
+  `sdd-hook-guard.py` and `sdd-hook-guard.js` to track working-directory
+  transitions (`cd`, `pushd`) across compound-command segments and compare
+  resolved absolute targets against the protected table. The read-only
+  short-circuit must be preserved. (Issue #110)
+- REQ-003: Extract the quality-gate cycle limit into a deterministic script
+  pair `check-quality-gate-cycle-limit.sh` / `.ps1` that, given a task ID,
+  counts existing gate reports referencing that task in
+  `reports/quality-gate/` and emits `continue` (exit 0) for fewer than three
+  reports and `Escalate-Human` (non-zero exit) for three or more. Update
+  `ship/SKILL.md` Step 4 to call the script instead of describing the count
+  in prose. (Issue #112)
+- REQ-004: Require cross-model verification for tasks with `Risk: critical`
+  or `Security-Sensitive: true` even when `--verify` was not passed. The
+  trigger fields are named exactly: cross-model verification is required when
+  the task's tasks.md entry carries `Risk: critical`, or carries
+  `Security-Sensitive: true` (a per-task boolean the task author proposes and
+  the human confirms at approval). The gate may be skipped for such a task
+  only when tasks.md records a `Cross-Model-Waiver:` field on that task AND
+  that task also carries a human `Approval: Approved` audit mark naming a
+  second distinct human approver — the same human-only mark the deterministic
+  guard already prevents an agent from writing, and the same distinct-approver
+  rule already mandated for critical tasks. A `Cross-Model-Waiver:` value that
+  is not accompanied by that human approval context is ignored and cross-model
+  verification remains required (fail-closed); an agent therefore cannot grant
+  itself a waiver, because it cannot produce the human approval mark the waiver
+  depends on. The `Security-Sensitive:` and `Cross-Model-Waiver:` field
+  definitions and the lite-track behavior for critical tasks must be specified
+  in `ship/SKILL.md`. Guard-level enforcement of the `Cross-Model-Waiver:`
+  token itself is future hardening and out of scope for this batch; it is
+  unnecessary here because the waiver is inert without the human approval
+  context. Lite-track interaction: a task with `Risk: critical` or
+  `Security-Sensitive: true` is not eligible for the lite track and must use
+  the full track; `ship/SKILL.md` states that the lite gate rejects such a
+  task with a diagnostic directing the human to the full track. This keeps
+  REQ-004's cross-model requirement unconditional for those tasks while
+  leaving the lite track free of any cross-model step (the two never meet),
+  so there is no carve-out that could silently drop the safeguard. (Issue
+  #113)
+- REQ-005: Minimize `self-improvement.yml` permissions — determine whether
+  the pinned `claude-code-action` release actually performs an OIDC exchange
+  and remove `id-token: write` if unused (or document why it must stay) —
+  and add a deterministic post-session guard step that inspects the pull
+  requests or branches created by the run and fails the workflow when any
+  change touches enforcement-chain surfaces (gate scripts, hook
+  configurations, `reports/`, `docs/workflow-improvements/`, or the
+  workflow files themselves). (Issue #114)
+- REQ-006: Extend the Claude Code hook matcher in
+  `hooks/claude-hooks.json` to route Bash tool calls to the guard, matching
+  the Codex matcher's coverage. Preserve fail-closed behavior for payloads
+  the guard cannot classify. Add Bash regression coverage for a
+  protected-file write (denied) and a read-only command over a protected
+  path (allowed), and validate decision parity with the Codex and Copilot
+  hook paths. (Issue #160)
+
+## Non-goals
+
+- Consolidating the protected-suffix tables of the three guard twins into a
+  single generated source of truth (tracked separately as SEC-15; REQ-001
+  proceeds by porting).
+- Making the Bash-command heuristic in the guard a complete interpreter; per
+  the guard's own comments it is best-effort against `python3 -c`/`node -e`
+  style evasion, and this batch does not claim to close interpreter-mediated
+  writes.
+- Changing the SDD_SUDO token format, the kill-switch, the WFI/Second
+  Approval human-only rules, or any review-loop contract schema.
+- Rewriting the weekly self-improvement prompt or changing its schedule.
+- Adding a cross-model step to the lite track. Instead of running cross-model
+  on the lite track, `Risk: critical` / `Security-Sensitive: true` tasks are
+  made ineligible for the lite track (REQ-004), so the lite track keeps no
+  cross-model step and those tasks receive cross-model on the full track.
+
+## User Stories
+
+As a maintainer, when an agent on any supported host (POSIX with python3 or
+node, or Windows PowerShell 5.1) attempts to overwrite a gate script, hook
+configuration, or critical test — directly, through a shell command, or after
+changing the working directory — the guard denies it deterministically. As an
+operator shipping a critical task, the pipeline requires panel verification
+or an explicit recorded waiver; I cannot lose that safeguard by forgetting a
+flag. As a reviewer of automated weekly PRs, I know a deterministic check ran
+before the PR reached me, and that the automation could not silently modify
+its own enforcement chain.
+
+## Acceptance Criteria
+
+- AC-001: With the `.ps1` guard, a file-tool (`Edit`/`Write`/`MultiEdit`) or
+  shell-command payload that writes to or deletes any path in the protected
+  table is denied, and decisions match the `.py`/`.js` twins for the same
+  payloads. (REQ-001)
+- AC-002: With the `.ps1` guard, a payload that adds
+  `Impl-Review-Status: Passed` to `design.md` without a corresponding PASS
+  verdict artifact is denied, matching `.py`/`.js` semantics. (REQ-001)
+- AC-003: With the `.ps1` guard, read-only shell payloads that merely
+  reference protected paths remain allowed (read-only short-circuit parity).
+  (REQ-001)
+- AC-004: A regression test exists that (a) was demonstrated to fail against
+  the pre-fix guard — recorded RED evidence — and (b) now proves
+  `cd <protected-dir> && rm <basename>` and `pushd`-based equivalents are
+  denied by `.py` and `.js`. (REQ-002)
+- AC-005: After the REQ-002 fix, existing guard suites and the read-only
+  short-circuit still pass, and `.py`/`.js` decisions remain identical on
+  the shared corpus. (REQ-002)
+- AC-006: `check-quality-gate-cycle-limit.sh` and `.ps1` return `continue`
+  (exit 0) when 0, 1, or 2 gate reports reference the task ID, and
+  `Escalate-Human` (non-zero) when 3 or more do; task-ID matching uses word
+  boundaries; both implementations agree on the same fixtures. (REQ-003)
+- AC-007: `ship/SKILL.md` Step 4 invokes the cycle-limit script and contains
+  no prose-only counting instruction. (REQ-003)
+- AC-008: A task bearing `Risk: critical` or `Security-Sensitive: true`
+  reaches the quality gate only after cross-model verification ran in the same
+  ship invocation, or a valid `Cross-Model-Waiver:` is recorded — valid
+  meaning the same task also carries a human `Approval: Approved` audit mark
+  naming a second distinct human approver. A `Cross-Model-Waiver:` present
+  without that human approval context is treated as absent, so cross-model
+  verification is still required; absent both cross-model and a valid waiver,
+  the ship flow stops with a diagnostic naming the task. (REQ-004)
+- AC-009: The `Security-Sensitive:` trigger field, the `Cross-Model-Waiver:`
+  field (its name, who may set it, the human-approval context that makes it
+  valid, and its audit value), and the lite-track rule for critical tasks —
+  that a `Risk: critical` or `Security-Sensitive: true` task is ineligible for
+  the lite track and the lite gate rejects it with a diagnostic directing the
+  human to the full track — are documented in `ship/SKILL.md`. (REQ-004)
+- AC-016: The lite gate rejects a `Risk: critical` or `Security-Sensitive:
+  true` task with a diagnostic naming the task and directing the human to the
+  full track, rather than admitting it to a track that has no cross-model
+  step. (REQ-004)
+- AC-010: `self-improvement.yml` carries only permissions the run
+  demonstrably uses; `id-token: write` is removed, or a comment cites the
+  pinned action's documented OIDC requirement. (REQ-005)
+- AC-011: A deterministic workflow step fails the run when a branch or PR
+  created by the automated session changes any enforcement-chain surface
+  (gate scripts, hook configurations, `reports/`,
+  `docs/workflow-improvements/`, `.github/workflows/`); a compliant PR
+  passes it. (REQ-005)
+- AC-012: With the updated `claude-hooks.json`, a Bash tool call that writes
+  to a protected file is denied under Claude Code hook semantics, and a
+  read-only Bash call over a protected path is allowed. (REQ-006)
+- AC-013: Malformed or unclassifiable guard payloads remain denied
+  (fail-closed), and the Claude, Codex, and Copilot hook paths produce the
+  same decision for the shared Bash corpus. (REQ-006)
+- AC-014: When the automated self-improvement session creates no branch and no
+  pull request, the deterministic guard step passes vacuously (exit success)
+  rather than erroring. (REQ-005)
+- AC-015: A deterministic check verifies that the modified `sdd-hook-guard.ps1`
+  contains only ASCII bytes (0x00–0x7F, no BOM), failing if any non-ASCII byte
+  is present; it runs in the test suite so a non-ASCII character introduced
+  during the REQ-001 port cannot ship undetected to a Windows PowerShell 5.1
+  host. (REQ-001)
+
+## Field Definitions
+
+- `Security-Sensitive:` — optional per-task boolean field in a tasks.md task
+  entry. `true` marks the task as requiring cross-model verification
+  regardless of `Risk:` tier. The task author proposes it; the human confirms
+  it at approval. Absent or `false` means the field does not force cross-model
+  verification (the `Risk:` tier still may).
+- `Cross-Model-Waiver:` — optional per-task field recording an explicit
+  decision to skip cross-model verification for a task that would otherwise
+  require it. It is honored only when the same task also carries a human
+  `Approval: Approved` audit mark naming a second distinct human approver;
+  otherwise it is ignored and cross-model verification remains required. The
+  field carries a short human-authored reason as its audit value.
+
+## Roles and Permissions
+
+- Agent: may stage corrected versions of enforcement-chain files under
+  `specs/epic-136-phase1-guards/human-copy/` but can never write the live
+  protected paths; the R-10 gate denies it.
+- Human maintainer: copies staged enforcement-chain files into place,
+  reviews diffs, approves tasks, and owns all waiver decisions. A
+  `Cross-Model-Waiver:` is only effective when set alongside the human
+  `Approval: Approved` mark with a second distinct human approver, so waiver
+  authority is inseparable from the human approval act; an agent-written
+  waiver without that context has no effect.
+- CI: executes the test suites on all three OS runners; the self-improvement
+  workflow additionally gets a deterministic pre-PR guard.
+
+## Main Workflows
+
+1. Agent implements agent-editable artifacts (new scripts, new tests,
+   workflow YAML, regression corpora) directly.
+2. For each protected surface (`sdd-hook-guard.ps1`, `sdd-hook-guard.py`,
+   `sdd-hook-guard.js`, `ship/SKILL.md`, `hooks/claude-hooks.json`), the
+   agent stages the complete corrected file under
+   `specs/epic-136-phase1-guards/human-copy/` together with a manifest of
+   target paths and SHA-256 hashes; the human copies each file into place
+   and re-runs the named test commands.
+3. Tests are written RED-first where the requirement mandates it (REQ-002),
+   then the fix lands, then parity suites run.
+4. The quality gate evaluates each task with the standard evidence chain.
+
+## Edge Cases
+
+- Windows PowerShell 5.1 parses BOM-less non-ASCII `.ps1` sources as ANSI;
+  every `.ps1` change must remain ASCII-only.
+- `cd` without a following write, `cd -`, quoted paths containing spaces,
+  and `pushd`/`popd` pairs must not produce false denials of read-only
+  commands.
+- A task ID that is a prefix of another (`T-001` vs `T-0010`) must not
+  inflate the cycle count (word-boundary matching, mirroring issue #111).
+- `reports/quality-gate/` may be absent in a fresh checkout; the cycle-limit
+  script treats that as zero reports.
+- The self-improvement session may create no PR at all; the guard step must
+  pass vacuously.
+- A Bash command containing a protected path only as a read target (e.g.
+  `grep pattern <protected-file>`) must remain allowed after the matcher
+  extension; denial is for resolved write/delete targets.
+- Hook payloads with missing `tool_name`/`tool_input` or non-JSON stdin are
+  denied (existing fail-closed rule preserved).
+
+## Security Boundaries
+
+| Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
+|---|---|---|---|
+| B1: agent tool call to guard decision (three runtime twins) | R-10 protected table, write-target analysis, forgery checks; deny by default on malformed payloads | internal source and configuration only | none identified |
+| B2: automated CI session to repository pull request | minimized workflow permissions; deterministic protected-surface diff check before a PR is accepted | public repository content | none identified |
+| B3: staged human-copy artifacts to live enforcement chain | human-only copy step; SHA-256 manifest verification | internal source only | none identified |
+
+## Assumptions
+
+- The dispatcher preference order (python3, then node, then PowerShell)
+  is unchanged; the `.ps1` twin is a genuine fallback execution path on
+  Windows hosts without python3/node.
+- The epic #136 handoff scope decision stands: only the files named in
+  `PROTECTED_GATE_SUFFIXES` require the human-copy procedure; everything
+  else in this batch is agent-editable.
+- `guard-parity.tests.sh` and `constant-parity.tests.sh` are themselves
+  protected; new parity coverage for this batch lands in new, unprotected
+  test files.
+- The pinned `claude-code-action` SHA (v1.0.165) is the authority for
+  whether `id-token: write` is consumed.
+
+## Open Questions
+
+None. The scope, mechanisms, and constraints are fixed by issues #109, #110,
+#112, #113, #114, #160 and the epic #136 handoff; the decisions the issues
+left open are resolved as follows and recorded for review: (1) the REQ-004
+cross-model trigger is `Risk: critical` or the per-task boolean
+`Security-Sensitive: true`; (2) the REQ-004 `Cross-Model-Waiver:` is honored
+only when co-located with a human `Approval: Approved` mark naming a second
+distinct human approver, so it is inert when written by an agent
+(fail-closed), which keeps it human-gated without new guard code; (3) a
+`Risk: critical` or `Security-Sensitive: true` task is ineligible for the lite
+track (the lite gate rejects it toward the full track), so REQ-004's
+cross-model requirement stays unconditional for those tasks while the lite
+track keeps no cross-model step — the non-goal and REQ-004 do not conflict
+because such tasks never run on the lite track; and (4) the REQ-005 guard runs
+as a deterministic workflow step after the automated session
+(fail-on-violation, vacuous pass when no PR was created), because prompt text
+cannot be the trust boundary.
+
+## Risks
+
+- Critical: an incomplete `.ps1` port silently narrows Windows enforcement;
+  parity fixtures must exercise every protected suffix class, not a sample.
+- High: working-directory tracking that is too aggressive could deny
+  legitimate read-only commands and break normal agent operation; the
+  read-only corpus guards against this.
+- Medium: matcher extension in `claude-hooks.json` adds guard latency to
+  every Bash call under Claude Code; the guard is a short single-process
+  check and the same cost is already accepted under Codex.
+- Medium: removing `id-token: write` could break the weekly workflow if the
+  pinned action requires OIDC; the requirement mandates verification against
+  the pinned version before removal.
+# Design: epic-136-phase1-guards
+
+Impl-Review-Status: Passed
+Feature Type: security hardening / workflow enforcement (mixed fix + feat)
+
+## Technical Summary
+
+Six independent enforcement-chain hardening changes, each mapped to one issue
+and one commit. Three touch enforcement-chain files protected by R-10
+(`sdd-hook-guard.ps1`, `sdd-hook-guard.py`, `sdd-hook-guard.js`,
+`ship/SKILL.md`, `hooks/claude-hooks.json`) and follow the human-copy
+procedure; the rest (new scripts, new tests, the CI workflow) are
+agent-editable. The guiding principle is that every safety boundary is
+enforced by a deterministic script with a test, never by prose or by a single
+runtime's implementation.
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph Guard["Guard twins (must agree)"]
+    PY["sdd-hook-guard.py"]
+    JS["sdd-hook-guard.js"]
+    PS["sdd-hook-guard.ps1"]
+  end
+  A["Agent tool call"] --> HK["Host hook config"]
+  HK -->|Claude: claude-hooks.json| PS
+  HK -->|Codex: hooks.json| PY
+  HK -->|Copilot: copilot-hooks.json| PS
+  PY --> D{"deny / allow"}
+  JS --> D
+  PS --> D
+  SH["ship/SKILL.md Step 4"] --> CYC["check-quality-gate-cycle-limit.sh/.ps1"]
+  SH --> XV["cross-model requirement (critical/security)"]
+  CI["self-improvement.yml"] --> PRG["pre-PR enforcement-chain guard step"]
+```
+
+## Components
+
+| Component | Responsibility | Technology | New/Existing | Protected? |
+|---|---|---|---|---|
+| `sdd-hook-guard.ps1` | port R-10 protected-write denial + Impl-Review forgery check | Windows PowerShell | existing, corrected | yes (human-copy) |
+| `sdd-hook-guard.py` | working-directory-aware write-target resolution | Python 3 | existing, corrected | yes (human-copy) |
+| `sdd-hook-guard.js` | same working-directory fix (parity) | Node.js | existing, corrected | yes (human-copy) |
+| `check-quality-gate-cycle-limit.sh` / `.ps1` | deterministic cycle-limit decision | Bash / PowerShell | new | no |
+| `ship/SKILL.md` | call cycle-limit script; require cross-model for critical | Markdown skill | existing, corrected | yes (human-copy) |
+| `hooks/claude-hooks.json` | route Bash to guard | JSON | existing, corrected | yes (human-copy) |
+| `self-improvement.yml` | minimized permissions + pre-PR guard step | GitHub Actions YAML | existing, corrected | no |
+| new test files | RED-first + parity coverage | Bash / PowerShell | new | no |
+
+## Layer Specifications
+
+| Layer | Summary | Canonical Detail | Owner | Status |
+|---|---|---|---|---|
+| UX | N/A — no change: no GUI or user-facing surface | [UX specification](ux-spec.md#scope-and-user-journeys) | maintainers | N/A |
+| Frontend | N/A — no change: shell/PowerShell/JS/YAML only | [Frontend specification](frontend-spec.md#technology-stack) | maintainers | N/A |
+| Infrastructure | CI workflow permission change + new guard step; no topology change | [Infrastructure specification](infra-spec.md#deployment-topology) | maintainers | Planned |
+| Security | closes Windows enforcement gap, cwd-bypass, Bash matcher gap; minimizes CI permissions | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
+
+## Design System Compliance
+
+N/A — ds_profile: none. Not a UI application; no mockup provided; optional
+visualization skipped.
+
+## Cross-Layer Dependencies
+
+| From | To | Contract / Decision | REQ | AC | Verification |
+|---|---|---|---|---|---|
+| requirements.md | security-spec.md | three guard twins must produce identical decisions | REQ-001, REQ-002, REQ-006 | AC-001..005, AC-012, AC-013 | TEST-001, TEST-004, TEST-005, TEST-012, TEST-013 |
+| requirements.md | infra-spec.md | CI permission minimization + deterministic pre-PR guard | REQ-005 | AC-010, AC-011 | TEST-010, TEST-011 |
+| security-spec.md | infra-spec.md | enforcement-chain diff must fail the automated PR path | REQ-005 | AC-011 | TEST-011 |
+
+## ADR Change Log
+
+No new ADR. These are corrections and enforcement moves within the existing
+architecture and public-contract surface; no API, data model, or architecture
+boundary changes. The REQ-004 cross-model requirement and REQ-005 pre-PR guard
+are workflow policy inside the existing gate framework, recorded here and in
+`ship/SKILL.md` rather than as an architecture decision.
+
+## Data Plan
+
+Data Entities: none. All inputs are process-local hook payloads, gate report
+filenames, tasks.md fields, and CI diff listings.
+
+Existing Data Affected: none persisted. `reports/quality-gate/` is read
+(counted) but not written by the cycle-limit script.
+
+Migration Strategy: none.
+
+## API / Contract Plan
+
+No change to the SDD_SUDO token format, hook decision protocol (stderr +
+exit-code / copilot-JSON), review-loop contract schemas, or the cross-model
+verdict schema. The new cycle-limit script defines a small internal contract:
+input = task ID (argument) + repository root (cwd or argument); output =
+`continue` on stdout with exit 0, or `Escalate-Human` on stdout with a
+non-zero exit. REQ-004 adds two optional per-task tasks.md fields:
+`Security-Sensitive:` (boolean trigger) and `Cross-Model-Waiver:` (skip
+decision, honored only when co-located with a human `Approval: Approved` mark
+naming a second distinct approver — otherwise inert). Both are human-set and
+additive; existing consumers ignore unknown fields. A `Risk: critical` or
+`Security-Sensitive: true` task is ineligible for the lite track: the lite
+gate rejects it with a diagnostic directing the human to the full track, so
+cross-model stays unconditional for those tasks and the lite track keeps no
+cross-model step.
+
+## Test Strategy
+
+1. REQ-002 is RED-first: TEST-004 must be shown failing against the
+   unmodified `.py`/`.js` guard (the `cd && rm` bypass passing) and the
+   failing output recorded in the implementation report before the fix lands.
+2. The `.ps1` port (REQ-001) is validated by a new PowerShell parity suite
+   plus shared fixtures asserting decision equality with `.py`/`.js` across
+   every protected-suffix class, the Impl-Review forgery case, and the
+   read-only short-circuit, plus a byte-level ASCII/no-BOM check on the
+   modified `sdd-hook-guard.ps1` (AC-015).
+3. The cycle-limit script (REQ-003) is table-tested at 0/1/2/3+ reports, with
+   a prefix-collision case (`T-001` vs `T-0010`) and an absent-directory case.
+4. Cross-model requirement (REQ-004) and cycle-limit delegation (REQ-003 in
+   `ship/SKILL.md`) are verified by document-conformance assertions plus a
+   workflow walk-through in the implementation report: the critical/
+   security-sensitive trigger, the human-gated `Cross-Model-Waiver:` (inert
+   without a co-located human `Approval: Approved` second-approver mark,
+   AC-008), and the lite-gate rejection of critical/security-sensitive tasks
+   toward the full track (AC-016).
+5. CI hardening (REQ-005) is verified by asserting the permissions block and
+   by driving the new guard step against a compliant diff fixture, a violating
+   diff fixture, and an empty created-ref (no-PR) fixture that must pass
+   vacuously (AC-011, AC-014).
+6. Bash matcher (REQ-006) is verified by driving the guard with
+   Claude-shaped Bash payloads (write-target denied, read-only allowed) and a
+   cross-runtime parity check against Codex/Copilot decisions.
+7. Full suite: `bash tests/run-all.sh`, plus `pwsh ./tests/validate-repository.ps1`
+   and the new PowerShell suites on a host with PowerShell available (CI
+   provides pwsh on all three OSes).
+
+## Security Boundaries
+
+| Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
+|---|---|---|---|
+| B1: agent tool call to guard decision | R-10 protected table, cwd-aware write-target analysis, forgery checks across three twins; deny by default | internal source/config | Broken Access Control, Injection (heuristic) |
+| B2: automated CI session to created PR | minimized permissions + deterministic protected-surface diff guard | public repo content | Broken Access Control, Security Misconfiguration |
+| B3: staged human-copy artifacts to live chain | human-only copy + SHA-256 manifest | internal source | Integrity / Supply Chain |
+
+Detailed controls: [Security specification](security-spec.md#trust-boundaries).
+
+## External Integrations
+
+| Integration | Boundary | Contract / Version | Failure Behavior |
+|---|---|---|---|
+| `anthropics/claude-code-action` (pinned `558b1d6cab4085c7753fe402c10bef0fbb92ac7a`, v1.0.165) | B2: weekly self-improvement CI session | Consumes `claude_code_oauth_token` (a `secrets` value) to run the agent session; `id-token: write` is only needed if the pinned release performs an OIDC token exchange (GitHub Actions OIDC: a JWT with `aud`/`sub` claims minted for cloud federation). REQ-005/AC-010 resolve necessity by inspecting the pinned release's `action.yml` and documented inputs for any OIDC/`getIDToken` use; the pinned SHA is the single source of truth. | If the pinned action requires OIDC and `id-token: write` is removed, the run fails fast at the action step (missing-permission error) — a loud, non-silent failure surfaced as a failed workflow, not a bypass. If instead the action does not use OIDC, removing the permission is a no-op. If the action is unavailable/unresolvable during a run (registry outage, yanked SHA), the `actions/checkout`-then-action step errors and the job fails; the deterministic pre-PR guard step (REQ-005) never runs, so no PR is produced — fail-closed. The permission decision is verified once against the pinned SHA and re-verified only when that SHA is bumped. |
+| GitHub Actions `GITHUB_TOKEN` | B2: session → repository (PR/branch) | Scoped by the workflow `permissions:` block, minimized under REQ-005; used by the post-session guard step to enumerate created refs. | A missing scope makes the guard step's `gh`/API call fail, failing the run (fail-closed) rather than admitting an unguarded PR. |
+
+The self-improvement session's only third-party runtime dependency is the
+pinned action above; the guard scripts and cycle-limit script add no external
+dependency (standard-library only).
+
+## Deployment / CI Plan
+
+No runtime deployment. `self-improvement.yml` changes its `permissions:` block
+and gains a post-session guard step. New tests join `tests/run-all.sh` and the
+existing 3-OS `test.yml` matrix. Rollback for any single item is a reviewed
+revert of that item's commit; the human-copy items additionally require
+re-copying the prior version and re-running the named suite. The
+`claude-code-action` OIDC dependency (see External Integrations) is verified
+against the pinned SHA before `id-token: write` is removed and re-verified only
+on a SHA bump.
+
+## Constraint Compliance
+
+| Requirement Constraint | Design Response |
+|---|---|
+| `.ps1` ASCII-only (PS 5.1) | port uses ASCII punctuation only; verified by the parity suite run and a byte check |
+| protected files not agent-writable | staged under `human-copy/` with a SHA-256 manifest; human copies |
+| 1 issue = 1 commit | six tasks, one per issue, each self-contained with its tests |
+| no prose-only safety boundary | cycle limit and cross-model requirement become script/document-checked |
+| version bump via `scripts/bump-version.sh` only | release step (if any) delegated to the human per epic policy |
+
+## Assumptions
+
+The dispatcher preference order is unchanged and the `.ps1` twin is a live
+fallback on Windows without python3/node. `PROTECTED_GATE_SUFFIXES` is the
+authoritative protected list. The pinned `claude-code-action` version
+determines whether `id-token: write` is required.
+
+## Open Questions
+
+None. Owner: maintainers. Blocks Implementation: no. The two decisions the
+issues left open (REQ-004 waiver mechanism, REQ-005 guard placement) are fixed
+in requirements.md and reflected here.
+
+## Risks
+
+Principal risk is a `.ps1` port that diverges from `.py`/`.js` in a corner the
+parity fixtures do not exercise; mitigation is per-suffix-class fixtures and a
+decision-equality assertion rather than spot checks. Secondary risk is
+over-aggressive working-directory tracking causing false denials; the
+read-only corpus constrains it.
+# Acceptance Tests: epic-136-phase1-guards
+
+| Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
+|---|---|---|---|---|---|
+| AC-001 | REQ-001 | TEST-001 | cross-runtime parity | `.ps1` guard denies protected-table writes for file-tool and shell payloads; decisions match `.py`/`.js` on the shared corpus (new `tests/guard-r10-port.tests.ps1` + shared fixtures) | Planned |
+| AC-002 | REQ-001 | TEST-002 | integration | `.ps1` guard denies unauthorized `Impl-Review-Status: Passed` increment on `design.md` without a PASS verdict artifact | Planned |
+| AC-003 | REQ-001 | TEST-003 | regression | `.ps1` guard allows read-only shell payloads referencing protected paths (short-circuit parity) | Planned |
+| AC-004 | REQ-002 | TEST-004 | security regression (RED-first) | `cd <protected-dir> && rm <basename>` and `pushd` equivalents denied by `.py`/`.js`; RED evidence recorded before the fix (new `tests/guard-cwd-bypass.tests.sh`) | Planned |
+| AC-005 | REQ-002 | TEST-005 | regression | existing guard corpus and read-only short-circuit still pass after the working-directory fix; `.py`/`.js` decision parity holds | Planned |
+| AC-006 | REQ-003 | TEST-006 | unit / parity | `check-quality-gate-cycle-limit.sh`/`.ps1` return continue for 0/1/2 matching reports and Escalate-Human for 3+, word-boundary task-ID matching, absent directory = 0 (new `tests/quality-gate-cycle-limit.tests.sh`) | Planned |
+| AC-007 | REQ-003 | TEST-007 | document conformance | `ship/SKILL.md` Step 4 delegates the count to the script; no prose-only counting remains | Planned |
+| AC-008 | REQ-004 | TEST-008 | document conformance / workflow | a `Risk: critical` or `Security-Sensitive: true` task without `--verify` triggers cross-model verification; a `Cross-Model-Waiver:` is honored only with a co-located human `Approval: Approved` (second distinct approver), else treated as absent; absent both, the flow blocks with a task-naming diagnostic | Planned |
+| AC-009 | REQ-004 | TEST-009 | document conformance | `Security-Sensitive:` trigger field, `Cross-Model-Waiver:` field (name, setter, valid-only-with-human-approval context, audit value), and the lite-track rule (critical/security-sensitive tasks are ineligible for the lite track; lite gate rejects with a diagnostic to the full track) are specified in `ship/SKILL.md` | Planned |
+| AC-010 | REQ-005 | TEST-010 | configuration audit | `self-improvement.yml` permissions minimized; `id-token: write` removed or justified against the pinned action version (new `tests/self-improvement-guard.tests.sh` asserts the permissions block) | Planned |
+| AC-011 | REQ-005 | TEST-011 | integration | deterministic guard step fails on an enforcement-chain diff fixture and passes on a compliant diff fixture | Planned |
+| AC-012 | REQ-006 | TEST-012 | integration | with extended matcher, Bash protected-file write payload is denied and read-only Bash payload is allowed (new `tests/claude-bash-matcher.tests.sh` driving the guard with Claude-shaped payloads) | Planned |
+| AC-013 | REQ-006 | TEST-013 | cross-runtime parity | malformed payloads stay denied; Claude/Codex/Copilot hook paths agree on the shared Bash corpus | Planned |
+| AC-014 | REQ-005 | TEST-014 | integration | with no branch and no PR created by the session, the deterministic guard step passes vacuously (exit success) rather than erroring (fixture with empty created-ref set) | Planned |
+| AC-015 | REQ-001 | TEST-015 | encoding / static | a deterministic check fails if `sdd-hook-guard.ps1` contains any non-ASCII byte or a BOM, guaranteeing Windows PowerShell 5.1 ASCII-only compatibility (new `tests/guard-ps1-ascii.tests.sh`, run in the suite) | Planned |
+| AC-016 | REQ-004 | TEST-016 | integration / document conformance | the lite gate rejects a `Risk: critical` or `Security-Sensitive: true` task with a diagnostic naming the task and directing the human to the full track (lite-gate conformance) | Planned |
+
+Notes:
+
+- `tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`,
+  and `tests/constant-parity.tests.sh` are enforcement-chain protected files;
+  all new coverage for this batch lands in the new, unprotected test files
+  named above so the agent can author them directly.
+- TEST-004 must be committed with its RED evidence (pre-fix failing run
+  output) recorded in the implementation report for the owning task.
+- This is a CLI/CI hardening batch with no user-facing entry point; the UI
+  integration checklist is not applicable.
+# Security Specification: epic-136-phase1-guards
+
+This batch closes three enforcement-chain gaps and minimizes CI privilege. No
+credential value, test key, or exploit payload belongs in source, logs, or
+persisted evidence. Test fixtures are synthetic and process-scoped.
+
+## Trust Boundaries
+
+```mermaid
+flowchart LR
+  A["Agent tool call (any runtime)"] --> B1["B1: guard decision (.py/.js/.ps1)"]
+  B1 -->|write-target in protected table| D["deny"]
+  B1 -->|read-only / non-protected| L["allow"]
+  S["Weekly CI session"] --> B2["B2: created PR / branch"]
+  B2 --> PRG["deterministic protected-surface diff guard"]
+  PRG -->|violation| F["fail run"]
+  PRG -->|clean| H["human review"]
+  STG["Staged human-copy file + SHA-256 manifest"] --> B3["B3: live enforcement chain"]
+  B3 -->|human copy only| LIVE["updated guard/skill/hook"]
+```
+
+| Boundary | Source | Destination | Assets | Validation | AuthN/AuthZ | REQ | AC |
+|---|---|---|---|---|---|---|---|
+| B1 | agent tool payload | guard decision | gate scripts, hook config, critical tests, design.md status | protected-suffix table, cwd-aware write-target resolution, Impl-Review forgery check, read-only short-circuit | deny by default; never bypassed by sudo | REQ-001, REQ-002, REQ-006 | AC-001..005, AC-012, AC-013 |
+| B2 | automated CI session | created PR/branch | public repository content | minimized permissions + deterministic protected-surface diff | fail on violation | REQ-005 | AC-010, AC-011 |
+| B3 | staged human-copy artifact | live enforcement-chain file | internal source | SHA-256 manifest; human-only copy | human authority | REQ-001, REQ-002, REQ-006 | AC-001, AC-004, AC-012 |
+
+## STRIDE Analysis
+
+| Boundary | Threat | STRIDE | Abuse Case | Mitigation | Verification | REQ | AC |
+|---|---|---|---|---|---|---|---|
+| B1 | Windows fallback lets an agent overwrite a gate script | Tampering / Elevation of Privilege | python3/node absent, `.ps1` fallback has no R-10 table | port R-10 denial and forgery check to `.ps1` with decision parity | TEST-001, TEST-002, TEST-003 | REQ-001 | AC-001, AC-002, AC-003 |
+| B1 | cwd change evades write-target comparison | Tampering / Elevation of Privilege | `cd <dir> && rm <basename>` resolves target below the protected prefix | track `cd`/`pushd` transitions and compare resolved absolute targets | TEST-004, TEST-005 | REQ-002 | AC-004, AC-005 |
+| B1 | Bash write to a protected file is never guarded under Claude Code | Tampering / Elevation of Privilege | `claude-hooks.json` matcher omits Bash | extend matcher to route Bash to the guard; fail-closed on unclassifiable payloads | TEST-012, TEST-013 | REQ-006 | AC-012, AC-013 |
+| B2 | automation modifies its own enforcement chain in a PR | Tampering / Elevation of Privilege | weekly session edits a guard or hook and opens a PR | deterministic diff guard fails the run on enforcement-chain changes | TEST-011 | REQ-005 | AC-011 |
+| B2 | excess workflow privilege | Elevation of Privilege | unused `id-token: write` broadens attack surface | remove unused permission or justify against pinned action | TEST-010 | REQ-005 | AC-010 |
+| gate | infinite quality-gate loop / silent cross-model skip | Denial of Service / Repudiation | prose-only cycle count miscounted; `--verify` forgotten on critical task | deterministic cycle-limit script; cross-model required for critical/security or explicit waiver | TEST-006, TEST-008 | REQ-003, REQ-004 | AC-006, AC-008 |
+
+## Authentication Flow
+
+```mermaid
+sequenceDiagram
+  participant AG as Agent
+  participant HK as Host hook config
+  participant GD as Guard twin
+  AG->>HK: tool call (Edit/Write/Bash/apply_patch)
+  HK->>GD: payload (Claude routes Bash after REQ-006)
+  GD->>GD: resolve write target across cwd transitions; check protected table
+  alt write target protected or forgery/ malformed
+    GD-->>AG: deny (exit non-zero / copilot deny)
+  else read-only or non-protected
+    GD-->>AG: allow
+  end
+```
+
+## Authorization
+
+| Actor / Role | Resource | Action | Decision Point | Default | Denial Evidence | REQ | AC |
+|---|---|---|---|---|---|---|---|
+| agent | enforcement-chain files | write / delete | guard (three twins) | deny | non-zero exit / copilot deny JSON | REQ-001, REQ-002, REQ-006 | AC-001, AC-004, AC-012 |
+| agent | design.md Impl-Review-Status | increment to Passed | guard forgery check | deny without PASS verdict | non-zero exit | REQ-001 | AC-002 |
+| automated CI session | its own enforcement chain | modify via PR | pre-PR guard step | fail run on violation | failed workflow + diff listing | REQ-005 | AC-011 |
+| human | waiver field, task approval, human-copy | set / copy | manual | n/a | audit mark in tasks.md / commit | REQ-004 | AC-008, AC-009 |
+
+## Data Classification and Protection
+
+| Entity | Classification | At Rest | In Transit | Retention | Deletion | Access Log | REQ | AC |
+|---|---|---|---|---|---|---|---|---|
+| enforcement-chain source | internal integrity-critical | repository | local only | repo lifetime | reviewed revert | git history | REQ-001, REQ-002, REQ-006 | AC-001, AC-004, AC-012 |
+| gate report filenames | internal | `reports/quality-gate/` | local only | repo lifetime | n/a (counted, not written) | git history | REQ-003 | AC-006 |
+| test fixtures | synthetic internal | temporary directory | local only | test lifetime | trap cleanup | test result only | REQ-002, REQ-006 | AC-004, AC-012 |
+| workflow GITHUB token | restricted | Actions runtime only | GitHub API | run lifetime | run end | never logged | REQ-005 | AC-010 |
+
+## OWASP Mapping
+
+| OWASP Risk | Exposure | Control | Verification | Owner |
+|---|---|---|---|---|
+| Broken Access Control | Windows fallback / cwd bypass / Bash matcher gap / self-modifying CI | port R-10, cwd-aware resolution, matcher extension, pre-PR guard | TEST-001, TEST-004, TEST-011, TEST-012 | maintainers |
+| Security Misconfiguration | excess `id-token: write` | permission minimization | TEST-010 | maintainers |
+| Injection | Bash-command heuristic evasion | best-effort denial; documented non-goal for `python3 -c`/`node -e` | TEST-004, TEST-012 | maintainers |
+| Cryptographic Failures | out of scope (no crypto change in this batch) | n/a | n/a | maintainers |
+
+## Secrets Management
+
+No secret is added or logged. The self-improvement workflow continues to use
+`CLAUDE_CODE_OAUTH_TOKEN` and the scoped `GITHUB_TOKEN`; this batch reduces the
+token's permissions and never prints it. The pre-PR guard step lists changed
+paths only, never file contents that could carry secrets. Test suites use no
+real credentials and make no network call.
+
+## PowerShell Parity Note
+
+The `.ps1` R-10 port mirrors the `.py`/`.js` semantics: the same protected
+suffix set, the same write-verb detection, the same read-only short-circuit,
+and the same Impl-Review-Status forgery denial. It is ASCII-only for Windows
+PowerShell 5.1 (BOM-less sources parse as ANSI). TEST-001 through TEST-003
+assert decision equality against the `.py`/`.js` twins rather than checking
+the `.ps1` output in isolation.
+
+## SBOM and Supply Chain
+
+No dependency is added. The staged human-copy artifacts carry a SHA-256
+manifest so the human can verify integrity before copying into the live
+enforcement chain (B3).
+
+## Security Tests
+
+| Test | Boundary | Attack / Control | Expected Result | Evidence | AC |
+|---|---|---|---|---|---|
+| TEST-001 | B1 | `.ps1` protected-write denial parity | denied; matches `.py`/`.js` | `tests/guard-r10-port.tests.ps1` + fixtures | AC-001 |
+| TEST-002 | B1 | `.ps1` Impl-Review forgery | denied without PASS verdict | `.ps1` guard integration test | AC-002 |
+| TEST-003 | B1 | `.ps1` read-only short-circuit | allowed | `.ps1` guard regression test | AC-003 |
+| TEST-004 | B1 | cwd-based write-target bypass (RED-first) | denied after fix; RED recorded | `tests/guard-cwd-bypass.tests.sh` | AC-004 |
+| TEST-005 | B1 | existing corpus + parity after fix | unchanged decisions | existing + new guard suites | AC-005 |
+| TEST-006 | gate | cycle-limit counting | continue for 0/1/2, Escalate-Human for 3+ | `tests/quality-gate-cycle-limit.tests.sh` | AC-006 |
+| TEST-008 | gate | critical task without `--verify` | cross-model runs or blocks with diagnostic | ship-skill conformance + walk-through | AC-008 |
+| TEST-010 | B2 | workflow permission minimization | `id-token: write` absent or justified | `tests/self-improvement-guard.tests.sh` | AC-010 |
+| TEST-011 | B2 | enforcement-chain diff in automated PR | run fails on violation, passes on clean | guard-step fixture test | AC-011 |
+| TEST-012 | B1 | Bash write vs read under Claude matcher | write denied, read allowed | `tests/claude-bash-matcher.tests.sh` | AC-012 |
+| TEST-013 | B1 | malformed payload + cross-runtime parity | denied; runtimes agree | parity corpus | AC-013 |
+| TEST-014 | B2 | no branch/PR created by the session | guard step passes vacuously | empty created-ref fixture | AC-014 |
+| TEST-015 | B1 | `.ps1` ASCII/no-BOM encoding | non-ASCII byte or BOM fails the check | `tests/guard-ps1-ascii.tests.sh` | AC-015 |
+| TEST-016 | gate | lite gate rejects a critical/security-sensitive task | rejected with a diagnostic toward the full track | lite-gate conformance | AC-016 |
+
+## Open Questions
+
+None. Owner: maintainers; non-blocking.
+# Infrastructure Specification: epic-136-phase1-guards
+
+Local script/test work plus one GitHub Actions workflow change. No cloud
+service, deployment target, IaC resource, network route, or data store
+changes beyond the weekly self-improvement workflow's permission block and a
+new deterministic guard step.
+
+## Deployment Topology
+
+```mermaid
+flowchart LR
+  M["Maintainer / CI runner"] --> T["Gate + parity test suites"]
+  T --> G["Guard twins (.py/.js/.ps1)"]
+  T --> C["check-quality-gate-cycle-limit.sh/.ps1"]
+  W["Weekly self-improvement workflow"] --> S["Claude session (minimized perms)"]
+  S --> B["created branch / PR"]
+  B --> PRG["deterministic pre-PR enforcement-chain guard step"]
+  PRG -->|violation| F["fail run"]
+  PRG -->|clean| P["PR proceeds to human review"]
+```
+
+## CI/CD Sequence
+
+The existing `test.yml` 3-OS matrix runs the new suites alongside the current
+ones. `self-improvement.yml` changes in two ways: (1) its `permissions:` block
+drops any permission the run does not use (`id-token: write` removed unless the
+pinned `claude-code-action` version documents an OIDC requirement); (2) a new
+post-session step enumerates the branches/PRs the run created and fails the
+workflow if any diff touches an enforcement-chain surface
+(`plugins/**/scripts/*guard*`, `plugins/**/scripts/kill-switch.*`,
+`plugins/**/scripts/check-*`, `plugins/**/hooks/*.json`, `reports/**`,
+`docs/workflow-improvements/**`, `.github/workflows/**`, protected SKILL.md
+files). A focused test failure or a guard-step failure is the rollback signal.
+
+## Environments
+
+| Environment | URL | Auth | Trigger | Classification | Promotion Rule |
+|---|---|---|---|---|---|
+| local | repository checkout | none / test-only fixtures | test command | internal fixtures | test green |
+| CI matrix | N/A network for tests | GITHUB_TOKEN (scoped) | push / PR | synthetic fixtures | all required checks green |
+| self-improvement | N/A | CLAUDE_CODE_OAUTH_TOKEN + minimized GITHUB perms | weekly cron / dispatch | public repo content | pre-PR guard passes + human review |
+
+## Infrastructure as Code, Scaling, SLOs, and Residency
+
+N/A — no change: no deployed service. The only IaC-like artifact is the
+GitHub Actions YAML, whose change is the permission minimization and the
+guard step.
+
+## Observability
+
+| Logs | Traces | Metrics | Alert | Owner | Runbook |
+|---|---|---|---|---|---|
+| test output and guard-step diff listing without secrets | N/A | pass/fail per suite and per guard step | CI failure | maintainers | rerun the failing suite; inspect the guard-step diff list |
+
+## Cost Estimate
+
+N/A — no change beyond existing runner minutes; the guard step is a short diff
+enumeration.
+
+## Rollback
+
+Per-item reviewed revert. For human-copy items, re-copy the prior file version
+and re-run the named suite. For the workflow change, revert the YAML; keep any
+open security finding tracked rather than weakening a check to regain a pass.
+
+## Open Questions
+
+None. Owner: maintainers; non-blocking.
+# Frontend Specification: epic-136-phase1-guards
+
+N/A — no change: the affected implementation is guard scripts (Bash, Python,
+Node, PowerShell), a Markdown skill, a JSON hook config, and a GitHub Actions
+workflow. There is no browser or frontend application.
+
+## Technology Stack
+
+| Layer | Technology | Version | Rationale | Constraint |
+|---|---|---|---|---|
+| Guard runtimes | Python 3, Node.js, Windows PowerShell 5.1, Bash | existing supported runtimes | three deterministic guard twins | `.ps1` ASCII-only; decision parity |
+| Cycle-limit script | Bash and PowerShell | existing | deterministic count | sh/ps1 parity |
+| CI | GitHub Actions | existing | weekly self-improvement | minimized permissions |
+| Test | Bash + PowerShell fixture suites | existing | drive guards and scripts | no network, no real secrets |
+
+## Component Tree, State Shape, Routes, and API Client
+
+N/A — no change: no component tree, browser state, route, API client, or
+frontend bundle exists.
+
+## Performance and Size Budget
+
+N/A — no change: no frontend asset is built. Guard checks are short
+single-process operations; the added Bash matcher coverage under Claude Code
+adds one guard invocation per Bash call, matching the cost already paid under
+Codex.
+
+## Dependencies
+
+No new runtime dependency. Python uses only standard-library modules; Node
+uses built-ins; PowerShell uses .NET already present; the cycle-limit scripts
+use POSIX shell utilities and PowerShell built-ins.
+
+## Testing
+
+TEST-001 through TEST-013 in acceptance-tests.md cover guard decisions, the
+cycle-limit script, the ship-skill conformance, the CI guard, and the Bash
+matcher. No component, accessibility, browser-performance, or frontend E2E
+test applies.
+
+## Open Questions
+
+None. Owner: maintainers; non-blocking.
+# UX Specification: epic-136-phase1-guards
+
+N/A — no change: this batch has no GUI, view, dialog, menu item, or human
+interactive shell surface. The only human-observable effects are (a) existing
+CLI hook deny/allow decisions, (b) the ship skill's cycle-limit and
+cross-model diagnostics, and (c) a CI workflow pass/fail. All are governed by
+the acceptance criteria in acceptance-tests.md.
+
+## Scope and User Journeys
+
+- Primary user: maintainer running the gate suites, the ship flow, or the
+  weekly CI workflow.
+- Entry points: `tests/*.tests.sh` / `*.tests.ps1`, `/sdd-ship:ship`, and the
+  GitHub Actions run.
+- Success outcome: protected writes are denied on every runtime; critical
+  tasks cannot skip cross-model verification silently; automated PRs are
+  guarded.
+- Excluded journey: any rendered UI, navigation, or responsive layout.
+
+## Target Views
+
+N/A — no change: no rendered views or navigation paths exist.
+
+## Component States
+
+N/A — no change: CLI exit codes, hook decisions, and CI job status are
+specified by acceptance-tests.md rather than a visual component.
+
+## Wireframe Attachments
+
+None — manual visual refinement skipped. No mockup provided — optional
+visualization skipped.
+
+## Accessibility
+
+N/A — no change: no browser or desktop accessibility surface is introduced.
+Diagnostics stay concise and never disclose secrets or token values.
+
+## Responsive Behavior
+
+N/A — no change: no layout is rendered.
+
+## Design Tokens
+
+ds_profile: none. N/A — no change: no design tokens apply.
+
+## Open Questions
+
+None. Owner: maintainers; non-blocking.
+# Tasks: epic-136-phase1-guards
+
+Task-Review-Status: Passed
+
+Source: Issues #109, #110, #112, #113, #114, #160 /
+requirements.md (Spec-Review-Status: Passed) /
+design.md (Impl-Review-Status: Passed)
+
+## Lifecycle
+
+`Draft -> Approved -> In Progress -> Implementation Complete -> Done`
+
+A task may enter `Blocked` from any active state. Humans approve tasks.
+`implement-task` may set `In Progress`, `Blocked`, or `Implementation Complete`.
+Only `quality-gate` may set `Done`.
+
+## Human-Copy Procedure (protected enforcement-chain files)
+
+Several tasks change files in `PROTECTED_GATE_SUFFIXES` (the deterministic
+guard denies agent writes to them). For each such task the agent stages the
+complete corrected file under `specs/epic-136-phase1-guards/human-copy/<path>`
+with a `MANIFEST.sha256` line per target, and the human copies each file into
+place with `cp` and re-runs the named test commands. The agent never writes the
+live protected path.
+
+## Global Constraints
+
+- One issue = one commit; each task below is self-contained.
+- `.ps1` sources must remain ASCII-only with no BOM (Windows PowerShell 5.1).
+- Version bumps only via `scripts/bump-version.sh`; never hand-edit versions.
+- Preserve unrelated changes; implement one task at a time.
+
+---
+
+## T-001 Port R-10 protected-write denial and Impl-Review forgery check to sdd-hook-guard.ps1
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/109
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: critical
+
+Risk Rationale: On a Windows host without python3/node the dispatcher falls
+back to `sdd-hook-guard.ps1`, which currently has no R-10 protected-gate-file
+denial and no Impl-Review-Status forgery check. Without this port an agent can
+overwrite gate scripts, hook config, or critical tests, or self-declare the
+design status as passed, defeating the enforcement chain on that platform
+(REQ-001; security-spec.md B1).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: enabled
+
+Requirements: REQ-001
+
+Depends On: T-002 (the port must incorporate the working-directory fix)
+
+Planned Files:
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1` (protected — human-copy)
+- `tests/guard-r10-port.tests.ps1` (new, agent-editable)
+- `tests/guard-ps1-ascii.tests.sh` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; preserve the hook decision protocol (exit codes / copilot
+JSON) and the protected-suffix table semantics of the `.py`/`.js` twins.
+
+Rollback: human re-copies the prior `sdd-hook-guard.ps1` and re-runs the named
+suites; revert the accompanying test commits.
+
+### Goal
+
+Port the protected-suffix table, shell write-target analysis (working-directory
+aware, per T-002), read-only short-circuit, and Impl-Review-Status forgery
+denial from `sdd-hook-guard.py`/`.js` to `sdd-hook-guard.ps1` so all three guard
+twins produce identical decisions, keeping `.ps1` ASCII-only.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/security-spec.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Write parity fixtures first (TEST-001/002/003, TEST-015): decision equality
+  with `.py`/`.js` across every protected-suffix class, the Impl-Review forgery
+  case, the read-only short-circuit, and an ASCII/no-BOM byte check.
+- Capture RED evidence (the `.ps1` allowing a protected write / forgery) before
+  the port.
+- Stage the corrected `.ps1` under `human-copy/`; the human copies it into place.
+
+### Done When
+
+- [ ] TEST-001/002/003 prove, via `tests/guard-r10-port.tests.ps1`, that the
+  `.ps1` denies protected-table writes (file-tool and shell payloads), denies an
+  unauthorized increment of the design Impl-Review-Status to passed without a
+  PASS verdict, and allows read-only shell payloads over protected paths — all
+  matching `.py`/`.js` decisions (AC-001, AC-002, AC-003).
+- [ ] TEST-015 proves `sdd-hook-guard.ps1` contains only ASCII bytes and no BOM
+  (AC-015).
+- [ ] Red→Green evidence is recorded in the implementation report and the
+  high-risk preflight records each persisted evidence field, its counterpart,
+  and a failing mismatch test; the focused PowerShell/parity suites and the
+  relevant repository gate pass.
+- [ ] An independent quality-gate verdict records PASS with requirement
+  traceability and high-risk provenance (`spec_revision` + env).
+- [ ] The critical-tier evidence is recorded: cross-model verification
+  consensus, an HMAC-signed evidence bundle, and a second, distinct named human
+  approver.
+
+### Out of Scope
+
+- Consolidating the protected-suffix tables across twins (SEC-15).
+- Any `.py`/`.js` change (that is T-002).
+
+### Blockers
+
+T-002
+
+---
+
+## T-002 Fix working-directory bypass of R-10 write-target analysis in .py and .js (RED-first)
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/110
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: critical
+
+Risk Rationale: `has_protected_path` matches the protected path as a substring
+of the command text, so `cd <protected-dir> && rm <basename>` resolves the write
+target below the protected prefix and escapes denial — a claimed
+sudo-unbypassable control failing open on the guard itself (REQ-002;
+security-spec.md B1).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: enabled
+
+Requirements: REQ-002
+
+Depends On: none
+
+Planned Files:
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` (protected — human-copy)
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.js` (protected — human-copy)
+- `tests/guard-cwd-bypass.tests.sh` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; preserve existing decisions on the shared corpus and the
+read-only short-circuit.
+
+Rollback: human re-copies the prior `.py`/`.js` and re-runs the named suites;
+revert the test commit.
+
+### Goal
+
+First add a failing regression proving `cd <protected-dir> && rm <basename>`
+(and `pushd` equivalents) currently pass; then track `cd`/`pushd` transitions
+across compound-command segments and compare resolved absolute targets against
+the protected table, in both `.py` and `.js`, preserving the read-only
+short-circuit.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/security-spec.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Write TEST-004 first and capture RED (the bypass passing) before any fix.
+- Fix `.py` and `.js` together to keep decision parity.
+- Verify TEST-005 (existing corpus + read-only short-circuit still pass; `.py`/
+  `.js` decisions identical).
+
+### Done When
+
+- [ ] TEST-004 was demonstrated failing against the pre-fix guard (recorded RED)
+  and now proves `cd <dir> && rm <basename>` and `pushd` equivalents are denied
+  by `.py` and `.js` (AC-004).
+- [ ] TEST-005 proves the existing guard corpus and the read-only short-circuit
+  still pass and `.py`/`.js` decisions remain identical (AC-005).
+- [ ] Red→Green evidence recorded in the implementation report; the high-risk
+  preflight records each persisted field, its counterpart, and a mismatch test.
+- [ ] The focused suites and the relevant repository gate pass.
+- [ ] An independent quality-gate verdict records PASS with traceability and
+  high-risk provenance.
+- [ ] Cross-model verification consensus recorded (critical tier).
+- [ ] An HMAC-signed evidence bundle and a second, distinct named human approver
+  are recorded (critical tier).
+
+### Out of Scope
+
+- The `.ps1` port (T-001) and interpreter-mediated evasion (`python3 -c` /
+  `node -e`), which the guard documents as best-effort.
+
+### Blockers
+
+None
+
+---
+
+## T-003 Extract the quality-gate cycle limit into a deterministic script
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/112
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: high
+
+Risk Rationale: The only infinite-loop protection for the quality gate is prose
+in `ship/SKILL.md`; a miscount or skipped check could loop indefinitely or
+escalate wrongly. Moving it to a deterministic script removes the asymmetry with
+every other script-plus-test safety boundary (REQ-003).
+
+Required Workflow: tdd
+
+Requirements: REQ-003
+
+Depends On: none
+
+Planned Files:
+- `plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh` (new,
+  agent-editable)
+- `plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1` (new,
+  agent-editable)
+- `tests/quality-gate-cycle-limit.tests.sh` (new, agent-editable)
+- `plugins/sdd-ship/skills/ship/SKILL.md` (protected — human-copy)
+
+Data Migration: none
+
+Breaking API: no; the script defines a new internal contract (input = task ID +
+repo root; output = `continue`/exit 0 or `Escalate-Human`/non-zero exit).
+
+Rollback: revert the new scripts/tests; human re-copies the prior `ship/SKILL.md`.
+
+### Goal
+
+Add `check-quality-gate-cycle-limit.sh`/`.ps1` that count gate reports
+referencing a task ID in `reports/quality-gate/` (word-boundary matching, absent
+directory = 0) and return `continue` (exit 0) for fewer than three or
+`Escalate-Human` (non-zero) for three or more; update `ship/SKILL.md` Step 4 to
+call the script instead of describing the count in prose.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Write TEST-006 first (table-tested 0/1/2/3+, prefix collision T-001 vs T-0010,
+  absent-directory case; sh/ps1 parity) and capture RED.
+- Implement both scripts; update `ship/SKILL.md` Step 4 (human-copy).
+
+Shared-file ordering: T-003 and T-004 both edit `ship/SKILL.md`. T-003 lands
+first; T-004 is blocked by T-003 (see T-004 Blockers) and stages its
+`ship/SKILL.md` human-copy on top of T-003's applied version so the two edits
+do not overwrite each other.
+
+### Done When
+
+- [x] TEST-006 proves continue for 0/1/2 reports and Escalate-Human for 3+, with
+  word-boundary matching and absent-directory = 0, sh/ps1 agreeing (AC-006).
+- [x] `ship/SKILL.md` Step 4 invokes the script and contains no prose-only
+  counting instruction (AC-007).
+- [x] Red→Green evidence recorded in the implementation report.
+- [x] The focused suite and the relevant repository gate pass.
+- [ ] An independent quality-gate verdict records PASS with traceability and
+  high-risk provenance.
+
+### Out of Scope
+
+- Changing quality-gate report format or the Escalate-Human human procedure.
+
+### Blockers
+
+None
+
+---
+
+## T-004 Require cross-model verification for critical/security-sensitive tasks with a human-gated waiver
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/113
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: high
+
+Risk Rationale: Cross-model verification currently runs only with `--verify` and
+`Cross-Model: enabled`; forgetting the flag on a critical task silently skips
+panel verification. Making it required (with a human-gated waiver) closes a
+safety gap in the ship flow (REQ-004).
+
+Required Workflow: tdd
+
+Requirements: REQ-004
+
+Depends On: T-003 (both edit `ship/SKILL.md`; T-004's human-copy stages on top
+of T-003's applied version)
+
+Planned Files:
+- `plugins/sdd-ship/skills/ship/SKILL.md` (protected — human-copy)
+
+Data Migration: none
+
+Breaking API: no; adds two optional, additive tasks.md fields
+(`Security-Sensitive:`, `Cross-Model-Waiver:`); existing consumers ignore
+unknown fields.
+
+Rollback: human re-copies the prior `ship/SKILL.md`.
+
+### Goal
+
+Update `ship/SKILL.md` so a `Risk: critical` or `Security-Sensitive: true` task
+reaches the quality gate only after cross-model verification ran, or a
+`Cross-Model-Waiver:` is recorded that is valid only when the same task carries a
+human approval mark (its `Approval` field set to Approved by a human) naming a
+second distinct approver (else treated as absent, cross-model still required).
+Document the `Security-Sensitive:` and `Cross-Model-Waiver:` fields and the
+lite-track rule: a critical/security-sensitive task is ineligible for the lite
+track and the lite gate rejects it toward the full track.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/security-spec.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Update `ship/SKILL.md` Step 4 cross-model logic and Field Definitions, plus the
+  lite-gate rejection wording (human-copy).
+- Add document-conformance and workflow-walk-through evidence (TEST-008, TEST-009,
+  TEST-016) in the implementation report.
+
+### Done When
+
+- [x] A critical/security-sensitive task without `--verify` triggers cross-model
+  verification, or blocks with a task-naming diagnostic when no valid waiver is
+  present; a `Cross-Model-Waiver:` without a co-located human approval mark (the
+  `Approval` field set to Approved by a human, second distinct approver) is
+  treated as absent (AC-008).
+- [x] `ship/SKILL.md` documents the `Security-Sensitive:` and `Cross-Model-Waiver:`
+  fields and the lite-track rule (AC-009).
+- [x] The lite gate rejects a critical/security-sensitive task with a diagnostic
+  directing the human to the full track (AC-016).
+- [x] Red→Green (document-conformance) evidence recorded in the implementation
+  report.
+- [ ] An independent quality-gate verdict records PASS with traceability and
+  high-risk provenance.
+
+### Out of Scope
+
+- Adding a cross-model step to the lite track; guard-level enforcement of the
+  waiver token (future hardening).
+
+### Blockers
+
+T-003
+
+---
+
+## T-005 Minimize self-improvement.yml permissions and add a pre-PR enforcement-chain guard
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/114
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: high
+
+Risk Rationale: The weekly self-improvement workflow holds `contents`,
+`pull-requests`, `issues`, and `id-token` write permissions, with the boundary
+between its automated session and created PRs enforced only by prompt text. An
+automated PR could silently modify the enforcement chain (REQ-005;
+security-spec.md B2).
+
+Required Workflow: tdd
+
+Requirements: REQ-005
+
+Depends On: none
+
+Planned Files:
+- `.github/workflows/self-improvement.yml` (agent-editable)
+- `tests/self-improvement-guard.tests.sh` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; the workflow trigger and schedule are unchanged.
+
+Rollback: revert the workflow and test commit.
+
+### Goal
+
+Determine whether the pinned `claude-code-action` (v1.0.165) performs an OIDC
+exchange and remove `id-token: write` if unused (or document why it must stay);
+add a deterministic post-session guard step that fails the run when a
+branch/PR created by the session changes an enforcement-chain surface (gate
+scripts, hook configs, `reports/`, `docs/workflow-improvements/`,
+`.github/workflows/`), and passes vacuously when no PR was created.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/infra-spec.md`
+- `specs/epic-136-phase1-guards/security-spec.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Write TEST-010 (permissions block assertion), TEST-011 (guard step fails on a
+  violating diff fixture, passes on a compliant one), and TEST-014 (no-PR
+  vacuous pass) first, capturing RED where applicable.
+- Verify the OIDC necessity against the pinned SHA before removing `id-token`.
+
+### Done When
+
+- [x] `self-improvement.yml` carries only demonstrably-used permissions;
+  `id-token: write` is removed or a comment cites the pinned action's OIDC
+  requirement (AC-010).
+- [x] A deterministic step fails the run on an enforcement-chain diff fixture and
+  passes on a compliant one (AC-011).
+- [x] With no branch and no PR created, the guard step passes vacuously (AC-014).
+- [x] Red→Green evidence recorded in the implementation report.
+- [x] The focused suite and the relevant repository gate pass.
+- [ ] An independent quality-gate verdict records PASS with traceability and
+  high-risk provenance.
+
+### Out of Scope
+
+- Rewriting the self-improvement prompt or changing its schedule.
+
+### Blockers
+
+None
+
+---
+
+## T-006 Extend the Claude Code hook matcher to route Bash commands to the guard
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/160
+
+Approval: Approved (sudo 2026-07-12T05:13:11Z)
+
+Status: Implementation Complete
+
+Risk: high
+
+Risk Rationale: `claude-hooks.json` matches only
+`Edit|Write|MultiEdit|apply_patch`; under stock Claude Code the guard is never
+invoked for Bash, so a protected-file write launched through Bash is entirely
+unguarded (issue #116 verdict; REQ-006; security-spec.md B1).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: enabled
+
+Requirements: REQ-006
+
+Depends On: none
+
+Planned Files:
+- `plugins/sdd-quality-loop/hooks/claude-hooks.json` (protected — human-copy)
+- `tests/claude-bash-matcher.tests.sh` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; preserves the existing kill-switch and file-tool matchers and
+the hook decision protocol.
+
+Rollback: human re-copies the prior `claude-hooks.json`; revert the test commit.
+
+### Goal
+
+Extend the `claude-hooks.json` PreToolUse matcher to cover Bash tool calls
+(matching the Codex matcher's coverage), preserve fail-closed behavior for
+unclassifiable payloads, and prove parity with the Codex and Copilot hook paths.
+
+### Must Read
+
+- `specs/epic-136-phase1-guards/requirements.md`
+- `specs/epic-136-phase1-guards/design.md`
+- `specs/epic-136-phase1-guards/acceptance-tests.md`
+- `specs/epic-136-phase1-guards/security-spec.md`
+- `specs/epic-136-phase1-guards/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+- `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
+
+### Scope
+
+- Write TEST-012 (Bash write denied, read allowed under the Claude matcher) and
+  TEST-013 (malformed payload denied; Claude/Codex/Copilot agree on the shared
+  Bash corpus) first, capturing RED.
+- Stage the corrected `claude-hooks.json` under `human-copy/` for the human.
+
+### Done When
+
+- [x] With the updated matcher, a Bash tool call that writes to a protected file
+  is denied and a read-only Bash call over a protected path is allowed (AC-012).
+- [x] Malformed payloads stay denied (fail-closed) and the Claude/Codex/Copilot
+  hook paths agree on the shared Bash corpus (AC-013).
+- [x] Red→Green evidence recorded in the implementation report.
+- [x] The focused suite and the relevant repository gate pass.
+- [ ] An independent quality-gate verdict records PASS with traceability and
+  high-risk provenance.
+- [ ] Cross-model verification consensus recorded (security-sensitive task).
+
+### Out of Scope
+
+- Making the Bash-command heuristic a complete interpreter (documented
+  best-effort non-goal).
+
+### Blockers
+
+None
+# Traceability: epic-136-phase1-guards
+
+Every Layer Spec cell contains one or more canonical layer-spec anchors, or a
+reasoned cross-layer N/A.
+
+| Requirement | Investigation | Layer Spec | Design | API/Schema | Code Target | Test ID | Test Target | Evidence | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| REQ-001 | N/A — enforcement-chain hardening; observed behavior is in requirements.md | security-spec.md#trust-boundaries; security-spec.md#powershell-parity-note | design.md#components; design.md#test-strategy | Existing hook decision protocol and protected-suffix table; no format change | plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 | TEST-001, TEST-002, TEST-003, TEST-015 | tests/guard-r10-port.tests.ps1; tests/guard-ps1-ascii.tests.sh | reports/quality-gate/ for T-001 | Planned |
+| REQ-002 | N/A — enforcement-chain hardening; observed behavior is in requirements.md | security-spec.md#stride-analysis; security-spec.md#security-tests | design.md#test-strategy; design.md#security-boundaries | Existing hook decision protocol; no format change | plugins/sdd-quality-loop/scripts/sdd-hook-guard.py; plugins/sdd-quality-loop/scripts/sdd-hook-guard.js | TEST-004, TEST-005 | tests/guard-cwd-bypass.tests.sh | reports/quality-gate/ for T-002 | Planned |
+| REQ-003 | N/A — enforcement-chain hardening; observed behavior is in requirements.md | infra-spec.md#ci-cd-sequence; security-spec.md#stride-analysis | design.md#api--contract-plan; design.md#test-strategy | New internal contract: task ID + repo root -> continue/Escalate-Human | plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh; plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1; plugins/sdd-ship/skills/ship/SKILL.md | TEST-006 | tests/quality-gate-cycle-limit.tests.sh | reports/quality-gate/ for T-003 | Planned |
+| REQ-004 | N/A — enforcement-chain hardening; observed behavior is in requirements.md | security-spec.md#authorization; security-spec.md#stride-analysis | design.md#api--contract-plan; design.md#cross-layer-dependencies | Two additive tasks.md fields (Security-Sensitive, Cross-Model-Waiver); lite-gate rejection | plugins/sdd-ship/skills/ship/SKILL.md | TEST-008, TEST-009, TEST-016 | ship/SKILL.md document conformance; lite-gate conformance | reports/quality-gate/ for T-004 | Planned |
+| REQ-005 | N/A — enforcement-chain hardening; observed behavior is in requirements.md | infra-spec.md#deployment-topology; infra-spec.md#ci-cd-sequence | design.md#external-integrations; design.md#deployment--ci-plan | Minimized workflow permissions; deterministic pre-PR guard step | .github/workflows/self-improvement.yml | TEST-010, TEST-011, TEST-014 | tests/self-improvement-guard.tests.sh | reports/quality-gate/ for T-005 | Planned |
+| REQ-006 | INV — issue #116 verdict (matcher coverage gap), recorded in requirements.md Problems | security-spec.md#trust-boundaries; security-spec.md#authentication-flow | design.md#architecture; design.md#test-strategy | Existing hook decision protocol; matcher coverage extension only | plugins/sdd-quality-loop/hooks/claude-hooks.json | TEST-012, TEST-013 | tests/claude-bash-matcher.tests.sh | reports/quality-gate/ for T-006 | Planned |
+
+## Layer Coverage
+
+| Layer | Applicable Requirements | Acceptance Criteria | Primary Sections | Gaps / Reasoned N/A |
+|---|---|---|---|---|
+| UX | N/A — no user-facing UI | N/A — CLI/CI hardening | ux-spec.md#scope-and-user-journeys | No rendered or interactive surface; UX spec records this as N/A. |
+| Frontend | N/A — no browser/frontend bundle | N/A — CLI/CI hardening | frontend-spec.md#technology-stack | Shell/PowerShell/JS/YAML scripts are not a frontend surface. |
+| Infrastructure | REQ-003, REQ-005 | AC-006, AC-010, AC-011, AC-014 | infra-spec.md#deployment-topology; infra-spec.md#ci-cd-sequence | CI permission change plus a new guard step; no deployment topology change. |
+| Security | REQ-001, REQ-002, REQ-004, REQ-006 | AC-001, AC-002, AC-003, AC-004, AC-005, AC-008, AC-009, AC-012, AC-013, AC-015, AC-016 | security-spec.md#trust-boundaries; security-spec.md#security-tests | None. |
+
+## Task Mapping
+
+| Task | Requirements | Acceptance Tests | Planned Verification Evidence |
+|---|---|---|---|
+| T-001 | REQ-001 | TEST-001, TEST-002, TEST-003, TEST-015 | high-risk (critical) implementation report, cross-model consensus, signed evidence bundle, second approver, independent quality-gate report |
+| T-002 | REQ-002 | TEST-004, TEST-005 | high-risk (critical) implementation report, RED evidence, cross-model consensus, signed evidence bundle, second approver, independent quality-gate report |
+| T-003 | REQ-003 | TEST-006 | high-risk implementation report and independent quality-gate report |
+| T-004 | REQ-004 | TEST-008, TEST-009, TEST-016 | high-risk implementation report and independent quality-gate report |
+| T-005 | REQ-005 | TEST-010, TEST-011, TEST-014 | high-risk implementation report and independent quality-gate report |
+| T-006 | REQ-006 | TEST-012, TEST-013 | high-risk implementation report, cross-model consensus, independent quality-gate report |
+
+## Acceptance Mapping
+
+| Acceptance Criterion | Test ID | Task |
+|---|---|---|
+| AC-001 | TEST-001 | T-001 |
+| AC-002 | TEST-002 | T-001 |
+| AC-003 | TEST-003 | T-001 |
+| AC-004 | TEST-004 | T-002 |
+| AC-005 | TEST-005 | T-002 |
+| AC-006 | TEST-006 | T-003 |
+| AC-007 | TEST-006 | T-003 |
+| AC-008 | TEST-008 | T-004 |
+| AC-009 | TEST-009 | T-004 |
+| AC-010 | TEST-010 | T-005 |
+| AC-011 | TEST-011 | T-005 |
+| AC-012 | TEST-012 | T-006 |
+| AC-013 | TEST-013 | T-006 |
+| AC-014 | TEST-014 | T-005 |
+| AC-015 | TEST-015 | T-001 |
+| AC-016 | TEST-016 | T-004 |
+
+## Final Status
+
+Update requirement status only from saved test evidence and quality-gate reports.
+Implementation reports are claims, not independent verification evidence.
+{
+  "feature": "epic-136-phase1-guards",
+  "generated_by": "quality-gate machine-readable companion; frozen traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-015"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-015"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/T-001/green.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-004",
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-004",
+        "TEST-005"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/T-002/green.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-006",
+        "AC-007"
+      ],
+      "tests": [
+        "TEST-006"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-003/focused-tests.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-008",
+        "AC-009",
+        "AC-016"
+      ],
+      "tests": [
+        "TEST-008",
+        "TEST-009",
+        "TEST-016"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-004/conformance.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-010",
+        "AC-011",
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-010",
+        "TEST-011",
+        "TEST-014"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-012",
+        "AC-013"
+      ],
+      "tests": [
+        "TEST-012",
+        "TEST-013"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-006/focused-tests.log"
+      ]
+    }
+  ]
+}
+
+
+===== artifact: specs/epic-136-phase1-guards/human-copy/claude-hooks.json (sha256: 09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d) =====
+
+{
+  "description": "Claude Code-specific enforcement layer for the SDD quality loop. This file is referenced from .claude-plugin/plugin.json via the 'hooks' field and uses the officially recommended exec form with Node.js so the gates run identically on Windows (no Git Bash needed), macOS, and Linux. ${CLAUDE_PLUGIN_ROOT} is expanded by Claude Code itself before spawning and works in args on all operating systems. hooks/hooks.json remains the Codex CLI enforcement config; hooks/copilot-hooks.json remains the GitHub Copilot CLI variant.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/kill-switch.js"]
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/sdd-hook-guard.js", "--emit", "exit"]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+
+===== artifact: specs/epic-136-phase1-guards/human-copy/T-006.MANIFEST.sha256 (sha256: 942f273ca67c5349ce06dc0ee48b5afd505b52eaf88384b8c73b0fce3e107504) =====
+
+09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d  claude-hooks.json -> plugins/sdd-quality-loop/hooks/claude-hooks.json
+
+
+===== artifact: tests/claude-bash-matcher.tests.sh (sha256: 444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762) =====
+
+#![PATH_REDACTED] bash
+# claude-bash-matcher.tests.sh
+# T-006 (issue #160 / #116 verdict): prove that the Claude Code PreToolUse hook
+# matcher in hooks/claude-hooks.json routes Bash tool calls to the SDD guard,
+# that the guard denies a Bash-mediated protected-file write while allowing a
+# read-only Bash command over a protected path (AC-012), that malformed /
+# unclassifiable payloads stay denied (fail-closed, AC-013), and that the
+# Claude (node .js), Codex (sh dispatcher -> python3 .py), and Copilot
+# (--emit copilot) hook paths agree on the shared Bash corpus (AC-013).
+#
+# RED/GREEN is driven ONLY by $HOOKS_JSON (default the live claude-hooks.json):
+#   HOOKS_JSON=<live   claude-hooks.json> -> matcher lacks Bash  -> (a) FAILS (RED)
+#   HOOKS_JSON=<staged claude-hooks.json> -> matcher covers Bash -> all pass (GREEN)
+# Sections (b) guard decisions and (c) cross-runtime parity drive the guard
+# binaries directly and are independent of $HOOKS_JSON, so they pass in BOTH
+# runs -- this demonstrates the guard logic already denies Bash-mediated
+# protected writes and is fail-closed; only the Claude matcher ROUTING was
+# missing (issue #160). The RED evidence therefore isolates the matcher gap.
+#
+# Usage:
+#   bash tests/claude-bash-matcher.tests.sh
+#   HOOKS_JSON=specs/epic-136-phase1-guards/human-copy/claude-hooks.json \
+#     bash tests/claude-bash-matcher.tests.sh
+
+set -u
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPTS_DIR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts"
+GUARD_JS="${SCRIPTS_DIR}/sdd-hook-guard.js"
+GUARD_SH="${SCRIPTS_DIR}/sdd-hook-guard.sh"
+
+# HOOKS_JSON default is the live Claude hook config; a relative value is
+# resolved against the repository root so the default and the staged human-copy
+# path both work regardless of the caller's working directory.
+HOOKS_JSON_DEFAULT="plugins/sdd-quality-loop/hooks/claude-hooks.json"
+HOOKS_JSON_INPUT="${HOOKS_JSON:-$HOOKS_JSON_DEFAULT}"
+case "$HOOKS_JSON_INPUT" in
+  /*) HOOKS_JSON_RESOLVED="$HOOKS_JSON_INPUT" ;;
+  *)  HOOKS_JSON_RESOLVED="${REPO_ROOT}/${HOOKS_JSON_INPUT}" ;;
+esac
+
+PASS=0
+FAIL=0
+ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
+fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+echo "== T-006 claude-bash-matcher tests =="
+echo "REPO_ROOT:  ${REPO_ROOT}"
+echo "HOOKS_JSON: ${HOOKS_JSON_RESOLVED}"
+echo
+
+if [ ! -f "$GUARD_JS" ]; then echo "FATAL: guard not found: $GUARD_JS" >&2; exit 3; fi
+if [ ! -f "$GUARD_SH" ]; then echo "FATAL: dispatcher not found: $GUARD_SH" >&2; exit 3; fi
+if [ ! -f "$HOOKS_JSON_RESOLVED" ]; then echo "FATAL: hooks config not found: $HOOKS_JSON_RESOLVED" >&2; exit 3; fi
+
+# ---------------------------------------------------------------------------
+# Bash-shaped payload corpus. The protected path is drawn from
+# PROTECTED_GATE_SUFFIXES so the guard's R-10 write-target analysis applies.
+# ---------------------------------------------------------------------------
+PROT="plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+PAYLOAD_WRITE='{"tool_name":"Bash","tool_input":{"command":"rm '"$PROT"'"}}'
+PAYLOAD_READ='{"tool_name":"Bash","tool_input":{"command":"grep -n foo '"$PROT"'"}}'
+PAYLOAD_MISSING_INPUT='{"tool_name":"Bash"}'
+PAYLOAD_NONJSON='this is not json'
+
+# ---------------------------------------------------------------------------
+# Guard invocation helpers. GCODE=exit code, GOUT=stdout.
+#   guard_js: Claude path -- node runs the .js twin directly (this is what
+#             claude-hooks.json routes Bash to after the fix). Payload via env.
+#   guard_sh: Codex/Copilot path -- the sh dispatcher (hooks.json /
+#             copilot-hooks.json) reads the payload on stdin, prefers python3
+#             (.py twin), and falls back to PowerShell (.ps1).
+# ---------------------------------------------------------------------------
+guard_js() {
+  local payload="$1" emit="${2:-exit}" tmp="${WORK}/js.out"
+  GCODE=0
+  PAYLOAD="$payload" node "$GUARD_JS" --emit "$emit" >"$tmp" 2>/dev/null || GCODE=$?
+  GOUT="$(cat "$tmp" 2>/dev/null || true)"
+}
+guard_sh() {
+  local payload="$1" emit="${2:-exit}" tmp="${WORK}/sh.out"
+  GCODE=0
+  printf '%s' "$payload" | bash "$GUARD_SH" --emit "$emit" >"$tmp" 2>/dev/null || GCODE=$?
+  GOUT="$(cat "$tmp" 2>/dev/null || true)"
+}
+
+decision_of_code() {
+  case "$1" in
+    0) echo "allow" ;;
+    2) echo "deny" ;;
+    *) echo "error($1)" ;;
+  esac
+}
+decision_of_copilot() {
+  printf '%s' "$1" | python3 -c '
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get("permissionDecision", "missing"))
+except Exception:
+    print("parse-error")
+'
+}
+
+# ===========================================================================
+# (a) MATCHER COVERAGE -- reads $HOOKS_JSON; FAILS against the live file (RED).
+# ===========================================================================
+echo "-- (a) matcher coverage ($HOOKS_JSON_RESOLVED) --"
+
+if python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$HOOKS_JSON_RESOLVED" 2>/dev/null; then
+  ok "claude-hooks.json is valid JSON"
+else
+  fail "claude-hooks.json is not valid JSON"
+fi
+
+# Extract the matcher of the PreToolUse entry whose hooks route to
+# sdd-hook-guard (NOT the kill-switch entry).
+MATCHER="$(python3 -c '
+import json, sys
+d = json.load(open(sys.argv[1]))
+out = ""
+for e in d.get("hooks", {}).get("PreToolUse", []):
+    args = []
+    for h in e.get("hooks", []):
+        args += [str(a) for a in h.get("args", [])]
+    if any("sdd-hook-guard" in a for a in args):
+        out = e.get("matcher", "")
+        break
+print(out)
+' "$HOOKS_JSON_RESOLVED" 2>/dev/null)"
+
+if [ -n "$MATCHER" ]; then
+  ok "extracted sdd-hook-guard matcher: ${MATCHER}"
+else
+  fail "could not extract sdd-hook-guard matcher"
+fi
+
+# a1: the tool name Bash must match the matcher as an anchored alternation.
+#     This is the core issue #160 gap: the live matcher omits Bash.
+if printf 'Bash' | grep -Eq "^(${MATCHER})\$"; then
+  ok "matcher covers tool name Bash (anchored alternation)"
+else
+  fail "matcher does NOT cover tool name Bash (matcher='${MATCHER}')"
+fi
+
+# a2: existing file-tool coverage must be preserved.
+for tool in Edit Write MultiEdit apply_patch; do
+  if printf '%s' "$tool" | grep -Eq "^(${MATCHER})\$"; then
+    ok "matcher still covers ${tool}"
+  else
+    fail "matcher no longer covers ${tool}"
+  fi
+done
+
+# a3: kill-switch PreToolUse entry (matcher '*') must remain intact.
+if python3 -c '
+import json, sys
+d = json.load(open(sys.argv[1]))
+found = False
+for e in d.get("hooks", {}).get("PreToolUse", []):
+    args = []
+    for h in e.get("hooks", []):
+        args += [str(a) for a in h.get("args", [])]
+    if e.get("matcher") == "*" and any("kill-switch" in a for a in args):
+        found = True
+sys.exit(0 if found else 1)
+' "$HOOKS_JSON_RESOLVED" 2>/dev/null; then
+  ok "kill-switch PreToolUse entry intact (matcher '*')"
+else
+  fail "kill-switch PreToolUse entry missing or altered"
+fi
+
+# ===========================================================================
+# (b) GUARD DECISIONS -- drive the .js twin directly; independent of $HOOKS_JSON.
+# ===========================================================================
+echo "-- (b) guard decisions (Claude .js twin) --"
+
+guard_js "$PAYLOAD_WRITE"
+if [ "$GCODE" -eq 2 ]; then ok "Bash write to protected file -> deny (exit 2)"; else fail "Bash write to protected file -> deny (expected 2, got $GCODE)"; fi
+
+guard_js "$PAYLOAD_READ"
+if [ "$GCODE" -eq 0 ]; then ok "Bash read-only over protected path -> allow (exit 0)"; else fail "Bash read-only over protected path -> allow (expected 0, got $GCODE)"; fi
+
+guard_js "$PAYLOAD_MISSING_INPUT"
+if [ "$GCODE" -eq 2 ]; then ok "malformed Bash payload (missing tool_input) -> deny (exit 2)"; else fail "malformed Bash payload (missing tool_input) -> deny (expected 2, got $GCODE)"; fi
+
+guard_js "$PAYLOAD_NONJSON"
+if [ "$GCODE" -eq 2 ]; then ok "non-JSON payload -> deny (exit 2, fail-closed)"; else fail "non-JSON payload -> deny (expected 2, got $GCODE)"; fi
+
+# ===========================================================================
+# (c) CROSS-RUNTIME PARITY -- node .js vs sh dispatcher vs copilot emit.
+# ===========================================================================
+echo "-- (c) cross-runtime parity (Claude / Codex / Copilot) --"
+
+parity_case() {
+  local label="$1" payload="$2" expected="$3"
+  local dj ds dc
+  guard_js "$payload" "exit";    dj="$(decision_of_code "$GCODE")"
+  guard_sh "$payload" "exit";    ds="$(decision_of_code "$GCODE")"
+  guard_sh "$payload" "copilot"; dc="$(decision_of_copilot "$GOUT")"
+  if [ "$dj" = "$expected" ] && [ "$ds" = "$expected" ] && [ "$dc" = "$expected" ]; then
+    ok "parity[$label]: js=$dj sh=$ds copilot=$dc (all == $expected)"
+  else
+    fail "parity[$label]: js=$dj sh=$ds copilot=$dc (expected all=$expected)"
+  fi
+}
+
+parity_case "write-deny"         "$PAYLOAD_WRITE"         "deny"
+parity_case "read-allow"         "$PAYLOAD_READ"          "allow"
+parity_case "missing-input-deny" "$PAYLOAD_MISSING_INPUT" "deny"
+parity_case "nonjson-deny"       "$PAYLOAD_NONJSON"       "deny"
+
+# ---------------------------------------------------------------------------
+echo
+echo "== summary: passed=${PASS} failed=${FAIL} =="
+if [ "$FAIL" -gt 0 ]; then
+  echo "RESULT: FAIL"
+  exit 1
+fi
+echo "RESULT: PASS"
+exit 0
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-006/red.log (sha256: 2b0f603bde01b3244f8478c90095e2bcabe7a0676418fadce76c26b68d664e73) =====
+
+== T-006 claude-bash-matcher tests ==
+REPO_ROOT:  [PATH_REDACTED]
+HOOKS_JSON: [PATH_REDACTED]
+
+-- (a) matcher coverage ([PATH_REDACTED]) --
+ok: claude-hooks.json is valid JSON
+ok: extracted sdd-hook-guard matcher: Edit|Write|MultiEdit|apply_patch
+FAIL: matcher does NOT cover tool name Bash (matcher='Edit|Write|MultiEdit|apply_patch')
+ok: matcher still covers Edit
+ok: matcher still covers Write
+ok: matcher still covers MultiEdit
+ok: matcher still covers apply_patch
+ok: kill-switch PreToolUse entry intact (matcher '*')
+-- (b) guard decisions (Claude .js twin) --
+ok: Bash write to protected file -> deny (exit 2)
+ok: Bash read-only over protected path -> allow (exit 0)
+ok: malformed Bash payload (missing tool_input) -> deny (exit 2)
+ok: non-JSON payload -> deny (exit 2, fail-closed)
+-- (c) cross-runtime parity (Claude / Codex / Copilot) --
+ok: parity[write-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[read-allow]: js=allow sh=allow copilot=allow (all == allow)
+ok: parity[missing-input-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[nonjson-deny]: js=deny sh=deny copilot=deny (all == deny)
+
+== summary: passed=15 failed=1 ==
+RESULT: FAIL
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-006/green.log (sha256: 4c291824bffb2b668bf4b62c573cc2ce00792fa79f9fbb5fd909962847dd8aed) =====
+
+== T-006 claude-bash-matcher tests ==
+REPO_ROOT:  [PATH_REDACTED]
+HOOKS_JSON: [PATH_REDACTED]
+
+-- (a) matcher coverage ([PATH_REDACTED]) --
+ok: claude-hooks.json is valid JSON
+ok: extracted sdd-hook-guard matcher: Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec
+ok: matcher covers tool name Bash (anchored alternation)
+ok: matcher still covers Edit
+ok: matcher still covers Write
+ok: matcher still covers MultiEdit
+ok: matcher still covers apply_patch
+ok: kill-switch PreToolUse entry intact (matcher '*')
+-- (b) guard decisions (Claude .js twin) --
+ok: Bash write to protected file -> deny (exit 2)
+ok: Bash read-only over protected path -> allow (exit 0)
+ok: malformed Bash payload (missing tool_input) -> deny (exit 2)
+ok: non-JSON payload -> deny (exit 2, fail-closed)
+-- (c) cross-runtime parity (Claude / Codex / Copilot) --
+ok: parity[write-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[read-allow]: js=allow sh=allow copilot=allow (all == allow)
+ok: parity[missing-input-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[nonjson-deny]: js=deny sh=deny copilot=deny (all == deny)
+
+== summary: passed=16 failed=0 ==
+RESULT: PASS
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/qg/T-006/focused-tests.log (sha256: 026104c34624c6b897b1d551e476741aa47f382d0df9b291e5b0bdcf00e95d72) =====
+
+== T-006 claude-bash-matcher tests ==
+REPO_ROOT:  [PATH_REDACTED]
+HOOKS_JSON: [PATH_REDACTED]
+
+-- (a) matcher coverage ([PATH_REDACTED]) --
+ok: claude-hooks.json is valid JSON
+ok: extracted sdd-hook-guard matcher: Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec
+ok: matcher covers tool name Bash (anchored alternation)
+ok: matcher still covers Edit
+ok: matcher still covers Write
+ok: matcher still covers MultiEdit
+ok: matcher still covers apply_patch
+ok: kill-switch PreToolUse entry intact (matcher '*')
+-- (b) guard decisions (Claude .js twin) --
+ok: Bash write to protected file -> deny (exit 2)
+ok: Bash read-only over protected path -> allow (exit 0)
+ok: malformed Bash payload (missing tool_input) -> deny (exit 2)
+ok: non-JSON payload -> deny (exit 2, fail-closed)
+-- (c) cross-runtime parity (Claude / Codex / Copilot) --
+ok: parity[write-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[read-allow]: js=allow sh=allow copilot=allow (all == allow)
+ok: parity[missing-input-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[nonjson-deny]: js=deny sh=deny copilot=deny (all == deny)
+
+== summary: passed=16 failed=0 ==
+RESULT: PASS

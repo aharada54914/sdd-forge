@@ -1,0 +1,18 @@
+[
+  {
+    "suite": "host-review-preflight",
+    "exit": 0
+  },
+  {
+    "suite": "quality-nontty-transport",
+    "exit": 0
+  },
+  {
+    "suite": "unified-task-launch",
+    "exit": 0
+  },
+  {
+    "suite": "unified-launch-order",
+    "exit": 0
+  }
+]

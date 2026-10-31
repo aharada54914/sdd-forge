@@ -1,0 +1,36 @@
+ticket_id: RT-20260817-002
+status: open
+type: test-gap
+severity: minor
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-001
+  files:
+    - tests/fixtures/facet-manifest/schema/decision-doc-v2-section16-worked-example.json
+    - tests/facet-manifest-schema.tests.sh
+    - tests/facet-manifest-schema.tests.ps1
+    - specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log
+summary: "cycle-3 evaluator の非ブロッキング Minor 3 件（fixture 重複・TEST-041 無条件カウント・gate ログの世代混在）"
+problem: |
+  seq0756 の quality-gate evaluator（VERDICT: PASS）が検出した Accepted Minor
+  3 件の記録。いずれも Done 判定を妨げない。
+  (1) decision-doc-v2-section16-worked-example.json が valid-base.json /
+  semantics/fully-clean.json とバイト同一の 3 件重複群のままで、TEST-011 は
+  TEST-002 の positive baseline と失敗検知が結合している（AC-011 の回帰は
+  valid-base 経由でしか露見しない）。
+  (2) tests/facet-manifest-schema.tests.sh:167 / .ps1:156 の TEST-041 が
+  条件分岐を伴わない無条件カウント行で assertion 数を 1 水増ししている
+  （AC-041 の実体は evidence-warn-* の実 assertion 2 本で担保済み）。
+  (3) gate-20260817-checks.log（cycle-1 名義）に cycle-2/3 の再実行節が
+  追記されており、証跡の世代分離が崩れている（追記のみ・改竄なし。同内容は
+  gate-cycle2-red-green.log / gate-cycle3-checks.log にも存在）。
+expected_fix:
+  - "TEST-011 の worked-example fixture を §16 転記内容を保ったまま valid-base と独立した入力状態に差別化する（後続タスクの fixture 整理と併せて可）"
+  - "TEST-041 の無条件カウント行を実 assertion 2 本への参照コメントに置換するか、条件付き assert に変える"
+  - "以後のゲートでは cycle ごとに別ログファイルへ記録する（本タスクでは既に gate-cycleN ログが併存するため追加作業不要）"
+references:
+  - "RUN-epic-192-a4-facet-manifest-qg-T-001-seq0756 evaluator findings (Minor x3)"
+  - "reports/quality-gate/epic-192-a4-facet-manifest/T-001.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 3

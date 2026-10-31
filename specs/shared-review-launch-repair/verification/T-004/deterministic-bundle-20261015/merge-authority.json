@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "gh",
+    "api",
+    "repos/aharada54914/sdd-forge/issues/comments/6115254249",
+    "--jq",
+    ".body"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:12:15.815584+00:00",
+  "finished_at": "2026-10-14T15:12:16.395270+00:00"
+}

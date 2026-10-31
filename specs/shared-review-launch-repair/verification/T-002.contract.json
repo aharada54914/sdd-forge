@@ -1,0 +1,116 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-002",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "stack": "code",
+  "required_workflow": "tdd",
+  "spec_revision": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "comment": "Current evidence reconciliation after evaluator 48f0bfc1 findings; historical contract and review remain preserved. Authentic structural helper-extraction RED is retained as ordinary TDD evidence; the RT-20261009-001 exception does not apply. Current eight-target restoration and permanent PowerShell equivalence checks passed; see current-evidence-coverage.md for exact scope and limitations. spec_revision is raw requirements.md SHA-256. Formal verdict, native Windows, CI and merge remain separate.",
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "waiver_reason": "Actual deterministic result is not-applicable (disabled-legacy), not a coverage PASS.",
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-20261010/component.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/ruff.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/mypy.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-restoration-380hac14/restored-hash-parity.log",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "green_evidence": "specs/shared-review-launch-repair/verification/T-002/current-restoration-380hac14/restored-hash-parity.log"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/build.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/placeholder.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/task-state.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-evidence-coverage.md",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "red_evidence": "specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "green_evidence": "specs/shared-review-launch-repair/verification/T-002/current-restoration-380hac14/results.json"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/current-evidence-coverage.md",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/shared-review-launch-repair/verification/T-002/deterministic-bundle-attempt-4/traceability.log",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ]
+    }
+  ]
+}

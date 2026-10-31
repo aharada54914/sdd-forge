@@ -1,0 +1,113 @@
+BACKFILL RE-EXECUTION — 2026-08-13T14:05:34Z
+HEAD: a6aee75e162dd1bb08a34a9d20ebea71551d85cc
+Environment: Darwin, bash 5.3.9(1)-release, PowerShell 7.6.2, Python 3.14.5
+
+Purpose: genuine, re-executed evidence supporting the closeout backfill of the
+six per-task verification contract/evidence pairs for
+epic-191-a3-path-ownership. Every task's Done flip predates this feature's
+contract/evidence-bundle closeout convention, so check-task-state has exited 1
+on all twelve diagnostics; this run is the measurement those pairs cite.
+
+All six tasks are risk high or medium — none is critical — so no bundle
+requires an HMAC signature under the critical-only signature rule
+(risk-gate-matrix.md: signature and two-person are critical-tier only).
+
+  T-001 high / tdd            T-004 high   / tdd
+  T-002 high / tdd            T-005 medium / acceptance-first
+  T-003 medium / acceptance-first          T-006 high / tdd
+
+=== T-001 / T-005 shared suite: component-path-resolver ===
+--- bash tests/component-path-resolver.tests.sh ---
+Results: 73 passed, 0 failed.
+exit: 0
+
+--- pwsh tests/component-path-resolver.tests.ps1 ---
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+exit: 0
+
+=== T-002: component-path-diff-basis ===
+--- bash tests/component-path-diff-basis.tests.sh ---
+Results: 18 passed, 0 failed.
+exit: 0
+
+--- pwsh tests/component-path-diff-basis.tests.ps1 ---
+component-path-diff-basis.tests.ps1: 18 passed, 0 failed
+exit: 0
+
+=== T-003: ownership-digest ===
+--- bash tests/ownership-digest.tests.sh ---
+13 passed / 0 failed
+exit: 0
+
+--- pwsh tests/ownership-digest.tests.ps1 ---
+13 passed / 0 failed
+exit: 0
+
+=== T-004: check-component-coverage ===
+--- bash tests/check-component-coverage.tests.sh ---
+Results: 46 passed, 0 failed.
+exit: 0
+
+--- pwsh tests/check-component-coverage.tests.ps1 ---
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+exit: 0
+
+=== T-006: component-path-ownership-parity ===
+--- bash tests/component-path-ownership-parity.tests.sh ---
+Results: 21 passed, 0 failed
+exit: 0
+
+--- pwsh tests/component-path-ownership-parity.tests.ps1 ---
+Results: 21 passed, 0 failed
+exit: 0
+
+=== check-risk per task ===
+check-risk T-001: exit 0
+check-risk T-002: exit 0
+check-risk T-003: exit 0
+check-risk T-004: exit 0
+check-risk T-005: exit 0
+check-risk T-006: exit 0
+
+=== check-placeholders over the feature's delivered files ===
+Placeholder scan passed.
+check-placeholders exit: 0
+(scanned: resolve-component-paths.{py,sh,ps1},
+ check-component-coverage.{py,sh,ps1}, and all five test-suite pairs)
+
+=== human-copy manifest (live tree) ===
+13
+manifest rows OK (of 13)
+
+=== workflow-state ===
+workflow-state: ok
+check-workflow-state exit: 0
+
+--------------------------------------------------------------------------
+ENVIRONMENTAL NOTE — recorded, not hidden
+--------------------------------------------------------------------------
+The runs above were made with a git author/committer identity present in the
+environment:
+
+  GIT_AUTHOR_NAME=Test GIT_AUTHOR_EMAIL=t@example.com
+  GIT_COMMITTER_NAME=Test GIT_COMMITTER_EMAIL=t@example.com
+
+Without it, `bash tests/component-path-diff-basis.tests.sh` (T-002) ABORTS on
+this host with exit 128 and no `Results:` line:
+
+    fatal: unable to auto-detect email address
+    (got 'jrmag@02-C1-50-65-F3-3D.(none)')
+
+Cause, established by reading the suite: its `git_repo_init` helper (line 39)
+does set `user.email`/`user.name` on every repo it creates, but TEST-024 case 2
+(line ~331) commits inside the SUBMODULE working tree `$R24/vendor/inner`,
+which `git submodule add` cloned fresh and which therefore carries no identity.
+This host has a repo-local `user.email` but NO global one, so git falls back to
+hostname auto-detection and refuses.
+
+This is pre-existing and environmental, not a regression from any work in this
+session: `git log -- tests/component-path-diff-basis.tests.sh` shows the file
+was last touched at `83561379`, and it is unchanged across `3919eddd..HEAD`.
+The PowerShell twin passes 18/0 on the same host, so the two twins are not
+environment-equivalent. Filed as a follow-up; the fix is to set an identity on
+the submodule working tree before committing in it.

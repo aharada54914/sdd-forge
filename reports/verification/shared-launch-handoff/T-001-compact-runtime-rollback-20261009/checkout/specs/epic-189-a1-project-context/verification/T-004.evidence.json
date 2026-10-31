@@ -1,0 +1,59 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-189-a1-project-context",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "quality_report": "reports/quality-gate/2026-07-30T143105Z-T-004.md",
+  "verification_contract": "specs/epic-189-a1-project-context/verification/T-004.contract.json",
+  "git_commit": "a5f5b2a31f4d9dfbe7725097518ad12c7ccaf814",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-004.contract.json",
+      "sha256": "6a9a5f0eea49f932048f1939ec6e3fddd09d7a4ab19236f833f358cd7106ac76"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-30T143105Z-T-004.md",
+      "sha256": "3c73778fa7e17e95bf5ccf0f16d72258da9ee0b35e82bfc6a6e726647a5f20f3"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-004/focused-tests.log",
+      "sha256": "1f7e970a40f6cea66ca70109d550a45f0b3b94a4446e97d7cb3542e85fd89283"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-004/placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-004/regression.log",
+      "sha256": "256022b704360c706b5600453a525d66b5fff913233e93794de1cd88d3890987"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-004/task-state.log",
+      "sha256": "d8f075d870fc50fd0e20642a905064088d053e9def8c33f25fcaaa2b86e6f425"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-004/traceability.log",
+      "sha256": "0e403735a29f1aca7fdb6ee74ce70cb90a9b5b7cae291a69cf64b224dc4c42cf"
+    }
+  ]
+}

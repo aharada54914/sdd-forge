@@ -1,0 +1,29 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -109,7 +109,11 @@
+       - name: Test cross-runtime scenario suite (pwsh)
+         shell: pwsh
+         run: ./tests/scenario.tests.ps1
+
++      - name: Test design-system contract suite (pwsh)
++        shell: pwsh
++        run: ./tests/design-system-contract.tests.ps1
++
+       - name: Test guards (bash)
+         if: runner.os != 'Windows'
+         shell: bash
+@@ -183,7 +187,13 @@
+         shell: bash
+         run: |
+           bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+
++      - name: Test design-system contract suite (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: |
++          bash tests/design-system-contract.tests.sh 2>&1 | tee "${{ runner.temp }}/design-system-contract-tests.log"
++
+       - name: Upload test logs
+         if: failure()
+         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

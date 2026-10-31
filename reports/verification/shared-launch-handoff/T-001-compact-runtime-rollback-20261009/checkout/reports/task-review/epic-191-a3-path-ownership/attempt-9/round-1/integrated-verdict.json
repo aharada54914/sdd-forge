@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a9r1",
+ "verdict": "NEEDS_WORK",
+ "round": 1,
+ "attempt": 9,
+ "findings_critical": 0,
+ "findings_major": 2,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "NEEDS_WORK",
+ "reviewer_b_verdict": "NEEDS_WORK",
+ "verdict_note": "Provenance re-review (--provenance-rereview) round 1 of attempt 9, opened to review and re-bind after commit 00744ac3's dated T-006 scope supersession (sanctioning the minimal ps1 unknown-argument-rejection parity correction after T-006's attempt-1 genuine harness RED proved the original Out of Scope premise false). Both reviewers judged the new supersession text on fresh merits and converged independently on the same defect from two angles: check-component-coverage.ps1 is R-10 protected content since T-004's applied registration (guard-invariants.json protected_gate_suffixes), so the supersession's 'existing, agent-editable' direct-edit label for that one file contradicts the plan's own Protected Files regime (A: SINGLE-CONCERN, Major) and leaves the unchanged Rollback field/'nothing protected is written directly' claim and the final Out of Scope bullet unreconciled (B: ROLLBACK-PLAN, Major). The sibling resolve-component-paths.ps1 entry is confirmed accurate (unprotected) by both reviewers, and the carve-out's evidence base (commits 41881071/819baf2c/f728e440/64fe54ae, argparse-vs-plain-param() root cause) was independently verified as genuine. Remediation: route the check-component-coverage.ps1 correction through the established human-copy staging path with a MANIFEST.sha256 entry and a human apply step, and reconcile Rollback plus the final Out of Scope bullet."
+}

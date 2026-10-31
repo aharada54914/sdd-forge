@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-spec-a1r2-b-seq0391",
+  "host_session_id": "SESS-spec-a1r2-b-epic136phase4docs-0391",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-2/integrated-summary.json",
+      "sha256": "d1caa31ac49013f01ae26e7183c6affe29d9ec7d1df8c2e3cde5817804a684f3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-2/precheck-result.json",
+      "sha256": "e8324334990d95449500306e3b790a957388d2d5b622e9ede93f6c226f1000ae"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e7412d29597bb73de73f0f7085169559697108a015cf5ebe74dcf0c7d5cf0535"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "57b3126d1298f66aab1b57a4db260036317f7d7de58a868e0fd1d23792f8ab51"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "Round 1's malformed-output ambiguity is genuinely resolved (REQ-001 now states the row documents existing behaviour, no new code, exit code 1, consistent with the new Non-goals entry and TEST-001). But acceptance-tests.md TEST-003 states 'Seven sub-cases per runner: unset, empty, 600, 1, 0, -5, abc' then classifies 'First three: the runner proceeds to invoke the CLI' / 'Last three: exit 2 ... never called' (3+3=6), leaving the fourth value ('1') unclassified by the test's own prose. Downstream failure mode: a test author reading TEST-003 in isolation could misclassify '1'; it is only resolvable by cross-referencing AC-003's 'rejects a non-numeric or non-positive value' rule and AC-004's separate use of SDD_PANELIST_TIMEOUT=1 as a valid case. Minor because the correct behaviour is derivable from AC-003 and does not block design or task decomposition."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-004 ('each shell runner terminates the stub and returns within a bounded margin of the deadline') and AC-005 ('A timed-out shell runner exits 1 and writes no verdict JSON') are explicitly scoped to 'shell runner(s)' -- a term BL-004 itself treats as distinct from 'PowerShell runners'. Yet AC-011 requires 'tests/cross-model.tests.{sh,ps1} gain cases covering AC-003, AC-004, AC-005 and AC-006, and both suites pass,' and REQ-002 requires all four runner scripts (sh+ps1) to implement the bound. No criterion states the PowerShell-specific pass bar; investigation.md INV-003 shows the existing .ps1 runners use Start-Process -Wait with no timeout parameter, implying a materially different mechanism is needed, and Edge Case 7's SIGTERM/SIGKILL escalation language is POSIX-specific with no stated PowerShell analogue. Separately, AC-004's own prose ('each shell runner terminates the stub') is not updated to cover TEST-004(c) (the polling boundary race), whose required assertion is the opposite: no termination, success reported. Downstream failure mode: a task author could satisfy AC-004/AC-005's literal text using only shell-runner tests while BL-004's parity requirement goes acceptance-test-unverified for the PowerShell runners."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Edge Cases 6 (polling boundary race) and 7 (SIGTERM-ignoring CLI), added in this revision, are concretely specified and operationalized for the shell runners via TEST-004(b)/(c) with specific values, iteration counts, and assertions -- that part of round 1's concern is resolved. However, REQ-002 implies the hang/kill/no-partial-verdict failure modes for all four runner scripts, and the Test Matrix 'Target' column for TEST-004 and TEST-005 reads 'shell runners' only -- no PowerShell-specific sub-case or assertion is proposed anywhere in acceptance-tests.md for these failure modes on the .ps1 runners, only the generic 'gain cases covering AC-004' line in AC-011. Downstream failure mode: a test author following the Test Matrix literally would write zero PowerShell-specific assertions for the hang-and-kill and no-partial-verdict behaviours the requirements imply for those scripts too."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "investigation.md Open Question 3 for #134 -- 'Should a residual-risk entry be added for hung external panelist... does #133's finding land in #134's document as well?' -- is not resolved, nor explicitly marked as a decision needed before design/task decomposition, anywhere in requirements.md or acceptance-tests.md. This stands out because the same document explicitly closes its other open questions (REQ-003 resolves #133's OQ-3 with rationale; AC-013 opens with 'Resolving investigation Open Question 2 for #134'), establishing a visible convention of naming and closing each one -- but #134's OQ-3 has no matching resolution. Downstream failure mode: a task author scoping REQ-004/REQ-005's THREAT-MODEL.md changes has no spec guidance on whether the hung-panelist finding this feature itself introduces should also appear as a residual-risk row in the document REQ-004/REQ-005 modify."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No human-approval, governance, or irreversible-change boundary is in scope for this feature. requirements.md BL-005 and investigation.md INV-017 confirm none of the feature's target files is in PROTECTED_GATE_SUFFIXES, so no human-copy staging round applies; BL-002 keeps check-cross-model's existing waiver-capable gate logic unchanged, and no new approval/governance mechanism is introduced."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Round 1's REQ-004 MCP-criterion gap is now fully closed: AC-013/TEST-013 give a concrete, testable criterion (name sdd-forge-mcp, local-env-mcp, ci-mcp and state a trust posture for each), and investigation Open Question 2 for #134 is explicitly resolved ('cite primary MCP documentation') without requiring an unnamed authoritative checklist. However, the same root cause documented under CONTRADICTION -- AC-004/AC-005's shell-runner-only scope against BL-004's parity mandate and AC-011's cross-suite requirement, with no stated PowerShell analogue for the SIGTERM/SIGKILL escalation model -- leaves an implementation-policy/design reviewer needing to invent the PowerShell-specific pass/fail bar (assertion mechanism, margin, process-liveness check) rather than finding it already specified."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this worktree (verified directly via glob for domain/context-map.md and domain/**, both empty), so the check's skip condition applies."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+# T-003 GREEN — tests/context-projection-schema.tests.sh + .ps1 (full implementation)
+date: 2026-08-17T04:55:09Z
+
+## bash
+command: bash tests/context-projection-schema.tests.sh
+---
+ok: contracts/context-projection.schema.json exists
+ok: $schema is draft-07
+ok: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/context-projection.schema.json)
+ok: top-level 'required' is exactly the five-field set (AC-015)
+ok: workflow.required is exactly the three-field set
+ok: top-level required: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: top-level required: required-missing-source-sha256.json invalid as expected (contains 'missing required property 'source_sha256'')
+ok: top-level required: required-missing-workflow.json invalid as expected (contains 'missing required property 'workflow'')
+ok: top-level required: required-missing-components.json invalid as expected (contains 'missing required property 'components'')
+ok: top-level required: required-missing-shared-paths.json invalid as expected (contains 'missing required property 'shared_paths'')
+ok: workflow required: workflow-missing-spec-profile.json invalid as expected (contains '/workflow/spec_profile: missing required property 'spec_profile'')
+ok: workflow required: workflow-missing-artifact-layout.json invalid as expected (contains '/workflow/artifact_layout: missing required property 'artifact_layout'')
+ok: workflow required: workflow-missing-capability-enforcement.json invalid as expected (contains '/workflow/capability_enforcement: missing required property 'capability_enforcement'')
+ok: spec_profile enum: workflow-spec-profile-invalid.json invalid as expected (contains '/workflow/spec_profile: expected one of ['full', 'lite']')
+ok: artifact_layout enum: workflow-artifact-layout-invalid.json invalid as expected (contains '/workflow/artifact_layout: expected one of ['lite-three-file', 'legacy-seven-layer', 'facet-hybrid', 'facet-native']')
+ok: capability_enforcement enum: workflow-capability-enforcement-invalid.json invalid as expected (contains '/workflow/capability_enforcement: expected one of ['advisory', 'required']')
+ok: schema const: schema-invalid-const.json invalid as expected (contains '/schema: expected const 'sdd-context-projection/v1'')
+ok: TEST-015: rekeyed-two-component-non-slug-id.json valid (exit 0, no diagnostics)
+ok: TEST-015: components re-keys to exactly two id-valued keys (incl. non-slug 'Desktop/App'), no 'id' sub-field
+ok: TEST-015 (B8 source-omission): source-omission-empty-valid.json valid (exit 0, no diagnostics)
+ok: TEST-015 (B8): source-omission fixture materializes components: {} / shared_paths: []
+ok: TEST-016: /components/desktop-client/artifact_kinds resolves to a real value (["executable", "installer"])
+ok: TEST-030: rekeyed-two-component-non-slug-id.json valid (exit 0, no diagnostics)
+ok: TEST-030: components-still-array-shaped.json invalid as expected (contains '/components: expected type 'object', got list')
+ok: TEST-042 (bounded): shared-path-bounded-valid.json valid (exit 0, no diagnostics)
+ok: TEST-042 (unbounded): shared-path-unbounded-valid.json valid (exit 0, no diagnostics)
+ok: TEST-042 (both): shared-path-both-rejected.json invalid as expected (contains '/shared_paths/0: expected exactly one 'oneOf' branch to match, 2 matched')
+ok: TEST-042 (neither): shared-path-neither-rejected.json invalid as expected (contains '/shared_paths/0: expected exactly one 'oneOf' branch to match, 0 matched')
+ok: shared_paths[] required 'pattern': shared-path-missing-pattern.json invalid as expected (contains '/shared_paths/0/pattern: missing required property 'pattern'')
+ok: source_sha256 pattern regression: source-sha256-malformed-digest.json invalid as expected (contains '/source_sha256: does not match pattern')
+ok: provider_bindings_sha256 pattern regression: provider-bindings-sha256-malformed-digest.json invalid as expected (contains '/provider_bindings_sha256: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline source_sha256 rejected: source-sha256-trailing-newline.json invalid as expected (contains '/source_sha256: does not match pattern')
+ok: diagnostic determinism: multi-diagnostic-ordering.json emits exactly 2 lines in (check-id, pointer) order
+ok: projection-unreadable: nonexistent .json path fails closed (exit=1, contains diagnostic)
+ok: self-registration: tests/run-all.sh lists this suite
+
+context-projection-schema: 35 passed, 0 failed
+exit code: 0
+
+## pwsh
+command: pwsh -NoProfile -File tests/context-projection-schema.tests.ps1
+---
+ok: contracts/context-projection.schema.json exists
+ok: $schema is draft-07
+ok: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/context-projection.schema.json)
+ok: top-level 'required' is exactly the five-field set (AC-015)
+ok: workflow.required is exactly the three-field set
+ok: top-level required: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: top-level required: required-missing-source-sha256.json invalid as expected (contains 'missing required property 'source_sha256'')
+ok: top-level required: required-missing-workflow.json invalid as expected (contains 'missing required property 'workflow'')
+ok: top-level required: required-missing-components.json invalid as expected (contains 'missing required property 'components'')
+ok: top-level required: required-missing-shared-paths.json invalid as expected (contains 'missing required property 'shared_paths'')
+ok: workflow required: workflow-missing-spec-profile.json invalid as expected (contains '/workflow/spec_profile: missing required property 'spec_profile'')
+ok: workflow required: workflow-missing-artifact-layout.json invalid as expected (contains '/workflow/artifact_layout: missing required property 'artifact_layout'')
+ok: workflow required: workflow-missing-capability-enforcement.json invalid as expected (contains '/workflow/capability_enforcement: missing required property 'capability_enforcement'')
+ok: spec_profile enum: workflow-spec-profile-invalid.json invalid as expected (contains '/workflow/spec_profile: expected one of ['full', 'lite']')
+ok: artifact_layout enum: workflow-artifact-layout-invalid.json invalid as expected (contains '/workflow/artifact_layout: expected one of ['lite-three-file', 'legacy-seven-layer', 'facet-hybrid', 'facet-native']')
+ok: capability_enforcement enum: workflow-capability-enforcement-invalid.json invalid as expected (contains '/workflow/capability_enforcement: expected one of ['advisory', 'required']')
+ok: schema const: schema-invalid-const.json invalid as expected (contains '/schema: expected const 'sdd-context-projection/v1'')
+ok: TEST-015: rekeyed-two-component-non-slug-id.json valid (exit 0, no diagnostics)
+ok: TEST-015: components re-keys to exactly two id-valued keys (incl. non-slug 'Desktop/App'), no 'id' sub-field
+ok: TEST-015 (B8 source-omission): source-omission-empty-valid.json valid (exit 0, no diagnostics)
+ok: TEST-015 (B8): source-omission fixture materializes components: {} / shared_paths: []
+ok: TEST-016: /components/desktop-client/artifact_kinds resolves to a real value (executable,installer)
+ok: TEST-030: rekeyed-two-component-non-slug-id.json valid (exit 0, no diagnostics)
+ok: TEST-030: components-still-array-shaped.json invalid as expected (contains '/components: expected type 'object', got list')
+ok: TEST-042 (bounded): shared-path-bounded-valid.json valid (exit 0, no diagnostics)
+ok: TEST-042 (unbounded): shared-path-unbounded-valid.json valid (exit 0, no diagnostics)
+ok: TEST-042 (both): shared-path-both-rejected.json invalid as expected (contains '/shared_paths/0: expected exactly one 'oneOf' branch to match, 2 matched')
+ok: TEST-042 (neither): shared-path-neither-rejected.json invalid as expected (contains '/shared_paths/0: expected exactly one 'oneOf' branch to match, 0 matched')
+ok: shared_paths[] required 'pattern': shared-path-missing-pattern.json invalid as expected (contains '/shared_paths/0/pattern: missing required property 'pattern'')
+ok: source_sha256 pattern regression: source-sha256-malformed-digest.json invalid as expected (contains '/source_sha256: does not match pattern')
+ok: provider_bindings_sha256 pattern regression: provider-bindings-sha256-malformed-digest.json invalid as expected (contains '/provider_bindings_sha256: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline source_sha256 rejected: source-sha256-trailing-newline.json invalid as expected (contains '/source_sha256: does not match pattern')
+ok: diagnostic determinism: multi-diagnostic-ordering.json emits exactly 2 lines in (check-id, pointer) order
+ok: projection-unreadable: nonexistent .json path fails closed (exit=1, contains diagnostic)
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+context-projection-schema: 35 passed, 0 failed
+exit code: 0

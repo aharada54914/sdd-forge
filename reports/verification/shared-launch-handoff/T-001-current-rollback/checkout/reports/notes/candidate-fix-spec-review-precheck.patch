@@ -1,0 +1,94 @@
+Candidate fix: spec-review-precheck.sh reset-hash-staleness (repo-wide defect)
+================================================================================
+
+STATUS: candidate only. NOT applied to the live path. Prepared for human
+review per an explicit "human judgment gate" decision on this defect
+(enforcement-gate scripts are self-modification-sensitive; this orchestrator
+does not authorize its own gate's code, even when the gate is blocking it).
+
+(i) Root cause (one line):
+`spec-review-precheck.sh` hashes `requirements.md` (line 80) BEFORE its own
+`--reset` transition (lines 245-252) rewrites `Spec-Review-Status: Passed` to
+`Pending` in that same file, so any `--reset` invocation against a spec whose
+content was edited in the same turn (still declaring `Passed`) persists a
+`requirements_sha256` that can never match the live post-reset file.
+
+(ii) Apply command (from repository root, any sdd-forge worktree/clone):
+
+    git apply reports/notes/candidate-fix-spec-review-precheck.patch \
+      --directory=plugins/sdd-review-loop/scripts
+
+  or, if invoked from this worktree with the patch's own embedded paths:
+
+    git apply reports/notes/candidate-fix-spec-review-precheck.patch
+
+  To preview without writing: add `--check` first. To reverse: add `-R`.
+
+(iii) Verification performed by this orchestrator before filing this patch
+(applied locally to this worktree's own copy of the script, tested, then
+fully reverted -- confirmed via `git diff`/`git status` showing zero change
+to the script; nothing here was committed to the live path):
+
+  1. Existing test suite: `bash tests/spec-review-loop.tests.sh` (the only
+     test file exercising this script; searched the full tree, no dedicated
+     `*spec-review-precheck*` test file exists separately) -- PASSED with
+     the patch applied, identical to its unpatched behavior ("ok: spec
+     review precheck enforces state, hashes, replay, reset, and safe
+     paths", exit 0). The existing test's own `--reset` coverage
+     (lines 168-237) never edits requirements.md content in the same
+     invocation as a `Passed`-status `--reset` call, so it does not
+     exercise this defect's own trigger condition either way -- the patch
+     changes zero existing assertions' outcomes.
+  2. Defect reproduction against the PATCHED script (isolated throwaway
+     fixture `patchtest-fixture-97812`, not any real epic's evidence):
+     built a `Pending` spec, ran round 1, flipped to `Passed`, appended new
+     content while still `Passed` (reproducing the exact same-turn
+     edit+reset scenario), then ran `--reset` for attempt 2 round 1.
+     Result: `precheck-result.json`'s `requirements_sha256` and the live
+     file's actual sha256 were IDENTICAL after the patch (cd6a5c9a...,
+     both sides) -- confirmed by direct byte-for-byte comparison. Before
+     the patch (see `reports/notes/repo-defect-spec-review-precheck-reset-hash-staleness.md`
+     for the unpatched reproduction against the real epic-195-a7-compatibility
+     spec), these two values differed (0314f09c0... vs b93bb798...).
+  3. Downstream unblock check: built a terminal-shaped attempt-2/round-1
+     NEEDS_WORK contract for the same throwaway fixture (mirroring the real
+     epic-195-a7-compatibility attempt-2/round-1 shape) and ran round 2
+     (`spec-review-precheck.sh <fixture> 2 2 --edit-summary=...`). Before
+     the patch this fails with `"prior round contract is malformed or does
+     not require work"` (reproduced against the real epic-195-a7 evidence,
+     see the defect note above). WITH the patch applied, this same round-2
+     invocation SUCCEEDED (`"spec-review-precheck: complete. Output written
+     to .../attempt-2/round-2/"`), confirming the patch actually unblocks
+     the exact failure mode, not merely the isolated hash comparison.
+  4. Scope check: the patch touches only the body of the existing
+     `if [[ "$reset" == true && "$status" == "Passed" ]]; then ... fi`
+     block (adds two lines recomputing `requirements_sha`/`input_sha`
+     immediately after the existing sed-mutation, inside the same
+     conditional). No other branch, function, or code path is touched;
+     the non-reset and reset-from-Pending paths are byte-identical to
+     before (the recomputation only runs when the mutation itself ran).
+
+NOTE ON PERMANENCE: this patch is scoped to this worktree's own copy of
+`plugins/sdd-review-loop/scripts/spec-review-precheck.sh`
+(`sdd-forge-wt-epic-195`, branch `feature/epic-195-a7-compatibility`). The
+authoritative, permanent fix belongs on the sdd-forge main repository via
+its own separate pull request against `main` (or whichever branch owns
+`plugins/**`) -- not merged into this feature branch, which has no business
+carrying a fix to shared review-loop tooling as a side effect of one epic's
+spec addendum. This file is evidence/proposal only.
+
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -249,6 +249,12 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
+   sed 's/^Spec-Review-Status:[[:space:]]*Passed[[:space:]]*$/Spec-Review-Status: Pending/' "$requirements" > "$reset_tmp"
+   mv "$reset_tmp" "$requirements"
+   status="Pending"
++  # Recompute the requirements/input hashes against the post-reset file: any
++  # persisted precheck-result.json must record the bytes reviewers, contracts,
++  # and later validate_contract calls will actually see, never the pre-mutation
++  # (Passed) bytes this same invocation just rewrote.
++  requirements_sha="$(sha256 "$requirements")"
++  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+ fi
+
+ generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

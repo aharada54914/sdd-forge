@@ -1,0 +1,6 @@
+workflow-state: epic-189-a1-project-context: stage-provenance: task plan hash is stale
+[31;1mException: [0m/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.WyjA35m8Rr/clone/tests/validate-repository.ps1:9[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m   9 | [0m     [36;1mthrow "Workflow-state validation failed with exit code $LASTEXITC[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mWorkflow-state validation failed with exit code 1.[0m

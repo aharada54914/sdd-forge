@@ -1,0 +1,10 @@
+$ bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/claude-workflow-compatibility/tasks.md
+Risk check passed for 6 task(s).
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh <T-001 production files>
+Placeholder scan passed.
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/claude-workflow-compatibility/tasks.md
+Task state check passed for 6 task(s).
+$ bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/claude-workflow-compatibility/traceability.json . require-evidence
+Traceability check passed for claude-workflow-compatibility: 2 link(s).
+$ bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/claude-workflow-compatibility/verification/T-001.contract.json .
+Verification contract passed for task T-001.

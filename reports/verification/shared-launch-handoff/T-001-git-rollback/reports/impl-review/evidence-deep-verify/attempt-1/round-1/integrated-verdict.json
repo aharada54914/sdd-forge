@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "evidence-deep-verify",
+  "run_id": "impl-orch-evdeepverify-a1r1-20260708-3e6b",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

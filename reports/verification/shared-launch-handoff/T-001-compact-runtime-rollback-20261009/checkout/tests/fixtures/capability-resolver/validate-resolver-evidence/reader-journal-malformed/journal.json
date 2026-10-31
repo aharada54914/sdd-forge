@@ -1,0 +1,8 @@
+{
+  "schema": "sdd-resolver-transaction/v1",
+  "nonce": "fedcba9876543210",
+  "status": "in-progress",
+  "targets": [
+    "not-an-object"
+  ]
+}

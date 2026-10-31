@@ -1,0 +1,68 @@
+diff --git a/tests/gates.tests.sh b/tests/gates.tests.sh
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -2835,6 +2835,36 @@
+     fail "T-007a.4.false: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=false. Got: $t007a_4_false_out"
+ fi
+ unset SDD_EVIDENCE_SIGSTORE_VERIFIED
++
++# Candidate T-007a.4b/c: unknown and empty signature algorithms fail closed.
++python3 - <<PYEOF
++import json, pathlib
++p = pathlib.Path("${critical_bundle}")
++b = json.loads(p.read_text(encoding="utf-8"))
++b["signature"] = {"alg": "unknown-alg", "value": "x", "key_ref": "unknown"}
++p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
++PYEOF
++t007a_4b_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
++if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
++   echo "$t007a_4b_out" | grep -q "unsupported signature alg"; then
++    ok "T-007a.4b: unknown signature alg fails"
++else
++    fail "T-007a.4b: unknown signature alg should fail. Got: $t007a_4b_out"
++fi
++python3 - <<PYEOF
++import json, pathlib
++p = pathlib.Path("${critical_bundle}")
++b = json.loads(p.read_text(encoding="utf-8"))
++b["signature"] = {"alg": "", "value": "x", "key_ref": "empty"}
++p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
++PYEOF
++t007a_4c_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
++if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
++   echo "$t007a_4c_out" | grep -q "non-empty alg and value"; then
++    ok "T-007a.4c: empty signature alg fails"
++else
++    fail "T-007a.4c: empty signature alg should fail. Got: $t007a_4c_out"
++fi
+ 
+ # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
+diff --git a/tests/scripts.tests.ps1 b/tests/scripts.tests.ps1
+--- a/tests/scripts.tests.ps1
++++ b/tests/scripts.tests.ps1
+@@ -2244,6 +2244,25 @@
+     Write-Host "ok: T-007a.4.false: sigstore with SIGSTORE_VERIFIED=false fails"
+     Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
++
++    # Candidate T-007a.4b/c: unknown and empty signature algorithms fail closed.
++    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
++    $t007a_bundle_json.signature = @{ alg = "unknown-alg"; value = "x"; key_ref = "unknown" }
++    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
++    $t007a_check_4b_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
++    $t007a_check_4b_exit = $LASTEXITCODE
++    $t007a_check_4b_str = ($t007a_check_4b_output | Out-String)
++    if ($t007a_check_4b_exit -eq 0 -or $t007a_check_4b_str -notmatch "unsupported signature alg") {
++        throw "T-007a.4b: unknown signature alg should fail. Got exit $t007a_check_4b_exit. Output: $t007a_check_4b_str"
++    }
++    Write-Host "ok: T-007a.4b: unknown signature alg fails"
++    $t007a_bundle_json.signature = @{ alg = ""; value = "x"; key_ref = "empty" }
++    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
++    $t007a_check_4c_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
++    $t007a_check_4c_exit = $LASTEXITCODE
++    $t007a_check_4c_str = ($t007a_check_4c_output | Out-String)
++    if ($t007a_check_4c_exit -eq 0 -or $t007a_check_4c_str -notmatch "non-empty alg and value") {
++        throw "T-007a.4c: empty signature alg should fail. Got exit $t007a_check_4c_exit. Output: $t007a_check_4c_str"
++    }
++    Write-Host "ok: T-007a.4c: empty signature alg fails"
+ 
+     # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS

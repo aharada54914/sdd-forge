@@ -1,0 +1,734 @@
+### Post-fix regression sweep (fixes 1-3)
+2026-08-13T23:41:13Z
+
+==== bash tests/component-path-ownership-parity.tests.sh ====
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0
+
+==== bash tests/component-path-resolver.tests.sh ====
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: src/desktop/** matches src/desktop/file.ts (direct child)
+ok: TEST-001.2: src/desktop/** matches src/desktop/sub/deep/file.ts (nested, crosses /)
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does NOT match src/sub/file.ts (bare * never crosses /)
+ok: TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)
+ok: TEST-002.4: src/*/file.ts does NOT match src/a/b/file.ts (bare * segment does not cross /, unlike **)
+ok: TEST-002.5: src/*/file.ts does NOT match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash-separated pattern matches slash-separated path
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded 'café/**' pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: 'Src/**' matches 'Src/file.ts'
+ok: TEST-005.2: 'Src/**' does NOT match 'src/file.ts' (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time (exit 1)
+ok: TEST-006.2: '?' pattern rejected fail-closed at load time (exit 1)
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: 'a/**/b' matches literal 'a/b' (zero intervening segments)
+ok: TEST-007.2: 'a/**/b' also matches 'a/x/b' (one intervening segment)
+ok: TEST-007.3: 'a/**/b' does not match unrelated 'a/c'
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously (0 records, no error)
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a shared_paths entry that matches nothing this resolve does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly (not the NFC comparison key)
+ok: TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes (incl. an NFD/NFC-distinguishing pair)
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: schema-conformance check reports fail-closed non-zero when the artifact is absent (behavior proof)
+ok: TEST-011.2: exact schema version/types and canonical components: [] report conformant:true
+ok: TEST-011.2a: wrong project-context schema version is rejected fail-closed
+ok: TEST-011.2b: divergent project-context field types are rejected fail-closed
+ok: TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed
+ok: TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract
+ok: TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json
+ok: TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed
+ok: TEST-011.6: an absent schema artifact still FAILS closed (never a skip)
+ok: TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field
+ok: TEST-011.8: ownership_input preserves canonical component id
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: a path inside C's own exclude is never attributed to C, even though include also matched
+ok: TEST-014.1: the UNOWNED record carries an EXCLUDED_MATCH evidence tag naming the excluding component + pattern
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: a path matching no component's include classifies UNOWNED
+ok: TEST-015.2: an ordinary UNOWNED record (no include ever matched) carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: a path matching two components' include classifies OVERLAP
+ok: TEST-016.2: OVERLAP record names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: shared_paths precedence applies with zero matching component includes
+ok: TEST-017.2: shared_paths precedence applies with one matching component include
+ok: TEST-017.3: shared_paths precedence applies with two matching component includes
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: shared_paths entry with BOTH components and classification is rejected fail-closed
+ok: TEST-018.2: shared_paths entry with NEITHER components nor classification is rejected fail-closed
+ok: TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed
+ok: TEST-018.4: mis-cased Components field is rejected fail-closed
+=== TEST-042: cross-epic inventory conformance (A1 template) ===
+ok: TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)
+=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ===
+ok: TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**
+ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')
+ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
+ok: TEST-042-negative.4: the check correctly rejects a case-divergent classification literal
+ok: TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'
+ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list
+=== TEST-043: no-op proof for the six-entry cross-cutting set ===
+ok: TEST-043.0: the no-op fixture really does declare zero component owners (components: [])
+ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED
+=== TEST-044: day-one cross-epic integration proof (A1 template) ===
+ok: TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change
+=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ===
+ok: COVERAGE-AFFECTED-COMPONENTS: affected_components == ["alpha","beta"] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture tree has >=2 components with an overlapping candidate owned path
+ok: TEST-045.2: base fixture tree has a nested excluded subtree
+ok: TEST-045.3: base fixture tree has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1
+ok: TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry
+ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)
+ok: AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation
+ok: TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key
+=== TEST-056: present-but-malformed --config fails closed (plain and --diagnose) ===
+ok: TEST-056.1: present-but-malformed config (malformed-tab.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.2: present-but-malformed config (malformed-tab.yaml, --diagnose) exits non-zero naming the parse failure
+ok: TEST-056.3: present-but-malformed config (malformed-nonmap.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.4: present-but-malformed config (malformed-nonmap.yaml, --diagnose) exits non-zero naming the parse failure
+ok: TEST-056.5: present-but-malformed config (malformed-unclosed.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.6: present-but-malformed config (malformed-unclosed.yaml, --diagnose) exits non-zero naming the parse failure
+
+Results: 73 passed, 0 failed.
+rc=0
+
+==== bash tests/check-component-coverage.tests.sh ====
+=== TEST-026: applicability derived from capability_enforcement, never manifest presence ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy, manifest never consulted
+=== TEST-027: disabled-legacy truthful non-evaluation ===
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2), distinct from exit 1 (an ordinary Fail trigger)
+ok: TEST-028.2: --facet-manifest omitted entirely in advisory/required state is also a hard error
+=== TEST-029: --diagnose never Gate-invoked ===
+ok: TEST-029.1: --diagnose emits its own distinct schema, never the Gate's check-component-coverage-verdict/v1
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only, never Fail-4
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only, never Fail-2
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger (real runtime path, not only a resolver-level test)
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match against an EXCLUSIVE-owned path triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible', never silently passing
+ok: TEST-034.1: absent sdd/provider-bindings.yaml records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing from the manifest triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: python: a post-parse config structural error (empty include list) is a hard error, exit 2
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: python: capability_enforcement: Required (capital) is NOT matched as required (case-sensitive), derives disabled-legacy
+=== TEST-059: omitting both --changed-paths-file and --target-rev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no --changed-paths-file/--target-rev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage
+ok: TEST-036.3: live check-contract.{py,ps1} registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact, not the superseded unconditional candidate)
+ok: TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.py fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055) ===
+ok: TEST-055.1: the LIVE, applied check-contract.py REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (AC-054 negative clause / AC-055 — the delivered tamper-evidence rejection, proven against real check-component-coverage.py bytes)
+ok: TEST-055.2: the LIVE, applied check-contract.py PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the producer-digest pass is not stuck shut)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in tests/run-all.sh and .ps1
+
+Results: 46 passed, 0 failed.
+rc=0
+
+==== bash tests/component-path-diff-basis.tests.sh ====
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'jrmag@02-C1-50-65-F3-3D.(none)')
+rc=128
+
+==== bash tests/ownership-digest.tests.sh ====
+ok: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+ok: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ok: TEST-038B: context_binding, resolver metadata, and ownership_input are excluded from semantic output comparison
+ok: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+ok: TEST-040A: ownership freshness matrix semantic=1 digest=1
+ok: TEST-040B: ownership freshness matrix semantic=1 digest=1
+ok: TEST-040C: ownership freshness matrix semantic=0 digest=1
+ok: TEST-040D: ownership freshness matrix semantic=0 digest=1
+ok: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+ok: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+ok: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+ok: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+13 passed / 0 failed
+rc=0
+
+==== PRE-EXISTING-FAILURE CONTROL ====
+tests/component-path-diff-basis.tests.sh exits 128 on this host at TEST-024.2.
+Cause is environmental, not this change: the submodule sub-fixture commits
+without a repo-local identity and this host has no global git user.email
+($ git config --global user.email -> unset). Reproduced against the
+UNMODIFIED parent-commit tree (git archive ca1dac14):
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'jrmag@02-C1-50-65-F3-3D.(none)')
+rc=
+
+==== pwsh tests/component-path-ownership-parity.tests.ps1 ====
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0
+
+==== pwsh tests/component-path-resolver.tests.ps1 ====
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: direct child match
+ok: TEST-001.2: nested match crosses /
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does not cross /
+ok: TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)
+ok: TEST-002.4: src/*/file.ts does not match src/a/b/file.ts (bare * segment does not cross /, unlike **)
+ok: TEST-002.5: src/*/file.ts does not match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash pattern normalizes to slash form
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: Src/** matches Src/file.ts
+ok: TEST-005.2: Src/** does not match src/file.ts (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time
+ok: TEST-006.2: '?' pattern rejected fail-closed at load time
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: a/**/b matches literal a/b
+ok: TEST-007.2: a/**/b matches a/x/b
+ok: TEST-007.3: a/**/b does not match unrelated a/c
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a zero-match shared_paths entry does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly
+ok: TEST-010.3: stable ordinal sort over raw UTF-8 path bytes (incl. an NFD/NFC-distinguishing pair)
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: fail-closed non-zero when the artifact is absent
+ok: TEST-011.2: exact schema version/types and canonical components: [] report conformant:true
+ok: TEST-011.2a: wrong project-context schema version is rejected fail-closed
+ok: TEST-011.2b: divergent project-context field types are rejected fail-closed
+ok: TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed
+ok: TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract
+ok: TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json
+ok: TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed
+ok: TEST-011.6: an absent schema artifact still FAILS closed (never a skip)
+ok: TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field
+ok: TEST-011.8: ownership_input preserves canonical component id
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: Fail-5 invariant — exclude wins over include within the same component
+ok: TEST-014.1: UNOWNED record carries EXCLUDED_MATCH evidence
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: no component match classifies UNOWNED
+ok: TEST-015.2: ordinary UNOWNED carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: two-component match classifies OVERLAP
+ok: TEST-016.2: OVERLAP names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: shared_paths precedence applies with zero matching component includes
+ok: TEST-017.2: shared_paths precedence applies with one matching component include
+ok: TEST-017.3: shared_paths precedence applies with two matching component includes
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: both components+classification rejected
+ok: TEST-018.2: neither components nor classification rejected
+ok: TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed
+ok: TEST-018.4: mis-cased Components field is rejected fail-closed
+=== TEST-042: cross-epic inventory conformance (A1 template) ===
+ok: TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)
+=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ===
+ok: TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**
+ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')
+ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
+ok: TEST-042-negative.4: the check correctly rejects a case-divergent classification literal
+ok: TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'
+ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list
+=== TEST-043: no-op proof for the six-entry cross-cutting set ===
+ok: TEST-043.0: the no-op fixture really does declare zero component owners (components: [])
+ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED
+=== TEST-044: day-one cross-epic integration proof (A1 template) ===
+ok: TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change
+=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ===
+ok: COVERAGE-AFFECTED-COMPONENTS: affected_components == [alpha,beta] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture has >=2 overlapping components
+ok: TEST-045.2: base fixture has a nested excluded subtree
+ok: TEST-045.3: base fixture has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1
+ok: TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry
+ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)
+ok: AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation
+ok: TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key
+=== TEST-056: present-but-malformed -Config fails closed (plain and -Diagnose) ===
+ok: TEST-056.1: present-but-malformed config (malformed-tab.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.2: present-but-malformed config (malformed-tab.yaml, -Diagnose) exits non-zero naming the parse failure
+ok: TEST-056.3: present-but-malformed config (malformed-nonmap.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.4: present-but-malformed config (malformed-nonmap.yaml, -Diagnose) exits non-zero naming the parse failure
+ok: TEST-056.5: present-but-malformed config (malformed-unclosed.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.6: present-but-malformed config (malformed-unclosed.yaml, -Diagnose) exits non-zero naming the parse failure
+
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+rc=0
+
+==== pwsh tests/check-component-coverage.tests.ps1 ====
+=== TEST-026/027: applicability derivation, disabled-legacy ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2)
+ok: TEST-028.2: -FacetManifest omitted entirely is also a hard error
+=== TEST-029: -Diagnose never Gate-invoked ===
+ok: TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible'
+ok: TEST-034.1: absent provider-bindings records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: pwsh: capability_enforcement: Required (capital) is NOT matched as required (ordinal, case-sensitive), derives disabled-legacy (matches python)
+=== TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)
+ok: TEST-036.4: T-004's live registrations remain applied; all 13 shared-manifest candidate hashes verify; and all 12 T-004-owned protected rows remain byte-identical live
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ===
+ok: TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)
+ok: TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the pass is not stuck shut)
+ok: TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in run-all.sh and .ps1
+
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+rc=0
+
+==== pwsh tests/ownership-digest.tests.ps1 ====
+
+==== pwsh tests/ownership-digest.tests.ps1 ====
+ok: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+ok: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ok: TEST-038B: context binding, resolver metadata, and ownership input are excluded from semantic output comparison
+ok: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+ok: TEST-040A: ownership freshness matrix semantic=True digest=True
+ok: TEST-040B: ownership freshness matrix semantic=True digest=True
+ok: TEST-040C: ownership freshness matrix semantic=False digest=True
+ok: TEST-040D: ownership freshness matrix semantic=False digest=True
+ok: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+ok: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+ok: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+ok: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+13 passed / 0 failed
+rc=0
+
+==== FINAL SWEEP after the Outputs refresh ====
+2026-08-13T23:50:16Z
+
+==== FINAL bash tests/component-path-ownership-parity.tests.sh ====
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0
+
+==== FINAL bash tests/component-path-resolver.tests.sh ====
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: src/desktop/** matches src/desktop/file.ts (direct child)
+ok: TEST-001.2: src/desktop/** matches src/desktop/sub/deep/file.ts (nested, crosses /)
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does NOT match src/sub/file.ts (bare * never crosses /)
+ok: TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)
+ok: TEST-002.4: src/*/file.ts does NOT match src/a/b/file.ts (bare * segment does not cross /, unlike **)
+ok: TEST-002.5: src/*/file.ts does NOT match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash-separated pattern matches slash-separated path
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded 'café/**' pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: 'Src/**' matches 'Src/file.ts'
+ok: TEST-005.2: 'Src/**' does NOT match 'src/file.ts' (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time (exit 1)
+ok: TEST-006.2: '?' pattern rejected fail-closed at load time (exit 1)
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: 'a/**/b' matches literal 'a/b' (zero intervening segments)
+ok: TEST-007.2: 'a/**/b' also matches 'a/x/b' (one intervening segment)
+ok: TEST-007.3: 'a/**/b' does not match unrelated 'a/c'
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously (0 records, no error)
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a shared_paths entry that matches nothing this resolve does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly (not the NFC comparison key)
+ok: TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes (incl. an NFD/NFC-distinguishing pair)
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: schema-conformance check reports fail-closed non-zero when the artifact is absent (behavior proof)
+ok: TEST-011.2: exact schema version/types and canonical components: [] report conformant:true
+ok: TEST-011.2a: wrong project-context schema version is rejected fail-closed
+ok: TEST-011.2b: divergent project-context field types are rejected fail-closed
+ok: TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed
+ok: TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract
+ok: TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json
+ok: TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed
+ok: TEST-011.6: an absent schema artifact still FAILS closed (never a skip)
+ok: TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field
+ok: TEST-011.8: ownership_input preserves canonical component id
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: a path inside C's own exclude is never attributed to C, even though include also matched
+ok: TEST-014.1: the UNOWNED record carries an EXCLUDED_MATCH evidence tag naming the excluding component + pattern
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: a path matching no component's include classifies UNOWNED
+ok: TEST-015.2: an ordinary UNOWNED record (no include ever matched) carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: a path matching two components' include classifies OVERLAP
+ok: TEST-016.2: OVERLAP record names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: shared_paths precedence applies with zero matching component includes
+ok: TEST-017.2: shared_paths precedence applies with one matching component include
+ok: TEST-017.3: shared_paths precedence applies with two matching component includes
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: shared_paths entry with BOTH components and classification is rejected fail-closed
+ok: TEST-018.2: shared_paths entry with NEITHER components nor classification is rejected fail-closed
+ok: TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed
+ok: TEST-018.4: mis-cased Components field is rejected fail-closed
+=== TEST-042: cross-epic inventory conformance (A1 template) ===
+ok: TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)
+=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ===
+ok: TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**
+ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')
+ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
+ok: TEST-042-negative.4: the check correctly rejects a case-divergent classification literal
+ok: TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'
+ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list
+=== TEST-043: no-op proof for the six-entry cross-cutting set ===
+ok: TEST-043.0: the no-op fixture really does declare zero component owners (components: [])
+ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED
+=== TEST-044: day-one cross-epic integration proof (A1 template) ===
+ok: TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change
+=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ===
+ok: COVERAGE-AFFECTED-COMPONENTS: affected_components == ["alpha","beta"] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture tree has >=2 components with an overlapping candidate owned path
+ok: TEST-045.2: base fixture tree has a nested excluded subtree
+ok: TEST-045.3: base fixture tree has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1
+ok: TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry
+ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)
+ok: AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation
+ok: TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key
+=== TEST-056: present-but-malformed --config fails closed (plain and --diagnose) ===
+ok: TEST-056.1: present-but-malformed config (malformed-tab.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.2: present-but-malformed config (malformed-tab.yaml, --diagnose) exits non-zero naming the parse failure
+ok: TEST-056.3: present-but-malformed config (malformed-nonmap.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.4: present-but-malformed config (malformed-nonmap.yaml, --diagnose) exits non-zero naming the parse failure
+ok: TEST-056.5: present-but-malformed config (malformed-unclosed.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.6: present-but-malformed config (malformed-unclosed.yaml, --diagnose) exits non-zero naming the parse failure
+
+Results: 73 passed, 0 failed.
+rc=0
+
+==== FINAL bash tests/check-component-coverage.tests.sh ====
+=== TEST-026: applicability derived from capability_enforcement, never manifest presence ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy, manifest never consulted
+=== TEST-027: disabled-legacy truthful non-evaluation ===
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2), distinct from exit 1 (an ordinary Fail trigger)
+ok: TEST-028.2: --facet-manifest omitted entirely in advisory/required state is also a hard error
+=== TEST-029: --diagnose never Gate-invoked ===
+ok: TEST-029.1: --diagnose emits its own distinct schema, never the Gate's check-component-coverage-verdict/v1
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only, never Fail-4
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only, never Fail-2
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger (real runtime path, not only a resolver-level test)
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match against an EXCLUSIVE-owned path triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible', never silently passing
+ok: TEST-034.1: absent sdd/provider-bindings.yaml records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing from the manifest triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: python: a post-parse config structural error (empty include list) is a hard error, exit 2
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: python: capability_enforcement: Required (capital) is NOT matched as required (case-sensitive), derives disabled-legacy
+=== TEST-059: omitting both --changed-paths-file and --target-rev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no --changed-paths-file/--target-rev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage
+ok: TEST-036.3: live check-contract.{py,ps1} registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact, not the superseded unconditional candidate)
+ok: TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.py fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055) ===
+ok: TEST-055.1: the LIVE, applied check-contract.py REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (AC-054 negative clause / AC-055 — the delivered tamper-evidence rejection, proven against real check-component-coverage.py bytes)
+ok: TEST-055.2: the LIVE, applied check-contract.py PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the producer-digest pass is not stuck shut)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in tests/run-all.sh and .ps1
+
+Results: 46 passed, 0 failed.
+rc=0
+
+==== FINAL bash tests/ownership-digest.tests.sh ====
+ok: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+ok: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+ok: TEST-038B: context_binding, resolver metadata, and ownership_input are excluded from semantic output comparison
+ok: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+ok: TEST-040A: ownership freshness matrix semantic=1 digest=1
+ok: TEST-040B: ownership freshness matrix semantic=1 digest=1
+ok: TEST-040C: ownership freshness matrix semantic=0 digest=1
+ok: TEST-040D: ownership freshness matrix semantic=0 digest=1
+ok: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+ok: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+ok: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+ok: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+13 passed / 0 failed
+rc=0
+
+==== FINAL bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh ====
+workflow-state: ok
+rc=0
+
+==== FINAL pwsh tests/component-path-ownership-parity.tests.ps1 ====
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0

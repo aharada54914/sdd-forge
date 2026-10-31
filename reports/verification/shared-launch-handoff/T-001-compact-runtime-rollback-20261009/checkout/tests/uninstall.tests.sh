@@ -1,0 +1,703 @@
+#!/usr/bin/env bash
+# uninstall.tests.sh — bash port of uninstall.tests.ps1
+# Exercises uninstall.sh without network or real CLIs by stubbing codex/claude/
+# copilot with logging shims and simulating an installed layout.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+UNINSTALLER="${REPO_ROOT}/uninstall.sh"
+# shellcheck source=tests/lib/fixture-matrix-builder.sh
+source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+PASS=0
+FAIL=0
+
+ok() { echo "ok: $*"; PASS=$((PASS+1)); }
+fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+
+# Create fake codex / claude / copilot shims in a temp bin dir.
+# Args: bin_dir log_path [omit_cmd]
+# omit_cmd: a command name to NOT create (simulate a missing CLI).
+make_fake_commands() {
+    local bin_dir="$1"
+    local log_path="$2"
+    local omit_cmd="${3:-}"
+    mkdir -p "$bin_dir"
+    for cmd in codex claude copilot; do
+        [[ "$cmd" == "$omit_cmd" ]] && continue
+        local shim="${bin_dir}/${cmd}"
+        cat > "$shim" <<SHIM
+#!/bin/sh
+echo "${cmd} \$*" >> "${log_path}"
+exit 0
+SHIM
+        chmod +x "$shim"
+    done
+}
+
+# Simulate an installed layout: install-root files (including the agent manifest
+# install copied from) + the installed Codex agent role files in the dest, plus
+# user-owned role files that must survive uninstall.
+# Args: install_root codex_home
+seed_installed_layout() {
+    local install_root="$1"
+    local codex_home="$2"
+    mkdir -p "${install_root}/plugins/sdd-bootstrap"
+    echo "marker" > "${install_root}/marker.txt"
+    echo "plugin" > "${install_root}/plugins/sdd-bootstrap/plugin.json"
+    # Manifest: the role files this project ships (source install copied from).
+    local manifest="${install_root}/.codex/agents"
+    mkdir -p "$manifest"
+    printf 'name = "sdd-investigator"\ndeveloper_instructions = "x"\n' > "${manifest}/sdd-investigator.toml"
+    printf 'name = "sdd-evaluator"\ndeveloper_instructions = "x"\n' > "${manifest}/sdd-evaluator.toml"
+    # Destination ~/.codex/agents: shipped roles + user-owned roles.
+    local agents="${codex_home}/agents"
+    mkdir -p "$agents"
+    printf 'name = "sdd-investigator"\ndeveloper_instructions = "x"\n' > "${agents}/sdd-investigator.toml"
+    printf 'name = "sdd-evaluator"\ndeveloper_instructions = "x"\n' > "${agents}/sdd-evaluator.toml"
+    # A user's own non-project role file — must NOT be removed.
+    echo 'name = "auditor"' > "${agents}/auditor.toml"
+    # A user-authored role that merely shares the sdd- prefix — must NOT be removed.
+    printf 'name = "sdd-custom"\ndeveloper_instructions = "x"\n' > "${agents}/sdd-custom.toml"
+}
+
+# ---------------------------------------------------------------------------
+# Scenario (a): full uninstall — unregisters all plugins + marketplace from
+# every CLI, removes installed files and only the shipped agent role files.
+# ---------------------------------------------------------------------------
+run_full_uninstall_scenario() {
+    local keep_files="${1:-0}"
+    local skip_agents="${2:-0}"
+    local test_root install_root codex_home fake_bin command_log
+    test_root="$(mktemp -d)"
+    install_root="${test_root}/installed"
+    codex_home="${test_root}/codex-home"
+    fake_bin="${test_root}/bin"
+    command_log="${test_root}/commands.log"
+    local original_path="$PATH"
+    local _orig_codex_home="${SDD_CODEX_HOME:-}"
+
+    make_fake_commands "$fake_bin" "$command_log"
+    seed_installed_layout "$install_root" "$codex_home"
+    export PATH="${fake_bin}:${original_path}"
+    export SDD_CODEX_HOME="$codex_home"
+
+    local extra_args=()
+    [[ "$keep_files" -eq 1 ]] && extra_args+=(--keep-files)
+    [[ "$skip_agents" -eq 1 ]] && extra_args+=(--skip-agent-uninstall)
+
+    local failed=0
+    # Expand an empty array safely under `set -u` on bash 3.2 (macOS default).
+    bash "$UNINSTALLER" --install-root "$install_root" --target All "${extra_args[@]+"${extra_args[@]}"}" >/dev/null 2>&1 || failed=1
+
+    export PATH="$original_path"
+    if [[ -z "$_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_orig_codex_home"; fi
+
+    local all_ok=1
+    [[ $failed -ne 0 ]] && { fail "full uninstall: uninstaller exited non-zero"; all_ok=0; }
+    local log=""
+    [[ -f "$command_log" ]] && log="$(cat "$command_log")"
+
+    for p in $ALL_PLUGINS; do
+        echo "$log" | grep -qF "codex plugin remove ${p}@sdd-plugins" || { fail "missing: codex plugin remove ${p}@sdd-plugins"; all_ok=0; }
+        echo "$log" | grep -qF "claude plugin uninstall ${p}@sdd-plugins" || { fail "missing: claude plugin uninstall ${p}@sdd-plugins"; all_ok=0; }
+        echo "$log" | grep -qF "copilot plugin uninstall ${p}@sdd-plugins" || { fail "missing: copilot plugin uninstall ${p}@sdd-plugins"; all_ok=0; }
+    done
+    # Full uninstall removes the marketplace from every CLI.
+    echo "$log" | grep -qF "codex plugin marketplace remove sdd-plugins" || { fail "missing: codex marketplace remove"; all_ok=0; }
+    echo "$log" | grep -qF "claude plugin marketplace remove sdd-plugins" || { fail "missing: claude marketplace remove"; all_ok=0; }
+    echo "$log" | grep -qF "copilot plugin marketplace remove sdd-plugins" || { fail "missing: copilot marketplace remove"; all_ok=0; }
+
+    # User-owned role files are always preserved.
+    [[ -f "${codex_home}/agents/auditor.toml" ]] || { fail "user's auditor.toml was removed"; all_ok=0; }
+
+    if [[ "$keep_files" -eq 1 ]]; then
+        [[ -f "${install_root}/marker.txt" ]] || { fail "--keep-files removed install root"; all_ok=0; }
+    else
+        [[ ! -d "$install_root" ]] || { fail "install root not removed"; all_ok=0; }
+    fi
+
+    if [[ "$skip_agents" -eq 1 ]]; then
+        [[ -f "${codex_home}/agents/sdd-investigator.toml" ]] || { fail "--skip-agent-uninstall removed agent toml"; all_ok=0; }
+    else
+        [[ ! -f "${codex_home}/agents/sdd-investigator.toml" ]] || { fail "shipped sdd-investigator.toml not removed"; all_ok=0; }
+        [[ ! -f "${codex_home}/agents/sdd-evaluator.toml" ]] || { fail "shipped sdd-evaluator.toml not removed"; all_ok=0; }
+        # A user-authored sdd-* role (not shipped) must survive.
+        [[ -f "${codex_home}/agents/sdd-custom.toml" ]] || { fail "user-authored sdd-custom.toml was removed"; all_ok=0; }
+    fi
+
+    rm -rf "$test_root"
+    [[ $all_ok -eq 1 ]]
+}
+
+if run_full_uninstall_scenario 0 0; then
+    ok "full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents"
+else
+    fail "full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents"
+fi
+
+# ---------------------------------------------------------------------------
+# Scenario (b): --keep-files unregisters but preserves installed files
+# ---------------------------------------------------------------------------
+if run_full_uninstall_scenario 1 0; then
+    ok "--keep-files preserves installed files while unregistering"
+else
+    fail "--keep-files preserves installed files while unregistering"
+fi
+
+# ---------------------------------------------------------------------------
+# Scenario (c): --skip-agent-uninstall preserves shipped agent role files
+# ---------------------------------------------------------------------------
+if run_full_uninstall_scenario 0 1; then
+    ok "--skip-agent-uninstall preserves shipped agent role files"
+else
+    fail "--skip-agent-uninstall preserves shipped agent role files"
+fi
+
+# ---------------------------------------------------------------------------
+# Scenario (d): subset --plugins unregisters only chosen plugins and KEEPS the
+# marketplace (removing it would uninstall the unselected plugins too).
+# ---------------------------------------------------------------------------
+_d_root="$(mktemp -d)"; _d_install="${_d_root}/installed"; _d_codex="${_d_root}/codex-home"
+_d_bin="${_d_root}/bin"; _d_log="${_d_root}/commands.log"
+_d_orig_path="$PATH"; _d_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_d_bin" "$_d_log"
+seed_installed_layout "$_d_install" "$_d_codex"
+export PATH="${_d_bin}:${_d_orig_path}"; export SDD_CODEX_HOME="$_d_codex"
+_d_failed=0
+bash "$UNINSTALLER" --install-root "$_d_install" --target All --plugins "sdd-bootstrap,sdd-implementation" >/dev/null 2>&1 || _d_failed=1
+export PATH="$_d_orig_path"
+if [[ -z "$_d_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_d_orig_codex"; fi
+_d_ok=1
+[[ $_d_failed -eq 0 ]] || { fail "subset --plugins exited non-zero"; _d_ok=0; }
+_d_logc="$(cat "$_d_log")"
+echo "$_d_logc" | grep -qF "claude plugin uninstall sdd-bootstrap@sdd-plugins" || { fail "subset: sdd-bootstrap not unregistered"; _d_ok=0; }
+echo "$_d_logc" | grep -qF "claude plugin uninstall sdd-implementation@sdd-plugins" || { fail "subset: sdd-implementation not unregistered"; _d_ok=0; }
+if echo "$_d_logc" | grep -qF "uninstall sdd-ship@sdd-plugins" || echo "$_d_logc" | grep -qF "remove sdd-ship@sdd-plugins"; then
+    fail "subset: unselected sdd-ship was unregistered"; _d_ok=0
+fi
+if echo "$_d_logc" | grep -qF "marketplace remove"; then
+    fail "subset: marketplace must not be removed for a partial uninstall"; _d_ok=0
+fi
+[[ -d "$_d_install" ]] || { fail "subset: shared files removed"; _d_ok=0; }
+[[ -f "${_d_codex}/agents/sdd-investigator.toml" ]] || { fail "subset: shared agent removed"; _d_ok=0; }
+if echo "$_d_logc" | grep -qF "mcp remove"; then
+    fail "subset: shared MCP registration removed"; _d_ok=0
+fi
+rm -rf "$_d_root"
+[[ $_d_ok -eq 1 ]] && ok "subset --plugins unregisters only chosen plugins and keeps the marketplace"
+
+# ---------------------------------------------------------------------------
+# Scenario (e): missing optional CLI (target All) is tolerated
+# ---------------------------------------------------------------------------
+_e_root="$(mktemp -d)"; _e_install="${_e_root}/installed"; _e_codex="${_e_root}/codex-home"
+_e_bin="${_e_root}/bin"; _e_log="${_e_root}/commands.log"
+_e_orig_path="$PATH"; _e_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_e_bin" "$_e_log" "codex"   # omit codex
+seed_installed_layout "$_e_install" "$_e_codex"
+# Restricted PATH (coreutils only) so the real codex on the host PATH cannot
+# shadow the omitted shim — this is what makes "codex absent" observable.
+export PATH="${_e_bin}:/usr/bin:/bin"; export SDD_CODEX_HOME="$_e_codex"
+_e_failed=0
+bash "$UNINSTALLER" --install-root "$_e_install" --target All >/dev/null 2>&1 || _e_failed=1
+export PATH="$_e_orig_path"
+if [[ -z "$_e_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_e_orig_codex"; fi
+_e_ok=1
+[[ $_e_failed -eq 0 ]] || { fail "missing optional codex CLI should be tolerated under target All"; _e_ok=0; }
+[[ ! -d "$_e_install" ]] || { fail "files not removed when an optional CLI was absent"; _e_ok=0; }
+rm -rf "$_e_root"
+[[ $_e_ok -eq 1 ]] && ok "missing optional CLI tolerated under target All"
+
+# ---------------------------------------------------------------------------
+# Scenario (f): target Codex with codex absent is a hard error
+# ---------------------------------------------------------------------------
+_f_root="$(mktemp -d)"; _f_install="${_f_root}/installed"; _f_codex="${_f_root}/codex-home"
+_f_bin="${_f_root}/bin"; _f_log="${_f_root}/commands.log"
+_f_orig_path="$PATH"; _f_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_f_bin" "$_f_log" "codex"   # omit codex
+seed_installed_layout "$_f_install" "$_f_codex"
+# Restricted PATH (coreutils only) so the real codex cannot shadow the omission.
+export PATH="${_f_bin}:/usr/bin:/bin"; export SDD_CODEX_HOME="$_f_codex"
+_f_failed=0
+bash "$UNINSTALLER" --install-root "$_f_install" --target Codex >/dev/null 2>&1 || _f_failed=1
+export PATH="$_f_orig_path"
+if [[ -z "$_f_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_f_orig_codex"; fi
+if [[ $_f_failed -eq 1 ]]; then ok "target Codex with codex absent fails as required"; else fail "target Codex with codex absent should fail"; fi
+rm -rf "$_f_root"
+
+# ---------------------------------------------------------------------------
+# Scenario (f2): --skip-plugin-uninstall proceeds even when the CLI is absent
+# (target Codex, codex missing): no error, files still removed.
+# ---------------------------------------------------------------------------
+_f2_root="$(mktemp -d)"; _f2_install="${_f2_root}/installed"; _f2_codex="${_f2_root}/codex-home"
+_f2_bin="${_f2_root}/bin"; _f2_log="${_f2_root}/commands.log"
+_f2_orig_path="$PATH"; _f2_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_f2_bin" "$_f2_log" "codex"
+seed_installed_layout "$_f2_install" "$_f2_codex"
+export PATH="${_f2_bin}:/usr/bin:/bin"; export SDD_CODEX_HOME="$_f2_codex"
+_f2_failed=0
+bash "$UNINSTALLER" --install-root "$_f2_install" --target Codex --skip-plugin-uninstall >/dev/null 2>&1 || _f2_failed=1
+export PATH="$_f2_orig_path"
+if [[ -z "$_f2_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_f2_orig_codex"; fi
+_f2_ok=1
+[[ $_f2_failed -eq 0 ]] || { fail "--skip-plugin-uninstall should not error on absent CLI"; _f2_ok=0; }
+[[ ! -d "$_f2_install" ]] || { fail "--skip-plugin-uninstall should still remove files"; _f2_ok=0; }
+rm -rf "$_f2_root"
+[[ $_f2_ok -eq 1 ]] && ok "--skip-plugin-uninstall proceeds when CLI is absent"
+
+# ---------------------------------------------------------------------------
+# Scenario (g): idempotency — a second uninstall still exits 0
+# ---------------------------------------------------------------------------
+_g_root="$(mktemp -d)"; _g_install="${_g_root}/installed"; _g_codex="${_g_root}/codex-home"
+_g_bin="${_g_root}/bin"; _g_log="${_g_root}/commands.log"
+_g_orig_path="$PATH"; _g_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_g_bin" "$_g_log"
+seed_installed_layout "$_g_install" "$_g_codex"
+export PATH="${_g_bin}:${_g_orig_path}"; export SDD_CODEX_HOME="$_g_codex"
+_g_failed=0
+bash "$UNINSTALLER" --install-root "$_g_install" --target All >/dev/null 2>&1 || _g_failed=1
+bash "$UNINSTALLER" --install-root "$_g_install" --target All >/dev/null 2>&1 || _g_failed=1
+export PATH="$_g_orig_path"
+if [[ -z "$_g_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_g_orig_codex"; fi
+if [[ $_g_failed -eq 0 ]]; then ok "idempotency: second uninstall exits 0"; else fail "idempotency: second uninstall should exit 0"; fi
+rm -rf "$_g_root"
+
+# ---------------------------------------------------------------------------
+# Scenario (h): invalid plugin name rejected
+# ---------------------------------------------------------------------------
+_h_failed=0
+bash "$UNINSTALLER" --install-root "$(mktemp -d)/x" --target FilesOnly --plugins "not-a-plugin" >/dev/null 2>&1 || _h_failed=1
+if [[ $_h_failed -eq 1 ]]; then ok "invalid plugin name rejected"; else fail "invalid plugin name was accepted"; fi
+
+# ---------------------------------------------------------------------------
+# Scenario (h2): invalid --target rejected
+# ---------------------------------------------------------------------------
+_h2_failed=0
+bash "$UNINSTALLER" --install-root "$(mktemp -d)/x" --target NotATarget >/dev/null 2>&1 || _h2_failed=1
+if [[ $_h2_failed -eq 1 ]]; then ok "invalid --target rejected"; else fail "invalid --target was accepted"; fi
+
+# ---------------------------------------------------------------------------
+# Scenario (h3): empty --install-root rejected before any removal
+# ---------------------------------------------------------------------------
+_h3_failed=0
+bash "$UNINSTALLER" --install-root "" --target FilesOnly --skip-plugin-uninstall --skip-agent-uninstall >/dev/null 2>&1 || _h3_failed=1
+if [[ $_h3_failed -eq 1 ]]; then ok "empty --install-root rejected"; else fail "empty --install-root was accepted"; fi
+
+# ---------------------------------------------------------------------------
+# Scenario (i): refuses a filesystem root as --install-root
+# ---------------------------------------------------------------------------
+_i_failed=0
+bash "$UNINSTALLER" --install-root "/" --target FilesOnly --skip-plugin-uninstall --skip-agent-uninstall >/dev/null 2>&1 || _i_failed=1
+if [[ $_i_failed -eq 1 ]]; then ok "filesystem root rejected as --install-root"; else fail "filesystem root was accepted as --install-root"; fi
+
+# ---------------------------------------------------------------------------
+# Scenario (i2): refuses the home directory as --install-root
+# ---------------------------------------------------------------------------
+_i2_failed=0
+bash "$UNINSTALLER" --install-root "$HOME" --target FilesOnly --skip-plugin-uninstall --skip-agent-uninstall >/dev/null 2>&1 || _i2_failed=1
+if [[ $_i2_failed -eq 1 ]]; then ok "home directory rejected as --install-root"; else fail "home directory was accepted as --install-root"; fi
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-009
+# ---------------------------------------------------------------------------
+
+# Seed an installed MCP payload + a Codex config.toml with a registered
+# marker block, mirroring what install.sh would have produced.
+seed_installed_mcp() {
+    local install_root="$1"
+    local codex_home="$2"
+    mkdir -p "${install_root}/mcp/sdd-forge-mcp/dist"
+    echo "console.log('stub')" > "${install_root}/mcp/sdd-forge-mcp/dist/index.js"
+    echo '{"name":"sdd-forge-mcp"}' > "${install_root}/mcp/sdd-forge-mcp/package.json"
+    mkdir -p "$codex_home"
+    cat > "${codex_home}/config.toml" <<TOML
+[some_other_section]
+key = "value"
+
+# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.sdd-forge-mcp]
+command = "node"
+args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+# <<< sdd-forge-mcp <<<
+TOML
+}
+
+# Scenario (k): uninstall removes the MCP payload directory and the Codex
+# config.toml marker block, while preserving unrelated config.toml content.
+_k_root="$(mktemp -d)"; _k_install="${_k_root}/installed"; _k_codex="${_k_root}/codex-home"
+_k_bin="${_k_root}/bin"; _k_log="${_k_root}/commands.log"
+_k_orig_path="$PATH"; _k_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_k_bin" "$_k_log"
+seed_installed_layout "$_k_install" "$_k_codex"
+seed_installed_mcp "$_k_install" "$_k_codex"
+export PATH="${_k_bin}:${_k_orig_path}"; export SDD_CODEX_HOME="$_k_codex"
+_k_failed=0
+bash "$UNINSTALLER" --install-root "$_k_install" --target All >/dev/null 2>&1 || _k_failed=1
+export PATH="$_k_orig_path"
+if [[ -z "$_k_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_k_orig_codex"; fi
+_k_ok=1
+[[ $_k_failed -eq 0 ]] || { fail "MCP uninstall (k): uninstaller exited non-zero"; _k_ok=0; }
+[[ ! -e "${_k_install}/mcp" ]] || { fail "MCP uninstall (k): mcp/ payload not removed"; _k_ok=0; }
+[[ -f "${_k_codex}/config.toml" ]] || { fail "MCP uninstall (k): config.toml was deleted entirely"; _k_ok=0; }
+if [[ -f "${_k_codex}/config.toml" ]]; then
+    grep -qF "sdd-forge-mcp" "${_k_codex}/config.toml" && { fail "MCP uninstall (k): sdd-forge-mcp marker block not removed"; _k_ok=0; }
+    grep -qF "some_other_section" "${_k_codex}/config.toml" || { fail "MCP uninstall (k): unrelated config.toml content was removed"; _k_ok=0; }
+fi
+_k_log_content=""
+[[ -f "$_k_log" ]] && _k_log_content="$(cat "$_k_log")"
+echo "$_k_log_content" | grep -qF "claude mcp remove sdd-forge-mcp" || { fail "MCP uninstall (k): claude mcp remove not invoked"; _k_ok=0; }
+rm -rf "$_k_root"
+[[ $_k_ok -eq 1 ]] && ok "uninstall removes MCP payload and Codex config.toml marker block"
+
+# Scenario (l): uninstall on a system with no MCP ever installed succeeds
+# best-effort (no error, nothing to remove).
+_l_root="$(mktemp -d)"; _l_install="${_l_root}/installed"; _l_codex="${_l_root}/codex-home"
+_l_bin="${_l_root}/bin"; _l_log="${_l_root}/commands.log"
+_l_orig_path="$PATH"; _l_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_l_bin" "$_l_log"
+seed_installed_layout "$_l_install" "$_l_codex"
+# Intentionally do NOT seed MCP payload or config.toml — simulates --skip-mcp
+# at install time or an MCP that was never registered.
+export PATH="${_l_bin}:${_l_orig_path}"; export SDD_CODEX_HOME="$_l_codex"
+_l_failed=0
+bash "$UNINSTALLER" --install-root "$_l_install" --target All >/dev/null 2>&1 || _l_failed=1
+export PATH="$_l_orig_path"
+if [[ -z "$_l_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_l_orig_codex"; fi
+if [[ $_l_failed -eq 0 ]]; then
+    ok "uninstall with no MCP ever installed succeeds best-effort"
+else
+    fail "uninstall with no MCP ever installed succeeds best-effort"
+fi
+rm -rf "$_l_root"
+
+# Scenario (m): --mcp <list> selects which MCP registrations/payloads are
+# removed (mirrors --plugins subset selection).
+_m_root="$(mktemp -d)"; _m_install="${_m_root}/installed"; _m_codex="${_m_root}/codex-home"
+_m_bin="${_m_root}/bin"; _m_log="${_m_root}/commands.log"
+_m_orig_path="$PATH"; _m_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_m_bin" "$_m_log"
+seed_installed_layout "$_m_install" "$_m_codex"
+seed_installed_mcp "$_m_install" "$_m_codex"
+export PATH="${_m_bin}:${_m_orig_path}"; export SDD_CODEX_HOME="$_m_codex"
+_m_failed=0
+bash "$UNINSTALLER" --install-root "$_m_install" --target All --mcp "sdd-forge-mcp" >/dev/null 2>&1 || _m_failed=1
+export PATH="$_m_orig_path"
+if [[ -z "$_m_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_m_orig_codex"; fi
+_m_ok=1
+[[ $_m_failed -eq 0 ]] || { fail "--mcp subset (m): uninstaller exited non-zero"; _m_ok=0; }
+[[ ! -e "${_m_install}/mcp" ]] || { fail "--mcp subset (m): mcp/ payload not removed"; _m_ok=0; }
+rm -rf "$_m_root"
+[[ $_m_ok -eq 1 ]] && ok "--mcp <list> selects MCP payload/registration removal"
+
+# Scenario (n): invalid --mcp name rejected
+_n_failed=0
+bash "$UNINSTALLER" --install-root "$(mktemp -d)/x" --target FilesOnly --mcp "bogus-mcp" >/dev/null 2>&1 || _n_failed=1
+if [[ $_n_failed -eq 1 ]]; then ok "invalid --mcp name rejected"; else fail "invalid --mcp name was accepted"; fi
+
+# Scenario (n2): --mcp "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_n2_root="$(mktemp -d)"
+_n2_failed=0
+_n2_out="$(bash "$UNINSTALLER" --install-root "${_n2_root}/x" --target FilesOnly --mcp "" 2>&1)" || _n2_failed=1
+rm -rf "$_n2_root"
+_n2_ok=1
+if [[ $_n2_failed -eq 0 ]]; then
+    fail "--mcp \"\" (n2): uninstaller accepted an empty MCP list"
+    _n2_ok=0
+fi
+if echo "$_n2_out" | grep -qi "unbound variable"; then
+    fail "--mcp \"\" (n2): uninstaller crashed with an unbound variable error"
+    _n2_ok=0
+fi
+if ! echo "$_n2_out" | grep -qi "mcp"; then
+    fail "--mcp \"\" (n2): error output did not mention mcp"
+    _n2_ok=0
+fi
+[[ $_n2_ok -eq 1 ]] && ok "--mcp \"\" is rejected cleanly without an unbound variable crash"
+
+# Scenario (n3): --plugins "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_n3_root="$(mktemp -d)"
+_n3_failed=0
+_n3_out="$(bash "$UNINSTALLER" --install-root "${_n3_root}/x" --target FilesOnly --plugins "" 2>&1)" || _n3_failed=1
+rm -rf "$_n3_root"
+_n3_ok=1
+if [[ $_n3_failed -eq 0 ]]; then
+    fail "--plugins \"\" (n3): uninstaller accepted an empty plugin list"
+    _n3_ok=0
+fi
+if echo "$_n3_out" | grep -qi "unbound variable"; then
+    fail "--plugins \"\" (n3): uninstaller crashed with an unbound variable error"
+    _n3_ok=0
+fi
+if ! echo "$_n3_out" | grep -qi "plugin"; then
+    fail "--plugins \"\" (n3): error output did not mention plugin"
+    _n3_ok=0
+fi
+[[ $_n3_ok -eq 1 ]] && ok "--plugins \"\" is rejected cleanly without an unbound variable crash"
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-009): AC-012 — remove BOTH managed MCPs and the Cursor /
+# VS Code managed keys, while preserving user-defined entries and unknown
+# top-level keys. Uses SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR overrides so the
+# real user profile is never touched.
+# ---------------------------------------------------------------------------
+
+# Seed an installed layout for BOTH managed MCPs: payloads under
+# <install_root>/mcp/<name>/, a Codex config.toml with a marker block per MCP
+# and an unrelated section, plus Cursor and VS Code mcp.json files each holding
+# the two managed keys, a user-defined key, and an unknown top-level key.
+seed_installed_mcps() {
+    local install_root="$1"
+    local codex_home="$2"
+    local cursor_dir="$3"
+    local vscode_dir="$4"
+    local name
+    for name in sdd-forge-mcp local-env-mcp ci-mcp; do
+        mkdir -p "${install_root}/mcp/${name}/dist"
+        echo "console.log('stub')" > "${install_root}/mcp/${name}/dist/index.js"
+        echo "{\"name\":\"${name}\"}" > "${install_root}/mcp/${name}/package.json"
+    done
+    mkdir -p "$codex_home"
+    cat > "${codex_home}/config.toml" <<TOML
+[some_other_section]
+key = "value"
+
+# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.sdd-forge-mcp]
+command = "node"
+args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+# <<< sdd-forge-mcp <<<
+
+# >>> local-env-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.local-env-mcp]
+command = "node"
+args = ["${install_root}/mcp/local-env-mcp/dist/index.js"]
+# <<< local-env-mcp <<<
+
+# >>> ci-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.ci-mcp]
+command = "node"
+args = ["${install_root}/mcp/ci-mcp/dist/index.js"]
+# <<< ci-mcp <<<
+TOML
+    # Cursor mcp.json: three managed keys + a user-defined key + unknown top key.
+    mkdir -p "$cursor_dir"
+    cat > "${cursor_dir}/mcp.json" <<JSON
+{
+  "mcpServers": {
+    "sdd-forge-mcp": { "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
+    "local-env-mcp": { "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "ci-mcp": { "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
+    "my-server": { "command": "node", "args": ["/home/user/my-server.js"] }
+  },
+  "telemetry": { "enabled": false }
+}
+JSON
+    # VS Code mcp.json: three managed keys (vscode entry shape) + user + unknown.
+    mkdir -p "$vscode_dir"
+    cat > "${vscode_dir}/mcp.json" <<JSON
+{
+  "servers": {
+    "sdd-forge-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
+    "local-env-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "ci-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
+    "my-server": { "type": "stdio", "command": "node", "args": ["/home/user/my-server.js"] }
+  },
+  "inputs": []
+}
+JSON
+}
+
+# Scenario (o): uninstall removes ONLY the managed Cursor/VS Code keys for both
+# MCPs; the user-defined key and unknown top-level keys survive.
+_o_root="$(mktemp -d)"; _o_install="${_o_root}/installed"; _o_codex="${_o_root}/codex-home"
+_o_cursor="${_o_root}/cursor"; _o_vscode="${_o_root}/vscode-user"
+_o_bin="${_o_root}/bin"; _o_log="${_o_root}/commands.log"
+_o_orig_path="$PATH"; _o_orig_codex="${SDD_CODEX_HOME:-}"
+_o_orig_cursor="${SDD_CURSOR_DIR:-}"; _o_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_o_bin" "$_o_log"
+seed_installed_layout "$_o_install" "$_o_codex"
+seed_installed_mcps "$_o_install" "$_o_codex" "$_o_cursor" "$_o_vscode"
+export PATH="${_o_bin}:${_o_orig_path}"; export SDD_CODEX_HOME="$_o_codex"
+export SDD_CURSOR_DIR="$_o_cursor"; export SDD_VSCODE_USER_DIR="$_o_vscode"
+_o_failed=0
+bash "$UNINSTALLER" --install-root "$_o_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _o_failed=1
+export PATH="$_o_orig_path"
+if [[ -z "$_o_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_o_orig_codex"; fi
+if [[ -z "$_o_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_o_orig_cursor"; fi
+if [[ -z "$_o_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_o_orig_vscode"; fi
+_o_ok=1
+[[ $_o_failed -eq 0 ]] || { fail "Cursor/VSCode (o): uninstaller exited non-zero"; _o_ok=0; }
+_o_cur="${_o_cursor}/mcp.json"; _o_vsc="${_o_vscode}/mcp.json"
+# Managed keys must be gone from both files (grep on JSON key form).
+grep -qF '"sdd-forge-mcp"' "$_o_cur" && { fail "Cursor (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
+grep -qF '"local-env-mcp"' "$_o_cur" && { fail "Cursor (o): managed local-env-mcp key not removed"; _o_ok=0; }
+grep -qF '"ci-mcp"' "$_o_cur" && { fail "Cursor (o): managed ci-mcp key not removed"; _o_ok=0; }
+grep -qF '"sdd-forge-mcp"' "$_o_vsc" && { fail "VSCode (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
+grep -qF '"local-env-mcp"' "$_o_vsc" && { fail "VSCode (o): managed local-env-mcp key not removed"; _o_ok=0; }
+grep -qF '"ci-mcp"' "$_o_vsc" && { fail "VSCode (o): managed ci-mcp key not removed"; _o_ok=0; }
+# User-defined + unknown keys must survive.
+grep -qF '"my-server"' "$_o_cur" || { fail "Cursor (o): user-defined my-server key was removed"; _o_ok=0; }
+grep -qF '"telemetry"' "$_o_cur" || { fail "Cursor (o): unknown top-level telemetry key was removed"; _o_ok=0; }
+grep -qF '"my-server"' "$_o_vsc" || { fail "VSCode (o): user-defined my-server key was removed"; _o_ok=0; }
+grep -qF '"inputs"' "$_o_vsc" || { fail "VSCode (o): unknown top-level inputs key was removed"; _o_ok=0; }
+# The surviving files must still be valid JSON.
+node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_cur" >/dev/null 2>&1 || { fail "Cursor (o): result is not valid JSON"; _o_ok=0; }
+node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_vsc" >/dev/null 2>&1 || { fail "VSCode (o): result is not valid JSON"; _o_ok=0; }
+rm -rf "$_o_root"
+[[ $_o_ok -eq 1 ]] && ok "uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys"
+
+# Scenario (p): both managed MCPs fully removed — payloads gone, claude mcp
+# remove invoked for each, both Codex marker blocks stripped, unrelated Codex
+# section preserved.
+_p_root="$(mktemp -d)"; _p_install="${_p_root}/installed"; _p_codex="${_p_root}/codex-home"
+_p_cursor="${_p_root}/cursor"; _p_vscode="${_p_root}/vscode-user"
+_p_bin="${_p_root}/bin"; _p_log="${_p_root}/commands.log"
+_p_orig_path="$PATH"; _p_orig_codex="${SDD_CODEX_HOME:-}"
+_p_orig_cursor="${SDD_CURSOR_DIR:-}"; _p_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_p_bin" "$_p_log"
+seed_installed_layout "$_p_install" "$_p_codex"
+seed_installed_mcps "$_p_install" "$_p_codex" "$_p_cursor" "$_p_vscode"
+export PATH="${_p_bin}:${_p_orig_path}"; export SDD_CODEX_HOME="$_p_codex"
+export SDD_CURSOR_DIR="$_p_cursor"; export SDD_VSCODE_USER_DIR="$_p_vscode"
+_p_failed=0
+bash "$UNINSTALLER" --install-root "$_p_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _p_failed=1
+export PATH="$_p_orig_path"
+if [[ -z "$_p_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_p_orig_codex"; fi
+if [[ -z "$_p_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_p_orig_cursor"; fi
+if [[ -z "$_p_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_p_orig_vscode"; fi
+_p_ok=1
+[[ $_p_failed -eq 0 ]] || { fail "both-MCP removal (p): uninstaller exited non-zero"; _p_ok=0; }
+# Both payloads must be gone (here via full install-root removal; scenario (m)
+# already covers payload-only removal semantics for a single MCP).
+[[ ! -e "${_p_install}/mcp/sdd-forge-mcp" ]] || { fail "both-MCP removal (p): sdd-forge-mcp payload not removed"; _p_ok=0; }
+[[ ! -e "${_p_install}/mcp/local-env-mcp" ]] || { fail "both-MCP removal (p): local-env-mcp payload not removed"; _p_ok=0; }
+[[ ! -e "${_p_install}/mcp/ci-mcp" ]] || { fail "both-MCP removal (p): ci-mcp payload not removed"; _p_ok=0; }
+_p_logc=""; [[ -f "$_p_log" ]] && _p_logc="$(cat "$_p_log")"
+echo "$_p_logc" | grep -qF "claude mcp remove sdd-forge-mcp" || { fail "both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked"; _p_ok=0; }
+echo "$_p_logc" | grep -qF "claude mcp remove local-env-mcp" || { fail "both-MCP removal (p): claude mcp remove local-env-mcp not invoked"; _p_ok=0; }
+echo "$_p_logc" | grep -qF "claude mcp remove ci-mcp" || { fail "both-MCP removal (p): claude mcp remove ci-mcp not invoked"; _p_ok=0; }
+_p_conf="${_p_codex}/config.toml"
+grep -qF "sdd-forge-mcp" "$_p_conf" && { fail "both-MCP removal (p): sdd-forge-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "local-env-mcp" "$_p_conf" && { fail "both-MCP removal (p): local-env-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "ci-mcp" "$_p_conf" && { fail "both-MCP removal (p): ci-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "some_other_section" "$_p_conf" || { fail "both-MCP removal (p): unrelated Codex section removed"; _p_ok=0; }
+rm -rf "$_p_root"
+[[ $_p_ok -eq 1 ]] && ok "uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks"
+
+# Scenario (q): corrupt Cursor mcp.json is left BYTE-IDENTICAL (fail-safe) while
+# the VS Code client is still cleaned (per-client continuation).
+_q_root="$(mktemp -d)"; _q_install="${_q_root}/installed"; _q_codex="${_q_root}/codex-home"
+_q_cursor="${_q_root}/cursor"; _q_vscode="${_q_root}/vscode-user"
+_q_bin="${_q_root}/bin"; _q_log="${_q_root}/commands.log"
+_q_orig_path="$PATH"; _q_orig_codex="${SDD_CODEX_HOME:-}"
+_q_orig_cursor="${SDD_CURSOR_DIR:-}"; _q_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_q_bin" "$_q_log"
+seed_installed_layout "$_q_install" "$_q_codex"
+seed_installed_mcps "$_q_install" "$_q_codex" "$_q_cursor" "$_q_vscode"
+# Corrupt the Cursor file AFTER seeding (truncated / invalid JSON).
+printf '{ "mcpServers": { "sdd-forge-mcp": { not valid json' > "${_q_cursor}/mcp.json"
+_q_cursor_before="$(shasum -a 256 "${_q_cursor}/mcp.json" | awk '{print $1}')"
+export PATH="${_q_bin}:${_q_orig_path}"; export SDD_CODEX_HOME="$_q_codex"
+export SDD_CURSOR_DIR="$_q_cursor"; export SDD_VSCODE_USER_DIR="$_q_vscode"
+_q_failed=0
+_q_out="$(bash "$UNINSTALLER" --install-root "$_q_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" --keep-files 2>&1)" || _q_failed=1
+export PATH="$_q_orig_path"
+if [[ -z "$_q_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_q_orig_codex"; fi
+if [[ -z "$_q_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_q_orig_cursor"; fi
+if [[ -z "$_q_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_q_orig_vscode"; fi
+_q_ok=1
+# Uninstaller must not abort on the corrupt file.
+[[ $_q_failed -eq 0 ]] || { fail "corrupt JSON (q): uninstaller exited non-zero instead of continuing"; _q_ok=0; }
+_q_cursor_after="$(shasum -a 256 "${_q_cursor}/mcp.json" | awk '{print $1}')"
+[[ "$_q_cursor_before" == "$_q_cursor_after" ]] || { fail "corrupt JSON (q): corrupt Cursor mcp.json was modified"; _q_ok=0; }
+echo "$_q_out" | grep -qi "invalid JSON" || { fail "corrupt JSON (q): no invalid-JSON error notice was emitted"; _q_ok=0; }
+# VS Code (valid) must still have its managed keys removed.
+grep -qF '"sdd-forge-mcp"' "${_q_vscode}/mcp.json" && { fail "corrupt JSON (q): VS Code managed key not removed (client continuation failed)"; _q_ok=0; }
+rm -rf "$_q_root"
+[[ $_q_ok -eq 1 ]] && ok "corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned"
+
+# Scenario (r): absent Cursor/VS Code dirs → silent skip (no error), and the
+# rest of the uninstall (payloads, Codex) still completes.
+_r_root="$(mktemp -d)"; _r_install="${_r_root}/installed"; _r_codex="${_r_root}/codex-home"
+_r_bin="${_r_root}/bin"; _r_log="${_r_root}/commands.log"
+_r_orig_path="$PATH"; _r_orig_codex="${SDD_CODEX_HOME:-}"
+_r_orig_cursor="${SDD_CURSOR_DIR:-}"; _r_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_r_bin" "$_r_log"
+seed_installed_layout "$_r_install" "$_r_codex"
+# Point the overrides at non-existent dirs (Cursor/VS Code not installed).
+export PATH="${_r_bin}:${_r_orig_path}"; export SDD_CODEX_HOME="$_r_codex"
+export SDD_CURSOR_DIR="${_r_root}/no-such-cursor"; export SDD_VSCODE_USER_DIR="${_r_root}/no-such-vscode"
+_r_failed=0
+bash "$UNINSTALLER" --install-root "$_r_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _r_failed=1
+export PATH="$_r_orig_path"
+if [[ -z "$_r_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_r_orig_codex"; fi
+if [[ -z "$_r_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_r_orig_cursor"; fi
+if [[ -z "$_r_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_r_orig_vscode"; fi
+_r_ok=1
+[[ $_r_failed -eq 0 ]] || { fail "absent Cursor/VSCode dir (r): uninstaller exited non-zero"; _r_ok=0; }
+[[ ! -d "$_r_install" ]] || { fail "absent Cursor/VSCode dir (r): install root not removed"; _r_ok=0; }
+[[ ! -e "${_r_root}/no-such-cursor" ]] || { fail "absent Cursor/VSCode dir (r): uninstaller created the Cursor dir"; _r_ok=0; }
+[[ ! -e "${_r_root}/no-such-vscode" ]] || { fail "absent Cursor/VSCode dir (r): uninstaller created the VS Code dir"; _r_ok=0; }
+rm -rf "$_r_root"
+[[ $_r_ok -eq 1 ]] && ok "absent Cursor/VS Code dirs are skipped without error and without directory creation"
+
+# ---------------------------------------------------------------------------
+# Scenario (j): FilesOnly skips CLI calls but still removes files
+# ---------------------------------------------------------------------------
+_j_root="$(mktemp -d)"; _j_install="${_j_root}/installed"; _j_codex="${_j_root}/codex-home"
+_j_bin="${_j_root}/bin"; _j_log="${_j_root}/commands.log"
+_j_orig_path="$PATH"; _j_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_j_bin" "$_j_log"
+seed_installed_layout "$_j_install" "$_j_codex"
+export PATH="${_j_bin}:${_j_orig_path}"; export SDD_CODEX_HOME="$_j_codex"
+_j_failed=0
+bash "$UNINSTALLER" --install-root "$_j_install" --target FilesOnly >/dev/null 2>&1 || _j_failed=1
+export PATH="$_j_orig_path"
+if [[ -z "$_j_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_j_orig_codex"; fi
+_j_ok=1
+[[ $_j_failed -eq 0 ]] || { fail "FilesOnly exited non-zero"; _j_ok=0; }
+[[ ! -s "$_j_log" ]] || { fail "FilesOnly should not call any CLI"; _j_ok=0; }
+[[ ! -d "$_j_install" ]] || { fail "FilesOnly should still remove installed files"; _j_ok=0; }
+rm -rf "$_j_root"
+[[ $_j_ok -eq 1 ]] && ok "FilesOnly skips CLI calls but removes files"
+
+# ---------------------------------------------------------------------------
+# T-003 context-presence invariant: FilesOnly produces byte-identical output
+# from the same install path with project-context.yaml absent or present.
+# ---------------------------------------------------------------------------
+_t003_root="$(build_fixture absent absent disabled-legacy valid none)"
+_t003_present_fixture="$(build_fixture present absent advisory valid none)"
+_t003_codex="$(mktemp -d)"
+_t003_absent_output="$(mktemp)"
+_t003_present_output="$(mktemp)"
+seed_installed_layout "$_t003_root" "$_t003_codex"
+_t003_absent_failed=0
+bash "$UNINSTALLER" --install-root "$_t003_root" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >"$_t003_absent_output" 2>&1 || _t003_absent_failed=1
+mkdir -p "$_t003_root"
+cp -R "${_t003_present_fixture}/." "$_t003_root/"
+seed_installed_layout "$_t003_root" "$_t003_codex"
+_t003_present_failed=0
+bash "$UNINSTALLER" --install-root "$_t003_root" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >"$_t003_present_output" 2>&1 || _t003_present_failed=1
+if [[ "${T003_MUTATE_CONTEXT_INVARIANT:-}" == uninstall-sh ]]; then
+    printf 'MUTATED OUTPUT\n' >>"$_t003_present_output"
+fi
+if [[ $_t003_absent_failed -eq 0 && $_t003_present_failed -eq 0 && -s "$_t003_absent_output" ]] &&
+   cmp -s "$_t003_absent_output" "$_t003_present_output"; then
+    ok "T-003 uninstall output is unaffected by project-context presence"
+else
+    fail "T-003 uninstall output changed with project-context presence"
+fi
+_fixture_matrix_cleanup "$_t003_present_fixture"
+rm -rf -- "$_t003_codex"
+rm -- "$_t003_absent_output" "$_t003_present_output"
+
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
+echo ""
+echo "Results: ${PASS} passed, ${FAIL} failed."
+[[ $FAIL -eq 0 ]]

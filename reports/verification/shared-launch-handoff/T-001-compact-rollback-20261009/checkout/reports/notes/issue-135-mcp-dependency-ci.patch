@@ -1,0 +1,330 @@
+--- a/.github/dependabot.yml
++++ b/.github/dependabot.yml
+@@ -10,3 +10,24 @@
+     open-pull-requests-limit: 5
+     commit-message:
+       prefix: "ci(deps)"
++  - package-ecosystem: "npm"
++    directory: "/mcp/sdd-forge-mcp"
++    schedule:
++      interval: "weekly"
++    open-pull-requests-limit: 5
++    commit-message:
++      prefix: "ci(deps)"
++  - package-ecosystem: "npm"
++    directory: "/mcp/local-env-mcp"
++    schedule:
++      interval: "weekly"
++    open-pull-requests-limit: 5
++    commit-message:
++      prefix: "ci(deps)"
++  - package-ecosystem: "npm"
++    directory: "/mcp/ci-mcp"
++    schedule:
++      interval: "weekly"
++    open-pull-requests-limit: 5
++    commit-message:
++      prefix: "ci(deps)"
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -410,6 +410,11 @@
+       - name: Install dependencies
+         run: npm ci
+ 
++      - name: Verify lockfile consistency
++        run: |
++          npm install --package-lock-only --ignore-scripts --no-audit
++          git diff --exit-code -- package-lock.json
++
+       - name: Type check
+         run: npx tsc --noEmit
+ 
+@@ -429,6 +434,21 @@
+       - name: Audit production dependencies
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
++
++      - name: Audit dependency signatures
++        if: matrix.os == 'ubuntu-latest'
++        run: npm audit signatures
++
++      - name: Generate CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        run: npm sbom --sbom-format cyclonedx > sdd-forge-mcp-sbom.cdx.json
++
++      - name: Upload CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
++        with:
++          name: sdd-forge-mcp-sbom
++          path: mcp/sdd-forge-mcp/sdd-forge-mcp-sbom.cdx.json
+ 
+   # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
+   # each OS, through the exact command line each CLI's hook config invokes. This
+@@ -465,6 +485,11 @@
+       - name: Install dependencies
+         run: npm ci
+ 
++      - name: Verify lockfile consistency
++        run: |
++          npm install --package-lock-only --ignore-scripts --no-audit
++          git diff --exit-code -- package-lock.json
++
+       - name: Type check
+         run: npx tsc --noEmit
+ 
+@@ -485,7 +510,22 @@
+       - name: Audit production dependencies
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
++
++      - name: Audit dependency signatures
++        if: matrix.os == 'ubuntu-latest'
++        run: npm audit signatures
++
++      - name: Generate CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        run: npm sbom --sbom-format cyclonedx > local-env-mcp-sbom.cdx.json
+ 
++      - name: Upload CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
++        with:
++          name: local-env-mcp-sbom
++          path: mcp/local-env-mcp/local-env-mcp-sbom.cdx.json
++
+   # ci-mcp-tests — ci-mcp (mcp/ci-mcp/) is a read-only MCP server exposing
+   # GitHub Actions CI state (workflow runs, jobs, job logs, artifacts
+   # metadata) over a GET-only api.github.com client (ADR-0003 pattern, same
+@@ -516,6 +556,11 @@
+       - name: Install dependencies
+         run: npm ci
+ 
++      - name: Verify lockfile consistency
++        run: |
++          npm install --package-lock-only --ignore-scripts --no-audit
++          git diff --exit-code -- package-lock.json
++
+       - name: Type check
+         run: npx tsc --noEmit
+ 
+@@ -541,6 +586,21 @@
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
+ 
++      - name: Audit dependency signatures
++        if: matrix.os == 'ubuntu-latest'
++        run: npm audit signatures
++
++      - name: Generate CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        run: npm sbom --sbom-format cyclonedx > ci-mcp-sbom.cdx.json
++
++      - name: Upload CycloneDX SBOM
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
++        with:
++          name: ci-mcp-sbom
++          path: mcp/ci-mcp/ci-mcp-sbom.cdx.json
++
+   cli-hook-enforcement:
+     name: cli-hook-enforcement
+     strategy:
+--- a/mcp/ci-mcp/package-lock.json
++++ b/mcp/ci-mcp/package-lock.json
+@@ -781,7 +781,6 @@
+       "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.29.0.tgz",
+       "integrity": "sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@hono/node-server": "^1.19.9",
+         "ajv": "^8.17.1",
+@@ -1716,7 +1715,6 @@
+       "integrity": "sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "undici-types": "~6.21.0"
+       }
+@@ -2428,7 +2426,6 @@
+       "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+       "integrity": "sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "accepts": "^2.0.0",
+         "body-parser": "^2.2.1",
+@@ -2736,7 +2733,6 @@
+       "resolved": "https://registry.npmjs.org/hono/-/hono-4.12.28.tgz",
+       "integrity": "sha512-YwUvVpSF7m1yOblFPrU3Hbo8XhPheBoiyfGuII6z19LnOr6JpDnyyp7LFNrfV56wS8tpvtBFGRISHN02pDdLOA==",
+       "license": "MIT",
+-      "peer": true,
+       "engines": {
+         "node": ">=16.9.0"
+       }
+@@ -3309,7 +3305,6 @@
+       "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0"
+       },
+@@ -3323,7 +3318,6 @@
+       "integrity": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0",
+         "scheduler": "^0.23.2"
+@@ -3986,7 +3980,6 @@
+       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+@@ -4223,7 +4216,6 @@
+       "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+       "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==",
+       "license": "MIT",
+-      "peer": true,
+       "funding": {
+         "url": "https://github.com/sponsors/colinhacks"
+       }
+--- a/mcp/local-env-mcp/package-lock.json
++++ b/mcp/local-env-mcp/package-lock.json
+@@ -790,7 +790,6 @@
+       "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.29.0.tgz",
+       "integrity": "sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@hono/node-server": "^1.19.9",
+         "ajv": "^8.17.1",
+@@ -1698,7 +1697,6 @@
+       "integrity": "sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "undici-types": "~6.21.0"
+       }
+@@ -2410,7 +2408,6 @@
+       "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+       "integrity": "sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "accepts": "^2.0.0",
+         "body-parser": "^2.2.1",
+@@ -2718,7 +2715,6 @@
+       "resolved": "https://registry.npmjs.org/hono/-/hono-4.12.27.tgz",
+       "integrity": "sha512-1yrb/+w6HWQJrUCLkJ2IF5jNIPvvFkblV5RNOYl6bV+OA6p9GLcMpHFFGTosSvHvcAUibuUukRqhlYI4z32C7Q==",
+       "license": "MIT",
+-      "peer": true,
+       "engines": {
+         "node": ">=16.9.0"
+       }
+@@ -3290,7 +3286,6 @@
+       "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0"
+       },
+@@ -3304,7 +3299,6 @@
+       "integrity": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0",
+         "scheduler": "^0.23.2"
+@@ -3967,7 +3961,6 @@
+       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+@@ -4204,7 +4197,6 @@
+       "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+       "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==",
+       "license": "MIT",
+-      "peer": true,
+       "funding": {
+         "url": "https://github.com/sponsors/colinhacks"
+       }
+--- a/mcp/sdd-forge-mcp/package-lock.json
++++ b/mcp/sdd-forge-mcp/package-lock.json
+@@ -793,7 +793,6 @@
+       "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.29.0.tgz",
+       "integrity": "sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@hono/node-server": "^1.19.9",
+         "ajv": "^8.17.1",
+@@ -1708,7 +1707,6 @@
+       "integrity": "sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "undici-types": "~6.21.0"
+       }
+@@ -2426,7 +2424,6 @@
+       "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+       "integrity": "sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "accepts": "^2.0.0",
+         "body-parser": "^2.2.1",
+@@ -2734,7 +2731,6 @@
+       "resolved": "https://registry.npmjs.org/hono/-/hono-4.12.27.tgz",
+       "integrity": "sha512-1yrb/+w6HWQJrUCLkJ2IF5jNIPvvFkblV5RNOYl6bV+OA6p9GLcMpHFFGTosSvHvcAUibuUukRqhlYI4z32C7Q==",
+       "license": "MIT",
+-      "peer": true,
+       "engines": {
+         "node": ">=16.9.0"
+       }
+@@ -3328,7 +3324,6 @@
+       "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0"
+       },
+@@ -3342,7 +3337,6 @@
+       "integrity": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "loose-envify": "^1.1.0",
+         "scheduler": "^0.23.2"
+@@ -4005,7 +3999,6 @@
+       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+@@ -4242,7 +4235,6 @@
+       "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+       "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==",
+       "license": "MIT",
+-      "peer": true,
+       "funding": {
+         "url": "https://github.com/sponsors/colinhacks"
+       }

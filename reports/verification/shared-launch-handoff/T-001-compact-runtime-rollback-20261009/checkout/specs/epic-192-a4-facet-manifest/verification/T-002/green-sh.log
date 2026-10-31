@@ -1,0 +1,56 @@
+=== TDD GREEN: capability-summary-schema.tests.sh + .ps1 against the completed implementation ===
+Date: 2026-08-17T04:16:25Z
+
+--- bash ---
+ok: contracts/capability-summary.schema.json exists
+ok: $schema is draft-07
+ok: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/capability-summary.schema.json)
+ok: TEST-012: top-level 'required' is exactly the six-field Lite-only set
+ok: TEST-012: 'track' is const 'lite' -- no full-track branch in this schema
+ok: TEST-012: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-012: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-012: required-missing-track.json invalid as expected (contains 'missing required property 'track'')
+ok: TEST-012: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-012: required-missing-required-lite-checks.json invalid as expected (contains 'missing required property 'required_lite_checks'')
+ok: TEST-012: required-missing-full-upgrade-required.json invalid as expected (contains 'missing required property 'full_upgrade_required'')
+ok: TEST-013: decision-doc-v2-section6-worked-example.json valid (exit 0, no diagnostics)
+ok: TEST-013 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
+ok: TEST-014: extra-property-facet-manifest-ref-invalid.json invalid as expected (contains '/facet_manifest_ref: additional property not allowed')
+ok: TEST-012 regression: track-invalid-value.json invalid as expected (contains '/track: expected const 'lite', got 'full'')
+ok: feature pattern regression: feature-invalid-pattern.json invalid as expected (contains '/feature: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline feature rejected: feature-trailing-newline.json invalid as expected (contains '/feature: does not match pattern')
+ok: diagnostic determinism: multi-diagnostic-ordering.json emits exactly 2 lines in (check-id, pointer) order
+ok: TEST-029: validate-capability-summary.py exits 0 on AC-013's own worked-example fixture
+ok: TEST-029: validate-capability-summary.py exits non-zero with 'capability-summary: schema-invalid:' on AC-014's fixture
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
+ok: self-registration: tests/run-all.sh lists this suite
+
+capability-summary-schema: 22 passed, 0 failed
+BASH EXIT CODE: 0
+
+--- pwsh ---
+ok: contracts/capability-summary.schema.json exists
+ok: $schema is draft-07
+ok: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/capability-summary.schema.json)
+ok: TEST-012: top-level 'required' is exactly the six-field Lite-only set
+ok: TEST-012: 'track' is const 'lite' -- no full-track branch in this schema
+ok: TEST-012: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-012: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-012: required-missing-track.json invalid as expected (contains 'missing required property 'track'')
+ok: TEST-012: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-012: required-missing-required-lite-checks.json invalid as expected (contains 'missing required property 'required_lite_checks'')
+ok: TEST-012: required-missing-full-upgrade-required.json invalid as expected (contains 'missing required property 'full_upgrade_required'')
+ok: TEST-013: decision-doc-v2-section6-worked-example.json valid (exit 0, no diagnostics)
+ok: TEST-013 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
+ok: TEST-014: extra-property-facet-manifest-ref-invalid.json invalid as expected (contains '/facet_manifest_ref: additional property not allowed')
+ok: TEST-012 regression: track-invalid-value.json invalid as expected (contains '/track: expected const 'lite', got 'full'')
+ok: feature pattern regression: feature-invalid-pattern.json invalid as expected (contains '/feature: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline feature rejected: feature-trailing-newline.json invalid as expected (contains '/feature: does not match pattern')
+ok: diagnostic determinism: multi-diagnostic-ordering.json emits exactly 2 lines in (check-id, pointer) order
+ok: TEST-029: validate-capability-summary.py exits 0 on AC-013's own worked-example fixture
+ok: TEST-029: validate-capability-summary.py exits non-zero with 'capability-summary: schema-invalid:' on AC-014's fixture
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+capability-summary-schema: 22 passed, 0 failed
+PWSH EXIT CODE: 0

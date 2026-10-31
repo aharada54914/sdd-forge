@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "design-sync-scan",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-design-sync-scan-task-task-reviewer-a-seq0553",
+  "host_session_id": "SESS-task-task-reviewer-a-design-sync-scan-0553",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-scan/attempt-1/round-1/dependency-graph.json",
+      "sha256": "08577708d324db0b7db44f62f28694fe706d570269cdd9604b00ff34b04db96d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "d0d770856534d3625ed6f3cc8220e54d6efd8dc11c978c37b44379ea9e9ad818"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/design.md",
+      "sha256": "2c8583fc2d049eaafc22cde106c092050d7e3252a387fec0ad7aa86afe259756"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/tasks.md",
+      "sha256": "bc3fb68fbdf8b3a73f72363a4b6ab9e7e52b7e684e722ab93f7a62d3691a8a00"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/traceability.md",
+      "sha256": "1ba636c49eee5aff0608eb5d142d6e1b89da6eb34f9dcc410b876854ed350ee4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN referenced in tasks.md Requirements fields (AC-001\u2013AC-035, AC-037, AC-038, AC-039 across T-001\u2013T-005, e.g. tasks.md:254-260 T-001, :417-422 T-002, :546-548 T-003, :715 T-004, :793-796 T-005) resolves to a real '#### AC-NNN' heading in acceptance-tests.md (headings run AC-001 through AC-039, acceptance-tests.md:29-234 and continuation rows through :234). No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All five Blockers fields use valid format: T-001 'None' (tasks.md:262), T-002 'T-001' (:424), T-003 'T-001, T-002' (:550), T-004 'T-001, T-002, T-003' (:717), T-005 'T-001, T-002' (:799). No range notation, no prose. Matches precheck-result.json's blockers_format_valid: true. blockers_format_valid = true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All ten requirements (REQ-001 through REQ-010, requirements.md:23-234) appear in at least one task's Requirements field: REQ-001/002/003/004/008/010 in T-001 (tasks.md:254-260), REQ-001-005/008/009 in T-002 (:417-422), REQ-002/004/005/006/007 in T-003 (:546-548), REQ-008 in T-004 (:715), REQ-010 in T-005 (:793-796). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001 through AC-039 except AC-036 are each named in a task's Requirements field (verified by union across tasks.md:254-260,417-422,546-548,715,793-796). AC-036 has no task (by design) but is explicitly deferred with stated rationale in traceability.md:80 ('none \u2014 separately staged, human-applied patch, out of this decomposition') and requirements.md AC-036 (:232-234) / BL-004 (:273), backed by TEST-054 in acceptance-tests.md's Deferred section (:101-105). No uncovered AC lacking a deferral rationale."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task cites at least one REQ-NNN in its Requirements field: T-001 tasks.md:254, T-002 :417, T-003 :546, T-004 :715, T-005 :793. No orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title in tasks.md contains 'test', 'spec', or 'verify' case-insensitively (T-001:209, T-002:377, T-003:498, T-004:678, T-005:757), and no task's scope is exclusively test-file changes (T-001/T-002 also create the scanner scripts; T-003/T-004 edit skill/doc prose; T-005 edits tests/run-all.{sh,ps1} registration files alongside its non-test prerequisite-confirmation scope). No task qualifies as a test task under the check's definition, so no orphan-test finding applies; all tasks that append to the shared suite already cite ACs regardless (e.g. T-005 cites AC-035, tasks.md:793)."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This is round 1 attempt 1 (pre-implementation rule applies). All five tasks read 'Approval: Draft' and 'Status: Planned' exactly: T-001 tasks.md:213,215; T-002 :381,383; T-003 :502,504; T-004 :682,684; T-005 :761,763. Advisory only (not a finding): the Lifecycle prose at tasks.md:24-26 says Approval is 'authored with it reading Pending', which does not match the actual per-task field value 'Draft' used throughout \u2014 a documentation-text/field-value mismatch, but the per-task field itself is the value this check inspects and it correctly reads Draft/Planned, so this check still PASSes."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All five tasks declare a valid Risk/Required Workflow pair matching the risk-gate-matrix: T-001 high/tdd (tasks.md:217,237), T-002 high/tdd (:385,404), T-003 high/tdd (:506,533), T-004 medium/acceptance-first (:686,707), T-005 medium/acceptance-first (:765,783). precheck-result.json records workflow_match_precheck: PASS, consistent with this direct check."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Many ACs (e.g. AC-001\u2013AC-004, AC-005\u2013AC-008, AC-009\u2013AC-012, AC-013\u2013AC-015, AC-030, AC-038, AC-039) are claimed by both T-001 and T-002, but each occurrence is explicitly scope-differentiated in the task text itself and in the task titles (T-001 title/header names 'design-sync-scan.sh'; T-002 title/header names 'design-sync-scan.ps1, port the suite, and add cross-runtime parity') \u2014 e.g. tasks.md:254 'AC-039 \u2014 both halves, .sh runtime' vs :417 'AC-039 \u2014 .ps1 runtime and the cross-runtime half'; :258 'AC-030 \u2014 the .sh half' vs :420 'AC-030 \u2014 the .ps1 half'; :256 'AC-038 \u2014 the POSIX ERE forms' vs :419 'AC-038 \u2014 the .NET forms plus the parity assertion'. This matches the exception for shared AC references with distinct, explicitly stated scopes (dual-runtime parity, mirroring design-sync-consent's BL-008 precedent). No undifferentiated duplicate found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers reference (T-002:T-001, T-003:T-001/T-002, T-004:T-001/T-002/T-003, T-005:T-001/T-002) names a task ID present in dependency-graph.json's nodes array (\"nodes\": [\"T-001\",\"T-002\",\"T-003\",\"T-004\",\"T-005\"]) and tasks.md itself. No reference to a non-existent task."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges (T-002->T-001, T-003->T-001, T-003->T-002, T-004->T-001, T-004->T-002, T-004->T-003, T-005->T-001, T-005->T-002) form a DAG with valid topological order T-001, T-002, T-003, T-004, T-005 and no node revisited on any path. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:209) 'Author design-sync-scan.sh and its assertion suite' \u2014 second clause is the task's own test suite, exception 1. T-002 (:377) 'Author .ps1, port the suite, and add cross-runtime parity' \u2014 both additional clauses are verification work tied to the same runtime port, exception 1. T-003 (:498) 'Activate SKILL.md step 5 and extend the Design-Source record' \u2014 the record extension is the mechanism step 5's own override procedure writes to (design.md:174-186), one coherent check-point-wiring concern, not two unrelated features. T-004 (:678) is a single documentation concern. T-005 (:757) 'Register the suite in run-all and confirm registration prerequisites' \u2014 prerequisite confirmation (workflow-state-registry entry, AGENTS.md list) is mandatory housekeeping tied directly to registration validity, exception 2. No task joins two distinct feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Grep sweep of tasks.md found no forbidden vague phrasing ('ensure', 'consider', 'works correctly', 'verify is correct' absent entirely; every 'confirm'/'review'/'update' occurrence is tied to a concrete artifact and observable outcome, e.g. tasks.md:830 'AGENTS.md's Active Spec Directories list is confirmed to still not carry specs/design-sync-scan/' names the exact file/section and a binary observable condition). Every Done-When item across T-001\u2013T-005 cites a specific TEST-NNN ID, an exit code, a diff-verifiable byte-range, or a named implementation-report artifact (e.g. tasks.md:277-375, :435-496, :590-676, :729-755, :809-839). Each non-documentation task (T-001, T-002, T-003, T-005) names concrete verification commands/evidence (e.g. T-003's :643-645 names 'bash tests/design-system-contract.tests.sh' directly; T-001/T-002/T-003 cite requirement-traceability and independent-review/QG evidence in reports/quality-gate/). T-004, the documentation-only task, names the exact file and insertion point (claude-design-workflow.md's manual-fallback section, tasks.md:729-741) in addition to TEST-047 evidence. No Done-When item requires editing design.md, tasks.md, or traceability.md (grep confirmed all design.md/tasks.md/traceability.md mentions in tasks.md are citations, not live edit targets) \u2014 design.md is Impl-Review-Status: Passed (frozen) and tasks.md itself is under this very task-review gate, and no Done-When item targets either as an edit surface."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All five task IDs (T-001\u2013T-005) appear in traceability.md's Requirement Coverage Task column, Acceptance Mapping Task column, and Task Mapping table (traceability.md:19-28, 45-83, 101-105). All requirement IDs in traceability.md (REQ-001\u2013REQ-010) exist in requirements.md's headings (requirements.md:23-234). Full-profile layer-anchor check: each requirement row cites a canonical <layer>-spec.md#<section> anchor or a reasoned N/A \u2014 REQ-001\u2013REQ-007 cite security-spec.md#trust-boundaries (verified heading '## Trust Boundaries' at security-spec.md:47) and REQ-006 additionally cites security-spec.md#under-whose-consent (heading '## Under Whose Consent' at security-spec.md:24); REQ-008 and REQ-010 cite infra-spec.md#deployment-topology and infra-spec.md#cicd-sequence (headings '## Deployment Topology' infra-spec.md:3 and '## CI/CD Sequence' infra-spec.md:21); REQ-009 carries a reasoned 'N/A \u2014 cross-layer only' with stated rationale (traceability.md:27). All cited anchors resolve in the hash-bound layer documents read for this review. No dangling reference either direction."
+    }
+  ],
+  "findings": []
+}

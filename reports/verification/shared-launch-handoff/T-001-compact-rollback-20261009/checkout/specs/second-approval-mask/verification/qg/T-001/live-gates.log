@@ -1,0 +1,9 @@
+# T-001 post-apply repository gates (2026-07-12T11:49:06Z)
+## full-registry check-workflow-state (sh, live fixed twin)
+workflow-state: ok
+## workflow-state parity suite
+ok: workflow-state adapter parity passed
+## registry suite
+not ok: canonical registry contract is invalid
+## ci-integration suite
+Workflow-state CI integration tests passed.

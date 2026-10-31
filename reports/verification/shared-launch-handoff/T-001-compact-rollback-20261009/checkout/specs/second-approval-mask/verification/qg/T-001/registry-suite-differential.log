@@ -1,0 +1,6 @@
+# Differential evidence: workflow-state-registry.tests.sh fails identically at e3507a2 (session-start commit, BEFORE feature second-approval-mask existed) — 2026-07-12T11:52:12Z
+## at e3507a2 (pre-feature)
+not ok: canonical registry contract is invalid
+exit=0
+## registry entry counts: e3507a2=16, pinned by suite=14, current=19
+## cause: suite pins .entries length==14 and an exact 14-name feature list (tests/workflow-state-registry.tests.sh lines ~150-165); registrations by epic-136-phase1-rce/ci-mcp/evidence-deep-verify/epic-136-phase1-guards predate this task. Fix tracked on branch claude/jovial-matsumoto-0ef83b (pending merge) and RT-20260707-001 follow-up note.

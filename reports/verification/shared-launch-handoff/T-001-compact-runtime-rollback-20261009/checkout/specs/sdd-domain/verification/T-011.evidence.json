@@ -1,0 +1,59 @@
+{
+  "task_id": "T-011",
+  "feature": "sdd-domain",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "a948c592622ca7db856c69e7a9bf6213986f4e748fb6a40bd4ee6c83fe13dd90",
+  "quality_report": "reports/quality-gate/T-011-sdd-domain.md",
+  "verification_contract": "specs/sdd-domain/verification/T-011.contract.json",
+  "git_commit": "e893dbad984beddd21836bfa8d683cf5b1280693",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "windows",
+    "python": "3.14.0",
+    "git": "git version 2.54.0.windows.1",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-domain/verification/T-011.contract.json",
+      "sha256": "42630495e050dd6509590d18f3dd7de2a6e1a7fb7363827a592a1d96816519a6"
+    },
+    {
+      "path": "reports/quality-gate/T-011-sdd-domain.md",
+      "sha256": "4252e36e312dad747631473508a48b42052bd17ee706cc246374772e64bee60d"
+    },
+    {
+      "path": "specs/sdd-domain/verification/T-011.placeholder-scan.log",
+      "sha256": "97522e1e0f3c7dd54f2c167577b867b240ff3ae682b0c562eef614e2653214bb"
+    },
+    {
+      "path": "specs/sdd-domain/verification/T-011.regression.log",
+      "sha256": "3b1d84c0c4a17f9cc1f05d49c048457334a58cce292524ddb4e907b1a8f26d0f"
+    },
+    {
+      "path": "specs/sdd-domain/verification/T-011.task-state.log",
+      "sha256": "d32057f070ecdc2134b780d784cd452cb5568ba0c18a02e57265df34664800d9"
+    },
+    {
+      "path": "specs/sdd-domain/verification/T-011.traceability.log",
+      "sha256": "f0061187e0f0944b57d1ec40e9fb35842cbc8bfbe02b8004a8823a3ab6ecaccf"
+    },
+    {
+      "path": "specs/sdd-domain/verification/T-011.unit-tests.log",
+      "sha256": "13b07bdda795dc361712851d4e6b19ddb8bd9b5f0568f4a7a6b235f84419cb23"
+    }
+  ]
+}

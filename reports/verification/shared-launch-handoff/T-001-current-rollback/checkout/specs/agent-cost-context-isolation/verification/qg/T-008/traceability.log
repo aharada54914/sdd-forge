@@ -1,0 +1,2 @@
+check-traceability: not applicable; specs/agent-cost-context-isolation/traceability.json is absent.
+The feature's governed traceability artifact is specs/agent-cost-context-isolation/traceability.md.

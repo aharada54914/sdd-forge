@@ -1,0 +1,58 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "agent-cost-context-isolation",
+  "task_id": "T-001",
+  "run_id": "RUN-agent-cost-context-isolation-qg-T-001-seq0823",
+  "host_session_id": "SESS-qg-agent-cost-context-isolation-T-001-0823",
+  "sequence": 823,
+  "previous_record_sha256": "a6a23cf17a91190b91740dcb3fcb26d4ac01936cf7985f6c04a34d526dbe7a2f",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "19c3c50733a0dc4dfb4ff70e7815c186b16cd96533f3354ecd11c620b9dc3ee2",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/design.md",
+      "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/tasks.md",
+      "sha256": "59b71685ed2feb7a5b84ef1517d9f37e64e8fcad83131374c4ad38a29befc96f"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/traceability.md",
+      "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/security-spec.md",
+      "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/agent-cost-context-isolation/T-001.md",
+      "sha256": "c14f51ddc9c328d6bfcb606fd787bb4af67ff8e93c88c908a6b20845f76700e2"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "sha256": "6cc5a9dbefaee26a887900520e8e7274c361550f07289605a7ac76a4db85da1c"
+    },
+    {
+      "path": "docs/adr/0003-turn-first-agent-routing.md",
+      "sha256": "ed5daea1ebb815d3a2961ee062e674a9f0c408ed26041430f4ddc323fb82dd54"
+    }
+  ]
+}

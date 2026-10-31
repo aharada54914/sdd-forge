@@ -1,0 +1,5 @@
+Placeholder scan FAILED (2 finding(s)):
+ - plugins/sdd-bootstrap/scripts/design-sync-scan.sh:107:placeholder_pattern_cs='TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+ - plugins/sdd-bootstrap/scripts/design-sync-scan.sh:108:placeholder_pattern_ci='not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+exit=1

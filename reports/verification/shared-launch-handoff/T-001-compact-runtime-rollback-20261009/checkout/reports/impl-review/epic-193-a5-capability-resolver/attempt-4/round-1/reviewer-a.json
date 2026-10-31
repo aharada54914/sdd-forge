@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r1-seq0795",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r1-0795",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "63adaf4e7444dc67796f4fc0a64315d6b8ed8f59626c44d3a377aa00afe09018"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+      "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+      "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+      "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "533c916439b08e0985acaa5142ba393b4e741de9fd48e1ae085918459d07bad7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-1/precheck-result.json",
+      "sha256": "e2baf7c2941b477ed64613195c3bc56f4f07bd13ee785311186b23aa18d20a05"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture (lines 61-181) describes component boundaries via the pipeline diagram and Components table, integration with A1-A4 via the diagram's per-step provenance labels and Cross-Layer Dependencies section, and technology choices via the Components table's Technology column."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Cross-Layer Dependencies (lines 321-395) states a strictly one-directional dependency graph: A5 depends on A1/A2/A3/A4; no sibling epic depends back on A5's outputs within this design. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan (lines 457-722) specifies Data Entities, Existing Data Affected (none written; two artifacts read only), and Migration Strategy (none)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "API / Contract Plan (lines 724-1777) fully specifies the CLI contract (flags, exit codes, per-step diagnostic mapping) and the schema/validator contracts; no prior version exists to deprecate."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "security-spec.md's B3 boundary row (line 69) narrates ruling C(1) but its trailing AC-citation column lists only AC-040, AC-048, AC-049 (omitting AC-057). Ruling C(2) (the dependency-output-malformed absent-component fail-closed fix, AC-058 -- framed by investigation.md lines 1222-1239 as closing a cross-model-panel-identified fail-open defect) appears nowhere in security-spec.md: no boundary row, no AC-058 citation, no TEST-058 row in its test table (lines 194-196 list only TEST-040/048/049). design.md's Security Boundaries (lines 2600-2669) also never names C(2) as a distinct guarantee."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is a deterministic CLI script family; ux-spec.md and frontend-spec.md both state no UX/browser surface, so no frontend-backend split applies."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Test Strategy item 2 (lines 1790-1860) individually names a dedicated fixture for every prior new REQ-002 diagnostic/AC (AC-047 through AC-053 each named by fixture) but never names the two C(1)/C(2) fixtures registry-swapped-during-validation (AC-057) or affected-component-absent-from-context (AC-058), despite design.md citing both fixture names elsewhere (lines 655, 939) and acceptance-tests.md defining TEST-057/TEST-058. investigation.md's remediation record (lines 1316-1329) confirms the follow-up that added AC-057/AC-058 did not touch design.md's Test Strategy section, breaking its one-fixture-per-new-diagnostic-row completeness pattern."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture/API-Contract-Plan is defined in the Components table or is an established upstream sibling-epic script cross-referenced to investigation.md INV entries and the corresponding Epic A1-A4 specs."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All cited ADRs (0016, 0017, 0019, 0020, 0021, 0023, 0025) exist under docs/adr/; no new ADR is authored, with a documented promotion path for the six named orchestration decisions."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No design-system/ directory exists; design.md's Design System Compliance section states Not applicable (no UI surface); recorded as PASS per the check's skip-to-PASS rule."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory exists, so no Domain-Model-Status gate applies; recorded as PASS per the check's skip-to-PASS rule."
+    }
+  ]
+}

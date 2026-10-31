@@ -1,0 +1,22 @@
+test_absolute (__main__.AdmissionTests.test_absolute) ... ok
+test_artifact_hash (__main__.AdmissionTests.test_artifact_hash) ... ok
+test_cross_feature_path (__main__.AdmissionTests.test_cross_feature_path) ... ok
+test_duplicate_json (__main__.AdmissionTests.test_duplicate_json) ... ok
+test_duplicate_path (__main__.AdmissionTests.test_duplicate_path) ... ok
+test_extra_verdict (__main__.AdmissionTests.test_extra_verdict) ... ok
+test_gate_output (__main__.AdmissionTests.test_gate_output) ... ok
+test_legacy_outputs (__main__.AdmissionTests.test_legacy_outputs) ... ok
+test_pointer_symlink (__main__.AdmissionTests.test_pointer_symlink) ... ok
+test_report_hash (__main__.AdmissionTests.test_report_hash) ... ok
+test_reviewer_output (__main__.AdmissionTests.test_reviewer_output) ... ok
+test_symlink (__main__.AdmissionTests.test_symlink) ... ok
+test_traversal (__main__.AdmissionTests.test_traversal) ... ok
+test_unpinned_declaration (__main__.AdmissionTests.test_unpinned_declaration) ... ok
+test_valid (__main__.AdmissionTests.test_valid) ... ok
+test_wrong_feature (__main__.AdmissionTests.test_wrong_feature) ... ok
+test_wrong_task (__main__.AdmissionTests.test_wrong_task) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 24.022s
+
+OK

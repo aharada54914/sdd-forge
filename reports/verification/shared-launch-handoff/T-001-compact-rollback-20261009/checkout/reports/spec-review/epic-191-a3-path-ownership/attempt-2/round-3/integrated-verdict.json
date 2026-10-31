@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 2,
+  "round": 3,
+  "verdict": "BLOCKED",
+  "warningCount": 0,
+  "reviewer_a_run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a2r3-seq0667",
+  "reviewer_b_run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a2r3-seq0668",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a2r3-0667",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a2r3-0668",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  }
+}

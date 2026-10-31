@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-spec-sdd-domain-multitarget-a1r1-reviewer-a-20260925-gemini",
+  "host_session_id": "SESS-spec-sdd-domain-multitarget-a1r1-reviewer-a-20260925-gemini",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "558314f7f9230e748a4a764fdc6a704af204a78a80aec8050275a8c73d80e373"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "24e564ed8334678f1af346057ef7bec0bc245c1798cfdd076fa9c1354896182a"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/investigation.md",
+      "sha256": "5ba33297af9c29f09e104471ebaa796d92bcfaba4ea4c0e1e9142d97ad4e0a05"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-multitarget/attempt-1/round-1/precheck-result.json",
+      "sha256": "fa9402316ee10f6ae4a48b09b6f027bd50c6534d4f3796e67da5180c599095d9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Requirements specify concrete, testable behaviors, explicit RFC 2119 keywords, and unambiguous verification criteria across all six requirements."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Complete bidirectional traceability exists between all stated goals, requirements REQ-001 through REQ-006, and acceptance criteria AC-001 through AC-014."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All acceptance criteria AC-001 through AC-014 define concrete, observable outcomes with designated test types and verification fixtures."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Workflow phase-sequencing violation: requirements.md line 21 cites 'see traceability.md for the observed drift' and investigation.md lines 53-54 and 60-61 reference design and traceability artifacts while Spec-Review-Status is Pending. Investigation.md lacks a conforming '## Amendment Re-Review Context' section required by calibration rules to permit references to downstream artifacts. This leaves implementers and task authors unable to determine whether Phase 1 specification is unapproved or whether downstream design and traceability artifacts are already authoritative. Under calibration rules, an unauthorized workflow boundary violation carries critical severity."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Technical, backward-compatibility, verification, and security constraints are explicitly stated with fail-closed requirements across REQ-001 through REQ-005 and the Security and Trust Boundaries section."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All identified risks are paired with concrete validation surfaces and acceptance tests (AC-001 through AC-014)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The specification strictly conforms to existing domain architecture, honoring ADR-0016, ADR-0017, and ADR-0018 without redefining or bypassing established boundaries."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-136-phase4-mcp",
+  "task_id": "T-003",
+  "run_id": "RUN-epic-136-phase4-mcp-qg-T-003-seq0384",
+  "host_session_id": "SESS-qg-epic-136-phase4-mcp-T-003-0384",
+  "sequence": 384,
+  "previous_record_sha256": "946e532627ceeb98ca33f27d5bf93ed33b4f3ff69dff143655ef009751cdcdc9",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "96d1c0f6e03420f0d77b0d2d869c2760d93861ba9b0c11d8b8cdf20ae0b9992a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "sha256": "14e83b6b906b68135fa38653d0b3060a3fb087acf8c1bd150a2587e0bcc609a1"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "sha256": "fa6740da48fd6f46c29a8ab396693383373ff3bc38a4027ef7b4f4edc1e6b809"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+      "sha256": "664d83b5b691129fe56c4ea0f94d11962c2e6b02d4c85252b83d2feabc0e3d53"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-136-phase4-mcp/T-003.md",
+      "sha256": "7ae85f67ed90fc36f523a8e42f1837f57bfc25578a06d55da60e58b33ec1f4a1"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/design.md",
+      "sha256": "fb50896916fc130021b7c80088f4b494d4209f013d6ea0f3143e125751501c41"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/tasks.md",
+      "sha256": "a01f27b8fa5b033db8d640ac11c50a25d187c2a2dda378b8eadd82c148e23fc4"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/traceability.md",
+      "sha256": "3fb25f19703b477b5017bab556cb770b92f2bad069cba3ae7050e26f1a268906"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/T-003/dist-parity.log",
+      "sha256": "cdc3ce4311e8484a6fb916610f44062878a64f1ea5456c16ea2cdd2b365fb9fb"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/T-003/green.log",
+      "sha256": "58032a900d502387b04c6f5ad13e464e47fcb9fbfac4d402cf3acdcdeb5e066e"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/T-003/red.log",
+      "sha256": "87e13262fe39c575366371be771933d3f605c1f2c413d2c5a7e2c4d49f44cf16"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/T-003/selfcheck.log",
+      "sha256": "82239a4900822e25694e0c75682894c6babb5f6eb6c9551c739aada4180787bc"
+    }
+  ]
+}

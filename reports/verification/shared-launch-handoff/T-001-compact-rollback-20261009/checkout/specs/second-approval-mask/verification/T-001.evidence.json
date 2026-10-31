@@ -1,0 +1,55 @@
+{
+  "task_id": "T-001",
+  "feature": "second-approval-mask",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "0e8750adffe5444003c4d039a89398391ae907271dc0f1e7a854763eef3b5189",
+  "quality_report": "reports/quality-gate/2026-07-12T115300Z-second-approval-mask-T-001.md",
+  "verification_contract": "specs/second-approval-mask/verification/T-001.contract.json",
+  "git_commit": "c5a08b1a74b13d99548276d87da8ae7f70f100f1",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 6,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/second-approval-mask/verification/T-001.contract.json",
+      "sha256": "0dee9cd8c96507c3c3f039d5ec938490ceb8652f9abda651f5013dd47bf5fb62"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-12T115300Z-second-approval-mask-T-001.md",
+      "sha256": "7ea36c9c51807b4b9c19fbd338e7f6903c643eae398af0876b76106bc17b9bf9"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log",
+      "sha256": "256aa12c5e17d5df6e7ea326a73410133ad390e68e767043481324d9db4eda16"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/qg/T-001/task-state.log",
+      "sha256": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/qg/T-001/traceability.log",
+      "sha256": "36a3d5511b8ad064d822f34cf2df5c572fc3a9256424d7b108ff98afff940292"
+    },
+    {
+      "path": "specs/second-approval-mask/verification/qg/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    }
+  ]
+}

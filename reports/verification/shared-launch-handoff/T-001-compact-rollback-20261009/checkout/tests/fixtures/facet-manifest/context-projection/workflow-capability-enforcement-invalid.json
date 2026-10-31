@@ -1,0 +1,11 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "source_sha256": "sha256:9b3011c093603f7e5c3571d24b371ca4c9317e725bd8d9c380cb61b032475482",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "optional"
+  },
+  "components": {},
+  "shared_paths": []
+}

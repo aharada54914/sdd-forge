@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/ci-mcp-tools.v1.schema.json",
+  "title": "ci-mcp tool response envelope (v1)",
+  "description": "All ci-mcp tool responses conform to this envelope. The base error code enum is shared with sdd-forge-mcp-tools.v1 / local-env-mcp-tools.v1 for client compatibility; ci-mcp additionally emits upstream-error, rate-limited, and auth-missing for GitHub API integration. ci-mcp is read-only: it calls the GitHub Actions REST API with GET only and never returns tokens or Authorization header values.",
+  "oneOf": [
+    { "$ref": "#/$defs/okEnvelope" },
+    { "$ref": "#/$defs/errorEnvelope" }
+  ],
+  "$defs": {
+    "okEnvelope": {
+      "type": "object",
+      "required": ["ok", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "const": true },
+        "data": {
+          "oneOf": [
+            { "$ref": "#/$defs/workflowRunsData" },
+            { "$ref": "#/$defs/workflowRunData" },
+            { "$ref": "#/$defs/runJobsData" },
+            { "$ref": "#/$defs/jobLogData" },
+            { "$ref": "#/$defs/runArtifactsData" }
+          ]
+        }
+      }
+    },
+    "errorEnvelope": {
+      "type": "object",
+      "required": ["ok", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "const": false },
+        "error": {
+          "type": "object",
+          "required": ["code", "message"],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "cannot-parse",
+                "cannot-determine",
+                "not-found",
+                "path-denied",
+                "not-sdd-root",
+                "too-large",
+                "invalid-input",
+                "upstream-error",
+                "rate-limited",
+                "auth-missing"
+              ]
+            },
+            "message": { "type": "string", "minLength": 1 },
+            "details": {
+              "type": "object",
+              "description": "Machine-readable, secret-free context. Must never contain token values, Authorization header values, or verbatim upstream response bodies.",
+              "properties": {
+                "rule": { "type": "string" },
+                "rateLimitResetAt": {
+                  "type": "string",
+                  "description": "ISO-8601 reset time for rate-limited errors. Non-sensitive."
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "runStatus": {
+      "enum": [
+        "queued",
+        "in_progress",
+        "completed",
+        "waiting",
+        "requested",
+        "pending"
+      ]
+    },
+    "runConclusion": {
+      "type": ["string", "null"],
+      "description": "GitHub run/job conclusion; null while not completed.",
+      "enum": [
+        "success",
+        "failure",
+        "cancelled",
+        "skipped",
+        "timed_out",
+        "action_required",
+        "neutral",
+        "stale",
+        "startup_failure",
+        null
+      ]
+    },
+    "workflowRun": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "status",
+        "conclusion",
+        "branch",
+        "event",
+        "runNumber",
+        "createdAt",
+        "updatedAt",
+        "htmlUrl"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "workflowName": { "type": "string" },
+        "status": { "$ref": "#/$defs/runStatus" },
+        "conclusion": { "$ref": "#/$defs/runConclusion" },
+        "branch": { "type": ["string", "null"] },
+        "event": { "type": "string" },
+        "runNumber": { "type": "integer", "minimum": 1 },
+        "headSha": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "runStartedAt": { "type": ["string", "null"] },
+        "htmlUrl": { "type": "string" }
+      }
+    },
+    "workflowRunsData": {
+      "type": "object",
+      "required": ["kind", "runs"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "workflow-runs" },
+        "runs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/workflowRun" }
+        }
+      }
+    },
+    "workflowRunData": {
+      "type": "object",
+      "required": ["kind", "run"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "workflow-run" },
+        "run": { "$ref": "#/$defs/workflowRun" }
+      }
+    },
+    "runJobsData": {
+      "type": "object",
+      "required": ["kind", "jobs"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "run-jobs" },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "status", "conclusion"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "integer", "minimum": 1 },
+              "name": { "type": "string" },
+              "status": { "$ref": "#/$defs/runStatus" },
+              "conclusion": { "$ref": "#/$defs/runConclusion" },
+              "startedAt": { "type": ["string", "null"] },
+              "completedAt": { "type": ["string", "null"] },
+              "failedStep": {
+                "type": ["integer", "null"],
+                "minimum": 0,
+                "description": "Number of the first failed step, or null if none."
+              }
+            }
+          }
+        }
+      }
+    },
+    "jobLogData": {
+      "type": "object",
+      "required": ["kind", "jobId", "log", "truncated", "returnedBytes"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "job-log" },
+        "jobId": { "type": "integer", "minimum": 1 },
+        "log": {
+          "type": "string",
+          "description": "Plain-text job log. When truncated, only the tail is retained (most useful for failure diagnosis)."
+        },
+        "truncated": { "type": "boolean" },
+        "returnedBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144,
+          "description": "Byte length of the returned log; capped at 256 KiB (262144)."
+        }
+      }
+    },
+    "runArtifactsData": {
+      "type": "object",
+      "required": ["kind", "artifacts"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "run-artifacts" },
+        "artifacts": {
+          "type": "array",
+          "description": "Artifact metadata only; binary contents are not returned (design.md OQ-002).",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "sizeBytes", "expired"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "integer", "minimum": 1 },
+              "name": { "type": "string" },
+              "sizeBytes": { "type": "integer", "minimum": 0 },
+              "expired": { "type": "boolean" },
+              "expiresAt": { "type": ["string", "null"] },
+              "createdAt": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

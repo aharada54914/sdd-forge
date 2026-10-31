@@ -1,0 +1,5 @@
+{"timestamp":"2026-10-08T22:41:39.061362Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T22:41:39.061388Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T22:41:40.072136Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T22:41:40.072159Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-08T22:44:26.115990Z","level":"WARN","fields":{"message":"recorded sandbox violation: resource=filesystem backend=seatbelt reason=operation_not_permitted path=unknown"},"target":"codex_sandboxing::violation"}

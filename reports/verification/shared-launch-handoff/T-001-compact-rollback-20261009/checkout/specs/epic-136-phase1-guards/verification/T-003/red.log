@@ -1,0 +1,410 @@
+=== QGCL-001: 0 reports (empty dir) -> continue ===
+FAIL: QGCL-001 (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-001 (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-002: 1 report -> continue ===
+FAIL: QGCL-002 (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-002 (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-003: 2 reports -> continue ===
+FAIL: QGCL-003 (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-003 (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-004: 3 reports -> Escalate-Human ===
+FAIL: QGCL-004 (sh): want Escalate-Human/exit1, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-004 (ps1): want Escalate-Human/exit1, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-005: 4 reports -> Escalate-Human ===
+FAIL: QGCL-005 (sh): want Escalate-Human/exit1, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-005 (ps1): want Escalate-Human/exit1, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-006: prefix collision T-0010 does not count for T-001 ===
+FAIL: QGCL-006 (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-006 (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-007: absent reports dir -> continue ===
+FAIL: QGCL-007 (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-007 (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-008: invalid task-id -> exit 2 ===
+FAIL: QGCL-008a (too few digits) (sh): want exit 2, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-008a (too few digits) (ps1): want exit 2, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+FAIL: QGCL-008b (four digits) (sh): want exit 2, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-008b (four digits) (ps1): want exit 2, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+FAIL: QGCL-008c (lowercase) (sh): want exit 2, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-008c (lowercase) (ps1): want exit 2, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+FAIL: QGCL-008d (non-task) (sh): want exit 2, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-008d (non-task) (ps1): want exit 2, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+FAIL: QGCL-008e (empty) (sh): want exit 2, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-008e (empty) (ps1): want exit 2, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-009: punctuation-adjacent counts, embedded does not ===
+FAIL: QGCL-009a (bracket/colon adjacent) (sh): want Escalate-Human/exit1, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-009a (bracket/colon adjacent) (ps1): want Escalate-Human/exit1, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+FAIL: QGCL-009b (embedded in word) (sh): want continue/exit0, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-009b (embedded in word) (ps1): want continue/exit0, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-010: default reports-dir = reports/quality-gate ===
+FAIL: QGCL-010 (sh): want Escalate-Human/exit1, got exit=127 out=[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]
+FAIL: QGCL-010 (ps1): want Escalate-Human/exit1, got exit=64 out=[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.]
+=== QGCL-011: sh/ps1 output+exit parity ===
+FAIL: QGCL-011: mismatch for T-001 in r0: sh(exit=127,[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]) vs ps(exit=64,[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.])
+FAIL: QGCL-011: mismatch for T-001 in r2: sh(exit=127,[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]) vs ps(exit=64,[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.])
+FAIL: QGCL-011: mismatch for T-001 in r3: sh(exit=127,[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]) vs ps(exit=64,[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.])
+FAIL: QGCL-011: mismatch for T-001 in rc: sh(exit=127,[bash: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh: No such file or directory]) vs ps(exit=64,[The argument '/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.])
+=== QGCL-012: .ps1 ASCII-only and no BOM ===
+FAIL: QGCL-012: .ps1 script does not exist: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1
+
+Results: 0 passed, 35 failed

@@ -1,0 +1,15 @@
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+fatal: path 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh' does not exist in '7df7318e73c688a85bbe29a8e7e326b41eeae4e2'
+fatal: path 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1' does not exist in '7df7318e73c688a85bbe29a8e7e326b41eeae4e2'

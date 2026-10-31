@@ -1,0 +1,32 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-136-phase2-gates",
+  "task_id": "T-003",
+  "run_id": "RUN-epic136phase2-quality-T003-a1r1-20260715-0001",
+  "host_session_id": "SESS-epic136phase2-quality-T003-a1r1-0244",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "651e50efb2a788bc1ddd215da9a53c352b0f6eb832707ae2526a92b164a56578",
+  "previous_record_sha256": "6acb8fe05e7436673acfe78a4ead7517326856e4e80a787775c8946804283e0a",
+  "sequence": 260,
+  "allowed_input_manifest": [
+    { "path": "specs/epic-136-phase2-gates/requirements.md", "sha256": "bf84e34670a03f6df85f5e2a185430450da6f0fcf5fbd2c8e1c2799643b5f9dd" },
+    { "path": "specs/epic-136-phase2-gates/acceptance-tests.md", "sha256": "3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1" },
+    { "path": "specs/epic-136-phase2-gates/design.md", "sha256": "2db4b773edfd3f5c889d47d58f7336c875986de0435213d77f4c6669d0cec0be" },
+    { "path": "specs/epic-136-phase2-gates/tasks.md", "sha256": "b79f1c554eca57ae2fd6852fbd8a941d7c50f3d47a211db96d5704f0acaef478" },
+    { "path": "specs/epic-136-phase2-gates/traceability.md", "sha256": "853979063360d4291387dfacc5acb9e39e0cc49132337a6cd67db358b1759042" },
+    { "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md", "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542" },
+    { "path": "reports/implementation/epic-136-phase2-gates/T-003.md", "sha256": "fb98a5036c4e1fc1d4c9930a28d83435c192ffcbe57310487097a6154f8560ce" },
+    { "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1", "sha256": "4d79bf32f9911623215258510ee3289af5b1f56dff9956ffff33189d94ba1420" },
+    { "path": "tests/phase2-contract-path-helper.tests.ps1", "sha256": "ece9c15615bc4a6dd4c3a5a2d1a760f6e6b93ba71d60c7708e0484b825f353d3" },
+    { "path": "specs/epic-136-phase2-gates/verification/T-003/red.log", "sha256": "9a8a0900c0e525a2411e834ed84640028d4101f2e7da7f23b1b3006459cbe3da" },
+    { "path": "specs/epic-136-phase2-gates/verification/T-003/green.log", "sha256": "0d890f4d5084e72d4075b43de16732ada63a44f1f3988e548894a82d0afe8347" },
+    { "path": "specs/epic-136-phase2-gates/verification/live-publication-addendum.md", "sha256": "88da21180947b378dbc94a19e466865e421b66074a81eb8cbc4875f1ed40624f" },
+    { "path": "specs/epic-136-phase2-gates/verification/T-003.contract.json", "sha256": "bf791c89cf4710653ea59af727d2db854986acc5dded1e85a40c6bf5936c7f95" },
+    { "path": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "sha256": "fe309ea7655a257316779be5f99fd165b2acdcbb7a44462e161206916e0a241c" }
+  ]
+}

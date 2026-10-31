@@ -1,0 +1,2714 @@
+[
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "f48bdd7ccbad27cd36eea5b2b90c9c5bdba881ffa7bde13c0f3260a1f342f702",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "b4b1a8d93a6c12c8af9a52dd514affab2ca7a5583c69c30c9484f162967c4b9f",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "6428b8d93d2ffa5555feb75ec8f055f1de41a099d49f49162830cf790392a491",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/launch-impl-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "38ef7bba790c6b20b341c2a1d56106e45f057b171f13a9e62ca8e7cb8cd48243",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "0d1c3d45d8666ecdef2b5bfcb1b60d8bb41fcf899711214a19edcf81982a98f9",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "c2a1412cbaef691086858f66f2e1a2d1482b8efce32829b3d6fe79c706da2d7d",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/preflight-host-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "a1d1c73e3a6abaa8de7576a7dd2fc1280c98553bc98f4ae55d99ba530b1c2861",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "8219870f4906107526314d73effd29ac574bc2531962450ffbfa53e4613b6c10",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "f63eb8f5b7221d5ed0a3896b40fbcf4e0c0bc58f58e7845515194ad2ce6ee404",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "b8749c2600f5f5e4ddc38fea5fe739634a654345855eba7f4048d886ba556746",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "2281c5d20f08a8292f4a56b9f615a105e5ff67b305ca690509db189042055eab",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "e1cafe5ae58f29344833173ef7c66c08c7d9b0d9ed6de1845506506775a537f6",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/probe-nontty-review.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "4ee47bf99f5d2e4d7f8f401c26ad16e81172ff086849905c3e041cf7f63f79f7",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "bfd50df8e71eaff2811fe307dea945eabad43f761b588056d8b13bdff6c82887",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "127a74c543c5b99e9f09672460ac25bd2a7d8ef3716ba136e508551e26834a8f",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "intact baseline",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "intact read allowance",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "unrelated setup control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/ordinary.txt\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated removed-membership mismatch: expected protection lost",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "mutation read control",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Read\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "rollback",
+    "entrypoint": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "d4b91266db9fb1acbf712033abafef3756fdbd36d53126e536c52e40ccd36909",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "2c4b564aac30d80c2835694858358b71d409fbab62b0eef1d1e4d7c66e9e34a9",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "9ea092b2fcbc6447bf647955666c6e7aab2872f5fa3d07dfb33d1dfb5ab729db",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Python",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Node",
+    "argv": [
+      "rtk",
+      "proxy",
+      "node",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "PowerShell",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "-Emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "runtime": "Bash",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "--emit",
+      "exit"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight",
+    "stdin": "{\"tool_name\": \"Write\", \"tool_input\": {\"file_path\": \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/guard-preflight/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py\", \"content\": \"fixture\"}}",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "SDD\u6c7a\u5b9a\u8ad6\u30b2\u30fc\u30c8: \u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306f\u30b2\u30fc\u30c8\u30b9\u30af\u30ea\u30d7\u30c8\u30fb\u30d5\u30c3\u30af\u8a2d\u5b9a\u30fb\u30c6\u30b9\u30c8\u30d5\u30a1\u30a4\u30eb\u3092\u66f8\u304d\u63db\u3048\u3089\u308c\u307e\u305b\u3093\u3002\u3053\u308c\u3089\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u5f37\u5236\u30c1\u30a7\u30fc\u30f3\u306e\u4e00\u90e8\u3067\u3059\u3002sudo \u3067\u3082\u30d0\u30a4\u30d1\u30b9\u3067\u304d\u307e\u305b\u3093\u3002\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.\n"
+  },
+  {
+    "label": "unrelated membership mismatch",
+    "before": "8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883",
+    "mutated": "f93e2ef86e82de461e68aa58bdcba705d982a78850cd04d790674c3681f448b4",
+    "restored": "8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883"
+  },
+  {
+    "label": "workflow registration mismatch",
+    "before": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "mutated": "db46d2ef250b9231825fe6e39d9db872e915fa70a248b583779ffdbc9ba9c750",
+    "restored": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a"
+  }
+]

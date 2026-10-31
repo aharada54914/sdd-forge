@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a-task-task-reviewer-a-seq0199",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-a-0199",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "manifest": [
+    {"path":"specs/epic-159-pillar-a/requirements.md","sha256":"8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"},
+    {"path":"specs/epic-159-pillar-a/acceptance-tests.md","sha256":"b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"},
+    {"path":"specs/epic-159-pillar-a/design.md","sha256":"710f2cac8c43616e963f6170fa034aba87f946e09ef652f1dcf6d29e3cbf7eb2"},
+    {"path":"specs/epic-159-pillar-a/tasks.md","sha256":"fbb4024739fde6e32095be641a79ea8ba5622f0468e7141d1f94815a0154bde4"},
+    {"path":"specs/epic-159-pillar-a/traceability.md","sha256":"43a7971b37c65c7b31c0cbc4275014658bb3d1af8b2c4166b075c626dd0dec04"},
+    {"path":"specs/epic-159-pillar-a/ux-spec.md","sha256":"db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"},
+    {"path":"specs/epic-159-pillar-a/frontend-spec.md","sha256":"2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"},
+    {"path":"specs/epic-159-pillar-a/infra-spec.md","sha256":"82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947"},
+    {"path":"specs/epic-159-pillar-a/security-spec.md","sha256":"18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/epic-159-pillar-a/attempt-1/round-1/precheck-result.json","sha256":"25323ae602014c5518636f7f4557c7f2a853a85e91bd401b7db0fcc9c0cf2e05"},
+    {"path":"reports/task-review/epic-159-pillar-a/attempt-1/round-1/dependency-graph.json","sha256":"36d479fdd09e6e17595363385a802a19c5058f6d96549715d08922731727871c"}
+  ],
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "No AC-NNN identifiers appear in any task's `Requirements:` field (T-001..T-004 Requirements fields cite only REQ-001..REQ-006). Broadening to all AC-NNN references anywhere in tasks.md (Done When / Scope parentheticals), every cited ID (AC-001..AC-018) resolves to a real row in acceptance-tests.md's table (AC-001..AC-018, verified by grep diff). No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: `None`; T-002 Blockers: `T-001`; T-003 Blockers: `T-001, T-002`; T-004 Blockers: `T-001, T-002` (tasks.md lines 187, 316, 456, 600). All match the required `None` or comma-separated `T-\\d{3}` list format; no range notation or prose. Confirms precheck-result.json `blockers_format_valid: true`."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 (requirements.md Goals section) each appear in at least one task's Requirements field: REQ-001->T-001, REQ-002->T-002, REQ-003->T-003, REQ-004->T-004, REQ-005->T-001..T-004, REQ-006->T-001..T-004 (tasks.md lines 69, 212, 342, 481). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-018 (acceptance-tests.md) are each traced to a task via tasks.md Done When items and confirmed in traceability.md's Acceptance Mapping table (lines 37-54), e.g. AC-001->T-001, AC-005->T-002, AC-009->T-003, AC-011->T-004, AC-017/AC-014/AC-015/AC-016 mapped to all four tasks with per-task scope notes. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Requirements: REQ-001, REQ-005, REQ-006; T-002: REQ-002, REQ-005, REQ-006; T-003: REQ-003, REQ-005, REQ-006; T-004: REQ-004, REQ-005, REQ-006 (tasks.md lines 69, 212, 342, 481). Every task references at least one REQ-NNN; no orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task-title substring scan (tasks.md lines 48, 191, 320, 460) finds only T-002 ('...its spec-review smoke suite') matching the 'spec' substring; no task's scope is exclusively test-file-only (each includes CHANGELOG/docs/ADR/evidence-log deliverables), so no other task is classified as a test task by the scope criterion. T-002's Done When cites AC-005, AC-006, AC-007, AC-017 (tasks.md lines 282-297), so it is not orphaned from acceptance criteria."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001..T-004 each declare `Approval: Draft` and `Status: Planned` (tasks.md lines 52/54, 195/197, 324/326, 464/466), matching the round-1/attempt-1 requirement."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All four tasks declare `Risk: medium` and `Required Workflow: acceptance-first` (tasks.md lines 56/63, 199/206, 328/336, 468/475), which is the correct risk-gate-matrix pairing (medium -> acceptance-first). Consistent with precheck-result.json `workflow_match_precheck: PASS`."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-001..AC-013 and AC-018 are each claimed as primary test target by exactly one task (traceability.md Acceptance Mapping, lines 37-54). AC-014/AC-015/AC-016/AC-017 are cited in more than one task's Done When (tasks.md lines 168-176, 298-306, 436-444, 581-589), but each citation is explicitly scoped to that task's own deliverable ('for this task's twins', 'share for this task', '<suite> leg' per-suite runtime assertion) rather than re-testing the identical target twice at the same level — matching the shared-AC-with-distinct-scope exception."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Blockers references T-001 (from T-002, T-003, T-004) and T-002 (from T-003, T-004) all resolve to existing task IDs, confirmed against dependency-graph.json `nodes: [\"T-001\",\"T-002\",\"T-003\",\"T-004\"]`. No dangling task reference."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges (T-002->T-001, T-003->T-001, T-003->T-002, T-004->T-001, T-004->T-002) form a DAG rooted at T-001 with no back-edge; no cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001's 'inventory and its registration-forcing suite' and T-002's 'driver and its spec-review smoke suite' pair an artifact with directly-tied verification work for that same artifact (acceptable pattern 1). T-003's 'suite and record the ... RED differential' pairs the suite with its own regression-evidence recording (acceptable pattern 1). T-004 bundles the escalation leg, the template<->gate parity extension, and the python3-absent degradation path, but all three trace to the single REQ-004 ('Add the quality-gate escalation leg and the template<->gate parity EXTENSION...', requirements.md REQ-004) and design.md's explicit 'A4 parity-extension placement (decision)' section, which deliberately co-locates them in one suite/one issue (#144) rather than being an arbitrary merge of unrelated features by this task decomposition."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "Each of T-001, T-002, T-003, T-004's CHANGELOG/AC-016 Done When bullet (tasks.md lines 171-173, 301-303, 439-441, 584-586) reads: '`CHANGELOG.md` `## Unreleased` contains an entry citing #<issue>, the REQ-006 documents affected by this task are updated in the same PR, and `tests/validate-repository.sh` exits 0'. The middle clause, 'the REQ-006 documents affected by this task are updated in the same PR,' is an unmeasurable 'update <X>' criterion per the calibration's forbidden-phrase list: it names no exact file or section from the REQ-006 candidate list (README.md / USERGUIDE.md / docs/workflow-guide.md / docs/skill-reference.md / docs/agent-capability-matrix.md / PLUGIN-CONTRACTS.md / docs/troubleshooting.md / docs/contributor/*) and no content change that proves the update, so an implementer or independent quality-gate reviewer cannot determine which document(s) apply to this specific task or what change satisfies it. The bullet's other two clauses (CHANGELOG grep-target, validate-repository.sh exit code) are concrete, but this clause is not. All four tasks repeat the identical unmeasurable phrasing."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table (lines 27-31) lists T-001..T-004, matching tasks.md; its Requirement rows (lines 8-13) cite REQ-001..REQ-006, all present in requirements.md. Full-profile layer-spec anchors verified as canonical headings in the hash-bound layer docs: infra-spec.md#cicd-sequence, infra-spec.md#runtime-dependencies, infra-spec.md#deployment-topology (from '## CI/CD Sequence', '## Runtime Dependencies', '## Deployment Topology'); security-spec.md#trust-boundaries, security-spec.md#security-tests, security-spec.md#authorization (from '## Trust Boundaries', '## Security Tests', '## Authorization'). REQ-006's Layer Spec cell uses the required 'N/A — cross-layer only: <reason>' form. No dangling reference either direction."
+    }
+  ],
+  "findings": [
+    {
+      "id": "OBSERVABLE-DONE",
+      "severity": "Major",
+      "task_ids": ["T-001", "T-002", "T-003", "T-004"],
+      "finding": "tasks.md Done When bullets at lines 171-173 (T-001, citing #141), 301-303 (T-002, citing #142), 439-441 (T-003, citing #143), and 584-586 (T-004, citing #144) each contain the clause 'the REQ-006 documents affected by this task are updated in the same PR' with no named file/section and no stated content change that proves completion. This is the calibration's forbidden 'update <X> without a measurable target' pattern. Recommend naming, per task, which of the REQ-006 candidate documents (README.md / USERGUIDE.md / docs/workflow-guide.md / docs/skill-reference.md / docs/agent-capability-matrix.md / PLUGIN-CONTRACTS.md / docs/troubleshooting.md / docs/contributor/*) actually apply and what section/content change in each proves the update, or state 'no REQ-006 documents apply to this task' if none do."
+    }
+  ]
+}

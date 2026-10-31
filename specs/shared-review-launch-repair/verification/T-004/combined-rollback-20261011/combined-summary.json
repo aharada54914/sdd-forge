@@ -1,0 +1,169 @@
+{
+  "target_count": 78,
+  "hash_mode_restoration": true,
+  "owner_and_baseline_preserved": true,
+  "results": [
+    {
+      "phase": "candidate",
+      "name": "host-review-preflight",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "unified-task-launch",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "unified-launch-order",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "review-conditional-inputs",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/review-conditional-inputs.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "quality-nontty-transport",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "traceability-freeze-contract",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/traceability-freeze-contract.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "spec-review-verify-inputs",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/spec-review-verify-inputs.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "candidate",
+      "name": "hash-normalization",
+      "argv": [
+        "rtk",
+        "proxy",
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/review-hash-normalization.tests.ps1"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "restored",
+      "name": "host-review-preflight",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "restored",
+      "name": "unified-task-launch",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "restored",
+      "name": "unified-launch-order",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    },
+    {
+      "phase": "restored",
+      "name": "quality-nontty-transport",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "exit": 0,
+      "signal": null
+    }
+  ],
+  "limitations": [
+    "Disposable rollback only; not installed/native activation or formal quality verdict",
+    "Historical 26 pins retained; additional baseline bytes inventoried, with available before-hashes checked",
+    "Full suites, CI and ledger/approval/history rollback intentionally excluded"
+  ]
+}

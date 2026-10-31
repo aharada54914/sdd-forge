@@ -1,0 +1,2 @@
+Command: bash tests/task-review-precheck.tests.sh
+ok: task review precheck records heading-style blocker dependencies

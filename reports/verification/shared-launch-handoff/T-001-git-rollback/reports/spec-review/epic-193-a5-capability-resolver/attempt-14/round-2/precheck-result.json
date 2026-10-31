@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 14,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "19add7136f081c2651fbb5ecec08a5ee3e869112dd3e15681a2ca47626ae1aea",
+  "acceptance_sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "6fbc50446ad1865e3e1475ddf23c91c159ee1bd7a4d9c7aa84f8bc76415745b5",
+  "edit_summary": "Round-2 fixes for reviewer A's element-4 Critical: (1) ruling (G)'s Executed-amendment paragraph now cites the containment-refusal verification artifacts (block test suite; T-007 green log) with each artifact's own SHA-256 and the binding commit fa59914e, matching every other Amendment Re-Review Context entry's citation discipline; (2) requirements.md's Ruling Annotations mirror enumeration, which had gone under-inclusive once ruling (G) extended the annotations to design.md, now names design.md's annotated sites alongside acceptance-tests.md. No behavioral requirement changed.",
+  "reset": false,
+  "generated_at": "2026-09-03T06:09:17Z"
+}

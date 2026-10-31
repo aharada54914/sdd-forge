@@ -1,0 +1,13 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "source_sha256": "sha256:19aea9c903e124c3bca77582008d858d058145bf86c3506824a5a9aa3c69e829",
+  "workflow": {
+    "spec_profile": "lite",
+    "artifact_layout": "legacy-seven-layer",
+    "capability_enforcement": "advisory"
+  },
+  "components": {},
+  "shared_paths": [
+    { "pattern": "^docs/.*", "classification": "cross-cutting" }
+  ]
+}

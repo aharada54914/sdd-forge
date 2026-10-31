@@ -1,0 +1,26 @@
+{
+  "label": "review-agent-isolation",
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "tests/review-agent-isolation.tests.sh"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+  "stdin": "DEVNULL",
+  "environment": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/tmp",
+    "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/tmp",
+    "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/tmp",
+    "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/cache",
+    "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/config",
+    "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/data",
+    "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-005/current-full-binding-20261010/dotnet",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "T005_SOURCE_GIT_ROOT": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge"
+  },
+  "started_at": "2026-10-09T15:36:37.736055+00:00",
+  "finished_at": "2026-10-09T15:37:59.799413+00:00",
+  "duration_seconds": 82.063,
+  "exit_code": 0
+}

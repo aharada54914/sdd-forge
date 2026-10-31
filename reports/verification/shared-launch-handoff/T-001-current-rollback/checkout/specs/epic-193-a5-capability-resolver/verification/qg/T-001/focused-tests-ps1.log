@@ -1,0 +1,31 @@
+PASS: TEST-017 schema file exists
+PASS: TEST-017 schema is valid JSON
+PASS: TEST-017 $schema is draft-07
+PASS: TEST-017 $id matches contracts/*.schema.json convention
+PASS: valid fixture conforms: clean-success.json
+PASS: valid fixture conforms: conditional-facet-scoping.json
+PASS: valid fixture conforms: exact-set-two-capabilities.json
+PASS: valid fixture conforms: zero-affected-components.json
+$: additional property 'unexpected_field' not allowed
+PASS: invalid fixture rejected: additional-property.json
+$.context_binding.registry_digest: 'not-a-digest' does not match pattern '^sha256:[0-9a-f]{64}$'
+PASS: invalid fixture rejected: bad-sha256-digest.json
+$.capability_evaluations[0]: instance must not satisfy schema {'required': ['conditional_facet_evaluations']}
+PASS: invalid fixture rejected: matched-false-with-conditional-facets.json
+$: missing required property 'diagnostics'
+PASS: invalid fixture rejected: missing-required-top-level.json
+$.feature: 'Epic-193-Bad-Slug' does not match pattern '^[a-z0-9][a-z0-9-]*$'
+PASS: invalid fixture rejected: pattern-violation-feature.json
+$.capability_evaluations[0].trigger_evaluations[0].evidence[0]: missing required property 'reason'
+PASS: invalid fixture rejected: warn-outcome-missing-reason.json
+$.state: 'bogus' not in enum ['disabled-legacy', 'advisory', 'required']
+PASS: invalid fixture rejected: wrong-enum-state.json
+$.feature: expected type 'string', got 'integer'
+PASS: invalid fixture rejected: wrong-type-feature.json
+PASS: TEST-020 clean-success fixture has diagnostics: []
+PASS: TEST-018 exact-set fixture has exactly one matched and one unmatched entry
+PASS: TEST-018 zero-affected-component fixture: every trigger_evaluations is []
+PASS: TEST-019 conditional-facet scoping: declaration_index-keyed, unmatched entry omits key
+PASS: 20
+FAIL: 0
+exit=0

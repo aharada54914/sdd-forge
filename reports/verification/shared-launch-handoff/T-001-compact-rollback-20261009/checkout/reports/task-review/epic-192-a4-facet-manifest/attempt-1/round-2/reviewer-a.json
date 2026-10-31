@@ -1,0 +1,42 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-a-seq0326",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-192-a4-facet-manifest-0326",
+  "manifest": [
+    {"path": "specs/epic-192-a4-facet-manifest/requirements.md", "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"},
+    {"path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md", "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"},
+    {"path": "specs/epic-192-a4-facet-manifest/design.md", "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"},
+    {"path": "specs/epic-192-a4-facet-manifest/tasks.md", "sha256": "a957865ac15e52351daade40f8018daf010ad490614060b4ffb0d43f95d99a9a"},
+    {"path": "specs/epic-192-a4-facet-manifest/traceability.md", "sha256": "b3db2423b7ce5038284bbe9ed419846c063e096964a46b365f2b6098f0485b0e"},
+    {"path": "specs/epic-192-a4-facet-manifest/ux-spec.md", "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"},
+    {"path": "specs/epic-192-a4-facet-manifest/frontend-spec.md", "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"},
+    {"path": "specs/epic-192-a4-facet-manifest/infra-spec.md", "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"},
+    {"path": "specs/epic-192-a4-facet-manifest/security-spec.md", "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-2/precheck-result.json", "sha256": "8e247840d5410b9f337aae5af6f1effc6dd8443e83e80f4b9e5be5e848b6c67f"},
+    {"path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-2/dependency-graph.json", "sha256": "e997c1d879e5bf2c36760a83c99a408c1ac1bc441a0c9a974a0c3918447e3761"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "Every AC-NNN referenced in tasks.md (AC-001..035, AC-039..048) resolves to a matching row in acceptance-tests.md; no dangling ID found."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "All five Blockers fields (T-001: None; T-002: T-001; T-003: T-001, T-002; T-004: T-001, T-002, T-003; T-005: T-001, T-002, T-003, T-004) are literal None or comma-separated T-\\d{3} lists; no range notation, no prose in the field value. blockers_format_valid=true, matching precheck-result.json."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "REQ-001..REQ-008 each appear in at least one task's Requirements: field (REQ-001 T-001; REQ-002 T-002; REQ-003 T-003; REQ-004/REQ-005 T-004; REQ-006/REQ-008 shared across T-001..T-005; REQ-007 T-001)."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "AC-001..048 (excluding Global AC-036/037/038) all map to a task per traceability.md's Acceptance Mapping table. AC-036/037/038 are documented in traceability.md's 'Global Acceptance Criteria' section as already satisfied by this feature's own frozen spec-phase registration commit -- a stated, reasoned deferral, not an uncovered AC."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "Every task (T-001..T-005) carries a non-empty Requirements: field citing at least one REQ-NNN; no orphan task."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "Every task in this feature (whether or not its title matches the test/spec/verify heuristic) references multiple AC-NNN identifiers in its Requirements/Done When fields; no test task is orphaned from acceptance criteria."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "Round 2 (subsequent-round rule applied, pre-implementation): all five tasks carry Approval: Draft (not Approved) and Status: Planned (a valid enum member of Planned/In Progress/Blocked)."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "T-001 Risk: high / Required Workflow: tdd; T-002 Risk: high / Required Workflow: tdd (revised this round per reviewer-b's round-1 RISK-APPROPRIATE finding -- Risk Rationale now cites risk-classification-policy.md's 'public API contracts' high-tier trigger directly and explicitly disclaims the prior self-certified narrowing the policy forbids); T-003 high/tdd; T-004 high/tdd; T-005 medium/acceptance-first. Every pairing matches risk-gate-matrix.md's tier-to-workflow mapping; precheck-result.json workflow_match_precheck=PASS corroborates independently."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "No AC-NNN is claimed as the primary test target by two tasks without differentiation. AC-035 is shared across all five tasks' Requirements fields by explicit design (REQ-008's per-task CHANGELOG-bullet + version-mutation-grep obligation); traceability.md's Acceptance Mapping table documents this as 'each task's own CHANGELOG bullet + own no-version-bump grep self-check' -- a distinct per-task instantiation, not duplicate testing of one assertion."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "Every task ID referenced in a Blockers field (T-001 in T-002/T-003/T-004/T-005; T-002 in T-003/T-004/T-005; T-003 in T-004/T-005; T-004 in T-005) exists in dependency-graph.json's nodes array [T-001..T-005]."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "BLOCKERS-FORMAT is PASS, so this check ran. dependency-graph.json's edges (T-002->T-001, T-003->T-001, T-003->T-002, T-004->T-001, T-004->T-002, T-004->T-003, T-005->T-001, T-005->T-002, T-005->T-003, T-005->T-004) form a strict DAG -- every edge points to a strictly lower-numbered task, so no path can revisit a node. No cycle."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "T-001..T-004's 'and' clauses tie schema/validator authorship to the directly-associated test suite(s) for that same artifact (exception 1). T-005 bundles the vendored-copy drift-gate extension and the cross-script parity suite; its own 'Note on scope breadth (TASK-SIZE)' explains both are one coherent, non-decomposable verification concern over the four already-implemented scripts (the parity suite's AC-032 fixtures are the mechanism exercising the vendored copies the drift gate protects), not two distinct feature concerns."},
+    {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Major", "finding": "Grep across all five Done When lists found no forbidden verb/phrase (ensure, consider, unmeasured 'update X', 'verify is correct', 'works correctly', unattributed 'review X'/'confirm X'). Every Done When item names a concrete test ID plus an exit-0 shell command (e.g. 'sh tests/facet-manifest-schema.tests.sh exits 0'), a recorded log/record file (verification/T-00N/{red,green}-sh.log, metaschema-conformance.md, vendor-check.log), or a specific governance artifact (CHANGELOG.md bullet, MANIFEST.sha256 entry). No item requires editing a review-frozen artifact (design.md/tasks.md/traceability.md)."},
+    {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Major", "finding": "All five task IDs (T-001..T-005) appear in traceability.md's Task Mapping table; every requirement ID in traceability.md (REQ-001..008) exists in requirements.md. Each requirement row carries valid canonical <layer>-spec.md#<section> anchors verified against actual headings/content in security-spec.md (#trust-boundaries, #stride-analysis, #security-tests, #sbom-and-supply-chain) and infra-spec.md (#deployment-topology, #cicd-sequence, #data-residency-and-retention), or a reasoned N/A -- cross-layer only: <reason> value (REQ-008)."}
+  ],
+  "findings": []
+}

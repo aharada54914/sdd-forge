@@ -1,0 +1,7 @@
+{
+  "schema": "lite-upgrade-reason-catalog/v2",
+  "catalog_version": 1,
+  "reasons": [
+    "pii"
+  ]
+}

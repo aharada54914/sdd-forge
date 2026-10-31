@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-d-spec-spec-reviewer-a-seq0284",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-d-0284",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All five requirements map to concrete, observable test targets in acceptance-tests.md: REQ-001->TEST-001..004 (document-conformance checks against named file:line targets), REQ-002->TEST-005..011 (fixture-driven checks of a real script/workflow via a stubbed gh wrapper, plus a grep-based self-check for TEST-010's non-bypass claim), REQ-003->TEST-012..014 (data/hash conformance + existing-suite regression), REQ-004->TEST-015..017 (host-neutrality review + twin-pair existence check), REQ-005->TEST-018..019 (CHANGELOG/doc-surface conformance). AC-008 and AC-017 rely on one-time recorded manual verification rather than automated CI assertions, but per calibration this is acceptable since the acceptance outcome (a filed issue; both host paths populated) remains a concrete, externally observable artifact, not vague intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goals entry (REQ-001..REQ-005) has at least one corresponding Acceptance Criterion: REQ-001<-AC-001..004, REQ-002<-AC-005..011, REQ-003<-AC-012..014, REQ-004<-AC-015..017, REQ-005<-AC-018..019. acceptance-tests.md's table cross-references every AC back to its Requirement ID with a 1:1 Test ID, so the goal->AC->test chain is unbroken."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete artifact/state changes: exact file:line targets and verbatim required text (AC-001..004), exact workflow trigger/permission fields (AC-005), exact process exit-code/comment-marker behavior on fetch failure (AC-006), exact issue-creation/dedup behavior (AC-007), a hash-comparison-based non-mutation assertion for the v1 registry (AC-013). None of the 19 ACs rests on unmeasurable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes: implementing Pillar C's C1 schema work, `check-model-freshness.sh` ever writing to the registry, building a precise official-page parser, authoring a `.ps1` twin of the script itself, extending the two existing v1/v2 parity suites, adding a new standalone WFI-checklist artifact, modifying `self-improvement.yml`, and Phase 2 tasks.md/traceability.md — each with a one-line rationale tied back to a specific design/investigation citation, bounding a feature that could otherwise have expanded into registry-write automation or a broader self-improvement-workflow rewrite."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: data (v1 registry frozen byte-for-byte, AC-013), migration/dependency (External Blocker on Pillar C's #149 for T-002/T-003, explicitly re-verified at each task's actual start per Main Workflows and Assumptions), security (Security Boundaries table B1-B4 covering untrusted-fetch handling, registry write-scope limits, and the protected-file boundary), and approval boundary (T-003's `.github/workflows/test.yml` registration is staged under `specs/epic-159-pillar-d/human-copy/` with a SHA-256 manifest and copied in only by a human maintainer, per AC-011/Roles and Permissions/Edge Cases — correctly incorporating the epic-136 guard_invariants.py enforcement-chain protection this task's own investigation.md (INV-012) did not surface)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's High-risk claim (T-002/T-003 depend on a concurrently in-flight sibling spec, epic-159-pillar-c's #149) is paired with an explicit validation surface: an External Blocker tracked at Main Workflows/task-start precondition, re-verified against the landed schema before implementation (Assumptions) rather than trusted from this spec's snapshot. The Medium-risk fetch-heuristic imprecision and protected-file-miss risks are likewise each tied to a specific AC or design.md citation as their mitigation/validation path."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/spec-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "1c366180c9741a732cd74105f2d1e81f666022dd9452cde11f8a3cdbf5890373"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "ccce6b9fcf23804bda995f4b66b9e81778611e4381394467834f5a808b63aaa6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c983567f674d3308ddc2c3d3e79c4eb08e08165b2c29e30a87d5718c2f55c3a0"
+    }
+  ]
+}

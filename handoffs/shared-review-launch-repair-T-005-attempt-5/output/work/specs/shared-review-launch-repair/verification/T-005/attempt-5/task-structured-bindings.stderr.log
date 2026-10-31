@@ -1,0 +1,18 @@
+test_enforced_control_prompt_numbers_every_exact_hash_in_required_order (__main__.TaskStructuredOutputTests.test_enforced_control_prompt_numbers_every_exact_hash_in_required_order) ... ok
+test_formal_transcript_requires_final_single_output_tool (__main__.TaskStructuredOutputTests.test_formal_transcript_requires_final_single_output_tool) ... ok
+test_generated_policy_admits_output_only_for_task (__main__.TaskStructuredOutputTests.test_generated_policy_admits_output_only_for_task) ... ok
+test_json_review_missing_schema_capability_fails_closed (__main__.TaskStructuredOutputTests.test_json_review_missing_schema_capability_fails_closed) ... ok
+test_json_review_schema_and_output_only_agent_capability (__main__.TaskStructuredOutputTests.test_json_review_schema_and_output_only_agent_capability) ... ok
+test_json_stages_cannot_revert_to_read_bash_only_profile (__main__.TaskStructuredOutputTests.test_json_stages_cannot_revert_to_read_bash_only_profile) ... ok
+test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict (__main__.TaskStructuredOutputTests.test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict) ... ok
+test_probe_order_accepts_only_final_task_output_call (__main__.TaskStructuredOutputTests.test_probe_order_accepts_only_final_task_output_call) ... ok
+test_probe_output_result_matching_and_completion_order (__main__.TaskStructuredOutputTests.test_probe_output_result_matching_and_completion_order) ... ok
+test_probe_scratch_uses_existing_ledger_parent (__main__.TaskStructuredOutputTests.test_probe_scratch_uses_existing_ledger_parent) ... ok
+test_quality_plaintext_command_profile_is_unchanged (__main__.TaskStructuredOutputTests.test_quality_plaintext_command_profile_is_unchanged) ... ok
+test_session_guard_output_tool_is_task_only (__main__.TaskStructuredOutputTests.test_session_guard_output_tool_is_task_only) ... ok
+test_strict_postflight_keeps_raw_json_and_structured_field_bound (__main__.TaskStructuredOutputTests.test_strict_postflight_keeps_raw_json_and_structured_field_bound) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.226s
+
+OK

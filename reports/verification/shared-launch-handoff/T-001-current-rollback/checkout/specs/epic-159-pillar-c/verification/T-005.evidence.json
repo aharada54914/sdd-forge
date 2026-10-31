@@ -1,0 +1,59 @@
+{
+  "task_id": "T-005",
+  "feature": "epic-159-pillar-c",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "quality_report": "reports/quality-gate/20260719T055902Z-epic-159-pillar-c-T-005.md",
+  "verification_contract": "specs/epic-159-pillar-c/verification/T-005.contract.json",
+  "git_commit": "1a486fe8ee5f79af493c5594ad9efec14ac528e7",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-005.contract.json",
+      "sha256": "6698e799629bc15e4c45f53cdc9cd5e190d5b752d151977f20a9ae21a397e9ae"
+    },
+    {
+      "path": "reports/quality-gate/20260719T055902Z-epic-159-pillar-c-T-005.md",
+      "sha256": "527133468dab764e61a78a83ca74d67b90cc5c0ae09d5e7359e92469c738b5a5"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/qg/T-005/focused-tests.log",
+      "sha256": "a67eea9e961f2e7df2389bb10c2746a178845618f4bca7c16bc06e6b0aceba7e"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/qg/T-005/placeholder-scan.log",
+      "sha256": "18acab7046cead5c138740ee2cd0235377d3ceed4aa95b927df0df8de72665e9"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/qg/T-005/regression.log",
+      "sha256": "c1024c32e4c1f5fe768222c48d190ab406e178a3e786272dd1728bf7f5607e91"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/qg/T-005/task-state.log",
+      "sha256": "7bb5fafeb5e2ff7ee8ac88a48dd73b97595b02dfd675fdb8129bebfee784d4cb"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/qg/T-005/traceability.log",
+      "sha256": "0cf968f082070afd8b1b59407e28d41d0d119768b8f2e89bd8612f60afd03448"
+    }
+  ]
+}

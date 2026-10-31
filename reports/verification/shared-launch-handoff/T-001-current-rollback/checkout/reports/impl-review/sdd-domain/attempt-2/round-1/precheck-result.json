@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "sdd-domain",
+  "attempt": 2,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac",
+  "requirements_sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20",
+  "acceptance_sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7",
+  "layer_sha256": {"ux-spec.md":"187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466","frontend-spec.md":"70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39","infra-spec.md":"ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a","security-spec.md":"bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+  "input_sha256": "a952e636de7cc728e657f3bd4cf9175fd1b7c7939b3c947cfdabfe4b323965b0",
+  "generated_at": "2026-07-06T04:09:41Z"
+}

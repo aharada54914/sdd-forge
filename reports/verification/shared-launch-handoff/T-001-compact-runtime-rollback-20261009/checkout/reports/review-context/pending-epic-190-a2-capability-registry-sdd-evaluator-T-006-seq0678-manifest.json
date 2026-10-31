@@ -1,0 +1,226 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-190-a2-capability-registry",
+  "task_id": "T-006",
+  "run_id": "RUN-epic-190-a2-capability-registry-qg-T-006-seq0678",
+  "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-006-0678",
+  "sequence": 678,
+  "previous_record_sha256": "e2475a6776f0107b89d53a66148bb2a37697f9717b5932df40c15cb14e79a737",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2dedc4a7f5294a8a0b54411285f6b5c73c3003aafd64c238c48e15be78983f56",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.ps1",
+      "sha256": "3fc9897e8c20ed70d574e3a46d438695bbcbf114b2fd0a851779fd95c7cd6c65"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.sh",
+      "sha256": "7c69e74494762742b4ee2326e43502066e304ab4ca8db92a3135c073ad7fab17"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+      "sha256": "6532c0adce2fbc0cacc7dd2d855a2b598956a9bad459b0668a58260471f2cd8b"
+    },
+    {
+      "path": "reports/implementation/epic-190-a2-capability-registry/T-006.md",
+      "sha256": "caa05d30b3774574ad99d972d7adb8010630f72245d7a47a4e022aafa8178fec"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+      "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/design.md",
+      "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+      "sha256": "a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+      "sha256": "b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/README.md",
+      "sha256": "b11052f1f9e36d3419b395e7de17e09f3e9543765d83a2f150ee0b58827924dc"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/references/guard-invariants.json.candidate",
+      "sha256": "639fa2cc5ec9b02fded7266057e8e968dff839b3b6bbbbff4b43b158dae3a6c8"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate",
+      "sha256": "3a7b718d2d343609a5cc139cc4af895a43a835a05aa29f098a42cf0dde601dbd"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js.candidate",
+      "sha256": "5b152b9f9337f1ba67da69be850896d79a73d0462169eb1dc2cb1de71320f612"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1.candidate",
+      "sha256": "588f607bfc97486efa204f33f0634533edc0f3d613d86a3a98612aac424db344"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh.candidate",
+      "sha256": "b253ed97472f61f2b4357797f0c29934ca9b368b03a468840906ad23cd27eb9b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py.candidate",
+      "sha256": "26858e3ec91240632250d1ba31bca7f93e336a54a562cc96ba287ce7b3015590"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+      "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml",
+      "sha256": "a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "639fa2cc5ec9b02fded7266057e8e968dff839b3b6bbbbff4b43b158dae3a6c8"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "3a7b718d2d343609a5cc139cc4af895a43a835a05aa29f098a42cf0dde601dbd"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "5b152b9f9337f1ba67da69be850896d79a73d0462169eb1dc2cb1de71320f612"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "588f607bfc97486efa204f33f0634533edc0f3d613d86a3a98612aac424db344"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "b253ed97472f61f2b4357797f0c29934ca9b368b03a468840906ad23cd27eb9b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "26858e3ec91240632250d1ba31bca7f93e336a54a562cc96ba287ce7b3015590"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+      "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/requirements.md",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+      "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/tasks.md",
+      "sha256": "dc868dc8e3069f3955e61f948e9cddf10de0df4afec6673b85f9950a36b1a3ce"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/traceability.md",
+      "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+      "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle3-green-ps1.log",
+      "sha256": "27682320978b1f1c2a096cb8f282061328787fd28a164d92d362e6ae19f0f39a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle3-green-sh.log",
+      "sha256": "ec1f3fc9339b27ad69ee5828d33346b63631cf007bb7e2985b370f345ebb158e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle3-red-ps1.log",
+      "sha256": "3e4473e67c4b0255220c6c242f13b51afce9b477e8c8416a29fa2bb816cf8d8a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle3-red-sh.log",
+      "sha256": "977fae4dae4e9b7cc503a9ec39bdd30db31c493bbae831c61ac2ba5ed47a169a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle4-green-ps1.log",
+      "sha256": "9e67832b9329d2dcb9c4dbdb3f9d67ab5ed95fe8d664840f04ab788d5d3689fe"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle4-green-sh.log",
+      "sha256": "626918cff566f016eb029cab72506c42702c7f61f46f6f81143819ec0a208fe7"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle4-human-apply-rehearsal.log",
+      "sha256": "0eebe5f90eda5d8fe8b4f23a197ee1aa5c14134a5adc528a6be065ee202d8b19"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle4-red-ps1.log",
+      "sha256": "a1b6bc5104aab960afc87647833fb3fbb590f448cd3673a153123db7eca4d6e2"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/cycle4-red-sh.log",
+      "sha256": "0140fa20f07052f617958849be2c769644797eba7826642492e45280b7331701"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/green-ps1.log",
+      "sha256": "77982d1c3b135b470c77ba3d4a96a23a0380a8070f345f5de3f5c08ed021358a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/green-sh.log",
+      "sha256": "43f2f80b5cb9565c163f51eea8458ddcebed57572a39e786f902326eae367751"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/red-ps1.log",
+      "sha256": "30b9e15fd0c469814d55b7e6b82985bc83cb094be5042af7263c327da97327e5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-006/red-sh.log",
+      "sha256": "d236fcdac6f38bc4c922529f6c68cf8faf84665478dcd948b63338f6dccbd854"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-clean-expected.json",
+      "sha256": "c6fbf948d61c82b9dd8a2f0b6168061cbb1f9552d4758b392f7f3ddee82c5ce2"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-clean-registry.json",
+      "sha256": "e91b1fc0599a1854ba21e92e5dc485f5bc6cb48a52c65cc0ef7d18cf5dc5fcab"
+    },
+    {
+      "path": "tests/fixtures/capability-registry/gate-capabilities-mutated.json",
+      "sha256": "74189d9668d41b3dd294627d0f9009fa26e836aa77ff81b1c0b474d2efb67c76"
+    },
+    {
+      "path": "tests/generate-gate-capabilities.tests.ps1",
+      "sha256": "2e9a957d8e3637654f5ad04746e4de2ecb287e47f4e749db9c0f9a054f861ac1"
+    },
+    {
+      "path": "tests/generate-gate-capabilities.tests.sh",
+      "sha256": "8df91106d78d7c6a979569094bf9af66bdef3a8716abd910bd02601b716d4805"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "eba858c53e1fb1ad8f485153a7d710adf359b30d1795e2337ffc4989f06802a3"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "6433743a86830f52c3458dce50240d84f9ec9712fdfd9f88208d65adb6580beb"
+    }
+  ]
+}

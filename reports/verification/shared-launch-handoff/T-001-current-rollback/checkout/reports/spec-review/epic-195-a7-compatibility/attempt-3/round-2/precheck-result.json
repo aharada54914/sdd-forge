@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a95d3f68a4394bf50d9f6991483ab84af6d812ca72f633f704aed71b0241d6c9",
+  "acceptance_sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9ee96a43b7b59932633e30ba5481beaabdc94a5dd3bf3d873cd1f0c6ad146707",
+  "edit_summary": "Complete the 7652d01b amendment both round-1 reviewers found half-done: (1) requirements.md AC-009's 'assert_artifacts_schema and assert_terminal are themselves unmodified' clause now mirrors acceptance-tests.md TEST-009's amended wording (assert_artifacts_schema fully unmodified; assert_terminal locked byte-identical at the re-baselined hashes with exactly one sanctioned change, the _loop_trace_emit done-transition:assert-terminal call design.md's producer table and AC-026 place inside it), closing the REQ-TESTABILITY contradiction. (2) TEST-009's dangling cross-references (TEST-009.2 / 'T-005 cycle-2 correction' / 'pre-T-006 body') are replaced by the two explicit locked hash values and their authoritative in-repo locations (tests/loop-inventory.tests.sh EXPECTED_TERMINAL_SHA and its ps1 twin), with the provenance retained but plainly labelled a historical record of this epic's own later-phase implementation cycle (specs/epic-195-a7-compatibility/tasks.md T-005/T-006), not a pre-commitment — closing the AMBIGUITY finding's three-way reading.",
+  "reset": false,
+  "generated_at": "2026-08-23T13:14:54Z"
+}

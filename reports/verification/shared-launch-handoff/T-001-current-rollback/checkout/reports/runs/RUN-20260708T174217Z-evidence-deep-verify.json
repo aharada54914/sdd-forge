@@ -1,0 +1,19 @@
+{
+  "schema": "sdd-run-record/v1",
+  "run_id": "20260708T174217Z-evidence-deep-verify",
+  "generated": "2026-07-08T17:42:17Z",
+  "feature": "evidence-deep-verify",
+  "track": "full",
+  "model_ids": {
+    "main": "claude-fable-5",
+    "reviewers": "opus(eval)/sonnet-haiku(impl)"
+  },
+  "plugin_version": "unknown",
+  "active_wfis": ["WFI-005"],
+  "metrics": {
+    "tasks": {"done": 8, "blocked": 0, "total": 8},
+    "first_pass_gate": {"passed_first_try": 0, "total": 8},
+    "gate_reports": {"total": 24, "blocked": 6, "max_runs_single_task": 3},
+    "review_tickets": {"critical": 0, "major": 4, "minor": 2}
+  }
+}

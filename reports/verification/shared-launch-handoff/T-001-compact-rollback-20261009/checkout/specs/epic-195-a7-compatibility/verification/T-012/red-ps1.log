@@ -1,0 +1,7 @@
+markdown AST parse failure: malformed frontmatter entry at line 2
+Exception: /private/tmp/epic195-t010/tests/structural-compatibility-live-refresh.tests.ps1:61
+Line |
+  61 |  … f ($LASTEXITCODE -ne 0) { throw "invalid markdown structure: $Path" }
+     |                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | invalid markdown structure: requirements.md
+expected_failure_exit=1

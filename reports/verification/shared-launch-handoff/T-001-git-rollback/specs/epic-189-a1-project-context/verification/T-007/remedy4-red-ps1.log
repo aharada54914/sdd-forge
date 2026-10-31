@@ -1,0 +1,102 @@
+PASS: TEST-033a fresh single-target publish: tool exits 0
+PASS: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033b publish over existing live content: content replaced
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 16)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 16)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 10)
+PASS: TEST-033e no live target created from a symlinked source
+PASS: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+PASS: TEST-033g staged-candidate hash mismatch denied (STAGED_CANDIDATE_HASH_MISMATCH)
+PASS: TEST-033g live target unchanged on preparation-stage failure
+PASS: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+PASS: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+PASS: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+PASS: TEST-033i crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033j mid-batch crash leaves an observable partial state right after the crash
+PASS: TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033l a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (JOURNAL_SHAPE_INVALID)
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+PASS: TEST-033n recovery-only invocation with nothing stale exits 0
+PASS: TEST-033n recovery-only invocation reports recovered:0
+PASS: TEST-033o substitution-resistance fixture: tool still completes successfully
+PASS: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+PASS: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+PASS: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)
+PASS: TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)
+PASS: TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+PASS: TEST-033r ps1 journal has no BOM (leading bytes 7b2273 = open-brace quote s)
+PASS: TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)
+PASS: TEST-033s embedded-space path publishes correctly (exit 0, correct content)
+PASS: TEST-033s journal preserves the embedded-space live_path byte-exact
+PASS: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery
+PASS: TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)
+PASS: TEST-033t [space] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [space] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [tab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [tab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [leadtrail] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [leadtrail] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dquote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dquote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [comma] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [comma] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [star] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [star] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [question] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [question] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dollar] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dollar] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [backtick] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [backtick] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [squote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [squote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [utf8] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [utf8] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [vtab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [vtab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [soh] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [soh] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [formfeed] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [formfeed] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [esc] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [esc] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [unitsep] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [unitsep] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t ps1 rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER)
+FAIL: TEST-033t ps1 rejects a literal CR: exit 13 category MANIFEST_INVALID
+PASS: TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy
+PASS: TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)
+FAIL: TEST-033v [symlink] recovery fails closed: exit 0 category 
+FAIL: TEST-033v [symlink] journal and pre/ backup RETAINED: journal=False backup=False
+FAIL: TEST-033v [symlink] recovery converges to ALL-PRE once the trigger is undone: exit 0
+PASS: TEST-033v [symlink] journal/staging litter fully cleaned up after convergence
+FAIL: TEST-033v [renameaside] recovery fails closed: exit 0 category 
+FAIL: TEST-033v [renameaside] journal and pre/ backup RETAINED: journal=False backup=False
+FAIL: TEST-033v [renameaside] recovery converges to ALL-PRE once the trigger is undone: exit 0
+PASS: TEST-033v [renameaside] journal/staging litter fully cleaned up after convergence
+FAIL: TEST-033v [chmod000] recovery fails closed: exit 0 category 
+FAIL: TEST-033v [chmod000] journal and pre/ backup RETAINED: journal=False backup=False
+FAIL: TEST-033v [chmod000] recovery converges to ALL-PRE once the trigger is undone: exit 0
+PASS: TEST-033v [chmod000] journal/staging litter fully cleaned up after convergence
+FAIL: TEST-033w PREPARE-time symlinked destination-parent denies the whole batch: exit 16 category RENAME_FAILED
+PASS: TEST-033w real content behind the symlink is unchanged (never silently overwritten)
+FAIL: TEST-033w no journal/staging litter left behind by the denied batch: litter remains
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+88 passed, 12 failed

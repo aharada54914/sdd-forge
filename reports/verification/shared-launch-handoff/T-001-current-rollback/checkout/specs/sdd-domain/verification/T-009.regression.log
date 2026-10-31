@@ -1,0 +1,343 @@
+
+
+
+
+
+Describing check-domain-conformance script exists and matches check-design-system conventions
+ [+] both script twins exist 409ms
+ [+] quality-gate SKILL.md registers check-domain-conformance immediately after check-design-system 130ms
+Describing TEST-009 / TEST-015: check-domain-conformance real script execution against fixtures
+   Context Scenario 1: conformant fixture -> 0 findings, exit 0
+    [+] exits 0 with no findings 838ms
+   Context Scenario 2: deviant-term fixture -> warn finding, exit 0
+    [+] exits 0 and reports a WARN finding naming the unrecognized context 637ms
+   Context Scenario 3: deviant-term fixture with SDD_DOMAIN_ENFORCE=error -> exit 1
+    [+] exits 1 and reports FAILED when SDD_DOMAIN_ENFORCE=error 626ms
+   Context Scenario 4: two-context fixture with a declared relation -> pass
+    [+] exits 0 with no findings when the relation is declared (AC-015) 602ms
+   Context Scenario 5: two-context fixture with an undeclared relation -> warn
+    [+] exits 0 but reports a WARN finding when no relation is declared (AC-015) 629ms
+   Context Scenario 6: no domain/ -> skip, exit 0
+    [+] exits 0 with exactly one skip line when domain/ is absent 534ms
+   Context Bad invocation
+    [+] exits 1 when the project root does not exist 579ms
+Describing check-domain-conformance.sh (bash twin) parity via WSL/Git-Bash if available
+ [+] the bash twin passes the conformant fixture when a bash/sh interpreter is available 1.76s
+Describing domain-contract.v1.schema.json
+ [+] the schema file itself parses as valid JSON 102ms
+ [+] declares the domain-contract/v1 schema const 32ms
+ [+] declares the full contextRelation pattern enum 36ms
+   Context valid fixture
+    [+] passes schema validation with zero errors 65ms
+   Context corrupt fixture: missing required field (meta)
+    [+] is rejected for missing meta 54ms
+   Context corrupt fixture: wrong schema const value
+    [+] is rejected for schema = domain-contract/v2 47ms
+   Context corrupt fixture: invalid pattern enum value
+    [+] is rejected for an unrecognized contextRelation pattern 48ms
+   Context corrupt fixture: missing required aggregate field
+    [+] is rejected when an aggregate is missing invariants 55ms
+Describing domain-reverse SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 68ms
+ [+] documents invoking investigate-codebase as the seed source 31ms
+ [+] declares all five required candidate-seed sections 30ms
+ [+] documents the load-bearing field names for each section 30ms
+ [+] states domain-reverse never writes into domain/ 29ms
+ [+] requires every candidate to carry INV-NNN evidence 30ms
+Describing Fixture investigation.md -> worked-example candidate seed
+ [+] fixture investigation.md exists and contains an INV-NNN Findings table 57ms
+ [+] fixture contains at least one screen finding 29ms
+ [+] fixture contains at least one api finding 37ms
+ [+] fixture contains at least one business-rule finding 29ms
+ [+] worked seed has all five required sections present 31ms
+ [+] worked seed is non-empty: at least one candidate context (Done-When) 29ms
+ [+] worked seed is non-empty: at least one candidate term (Done-When) 29ms
+ [+] every candidate context name is kebab-case per domain-contract.v1 pattern 29ms
+ [+] every candidate aggregate hint name is PascalCase per domain-contract.v1 pattern 31ms
+ [+] every candidate carries at least one INV-NNN evidence reference 40ms
+ [+] every evidence INV-NNN id traces back to a row that actually exists in the fixture 36ms
+ [+] excludes non-domain categories (dependency, test-coverage) from the seed 31ms
+Describing domain-interviewer SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 81ms
+ [+] documents all seven canonical checkpoint paths from AC-002 26ms
+ [+] documents the domain-contract.json regeneration step after every stage 30ms
+ [+] documents seed intake for text, local path, issue URL, and reverse candidate seed 31ms
+ [+] documents resume-on-interruption stage detection order 28ms
+ [+] documents create-only stage checkpointing 28ms
+ [+] documents the plain-language seed-failure error contract (AC-004) 28ms
+ [+] does not instruct reading the sdd-bootstrap c4-container template at runtime 30ms
+Describing domain-interviewer templates exist
+ [+] template domain-story.template.md exists 41ms
+ [+] template event-storming.template.md exists 26ms
+ [+] template ubiquitous-language.template.md exists 29ms
+ [+] template context-map.template.md exists 27ms
+ [+] template aggregate.template.md exists 27ms
+ [+] template message-flow.template.md exists 27ms
+ [+] template c4-container.template.md exists 27ms
+Describing Worked fixture: eight-artifact domain/ tree (AC-002)
+ [+] produces all seven canonical Markdown checkpoint paths from AC-002 74ms
+ [+] produces the eighth artifact domain-contract.json 31ms
+ [+] context-map.md carries Domain-Model-Status: Pending (AC-007 initial value) 30ms
+ [+] domain-contract.json validates against contracts/domain-contract.v1.schema.json (AC-003) 34ms
+ [+] the schema file itself is present and parses (sanity check on the T-001 dependency) 30ms
+ [+] aggregate card name matches PascalCase pattern required by the schema 29ms
+ [+] context name matches kebab-case pattern required by the schema 28ms
+Describing Resume-on-interruption: worked scenario (stages 1-3 checkpointed)
+ [+] SKILL.md documents the same stage-order detection algorithm this test simulates 108ms
+ [+] detects stages 1-3 as already checkpointed and resumes at stage 4 (Done-When) 34ms
+ [+] does not report a resume stage before 4 when 1-3 are present 30ms
+ [+] restarting from stage 1 would be wrong for this fixture (regression guard) 30ms
+ [+] stage 1-3 fixture content remains byte-identical after simulating the resume decision 33ms
+ [+] a completed all-seven-stage tree reports no resume point (interview already complete) 64ms
+Describing Error-path fixtures (AC-004): unreadable local seed and unreachable seed URL
+ [+] an unreadable local seed path produces a plain-language error naming that path 57ms
+ [+] an unreadable local seed path never invents seed content 29ms
+ [+] an unreachable seed URL produces a plain-language error naming that URL 32ms
+ [+] an unreachable seed URL never invents seed content 28ms
+ [+] SKILL.md documents this exact never-invent-content error contract 30ms
+Describing domain-interviewer templates are English (AC-013)
+   Context Template: domain-story.template.md
+    [+] exists 59ms
+    [+] contains no non-ASCII literal characters 41ms
+    [+] uses the {{placeholder}} convention for at least one field 30ms
+    [+] declares which of the seven stages it belongs to 29ms
+    [+] carries an Open Questions section 29ms
+    [+] carries an Unknowns section that instructs never inventing an answer 30ms
+   Context Template: event-storming.template.md
+    [+] exists 44ms
+    [+] contains no non-ASCII literal characters 29ms
+    [+] uses the {{placeholder}} convention for at least one field 28ms
+    [+] declares which of the seven stages it belongs to 27ms
+    [+] carries an Open Questions section 28ms
+    [+] carries an Unknowns section that instructs never inventing an answer 28ms
+   Context Template: ubiquitous-language.template.md
+    [+] exists 38ms
+    [+] contains no non-ASCII literal characters 35ms
+    [+] uses the {{placeholder}} convention for at least one field 28ms
+    [+] declares which of the seven stages it belongs to 28ms
+    [+] carries an Open Questions section 27ms
+    [+] carries an Unknowns section that instructs never inventing an answer 25ms
+   Context Template: context-map.template.md
+    [+] exists 40ms
+    [+] contains no non-ASCII literal characters 28ms
+    [+] uses the {{placeholder}} convention for at least one field 27ms
+    [+] declares which of the seven stages it belongs to 20ms
+    [+] carries an Open Questions section 31ms
+    [+] carries an Unknowns section that instructs never inventing an answer 30ms
+   Context Template: aggregate.template.md
+    [+] exists 41ms
+    [+] contains no non-ASCII literal characters 31ms
+    [+] uses the {{placeholder}} convention for at least one field 30ms
+    [+] declares which of the seven stages it belongs to 28ms
+    [+] carries an Open Questions section 28ms
+    [+] carries an Unknowns section that instructs never inventing an answer 30ms
+   Context Template: message-flow.template.md
+    [+] exists 39ms
+    [+] contains no non-ASCII literal characters 28ms
+    [+] uses the {{placeholder}} convention for at least one field 28ms
+    [+] declares which of the seven stages it belongs to 28ms
+    [+] carries an Open Questions section 26ms
+    [+] carries an Unknowns section that instructs never inventing an answer 28ms
+   Context Template: c4-container.template.md
+    [+] exists 39ms
+    [+] contains no non-ASCII literal characters 28ms
+    [+] uses the {{placeholder}} convention for at least one field 28ms
+    [+] declares which of the seven stages it belongs to 28ms
+    [+] carries an Open Questions section 27ms
+    [+] carries an Unknowns section that instructs never inventing an answer 28ms
+Describing ubiquitous-language.template.md structural requirements (AC-013)
+ [+] carries a canonical-term column 48ms
+ [+] carries a JA translation column 27ms
+ [+] carries a forbidden-synonyms column 28ms
+ [+] the Terms table header declares canonical, JA, and forbidden-synonyms columns together in one row 29ms
+ [+] documents that the canonical column, not the JA column, is what domain-contract.json stores 28ms
+Describing context-map.template.md carries the Domain-Model-Status field (AC-007)
+ [+] declares Domain-Model-Status with an initial value of Pending 42ms
+ [+] documents the full Pending|Reviewed|Approved value set 29ms
+ [+] documents that only a human may set Approved 26ms
+Describing aggregate.template.md covers the Data Plan axes (design.md)
+ [+] covers root entity 46ms
+ [+] covers invariants 27ms
+ [+] covers transaction boundary 27ms
+ [+] covers lifecycle 27ms
+ [+] documents the PascalCase naming pattern and card path consistent with the schema 29ms
+Describing c4-container.template.md is domain-interviewer's own adapted copy
+ [+] exists under domain-interviewer's own templates directory, not sdd-bootstrap's 47ms
+ [+] retains the generic C4Container mermaid structure it was adapted from 29ms
+ [+] adds domain-interviewer-specific traceability back to the Context Map stage 28ms
+Describing domain-sync SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 60ms
+ [+] documents the three-step detection order: domain/ existence, Domain-Model-Status, contract validation 30ms
+ [+] documents exactly one skip line when domain/ is absent (AC-010) 28ms
+ [+] documents exactly one skip line when context-map.md is missing 28ms
+ [+] documents the non-Approved-status warning per the Edge Case (warns and proceeds without injection) 32ms
+ [+] documents the corrupt/invalid contract warning per the Edge Case 29ms
+ [+] documents the Bounded-Context: field injection format for a single context 29ms
+ [+] documents the two-context Bounded-Context: field format with relation pattern (Edge Case) 30ms
+ [+] documents the undeclared-relation fallback note 28ms
+ [+] documents aggregate card cross-references injected into design.md 28ms
+ [+] documents the never-block guarantee 27ms
+ [+] documents it is never the writer of domain/ files (domain-interviewer owns that) 29ms
+ [+] documents no-matching-context outcome (feature has no domain overlap) 29ms
+Describing sdd-bootstrap-interviewer SKILL.md calls domain-sync at Phase 1 start
+ [+] references domain-sync in the Intake And Investigation section 43ms
+ [+] documents that absence of domain/ produces unchanged behavior (AC-010) 29ms
+ [+] the domain-sync call happens before any Phase 1 artifact is generated 30ms
+Describing Worked fixture: Approved domain/ model injects Bounded-Context into requirements.md
+ [+] domain-contract.json validates against contracts/domain-contract.v1.schema.json 62ms
+ [+] context-map.md carries Domain-Model-Status: Approved (precondition for injection) 29ms
+ [+] requirements.md contains a Bounded-Context: field 30ms
+ [+] the Bounded-Context: field names a context that actually exists in domain-contract.json 38ms
+ [+] the Bounded-Context: field is placed before ## Overview (metadata block convention) 31ms
+Describing Worked fixture: two-context feature with declared relation (Edge Case)
+ [+] the contract declares a relation between the two contexts 58ms
+ [+] SKILL.md documents composing the two-context field as '<a>, <b> (<pattern>)' 30ms
+ [+] a worked two-context Bounded-Context field matches the documented format 28ms
+Describing sanity: schema file used by domain-sync is present and parses
+ [+] schema file exists and parses 42ms
+Describing AC-010: sdd-bootstrap-interviewer edit is additive-only (git diff --numstat)
+ [+] git diff --numstat reports exactly one changed-file line for the bootstrap SKILL.md 334ms
+ [+] the numstat line reports zero deleted lines (additive-only) 37ms
+ [+] the numstat line reports at least one added line (the new step was actually inserted) 30ms
+ [+] the unified diff contains no removed content lines (lines starting with a single '-') 31ms
+ [+] the unified diff's added lines are contiguous and scoped to the Intake And Investigation section 32ms
+Describing AC-010: domain-sync single-skip-line contract (documented, cross-checked against the bootstrap edit)
+ [+] the inserted bootstrap step documents proceeding exactly as if domain/ were absent on skip/warning 45ms
+ [+] the inserted bootstrap step explicitly claims no other change to Phase 1 flow 29ms
+ [+] the inserted bootstrap step cites AC-010 directly 27ms
+ [+] domain-sync documents exactly one skip line for the absent-domain/ case 33ms
+ [+] domain-sync's detection logic runs its checks in order and stops at the first failing check (no double-skip) 30ms
+Describing Worked fixture: absence of domain/ produces the documented single skip line and no injection
+ [+] reports exactly the documented skip line when domain/ is absent 48ms
+ [+] performs no injection when domain/ is absent 29ms
+ [+] the fixture project genuinely has no domain/ directory (sanity check on the test setup) 31ms
+Describing Fixture: editing stage 4 (Context Map) and re-running update
+ [+] pre-update fixture status is Approved (sanity check before reset) 142ms
+ [+] identifies stages 1-3 as upstream of edited stage 4 30ms
+ [+] identifies stages 4-7 as downstream (re-run) of edited stage 4 30ms
+ [+] stage 1 (upstream) is byte-identical before and after update 30ms
+ [+] stage 1 (upstream) hash matches the original pre-update fixture hash 27ms
+ [+] stage 2 (upstream) is byte-identical before and after update 28ms
+ [+] stage 2 (upstream) hash matches the original pre-update fixture hash 29ms
+ [+] stage 3 (upstream) is byte-identical before and after update 28ms
+ [+] stage 3 (upstream) hash matches the original pre-update fixture hash 28ms
+ [+] stage 4 (downstream) was re-run: content hash changed 32ms
+ [+] stage 4 (downstream) carries the confirmation-mode marker 30ms
+ [+] stage 6 (downstream) was re-run: content hash changed 29ms
+ [+] stage 6 (downstream) carries the confirmation-mode marker 28ms
+ [+] stage 7 (downstream) was re-run: content hash changed 28ms
+ [+] stage 7 (downstream) carries the confirmation-mode marker 28ms
+ [+] stage 5 (aggregates, downstream) was re-run: content hash changed 31ms
+ [+] stage 5 (aggregates, downstream) carries the confirmation-mode marker 29ms
+ [+] Domain-Model-Status is reset to Pending in context-map.md 33ms
+ [+] Domain-Model-Status is no longer Approved after update 31ms
+ [+] domain-contract.json meta.status was also reset to Pending 29ms
+ [+] domain-contract.json version was bumped (regeneration occurred) 30ms
+Describing Fixture: update mode resets status even when prior status was Reviewed (not just Approved)
+ [+] status resets to Pending from a prior Reviewed state 79ms
+Describing Fixture: editing stage 2 (Event Storming) leaves only stage 1 upstream
+ [+] only stage 1 is upstream of edited stage 2 91ms
+ [+] stage 1 remains byte-identical 29ms
+ [+] status is still reset to Pending even though the edited stage (2) is not the Context Map stage 34ms
+Describing domain-model SKILL.md documents the update algorithm this fixture simulates
+ [+] domain-model SKILL.md exists 54ms
+ [+] documents re-running the edited stage plus every downstream stage 14ms
+ [+] documents confirmation mode as re-presenting existing artifacts for approval 29ms
+ [+] documents verifying upstream stages remain byte-identical 28ms
+ [+] documents resetting Domain-Model-Status to Pending 28ms
+ [+] documents that only a human may set Approved, never this skill 31ms
+Describing domain-review-loop SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 96ms
+ [+] documents the sequential launch boundary requiring REVIEW_CONTEXT_OK 29ms
+ [+] documents the AC-005 verdict aggregation table matching spec/impl/task-review-loop 30ms
+ [+] documents the AC-014 drift-detection precondition distinct from the T-006 hook guard 35ms
+ [+] documents the T-011 cross-model-verify extension point without implementing it 30ms
+ [+] never instructs writing Domain-Model-Status: Approved 28ms
+ [+] documents the reviewer sequence never sharing a context and using integrated-summary as the only bridge 30ms
+Describing domain-reviewer-a.md contract (strategic checks)
+ [+] exists with the correct frontmatter (read-only tools, no write access) 44ms
+ [+] declares the six strategic check IDs in order 27ms
+ [+] documents check CONTEXT-BOUNDARY-CLARITY with a severity 28ms
+ [+] documents check RELATION-PATTERN-VALID with a severity 27ms
+ [+] documents check EVENT-COVERAGE with a severity 26ms
+ [+] documents check TERM-UNIQUENESS with a severity 27ms
+ [+] documents check AGGREGATE-CONTEXT-OWNERSHIP with a severity 27ms
+ [+] documents check DOMAIN-MODEL-STATUS-PRESENT with a severity 27ms
+ [+] requires the launch boundary and calibration reference 28ms
+ [+] declares the domain-reviewer-a/v1 output schema 28ms
+Describing domain-reviewer-b.md contract (tactical checks)
+ [+] exists with the correct frontmatter (read-only tools, no write access) 44ms
+ [+] declares the six tactical check IDs in order 28ms
+ [+] documents check INVARIANT-VERIFIABLE with a severity 28ms
+ [+] documents check TRANSACTION-BOUNDARY-REALISTIC with a severity 27ms
+ [+] documents check NO-GOD-AGGREGATE with a severity 27ms
+ [+] documents check NO-ANEMIC-MODEL with a severity 27ms
+ [+] documents check LIFECYCLE-DEFINED with a severity 28ms
+ [+] documents check AGGREGATE-SIZE-PROPORTIONATE with a severity 29ms
+ [+] never receives reviewer-a's raw report 28ms
+ [+] declares the domain-reviewer-b/v1 output schema 28ms
+Describing domain-review-calibration.md exists and scopes the gate
+ [+] exists and defines severity calibration 44ms
+ [+] excludes downstream conformance and cross-model verification from this gate's scope 30ms
+Describing validate-review-context-set.sh/.ps1 authorize the domain stage
+ [+] the bash validator's path_is_authorized recognizes domain:domain-reviewer-a/b 48ms
+ [+] the bash validator's authorized invocation pairs include the domain stage 30ms
+ [+] the PowerShell validator's Test-AuthorizedPath recognizes domain:domain-reviewer-a/b 30ms
+ [+] the PowerShell validator's valid-pairs list includes the domain stage 31ms
+ [+] both validators parse without syntax errors 95ms
+Describing AC-005 verdict aggregation: Get-DomainReviewVerdict (real execution)
+ [+] both reviewers clean PASS -> PASS with warningCount 0, any round 50ms
+ [+] one Major FAIL, round 1 -> NEEDS_WORK 29ms
+ [+] one Major FAIL, round 2 -> NEEDS_WORK 28ms
+ [+] round-3 unresolved Major -> BLOCKED 31ms
+ [+] round-3 unresolved Critical -> BLOCKED 33ms
+ [+] round-3 Minor-only -> PASS with nonzero warningCount 30ms
+ [+] Minor-only before round 3 -> NEEDS_WORK, not a premature PASS 31ms
+ [+] Critical takes precedence over Major and Minor at any round 29ms
+Describing AC-014 drift detection: Test-DomainDrift (real execution, real files, real hashes)
+ [+] computes a stable normalized hash for context-map.md regardless of Domain-Model-Status value 163ms
+ [+] records a fingerprint of the current tree and confirms zero drift when nothing changed 116ms
+ [+] detects drift for real when a domain/ file changes after the fingerprint was recorded 98ms
+ [+] does not report drift for a status-only edit (Approved reset to Pending) 101ms
+ [+] detects an added aggregate card as drift 100ms
+Describing domain-review-precheck.sh: real execution against a real fixture tree
+ [+] fails closed with 'jq is required' once all structural preconditions pass (real bash execution) 545ms
+ [+] rejects round 0 as not a positive integer (real bash execution) 137ms
+ [+] rejects round 4 as out of the 1-3 range (real bash execution) 146ms
+ [+] rejects a new attempt without --reset (real bash execution) 131ms
+ [+] rejects round 2 without --edit-summary (real bash execution) 134ms
+ [+] rejects a missing canonical domain/ artifact (real bash execution) 291ms
+ [+] rejects an empty domain/aggregates/ directory (real bash execution) 291ms
+ [+] rejects a malformed Domain-Model-Status value (real bash execution) 504ms
+ [+] on an Approved model with no fingerprint yet, still fails closed at jq before writing a fingerprint (real bash execution) 504ms
+Describing Worked fixtures (documented contract validation, per Done-When)
+ [+] both-reviewers-PASS -> clean PASS (worked example) 55ms
+ [+] one Major FAIL from reviewer B -> NEEDS_WORK (worked example) 33ms
+ [+] round-3 unresolved Major -> BLOCKED (worked example) 31ms
+ [+] round-3 Minor-only -> PASS with nonzero warningCount (worked example) 33ms
+ [+] domain/ file changed since last-approved-state -> halts pending a status reset (worked example over real hashes) 105ms
+ [+] no prior Approved state -> drift detection does not apply (first-ever review, worked example) 95ms
+Describing workflow-retrospective SKILL.md documents domain-drift metric aggregation
+ [+] SKILL.md exists and is unchanged as an internal, non-model-invocable skill 66ms
+ [+] documents the domain-drift metrics subsection gated on domain/ existing 29ms
+ [+] documents sourcing only from already-recorded check-domain-conformance findings (no new evidence-collection path) 30ms
+ [+] documents Term-Deviation Count and Boundary-Violation Count as named metrics 29ms
+ [+] documents the exact classification rule matching check-domain-conformance's real finding messages 30ms
+ [+] documents omitting the section entirely when domain/ is absent (does not emit a zero-filled table) 30ms
+ [+] does not disturb the existing Deterministic artifact rules section (still present, still numbered 1-5) 30ms
+ [+] the domain-drift subsection is placed after dataset quality indicators and before the review-gate metric derivation 31ms
+Describing retrospective-report.template.md documents the Domain Drift Metrics section
+ [+] template exists 46ms
+ [+] contains a Domain Drift Metrics section gated on domain/ existing 29ms
+ [+] the Domain Drift Metrics table carries Term-Deviation Count and Boundary-Violation Count rows 30ms
+ [+] the Domain Drift Metrics section is placed after Metrics and before Friction Patterns (additive insertion point) 31ms
+ [+] does not disturb the existing Metrics table header (still the same 8 columns) 30ms
+Describing check-domain-conformance script (T-008) finding messages are read-only referenced correctly
+ [+] the five drift finding message shapes classified by the SKILL.md rule are the exact literal strings the script emits 46ms
+Describing Worked fixture: nonzero term-deviation and boundary-violation counts across multiple quality-gate reports
+ [+] Get-DomainDriftCounts produces nonzero Term-Deviation Count and Boundary-Violation Count across the retained reports 80ms
+ [+] a report with no check-domain-conformance WARN/FAILED block (clean pass) contributes zero to both counts 32ms
+ [+] an empty report set produces all-zero counts (no domain/ scenario) 29ms
+ [+] classifying only the T-103 FAILED block (SDD_DOMAIN_ENFORCE=error) still counts as a boundary violation 30ms
+Tests completed in 19.42s
+Passed: 276 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

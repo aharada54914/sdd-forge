@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a2-r1-reviewer-a-seq765",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a2-r1-reviewer-a-765",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "691db158e25045959809f32d67e1132974163cb72ef6729806427b3c193180f5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-1/precheck-result.json",
+      "sha256": "e1ea33835ba63219498a70175d6f44290ed4d8d8568589788aa51827c62ffbe8"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:40-45 (Overview) states unambiguously this is 'a Phase 1 (specification) package only ... no tasks.md/traceability.md exists yet ... those are Phase 2, per AGENTS.md's Required Workflow and this task's own explicit instruction.' This claim is directly contradicted both by the live repository (specs/epic-194-a6-lite-integration/ contains tasks.md, traceability.md, and traceability.json on disk, confirmed via directory listing) and by this same package's own acceptance-tests.md:35 (AC-010), which treats 'tasks.md's own Protected Files item 3' as an artifact that 'already commits this runner to applying [a fifth payload target] the same way it applies the four payload files' and cites 'T-001 cross-model verdicts 2026-08-21' as an already-completed implementation-phase review event -- i.e. AC-010 assumes tasks.md not only exists but has already had a task (T-001) carried through cross-model implementation review. A task author cannot determine from this package whether tasks.md is pre-existing/canonical (as AC-010's own text assumes) or does not exist yet (as Overview/Non-goals assert), and a verifier validating AC-010/TEST-010 cannot determine the correct manifest/payload set without resolving which claim is authoritative. This is a spec-review-scoped defect -- an internal self-contradiction about this Phase 1 package's own stated boundary, breaking the exact 'Spec factual-claim evidence citations' discipline this document repeatedly invokes as its own controlling convention (e.g. requirements.md:64-66) -- not an implementation-review or task-review concern, since it concerns whether the specification's own scope claim is internally consistent and accurate against the live repository, which is what this gate certifies. Severity is Critical per calibration ('contradictory goals ... that makes the specification unreviewable'): the premise that this package is a gate-reviewable Phase 1 artifact set is undermined by an acceptance criterion within the same package that treats Phase 2 artifacts as already-existing, binding facts."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated Goal (REQ-001..REQ-006, requirements.md:217-651) has at least one Acceptance Criterion mapped in the Acceptance Criteria table: AC-001..AC-006 -> REQ-001 (requirements.md:758-763); AC-007..AC-010 -> REQ-002 (:764-767); AC-011..AC-013 -> REQ-003 (:768-770); AC-014..AC-018 -> REQ-004 (:771-775); AC-019..AC-021 -> REQ-005 (:776-778); AC-022 -> REQ-006 (:779); plus REQ-003/REQ-004 cross-cutting AC-026/AC-030 and REQ-002 AC-027/AC-028 (:783-785). No goal is left without a corresponding criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally checkable shapes and behaviors rather than vague intent: exact schema key sets and additionalProperties:false boundaries (AC-001, requirements.md:758), byte-identical output guarantees for the omitted-argument path (AC-007, :764), specific exit codes and `VERDICT: FAIL` states with named reasons (AC-026..AC-028, :783-785; AC-016 unmapped-check FAIL, :773). Even the three design-content-review items (AC-020, AC-022, AC-029) are checked against specific, named document sections (acceptance-tests.md:58-110), not open-ended judgment calls."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:653-728) explicitly excludes contracts/** authorship, any plugins/**/scripts/**/tests/**/.github/**/docs/** edit in this commit, reimplementation of A2/A3/A5 mechanisms, a larger lite-check-catalog seed than the three canonical tokens, changes to generate-gate-capabilities, and construction of sdd-delivery/Artifact/Promotion Gates -- each boundary is stated with the reason it holds, giving downstream authors a concrete edge to design against."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: the migration rule is stated as additive-only with a worked v1-instance example (requirements.md:270-284); the Security Boundaries section states a fail-closed posture and a no-new-write-surface constraint (:1090-1127); protected-file/human-copy constraints are named per REQ with citations to guard-invariants.json (:398-405, :581-586); and an approval-boundary constraint requires Spec-Review-Status/Impl-Review-Status to remain Pending, not self-approved (:909-918; AC-024, :781)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:1184-1226) names concrete high-risk claims -- A5 not yet Passed (field-naming/aggregation drift risk), the intake-time Block being defense-in-depth rather than sole enforcement, and the lite-check-catalog seed possibly proving too narrow -- each paired with a stated validation or tracking surface: AC-029/TEST-029's explicit cross-epic tracking in A5's own package (acceptance-tests.md:52, 87-110), the mandatory ship-time recheck as the documented second enforcement layer (requirements.md:996-1002, 1197-1208), and the catalog's own additive-versioning growth path (:1218-1227)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the repository root (/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/domain/ is absent, verified by directory listing), so the Approved domain-model precondition for this check is not met. Skip condition applies per calibration and per this check's own SKIP-allowed definition."
+    }
+  ]
+}

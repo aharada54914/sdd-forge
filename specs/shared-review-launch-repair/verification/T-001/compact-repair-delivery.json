@@ -1,0 +1,27 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "shared-review-launch-repair",
+  "task_id": "T-001",
+  "implementation_report": {
+    "path": "reports/implementation/shared-review-launch-repair/T-001.md",
+    "sha256": "b4ca097a7cc797845b24ddf412cb3d7dbff566a45d539563e09f52ed8d8acf6e"
+  },
+  "artifacts": [
+    {"path":"plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py","sha256":"d8bc6562a0315c668f2824ecbb55f924190aa77044a87794888b19a8ddf46be7"},
+    {"path":"plugins/sdd-review-loop/scripts/probe-nontty-review.py","sha256":"b92f28c8dd767b57d2940aea9284defe181cf62b4c373a6ffa5522070961d559"},
+    {"path":"plugins/sdd-review-loop/scripts/launch-impl-review.py","sha256":"6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37"},
+    {"path":"tests/quality-nontty-transport.tests.py","sha256":"ca0989cf661c8e1945dd996690be36c68cad7cc17401d02af4dc640c8578a862"},
+    {"path":"tests/unified-launch-order.tests.py","sha256":"648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77"},
+    {"path":"tests/task-structured-output.tests.py","sha256":"b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2"},
+    {"path":"plugins/sdd-quality-loop/skills/quality-gate/SKILL.md","sha256":"2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45"},
+    {"path":"plugins/sdd-quality-loop/agents/evaluator.md","sha256":"e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234"},
+    {"path":"plugins/sdd-review-loop/references/review-context-boundary.md","sha256":"95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1"},
+    {"path":"tests/t001-evaluation-preparation.tests.py","sha256":"3084930b388fbda017321217249cead798bd0e30812895a1cc6c58ffc273431b"},
+    {"path":"tests/supplemental-delivery-declaration.tests.py","sha256":"71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0"},
+    {"path":"plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py","sha256":"9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea"},
+    {"path":".github/workflows/test.yml","sha256":"eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a"},
+    {"path":"tests/run-all.sh","sha256":"af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486"},
+    {"path":"tests/run-all.ps1","sha256":"891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414"},
+    {"path":"specs/shared-review-launch-repair/verification/T-001/compact-repair-evidence.md","sha256":"eac4b750811c010050706ae38ded5fb8a572c794d48db8a9ab10154d16c461cf"}
+  ]
+}

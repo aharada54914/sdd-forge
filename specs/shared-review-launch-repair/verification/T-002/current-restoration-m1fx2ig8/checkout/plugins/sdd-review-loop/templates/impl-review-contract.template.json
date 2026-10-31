@@ -1,0 +1,35 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "<feature-slug>",
+  "run_id": "<fresh-orchestrator-run-id>",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "fullstack",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "",
+  "acceptance_sha256": "",
+  "design_sha256": "",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "",
+    "frontend-spec.md": "",
+    "infra-spec.md": "",
+    "security-spec.md": ""
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {"role":"impl-reviewer-a","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]},
+    {"role":"impl-reviewer-b","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]}
+  ],
+  "human_edit_summary": "",
+  "timestamp": ""
+}

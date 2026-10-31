@@ -1,0 +1,64 @@
+guard-r10-port.tests.ps1
+  PS1: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/pre-t001-guard.ps1
+  PY : /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  JS : /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+FAIL: r10 file-write: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: .claude/settings.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/gates.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: ship/SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: impl-review-loop SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: check-contract.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: claude-hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 apply_patch: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: ../ traversal to guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: sdd-hook-guard.js expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: sdd-hook-guard.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: sdd-hook-guard.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.js expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: copilot-hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-contract.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-contract.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: validate_path.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: settings.local.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/eval.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/guard-parity.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/constant-parity.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: impl-reviewer-a.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: impl-reviewer-b.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: task-reviewer-a.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: task-reviewer-b.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: task-review-loop SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .plugin relative expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .claude-plugin relative expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .codex-plugin absolute expected=2 ps1=0 py=2 js=2
+ok: allow: src/plugin.json (no plugin dot-dir) (all exit 0)
+FAIL: r10 bash redirect into guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash pushd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cp onto guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash compound cat && rm guard expected=2 ps1=0 py=2 js=2
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+FAIL: impl-review forgery: no verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: impl-review: PASS verdict -> allow (all exit 0)
+FAIL: impl-review: FAIL verdict -> deny expected=2 ps1=0 py=2 js=2
+FAIL: impl-review forgery edit: no verdict -> deny expected=2 ps1=0 py=2 js=2
+FAIL: impl-review forgery multiedit: FAIL verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: impl-review edit: PASS verdict -> allow (all exit 0)
+FAIL: copilot-emit: r10 write to guard -> deny expected=deny ps1=allow/0 py=deny/0 js=deny/0
+FAIL: copilot-emit: cd+rm guard -> deny expected=deny ps1=allow/0 py=deny/0 js=deny/0
+ok: copilot-emit: write src/main.py -> allow (all allow, exit 0)
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+
+guard-r10-port.tests.ps1: 12 passed, 46 failed

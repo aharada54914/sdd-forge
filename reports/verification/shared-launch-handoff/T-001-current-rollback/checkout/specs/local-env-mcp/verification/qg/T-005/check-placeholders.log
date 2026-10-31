@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-005, fresh run this session)
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh reports/implementation/local-env-mcp/T-005.md USERGUIDE.md
+Placeholder scan passed.
+
+exit 0

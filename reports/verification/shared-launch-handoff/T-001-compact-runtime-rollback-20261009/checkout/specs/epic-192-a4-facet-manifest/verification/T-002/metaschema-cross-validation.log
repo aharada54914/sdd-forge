@@ -1,0 +1,15 @@
+AGREE: decision-doc-v2-section6-worked-example.json -- reference_valid=True own_valid=True
+AGREE: extra-property-facet-manifest-ref-invalid.json -- reference_valid=False own_valid=False
+AGREE: feature-invalid-pattern.json -- reference_valid=False own_valid=False
+DISAGREE: feature-trailing-newline.json -- reference_valid=True own_valid=False
+AGREE: multi-diagnostic-ordering.json -- reference_valid=False own_valid=False
+AGREE: required-missing-capabilities.json -- reference_valid=False own_valid=False
+AGREE: required-missing-feature.json -- reference_valid=False own_valid=False
+AGREE: required-missing-full-upgrade-required.json -- reference_valid=False own_valid=False
+AGREE: required-missing-required-lite-checks.json -- reference_valid=False own_valid=False
+AGREE: required-missing-schema.json -- reference_valid=False own_valid=False
+AGREE: required-missing-track.json -- reference_valid=False own_valid=False
+AGREE: track-invalid-value.json -- reference_valid=False own_valid=False
+
+Total JSON fixtures compared: 12
+Disagreements: 1

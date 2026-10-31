@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a9r2",
+ "verdict": "PASS",
+ "round": 2,
+ "attempt": 9,
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "verdict_note": "Provenance re-review round 2 of attempt 9: both reviewers PASS with zero FAIL findings (A: 14/14 PASS; B: 9/9 PASS). Round 1's two converging Major findings (SINGLE-CONCERN, ROLLBACK-PLAN) against commit 00744ac3's T-006 scope supersession are resolved by commit 9c4a672c: the check-component-coverage.ps1 unknown-argument parity correction is now routed through the established human-copy staging path (staged candidate + MANIFEST.sha256 entry + HUMAN APPLY STEP Done-When bullet mirroring T-004's Bundle A/B precedent, LIVE protected file byte-unchanged across this task's commits), the resolve-component-paths.ps1 correction remains a direct edit (live-verified unprotected), and the Rollback/Breaking API/Out of Scope text is reconciled. Both reviewers independently live-verified the protection facts against guard-invariants.json. Clean PASS re-binds the task-stage provenance to the current tasks.md bytes (9e482e42), which carry the evidence-cited 2026-08-12 scope supersession sanctioning the minimal ps1 unknown-argument-rejection parity fix that T-006's genuine harness RED (run epic-191-a3-path-ownership-t006-20260812-codex-01) proved necessary. The plan remains status-mixed (T-001..T-005 Done, T-006 Planned), so this binding is raw-bytes and will need repeating after T-006's next lifecycle flip."
+}

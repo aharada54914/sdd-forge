@@ -1,0 +1,59 @@
+{
+  "task_id": "T-004",
+  "feature": "design-sync-standing-consent",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "a1c2cbbef0954301d890f22a7830b927ff9825f5d730adc7b9a15a91d9166d59",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-004.md",
+  "verification_contract": "specs/design-sync-standing-consent/verification/T-004.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-004.contract.json",
+      "sha256": "a01a0fb0812e7c583d67f3561f8a683cfc528385b5744577c0dfdcafc4280325"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-004.md",
+      "sha256": "f6b4e3654201b39216bc0a177527dbd507b62c3962099408ba5f62d992ace498"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-004/claude-design-workflow.md.diff",
+      "sha256": "092adbec1f04d70fa764489f30f56ee51393133030c030dc82b934b6e5de9171"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-004/green-sh.log",
+      "sha256": "100c5449b8153ba6386577176df4bcf423f6d21b65a62877576306fd60bcc895"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/placeholder-T-004.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

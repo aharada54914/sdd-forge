@@ -1,0 +1,73 @@
+{
+  "id": 3,
+  "result": {
+    "thread": {
+      "id": "01a11d02-3d61-7681-b3e6-3815b8ac79bc",
+      "environments": [
+        {
+          "environmentId": "local",
+          "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output",
+          "runtimeWorkspaceRoots": [
+            "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output"
+          ]
+        }
+      ],
+      "extra": null,
+      "sessionId": "01a11d02-3d61-7681-b3e6-3815b8ac79bc",
+      "forkedFromId": null,
+      "parentThreadId": null,
+      "preview": "",
+      "ephemeral": false,
+      "section": null,
+      "sectionEnteredAt": null,
+      "projectId": null,
+      "historyMode": "paginated",
+      "modelProvider": "openai",
+      "model": "gpt-6-astra",
+      "reasoningEffort": "high",
+      "createdAt": 1791488048,
+      "updatedAt": 1791488048,
+      "recencyAt": 1791488048,
+      "status": {
+        "type": "idle"
+      },
+      "path": "/Users/jrmag/.codex/sessions/2026/10/09/rollout-2026-10-09T04-34-08-01a11d02-3d61-7681-b3e6-3815b8ac79bc.jsonl",
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output",
+      "cliVersion": "0.160.0",
+      "originator": "Codex Desktop",
+      "source": "vscode",
+      "canAcceptDirectInput": true,
+      "threadSource": null,
+      "agentNickname": null,
+      "agentRole": null,
+      "gitInfo": null,
+      "name": null,
+      "daybreakEnabled": null,
+      "turns": []
+    },
+    "model": "gpt-6-astra",
+    "modelProvider": "openai",
+    "serviceTier": "default",
+    "disabledPluginIds": [],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output",
+    "runtimeWorkspaceRoots": [
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output"
+    ],
+    "instructionSources": [
+      "/Users/jrmag/.codex/AGENTS.md",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/AGENTS.md"
+    ],
+    "approvalPolicy": "never",
+    "approvalsReviewer": "user",
+    "sandbox": {
+      "type": "workspaceWrite",
+      "writableRoots": [],
+      "networkAccess": false,
+      "excludeTmpdirEnvVar": true,
+      "excludeSlashTmp": true
+    },
+    "activePermissionProfile": null,
+    "reasoningEffort": "high",
+    "multiAgentMode": "explicitRequestOnly"
+  }
+}

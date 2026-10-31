@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196a8integration-impl-a5r1-a-seq0777",
+  "host_session_id": "SESS-impl-a5r1-a-epic196a8integration-0777",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-5/round-1/precheck-result.json", "sha256": "657c3f7fbbbc9e61613d4c3ad01927a56340f8d30170b408dc162feaeaa5143c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's ## Architecture section (mermaid diagram, 5 REQ subgraphs with named dependency edges) plus the Components table names top-level component boundaries; integration with existing components is stated (INV-013/INV-014 extension of tests/cli-hook-enforcement.ps1 and the existing 3-OS CI matrix); technology choices are fixed per layer (backend: sh/PowerShell/Python per Components 'Language' column and frontend-spec.md Technology Stack; data: JSON schemas in Data Plan; infra: Deployment / CI Plan + infra-spec.md; frontend: explicit N/A with rationale in Layer Specifications). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Directed graph built from the Architecture mermaid diagram: HANDOFF->CANARY->LIVE->AGGREGATE, MATRIX->{LOCAL,CI3,DRIFT}, SYN->{FLAG,SUBAGENT}, FLAG->LIVE, CLASS/RECORD as one-way classifying edges into HANDOFF/MATRIX/SYN/LIVE/PATHFIX/DRIFT/AGGREGATE. No A->B->A cycle exists. The one dotted edge 'AGGREGATE -.Done gate + release gate.-> REQ003' targets the enclosing REQ003 subgraph label, not a distinct component node with its own outgoing edges back to AGGREGATE, so it does not form a cycle. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan names 'Data Entities:' (six new JSON schema-shaped artifacts plus governance manifests), 'Existing Data Affected:' (read-only comparison targets, plus the one narrow nonce-ledger consumed_by_record write), and 'Migration Strategy:' ('No migration required. Every data entity named above is a net-new file...'). All three required sub-fields present with substantive content. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan lists every new/changed CLI entry point (tests/cross-runtime-handoff.tests.{sh,ps1}, tests/install-uninstall-matrix.tests.{sh,ps1}, check-installed-plugin-drift.{sh,ps1}, validate-live-host-proof.{sh,ps1}, tests/path-lineending-regression.tests.{sh,ps1}, plus the live-host record capture path) with flags, request/output schema references, and exit-code contracts. Extensions to existing surfaces (tests/cli-hook-enforcement.ps1, install.sh/.ps1/uninstall.sh/.ps1) are explicitly stated as 'preserving every existing assertion unmodified' / 'unmodified', satisfying the deprecation/breaking-change disclosure requirement. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Security Boundaries section names B1 (live-host session authenticity) and B2 (read-only drift check) with concrete enforcement mechanisms, cross-referencing requirements.md's Security Boundaries table (explicit PII/Data Classification column = 'none' for both). security-spec.md (normative refinement layer) expands this to five boundaries (B1-B5) with a Trust Boundaries diagram, an Authorization table (auth/authz mechanism per actor/boundary), a Data Classification and Protection table, and a full OWASP Top-10 Mapping table (Injection, Broken Access Control, Security Misconfiguration, Cryptographic Failures, Identification and Authentication Failures, Software and Data Integrity Failures all explicitly addressed, several correctly scoped N/A with stated rationale). All four sub-criteria satisfied across design.md + its layer-spec refinement. No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is cli (registered; design.md header states 'test-infrastructure specification, Phase 1 — no code'). No UI or frontend surface exists (ux-spec.md and frontend-spec.md both record explicit N/A with rationale)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy has 11 ordered items covering per-suite/unit-equivalent scope (items 1,4,6,7), cross-component integration boundaries (items 2,3,5,10 — matrix/live-host aggregate), exhaustive AC-001-AC-030 traceability (every item cites specific ACs), and concrete planned verification evidence (named scripts, JSON schema names, named error codes e.g. ERR_MISSING_CELL/ERR_STALE_SKIP, report artifact paths). The live-host proof session (item 5) plus its aggregate Done-gate validator (item 10) function as the critical-journey verification path for the cross-runtime hook-activation flow. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node referenced in design.md's Architecture diagram (FIX, HANDOFF, CANARY, MATRIX, LOCAL, CI3, SYN, FLAG, SUBAGENT, LIVE, AGGREGATE, PATHFIX, DRIFT, CLASS, RECORD) is defined either as a Components-table row (FIX, HANDOFF, SYN, LIVE-records-dir, AGGREGATE, PATHFIX, DRIFT, plus the governance-manifest rows backing CLASS/RECORD) or as a named subsection (CANARY: Cross-Layer Dependencies/SKIP Allowlist Activation Gate; LOCAL/CI3: Test Strategy items 2-3, INV-014; FLAG/SUBAGENT: Live-Host Semantic Matrix, Direct-Invocation De-Spoofing; CLASS: Automated/Manual Classification Table; RECORD: Data Plan live-host-verification-record/v1). No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ADR Change Log cites ADR-0019 (existing, read-only source) and proposes ADR-0028 at docs/adr/0028-live-host-proof-ed25519-signing.md. Verified on disk: docs/adr/0028-live-host-proof-ed25519-signing.md exists (150 lines, substantive Context/Decision content, Status: Proposed) and docs/adr/0019-approval-sidecar-protection.md exists. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: target project has no design-system/ directory (verified via ls). design.md's own Design System Compliance section states 'Not applicable. This is internal test-infrastructure specification work with no UI surface.' No issues found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: target project has no domain/ directory (verified via ls), so no domain/context-map.md with Domain-Model-Status: Approved exists. No issues found."
+    }
+  ]
+}

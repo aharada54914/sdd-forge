@@ -1,0 +1,104 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-cimcp-a1r1-20260706-d3ee",
+  "host_session_id": "hs-impl-a-8eee4773-0005",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "9fbba826b19b0f38a940b8c335910baf6f7c42b36de8f8eef4dc99c73dd56b74"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d6fec6737e79e8c41c568a715532c83a7688a4562311c8fdb147b86002e05454"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 27-56) provides a mermaid flowchart showing component boundaries (index.ts/server.ts, auth, repo-resolve, github-client, error-normalizer) and installer integration paths into 4 existing MCP clients; describes integration with existing sdd-forge-mcp/local-env-mcp patterns and installer mechanism; and the Components table (lines 57-72) plus Layer Specifications table (lines 74-82) name technology per layer (TypeScript+MCP SDK for server, node fetch/undici for HTTP, infra-spec.md for deployment). Feature Type is api-only so no frontend layer is required; this is explicitly reasoned N/A in ux-spec.md and frontend-spec.md. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency graph from the Architecture mermaid diagram (lines 29-48): clients -> S; S -> AUTH, RESOLVE, GH; GH -> API, NORM; INST -> S, CC, CX, CU, VS. All edges are one-directional with no back-edge from any downstream node (AUTH/RESOLVE/GH/API/NORM) to S or clients. No cycle detected. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (lines 100-111) specifies all three required sub-fields: Data Entities: explicitly 'none' with rationale (no persistent data, no cache in v1); Existing Data Affected: lists IDE config files (~/.cursor/mcp.json, VS Code user profile mcp.json, ~/.codex/config.toml, Claude Code user-scope config) with upsert/delete-only-owned-key behavior; Migration Strategy: explicitly 'not required' (new feature) with test-backed rationale (AC-016/AC-018 preserve other entries, corrupt JSON left untouched per ADR-0005 failsafe). No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (lines 113-165) lists all 5 new MCP tools (list_workflow_runs, get_workflow_run, list_run_jobs, get_job_log, list_run_artifacts) with input parameters and response schema shape for each, plus a full upstream-HTTP-status-to-error-code mapping table (lines 144-151) and the envelope/error-code contract (10 total codes). No existing endpoints are deprecated or breaking-changed, consistent with requirements.md Non-goals (new feature, no prior ci-mcp API existed). No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries (lines 192-200) names 3 trust boundaries (B1 client<->stdio server, B2 server<->GitHub Actions API, B3 installer<->IDE config files), states the auth/authz mechanism at each (OS-user boundary for B1, env read-only PAT + GET-only for B2, user-permission scoped upsert for B3), states data classification (internal / internal-with-untrusted-upstream-output), and lists OWASP concerns per boundary (Injection, Broken Access Control/SSRF/credential leak/DoS, data destruction). security-spec.md#trust-boundaries is cross-referenced for full detail and independently covers a complete OWASP mapping table (Broken Access Control, Sensitive Data Exposure, Injection, SSRF, Security Misconfiguration, Vulnerable Components, Identification & Auth Failures). No missing item found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md line 4: 'Feature Type: api-only (read-only MCP server; no frontend/UI)'). ux-spec.md and frontend-spec.md both reason N/A for UI/component-tree/state sections, consistent with the declared feature type."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (lines 167-190) covers unit scope (contract/schema validation via ajv against contracts/ci-mcp-tools.v1.schema.json), integration scope (fake GitHub API stubbing per tool and error-path branch), acceptance-criteria verification (explicit AC-001..AC-018 mapping throughout), and names concrete planned evidence artifacts: static-check test dirs (mcp/ci-mcp/tests/no-write/, tests/readonly/), no-secrets canary grep, MCP Inspector CLI smoke test (AC-015), installer harness files (tests/install.tests.sh/.ps1), and CI job names in .github/workflows/test.yml (typecheck/test/dist-parity). As an api-only feature with no UI, no end-to-end user-journey path is required beyond the MCP Inspector smoke test, which is present. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components referenced in ## Architecture (index.ts/S, auth/AUTH, repo-resolve/RESOLVE, github-client/GH, error-normalizer/NORM, install.sh/install.ps1/INST) and ## API / Contract Plan (repo-resolve) are defined in the ## Components table (lines 57-72) or as named files with responsibility descriptions. The diagram's 'error-normalizer/NORM' node is not a separate Components-table row, but its responsibility ('上流エラー正規化', upstream error normalization) is explicitly folded into the github-client.ts row description ('GET 専用 fetch ラッパ・上流エラー正規化...'), so the referenced function is defined, not left undefined. No component name is referenced without a corresponding definition or established-system-component identity (github-mcp-server, Claude Code, Codex, Cursor, VS Code Copilot are all established external systems named in requirements.md Target Users)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## ADR Change Log (lines 94-98) lists ADR-0006 (ci-mcp read-only GitHub Actions boundary decision), which exists at docs/adr/0006-ci-mcp-readonly-github-actions.md. ADR-0003 is also referenced (Technical Summary line 13, Deployment/CI Plan lines 204/212/224) and exists at docs/adr/0003-mcp-dist-bundle-distribution.md. Both referenced ADR files were confirmed present on disk. No issues found."
+    }
+  ]
+}

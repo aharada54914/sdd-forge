@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11cb3-f28d-75b0-8ac5-22334d1ca204",
+    "turn": {
+      "id": "01a11cb6-bfcc-7113-9c46-b3304466c401",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0c55af1320c1e08a016ac7dcfbca3c8191b3b34f2e4acff212",
+          "text": "T-005 は **BLOCKED・未実装**です。manifest の読み取り後、ポリシー確認用コマンド（`rtk proxy python3 -B - <<'PY'`、`login=false`）が拒否されました。\n\n```text\nzsh:1: can't create temp file for here document: operation not permitted\n```\n\n終了コードは `1`。シェルのヒアドキュメント用一時ファイル作成で停止しました。「Stop on permission refusal; never bypass」に従い、別方式での再試行はしていません。再開には、output 内の一時領域を使用する実行環境の設定が必要です。\n\n変更・成果物作成・RED/GREEN・回帰検証は未実施です。実装の正否は未検証で、Done／正式 PASS は主張しません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791483101,
+      "completedAt": 1791483138,
+      "durationMs": 37388
+    }
+  },
+  "emittedAtMs": 1791483138528
+}

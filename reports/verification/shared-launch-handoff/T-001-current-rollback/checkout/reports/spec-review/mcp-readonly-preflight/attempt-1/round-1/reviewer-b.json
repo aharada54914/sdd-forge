@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a1r1-b-seq0466",
+  "host_session_id": "SESS-spec-a1r1-b-mcpreadonlypreflight-0466",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-1/integrated-summary.json",
+      "sha256": "1c1d1394e4478d60ccddeb5cd3b0f9650394c80c9da6774963f734731ca462a2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "e77b853f715c0d74bc19abf3b96e7200269849521c1949a5ca92f2d8104787ad"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "f3ced5cded0cfe4a7981520e77f6597e53e07fc9b1607b78ff036daeea8845c9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core terms are pinned to file:line evidence rather than left loose. AC-001 (requirements.md:58-64) requires three separately-verifiable elements rather than a heading check; AC-004-AC-007 (requirements.md:92-102) each name one concrete registration surface with its own citation. Where genuine indeterminacy exists, it is routed through numbered Open Questions rather than left as vague prose, and ACs are written to hold under every resolution (requirements.md:56, 205)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between requirements, ACs, constraints and non-goals. REQ-001's advisory framing (requirements.md:54) is reinforced by REQ-005/AC-012/AC-013 (:130-140) and by the Non-goals entry on making the probe authoritative (:230). BL-002's exact preservation of existing file-based flows (:255) and the insertion of a new step are reconciled explicitly via the insertion-point constraint (:64) rather than left in tension. BL-004 (:257) and REQ-002 (:66-78) are reconciled by the Protected Gate Files staging pattern (:36-40)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All seven listed edge cases (requirements.md:238-244) trace to either a test row or an explicit reasoned deferral. The 2x2 fallback grid is covered by TEST-008-011 (acceptance-tests.md:18-21, 91-102); outcome equality under divergence by TEST-012/013 (:22-23, 104-110). The error-envelope branch (OQ-010) is not silently dropped: it is named at requirements.md:126-128 and acceptance-tests.md:52 as a deliberate deferral, because an AC against an undecided branch would be unverifiable."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All ten open questions (investigation.md:197-231) are individually enumerated with reasoning rather than silently assumed, and each dependent requirement says so explicitly, for example REQ-002 subject to OQ-007 (requirements.md:68) with an explicit withdrawal clause (:78), and REQ-005 stating divergence handling is OQ-005 and not decided here (:142)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A genuine human-approval boundary is in scope: the ship skill file is a protected gate file an agent cannot write (requirements.md:19, 23-46, BL-004 at :257), and it is made testable rather than merely asserted. AC-025/AC-026 (:215-219) require hash-conformant staging and provable absence of an agent-authored live edit, verified by TEST-025/026 (acceptance-tests.md:35-36, 144-154) modelled on an existing precedent. Task-decomposition constraints for the human hand-off are stated explicitly (:38-40)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:21 states in its own Overview that OQ-005 is the difference between a specifiable feature and an unspecifiable one, stronger language than any other open question in the document, yet unlike OQ-007 it receives no equivalent explicit gating instruction. Compare requirements.md:78, blocked on OQ-007 with the requirement and AC-002 withdrawn rather than weakened, against REQ-005's treatment at requirements.md:142, a bare deferral with no analogous blocked-must-resolve-before-design instruction. Downstream failure mode: a design or task-decomposition reviewer has no signal that this specific question requires a human product decision before proceeding, and this is not hypothetical, since this feature's own design.md already recorded OQ-005 as a blocker. Major rather than Critical because REQ-005/AC-012/AC-013 already guarantee the safety-relevant property independent of OQ-005's resolution, so the effect is a stall and rework cycle rather than a workflow-boundary contradiction."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "requirements.md contains no Bounded-Context field anywhere, so the check's applicability precondition is absent on the specification's own face, and no domain artifacts are present in the allowed input manifest. Recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

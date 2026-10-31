@@ -1,0 +1,150 @@
+{
+ "schema": "task-review-contract/v1",
+ "stage": "task",
+ "feature": "epic-196-a8-integration",
+ "attempt": 2,
+ "round": 2,
+ "requirements_sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be",
+ "acceptance_sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb",
+ "design_sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e",
+ "tasks_sha256": "e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa",
+ "traceability_sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2",
+ "layer_sha256": {
+  "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+  "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+  "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+  "security-spec.md": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+ },
+ "workflow_match_precheck": "ok",
+ "human_edit_summary": "T-008 amended per the human's 2026-08-24 ruling (19005e7741e600ff8b3c4b01cfb33681bb8aec64): the HUMAN APPLY STEP Done-When targets the discharged state (running Epic A1's merged handshake script to produce the genuine session records), replacing the pending criterion round 1 found unobservable; the stale not-yet-merged Out-of-Scope rationale corrected in T-008 and T-005. investigation.md's Amendment Re-Review Context extended (c8621469).",
+ "prior_round_contract_sha256": "828f81b32efadc0e504c97ffb287b4cea1c153f2d005bb0536226ba5fd859f5a",
+ "pass_type": "none",
+ "reviewer_a_verdict": "NEEDS_WORK",
+ "reviewer_b_verdict": "PASS",
+ "findings_critical": 0,
+ "findings_major": 1,
+ "findings_minor": 0,
+ "reviewers": [
+  {
+   "role": "task-reviewer-a",
+   "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0781",
+   "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0781",
+   "allowed_input_manifest": [
+    {
+     "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/dependency-graph.json",
+     "sha256": "10fde0f3b8a718c7b3d1bd05ace69bef841a17f36c777eda3e5fce526d908fd0"
+    },
+    {
+     "path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json",
+     "sha256": "2c81d96583c3af4f8c337d837d61a732dcab9f2111074ca6b08a85fa8bfbd89c"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+     "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/design.md",
+     "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/frontend-spec.md",
+     "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/infra-spec.md",
+     "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/requirements.md",
+     "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/security-spec.md",
+     "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/tasks.md",
+     "sha256": "e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/traceability.md",
+     "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/ux-spec.md",
+     "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    }
+   ]
+  },
+  {
+   "role": "task-reviewer-b",
+   "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0782",
+   "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0782",
+   "allowed_input_manifest": [
+    {
+     "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+     "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+     "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+     "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+     "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/integrated-summary.json",
+     "sha256": "c43318331e2c3e3bca241230f13fc9caaf34e44bb02f77c21318b6834a20be1d"
+    },
+    {
+     "path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json",
+     "sha256": "2c81d96583c3af4f8c337d837d61a732dcab9f2111074ca6b08a85fa8bfbd89c"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+     "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/design.md",
+     "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/frontend-spec.md",
+     "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/infra-spec.md",
+     "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/requirements.md",
+     "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/security-spec.md",
+     "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/tasks.md",
+     "sha256": "e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/traceability.md",
+     "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+    },
+    {
+     "path": "specs/epic-196-a8-integration/ux-spec.md",
+     "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    }
+   ]
+  }
+ ],
+ "verdict": "NEEDS_WORK",
+ "run_id": "task-orch-epic-196-a8-integration-a2r2",
+ "timestamp": "2026-08-23T22:38:16Z"
+}

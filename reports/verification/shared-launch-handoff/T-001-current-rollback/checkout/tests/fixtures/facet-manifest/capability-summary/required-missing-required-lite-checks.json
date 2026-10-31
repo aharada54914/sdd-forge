@@ -1,0 +1,9 @@
+{
+  "schema": "sdd-capability-summary/v1",
+  "feature": "epic-192-a4-facet-manifest",
+  "track": "lite",
+  "capabilities": [
+    "desktop-local"
+  ],
+  "full_upgrade_required": false
+}

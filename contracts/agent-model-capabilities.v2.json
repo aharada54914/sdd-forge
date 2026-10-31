@@ -151,7 +151,11 @@
   "role_defaults": {
     "sdd-evaluator": {
       "minimum_tier": "strong",
-      "default_effort": "high"
+      "default_effort": "high",
+      "claude_frontmatter": {
+        "minimum_tier": "standard",
+        "default_effort": "medium"
+      }
     },
     "sdd-investigator": {
       "minimum_tier": "lightweight",

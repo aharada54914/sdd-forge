@@ -1,0 +1,13 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/shared-launch-build.tests.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:12:01.399935+00:00",
+  "finished_at": "2026-10-14T15:12:03.840996+00:00"
+}

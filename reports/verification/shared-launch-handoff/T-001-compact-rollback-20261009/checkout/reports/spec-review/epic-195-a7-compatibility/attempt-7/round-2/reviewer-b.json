@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0936",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0936",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/integrated-summary.json","sha256":"3bfa785505f2608567de9688bbefb2c18aae7197dfb24b0fd77d51902606a51c"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/precheck-result.json","sha256":"f2c7d4680e3dea6ddd8994ef2c14fd0cef42e2e3d73b27aefc7f3cd44262cce8"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3"},
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"AMBIGUITY","result":"PASS","severity":"Major","finding":"Requirements and acceptance criteria pin the compatibility matrix, named SKIP rules, and baseline governance with sufficient specificity for Phase 1 review."},
+    {"id":"CONTRADICTION","result":"PASS","severity":"Critical","finding":"The declared amendment re-review context is internally consistent, and the open Done-transition note is explicitly marked unresolved rather than conflicting."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"The spec explicitly covers invalid-context variants, stale/unknown SKIP failures, and both Context-absent and Context-present matrix branches."},
+    {"id":"ASSUMPTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"Open assumptions are either resolved in-document or isolated as forward-looking dependencies with explicit allowlist/skip handling."},
+    {"id":"APPROVAL-BOUNDARY","result":"PASS","severity":"Critical","finding":"The amendment re-review section provides the required dated human approval record and amendment lineage, so the Phase-1 boundary is explicitly authorized."},
+    {"id":"DOWNSTREAM-READINESS","result":"PASS","severity":"Major","finding":"Phase-2/3 implementers are given concrete target artifacts, gating rules, and matrix dispositions to build against."},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"No project-root `domain/` directory exists, so the domain-conformance check is not applicable under the stated skip condition."}
+  ]
+}

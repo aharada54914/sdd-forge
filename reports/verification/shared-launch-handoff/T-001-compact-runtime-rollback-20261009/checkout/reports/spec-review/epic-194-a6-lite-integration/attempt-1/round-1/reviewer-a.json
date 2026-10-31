@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a1-r1-reviewer-a-seq320",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a1-r1-reviewer-a-320",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-1/round-1/precheck-result.json","sha256":"f6173d963037f32eff8cc3269888146a002c40cd86935c49c8b5bb93766c1380"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md","sha256":"5d059b62274dc4a3553ca9017693d5615ef84d0a81fff63ba01742954bf3ec0e"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md","sha256":"45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md","sha256":"2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each of REQ-001..REQ-006 specifies concrete, measurable behavior (exact exit codes, schema field sets, ordering rules, VERDICT states) rather than intent statements. E.g. REQ-002's second-argument-omitted vs. second-argument-supplied-and-invalid distinction (requirements.md ~354-379) is measurable via AC-007 (byte-identical output) and AC-027 (exit 2, no trigger output); REQ-004's unmapped-check-id rule (~521-536) is measurable via AC-016's VERDICT:FAIL vs N/A distinction. No in-scope requirement relies on unmeasurable language."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-006 goal has at least one matching AC: REQ-001->AC-001..006,029; REQ-002->AC-007..010,027,028; REQ-003->AC-011..013,026,030; REQ-004->AC-014..018,026; REQ-005->AC-019..021; REQ-006->AC-022. acceptance-tests.md's own AC-022/TEST-022 additionally cross-checks fixture-to-AC coverage as a self-audit."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify externally observable outputs rather than vague intent: AC-008 specifies exact triggers= token ordering and exit code 10; AC-016 specifies VERDICT:FAIL with a stated reason vs. N/A; AC-026 specifies Step 2a blocking before Step 2b on a named field value. The design-content-review class (AC-020/022/029) is explicitly labeled as such in the Spec-Authoring-Time Manual Review Record (acceptance-tests.md lines 56-110), not conflated with automated-fixture rows."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section explicitly excludes contracts/**, plugins/**, scripts/**, tests/**, .github/**, docs/** edits in this Phase 1 commit; excludes reimplementing A2's evaluate-predicate, A3's resolve-component-paths, and A5's Resolver pipeline; fixes the lite-check-catalog seed at exactly three tokens; and excludes building sdd-delivery/Artifact/Promotion Gates. Boundaries are stated affirmatively, not left implicit."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Migration rule is explicit (REQ-001 item 3: v1 Registry instances stay schema-valid, required_lite_checks defaults to []). Security Boundaries section enumerates every fail-closed condition (unrecognized catalog token, schema-invalid Summary, absent Summary under active enforcement, full_upgrade_required:true, unmapped check-id, invalid capability-reasons fragment). Approval/protected-file boundaries are explicit and differentiated (REQ-002/REQ-005 human-copy vs. REQ-004 direct edit, each citing live guard-invariants.json evidence and a re-verification obligation at implementation-start time)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section names four concrete risks, each with a stated validation/mitigation path: the A5-Pending field-naming/aggregation-rule risk is tracked via AC-029/TEST-029 as an explicit cross-epic contract; the intake-time-Block defense-in-depth limitation is covered by the existing mandatory ship-time recheck (REQ-005, Main Workflows step 6); the ADR-prose-to-token mapping and catalog-seed-narrowness risks are both addressed via the catalog's additive catalog_version growth mechanism (REQ-001 item 5) plus an explicitly named future spec-review pass as the manual-inspection validation surface."
+    }
+  ]
+}

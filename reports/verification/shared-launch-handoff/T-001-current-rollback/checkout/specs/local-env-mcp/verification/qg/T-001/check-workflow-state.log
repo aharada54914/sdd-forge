@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:35:49Z (quality-gate T-001, fresh run this session)
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+workflow-state: ok
+
+exit 0

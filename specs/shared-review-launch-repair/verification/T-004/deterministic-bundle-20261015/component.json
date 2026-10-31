@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "--repo-root",
+    "."
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-14T15:11:51.422514+00:00",
+  "finished_at": "2026-10-14T15:11:51.475415+00:00"
+}

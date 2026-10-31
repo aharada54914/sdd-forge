@@ -1,0 +1,18 @@
+=== SEQ0355 remedy detection-power proof (pwsh lane) ===
+Stand-in: /tmp/t006-remedy-standin/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+Mutation: gate (5)'s 'or second_id == primary_id' clause (line 678) removed.
+
+--- Assertion (a) against the MUTATED stand-in: --verify-provenance ---
+EXPECTED (real code): exit 43 WEAKENING_PROVENANCE_UNDERAPPROVED
+VALID
+ACTUAL exit code against MUTATED stand-in: 0
+
+--- Assertion (b) against the MUTATED stand-in: standard path (gate 3, unaffected) ---
+validate-approval-sidecar: DUPLICATE_APPROVER_IDENTITY: primary_approval.approver and second_approval.approver are the same registry id; a two-person claim requires two DISTINCT registered identities
+ACTUAL exit code against MUTATED stand-in (should remain 10, gate 3 unaffected): 10
+
+=== VERDICT ===
+If assertion (a) exits something OTHER than 43 WEAKENING_PROVENANCE_UNDERAPPROVED against
+the mutated stand-in, the new test genuinely has detection power for gate (5)'s
+duplicate-identity clause. Assertion (b) is expected to remain exit 10 (gate 3 orthogonal,
+unaffected by the gate-5-only mutation).

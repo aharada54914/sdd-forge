@@ -1,0 +1,2 @@
+Verification contract FAILED for task T-004:
+ - check 'task-state-check' evidence file missing: specs/claude-workflow-compatibility/verification/T-004.task-state.log

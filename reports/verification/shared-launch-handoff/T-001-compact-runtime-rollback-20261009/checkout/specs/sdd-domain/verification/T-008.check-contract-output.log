@@ -1,0 +1,19 @@
+$ bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/sdd-domain/verification/T-008.contract.json .
+Verification contract FAILED for task T-008:
+ - required check 'unit-tests' has passes=false
+ - required check 'acceptance-tests' has passes=false
+ - required check 'regression' has passes=false
+EXIT_CODE=1
+
+Note: prior to adding "stack": "shell" to the contract, the same command also
+failed with three additional lines:
+ - risk medium requires check 'build' to be required:true
+ - risk medium requires check 'lint' to be required:true
+ - risk medium requires check 'typecheck' to be required:true
+These were resolved by adding the top-level "stack": "shell" field per
+deterministic-check-policy.md / specs/sdd-domain/tasks.md Global Constraints
+("Non-code stack" bullet), which check-contract.py's _pass4_risk_tier reads
+to waive COMPILE_CHECKS (lint/typecheck/build) on NONCODE_STACKS
+(shell/docs/spec). The three remaining failures (unit-tests, acceptance-tests,
+regression) are genuinely unresolved: see T-008.unit-tests.log for why the
+unit-tests check could not be completed in this verification pass.

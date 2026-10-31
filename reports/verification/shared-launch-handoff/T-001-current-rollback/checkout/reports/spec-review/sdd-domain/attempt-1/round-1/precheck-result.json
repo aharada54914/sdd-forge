@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2384835eac632f2a47b5879c262ce19de108bb9f10ae7835c63ede3d939c01b2",
+  "acceptance_sha256": "5b7b8304b29b0cae885602673f58043f234d52be1aaaf597052bf88eb8c013a2",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "d27dcbb9267e711fdefd76d15dcc50faf2223fa6fda3bc4eeaff53455fe82d3c",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-03T10:11:46Z"
+}

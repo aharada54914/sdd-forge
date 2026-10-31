@@ -1,0 +1,20 @@
+T-005 acceptance-first red evidence
+Date: 2026-08-04
+
+Test Command: bash -n tests/cross-model.tests.sh && bash tests/cross-model.tests.sh
+Test Result: FAIL (expected before docs/THREAT-MODEL.md implementation)
+Relevant output:
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+FAIL: TEST-009: runtime trust table must substantively cover all five surfaces
+FAIL: TEST-010: bypass flag must name what its operator forfeits
+FAIL: TEST-014: residual risks must record the closed unbounded-panelist risk
+Results: 61 passed, 3 failed
+
+Test Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Test Result: FAIL (expected before docs/THREAT-MODEL.md implementation)
+Relevant output:
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+FAIL: TEST-009: runtime trust table must substantively cover all five surfaces
+FAIL: TEST-010: bypass flag must name what its operator forfeits
+FAIL: TEST-014: residual risks must record the closed unbounded-panelist risk
+Results: 59 passed, 3 failed

@@ -1,0 +1,6 @@
+Command: bash tests/human-copy-runner-contract.tests.sh
+Exit: 0
+Results: 45 passed, 0 failed
+
+The shell twin invoked the same PowerShell contract suite against the
+non-protected runner draft and exercised the full TEST-000 through TEST-010 set.

@@ -1,0 +1,161 @@
+{
+  "task_id": "T-001",
+  "requirement": "REQ-001",
+  "run_id": "T-001-01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "session_id": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "agent_instance_id": "01a119f0-3fc5-7b31-998e-34f90076b5ba",
+  "manifest_sha256": "4d069a4d2fad5e823e3b304222e225fcdb4f16c82ea1761e6c1d80a1cdde6734",
+  "finalized_at": "2026-10-08T05:26:31.686842+00:00",
+  "owner_status": "In Progress (parent confirmation; not independently verified)",
+  "completion_claim": "Not Implementation Complete; not Done",
+  "adoption_targets": [
+    {
+      "owner_relative_path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "output_relative_path": "staged/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "before_sha256": "18dc0655daf286053ce884809a3aa0d935140d094b3d8521a0592b0d913f0bca",
+      "after_sha256": "0f57f0cdce58ad4150f19dceeb354a2e9555d56a15d37e3f376ce246235715aa",
+      "adoption": "apply only if current owner target matches before_sha256"
+    },
+    {
+      "owner_relative_path": "tests/quality-nontty-transport.tests.py",
+      "output_relative_path": "staged/tests/quality-nontty-transport.tests.py",
+      "before_sha256": "163352f427c9acd3a54a629455977baf8480f732d0e9f523747342016b8c56f8",
+      "after_sha256": "a1955452366bd71f789b727974c20196d4ce7517173c2e4b11854131dacb1490",
+      "adoption": "apply only if current owner target matches before_sha256"
+    },
+    {
+      "owner_relative_path": "reports/implementation/shared-review-launch-repair/T-001.md",
+      "output_relative_path": "staged/reports/implementation/shared-review-launch-repair/T-001.md",
+      "after_sha256": "6589fdb84eeb4b1a98668bca36d0dda4e7184fb104a7bd552fcdb83a8401ff84",
+      "adoption": "canonical report; inspect existing owner target before writing; owner before-byte state not read"
+    }
+  ],
+  "evidence": [
+    {
+      "output_relative_path": "verification/T-001/T-001.patch",
+      "sha256": "d632ed0a9fb2d2570318f368a8dfc23f7c6f0efb70949bb8b3c928df17f58d7b",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/before-hashes.json",
+      "sha256": "9dc03ae63d17be4cf8d53c1cdeffce61fe7ef7944ae40fe0b31c87c3d860e835",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/claude-help.txt",
+      "sha256": "62ee6518fe010602c0f6c1a273e48a0ebb9b1c55a6b3cc534035128f6ffd33a6",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/claude-version.txt",
+      "sha256": "25c09a043c49ffc5922d0233794dc069a04184fda33e35b6dd1f82595dfaf731",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/final-source-hashes.json",
+      "sha256": "eb37b389e5bac105a7ecee458ea6d2d86707b8f52ddac11fe267c599ee662bcd",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/green-host-review-preflight.txt",
+      "sha256": "c89d3f303ab19e63527dbb0d36f59b59479c229dc0f8b2edbb9548b7c0246c51",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/green-quality-nontty-transport.txt",
+      "sha256": "490733371b5fff3531757889dac3ce3e986f38d3551689e43d3591c2f4735630",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/green-results.json",
+      "sha256": "ab11110da41517d8d5dc56c22ce654939e208caf4cf20688e5b6911af63ba8af",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/green-unified-launch-order.txt",
+      "sha256": "2c167a77f6c4be58dab76d9ab7a021d05c54affc194a0d04f5617b10b21c1216",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/green-unified-task-launch.txt",
+      "sha256": "3c9ffcff75f17926c01cba50700bc8a4ab2bcf02fce79201da7ee6ef36ecc853",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/node-version.txt",
+      "sha256": "0f4a250b24394bb49b0b1c6e05e6f60d2df018b2576e94f02d1c669f1bde83ff",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/preflight-red.txt",
+      "sha256": "0abe8ab5ad803e5e2127a23acb81a5eb15414726952d92282419c648ade9ef38",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/python-version.txt",
+      "sha256": "5e6c3f44e2226a25ec3929f8da764fee63e8f7787ff991a12ff92f590136148d",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/red-0.txt",
+      "sha256": "59aaf5eeeddcf6bc9d3ff3b8433a69838a0c4858928cbbe4809f6d8dbc83f110",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/red-1.txt",
+      "sha256": "de5c0f23300edf73accbc1efabc65d7aec3c96d4ab40ba9774ce502882d0d3ff",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/red-2.txt",
+      "sha256": "4549d71178f2ee0bc976ac3657d151977b38c4a868dff375fe6a03013ead66f6",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/red-3.txt",
+      "sha256": "e5b4d969da78afc08afc2a37e9daf4056292a5a2d8411d70a973b6779c8ef778",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    },
+    {
+      "output_relative_path": "verification/T-001/rollback.txt",
+      "sha256": "81c7d55942fe2f92295a06e36ae3371c25be2e41b300809d7803b5b2c73ea3fe",
+      "adoption": "retain as this-run output evidence; do not replace historical owner evidence"
+    }
+  ],
+  "unchanged_staged_inputs_not_for_adoption": [
+    "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/references/review-context-boundary.md",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "plugins/sdd-quality-loop/agents/evaluator.md",
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "tests/host-review-preflight.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+    "plugins/sdd-quality-loop/scripts/check-risk.sh",
+    "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+    "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+  ],
+  "rollback": "26 exact before-byte hashes restored; added test RED against restored code; 42 baseline tests GREEN; disposable source tree only, no Git or native-host rollback claim",
+  "not_run": [
+    "native reviewer permission behavior",
+    "complete native actual-caller proof",
+    "CI",
+    "native Windows",
+    "independent review",
+    "quality gate"
+  ],
+  "boundary": "All output writes remain under existing T-001-output; no owner, Git, external-service, canonical ledger or frozen-evidence write."
+}

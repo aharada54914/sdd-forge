@@ -1,0 +1,16 @@
+{
+  "feature": "shared-review-launch-repair",
+  "task": "T-001",
+  "scope": "T-001 only; other task requirements are not claimed complete",
+  "links": [{
+    "req": "REQ-001",
+    "acs": ["AC-001"],
+    "tests": ["TEST-001", "TEST-002", "TEST-003a", "TEST-003b", "TEST-003c"],
+    "evidence": [
+      "reports/verification/shared-launch-handoff/T-001-output/verification/T-001/preflight-red.txt",
+      "reports/verification/shared-launch-handoff/T-001-output/verification/T-001/path-green.txt",
+      "reports/verification/shared-launch-handoff/T-001-unreserved-diagnostics.md",
+      "reports/verification/shared-launch-handoff/T-001-output/verification/T-001/git-rollback-final-three.md"
+    ]
+  }]
+}

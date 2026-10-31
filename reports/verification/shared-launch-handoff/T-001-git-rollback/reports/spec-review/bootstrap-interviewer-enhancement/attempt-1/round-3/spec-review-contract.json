@@ -1,0 +1,37 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 3,
+  "requirements_sha256": "b3b0b97dfdf56eced42c97b9a6cf94bd2d188afc0eeb6f36bab64a9774935eb6",
+  "acceptance_sha256": "f10ae2912f1add647384211769811e20f21cd46fa44f0637a65958b41a961337",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-run-20260629T1303Z",
+      "host_session_id": "spec-a-round3-20260629T1303Z",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "b3b0b97dfdf56eced42c97b9a6cf94bd2d188afc0eeb6f36bab64a9774935eb6"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "f10ae2912f1add647384211769811e20f21cd46fa44f0637a65958b41a961337"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-3/precheck-result.json", "sha256": "46e3b2aea2dd1fbb959093b18d9e240b6813e7f02752d30aad48f4ff30acace2"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-run-20260629T1306Z",
+      "host_session_id": "spec-b-round3-20260629T1306Z",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "b3b0b97dfdf56eced42c97b9a6cf94bd2d188afc0eeb6f36bab64a9774935eb6"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "f10ae2912f1add647384211769811e20f21cd46fa44f0637a65958b41a961337"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-3/precheck-result.json", "sha256": "46e3b2aea2dd1fbb959093b18d9e240b6813e7f02752d30aad48f4ff30acace2"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-3/integrated-summary.json", "sha256": "d184feb237f892b842ee3ce6d382b2eaf5f61adb87c6ab6de1a752d9336f262d"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    }
+  ],
+  "run_id": "spec-orchestrator-run-20260629T1309Z",
+  "verdict": "BLOCKED",
+  "warningCount": 0
+}

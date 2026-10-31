@@ -1,0 +1,62 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "All 6 requirements (REQ-001 through REQ-006) are addressed in the design. ADR-001 (plugin move, not merge) justifies the structural choice. ADR-002 (full deletion, no stubs) resolves the validate-repository.ps1 CI breakage risk. ADR-003 (PROTECTED_GATE_SUFFIXES update strategy with zero-gap window) covers the hook guard migration sequencing. ADR-004 (CWD-relative path resolution for Python Check 2e) addresses the parity mechanism. ADR-005 (marketplace non-registration) is explicit. The directory structure section now includes scripts/ and templates/ subdirectories per Round 2 update. Migration ordering (guard update → new plugin creation → caller update → old plugin deletion → guard cleanup) is specified. No architectural gaps found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "Dependency flow remains one-directional: sdd-bootstrap → sdd-review-loop (via caller update), sdd-review-loop has no back-reference to sdd-bootstrap. The consolidation from two plugins (sdd-impl-review, sdd-task-review) into one (sdd-review-loop) reduces the plugin graph without introducing cycles. sdd-quality-loop (which owns the hook guard) is independent and not called by sdd-review-loop. No circular dependencies introduced."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "Report paths (reports/impl-review/, reports/task-review/) are explicitly preserved unchanged per design §Migration & backward compatibility. Python Check 2e uses bare CWD-relative glob pattern (reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json) matching the JS implReviewVerdictExists implementation, as mandated by ADR-004. The design's data flow for verdict detection is fully specified."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "Skill invocation path changes are fully documented. REQ-004 mandates updating sdd-bootstrap/SKILL.md (L88, L99) and sdd-bootstrap-interviewer/SKILL.md (L105, L111, L118, L119, L145, L150) to new paths /sdd-review-loop:impl-review-loop and /sdd-review-loop:task-review-loop. The design §SKILL.md パス参照更新 section (added in Round 2) specifies the 6 path rewrites within SKILL.md files (scripts/ and templates/ subdirectory references). docs/skill-reference.md call-site updates are listed (L786-788, L851-853). All caller surfaces are identified."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "INV-002 (Python guard Check 2e absence) is directly addressed. The design provides a complete Python implementation of _impl_review_verdict_exists() and the Check 2e insertion point (after L973 in sdd-hook-guard.py). The PROTECTED_GATE_SUFFIXES update plan (ADR-003) covers the new 6 paths for sdd-review-loop and cleanup of the 6 old paths, with explicit human/sudo session requirement. The hook guard self-protection mechanism is unchanged. AC-002 through AC-005 validate that the security chain remains intact post-migration. The security coverage is complete."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "none",
+      "finding": "SKIP: feature_type is cli. No frontend/backend split applies."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "REQ-006 and AC-006 specify that guard-parity.tests.sh must be extended with Scenarios 19/20/21 covering Check 2e JS/Python parity. The current test file (verified) contains 18 scenarios only — this is pre-implementation state, not a design gap. The design is clear about what these scenarios must test (Impl-Review-Status: Passed guard parity). AC-007 (validate-repository.ps1 with 17-skill count) and AC-008 (scenario.tests.sh + install.tests.sh regression) complete the test coverage. REQ-003 addresses $expectedSkills correction (15 → 17) and $forbiddenPaths addition for old plugin paths."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "[LEGACY COMPAT] Minor advisory: design §ドキュメント再構成計画 references docs/contributor/skill-reference-detail.md and docs/contributor/workflow-detail.md as destinations for moved content, but these paths are not listed as explicit deliverables with creation steps. Under legacy_design=true this is a Minor advisory, not a blocking issue, as the documentation restructuring scope (REQ-005) covers the restructuring intent. All other components (sdd-review-loop plugin with skills/, agents/, scripts/, templates/, references/ subdirectories) are fully enumerated in the directory structure. The wfi-category-guide.md forbidden-terms update is identified. No undefined blocking components found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "none",
+      "finding": "Five ADRs are present: ADR-001 (move vs merge decision), ADR-002 (full deletion vs stubs), ADR-003 (PROTECTED_GATE_SUFFIXES update strategy), ADR-004 (Python path resolution method), ADR-005 (marketplace non-registration). All major architectural decisions are justified with rationale and rejected alternatives noted. ADR-001 explicitly documents the rejected --phase flag alternative from Round 1. Coverage is adequate for a refactoring spec."
+    }
+  ]
+}

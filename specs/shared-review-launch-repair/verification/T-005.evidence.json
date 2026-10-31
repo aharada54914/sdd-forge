@@ -1,0 +1,183 @@
+{
+  "task_id": "T-005",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "80584525647fccd41d560850d1b8dfa9a44439644047ab6540212a6bffe60348",
+  "quality_report": "reports/quality-gate/20261010-shared-review-launch-repair-T-005.md",
+  "verification_contract": "specs/shared-review-launch-repair/verification/T-005.contract.json",
+  "git_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/component.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/ruff.log",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/mypy.log",
+      "evidence_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log",
+      "evidence_sha256": "71f61d21a154b07089b9e85ce0c1024e305450eee34634b3b3ac65c21a2b9b61"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/build.log",
+      "evidence_sha256": "29c29392d05726e237de9faf4f4f37926fe332196489dd1709676aa84bb08f1c"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/placeholder.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/task-state.log",
+      "evidence_sha256": "a6e1d3e4ca42ba64fccd77e8b7d657cbad81b75b04d89e8b833edbe893dc02de"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log",
+      "evidence_sha256": "71f61d21a154b07089b9e85ce0c1024e305450eee34634b3b3ac65c21a2b9b61"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/coverage.md",
+      "evidence_sha256": "b675ffa8956b29e83cbfcdf8173c06bde740d56c57b04dcea7138e46b09a19e3"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/traceability.log",
+      "evidence_sha256": "436be61970d22afcc5ef950bfa8aeb5cd77c99c1fbbe8e8e91b71de770787130"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005.contract.json",
+      "sha256": "f98e65c532577f83bff5d8effa43d90ddc563b5fac85ddcfe46de43cf1bd5a6b"
+    },
+    {
+      "path": "reports/quality-gate/20261010-shared-review-launch-repair-T-005.md",
+      "sha256": "f22c5d8e2373c7dc906e4e27faacd76e3ba23e1ae0c5ad66685c98ccf9dc4a52"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/build.log",
+      "sha256": "29c29392d05726e237de9faf4f4f37926fe332196489dd1709676aa84bb08f1c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/coverage.md",
+      "sha256": "b675ffa8956b29e83cbfcdf8173c06bde740d56c57b04dcea7138e46b09a19e3"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/mypy.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/task-state.log",
+      "sha256": "a6e1d3e4ca42ba64fccd77e8b7d657cbad81b75b04d89e8b833edbe893dc02de"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/deterministic-bundle-20261010/traceability.log",
+      "sha256": "436be61970d22afcc5ef950bfa8aeb5cd77c99c1fbbe8e8e91b71de770787130"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-005/parent-binding-20261010/unified-task-launch.log",
+      "sha256": "71f61d21a154b07089b9e85ce0c1024e305450eee34634b3b3ac65c21a2b9b61"
+    }
+  ]
+}

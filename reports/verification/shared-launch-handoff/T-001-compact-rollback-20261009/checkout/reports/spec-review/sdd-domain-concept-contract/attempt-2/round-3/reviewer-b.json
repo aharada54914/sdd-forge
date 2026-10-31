@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a2r3-seq0765",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a2r3-0765",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "823e8fad6b62d65dda47ed114640c48a9d94ac65dee987940cb7db80023370f0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "6ee9192ace100ebace7041c35e448b668d07053726a764ac290c84ca6f2cc86d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-3/precheck-result.json",
+      "sha256": "efcb33e7d6cfb6e34d5b2ba5d83e44e9fad7358ff1c71699c41ffabba56d51d0"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-3/integrated-summary.json",
+      "sha256": "6e19537da7e34f0be3a767f2b824672c876ca64a7b7b1d5bd1589ec626b44fbd"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions gives exact patterns for id/name/context with explicit boundary examples (APIOrder, order-taking-2 accepted; concept-order, order_item, Order-Taking rejected — REQ-002, AC-018), exact minLength/minItems scope, and REQ-004(c) now states explicit type-precedence over pattern/minLength/minItems with 'no exception/stack-trace' framing, closing the round-2 gap. Every AC test target names the concrete field and exact observable behavior (exit code, 1-line-1-violation stderr format), leaving no term/state for two implementers to diverge on."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked REQ-007 ('existing 11 suites/v1 untouched') against REQ-005/006 (new, distinct suite file) — no overlap. Checked the Edge Cases self-reference rule ('distinguished_from が自分自身を指す: invalid... validator (f) の一部') against AC-008's explicit '自分自身への参照ケースを含む' — consistent, not contradictory. Checked the newly added REQ-004(c) type-precedence rule against the pre-existing fail-closed/no-raw-exception provisions in Edge Cases and Security Boundaries — mutually reinforcing, no conflict found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Walked the Negative-path coverage matrix cell by cell against requirements.md's declared constraints (required keys, patterns, minLength, minItems, reference integrity, and the newly added 型不一致 column) and confirmed each AC id cited (AC-006..AC-024) is backed by that AC's own Test Target naming the same field. Re-derived the stated fixture tally independently: 1-fixture ACs (AC-006..012 + AC-016 = 8) plus multi-fixture ACs (7+2+3+3+4+7+2+8+29 = 65) sums to 73, matching the stated total exactly, and AC-024's 29 sub-items were individually recounted against its own enumerated list and also total 29. Two matrix-bookkeeping nits were found but do not rise to a blocking finding: (a) the 'concepts[]の要素 (object)' row's キー欠落 cell cites AC-021, which only tests the root `concepts` key being wholly absent, not an element-scoped constraint — redundant with the row above rather than incorrect; (b) none of these affect any implementer's ability to build the correct behavior since the underlying REQ/AC text for each field remains unambiguous."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "INV-009 (v1 instance non-existence) and INV-010 (hook-runtime unavailable) are recorded as owner-authorized, explicitly-continued assumptions in requirements.md's Assumptions section, with investigation.md citations. OQ-001 (v1 schema file fate) and OQ-002 (CI/run-all registration) are explicitly deferred to a later phase without blocking Phase 0 decomposition. OQ-003 (essence required) and OQ-004 (v1-rejection error) are no longer open in practice: REQ-002 states essence is required unconditionally and REQ-004(b) states the v1-rejection error unconditionally, both matching investigation.md's proposals — i.e., resolved by adoption into binding requirement text, even though the Open Questions section's boilerplate wording is stale. This staleness is a Minor documentation nit, not a blocking ambiguity, since the binding REQ/AC text used by implementers is unconditional and self-consistent."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "Roles and Permissions explicitly states no mechanical approval-enforcement is introduced by this feature — meta.status 'Approved' remains a plain enum value gated only by human review, unchanged from the pre-existing state (INV-008: contracts/domain-contract.* is not hook-guard protected). The feature's only artifacts are a schema file, a read-only validator, and tests; no irreversible or gated workflow action is in scope, so the skip condition ('no such boundary is in scope') applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions, Roles and Permissions, Main Workflows, Security Boundaries, and the fully enumerated AC/negative-path matrix (AC-001..AC-024) leave no product-behavior decision for a design reviewer to invent. The round-2 Major gap (type-mismatch handling absent from requirements/AC/matrix) is now closed with a concrete precedence rule in REQ-004(c) and a 29-fixture AC-024 that also proves the precedence ordering, so implementation-policy review can proceed without inventing missing behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 states 'sdd-forge 自身に `domain/` ディレクトリは存在せず' (confirmed by root-directory check in that investigation). Because the target project has no `domain/` directory (and therefore no `domain/context-map.md` with Domain-Model-Status: Approved or schema-valid domain-contract.json), the check's explicit skip condition applies and is recorded as skipped."
+    }
+  ]
+}

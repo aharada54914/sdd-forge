@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-impl-a2r3-b-seq0412",
+  "host_session_id": "SESS-impl-a2r3-b-epic136phase4docs-0412",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-3/integrated-summary.json",
+      "sha256": "5485d482daf3e5a87b644aab9f2ad62921945549bbbb0814a8863e075e5bb625"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-3/precheck-result.json",
+      "sha256": "ebda0c9a5ab473246bba37b5ec90a6e5387725e1b786283578e68675b9980cf3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "ecd5765c694418c79bfb6f0356e7530f31b12d838ccedbcb397455df127fd166"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every architectural decision in design.md carries stated rationale: runner-not-gate placement (design.md:9, citing INV-004), timeout-indistinguishable-from-error (design.md:11), setsid process-group choice (design.md:38-42, citing Edge Case 2 orphan risk), 600s default (design.md:118, compared against SDD_INSTALL_LOCK_STALE:-600 rather than invented), per-panelist vs per-collection-phase bound (design.md:182), exit-1-not-2 (design.md:183, citing REQ-003), sleep-1 polling vs wait -n/SIGCHLD traps (design.md:244, portability rationale), and the PowerShell tree-kill vs SIGTERM-first choice (design.md:106, 'matching the shell side's escalation intent'). No inline decision found without a because/since-equivalent clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md carries no residual '## Open Questions' section; all of investigation.md's open questions (#133 OQ-1..4, design.md:181-184) and #134's OQ-3 (design.md:185) are resolved inline under '## Design Decisions (Resolving Open Questions)' with stated rationale for each. #134 OQ-2 was already resolved at the requirements layer (requirements.md:113). #134 OQ-1 (which OWASP rows are N/A) is a content-authoring task governed by AC-008's anti-padding assertion (requirements.md:107) rather than a blocking open question. No entry lacks an owner, blocking status, or resolution path because no unresolved entry exists."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present, so the auto-Major-fail condition does not apply. requirements.md's Assumptions (174-178) are each grounded: the SIGTERM-termination assumption is operationalized and tested (Edge Case 7, design.md:47-59, 67); the install.sh:758-781 portable-deadline citation explicitly discloses its own provenance gap and rests independently on the first-hand Edge Case 1 command -v result; the file:line re-verification note is a procedural directive, not a risk assumption. design.md's own residual assumptions (2-second SIGTERM grace, 600s default tightness) are explicitly flagged in '## Risks' (design.md:243-245) with grounded comparison basis, satisfying the 'explicitly marked as a risk' criterion."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No '## Constraint Compliance' heading exists (design.md has '## Global Constraints' instead), so the fallback TYPE-H scan applies. A search of requirements.md/acceptance-tests.md for 'must not'/'shall not' found 6 constraints (requirements.md:81 exit-not-2, :121 no re-documenting the vendor agent role definition files, :158 no restating the absent/error path, :168 no truncated verdict, :171 and acceptance-tests.md:60 no false-timeout-report on the boundary race) -- all are addressed in design.md (OQ-3 resolution at :183, :24/:147 pointer-not-restate, :122 BL-003 intact text, :69 scratch-file ordering preserved, :47-52 Edge Case 6 boundary re-check plus TEST-004(c)). No unaddressed constraint found. Round 2's Major is closed: design.md:224 now states the AC-004(b) PowerShell carve-out explicitly and reframes BL-004 parity as an outcome claim, and its citations to requirements.md:67,75 and acceptance-tests.md:64-68 were verified accurate."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002 (requirements.md:41-49) states a numeric wall-clock bound, SDD_PANELIST_TIMEOUT default 600s, on an external call. design.md addresses it with a bounded-wait pattern (design.md:31-106) and a load-style test plan naming exact assertions (Test Strategy item 2, design.md:217-220, backed by TEST-004's wall-clock and liveness assertions). infra-spec.md:15 additionally documents the CI timing cost of exercising the bound."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment & CI Plan' (228-232) states the deployment target (existing test job, no new step) and CI pipeline impact (no registration change, no dist rebuild, ADR-0003 inapplicable). infra-spec.md '## Deployment Topology' (17-28) reinforces target = shipped inside the plugin / repository-only, no service/container/IaC. No feature-flag strategy is stated, but this is not an incrementally-rolled-out feature (a straight script/doc change), so the conditional bullet does not apply. No schema change exists (Data Plan: 'No data changes'), so migration-execution-order omission is not a defect here."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Data Plan' (149-160) states verbatim 'No data changes.' -- matches the stated skip condition for this check."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one external integration (vendor CLIs codex/gemini) is identified with name/purpose (Security Boundaries B1, design.md:168), contract (CLI invocation via stdin/stdout redirection plus the cross-model-verdict/v1 JSON schema, design.md:69-84, 157), and exhaustive failure behaviour (the Policy Taxonomy table, design.md:124-131, covering absent/non-zero/timeout/rate-limited/malformed-output dispositions). The explicit non-pinning of CLI version is itself a stated design decision (OQ-1, design.md:181), not an omission."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md has no '## Goals'/'## User Stories' headings (legacy_design: true per precheck-result.json:7); it organizes by REQ-001..REQ-006. design.md's Test Strategy Coverage table (195-210) rolls up every REQ to its ACs with no gaps, and the Components table (17-27) introduces no artifact beyond the four runner scripts, one policy doc, one threat-model doc, and two test suites -- all traceable to a REQ. No new API endpoint, persisted data model, or unrequested capability found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: a security/authorization change (Stream A closes a DoS hole) and cross-service integration failure behaviour (vendor CLI). security-spec.md '## Security Tests' (51-65) maps every STRIDE-identified boundary to a named TEST-* artifact (TEST-003 through TEST-010), and design.md's Coverage table independently corroborates the same AC-to-TEST mapping. Concrete validation paths are named, not merely implied."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists at the project root (confirmed by direct listing), so the domain-model-conformance surface this check scopes to is absent."
+    }
+  ]
+}

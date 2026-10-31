@@ -1,0 +1,101 @@
+### PRE-FIX baseline (git archive HEAD ca1dac14) pwsh tests/phase2-guard-invariants.tests.ps1
+2026-08-13T23:20:35Z
+ok: staged generator exists
+ok: generated output exists: guard_invariants.py
+ok: generated output exists: guard-invariants.generated.js
+ok: generated output exists: guard-invariants.generated.ps1
+ok: generated output exists: guard-invariants.generated.sh
+ok: generator --check succeeds
+ok: Python output exports the exact v1 key set
+ok: Node output exports the exact v1 key set
+ok: PowerShell output exports the exact v1 key set
+ok: PowerShell schema/version constants are v1/64
+ok: generator --check rejects malformed canonical JSON
+ok: generator --check rejects canonical read I/O errors
+ok: Python uses explicit importlib fixed loader
+ok: Python loader names fixed native module
+ok: Node loader names fixed native module
+ok: Node loader is not CWD-relative
+ok: PowerShell loader names fixed native module
+ok: PowerShell loader is not PWD-relative
+ok: dispatcher sources only schema/provenance output
+ok: runtime avoids canonical JSON: sdd-hook-guard.py
+ok: runtime avoids canonical JSON: sdd-hook-guard.js
+ok: runtime avoids canonical JSON: sdd-hook-guard.ps1
+ok: runtime avoids canonical JSON: sdd-hook-guard.sh
+ok: Python staged guard preserves shared read-only corpus from another CWD
+ok: Node staged guard preserves shared read-only corpus from another CWD
+ok: PowerShell staged guard preserves shared read-only corpus from another CWD
+ok: TEST-012 Python denies a missing fixed generated module
+ok: TEST-012 Python denies an unconsumed fixed-module export
+ok: TEST-012 Node denies a missing fixed generated module
+ok: TEST-012 Node denies an unconsumed fixed-module export
+ok: TEST-012 PowerShell denies a missing fixed generated module
+ok: TEST-012 PowerShell denies an unconsumed fixed-module export
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-011 live CI uses platform-native generator and invariant suites before validation and guards
+ok: TEST-013 staged bootstrap validator exists
+ok: TEST-013 bootstrap validator is ASCII/no-BOM for PowerShell 5.1
+ok: TEST-013 runner binds the reviewed anchored native API contract
+ok: TEST-013 runner has no path-based copy or source-hash fallback
+ok: TEST-013 runner fails closed outside FullLanguage and local NTFS capability floor
+ok: TEST-013 isolated fixtures have inert source, parent, prepare, and rename patch markers
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 bootstrap accepts literal-order canonical data and installs the exact batch
+ok: TEST-013 bootstrap rejects expansion invariant mismatch
+ok: TEST-013 bootstrap rejects grammar invariant mismatch
+ok: TEST-013 bootstrap rejects hash invariant mismatch
+ok: TEST-013 bootstrap rejects missing invariant mismatch
+ok: TEST-013 bootstrap rejects duplicate invariant mismatch
+FAIL: TEST-013 normal update validates only the installed live canonical authority
+ok: TEST-013 normal update rejects an absent live canonical file
+ok: TEST-013 normal update rejects an invalid live canonical file
+ok: TEST-013 normal update rejects staged/live ordered-array mismatch
+ok: TEST-013 validation rejects absolute path remapping
+ok: TEST-013 validation rejects traversal path remapping
+ok: TEST-013 validation rejects remap path remapping
+ok: TEST-013 validation rejects a staged source final link
+ok: TEST-013 validation rejects a staged source intermediate junction
+ok: TEST-013 validation rejects a target final link
+ok: TEST-013 validation rejects a target parent junction
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 isolated install completes after full validation
+FAIL: TEST-013 isolated install copies every staged candidate in inventory order
+FAIL: TEST-013 post-install guard denies protected test.yml write
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+ok: TEST-013 later hash failure leaves early destination sentinel untouched
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 atomic rename preserves an out-of-inventory hard-link alias
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 held source handle denies late source substitution and supplies copied bytes
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 held destination parent denies late namespace substitution
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+ok: TEST-013 preparation failure changes no live file and cleans every temporary
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+FAIL: TEST-013 fixed-index failure leaves exact new prefix and complete rollback restores every prior digest
+  runner diagnostics (exit 2):
+    | apply-protected-files: Windows is required
+ok: TEST-013 unavailable native API fails before the first live replacement
+  out of sync: plugins/sdd-quality-loop/scripts/check-contract.ps1
+  out of sync: plugins/sdd-quality-loop/references/guard-invariants.json
+  out of sync: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+FAIL: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.ps1: 60 passed, 10 failed
+rc=1

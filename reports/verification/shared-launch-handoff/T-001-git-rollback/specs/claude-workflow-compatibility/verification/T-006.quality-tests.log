@@ -1,0 +1,28 @@
+Command: bash tests/downstream-review-precheck.tests.sh
+ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges
+
+Command: pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+
+Command: bash tests/downstream-review-precheck-parity.tests.sh
+ok: downstream review precheck shell and PowerShell outputs have equivalent semantics
+
+Command: bash tests/task-review-precheck.tests.sh
+ok: task review precheck records heading-style blocker dependencies
+
+Command: bash tests/review-agent-isolation.tests.sh
+ok: spec, implementation, and task review roles are distinct and isolated
+
+Command: bash tests/review-contract-foundation.tests.sh
+ok: review contract foundation validates canonical input and rejects unsafe inputs
+
+Command: pwsh -NoProfile -File tests/review-contract-foundation.tests.ps1
+ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs
+
+Command: bash tests/review-contract-foundation-parity.tests.sh
+ok: review contract validators have equivalent semantic JSON output
+
+Command: pwsh -NoProfile -File tests/validate-repository.ps1
+Repository validation passed.

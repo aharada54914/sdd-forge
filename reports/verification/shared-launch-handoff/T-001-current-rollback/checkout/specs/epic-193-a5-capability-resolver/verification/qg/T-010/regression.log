@@ -1,0 +1,708 @@
+$ bash tests/resolve-project-context-block.tests.sh
+# runner: bash
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: the Full-track clean resolve published its whole track-exclusive output set through step 14's own transaction
+PASS: projection-two-components: no capability-summary.yaml on a Full-track resolve (B4)
+PASS: projection-two-components: Complete left no journal or staging litter
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-output-not-object: exit 1
+PASS: projection-output-not-object: canonical diagnostic only
+PASS: projection-output-not-object: exact Resolver Evidence
+PASS: projection-output-not-object: Resolver Evidence schema agreement
+PASS: projection-output-not-object: no partial live artifact
+PASS: projection-output-not-object: no step-4-or-later subprocess
+PASS: projection-components-not-object: exit 1
+PASS: projection-components-not-object: canonical diagnostic only
+PASS: projection-components-not-object: exact Resolver Evidence
+PASS: projection-components-not-object: Resolver Evidence schema agreement
+PASS: projection-components-not-object: no partial live artifact
+PASS: projection-components-not-object: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: resolve-component-paths-binding-not-object: exit 1
+PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
+PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+PASS: resolve-component-paths-binding-not-object: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+PASS: evaluate-predicate-output-malformed-unhashable: exit 1
+PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: evaluate-predicate-failure-after-warn: exact Resolver Evidence
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: affected-component-absent-from-context: exit 1
+PASS: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-absent-from-context: exact Resolver Evidence
+PASS: affected-component-absent-from-context: Resolver Evidence schema agreement
+PASS: affected-component-absent-from-context: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: clean-full-track-publication: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)
+PASS: clean-full-track-publication: exact published Facet Manifest at its live path
+PASS: clean-full-track-publication: exact published Context Projection bytes at its live path (Full track only)
+PASS: clean-full-track-publication: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative)
+PASS: clean-full-track-publication: Resolver Evidence schema agreement
+PASS: clean-full-track-publication: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)
+PASS: clean-full-track-publication: Complete deletes the journal and leaves no staging litter
+PASS: publication-journal-recovery-crash: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery-crash: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery-crash: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery-crash: the recovering invocation proceeded past step 0 into its own separate resolve (reaching step 4), rather than Blocking on the stale journal
+PASS: publication-journal-recovery-crash: the already-committed target was RESTORED to its own PRE-transaction bytes from the journal's own pre/ backup -- never `unlink`ed (B1's own destroyed-bytes gap)
+PASS: publication-journal-recovery-crash: every not-yet-renamed target is still at its own PRE bytes (no mixed generation)
+PASS: publication-journal-recovery-crash: the converged journal and its pre/ backups are deleted once recovery completes
+PASS: publication-journal-recovery-crash: the recovering invocation's own separate Block is what Resolver Evidence records
+PASS: publication-journal-recovery: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery: Prepare captured a byte-exact pre-image backup for the target that had live content
+PASS: publication-journal-recovery: exit 1
+PASS: publication-journal-recovery: canonical diagnostic only (AC-014)
+PASS: publication-journal-recovery: no Registry/ownership work began (step-4-or-later spy never fired)
+PASS: publication-journal-recovery: the unrecoverable journal and its backups are RETAINED for manual operator intervention
+PASS: publication-journal-recovery: the live state is left exactly as found -- no partial recovery attempted
+PASS: publication-journal-recovery: exact Resolver Evidence -- and no `state` key, since the scan Blocks before the Project Context is ever read (AC-012)
+PASS: publication-journal-recovery: Resolver Evidence schema agreement
+PASS: artifact-publication-failed: exit 1
+PASS: artifact-publication-failed: canonical diagnostic whose own detail records the journal-based rollback attempt (AC-039)
+PASS: artifact-publication-failed: the already-completed sibling rename was rolled back to its own PRE-transaction live bytes via the journal -- never a bare `unlink` (AC-039, B1's own destroyed-bytes gap)
+PASS: artifact-publication-failed: no live artifact this invocation had not already committed to survives partially written (AC-011/TEST-038)
+PASS: artifact-publication-failed: a fully-successful in-process rollback deletes the journal it converged
+PASS: artifact-publication-failed: exact Resolver Evidence (AC-012)
+PASS: artifact-publication-failed: Resolver Evidence schema agreement
+PASS: post-publication-generation-mismatch: exit 1
+PASS: post-publication-generation-mismatch: canonical diagnostic only (AC-014)
+PASS: post-publication-generation-mismatch: the Block fires only AFTER every rename in the transaction has already, briefly, succeeded -- all three targets observed live from inside the verification window (AC-049(a))
+PASS: post-publication-generation-mismatch: every one of those just-completed renames is rolled back to its own PRE-transaction state via the journal before this invocation exits -- restored bytes, never a bare `unlink` (AC-049(b)(c), AC-011)
+PASS: post-publication-generation-mismatch: the journal is deleted once every target is confirmed back at PRE
+PASS: post-publication-generation-mismatch: exact Resolver Evidence (AC-012)
+PASS: post-publication-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch-affected-components: exit 1
+PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
+PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
+PASS: snapshot-generation-mismatch-affected-components: a step-13 Block never opens a publication transaction at all
+PASS: snapshot-generation-mismatch-affected-components: exact Resolver Evidence (AC-012)
+PASS: snapshot-generation-mismatch-affected-components: Resolver Evidence schema agreement
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
+PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
+PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
+PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 306 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-match.tests.sh
+# runner: bash
+PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
+PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
+PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
+PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
+PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
+PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
+PASS: full-pipeline-match: Resolver Evidence schema agreement
+PASS: full-pipeline-match: no partial live artifact
+PASS: full-pipeline-match: projection_sha256 independently recomputed from the resolver's own captured projection bytes matches the hand-built expectation's own hash (AC-003 remainder)
+PASS: full-pipeline-match: independently-recomputed affected_components matches the fixture's own four components
+PASS: full-pipeline-match: context_binding.full_context_revision is this run's own independently-hashed source_sha256, unmutated by assembly (AC-003 remainder)
+PASS: full-pipeline-match: context_binding.projection_sha256 is the resolver-captured, independently re-canonicalized-and-hashed projection digest, unmutated by assembly (AC-003 remainder)
+PASS: full-pipeline-match: context_binding.registry_digest is this fixture's own stub's fixed FIRST_DIGEST constant, unmutated by assembly (AC-005 remainder)
+PASS: full-pipeline-match: context_binding.ownership_digest is resolve-component-paths-real.py's own independent, real-subprocess-derived value, unmutated by assembly (AC-005 remainder)
+PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
+PASS: full-pipeline-match: "other~thing"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)
+PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- this call exercises _resolver_block()'s own reconstruction directly, diffed against the identical loaded module's own constants; gate-cycle-4 Minor: this label previously claimed both fields are 'never written to any live path pre-T-007', which is now stale -- resolver-evidence.yaml HAS published both since T-004's own NEEDS_WORK cycle 2 remediation, on every Block reached AT OR AFTER step 10 (this fixture's own forced snapshot-generation-mismatch Block among them); the PUBLISHED equivalent is read back off that written artifact and compared against this identical expectation further below, RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a context_binding block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.full_context_revision matches this run's own independently-hashed source_sha256 (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.projection_sha256 matches the resolver's own captured projection bytes, independently re-canonicalized and re-hashed (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.registry_digest matches this fixture's own stub's fixed FIRST_DIGEST constant (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.ownership_digest matches resolve-component-paths-real.py's own independent, real-subprocess-derived value (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] matches /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
+PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
+PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
+PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-alpha's own MATCHED 'required' correctly surfaces (AC-007, de-confounds the omission direction from the exclusion assertion above)
+PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
+PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
+PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
+PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
+PASS: include-untracked-pass-through: no partial live artifact
+PASS: enforcement-byte-identity-advisory: exit 1
+PASS: enforcement-byte-identity-advisory: canonical diagnostic only
+PASS: enforcement-byte-identity-advisory: state field records 'advisory'
+PASS: enforcement-byte-identity-advisory: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-advisory: no partial live artifact
+PASS: enforcement-byte-identity-required: exit 1
+PASS: enforcement-byte-identity-required: canonical diagnostic only
+PASS: enforcement-byte-identity-required: state field records 'required'
+PASS: enforcement-byte-identity-required: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-required: no partial live artifact
+PASS: enforcement-byte-identity: Resolver Evidence byte-identical across advisory/required except state and the two config-byte-derived context_binding digests (AC-016)
+PASS: enforcement-byte-identity: full_context_revision/projection_sha256 genuinely DO differ across advisory/required (sanity -- confirms the exclusion above is not vacuous)
+PASS: enforcement-byte-identity: _assemble_facet_manifest takes no state/capability_enforcement parameter (structural proof the Facet Manifest itself is enforcement-independent on the Full track, AC-016 remainder)
+PASS: warn-cardinality-single-node: exit 1
+PASS: warn-cardinality-single-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-single-node: exactly 1 severity:warn entry, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-single-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-single-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-single-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-single-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-single-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-single-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-single-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-single-node: no partial live artifact
+PASS: warn-cardinality-single-node: the severity:warn entry's own detail is byte-identical to this node's own independently-recomputed capability_id/component_id/operator/field/reason text, never merely a substring match (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-multi-node: exit 1
+PASS: warn-cardinality-multi-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-multi-node: exactly 3 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-multi-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-multi-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-multi-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: zero-affected-component-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: zero-affected-component-match: canonical diagnostic only, reached step 13 -- so steps 0-12, INCLUDING step 12's own schema self-validation of the staged Facet Manifest, all passed on zero affected components
+PASS: zero-affected-component-match: the REAL resolve-component-paths independently returns affected_components: [] for this commit range (the zero-component condition is genuine, never fabricated by a stub)
+PASS: zero-affected-component-match: capability_evaluations[] carries exactly one entry per Registry Capability, in declaration order, even with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Capability is matched: false with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Registry Capability's own trigger_evaluations[] is [] (REQ-006(g) first half, asserted here against a REAL published Resolver Evidence artifact rather than a hand-built instance)
+PASS: zero-affected-component-match: no unmatched Capability carries conditional_facet_evaluations (AC-019 key-omitted rule)
+PASS: zero-affected-component-match: Resolver Evidence publishes context_binding on this late Block
+PASS: zero-affected-component-match: Facet Manifest capabilities: [] with zero affected components (REQ-006(g) second half, AC-027 -- the half that previously had no fixture anywhere in this feature)
+PASS: zero-affected-component-match: every matched-set-derived aggregate is empty alongside capabilities: [] (required_facets/conditional_facets/resolved_gates, AC-007)
+PASS: zero-affected-component-match: capability_minimum_enforcement omitted when the matched set is empty (AC-007)
+PASS: zero-affected-component-match: the zero-component Facet Manifest validates against the REAL validate-facet-manifest (AC-008 -- capabilities: [] is a conforming instance, not merely an empty one)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 125 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-cli.tests.sh
+# runner: bash
+PASS: missing-config: omitting --config is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-config: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-config: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-target-rev: omitting --target-rev is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-target-rev: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-target-rev: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-feature: omitting --feature is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-feature: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-feature: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: source-rev-default: reaches step 5 (Registry deliberately absent -> contract-discovery-failed), proving steps 0-4 (including argument validation) all passed with --source-rev omitted (AC-001 sanity)
+PASS: source-rev-default: resolve-component-paths received --source-rev HEAD verbatim -- the CLI's own fixed default value, never a caller-resolved sha (AC-001)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 13 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-discovery.tests.sh
+# runner: bash
+PASS: packaged-copy-preferred: reaches the forced step-13 snapshot-generation-mismatch Block, proving every one of the six contracts/* artifacts this feature's scripts locate resolved via the PACKAGED, script-relative copy -- a deliberately-broken copy sits at the git-root fallback location for every one of them, so falling through to it would Block earlier with a different diagnostic (AC-002)
+PASS: git-root-fallback: fixture sanity -- no packaged contracts/ directory exists at all (git-root fallback is the ONLY location that can possibly resolve any of the six artifacts)
+PASS: git-root-fallback: reaches the forced step-13 snapshot-generation-mismatch Block with no packaged copy present anywhere -- every one of the six contracts/* artifacts resolved via the git-root fallback location alone (AC-002)
+PASS: no-environment-variable-consulted: reaches the identical forced step-13 Block as git-root-fallback with every plausible decoy environment variable set to a THIRD, deliberately-broken location -- these env vars have zero effect on discovery (AC-002)
+PASS: installed-layout-py-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-py-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-py-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-py-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-py-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-py-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-sh-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-sh-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-sh-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-sh-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-sh-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-sh-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-ps1-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-ps1-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-ps1-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-ps1-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-ps1-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-ps1-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 24 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-lite.tests.sh
+# runner: bash
+PASS: advisory-missing: reaches the forced step-13 snapshot-generation-mismatch Block, proving step 10b's own Capability Summary assembly and step 12's own real capability-summary.schema.json self-validation already succeeded (steps 0-12 all passed)
+PASS: advisory-missing: Resolver Evidence schema agreement
+PASS: advisory-missing: Resolver Evidence publishes capability_evaluations[] (late-Block provenance, T-004)
+PASS: advisory-missing: the reconstructed capability-summary.yaml validates via the REAL validate-capability-summary (AC-009)
+PASS: advisory-missing: track_artifact is genuinely a Capability Summary shape (schema/track fields)
+PASS: advisory-missing: no facet-manifest.yaml/capability-summary.yaml/project-context.resolved.json ever reaches a live path on this Lite-track invocation (B4/AC-009)
+PASS: advisory-missing: fixture sanity -- cap-alpha's own trigger genuinely matches the sole affected component comp-a (characteristics.pii == true)
+PASS: advisory-missing: cap-alpha's own absent required_lite_checks key contributes [] under advisory enforcement, never Blocking (AC-009(a))
+PASS: zero-match: reaches the forced step-13 snapshot-generation-mismatch Block, proving step 10b's own Capability Summary assembly and step 12's own real capability-summary.schema.json self-validation already succeeded (steps 0-12 all passed)
+PASS: zero-match: Resolver Evidence schema agreement
+PASS: zero-match: Resolver Evidence publishes capability_evaluations[] (late-Block provenance, T-004)
+PASS: zero-match: the reconstructed capability-summary.yaml validates via the REAL validate-capability-summary (AC-009)
+PASS: zero-match: track_artifact is genuinely a Capability Summary shape (schema/track fields)
+PASS: zero-match: no facet-manifest.yaml/capability-summary.yaml/project-context.resolved.json ever reaches a live path on this Lite-track invocation (B4/AC-009)
+PASS: zero-match: fixture sanity -- zero matched Capabilities (zero affected components)
+PASS: zero-match: zero matched Capabilities is vacuously capabilities: []/required_lite_checks: []/full_upgrade_required: false, never Blocking lite-check-source-undefined even under required enforcement (AC-009(b))
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 18 passed, 0 failed
+Exit: 0
+
+$ bash tests/validate-resolver-evidence.tests.sh
+# runner: bash
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 117 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-parity.tests.sh
+# runner: bash
+PASS: TEST-022 quick-block-canonicalizer-invocation-failed: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022)
+PASS: TEST-022 clean-full-track-publication: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022)
+PASS: TEST-023 disabled-legacy-invocation: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 disabled-legacy-invocation (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 disabled-legacy-invocation (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 disabled-legacy-invocation (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 canonicalizer-invocation-failed (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 windows-style-path (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 clean-full-track-publication (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path non-vacuity: the published diagnostic detail genuinely embeds a raw backslash byte, unmutated (AC-023)
+PASS: TEST-023 validate-resolver-evidence/clean: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr (AC-023, T-008's own triad)
+PASS: TEST-023 validate-resolver-evidence/schema-invalid: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr (AC-023, T-008's own triad)
+PASS: TEST-024 fixture sanity: the Registry's own capabilities[] declaration order is genuinely NOT ascending (['cap-gamma', 'cap-beta', 'cap-alpha']) -- otherwise this fixture could not distinguish 'sorted by construction' from 'sorted because the Resolver itself sorts'
+PASS: TEST-024 registry-reordering (py): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (py): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (py) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 registry-reordering (sh): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (sh): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (sh) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 registry-reordering (ps1): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (ps1): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (ps1) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 white-box fixture sanity: this hand-built Registry's own capabilities[] declaration order is genuinely NOT ascending (['cap-zebra', 'cap-mango', 'cap-apple'])
+PASS: TEST-024 white-box: Facet Manifest capabilities[] is stable-sorted regardless of Registry declaration order or fed capability_evaluations order (AC-024)
+PASS: TEST-024 white-box: Facet Manifest required_facets[] is stable-sorted (AC-024, Epic-A4-mandated array)
+PASS: TEST-024 white-box: Facet Manifest resolved_gates[] is stable-sorted by id, deduplicated across contributing Capabilities (AC-024, Epic-A4-mandated array)
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: TEST-024 diagnostics-sort reuse non-vacuity: reusing resolve-project-context-block-check.py's own dsl-warn-unsorted-affected-components case actually ran 6 assertion(s), not zero
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1 contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1 contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-025 non-vacuity canary: the dirty fixture is flagged for every one of this scan's own 5 categories
+PASS: TEST-025 false-positive control: the clean fixture (benign English prose about time/networking, no literal forbidden API call) is not flagged
+PASS: TEST-025 non-vacuity canary: the dirty provider-term fixture is flagged
+PASS: TEST-025 false-positive control: the clean provider-term fixture (this feature's own vocabulary plus near-miss substrings) is not flagged
+PASS: self-registration: tests/run-all.sh lists tests/resolve-project-context-parity.tests.sh
+PASS: self-registration: tests/run-all.ps1 lists tests/resolve-project-context-parity.tests.ps1
+PASS: self-registration: the staged .github/workflows/test.yml candidate carries this suite's CI steps
+PASS: self-registration: staged .github/workflows/test.yml candidate sha256 matches its own MANIFEST.sha256 entry
+PASS: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it)
+resolve-project-context-parity (sh launcher): 70 passed, 0 failed
+RESULT: 70 passed, 0 failed
+Exit: 0

@@ -1,0 +1,118 @@
+T-008 acceptance-first evidence — Green (implementation complete)
+===================================================================
+
+1) esbuild single-file dist bundle, committed
+------------------------------------------------
+$ npm run build
+
+> ci-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+  dist/index.js  1.1mb
+⚡ Done in 14-20ms
+
+$ shasum -a 256 dist/index.js
+f147073b805db37bdd70b95bd2e905d1db4201796b82dfbf5ce3c53bf07356de  dist/index.js
+
+mcp/ci-mcp/.gitignore only excludes node_modules/ and dist-test/ (the
+compiled-test-output directory) — dist/ is NOT excluded, so dist/index.js is
+tracked and committed in this task's commit.
+
+2) Reproducibility (byte-identical rebuild)
+------------------------------------------------
+Ran the build 3 independent times (once standalone, once after `mv`-ing the
+prior output aside, once again just before staging for commit) and compared
+SHA-256 each time:
+
+  build #1: f147073b805db37bdd70b95bd2e905d1db4201796b82dfbf5ce3c53bf07356de
+  build #2: f147073b805db37bdd70b95bd2e905d1db4201796b82dfbf5ce3c53bf07356de
+  build #3: f147073b805db37bdd70b95bd2e905d1db4201796b82dfbf5ce3c53bf07356de
+
+`diff dist/index.js /tmp/first-build.js` (build #1 vs #2 saved copy) produced
+no output (byte-identical). Reproducibility confirmed.
+
+3) Inspector CLI smoke test (AC-015) — genuinely runs, not skipped
+---------------------------------------------------------------------
+tests/smoke/inspector-smoke.test.ts added:
+  - "inspector CLI: server starts over stdio and tools/list reports exactly
+    the 5 ci-mcp tools" — asserts the sorted tool-name list equals
+    [get_job_log, get_workflow_run, list_run_artifacts, list_run_jobs,
+    list_workflow_runs].
+  - "inspector CLI: tools/call list_workflow_runs with no token env and no
+    repo resolves to a schema-shaped auth-missing envelope, no network
+    reached" — spawns the real bundled dist/index.js via
+    `@modelcontextprotocol/inspector --cli` with CI_MCP_GITHUB_TOKEN /
+    GH_READONLY_TOKEN / GITHUB_TOKEN / CI_MCP_REPO explicitly stripped from
+    the child's env (not just relying on the ambient environment being
+    clean), asserting `{ ok: false, error: { code: "auth-missing" } }`.
+    auth.ts's `withToken` gate runs before repo-resolve/github-client, so
+    this never reaches the network even without a repo configured.
+
+$ npm test
+...
+✔ inspector CLI: server starts over stdio and tools/list reports exactly the 5 ci-mcp tools (226.44ms)
+✔ inspector CLI: tools/call list_workflow_runs with no token env and no repo resolves to a schema-shaped auth-missing envelope, no network reached (200.64ms)
+...
+ℹ tests 137
+ℹ suites 0
+ℹ pass 137
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 564.47925
+
+npm test exit code: 0
+
+(135 pre-existing tests from T-001..T-007/T-012/T-013 + 2 new smoke tests =
+137. No test is skipped or todo.)
+
+4) Typecheck
+------------------
+$ npx tsc --noEmit
+(no output)
+typecheck exit code: 0
+
+5) dist-parity (AC-014), verified locally exactly as CI will run it
+-------------------------------------------------------------------
+$ npm run build
+$ git diff --exit-code -- dist/
+(no output — no diff)
+parity diff exit code: 0
+
+6) CI: .github/workflows/test.yml — new ci-mcp-tests job (additive only)
+--------------------------------------------------------------------------
+Added a `ci-mcp-tests` job mirroring the existing `local-env-mcp-tests` job
+(3-OS matrix: windows-latest / macos-latest / ubuntu-latest; working
+directory mcp/ci-mcp; steps: checkout, setup-node@20 with npm cache keyed on
+mcp/ci-mcp/package-lock.json, `npm ci`, `npx tsc --noEmit`, `npm test`, then
+on ubuntu-latest only: rebuild + `git diff --exit-code -- dist/` (AC-014),
+and `npm audit --omit=dev --audit-level=high`).
+
+Trigger shape: inherited from the workflow-level `on:` block (push to main,
+pull_request, merge_group, workflow_dispatch) — unchanged, no new trigger
+added.
+
+`git diff --stat` confirms the change to test.yml is purely additive
+(55 insertions, 0 deletions) — no existing job's steps were touched, and
+`required-checks` (which currently needs only [test, cli-hook-enforcement],
+matching the pre-existing mcp-tests / local-env-mcp-tests jobs' non-gating
+status) was left untouched.
+
+Local dry-run of the new job's steps (outside the actual runner, same repo
+checkout):
+$ cd mcp/ci-mcp && npm ci
+added 263 packages, and audited 264 packages in 2s
+found 0 vulnerabilities
+
+$ npx tsc --noEmit          # exit 0
+$ npm test                  # 137/137 pass, exit 0
+$ npm run build && git diff --exit-code -- dist/   # exit 0 (parity)
+$ npm audit --omit=dev --audit-level=high
+found 0 vulnerabilities                            # exit 0
+
+7) Node.js >= 20 requirement
+--------------------------------
+mcp/ci-mcp/package.json already declares `"engines": { "node": ">=20" }`
+(carried from T-001 scaffold); the new CI job pins `node-version: "20"` via
+actions/setup-node, matching local-env-mcp-tests/mcp-tests.

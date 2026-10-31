@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt2-seq0664",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0664",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/integrated-summary.json",
+        "sha256": "8f9c68b335e68b94c2caebe1aa6d25da6f53db4bff152034cf2bb928bf9d7524"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json",
+        "sha256": "5c646b6e718bb63406851d1c137eadd55d11117a945360b92afc0f750b7728c8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks' Risk tiers match risk-classification-policy.md sentinel-surface criteria; each Risk Rationale names a specific security-spec.md#trust-boundaries boundary (B1-B5) whose text I cross-checked verbatim (security-spec.md:61-65) against tasks.md's citations. T-012 remains Risk: high / Required Workflow: tdd (tasks.md:1651,1698), explicitly 'revised on task-review round 2 (RISK-APPROPRIATE, Major finding)' (tasks.md:1655-1656) — the attempt-1 round-2 correction survived into this round unchanged. No low/medium task touches auth/authz/payment/PII/migration/external-API-contract surfaces without a security-spec.md boundary citation; no high/critical task is UI-copy/CSS/docs-only (every high task edits shell/test/CI logic)."
+    },
+    {
+      "id": "WORKFLOW-MATRIX-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Required Workflow field matches risk-gate-matrix.md's tier row for all 12 tasks: medium -> acceptance-first (T-001, T-003, T-006, T-007) and high -> tdd (T-002, T-004, T-005, T-008, T-009, T-010, T-011, T-012), confirmed by paired grep of Risk:/Required Workflow: lines at tasks.md:107/125, 254/274, 414/431, 560/576, 720/738, 869/883, 978/986, 1093/1112, 1227/1243, 1357/1374, 1500/1518, 1651/1698. No critical-risk tasks present, so no second-approver requirement applies."
+    },
+    {
+      "id": "SIZING-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Task sizing and scope disjointness are unchanged from the round-3-passed decomposition: proven cryptographically by the LIFECYCLE-ONLY-DELTA hash match below, which confirms the entire task body (Scope, Planned Files, Blockers, Done When) is byte-identical to the prior binding — no scope drift, no new overlap, no fragmentation was introduced in this round."
+    },
+    {
+      "id": "LIFECYCLE-ONLY-DELTA",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Normalized current tasks.md (Task-Review-Status: Passed->Pending [1 substitution], Approval: Approved(sudo ...)->Draft [12 substitutions], Status: Done->Planned [1 substitution], no Second-Approval lines present [0 substitutions]) hashes to e49d1b7d52e6c9861fe6b88ac6ad2cda4c7d30979251c904738f2b1a9b02ab02, an exact match to the attempt-1 round-3 binding hash. Confirms the only delta since round-3 PASS is the human sudo approval stamp and T-001's Status advancement."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md carries explicit negative/edge-path rows wired into task Done-When RED evidence: AC-002 byte-identical negative self-check (T-003), AC-021/AC-004 Resolver-non-invocation spy (T-008), AC-033 capability-only usage-error golden negative (T-009), AC-035 three independent hard-fail fixtures (T-010), AC-036 anchor-fingerprint-drift check (T-008), AC-041 two runtime-refusal negative fixtures (T-011). Unchanged since round-3 pass per the LIFECYCLE-ONLY-DELTA proof."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks carry an explicit `Rollback:` field (grep count 12/12), each citing infra-spec.md#rollback and either 'plain git revert' or a stated no-consumer-broken rationale (e.g. tasks.md:155-157, 318-321, 1732-1739)."
+    },
+    {
+      "id": "STATUS-RISK-CONSISTENCY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 is the sole Done task (tasks.md:105), Risk: medium (tasks.md:107), consistent with the stated independent-quality-gate-PASS premise: identity-ledger.json records two quality-gate/sdd-evaluator cycles scoped to T-001 at sequence 661 and 662 (run_ids ...qg-T-001-seq0661, ...qg-T-001-seq0662), matching the 'cycle 2, ledger seq0662' claim. The 11 other tasks all carry Status: Planned (tasks.md:252,412,558,718,867,976,1091,1225,1355,1498,1649) with no Blocked status anywhere in the file (grep: 0 matches) and no Second-Approval lines (none present, consistent with no critical-tier task). All 12 Approval lines carry the identical sudo stamp '2026-08-08T16:33:11Z'. I could not independently verify the QG report's 'zero Critical/Major' content since no quality-gate report artifact is in my allowed-input manifest; this PASS rests on ledger stage/sequence corroboration plus the orchestrator-stated premise, not a re-read QG report."
+    },
+    {
+      "id": "TRACEABILITY-FRESHNESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's own frozen Done When list requires 'traceability.md updated with T-001 -> REQ-005 (AC-014)' (tasks.md:226-227) as a condition of Done. traceability.md (sha256 dc24b5fb..., unchanged since the attempt-1 round-3 binding) still shows REQ-005's row Status as 'Planned' (traceability.md:24) and its Final Status section still states 'Every row above is `Planned`: no Phase 2/3 task has started' (traceability.md:152-158) — objectively false now that T-001 carries Status: Done. This is a new inconsistency produced by the Status delta itself (traceability.md was accurate when T-001 was still Planned at round-3 time), not a pre-existing defect already covered by prior-attempt PASS evidence, so the provenance-rereview convergence rule does not apply. A downstream reader of traceability.md, or a quality-gate evaluating a later task, would be misled about actual feature progress."
+    },
+    {
+      "id": "SUMMARY-CONSISTENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "integrated-summary.json reports reviewer_a_fail_count: 0, reviewer_a_pass_count: 15, reviewer_a_skip_count: 0, and a 15-entry reviewer_a_check_ids array (LAUNCH-GATE, INPUT-DISCIPLINE, PREREQ-AC-IDS, STRUCT-FIELDS, DEP-GRAPH-MATCH, DEP-ACYCLIC, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK, ORPHAN-TEST, TRACEABILITY-SYNC, SINGLE-CONCERN, OBSERVABLE-DONE, LIFECYCLE-ONLY-DELTA, STATUS-LEGALITY) whose count (15) equals pass_count (15), internally consistent and plausible for a structural re-binding pass; includes LIFECYCLE-ONLY-DELTA and STATUS-LEGALITY as expected for this round type."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TRACEABILITY-FRESHNESS",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "traceability.md:24 (REQ-005 row Status = 'Planned') and traceability.md:152-158 (Final Status: 'no Phase 2/3 task has started') contradict tasks.md:105 (T-001 Status: Done) and tasks.md:226-227 (T-001's own Done-When bullet requiring the traceability.md update as part of Done)."
+    }
+  ]
+}

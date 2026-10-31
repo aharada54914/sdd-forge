@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase4mcp-spec-a1r1-a-seq0368",
+  "host_session_id": "SESS-spec-a1r1-a-epic136phase4mcp-0368",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "78614c96411676cfdc3bdd817c2b9a691b12df69a0c0de41e47c8fdb9aac156b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "ac1e6e6188bf2ac500285a16d5abac1ee5edb19cc66543589264ce004503f3ef"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "d501627a667052f65ba3431c7aa47726c80ea23248eb0be79365ae4fd9fd70eb"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "REQ-001..008 (requirements.md:96-168) each pin a fixed, enumerable condition: exact field name/type (e.g. REQ-001's `unreadableContracts: Array<{taskId,reason}>`, Field Definitions :319-328; REQ-002's always-2-entry `hostRequiredChecks`, :329-335), an exact source line for the failure taxonomy driving it (`evidence.ts:362-366` cited at :100), and a stated invariant (REQ-004's 'every entry in required lands in EXACTLY ONE of present/missing/undeterminable', :339-343). AC-001..015 (requirements.md:228-315) each convert these into checkable assertions (AC-004 pins the exact verdict-formula inputs, :244-247; AC-005 splits into 3 named sub-cases distinguishable by errors.length, :248-254). No requirement is stated only as an intention."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 8 Goals (REQ-001..008, requirements.md:96-168) have >=1 AC: REQ-001->AC-001/002, REQ-002->AC-003/004, REQ-003->AC-005/006, REQ-004->AC-007/008, REQ-005->AC-009, REQ-006->AC-010, REQ-007->AC-011/012, REQ-008->AC-013/014 (each AC line ends with an explicit '(REQ-NNN)' backward tag, :233-304). One minor asymmetry: AC-015 (requirements.md:305-315) carries no '(REQ-NNN)' tag and acceptance-tests.md:24 labels it 'REQ-... (cross-cutting)' rather than a numbered Goal -- it traces instead to the Assumptions/Roles-and-Permissions protected-file guard (:360-364, :451-453), not to one of the 8 numbered Goals. This is a benign self-check orphan (a WFI-013 safety re-verification, not a missing feature-capability), not a coverage gap, so it does not fail the check."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every AC binds to a concrete artifact: a response field (AC-001/002/003/007/008 name `unreadableContracts`/`hostRequiredChecks`/`undeterminable` directly), a function return value (AC-005/006 name `listGuardedFilesWithDiagnostics`'s literal return shape), a command exit code (AC-010: `git diff --exit-code -- dist/`, `npx tsc --noEmit`, `npm test`), or file content at a cited line (AC-013 CHANGELOG.md, AC-014 USERGUIDE.md:96,98,99). The two 'conformance'-shaped ACs explicitly name a real validator run, not a text-marker proxy: AC-009/AC-012 (requirements.md:273-296) and TEST-009/TEST-012 (acceptance-tests.md:18,21) both cite `getEnvelopeValidator()` (real ajv, `strict: true`), and acceptance-tests.md:28-35 explicitly invokes the project's own Wave 7/epic-136-phase3 text-marker-false-positive lesson as the reason a real validator is required here."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Non-goals (requirements.md:170-201) are consistent with Goals/ACs: grepping `list_review_tickets`/`get_quality_gate_summary`/`reviewTicketsData`/`qualityGateSummaryData` across requirements.md shows they occur ONLY in Non-goals (:172-173), Roles-and-Permissions' human-decision note (:368-369), and Risks (:540) -- never in any Goal or AC -- and 0 occurrences in acceptance-tests.md, so the exclusion removes nothing a Goal/AC still claims. Non-goal 2 (no change to `listGuardedFiles`'s signature/behavior/allowlist, :181-185) is consistent with AC-006's byte-identical-output pin (:255-262) and BL-003 (:478-480). Non-goal 3/4 (no real signature/ancestry verification, no policy enforcement in code, :186-196) are consistent with AC-003's `verified: false` (:236-240) and AC-004's verdict-unaffected pin (:241-247). The 6-file touch boundary (AC-015, :305-315) matches Roles and Permissions' own file list (:360-364)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 6 baselines are stated explicitly and each is consistent with the ACs that exercise it: BL-001 read-only (requirements.md:472-474); BL-002 evidence_deep_verify read-only/no-exec, consistent with Non-goal 3 and AC-003's verified:false (:475-477); BL-003 listGuardedFiles signature preserved, consistent with AC-006 (:478-480); BL-004 explains WHY the 3 new fields are `required` not `optional` despite `additionalProperties: false` -- 'a consumer validating strictly against the CURRENT schema is forced to be aware of the new field... rather than silently continuing to read only mismatches.length' (:481-487), and Field Definitions' 'additive schema change' entry (:349-356) further grounds this in the schema/implementation being a single monorepo package deployed atomically, explicitly distinguishing it from a public API where old clients could be stranded -- this addresses the required-vs-additionalProperties:false tension the review was asked to scrutinise, rather than leaving it unstated; BL-005 verdict binary/verdict-independence of hostRequiredChecks, consistent with AC-004 (:488-491); BL-006 allowlist/denylist unchanged, consistent with Security Boundaries row B3 (:445, :492-495)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Each flagged risk has a named validation path: the `additionalProperties:false`+required-field risk (requirements.md Risks, Medium, :532-538: 'schema/implementation mismatch that only the ajv contract-conformance tests would catch') is mitigated by making AC-009/AC-012 a hard Done condition (real getEnvelopeValidator() runs, acceptance-tests.md:18,21); the scope-creep risk toward list_review_tickets/get_quality_gate_summary (Low-medium, :539-545) is mitigated by the explicit Non-goal plus investigation.md's own recorded Open Question resolution (investigation.md:589-599); the verbatim-string-drift risk (Low, :546-551) is mitigated by the explicit 'reuses EXISTING computed strings verbatim' Field Definition constraint. Separately, investigation.md's Risks table (:601-608) ties the dist-rebuild risk to AC-010's `git diff --exit-code -- dist/` Done condition and the 3-OS CI to the existing `mcp-tests` job matrix (INV-017, :478-493), which AC-010 (requirements.md:282-285) and TEST-010 (acceptance-tests.md:19) both name as the verification surface."
+    }
+  ]
+}

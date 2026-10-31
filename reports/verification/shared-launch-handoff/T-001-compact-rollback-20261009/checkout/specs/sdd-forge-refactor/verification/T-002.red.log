@@ -1,0 +1,29 @@
+# T-002 Red State Evidence: Pre-implementation failing conditions
+
+## INV-002: Python guard Check 2e absent (pre-existing parity gap)
+Source: specs/sdd-forge-refactor/investigation.md INV-002
+
+Python guard (sdd-hook-guard.py) lacked implReviewStatusPassedIncreases equivalent.
+Effect: guard-parity Scenarios 19/20/21 (added in T-005) would show DIVERGENCE:
+  - JS guard: exit 2 for Impl-Review-Status: Passed without verdict
+  - PY guard: exit 0 (no check performed) — PARITY VIOLATION
+
+Red state: Python guard passes write of Impl-Review-Status: Passed unconditionally.
+Evidence path: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py @ pre-T-002
+Reference: sdd-hook-guard.py:L974 (Check 2d followed directly by Check 3, no Check 2e)
+Reference: sdd-hook-guard.js:L1086 implReviewStatusPassedIncreases present in JS only
+
+## INV-005: sdd-bootstrap-interviewer bare invocation (salient no-op risk)
+Source: specs/sdd-forge-refactor/investigation.md INV-005
+
+Pre-T-002: sdd-bootstrap-interviewer/SKILL.md referenced bare /impl-review-loop and
+/task-review-loop at L105, L111, L118, L119, L145, L150 — after deletion of
+sdd-impl-review and sdd-task-review these would silently no-op.
+
+## Baseline test state (pre-T-002 guard-parity)
+guard-parity.tests.sh at baseline: 18 scenarios (Scenarios 19/20/21 did not exist).
+At baseline: Python guard behavior for Impl-Review-Status: Passed unchecked.
+
+## Summary
+Red state confirms: Python Check 2e absence is the primary security gap.
+T-002 implementation adds Check 2e to Python guard and migrates review-loop plugin.

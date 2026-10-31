@@ -1,0 +1,12 @@
+== F1 ==
+PASS: fixture validates; dry-run left corpus unchanged
+PASS: malformed fixture rejected without corpus modification
+== F2 ==
+PASS: fixture validates; dry-run left corpus unchanged
+PASS: malformed fixture rejected without corpus modification
+== F3 ==
+PASS: fixture validates; dry-run left corpus unchanged
+PASS: malformed fixture rejected without corpus modification
+== F4 ==
+PASS: fixture validates; dry-run left corpus unchanged
+PASS: malformed fixture rejected without corpus modification

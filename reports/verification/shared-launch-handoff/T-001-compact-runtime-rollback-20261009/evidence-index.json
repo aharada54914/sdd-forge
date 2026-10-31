@@ -1,0 +1,106 @@
+{
+  "schema": "diagnostic-evidence-copy-index/v1",
+  "note": "Proposed canonical copy destinations only; this index does not copy or authorize replacement of canonical evidence.",
+  "entries": [
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/audit.md",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-audit.md",
+      "sha256": "dbb5b624b0973a91afed055d6b0f85ad7f11ac17993a13f276a329f80d465911"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/verify.mjs",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-verify.mjs",
+      "sha256": "a6082c649a2fdd5fab78315b4f385e54d5d0dbf1324180c3558dbcefaef50461"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/context.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-context.json",
+      "sha256": "1f4272f810a67bb67e4d855b001745c8772130e885619c73c64d21a5f37135fe"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/target-hashes.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-target-hashes.json",
+      "sha256": "b86266048a54074b48e3329c4468601985dc11884aebf17ba40ecbe6eac47f8f"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/baseline-hashes.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-baseline-hashes.json",
+      "sha256": "5c5d520898e6fdebc5f108b33ef5a8a70d4ecf25223049079890c5ddc390c025"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/check-candidate.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-check-candidate.json",
+      "sha256": "61dc72c88cf0528ef14ffe6d11214a0e042ba61269e3ae45b2d1586e70476a7d"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/check-restored.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-check-restored.json",
+      "sha256": "10ab2d2e8bb7e0b97bc0e1ff1704f01c66510d832e3e0ef19886c3c5cd4b28df"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-26-hashes.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-26-hashes.json",
+      "sha256": "5c5d520898e6fdebc5f108b33ef5a8a70d4ecf25223049079890c5ddc390c025"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-results.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-results.json",
+      "sha256": "f2793fc8213188e26d271f0e03e639b6d56d684355093d49ae3a413994c57af9"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-results.json",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-results.json",
+      "sha256": "2570b24f040a4f27469485bcc59d01486a5f8daf600ae0fb3fbe0218a85f3641"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-quality-nontty-transport.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-quality-nontty-transport.log",
+      "sha256": "ca74e548595f582b06dc9c2c9cb7fe0829c3249deea87e6fc4136c2da8ea293b"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-host-review-preflight.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-host-review-preflight.log",
+      "sha256": "e31f3e41311d72413b992a5800b780157f60b95540dcb55efa41c0f24fd2c625"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-unified-task-launch.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-unified-task-launch.log",
+      "sha256": "3618db4238830ab18d523d1dd5fcbfc1b6acc124de9cc0ec51778e3cc376d93c"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-unified-launch-order.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-unified-launch-order.log",
+      "sha256": "981350af972e9ca365d29ea97ee1134a50c8f56b017984a7af22f1fe6d08b071"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-review-conditional-inputs.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-review-conditional-inputs.log",
+      "sha256": "fe8688dba4de04d62266df7e4445b5206c5c85d6425f5767230e7965ade1a922"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/candidate-shared-launch-build.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-candidate-shared-launch-build.log",
+      "sha256": "2ccabbecd5d22a0a4223473796c0e32a371c48d7004b730001f2768cb0243cfa"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-quality-nontty-transport.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-quality-nontty-transport.log",
+      "sha256": "1fb44a12dd8a56cd9b00448451555b7f43fdc98501374f3348f2a84eac327661"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-host-review-preflight.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-host-review-preflight.log",
+      "sha256": "62f4decbacb2e031de4e76f2bc96caa7cf3ec498967ced4083e0885df723cc1e"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-unified-task-launch.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-unified-task-launch.log",
+      "sha256": "1ebdce91439e9bfc7a21d0017ff6adf6c8480a0f84b52a3bd00476c3ff1911d8"
+    },
+    {
+      "source": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-runtime-rollback-20261009/restored-unified-launch-order.log",
+      "canonical_relative_path": "verification/T-001/compact-runtime-rollback-restored-unified-launch-order.log",
+      "sha256": "771dcb69cad7d0fb2ff1f9f4ec638c5fda9e3b7e7d22095934b5942b2463e021"
+    }
+  ]
+}

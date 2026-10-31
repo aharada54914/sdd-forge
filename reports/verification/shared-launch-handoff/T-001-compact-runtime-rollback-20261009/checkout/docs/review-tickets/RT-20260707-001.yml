@@ -1,0 +1,96 @@
+ticket_id: RT-20260707-001
+status: resolved
+resolution: |
+  2026-07-07: Human selected option 1 (grandfather in registry) via explicit
+  AskUserQuestion decision. Applied:
+  - specs/workflow-state-registry.json: sdd-domain entry changed from
+    profile "full" to "legacy" with a legacy block documenting the jq-outage
+    root cause and both ticket IDs; allowed_missing_stages [] (all three
+    stage headers present as "Passed"); full task-status lifecycle allowed so
+    the eventual Done transition does not re-trip the gate.
+  - contracts/workflow-state-registry.schema.json: matching const appended to
+    definitions.legacyEntry.oneOf (the schema enumerates grandfathered
+    entries byte-for-byte; check-workflow-state.sh validates
+    `any(oneOf[].const == $entry)` and the .ps1 twin uses Test-Json against
+    the same file).
+  Verification: `check-workflow-state.sh` (no --feature) now exits 0 with
+  "workflow-state: ok" (evidence: specs/sdd-domain/verification/
+  T-008.workflow-state.log).
+  Known follow-up (pre-existing, NOT introduced by this change):
+  tests/workflow-state-registry.tests.sh pins exactly 11 registry entries and
+  a feature list that excludes sdd-domain, so it was already failing since
+  sdd-domain was registered; its bounded contract also predates entries that
+  use "Blocked" in allowed_task_statuses and non-baseline
+  introduced_before_commit values. That pinned test needs a contract
+  amendment as part of the sdd-domain release tasks.
+type: provenance-gap
+severity: major
+target:
+  feature: sdd-domain
+  task: T-008
+  files:
+    - reports/task-review/sdd-domain/attempt-2/round-2/reviewer-a.json
+    - reports/task-review/sdd-domain/attempt-2/round-2/reviewer-b.json
+    - specs/workflow-state-registry.json
+summary: sdd-domain task-review attempt-2/round-2 reviewer artifacts use a nonconforming schema shape, so check-workflow-state's stage-provenance validation fails now that jq is installed.
+problem: |
+  With jq newly installed (RT-20260706-002 resolution), `check-workflow-state.sh`
+  executes its full fail-closed validation for the first time on this machine
+  and reports:
+    workflow-state: sdd-domain: stage-provenance: task reviewer outputs or
+    integrated summary contradict the final PASS
+  Diagnosis (fail-fast semantics: diagnostic() exits on first failure, and
+  stages validate spec -> impl -> task, so sdd-domain's spec and impl stage
+  provenance validated CLEAN before this):
+  The newest task-review verdict (attempt-2/round-2, run
+  RUN-20260703T1015Z-sdd-domain-host, reviewer runs dated 2026-07-06) has
+  reviewer output JSONs whose shape deviates from the canonical schema that
+  check-workflow-state.sh lines 336-366 enforce for stage=task (canonical
+  reference: reports/task-review/workflow-state-integrity/attempt-4/round-2/
+  reviewer-a.json):
+    - reviewer-a.json: "stage": "task"           (expected "task-review")
+    - reviewer-a.json: "role": "task-reviewer-a" (expected "reviewer-a")
+    - reviewer-a.json: uses "allowed_input_manifest" (expected "manifest")
+    - reviewer-a.json: checks[] use "result"     (expected "status")
+    - reviewer-a.json: missing "feature"/"attempt"/"round"/"findings" fields
+    - reviewer-b.json: uses "allowed_input_manifest" (expected
+      "manifest.allowed_inputs")
+  Root cause: the task-review run that produced these artifacts executed
+  while jq was absent from this machine, so the review loop's own
+  deterministic validators (task-review-precheck / validate-review-context-set)
+  could not run and the schema deviation went uncaught at production time.
+  The review itself verifiably occurred (independent run_ids/host_session_ids,
+  14 substantive per-check findings, input manifest with real content hashes);
+  the defect is in the serialization shape of its record, not in whether the
+  review happened.
+  This blocks check-workflow-state repository-wide, which in turn blocks the
+  quality-gate Done decision for every sdd-domain task (T-008 immediately).
+expected_fix: |
+  Needs a human decision on one of:
+  1. Add a registry entry amendment for sdd-domain in
+     specs/workflow-state-registry.json following the existing grandfathering
+     precedent (5 features already carry legacy entries with reasons like
+     "Review provenance manifest hashes drifted ... grandfathered rather than
+     reconstructed"), scoped to the task stage only, documenting that the
+     schema deviation was caused by the jq environment gap. Honest, uses the
+     repo's own mechanism for irreparable provenance, and preserves the
+     artifacts as-is.
+  2. Re-run the task-review stage (new attempt) now that jq works and the
+     validators can enforce canonical output. Risk: tasks are now
+     Approval: Approved with several Done/Implementation Complete statuses,
+     which likely violates the reviewers' INITIAL-STATE check (expects
+     Draft/Planned during review), and prior project experience shows
+     round>1 / re-review flows have structural verification bugs.
+  3. Mechanically normalize the existing reviewer JSONs to the canonical
+     field shapes. NOT recommended: hand-editing review evidence is exactly
+     what the fail-closed provenance chain exists to prevent, and any
+     identity-ledger hash chain over these records would break.
+  This agent will not modify review provenance artifacts or the registry
+  without explicit human direction.
+references:
+  - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+  - reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-a.json
+  - docs/review-tickets/RT-20260706-002.yml
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

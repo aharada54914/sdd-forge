@@ -1,0 +1,63 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-009",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 3,
+    "auditor_a_pass_count": 6,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four required elements are present. (1) Metric row: `## Verification Metric` names 'cross-model panel rounds returning NEEDS_WORK/FAIL for evidence-completeness reasons per feature (count)', which reproduces verbatim the retrospective's own 'Improvement Verification Plan' table row for WFI-009 (Expected Effect Metric / Baseline 2 / Target 0 / Next Checkpoint 'next completed feature retrospective with a Cross-Model: enabled task'), and the Verification Plan names the exact data sources ('every aggregate verdict JSON and panel-related review ticket for the feature'). (2) Baseline/target: 'Baseline: 2 (epic-136-phase1-guards, 2026-07-12: first-task round 1, second-task attempt 1)' / 'Target: 0'. (3) Task cycles: 'Horizon: next completed feature retrospective with at least one Cross-Model: enabled task' — one feature cycle, explicitly bounded. (4) Threshold: 'The proposal succeeds only if that count is 0 AND the pre-panel readiness step's fail-closed output (or its clean pass) is recorded in the feature's gate evidence,' plus a secondary digest-precedence check. No element is missing."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: 2 independent evidence-completeness failures in a single retrospective period, affecting 2 of the period's 3 cross-model-enabled tasks (T-001, T-006; verified against specs/epic-136-phase1-guards/tasks.md lines 57, 153, 498 — T-001/T-002/T-006 are the only three `Cross-Model: enabled` tasks), each costing a full 3-panelist blind round, one also costing a review-ticket remediation cycle (RT-20260712-002, confirmed on disk). Change scope: two targeted deterministic fail-closed checks added to the exact two files identified in Root Cause Hypothesis as lacking any pre-panel completeness check (prepare-panelist-input.sh/.ps1 for declared-output/hash verification; cross-model-verify/SKILL.md for an enumerable-coverage manifest check) — no unrelated files touched, no broad restructuring. This is proportional: two real, costly, recurring failure classes addressed by two narrowly-scoped mechanisms matching those classes one-to-one."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scanned docs/workflow-improvements/ for `Status: Verified` WFIs: WFI-001, WFI-002, WFI-003, WFI-005, WFI-006, WFI-007 (WFI-004 is Status: Regressed, not Verified). Their Proposed Change target files: WFI-001/002/003 → AGENTS.md only. WFI-005 → GitHub Issue body text, tests/template-validator-parity.tests.sh(.ps1). WFI-006 → plugins/sdd-implementation/templates/implementation-report.template.md, plugins/sdd-quality-loop/skills/quality-gate/SKILL.md. WFI-007 → plugins/sdd-implementation/skills/implement-task/SKILL.md and related implement-task references, plugins/sdd-quality-loop/references/deterministic-check-policy.md, plugins/sdd-bootstrap/.../AGENTS.template.md, plugins/sdd-lite/skills/lite-gate/SKILL.md (explicitly 'No change'). None of these overlap with WFI-009's targets (plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh/.ps1, plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md). No conflicting, overwriting, or contradicting change found."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "WFI-009 is correctly classified `Category: plugin-improvement` (the WFI's own Category-field comment applies the Section-1 flowchart correctly: the friction is in the quality-loop plugin's cross-model verification stage, a workflow-tooling seam, not a project-specific task/spec issue). Consistent with the sanctioned mechanism for this category (Section 1: 'A GitHub Issue will be created after audit completion') and the established, already-Verified precedent (WFI-004, WFI-006, WFI-007 all use 'WFI Direct Target (project-side): None' + a GitHub-Issue Lane targeting literal plugins/ paths), the Proposed Change routes the fix through the GitHub-Issue lane rather than pretending a project-side edit (AGENTS.md/CLAUDE.md/specs templates) could substitute. This is architecturally correct, not a misclassification: the root cause explicitly requires deterministic, fail-closed script enforcement ('no deterministic pre-panel check exists') which a prose instruction in AGENTS.md could not reliably provide (an agent could skip a manual check; a script cannot skip its own fail-closed exit). The two named plugin files (prepare-panelist-input.sh/.ps1, cross-model-verify/SKILL.md) were confirmed to exist on disk and their current content confirms the described gap (SKILL.md Step 1 has no completeness verification step; prepare-panelist-input.sh has no declared-output/hash check). The proposed plugin-side changes are plausibly sufficient to eliminate the measured friction class at its exact detection point."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Programmatic scan of `## Root Cause Hypothesis`, `## Proposed Change` (Change Description), and `## Expected Effect` against every forbidden term in wfi-category-guide.md §2 found zero matches. The only near-matches are two literal file-path citations of `plugins/sdd-quality-loop/...` in the Proposed Change Target File column — these are concrete path citations required for CHANGE-CONCRETE (and already flagged with a Cycle-1 audit note acknowledging the NO-PLUGIN-SCOPE-CREEP tension), not prose 'describing the gate concept,' and match the same pattern used by the already-Verified WFI-006/WFI-007. No forbidden term appears in prose form anywhere in the three checked sections."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Target of 0 (from baseline 2) is plausible given the mechanism, not merely optimistic extrapolation: the proposed fix is a deterministic fail-closed gate placed structurally BEFORE the panel is ever invoked, so by construction an evidence-completeness gap of either named class (missing declared artifact, unmapped enumerable-coverage element) can no longer reach a panel round at all — it is intercepted at the readiness step instead. This differs from the check's cautionary example (probabilistic/behavioral metric improving with 'no structural change to root cause'); here the change IS the structural fix for the exact root cause named in evidence. The Verification Plan also requires corroborating evidence (the readiness step's recorded fail-closed or clean-pass output) rather than accepting a bare '0' count, partially guarding against the target being satisfied by mere relabeling."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Problem Evidence + Root Cause Hypothesis reduce cleanly to a 2-3 sentence generic summary (e.g., 'Blind cross-model panel first rounds failed for evidence-completeness reasons — not behavioral defects — in 2 of 3 cross-model-enabled tasks this period: once from a sanitized bundle missing implementation artifacts, once from a test corpus not exercising every specification-required coverage class. Each failure cost a full three-panelist round, one also triggering a review-ticket remediation cycle.'). The Proposed Change table has two complete Target File / Change Description rows, sufficient to populate the Section-4 issue-body table verbatim. Expected Effect states a quantitative target (2 to 0 per feature) in generic terms. No element would produce an empty or vague issue body."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true is set (measurement-adjacent per the WFI's own comment). (1) Does the change make any gate/grader/threshold/audit criterion easier to satisfy? No — Expected Effect states explicitly 'no gate, grader, or threshold is removed or loosened; two fail-closed deterministic checks are added ahead of an existing expensive step,' and both Proposed Change rows describe fail-CLOSED behavior (deny on gap, not permit). (2) Count of deterministic checks in this pipeline segment: before = 1 (check-cross-model.sh consensus check, unchanged by this WFI); after = 3 (the unchanged consensus check + a new declared-output/hash completeness check in prepare-panelist-input + a new enumerable-coverage-manifest readiness check in cross-model-verify). Count increases 1->3; the non-decreasing guard is trivially satisfied since nothing is removed. (3) The WFI's own Target-Metric ('cross-model panel rounds returning NEEDS_WORK/FAIL for evidence-completeness reasons per feature') is computed by reading the aggregate cross-model verdict JSON produced by check-cross-model.sh and panel-related review tickets — neither of those instruments is modified by this WFI's Proposed Change (which targets prepare-panelist-input.sh/.ps1 and cross-model-verify/SKILL.md's Step 1, upstream of and separate from check-cross-model.sh). The Verification Plan additionally requires the readiness step's own fail-closed/clean-pass output be recorded as corroborating evidence, guarding against the '0' count being satisfied by relabeling rather than genuine completeness improvement."
+    }
+  ],
+  "proposed_revisions": []
+}

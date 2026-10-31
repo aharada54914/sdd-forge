@@ -1,0 +1,4 @@
+ok: TEST-016: every 'test'-job step name is a YAML-safe scalar (no unquoted flow-sequence opener)
+ok: TEST-016: the candidate parses as YAML (ruby/Psych)
+ok: TEST-017-RED: dropped step 'Install recorded Claude Code CLI' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 65 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)

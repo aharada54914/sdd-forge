@@ -1,0 +1,46 @@
+ticket_id: RT-20260821-010
+status: open
+type: defect
+severity: major
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-002"
+  files:
+    - "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh"
+    - "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1"
+    - "specs/agent-cost-context-isolation/verification/T-002/green.log"
+summary: >-
+  Resume-validator twins diverge on in-repo directory symlinks (Bash
+  authorizes, PowerShell denies); the only saved deterministic evidence is
+  structural; the rollback Done-When is wholly unaddressed
+problem: |
+  QG evaluator (seq 0824, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T064500Z.md) accepted three Majors.
+
+  1. Bash symlink-checks only the final path component then relies on
+     commonpath containment, silently resolving in-repo directory symlinks;
+     PowerShell walks every component and rejects any LinkType. Measured on
+     one fixture (diagnosis under a symlinked docs/ dir, target in-repo):
+     Bash TERMINAL_RESUME_OK exit 0, PowerShell TERMINAL_RESUME_PATH exit 1.
+     A human-reapproved terminal-tier task resumes on Linux/macOS and blocks
+     on a PowerShell host - the divergent-validation risk design.md:272
+     names. The round-3 remediation hardened ps1 without making Bash match.
+  2. green.log's only observable assertion is "routing structure is
+     defined" while claiming behavioral coverage; both RED failures are
+     artifact-existence assertions. Done-When 2 and 3 rest on the report's
+     word alone. Escalate to Critical if cycle 2 shows the routing suite is
+     an existence check.
+  3. Done-When 6 (rollback fixture restoring selection/resume behavior,
+     routing tests pass) has no fixture, claim, or evidence anywhere; the
+     T-008 delegation defence fails (T-008 In Progress, different test).
+expected_fix:
+  - "Make Bash walk every path component for symlinks like the ps1 twin (or record an approved decision that in-repo dir symlinks are acceptable and relax ps1), with the divergent fixture added to both suites"
+  - "Re-gate with a manifest naming reports/quality-gate/20260821T064500Z.md as gate_report_declaration so the drifted selector twins and routing suite become readable, then verify Done-When 2/3 behaviorally"
+  - "Address Done-When 6: deliver the rollback fixture or record an approved spec change delegating it to T-008 with a matching T-008 test"
+references:
+  - "reports/quality-gate/20260821T064500Z.md"
+  - "specs/agent-cost-context-isolation/design.md"
+  - "specs/agent-cost-context-isolation/tasks.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

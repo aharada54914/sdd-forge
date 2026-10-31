@@ -1,0 +1,75 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-localenvmcp-a1r1-20260705-b0d0",
+  "host_session_id": "hs-impl-a-6503d1ba-0003",
+  "allowed_input_manifest": [
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "d5cc8fa973a6c1bf22a12342551978bc898a3e15ce0f4806c9bf6cf65c868760" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/design.md", "sha256": "d6f01d094c0e17b402ea21284b95fdd5f123189be679cdc6d0210be128aeb762" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/frontend-spec.md", "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/ux-spec.md", "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283" }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` mermaid diagram (lines 19-38) shows top-level component boundaries (clients subgraph, local-env-mcp server, probe-engine, allowlist-driven CLI probes, installer). Integration with existing components is described: 'INST -->|claude mcp add| CC', 'INST -->|config.toml marker block| CX' reusing sdd-forge-mcp's existing Claude/Codex registration paths (REQ-007), plus new Cursor/VS Code upsert edges (REQ-008/REQ-009). Technology choices per layer are given in prose (lines 40-43: TypeScript+MCP SDK stdio server, execFile probe engine, bash/PowerShell installer) and echoed in the Components table (lines 45-58). All three required elements (boundaries, integration, tech-per-layer) present with more than one-sentence description."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency edges declared in `## Architecture` (lines 19-38) and `## Components` (lines 45-58) form a DAG: clients -> S; S -> OSAPI, S -> PROBE; PROBE -> CLI1/CLI2/CLIN; INST -> S, INST -> CC/CX/CU/VS. No component lists a dependency back toward a predecessor (e.g. probe-engine/allowlist do not depend on server.ts; installer targets are terminal nodes). No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (lines 85-95) supplies all three required sub-fields: 'Data Entities: なし...プローブ結果のプロセス内 TTL キャッシュ(60秒)のみ'; 'Existing Data Affected: ~/.cursor/mcp.json、VS Code ユーザープロファイル mcp.json、~/.codex/config.toml'; 'Migration Strategy: 不要(新規 feature)...IDE 設定ファイルは変更前の他エントリを保持することをテストで保証(AC-010/AC-011/AC-012)。壊れた JSON は上書きしない(AC-015、フェイルセーフ)。' Cache and IDE config file touchpoints, plus fail-safe/migration rationale, are all covered."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## API / Contract Plan` (lines 97-127) lists all 3 tools from REQ-002 with input/output shapes: get_os_info (no input -> os-info fields), get_toolchain_versions (names? enum input -> entries[] with available/version/probeError), list_available_clis (no input -> entries[] with available). Contract binding to contracts/local-env-mcp-tools.v1.schema.json is stated with versioning rule (breaking change requires v2 + new ADR). Installer registration formats (Cursor mcp.json shape, VS Code mcp.json shape per OS) are also specified, satisfying the installer-facing API surface implied by REQ-008/REQ-009."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` table (lines 147-155) names three trust boundaries (B1 client<->server stdio, B2 server<->OS process, B3 installer<->IDE config file), states the auth/authz mechanism at each (OS user boundary; compile-time allowlist + execFile no-shell; user-permission managed-key-only upsert), gives data classification (internal, with B2 output marked untrusted) and lists OWASP concerns per boundary (Injection, Command Injection/DoS, データ破壊/フェイルセーフ). Cross-references security-spec.md#trust-boundaries for full STRIDE/OWASP detail (security-spec.md lines 25-66), consistent with REQ-003/REQ-005/REQ-008-010."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md line 4: 'Feature Type: api-only (read-only MCP server + installer 拡張; no frontend/UI)'). ux-spec.md and frontend-spec.md both explicitly state N/A/no-change with reasoned justification, consistent with the api-only designation, so this check is correctly out of scope."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` (lines 129-145) covers: unit/snapshot (contract conformance via ajv), integration error-path (fake slow/verbose CLI fixtures for timeout/output-cap/kill, AC-004), no-secrets (canary env grep, AC-005), static read-only check (extends sdd-forge-mcp's tests/readonly/static-check plus new exec/shell-option ban), installer harness (tests/install.tests.sh/.ps1 extended with Cursor/VS Code/idempotency/corrupt-JSON/uninstall cases), smoke (MCP Inspector CLI tools/list, AC-007), and CI (typecheck/test/dist-parity jobs). Acceptance criteria AC-001 through AC-015 are each traceable to a named test target in acceptance-tests.md, and design.md names concrete artifact paths (mcp/local-env-mcp/tests/*, tests/install.tests.sh, .github/workflows/test.yml) satisfying the 'concrete planned evidence' requirement. As an api-only feature with no critical end-user UI journey, the E2E/user-journey sub-requirement does not apply; the MCP Inspector smoke test serves as the equivalent end-to-end verification path for the API surface."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in `## Architecture` (index.ts-equivalent node 'S', 'OSAPI', 'PROBE', 'INST') and `## API / Contract Plan` is defined in the `## Components` table (lines 45-58): src/index.ts, src/server.ts, src/envelope.ts, src/allowlist.ts, src/probe-engine.ts, src/tools/env.ts, contracts/local-env-mcp-tools.v1.schema.json, install.sh/install.ps1, uninstall.sh/uninstall.ps1, .github/workflows/test.yml. Diagram nodes CC/CX/CU/VS (Claude Code, Codex, Cursor, VS Code Copilot) are established external MCP clients named in requirements.md Target Users (lines 21-24), not internal components requiring a definition row. CLI1/CLI2/CLIN nodes are allowlist probe targets defined via the allowlist.ts component and enumerated in API / Contract Plan (line 114-117)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## ADR Change Log` (lines 78-83) lists ADR-0004 (no-exec compile-time allowlist probe decision, Security/Infra impact) and ADR-0005 (Cursor/VS Code idempotent JSON upsert registration, Infra/Security impact), both dated 2026-07-05 with Status: Proposed. These correspond exactly to the two architectural departures introduced by this feature: the 'execution capability' interpretation boundary (requirements.md Assumptions, lines 169-172, explicitly says 'この解釈と安全制約は ADR-0004 として記録') and the new Cursor/VS Code registration mechanism (REQ-008/REQ-009). No other new technology choice or architectural departure in design.md lacks a corresponding ADR reference. Per task instructions, ADR file existence at docs/adr/NNNN-slug.md is judged by the design.md table naming the decisions, not by reading files outside the manifest; both decisions are named with decision text, layer impact, and supersedes field."
+    }
+  ]
+}

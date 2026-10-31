@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/shared-review-launch-repair/T-002.md"
+  ],
+  "command": "rtk proxy bash plugins/sdd-implementation/scripts/validate-implementation-report.sh reports/implementation/shared-review-launch-repair/T-002.md",
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output/work",
+  "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/output",
+  "shell_login": false,
+  "exit_code": 0,
+  "stdout": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/report-validation.stdout.log",
+  "stderr": "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/report-validation.stderr.log",
+  "scope": "report-schema validation only; final report hash bound separately in delivery-index.json"
+}

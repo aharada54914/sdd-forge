@@ -1,0 +1,7 @@
+$ npx tsc -p tsconfig.test.json
+tests/parsers-evidence/evidence.test.ts(13,64): error TS2307: Cannot find module '../../src/parsers/evidence.js' or its corresponding type declarations.
+tests/parsers-evidence/evidence.test.ts(40,52): error TS7006: Parameter 'c' implicitly has an 'any' type.
+tests/parsers-evidence/traceability.test.ts(14,35): error TS2307: Cannot find module '../../src/parsers/traceability.js' or its corresponding type declarations.
+tests/parsers-evidence/traceability.test.ts(53,46): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/parsers-evidence/traceability.test.ts(58,43): error TS7006: Parameter 'row' implicitly has an 'any' type.
+tests/parsers-evidence/traceability.test.ts(62,54): error TS7006: Parameter 'row' implicitly has an 'any' type.

@@ -1,0 +1,76 @@
+Subject: fix(spec-review): count investigation.md as a reviewed input in the round-advance test
+
+The round-advance gate refuses round N+1 unless requirements.md or
+acceptance-tests.md changed since round N. But investigation.md is a
+reviewed input too — it sits in every reviewer's allowed_input_manifest,
+the calibration instructs reviewers to judge its Amendment Re-Review
+Context section, and it has produced the blocking finding in five
+consecutive rounds on epic-195-a7-compatibility. A remedy that lives
+entirely in investigation.md therefore has NO permitted transition:
+round N+1 is refused ("reviewed inputs are unchanged from the prior
+round") and --reset is refused ("reset requires a terminal PASS or
+BLOCKED contract") whenever the stalled round holds NEEDS_WORK. Both
+refusals were reproduced verbatim today by an independent runner
+(codex, attempt-8 open on epic-195), and the deadlock is the one
+WFI-052 documents.
+
+The fix completes the change-test's input set instead of loosening any
+gate: round N+1 additionally opens when the live investigation.md hash
+differs from the one the prior round's reviewer manifests pinned. A
+round over byte-identical inputs is still refused; --reset semantics
+are untouched; an attempt still cannot be abandoned mid-loop.
+
+Apply from the repository root of the target worktree:
+
+    git apply --check docs/ci-staging/round-advance-investigation.patch
+    git apply docs/ci-staging/round-advance-investigation.patch
+
+---
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -343,7 +343,18 @@ if [[ "$round" -gt 1 ]]; then
+   prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
+   prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
+-  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
+-    || fail "reviewed inputs are unchanged from the prior round"
++  # investigation.md is a reviewed input like the other two: it is pinned in
++  # every reviewer's manifest and the calibration instructs reviewers to judge
++  # its amendment record. A remedy confined to it must be able to open the
++  # next round, or the attempt deadlocks (WFI-052; reproduced on epic-195).
++  prior_investigation_sha="$(jq -r --arg p "specs/${feature}/investigation.md" '
++    [.reviewers[].allowed_input_manifest[]? | select(.path | endswith($p)) | .sha256] | first // empty
++  ' "$prior_contract")"
++  live_investigation_sha=""
++  [[ -f "${spec_dir}/investigation.md" ]] && live_investigation_sha="$(sha256 "${spec_dir}/investigation.md")"
++  investigation_changed=false
++  [[ -n "$prior_investigation_sha" && -n "$live_investigation_sha" && "$live_investigation_sha" != "$prior_investigation_sha" ]] && investigation_changed=true
++  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" || "$investigation_changed" == true ]] \
++    || fail "reviewed inputs are unchanged from the prior round"
+ fi
+ 
+ if [[ "$reset" == true ]]; then
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+@@ -487,7 +487,20 @@ if ($roundInt -gt 1) {
+   $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json
+   $priorRequirementsSha = [string]$priorData.requirements_sha256
+   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
+-  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {
++  # investigation.md is a reviewed input like the other two (WFI-052; see the
++  # sh twin's comment). A remedy confined to it must open the next round.
++  $priorInvestigationSha = ''
++  foreach ($reviewer in @($priorData.reviewers)) {
++    foreach ($entry in @($reviewer.allowed_input_manifest)) {
++      if ([string]$entry.path -like "*specs/$Feature/investigation.md") { $priorInvestigationSha = [string]$entry.sha256; break }
++    }
++    if ($priorInvestigationSha) { break }
++  }
++  $liveInvestigationPath = Join-Path $specDir 'investigation.md'
++  $liveInvestigationSha = ''
++  if (Test-Path -LiteralPath $liveInvestigationPath -PathType Leaf) { $liveInvestigationSha = (Get-FileHash -LiteralPath $liveInvestigationPath -Algorithm SHA256).Hash.ToLower() }
++  $investigationChanged = [bool]($priorInvestigationSha -and $liveInvestigationSha -and -not (Test-OrdinalEqual $liveInvestigationSha $priorInvestigationSha))
++  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha) -and -not $investigationChanged) {
+     Fail 'reviewed inputs are unchanged from the prior round'
+   }
+ }
+ 

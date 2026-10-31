@@ -1,0 +1,50 @@
+--- attempt6/tests/task-structured-output.tests.py
++++ current-owner/tests/task-structured-output.tests.py
+@@ -114,7 +114,7 @@
+             role = {'model': 'sonnet', 'tools': agent_tools,
+                     'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
+             flags = ['-p, --print', '--session-id', '--model', '--permission-mode',
+-                     '--tools', '--disallowedTools', '--allowedTools', '--settings',
++                     '--tools', '--disallowedTools', '--settings',
+                      '--plugin-dir', '--agents', '--agent', '--output-format']
+             if help_has_schema:
+                 flags.append('--json-schema')
+@@ -146,7 +146,7 @@
+                 agent = json.loads(command[command.index('--agents') + 1])[role_name]
+                 self.assertEqual(agent['tools'], ['Read', 'Bash', 'StructuredOutput'])
+                 self.assertEqual(command[command.index('--tools') + 1], 'Read,Bash')
+-                self.assertNotIn('StructuredOutput', command[command.index('--allowedTools') + 1])
++                self.assertNotIn('--allowedTools', command)
+ 
+     def test_output_schema_rejects_stringified_fields_without_fabricating_probe_verdict(self):
+         cases = []
+@@ -259,7 +259,7 @@
+                         mock.patch.object(transport, 'manifest', return_value=(
+                             {'stage': stage, 'allowed_input_manifest': []}, None)), \
+                         mock.patch.object(transport, 'receipt_control', return_value={
+-                            'hash_commands': []}):
++                            'hash_commands': [], 'exact_permission_rules': []}):
+                     policy, _ = transport.launch_policy(root, invocation, receipt,
+                                                         root / 'policy.json')
+                     self.assertEqual(json.loads(policy).get('output_tool'),
+@@ -282,15 +282,12 @@
+             boundary = root / 'plugins/sdd-review-loop/references/review-context-boundary.md'
+             boundary.parent.mkdir(parents=True)
+             boundary.write_text('boundary')
+-            control = {'hash_commands': ['hash-inputs', 'hash-record'],
++            control = {'hash_commands': ['verify-all-inputs'],
++                       'compact_command': 'verify-all-inputs',
++                       'compact_output': '{"status":"REVIEW_INPUTS_OK"}',
+                        'inputs_sha256': 'a' * 64, 'record_sha256': 'b' * 64}
+-            boundary_command = transport.file_hash_batch_command(
+-                [invocation.relative_to(root).as_posix(), transport.BOUNDARY_PATH])
+-            batch_result = (transport.sha(invocation) + '  ' +
+-                            invocation.relative_to(root).as_posix() + '\n' +
+-                            transport.sha(boundary) + '  ' + transport.BOUNDARY_PATH)
+-            hashes = [(boundary_command, batch_result),
+-                      ('hash-inputs', 'a' * 64), ('hash-record', 'b' * 64)]
++            boundary_command = control['compact_command']
++            hashes = [(boundary_command, control['compact_output'])]
+             def transcript(events):
+                 rows = [{'type': 'user', 'sessionId': session,
+                          'message': {'content': 'first turn'}}]

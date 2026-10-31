@@ -1,0 +1,53 @@
+### MUTATION PROOF (fix 2): the dispatcher option table is load-bearing
+### comment_id=3777341725
+2026-08-13T23:39:19Z
+
+Oracle: a scratch git repo whose working tree holds ONE modified tracked file
+and ONE untracked file, both owned by the fixture's components. The two
+include-untracked spellings therefore have observably different correct
+answers, so a mapping that silently binds the wrong value cannot pass.
+  --include-untracked     -> ["shared/tracked.ts","shared/untracked-probe.ts"]
+  --no-include-untracked  -> ["shared/tracked.ts"]
+Fallback runs use a PATH with no python3* (dispatcher takes the pwsh branch).
+
+-- [0] RED: parent commit ca1dac14 dispatcher (no mapping for these options) --
+   --include-untracked    fallback: 
+   --no-include-untracked fallback: 
+   (master, both correct:  ["shared/tracked.ts","shared/untracked-probe.ts"] / ["shared/tracked.ts"])
+
+-- [1] GREEN: fixed dispatcher --
+   --include-untracked    fallback: ["shared/tracked.ts","shared/untracked-probe.ts"]
+   --no-include-untracked fallback: ["shared/tracked.ts"]
+   master                        : ["shared/tracked.ts","shared/untracked-probe.ts"] / ["shared/tracked.ts"]
+
+-- [2] MUTANT A: --no-include-untracked mapped to the WRONG boolean --
+58:        --no-include-untracked) mapped='-IncludeUntracked:$true' ;;  # MUTANT
+   --no-include-untracked fallback: ["shared/tracked.ts","shared/untracked-probe.ts"]
+   master (unchanged)            : ["shared/tracked.ts"]
+   -> the untracked file reappears: the mapping is load-bearing
+
+-- [3] MUTANT B: --repo-root mapping deleted (the value-taking failure mode) --
+   --include-untracked    fallback: 
+   -> two stray tokens land in $args and the twin exits 2
+
+-- [4] RESTORED --
+   --include-untracked    fallback: ["shared/tracked.ts","shared/untracked-probe.ts"]
+   --no-include-untracked fallback: ["shared/tracked.ts"]
+
+-- Appendix: the exact rc/stderr behind the two empty cells above --
+
+[0] parent-commit dispatcher, --include-untracked:
+   rc=2  stdout_bytes=0
+   stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: --repo-root /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/probe-repo --source-rev HEAD --target-rev HEAD --include-untracked 
+
+[0] parent-commit dispatcher, --no-include-untracked:
+   rc=2  stdout_bytes=0
+   stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: --repo-root /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/probe-repo --source-rev HEAD --target-rev HEAD --no-include-untracked 
+
+[3] MUTANT B (--repo-root mapping deleted), --include-untracked:
+   rc=2  stdout_bytes=0
+   stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: --repo-root /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/probe-repo 
+
+[4] restored dispatcher, --include-untracked:
+   rc=0  stdout_bytes=1499
+   stderr: 

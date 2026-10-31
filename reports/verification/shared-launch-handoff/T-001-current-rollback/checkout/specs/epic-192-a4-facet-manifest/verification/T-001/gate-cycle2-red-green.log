@@ -1,0 +1,74 @@
+T-001 quality-gate cycle-2 remediation — RED/GREEN evidence for the
+ECMA-262 `pattern` `$` semantics fix (Critical finding 1) in
+plugins/sdd-quality-loop/scripts/validate-facet-manifest.py.
+
+Claim under test: Python's bare `$` in `re.search` matches immediately
+before a trailing "\n" as well as at the absolute end of string, so a
+value like "sha256:<64hex>\n" wrongly satisfies
+`^sha256:[0-9a-f]{64}$` (and similarly `^[0-9]+\.[0-9]+\.[0-9]+$` for
+resolver.version). Draft-07 `pattern` follows ECMA-262 semantics, where
+non-multiline `$` asserts end-of-string only — the trailing-newline value
+must be REJECTED. Non-vacuity is demonstrated below: the same two fixtures
+are wrongly ACCEPTED before the fix (RED) and correctly REJECTED after the
+fix (GREEN).
+
+Method: the working-tree copy of validate-facet-manifest.py was temporarily
+reverted to its committed HEAD content (`git show HEAD:<path> > <path>`,
+byte-identical restore, no `git checkout`/`restore` used per this repo's
+guard constraints) to run the pre-fix RED observation, then the fix patch
+(saved separately) was re-applied for the GREEN observation. No other file
+was touched during this procedure.
+
+================================================================================
+RED — pre-fix (validator at committed HEAD content, `re.search` with bare `$`)
+================================================================================
+
+Timestamp: 2026-08-17T01:26:45Z
+
+$ python3 plugins/sdd-quality-loop/scripts/validate-facet-manifest.py --manifest tests/fixtures/facet-manifest/schema/context-binding-registry-digest-trailing-newline.json
+(no output)
+exit=0
+
+$ python3 plugins/sdd-quality-loop/scripts/validate-facet-manifest.py --manifest tests/fixtures/facet-manifest/schema/resolver-version-trailing-newline.json
+(no output)
+exit=0
+
+Observation: both fixtures — whose `context_binding.registry_digest` /
+`resolver.version` values carry a real trailing "\n" that should NOT match
+the ECMA-262 non-multiline `$` anchor — are WRONGLY ACCEPTED (exit 0, no
+diagnostics). This confirms the bug is real and the new fixtures are
+non-vacuous (they fail against the unfixed validator).
+
+================================================================================
+GREEN — post-fix (validator with `_ecma_anchor` / `_compile_pattern`, `\Z`)
+================================================================================
+
+Timestamp: 2026-08-17T01:27:09Z
+
+$ python3 plugins/sdd-quality-loop/scripts/validate-facet-manifest.py --manifest tests/fixtures/facet-manifest/schema/context-binding-registry-digest-trailing-newline.json
+facet-manifest: schema-invalid: /context_binding/registry_digest: does not match pattern '^sha256:[0-9a-f]{64}$'
+exit=1
+
+$ python3 plugins/sdd-quality-loop/scripts/validate-facet-manifest.py --manifest tests/fixtures/facet-manifest/schema/resolver-version-trailing-newline.json
+facet-manifest: schema-invalid: /resolver/version: does not match pattern '^[0-9]+\.[0-9]+\.[0-9]+$'
+exit=1
+
+Sanity check — valid-base.json (no trailing newline anywhere) still passes
+after the fix, confirming the `\Z` rewrite did not over-tighten normal
+(non-trailing-newline) instances:
+
+$ python3 plugins/sdd-quality-loop/scripts/validate-facet-manifest.py --manifest tests/fixtures/facet-manifest/schema/valid-base.json
+(no output)
+exit=0
+
+================================================================================
+Conclusion
+================================================================================
+
+Both new fixtures are non-vacuous: they wrongly PASS (RED, exit 0) against
+the pre-fix validator and correctly FAIL with a `schema-invalid` diagnostic
+pinning the exact offending JSON Pointer (GREEN, exit 1) against the
+post-fix validator. The fix (`_ecma_anchor` rewriting unescaped,
+non-character-class `$` to `\Z` before `re.compile`) is proven to close the
+gap described in evaluator finding 1 without breaking the unrelated
+trailing-newline-free baseline fixture.

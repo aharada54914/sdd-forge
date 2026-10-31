@@ -1,0 +1,40 @@
+{
+  "feature": "shared-review-launch-repair",
+  "task": "T-002",
+  "scope": "Current evidence existence only, not formal acceptance or RED adequacy",
+  "links": [
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-004"
+      ],
+      "tests": [
+        "TEST-007",
+        "TEST-008a",
+        "TEST-008b",
+        "TEST-008c",
+        "TEST-008d"
+      ],
+      "evidence": [
+        "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze-retry-1.stdout.log",
+        "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/traceability-freeze-retry-1.stderr.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-009",
+        "TEST-010a",
+        "TEST-010b"
+      ],
+      "evidence": [
+        "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/hash-parity.stdout.log",
+        "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/unreadable-equivalence.stdout.log",
+        "specs/shared-review-launch-repair/verification/T-002/native-revalidation-attempt-3-20261010/downstream-parity.stdout.log"
+      ]
+    }
+  ]
+}

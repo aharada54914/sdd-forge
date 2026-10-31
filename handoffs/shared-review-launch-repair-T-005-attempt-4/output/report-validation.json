@@ -1,0 +1,22 @@
+{
+  "result": "VALIDATED",
+  "checked_at": "2026-10-08T20:03:19.454489+00:00",
+  "report": "work/reports/implementation/shared-review-launch-repair/T-005.md",
+  "report_sha256": "43735022ae0f6f13232efbf658454aa97628e67baccc5832b48089a946281f2c",
+  "template_headings": 14,
+  "output_hash_rows": 44,
+  "suite_exit_codes": {
+    "unified-task-launch": 0,
+    "task-structured-bindings": 0,
+    "unified-quality-launch": 0,
+    "spec-review-verify-inputs": 0,
+    "host-launch-profile": 0,
+    "unified-launch-order": 0,
+    "review-conditional-inputs": 0,
+    "review-context-boundary": 0
+  },
+  "fixture_controls": 11,
+  "unchanged_snapshot_files": 609,
+  "unchanged_work_inputs": 607,
+  "formal_quality_gate": "NOT RUN"
+}

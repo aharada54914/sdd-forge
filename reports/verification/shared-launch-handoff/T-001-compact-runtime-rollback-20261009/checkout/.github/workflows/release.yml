@@ -1,0 +1,174 @@
+name: Release artifacts (sign + SBOM)
+
+# C-06 / H-04: on a published GitHub Release, build a reproducible source
+# tarball, generate a CycloneDX SBOM, publish SHA-256 checksums, and produce a
+# sigstore-backed build-provenance attestation for each artifact. Verify with:
+#   gh attestation verify sdd-forge-<tag>.tar.gz --repo aharada54914/sdd-forge
+#   sha256sum -c SHA256SUMS
+# All actions are pinned to commit SHAs (H-04).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to package (e.g. v0.9.0). Defaults to the current ref."
+        required: false
+        type: string
+      run_host_smoke:
+        description: "Run actual authenticated Codex/Claude/Copilot registration smoke."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write      # upload release assets
+  id-token: write      # OIDC for keyless sigstore signing
+  attestations: write  # store build-provenance attestations
+
+jobs:
+  ci-green:
+    # RT-20260821-004 / design.md:209: releases are conditioned on CI green.
+    # This job resolves the released tag's commit and fails closed unless a
+    # successful test.yml run exists for exactly that commit. It also closes
+    # the workflow_dispatch arbitrary-ref hole: manual dispatches are only
+    # allowed from main or a tag ref.
+    permissions:
+      contents: read
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restrict manual dispatch to main or a tag ref
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF}" in
+            refs/heads/main|refs/tags/*) echo "dispatch ref ${GITHUB_REF} allowed" ;;
+            *)
+              echo "workflow_dispatch is restricted to main or a tag ref; got ${GITHUB_REF}" >&2
+              exit 1
+              ;;
+          esac
+      - name: Verify CI success for the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG}"
+          if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
+          case "$TAG" in
+            *[!A-Za-z0-9._-]*|'')
+              echo "Refusing tag with unexpected characters: ${TAG}" >&2
+              exit 1
+              ;;
+          esac
+          REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}")" || {
+            echo "Tag refs/tags/${TAG} not found - cannot gate a nonexistent release" >&2
+            exit 1
+          }
+          SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+          TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+          if [ "$TYPE" = "tag" ]; then
+            SHA="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}" --jq '.object.sha')"
+          fi
+          echo "Release commit for ${TAG}: ${SHA}"
+          COUNT="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=1" \
+            --jq '.total_count')"
+          if [ "${COUNT}" -lt 1 ]; then
+            echo "No successful test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
+            exit 1
+          fi
+          echo "CI green confirmed for ${SHA} (${COUNT} successful run(s))"
+
+  loop-gate:
+    # No elevated GitHub Actions permissions requested (REQ-002;
+    # security-spec.md B4/OWASP "Elevation of Privilege" row): without this
+    # override the job would silently inherit the workflow-level
+    # contents:write / id-token:write / attestations:write block above
+    # (release.yml:25-28), which it does not need -- it only checks out the
+    # repository and runs local scripts.
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test loop consistency suite
+        shell: bash
+        run: bash ./tests/loop-consistency.tests.sh
+      - name: Test loop inventory suite
+        shell: bash
+        run: bash ./tests/loop-inventory.tests.sh
+
+  release:
+    needs: [ci-green, loop-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: meta
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "pkg=sdd-forge-${TAG}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Build reproducible source tarball
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          PKG="${{ steps.meta.outputs.pkg }}"
+          # Archive the resolved TAG's tree, not $GITHUB_SHA. On a manual
+          # workflow_dispatch the run's ref (and $GITHUB_SHA) is the dispatch
+          # branch, which would otherwise package unrelated branch contents
+          # under the release tag. Fail closed if the tag does not exist.
+          if ! git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag refs/tags/${TAG} not found in the repository" >&2
+            exit 1
+          fi
+          # git archive excludes .git and honors .gitattributes export-ignore.
+          git archive --format=tar.gz --prefix="sdd-forge-${TAG}/" -o "$PKG" "refs/tags/${TAG}"
+          echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from refs/tags/${TAG}"
+
+      - name: Release-only real host smoke
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_host_smoke }}
+        env:
+          SDD_RELEASE_HOST_SMOKE: "1"
+        run: ./tests/release-host-smoke.sh
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/generate-sbom.py \
+            --version "${{ steps.meta.outputs.tag }}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --output "sdd-forge-sbom.cdx.json"
+
+      - name: Publish SHA-256 checksums
+        run: |
+          set -euo pipefail
+          sha256sum "${{ steps.meta.outputs.pkg }}" "sdd-forge-sbom.cdx.json" > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Attest build provenance (sigstore keyless)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            ${{ steps.meta.outputs.pkg }}
+            sdd-forge-sbom.cdx.json
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "${{ steps.meta.outputs.tag }}" \
+            "${{ steps.meta.outputs.pkg }}" \
+            "sdd-forge-sbom.cdx.json" \
+            "SHA256SUMS" \
+            --clobber

@@ -1,0 +1,338 @@
+{
+  "run_id": "T-005-01a11d13-ddd9-7783-9e74-924b17c3b341",
+  "task_attempt_count": 4,
+  "manifest_sha256": "3587faa97e05ea6a361a115d57735bc940411abebc2c4dedfe1c3d3c88db978d",
+  "spec_revision": {
+    "specs/shared-review-launch-repair/acceptance-tests.md": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+    "specs/shared-review-launch-repair/authority.md": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0",
+    "specs/shared-review-launch-repair/design.md": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+    "specs/shared-review-launch-repair/frontend-spec.md": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+    "specs/shared-review-launch-repair/infra-spec.md": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+    "specs/shared-review-launch-repair/requirements.md": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+    "specs/shared-review-launch-repair/security-spec.md": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+    "specs/shared-review-launch-repair/tasks.md": "1a6b36bdc946724ee24bd6e77b7af98f9f6c167d8d736397f41b9f5d6dbfb898",
+    "specs/shared-review-launch-repair/traceability.md": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+    "specs/shared-review-launch-repair/ux-spec.md": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+  },
+  "suites": [
+    {
+      "label": "unified-task-launch",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-task-launch.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:55:56.456928+00:00",
+      "ended_at": "2026-10-08T19:55:56.811310+00:00",
+      "elapsed_seconds": 0.35431349999271333,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        9
+      ],
+      "check_summaries": [
+        "Ran 9 tests in 0.232s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "39bdd0b019270fc898fc4bda21c3da02528a99f56a2a12b2da3eca9a6b5342f4"
+    },
+    {
+      "label": "task-structured-bindings",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/task-structured-output.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:55:56.456935+00:00",
+      "ended_at": "2026-10-08T19:55:56.877066+00:00",
+      "elapsed_seconds": 0.42006774997571483,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        13
+      ],
+      "check_summaries": [
+        "Ran 13 tests in 0.312s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "15c8fdf25bc95b3fc25d20c054e2206e8c3f477fd65db5d64af30436f5e0f0e3"
+    },
+    {
+      "label": "unified-quality-launch",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:55:56.460677+00:00",
+      "ended_at": "2026-10-08T19:55:57.377748+00:00",
+      "elapsed_seconds": 0.9170191249577329,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        19
+      ],
+      "check_summaries": [
+        "Ran 19 tests in 0.803s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "232b2c95fddac463d20266429a00b5c56ac470023c60bbb3833b04a3412f4c72"
+    },
+    {
+      "label": "spec-review-verify-inputs",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/spec-review-verify-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:55:56.461222+00:00",
+      "ended_at": "2026-10-08T19:56:10.984331+00:00",
+      "elapsed_seconds": 14.523045082984027,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        2
+      ],
+      "check_summaries": [
+        "Ran 2 tests in 14.453s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "7b93c76bc35db38ac36ef97711c9a75fcf5640eb09c692fe5498c27a2ae72860"
+    },
+    {
+      "label": "host-launch-profile",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/host-review-preflight.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:56:07.070505+00:00",
+      "ended_at": "2026-10-08T19:56:07.248447+00:00",
+      "elapsed_seconds": 0.17789933300809935,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        7
+      ],
+      "check_summaries": [
+        "Ran 7 tests in 0.070s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "b17fae423143ebdf9c2d269dd9b18ee5b3d3f0e7d16abc1754fff1c8ccad2b95"
+    },
+    {
+      "label": "unified-launch-order",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/unified-launch-order.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:56:07.071277+00:00",
+      "ended_at": "2026-10-08T19:56:28.103879+00:00",
+      "elapsed_seconds": 21.032452542043757,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        9
+      ],
+      "check_summaries": [
+        "Ran 9 tests in 20.936s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "d4b88d7d814e2e332d92c2006db92c69bf24e73b5a5f0c594f6ad9114b096546"
+    },
+    {
+      "label": "review-conditional-inputs",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "tests/review-conditional-inputs.tests.py",
+        "-v"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:56:07.074092+00:00",
+      "ended_at": "2026-10-08T19:56:32.535201+00:00",
+      "elapsed_seconds": 25.461033917032182,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        16
+      ],
+      "check_summaries": [
+        "Ran 16 tests in 25.398s",
+        "OK"
+      ],
+      "skip_lines": [],
+      "log_sha256": "e19f3428a8ff4ca5bb6e38017b2196e7879a273487d00adb3bb559e9f8518175"
+    },
+    {
+      "label": "review-context-boundary",
+      "command": [
+        "rtk",
+        "proxy",
+        "bash",
+        "tests/review-context-boundary.tests.sh"
+      ],
+      "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/work",
+      "stdin": "DEVNULL",
+      "started_at": "2026-10-08T19:56:07.070794+00:00",
+      "ended_at": "2026-10-08T19:58:43.164016+00:00",
+      "elapsed_seconds": 156.09298866597237,
+      "exit_code": 0,
+      "environment": {
+        "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "TEMP": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp",
+        "XDG_CACHE_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/cache",
+        "XDG_CONFIG_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/config",
+        "XDG_DATA_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/data",
+        "DOTNET_CLI_HOME": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-4/output/tmp/dotnet",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "unittest_counts": [
+        3
+      ],
+      "check_summaries": [
+        "ok: review-context-boundary citations match the validator (32 anchors verified)",
+        "ok: TEST-RCB-001 (bash) verify-after-reserve passes",
+        "ok: TEST-RCB-001 (pwsh) verify-after-reserve passes",
+        "ok: TEST-RCB-002 (bash) verify survives unrelated ledger extension",
+        "ok: TEST-RCB-002 (pwsh) verify survives unrelated ledger extension",
+        "ok: TEST-RCB-003 (bash) rejected",
+        "ok: TEST-RCB-004 (bash) rejected",
+        "ok: TEST-RCB-005 (bash) rejected",
+        "ok: TEST-RCB-005b (bash) rejected",
+        "ok: TEST-RCB-003 (pwsh) rejected",
+        "ok: TEST-RCB-004 (pwsh) rejected",
+        "ok: TEST-RCB-005 (pwsh) rejected",
+        "ok: TEST-RCB-005b (pwsh) rejected",
+        "ok: TEST-RCB-006 (bash) double reservation is rejected",
+        "ok: TEST-RCB-006 (pwsh) double reservation is rejected",
+        "ok: TEST-RCB-007 (bash) run_id-only match names the mismatch",
+        "ok: TEST-RCB-008 (bash) host-session-id-only match names the mismatch",
+        "ok: TEST-RCB-007 (pwsh) run_id-only match names the mismatch",
+        "ok: TEST-RCB-008 (pwsh) host-session-id-only match names the mismatch",
+        "ok: TEST-RCB-009 (bash) non-extending fresh manifest is rejected",
+        "ok: TEST-RCB-010 (bash) extending fresh manifest reserves and appends",
+        "ok: TEST-RCB-009 (pwsh) non-extending fresh manifest is rejected",
+        "ok: TEST-RCB-010 (pwsh) extending fresh manifest reserves and appends",
+        "ok: validate-review-context-set reservation/verification boundary is idempotent through merges (TEST-RCB-001..010, bash+pwsh)",
+        "Ran 3 tests in 0.002s",
+        "OK",
+        "PASS: 116; FAIL: 0",
+        "PASS: 84; FAIL: 0",
+        "PASS: 84; FAIL: 0"
+      ],
+      "skip_lines": [],
+      "log_sha256": "f59ef1e1c066475aeb592777c326c6e19906caa2598c6e5d07e385c74dd572e3"
+    }
+  ],
+  "production_source_changes": [],
+  "native_model_launch": "NOT RUN",
+  "independent_review": "NOT RUN",
+  "formal_quality_gate": "NOT RUN",
+  "current_head_ci": "NOT RUN",
+  "native_windows": "NOT RUN"
+}

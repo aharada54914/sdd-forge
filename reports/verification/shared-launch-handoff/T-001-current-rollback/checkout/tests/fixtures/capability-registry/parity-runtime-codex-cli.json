@@ -1,0 +1,10 @@
+{
+  "schema": "capability-registry-parity-runtime/v1",
+  "runtime": "codex-cli",
+  "description": "Simulated Codex CLI installed-plugin context (TEST-033, AC-033). Same packaged-copy-only shape as the other two runtimes, but the host reaches the scripts through per-file symlinks into a separate real tree -- mirroring T-003's own codex-cli TEST-027 fixture, which uses the identical symlink variation to prove __file__ resolution, not the invocation path, decides artifact discovery.",
+  "install_root_segments": ["home", ".codex", "sdd-forge", "real"],
+  "entry_root_segments": ["home", ".codex", "sdd-forge", "installed"],
+  "entry_via_symlink": true,
+  "host_marker_path": ".codex/config.toml",
+  "host_marker_content": "# simulated Codex CLI install marker\n"
+}

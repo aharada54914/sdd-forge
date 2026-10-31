@@ -1,0 +1,16 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "missing-lite-eligible",
+      "trigger": {"scope": "affected_component", "field": "runtime_classes", "operator": "exists"},
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "lite_policy": {"upgrade_reasons": ["pii"]},
+      "delivery_strategy": {"kind": "x"}
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+$ bash tests/install.tests.sh   # RED run (T-007: tests added, install.sh not yet implemented) — 2026-07-05T12:12:43Z
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.sSODcZwGEP/installed
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.sSODcZwGEP/installed
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.NvBQfpDliG/installed
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.DqlrAoFewa/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.BrFewfaTzN/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.vMq9iKxGdH/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.VGA3daRAmW/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.lxeNwRtnkv/installed
+Plugin registration was skipped because --target=FilesOnly.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.4kY69ghY8H/installed
+ok: default install places and registers BOTH MCP servers
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.F4uswNYBJS/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6WiJX77uOS/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.q8Mr8bdsEy/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+FAIL: cursor upsert (y): mcp.json missing managed entries, foreign entry, or unknown top-level key
+FAIL: cursor upsert (y): expected VS Code skip notice for absent user dir not printed
+FAIL: vscode upsert (z): mcp.json missing managed entries, foreign entry, or unknown top-level key
+FAIL: vscode upsert (z): expected Cursor skip notice for absent dir not printed
+FAIL: corrupt cursor JSON (aa): expected invalid-JSON error notice not printed
+FAIL: corrupt cursor JSON (aa): VS Code registration did not continue
+FAIL: corrupt vscode JSON (ab): expected invalid-JSON error notice not printed
+FAIL: corrupt vscode JSON (ab): Cursor registration did not continue
+
+Results: 31 passed, 8 failed.

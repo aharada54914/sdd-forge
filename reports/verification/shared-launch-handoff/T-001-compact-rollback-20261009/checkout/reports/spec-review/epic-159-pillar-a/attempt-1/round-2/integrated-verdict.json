@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 2,
+  "reviewer_a_run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0189",
+  "reviewer_b_run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0190",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0189",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0190",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

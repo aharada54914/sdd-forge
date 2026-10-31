@@ -1,0 +1,24 @@
+test_batch_hash_proof_requires_every_ordered_raw_digest (__main__.QualityTransport.test_batch_hash_proof_requires_every_ordered_raw_digest) ... ok
+test_diagnostic_reads_are_representative_not_all_inputs (__main__.QualityTransport.test_diagnostic_reads_are_representative_not_all_inputs) ... ok
+test_invocation_raw_hash_is_required_by_formal_transport (__main__.QualityTransport.test_invocation_raw_hash_is_required_by_formal_transport) ... ok
+test_large_quality_control_hash_pipeline_has_exact_permissions (__main__.QualityTransport.test_large_quality_control_hash_pipeline_has_exact_permissions) ... ok
+test_quality_case_alias_and_symlink_inputs_stop_before_reservation (__main__.QualityTransport.test_quality_case_alias_and_symlink_inputs_stop_before_reservation) ... ok
+test_quality_dependency_drift_never_reserves (__main__.QualityTransport.test_quality_dependency_drift_never_reserves) ... ok
+test_quality_identity_requires_task_and_scratch (__main__.QualityTransport.test_quality_identity_requires_task_and_scratch) ... ok
+test_quality_incomplete_native_proof_never_reserves (__main__.QualityTransport.test_quality_incomplete_native_proof_never_reserves) ... ok
+test_quality_model_conflict_stops_before_output_or_reservation (__main__.QualityTransport.test_quality_model_conflict_stops_before_output_or_reservation) ... ok
+test_quality_native_failure_never_reserves (__main__.QualityTransport.test_quality_native_failure_never_reserves) ... ok
+test_quality_plaintext_postflight_requires_identity_and_checked (__main__.QualityTransport.test_quality_plaintext_postflight_requires_identity_and_checked) ... ok
+test_quality_preview_and_preflight_leave_ledger_unchanged (__main__.QualityTransport.test_quality_preview_and_preflight_leave_ledger_unchanged) ... ok
+test_quality_scratch_failure_precedes_output_and_reservation (__main__.QualityTransport.test_quality_scratch_failure_precedes_output_and_reservation) ... ok
+test_quality_shared_tail_order_in_synthetic_role (__main__.QualityTransport.test_quality_shared_tail_order_in_synthetic_role) ... ok
+test_quality_stale_external_pin_precedes_manifest_read_and_output (__main__.QualityTransport.test_quality_stale_external_pin_precedes_manifest_read_and_output) ... ok
+test_scratch_record_and_read_hash_only_permissions (__main__.QualityTransport.test_scratch_record_and_read_hash_only_permissions) ... ok
+test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag (__main__.QualityTransport.test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag) ... ok
+test_shared_argv_rejects_model_permission_and_session_mismatches (__main__.QualityTransport.test_shared_argv_rejects_model_permission_and_session_mismatches) ... ok
+test_task_normalized_input_allows_lifecycle_only_not_body_edits (__main__.QualityTransport.test_task_normalized_input_allows_lifecycle_only_not_body_edits) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.705s
+
+OK

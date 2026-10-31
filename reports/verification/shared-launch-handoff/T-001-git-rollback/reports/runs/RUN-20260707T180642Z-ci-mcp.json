@@ -1,0 +1,19 @@
+{
+  "schema": "sdd-run-record/v1",
+  "run_id": "20260707T180642Z-ci-mcp",
+  "generated": "2026-07-07T18:06:42Z",
+  "feature": "ci-mcp",
+  "track": "full",
+  "model_ids": {
+    "main": "sonnet",
+    "reviewers": "opus"
+  },
+  "plugin_version": "1.7.0",
+  "active_wfis": [],
+  "metrics": {
+    "tasks": {"done": 13, "blocked": 0, "total": 13},
+    "first_pass_gate": {"passed_first_try": 3, "total": 13},
+    "gate_reports": {"total": 23, "blocked": 5, "max_runs_single_task": 2},
+    "review_tickets": {"critical": 0, "major": 4, "minor": 2}
+  }
+}

@@ -1,0 +1,43 @@
+T-003 GREEN verification
+Date: 2026-06-28
+Result: PASS
+
+Environment:
+- Darwin 25.5.0 arm64
+- GNU bash 5.3.9
+- PowerShell 7.6.2
+- baseline_commit: 0369c8c96de2eb3179868d1949d66644488f65aa
+- spec_revision: 7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c
+
+Commands:
+- PASS bash tests/workflow-state.tests.sh
+- PASS pwsh -NoProfile -File tests/workflow-state.tests.ps1
+- PASS bash tests/workflow-state-parity.tests.sh
+- PASS bash tests/downstream-review-precheck.tests.sh
+- PASS pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+- PASS bash tests/downstream-review-precheck-parity.tests.sh
+- PASS bash tests/workflow-state-registry.tests.sh
+- PASS pwsh -NoProfile -File tests/workflow-state-registry.tests.ps1
+- PASS bash tests/workflow-state-registry-parity.tests.sh
+- PASS bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/workflow-state-integrity/traceability.json . require-evidence (11 links)
+- PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-traceability.ps1 -TracePath specs/workflow-state-integrity/traceability.json -RepoRoot . -RequireEvidence (11 links)
+- PASS git diff --check
+
+Adapter and test SHA-256:
+- acdef269de14c89456b98fae43df56e0f25a2eab92b0bcb63d486bf3d7cf382f  plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+- 3dbe7c7d4d29fe2fb6249f01f3de9026788910311aca9fafab25149f636ab7bd  plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+- 6a378ebeeef4b15c80afbfdc3e4463b9506715ac44f6dbc7a193ec21d3e02e6b  tests/workflow-state.tests.sh
+- aff95864f6acb4a811302e8c93d0c820164a770705e4f37ce6d47072a7eecbdb  tests/workflow-state.tests.ps1
+- 693f90b1eccb80151eb9b2df34b7078f482d2f23a902fd636d9ef111ddc6e8e3  tests/workflow-state-parity.tests.sh
+
+Coverage:
+- AC-003 stage ordering
+- AC-004 Passed provenance and reviewer-evidence integrity
+- AC-005 task lifecycle coupling
+- AC-007 fail-closed malformed, missing, linked, traversal, stale, and forged evidence
+- AC-008 LF/CRLF and Bash/PowerShell parity
+- AC-014 deterministic diagnostics and runtime failure parity
+
+Rollback exercise:
+- PASS isolated Git fixture removed both adapters and their tests in one revert.
+- The preceding repository state remained inspectable through existing stage-specific prechecks.

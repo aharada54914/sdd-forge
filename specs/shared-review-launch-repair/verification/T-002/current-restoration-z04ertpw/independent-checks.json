@@ -1,0 +1,28 @@
+{
+  "unreadable_command": [
+    "rtk",
+    "proxy",
+    "pwsh",
+    "-NoProfile",
+    "-File",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+    "-Root",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "-FixtureDirectory",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/unreadable"
+  ],
+  "unreadable_exit_code": 0,
+  "owner_bytes_unchanged": true,
+  "restored_target_count": 8,
+  "baseline_recipe_exact_match_at_head": {
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": true,
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": true
+  },
+  "kind": "current dirty candidate restoration and pre-extraction recipe equivalence",
+  "not_claimed": [
+    "historical pre-fix RED",
+    "installed baseline rollback",
+    "formal gate PASS"
+  ],
+  "downstream_fixture_result": "retained exit 1: missing unrelated registry directories; not product regression proof"
+}

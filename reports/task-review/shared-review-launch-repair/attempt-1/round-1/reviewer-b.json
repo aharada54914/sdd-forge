@@ -1,0 +1,141 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "95e70d82-520b-4a95-b14b-1687713b3292",
+  "host_session_id": "95e70d82-520b-4a95-b14b-1687713b3292",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/shared-review-launch-repair/requirements.md",
+        "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+        "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/design.md",
+        "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/tasks.md",
+        "sha256": "8f41f8e48ae9a731c00eed22b2f4d6a1f60e4c0a0d53b982f076a264dfe2e40b"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/traceability.md",
+        "sha256": "036a87c62f3dcf97fa4a3b0b30f5eba2c3679726a2d43829368235c74a2314f7"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/ux-spec.md",
+        "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/frontend-spec.md",
+        "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/infra-spec.md",
+        "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/security-spec.md",
+        "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+        "sha256": "1a91029ed02d4bb0d101ecca50702511798ac4d3133e0c902b6484b78e759bbd"
+      },
+      {
+        "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-1/integrated-summary.json",
+        "sha256": "30e02f993785880c0f58b0192dfb51d8f67257250ccdad9b5e48a922510f0804"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 declares Risk: high with a rationale naming admission, evidence binding, reservation order and protected entrypoint registration. These are access-control/evidence-integrity surfaces, so high matches risk-classification-policy.md. Required Workflow is tdd. The task is not over-classified."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 is high, not critical. Scope requires an executed failing mismatch case before further code changes (Red). Done When requires reproduction or retained pre-fix evidence plus final commands/results (Green). It also requires independent diff review and a formal quality evaluation with no blocking findings, with only quality-gate setting Done. Advisory: the 'Red→Green' wording and a named second reviewer are implicit, not explicit."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 is one task covering all six requirements (REQ-001..006). Its Planned Files span at least five distinct implementation areas: review-loop scripts and PowerShell ports, skill and reference docs, quality-loop scripts and generated invariants, AGENTS.md/registry/CI workflow, and eight-plus test suites. It has nine Done When items, above the eight-item threshold, and bundles caller integration, negative-path verification, hash normalization, entrypoint registration, CI and delivery into one session-sized unit."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC has error-path coverage. AC-001 has TEST-002 and TEST-003a-c (missing flag, wrong model, compound Bash, outside Read). AC-002 has TEST-005a-h. AC-004 has TEST-008a-d. AC-005 has TEST-010a-b. AC-006 has TEST-011 and TEST-012a-d negative cases. AC-003 has TEST-006a-b, which report skips and Windows gaps."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no standalone test tasks with declared unit/integration/E2E types. Tests are enumerated inside T-001 by AC-bound TEST-IDs."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 is Risk: high but has no Rollback: field and no Done When item on safe reversion. It has no feature flag, revert procedure or documented rollback for the changed admission, reservation and guard registration. The 'safe merge' and 'permanent CI-registration removal' items are verification only. Add an explicit rollback Done When item, for example revert the PR and confirm prior validators and ledger behavior are unaffected."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "There is only one task, so no overlapping scopes between tasks exist."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers: None on the single task. There are no inter-task dependencies to be spurious or missing."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 is an integration and verification completion task, and it already requires retained pre-fix evidence."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001 bundles REQ-001..006 into one task. Its Planned Files span five or more areas (review-loop scripts/ports, skills/references, quality-loop scripts/generated invariants, AGENTS/registry/CI, and 8+ test suites). Done When has nine items, above the eight-item limit. Split it into coherent, separately verifiable tasks, for example launch admission (AC-001/002), hash normalization (AC-004/005), entrypoint/invariant/CI registration (AC-006), and delivery/CI evidence (AC-003)."
+    },
+    {
+      "check_id": "ROLLBACK-PLAN",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001 is Risk: high, but neither a Rollback: field nor a Done When item addresses safe reversion of the changed admission, reservation, normalization and guard-registration behavior. Add an explicit item, for example 'Rollback procedure documented and tested'."
+    }
+  ]
+}

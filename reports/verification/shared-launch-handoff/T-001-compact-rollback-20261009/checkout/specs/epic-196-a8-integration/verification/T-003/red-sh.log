@@ -1,0 +1,14 @@
+TDD RED (2026-09-24, isolated temporary mutation; production driver unchanged)
+Mutation: replace the install_2 manifest equality oracle with an unconditional
+failure in a temporary copy of tests/install-uninstall-matrix.tests.sh.
+Command: bash <temporary-copy> --target Codex
+ok: Codex install_1 present
+ok: Codex verify_1 drift_check
+not ok: Codex install_2 diff_from_install_1
+ok: Codex verify_residue empty
+ok: Codex result schema install-uninstall-matrix-result/v1
+ok: FilesOnly is explicitly out-of-matrix (AC-011)
+install-uninstall-matrix: 4 passed, 1 failed
+red_exit=1
+Conclusion: the idempotency acceptance oracle detects the deliberate
+permissive-driver mutation (fail closed).

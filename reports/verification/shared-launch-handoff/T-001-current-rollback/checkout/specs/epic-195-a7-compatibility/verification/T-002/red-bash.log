@@ -1,0 +1,3 @@
+FAIL: CI-set must refuse with non-zero status and no file touched (status=0 touched=yes)
+FAIL: approved-by-omitted must refuse with non-zero status and no file touched (status=0 touched=yes)
+0 passed, 2 failed

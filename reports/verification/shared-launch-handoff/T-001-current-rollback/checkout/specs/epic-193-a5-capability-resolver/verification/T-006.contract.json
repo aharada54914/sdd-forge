@@ -1,0 +1,172 @@
+{
+  "task_id": "T-006",
+  "feature": "epic-193-a5-capability-resolver",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "created": "2026-08-27T05:39:38Z",
+  "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-006's own deliverables are stdlib-only Python test drivers plus sh/ps1 dispatcher twins; this repository configures no Python/shell/PowerShell linter.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no static type-check command is configured for this repository's stdlib-only Python / shell / PowerShell files.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No separate network/service integration is in T-006's own scope; the real subprocess invocations of the staged resolver these suites exercise are covered by the unit/acceptance evidence, and a separate check would duplicate the same evidence.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-ps1.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/focused-tests-ps1.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-006",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- there is no build step for shell/stdlib-Python test suites in this repository.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-006/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The three suites themselves are the smoke surface; each launcher is executed directly in the unit/acceptance evidence.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No differential baseline applies: this task adds new test suites only and changes no production output shape.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI surface in this task.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system surface in this task.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ],
+  "comment": "Verification contract for T-006 (medium, acceptance-first per the risk-gate-matrix medium-tier row; tdd is reserved for high/critical). stack: shell waives lint/typecheck/build per the matrix. unit-tests evidence is the sh capture of this task's own three suites (cli 13/0, discovery 24/0 (gate-cycle-1 remediation added the missing AC-028 py-runtime installed-layout coverage), lite 18/0); acceptance-tests evidence is the pwsh capture of the same three suites (identical tallies) -- together they prove both runtimes, matching the T-005 precedent of splitting the dual-runtime captures across the two required test checks. red_evidence is empty by workflow: acceptance-first (medium) requires no formal Red commit; the four injected-regression mutation proofs (each failing against a doctored scratch copy, then the real engine passing) are recorded verbatim in reports/implementation/epic-193-a5-capability-resolver/T-006.md Test Evidence. regression covers the six sibling suites (block 306/0, match 125/0, validate-resolver-evidence 117/0, parity 70/0, metamorphic 150/0, resolver-evidence-schema 20/0) at the post-T-010 state of this branch. spec_revision is the current requirements+design+acceptance-tests concatenation hash (post route-(a) amendments)."
+}

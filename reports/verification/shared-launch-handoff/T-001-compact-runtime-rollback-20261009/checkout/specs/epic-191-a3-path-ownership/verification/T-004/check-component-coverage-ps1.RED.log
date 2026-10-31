@@ -1,0 +1,150 @@
+=== TEST-026/027: applicability derivation, disabled-legacy ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2)
+ok: TEST-028.2: -FacetManifest omitted entirely is also a hard error
+=== TEST-029: -Diagnose never Gate-invoked ===
+ok: TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible'
+ok: TEST-034.1: absent provider-bindings records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ===
+FAIL: TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=0 out={
+  "schema": "check-component-coverage-verdict/v1",
+  "check_id": "check-component-coverage",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "state": "not-applicable (disabled-legacy)",
+  "manifest_status": "not-consulted",
+  "fail_conditions": [],
+  "warnings": []
+}
+
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+FAIL: TEST-057.1: expected exit 2, got 1 (out=Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1:262
+Line |
+ 262 |  …     Write-Error ("check-component-coverage: $($_.Exception.Message)")
+     |                                                  ~~~~~~~~~~~~~~~~~~~~
+     | check-component-coverage: component 'desktop' has an empty paths.include
+     | list
+)
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+FAIL: TEST-058.1: expected disabled-legacy, got state=required
+=== TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ===
+FAIL: TEST-059.1: expected exit 2, got 0 (out={
+  "schema": "check-component-coverage-verdict/v1",
+  "check_id": "check-component-coverage",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "state": "required",
+  "manifest_status": "present",
+  "fail_conditions": [
+    {
+      "id": "Fail-1",
+      "triggered": false,
+      "detail": {
+        "unowned_paths": []
+      }
+    },
+    {
+      "id": "Fail-2",
+      "triggered": false,
+      "detail": {
+        "missing_exclusive_owners": []
+      }
+    },
+    {
+      "id": "Fail-3",
+      "triggered": false,
+      "detail": {
+        "overlap_paths": []
+      }
+    },
+    {
+      "id": "Fail-4",
+      "triggered": false,
+      "detail": {
+        "missing_bounded_shared_owners": []
+      }
+    },
+    {
+      "id": "Fail-5",
+      "triggered": false,
+      "detail": {
+        "excluded_match_paths": []
+      }
+    },
+    {
+      "id": "Fail-6",
+      "triggered": false,
+      "detail": {
+        "status": "not-applicable (provider-bindings absent)"
+      }
+    }
+  ],
+  "warnings": [
+    "Fail-6: sdd/provider-bindings.yaml absent; recorded N/A"
+  ]
+}
+)
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.3: live check-contract.ps1's protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)
+ok: TEST-036.4: the staged Bundle A candidate adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)
+ok: TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes, ready for human-apply
+=== TEST-055: staged Bundle B candidate structural proof (behavioral proof is in the bash twin) ===
+ok: TEST-055.1: the staged Bundle B candidate (check-contract.py) defines a producer-digest verification pass
+ok: TEST-055.2: the staged Bundle B candidate (check-contract.ps1) defines the matching producer-digest verification pass
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in run-all.sh and .ps1
+
+check-component-coverage.tests.ps1: 36 passed, 4 failed
+
+# NOTE: this RED log was captured 2026-08-09 against the code as it stood
+# before the quality-gate remediation fix in this same session (Critical 1
+# from reports/quality-gate/20260809T073000Z-epic-191-a3-path-ownership-T-004.md).
+# All four genuine failures above are real product defects fixed immediately
+# after this log was captured: TEST-056.1 (fail-open: a project-context.yaml
+# that EXISTS but fails to parse silently downgrades to disabled-legacy,
+# exit 0), TEST-057.1 (a Write-Error call under $ErrorActionPreference=Stop
+# threw before the intended `exit 2` line could run, so pwsh exited 1 where
+# python already exited 2 for the identical structural config error),
+# TEST-058.1 (pwsh's default -eq is culture-aware/case-insensitive, so
+# 'Required' matched as required on pwsh while python correctly derived
+# disabled-legacy), and TEST-059.1 (reachability bypass: omitting both
+# -ChangedPathsFile and -TargetRev in `required` state with a valid manifest
+# read empty stdin and returned a conformant all-clear, exit 0).

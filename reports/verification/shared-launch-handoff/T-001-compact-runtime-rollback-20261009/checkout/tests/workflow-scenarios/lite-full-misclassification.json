@@ -1,0 +1,23 @@
+{
+  "scenario_id": "lite-full-misclassification",
+  "class_number": 4,
+  "class_name": "lite-full misclassification",
+  "class_name_source": "issue #125 body (代表10種 item 4: \"lite-full 誤判定\"); investigation.md INV-017 row 4",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "tests/workflow-state-registry.tests.sh",
+      "note": "unit-level lite/full profile-classification assertions against workflow-state-registry.json entries."
+    },
+    {
+      "path": "tests/workflow-state.tests.sh",
+      "note": "unit-level lite/full profile assertions against check-workflow-state.sh's own decision logic."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Edit"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Existing coverage is unit-level (registry/state-check assertions), not scenario-level (investigation.md INV-017 row 4). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist and each still contains at least one lite/full-profile-shaped assertion (grep for \"lite\"/\"full\" profile literals), plus TEST-013's PreToolUse-shape drive builds a representative Edit/exec_command payload for a synthetic workflow-state-registry.json profile edit. This scenario intentionally does not duplicate either existing suite's own assertions."
+}

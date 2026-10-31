@@ -1,0 +1,51 @@
+test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) ... 
+  test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='both_after_live_change') ... FAIL
+  test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='one_after_live_removal') ... FAIL
+  test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='absent') ... FAIL
+  test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='other_checkout') ... FAIL
+test_success_and_rejections (__main__.VerifyInputsTest.test_success_and_rejections) ... ok
+
+======================================================================
+FAIL: test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='both_after_live_change')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/tests/spec-review-verify-inputs.tests.py", line 219, in test_historical_conditional_contracts
+    self.assertEqual(result.returncode == 0, expected, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/spec-review-precheck.sh: line 467: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/review-contract-validate.sh: Permission denied
+
+
+======================================================================
+FAIL: test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='one_after_live_removal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/tests/spec-review-verify-inputs.tests.py", line 219, in test_historical_conditional_contracts
+    self.assertEqual(result.returncode == 0, expected, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/spec-review-precheck.sh: line 467: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/review-contract-validate.sh: Permission denied
+
+
+======================================================================
+FAIL: test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/tests/spec-review-verify-inputs.tests.py", line 219, in test_historical_conditional_contracts
+    self.assertEqual(result.returncode == 0, expected, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/spec-review-precheck.sh: line 467: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/review-contract-validate.sh: Permission denied
+
+
+======================================================================
+FAIL: test_historical_conditional_contracts (__main__.VerifyInputsTest.test_historical_conditional_contracts) (shell='sh', case='other_checkout')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/work/tests/spec-review-verify-inputs.tests.py", line 219, in test_historical_conditional_contracts
+    self.assertEqual(result.returncode == 0, expected, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/spec-review-precheck.sh: line 467: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-3/output/tmp/tmpwblfv8k4/plugins/sdd-review-loop/scripts/review-contract-validate.sh: Permission denied
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 14.645s
+
+FAILED (failures=4)

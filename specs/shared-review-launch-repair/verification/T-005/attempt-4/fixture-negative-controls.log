@@ -1,0 +1,12 @@
+restores-executable-copy: exit=0; expected outcome matched
+unsafe-input: exit=1; expected outcome matched
+duplicate-input: exit=1; expected outcome matched
+unsafe-inventory: exit=1; expected outcome matched
+duplicate-inventory: exit=1; expected outcome matched
+mode-out-of-range: exit=1; expected outcome matched
+mode-noninteger: exit=1; expected outcome matched
+inventory-pin-mismatch: exit=1; expected outcome matched
+source-hash-mismatch: exit=1; expected outcome matched
+external-roots: exit=1; expected outcome matched
+existing-work: exit=1; expected outcome matched
+11 controls matched; actual admitted inventory and snapshot were not modified

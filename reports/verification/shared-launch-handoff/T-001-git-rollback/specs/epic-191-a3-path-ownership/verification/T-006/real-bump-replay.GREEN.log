@@ -1,0 +1,17 @@
+REAL BUMP-VERSION REPLAY — DISPOSABLE CLONE
+Precondition: staged coverage candidate overlaid only in the disposable clone.
+CHANGELOG heading replayed from Unreleased to v1.14.1 (2026-08-12).
+macOS tool resolution: PATH prepended with a temporary sed symlink to installed /opt/homebrew/bin/gsed; scripts/bump-version.sh itself was unmodified.
+
+Command: bash scripts/bump-version.sh 1.14.1
+Exit: 0
+Bumping release surfaces: 1.14.0 -> 1.14.1
+All release surfaces now identify 1.14.1.
+
+Command: bash tests/component-path-ownership-parity.tests.sh
+Exit: 0
+Results: 21 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+Exit: 0
+Results: 21 passed, 0 failed

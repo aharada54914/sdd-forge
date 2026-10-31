@@ -1,0 +1,68 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/quality-nontty-transport.tests.py"
+    ],
+    "exit": 0,
+    "signal": null
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/host-review-preflight.tests.py"
+    ],
+    "exit": 0,
+    "signal": null
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/unified-task-launch.tests.py"
+    ],
+    "exit": 0,
+    "signal": null
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/unified-launch-order.tests.py"
+    ],
+    "exit": 1,
+    "signal": null
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/review-conditional-inputs.tests.py"
+    ],
+    "exit": 1,
+    "signal": null
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "tests/shared-launch-build.tests.py"
+    ],
+    "exit": 0,
+    "signal": null
+  }
+]

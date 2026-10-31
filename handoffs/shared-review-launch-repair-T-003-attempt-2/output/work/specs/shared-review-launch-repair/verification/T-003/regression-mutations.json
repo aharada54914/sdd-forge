@@ -1,0 +1,521 @@
+[
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011a_launch_impl_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.231s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011a_launch_impl_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) ... \n  test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py') ... FAIL\n  test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py') ... FAIL\n  test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py') ... FAIL\n  test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py') ... FAIL\n\n======================================================================\nFAIL: test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/launch-impl-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.096s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011a_launch_impl_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011a_launch_impl_review (__main__.ProtectedEntrypointTests.test_011a_launch_impl_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.115s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "f48bdd7ccbad27cd36eea5b2b90c9c5bdba881ffa7bde13c0f3260a1f342f702",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "b4b1a8d93a6c12c8af9a52dd514affab2ca7a5583c69c30c9484f162967c4b9f",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "6428b8d93d2ffa5555feb75ec8f055f1de41a099d49f49162830cf790392a491",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011b_preflight_host_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.119s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011b_preflight_host_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) ... \n  test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py') ... FAIL\n  test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py') ... FAIL\n  test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py') ... FAIL\n  test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py') ... FAIL\n\n======================================================================\nFAIL: test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/preflight-host-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.134s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011b_preflight_host_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011b_preflight_host_review (__main__.ProtectedEntrypointTests.test_011b_preflight_host_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.137s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "38ef7bba790c6b20b341c2a1d56106e45f057b171f13a9e62ca8e7cb8cd48243",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "0d1c3d45d8666ecdef2b5bfcb1b60d8bb41fcf899711214a19edcf81982a98f9",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "c2a1412cbaef691086858f66f2e1a2d1482b8efce32829b3d6fe79c706da2d7d",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.128s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) ... \n  test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL\n  test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL\n  test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL\n  test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL\n\n======================================================================\nFAIL: test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.142s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011c_validate_nontty_spec_launch (__main__.ProtectedEntrypointTests.test_011c_validate_nontty_spec_launch) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.132s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "a1d1c73e3a6abaa8de7576a7dd2fc1280c98553bc98f4ae55d99ba530b1c2861",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "8219870f4906107526314d73effd29ac574bc2531962450ffbfa53e4613b6c10",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "f63eb8f5b7221d5ed0a3896b40fbcf4e0c0bc58f58e7845515194ad2ce6ee404",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011d_probe_nontty_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.164s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011d_probe_nontty_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) ... \n  test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py') ... FAIL\n  test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py') ... FAIL\n  test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py') ... FAIL\n  test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py') ... FAIL\n\n======================================================================\nFAIL: test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/probe-nontty-review.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.159s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011d_probe_nontty_review",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011d_probe_nontty_review (__main__.ProtectedEntrypointTests.test_011d_probe_nontty_review) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.151s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "b8749c2600f5f5e4ddc38fea5fe739634a654345855eba7f4048d886ba556746",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "2281c5d20f08a8292f4a56b9f615a105e5ff67b305ca690509db189042055eab",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "e1cafe5ae58f29344833173ef7c66c08c7d9b0d9ed6de1845506506775a537f6",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.156s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) ... \n  test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs') ... FAIL\n  test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs') ... FAIL\n  test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs') ... FAIL\n  test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs') ... FAIL\n\n======================================================================\nFAIL: test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Python', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Node', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='PowerShell', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) (runtime='Bash', entrypoint='plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.174s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011e_nontty_impl_pretool_guard (__main__.ProtectedEntrypointTests.test_011e_nontty_impl_pretool_guard) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.208s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "4ee47bf99f5d2e4d7f8f401c26ad16e81172ff086849905c3e041cf7f63f79f7",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "bfd50df8e71eaff2811fe307dea945eabad43f761b588056d8b13bdff6c82887",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "127a74c543c5b99e9f09672460ac25bd2a7d8ef3716ba136e508551e26834a8f",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact candidate GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.153s\n\nOK\n"
+  },
+  {
+    "label": "isolated registration mutation RED (not original production RED)",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) ... \n  test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Python', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py') ... FAIL\n  test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Node', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py') ... FAIL\n  test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='PowerShell', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py') ... FAIL\n  test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Bash', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py') ... FAIL\n\n======================================================================\nFAIL: test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Python', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Node', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='PowerShell', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n======================================================================\nFAIL: test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) (runtime='Bash', entrypoint='plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 264, in check_entrypoint\n    self.assert_denied(result)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 240, in assert_denied\n    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : \n\n----------------------------------------------------------------------\nRan 1 test in 2.170s\n\nFAILED (failures=4)\n"
+  },
+  {
+    "label": "restored-byte GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_011f_preflight_evaluator_delivery (__main__.ProtectedEntrypointTests.test_011f_preflight_evaluator_delivery) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.156s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "before": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea",
+        "mutated": "d4b91266db9fb1acbf712033abafef3756fdbd36d53126e536c52e40ccd36909",
+        "restored": "763c2610fbda366699ef706bd934553a50dfb6f814e8684e2a0515d6b381eeea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "before": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea",
+        "mutated": "2c4b564aac30d80c2835694858358b71d409fbab62b0eef1d1e4d7c66e9e34a9",
+        "restored": "b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "before": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8",
+        "mutated": "9ea092b2fcbc6447bf647955666c6e7aab2872f5fa3d07dfb33d1dfb5ab729db",
+        "restored": "257e87b3745d897f781c36558acf90c736f22e7b734accfda1a1c0d7914a28d8"
+      }
+    ]
+  },
+  {
+    "label": "intact actual workflow GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_013_ci_transport_registration",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_013_ci_transport_registration (__main__.ProtectedEntrypointTests.test_013_ci_transport_registration) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.042s\n\nOK\n"
+  },
+  {
+    "label": "CI omission is invisible to generator --check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "isolated actual workflow removal RED",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_013_ci_transport_registration",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_013_ci_transport_registration (__main__.ProtectedEntrypointTests.test_013_ci_transport_registration) ... FAIL\n\n======================================================================\nFAIL: test_013_ci_transport_registration (__main__.ProtectedEntrypointTests.test_013_ci_transport_registration)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 350, in test_013_ci_transport_registration\n    self.assert_transport_registered()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 346, in assert_transport_registered\n    self.assertEqual(len(TRANSPORT_RUN.findall(job.group(1))), 1,\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                     'CI transport registration missing or duplicated')\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 1 : CI transport registration missing or duplicated\n\n----------------------------------------------------------------------\nRan 1 test in 0.004s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "label": "restored actual workflow GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_013_ci_transport_registration",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_013_ci_transport_registration (__main__.ProtectedEntrypointTests.test_013_ci_transport_registration) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.042s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": ".github/workflows/test.yml",
+        "before": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+        "mutated": "db46d2ef250b9231825fe6e39d9db872e915fa70a248b583779ffdbc9ba9c750",
+        "restored": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a"
+      }
+    ]
+  },
+  {
+    "label": "isolated unrelated membership RED",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged) ... FAIL\n\n======================================================================\nFAIL: test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 327, in test_012d_unrelated_membership_unchanged\n    self.assert_unrelated_unchanged(data)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py\", line 323, in assert_unrelated_unchanged\n    self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'f93e2ef86e82de461e68aa58bdcba705d982a78850cd04d790674c3681f448b4' != '8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883'\n- f93e2ef86e82de461e68aa58bdcba705d982a78850cd04d790674c3681f448b4\n+ 8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883\n : unrelated invariant keys or membership changed\n\n----------------------------------------------------------------------\nRan 1 test in 0.004s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "label": "restored unrelated membership GREEN",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output/tmp/regression-mutations-final/tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged",
+      "-v"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-2/output",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.004s\n\nOK\n",
+    "rollback_hashes": [
+      {
+        "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+        "before": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf",
+        "mutated": "3d3d314e1feb81b064f62c5e2ca1176c2f6f7c4996492c2c0807b0bf96ac08e2",
+        "restored": "d392c6c606b02936f8856f2eb4881b1e1d249e8e152e700e4f74a9bfcd16eecf"
+      }
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "suite": "host-review-preflight",
+    "exit_code": 0
+  },
+  {
+    "suite": "spec-review-verify-inputs",
+    "exit_code": 0
+  },
+  {
+    "suite": "review-conditional-inputs",
+    "exit_code": 0
+  },
+  {
+    "suite": "review-context-boundary",
+    "exit_code": 0
+  },
+  {
+    "suite": "supplemental-delivery-declaration",
+    "exit_code": 0
+  },
+  {
+    "suite": "review-agent-isolation",
+    "exit_code": 0
+  }
+]

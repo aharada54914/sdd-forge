@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a2r3-seq0668",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a2r3-0668",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "10f1595a4496faa82db202297fb16fd7f3c79e74d11288cae76176b0d725a62e"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "2dbe99480b135d3e645a1a7987cdaf7d43eddcf690a62090b26fea5a24b496f4"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-3/precheck-result.json", "sha256": "6e583d6239b32ae236805e9164d8cb335d6b7f597319b25b014c27eb0187e9ee"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-3/integrated-summary.json", "sha256": "1397a60632db02a17aca6a2d3c231f76e0c97652915a928acf503f0b8a27acf6"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, states, and actors are pinned to explicit, individually clause-identified definitions throughout (Field Definitions section defines EXCLUSIVE/SHARED-bounded/SHARED-unbounded/OVERLAP/UNOWNED/EXCLUDED_MATCH/disabled-legacy/advisory/required precisely; REQ-001's matching rules assign a unique clause id to every judgment call, AC-001..AC-009). The 2026-08-11 amendment's present-but-malformed-vs-absent distinction (REQ-004 Applicability sub-bullet, requirements.md ~lines 523-569; Edge Cases ~lines 1510-1535; Security Boundaries ~lines 1548-1618) is drawn with concrete, non-overlapping triggers (file absent vs. exists-but-unparseable vs. parses-but-invalid-enum) that two implementers would resolve identically."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements, acceptance criteria, constraints, or non-goals. Passages marked 'Superseded (2026-08-11, human-directed)' in Problems (~lines 140-180) and REQ-004 (~lines 468-492) retain their original text for provenance but are immediately followed by the current authoritative text, and the resulting conditional-activation rule (check-contract's tier minimum for check-component-coverage is active only while sdd/project-context.yaml exists and is fail-closed for a malformed file) is restated identically and consistently across Problems, Dependencies, REQ-004, Non-goals, Main Workflows step 4, Edge Cases, and Security Boundaries, with matching acceptance criteria (AC-035, TEST-035a/b/c/d)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Goals REQ-001, the 'Config-read contract on a present-but-malformed file' bullet (~lines 339-353), added in this round's amendment, states that resolve-component-paths' own `--config` file existing-but-unparseable is a fail-closed load-time error (non-zero exit, diagnostic naming the parse failure) and explicitly extends this to the `--diagnose` subcommand ('The resolver-only diagnostic subcommand ... inherits this identical contract'). This clause is assigned no Acceptance Criterion number (it is not AC-006/AC-008/AC-018, which the same paragraph cites as analogous-but-distinct existing clauses covering unsupported metacharacters, an empty include list, and an ill-shaped shared_paths entry respectively — none of which is 'file cannot be parsed as YAML at all'), and consequently acceptance-tests.md contains no TEST ID for it. acceptance-tests.md's own header states TEST IDs map 1:1 to AC-001..AC-055 with none omitted, so this normative resolver-side behavior has zero acceptance-test traceability. This is exactly the risk class round 2's Gate-side finding addressed (an implementation could catch its own parse exception and silently fall back to different behavior than the mandated diagnostic-and-crash), but here it is left open for the resolver/`--diagnose` path even though the Gate-side twin (REQ-004) received a full AC-035 extension plus dedicated TEST-035d (acceptance-tests.md lines 63-67). A task author decomposing Phase 2 work has no acceptance test to point implementation or evidence at for this resolver behavior, and a verifier has nothing to check it against."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions section (requirements.md ~lines 1620-1655) ties each of its 5 assumptions to an explicit fail-closed enforcement fixture or a documented forward-dependency blocker rather than leaving it silently accepted (schema-shape stability -> AC-011 fail-closed; canonicalizer/Facet-Manifest read-path -> Dependencies-tracked hard blockers; project-context.template.yaml -> AC-042/AC-044 fail-closed; capability-adoption ordering -> treated as intended fail-closed behavior, not a spec defect). Open Questions: OQ-001 is marked Resolved with the normative rule now stated in Fail-6/AC-033; OQ-002 is resolved via an explicit adopted middle path (unblocked implementation now, T-001 Done state additionally gated on AC-011's deterministic fail-closed fixture) rather than left open."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Roles and Permissions (requirements.md ~lines 1367-1391) draws a testable governance boundary: the implementing agent never writes a protected path directly and stages all six protected-file candidates plus check-contract.* and .github/workflows/test.yml under specs/epic-191-a3-path-ownership/human-copy/ with a MANIFEST.sha256 entry; a human maintainer must apply each staged candidate (cp + SHA-256 verification) before the registering task can be Done (AC-036, AC-047, AC-051), and 'Approval: Draft -> Approved is a human-only action, never performed in this spec-phase package.' This reuses the repository's already-precedented protected-file/human-copy mechanism (INV-006, INV-007, INV-015, INV-017) rather than introducing an undefined new governance boundary, and the boundary's edges (file-absent vs. present-valid vs. present-malformed activation states) are pinned by AC-035/TEST-035a-d."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the isolated missing-test-mapping gap captured under EDGE-CASE-COVERAGE, the product behavior itself is not left for a design/task reviewer to invent: every derived state's exit code and evidence shape (REQ-004), all six Fail-condition trigger rules (Fail-1..Fail-6, with Fail-2/Fail-4 mutual-exclusivity explicitly proven by construction), the full matching algorithm (REQ-001/REQ-002), the git-diff basis's baseline/rename/submodule/snapshot contracts (REQ-003), and the digest's full-input binding semantics (REQ-005) are all normatively fixed in requirements.md with matching acceptance criteria. Dependencies explicitly delineates what remains Epic A1/A4's authority (schema shape, canonicalizer, Facet Manifest schema) versus what this feature fixes itself (matching algorithm, Fail-condition definitions), so a design reviewer is not required to invent missing product behavior to proceed."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the target repository (verified: Glob for domain/, domain/context-map.md, and domain/domain-contract.json under /Users/jrmag/Projects/active/sdd-forge-wt-epic-191 all return no matches), so there is no approved domain model to check against per the calibration's skip condition. Recorded as skipped."
+    }
+  ]
+}

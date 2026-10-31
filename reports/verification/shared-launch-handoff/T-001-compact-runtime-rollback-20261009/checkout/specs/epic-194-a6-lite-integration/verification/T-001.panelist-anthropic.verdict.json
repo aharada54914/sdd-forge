@@ -1,0 +1,46 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "blind": true,
+  "input_digest": "46c0cb724c0f056650753f0a01005191e1f63729b6d6aa609faa84bcf96cb67c",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-001.panelist-input.txt header"
+  },
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/README.md (declared output), 'What's staged' table",
+      "note": "Four of the five staged-payload SHA-256 values in the README table (e.g. check-risk-upgrade.sh ee35d426...) disagree with the current MANIFEST.sha256 and Outputs-table digests (4ffd5cd7...), because the README predates the 2026-08-28 MANIFEST re-signing/ADR-0023 rebase chain. The runner verifies against MANIFEST, not the README, so this is documentation drift, but a human cross-checking the README table would see false mismatches."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/T-001/security-review-20260828.md, Scope Items 4 and 5",
+      "note": "The fresh hash-matched security review is genuine and PASS, but its two recorded Low findings remain open: the live-state report can label a target INSTALLED when Test-PostCopyHashes fails after Copy-Payload fully succeeded (fail-closed via exit code, but untested by any assertion), and read-side verification resolves by path string rather than held handles. Respected at the reviewer's recorded Low disposition."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-001.contract.json comment (NAMED INDEPENDENT SECOND REVIEWER)",
+      "note": "The Done-When's independent quality-gate PASS with a named second reviewer (sdd-evaluator seq0914, reports/quality-gate/.../T-001.md) is recorded only in the contract comment; the report itself is deliberately excluded from the bundle for blind isolation, so this item is accepted on the recorded citation and cannot be independently confirmed from the bundle."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/shared/task-state-check.log",
+      "note": "The task-state-check evidence backing passes:true is dated 2026-08-25 at HEAD 7e282bb1, predating the 2026-08-28 amendment re-binding, Outputs re-pin, and human-apply chain the rest of the contract's evidence reflects; no post-2026-08-28 re-run of this check appears in the bundle."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/T-001/runner-contract-green-20260828.log (TEST-002b/003c/004b/008d/010c labels)",
+      "note": "Multiple pre-copy-rejection assertions still say 'all four live files unchanged' although the declared contract was widened to five targets; this is either stale label text or the fifth destination (.github/workflows/test.yml) is not included in those non-mutation checks. TEST-012 does exercise all five, so at worst this is a narrow assertion-coverage/labeling gap."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-194-a6-lite-integration/T-001.md, 'Four-target / fifth-target contradiction' section",
+      "note": "The report retains the superseded four-target interpretation (test.yml applied by bare cp, removed before runner invocation) alongside later sections, the five-entry MANIFEST, and the amended AC-010/AC-031 five-target contract; it is framed as historical narrative but contradicts the shipped behavior for a reader who stops there."
+    }
+  ]
+}

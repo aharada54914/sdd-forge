@@ -1,0 +1,6 @@
+Command: bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-domain/skills/domain-reverse/SKILL.md
+Environment: Windows 11 Enterprise 10.0.22631 (Git Bash / MSYS)
+Run timestamp (UTC): 2026-07-06T08:55:42Z
+
+Placeholder scan passed.
+EXIT:0

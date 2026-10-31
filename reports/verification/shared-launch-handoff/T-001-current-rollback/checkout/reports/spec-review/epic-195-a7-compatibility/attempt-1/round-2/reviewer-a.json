@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0322",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0322",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md", "sha256": "d6d83cfa210951e33c1c80de725482e8876836db1d1fbe074f0fdbe113597d39"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "3ba46d96b3a132f9a38be614532de5942ece5bfdb050ed66e3f05915cbb10946"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-2/precheck-result.json", "sha256": "86c51f7420de0b3141dcfdf6cd9f603734c9ce2a73dae69fd4dafbff50f39af4"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each name concrete, measurable targets (exact scripts, exact fields/flags, exact fixture states, exact commit-pinning rule, exact SKIP/fail conditions). Round-2's REQ-006(c)/Roles-and-Permissions addition is backed by AC-041's two independently stated negative fixtures (CI env var set -> non-zero exit + no file I/O; --approved-by omitted/empty -> non-zero exit + no canonical write), giving a downstream implementer an unambiguous pass/fail condition for the runtime-refusal guard rather than only the AC-040 static text scan."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001-REQ-007) has at least one matching AC: REQ-001->AC-002/003/004/038; REQ-002->AC-005/006/007/030/031; REQ-003->AC-008-012,022-027,032,033,036,037,039; REQ-004->AC-013,029; REQ-005->AC-014,015,019-021,028; REQ-006->AC-001,018,040,041; REQ-007->AC-016,034,035. The round-2 addition (AC-041) traces to REQ-006 and has a corresponding TEST-041 row in acceptance-tests.md."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outcomes (exit codes, byte-for-byte diffs, file presence/absence, event-trace values, static-scan matches) rather than vague intent, e.g. AC-041's exit-code/no-file-write outcomes, AC-011's byte-identical re-run diff, AC-035's three independent hard-fail conditions. Doc-review-type ACs (AC-013, AC-017, AC-028, AC-029) name a concrete artifact and check (traceability table, citation presence, disposition table) consistent with acceptance-tests.md's own declared Test Type column, which the calibration guide treats as an acceptable observable target for a Phase 1 gate."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes implementing Epics A1-A6, authoring Phase 2/3 test code/fixtures/registry edits, registering a ninth loop-inventory id, re-specifying Epic A5's deferred suite in full, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task. REQ-005/AC-028 also bounds fixture-matrix scope explicitly (F7/F8 recorded N/A with a stated non-coverage rationale rather than silently omitted)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table names B1 (golden-baseline capture/update: maintainer-only initial canonical capture, candidate->canonical only via reviewed PR, CI/unreviewed-agent write blocked) and B2 (shared registry/driver/run-record edit rigor), each with explicit auth/authz and data-classification columns. Roles and Permissions section states CI never writes the baseline and now (round 2) cites AC-041 as the direct behavioral exercise of promote-golden-baseline.sh's own CI-env-var/--approved-by fail-closed guards, complementing AC-040's static scan and closing the approval-boundary gap a downstream implementer would otherwise have to infer."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section names Critical (cross-epic drift), High (shared-surface blast radius), and Medium (check-sdd-structure.sh deviation) claims, each paired with a stated validation surface: the Critical risk cites REQ-007's named-SKIP/allowlist design and AC-035's fingerprint-drift hard-fail as the loud-drift mechanism; the High risk cites design.md field/shape fixing before Phase 2/3 starts as the mitigation path; the Medium risk cites a self-closing Phase-2-kickoff signal (Main Workflows step 1). Security Boundary B1's approval risk additionally now has a direct behavioral test surface via round-2's AC-041, not only the AC-040 static scan."
+    }
+  ]
+}

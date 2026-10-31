@@ -1,0 +1,73 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "task",
+ "role": "task-reviewer-b",
+ "feature": "epic-193-a5-capability-resolver",
+ "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a14r1-seq0876",
+ "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a14r1-0876",
+ "sequence": 876,
+ "previous_record_sha256": "97711cf0e23c056ecd9b7c5591a34426389296035ba1d3b2eef8a26d364e9fd3",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "8e21350c53a8dc23f4a03e2e5ee84ffd8db9d0de85b045dfb743f016e21af5ba",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+   "sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+   "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/design.md",
+   "sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+   "sha256": "10746f255df1571cf718c811f6ad4eb1d689486197ce9ba5a8d044b4fb85711b"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+   "sha256": "0509e3c8c8534f6e637c62f28509b75f07e39cbc9d8ee228540ba3ca19edef1a"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+   "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+   "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+   "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+   "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"
+  },
+  {
+   "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+   "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+  },
+  {
+   "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/precheck-result.json",
+   "sha256": "937ac11f8ea90e30a0ab38fd5b595bcf02fbd236b2e91c36ae35ec00de1ba46b"
+  },
+  {
+   "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/integrated-summary.json",
+   "sha256": "afbaad97a2200be5f40791b133a181a2346e1032625163cd6f5fba52459607d4"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+   "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+   "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+  }
+ ]
+}

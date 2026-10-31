@@ -1,0 +1,221 @@
+==============================================================================
+T-002 SELF-CHECK EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29 (UTC), same run as green.log
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+Every block below is the verbatim stdout of the command named above it, run
+from the repository root /Users/jrmag/Projects/active/sdd-forge-wt-phase4
+(worktree, branch feature/epic-136-phase4).
+==============================================================================
+
+------------------------------------------------------------------------------
+AC-016 / TEST-016 -- the schema `description` literal is BYTE-IDENTICAL to
+requirements.md's CONFIRMED text. Extracted programmatically from
+requirements.md's Field Definitions blockquote (anchor = the
+"`hostRequiredChecks` (REQ-002)" entry; strip the leading "> " markers, trim,
+join the wrapped lines with a single space) and compared by sha256 -- never
+re-typed, never eyeballed. design.md's own copy is checked too, purely to show
+the two spec documents currently agree; requirements.md is the normative
+source and would win on any divergence.
+
+COMMAND: node <extract-and-compare script>
+------------------------------------------------------------------------------
+=== SOURCE: requirements.md Field Definitions blockquote ===
+lines 403..414 (12 wrapped lines)
+length : 789
+sha256 : 8d68608bd078408c4800948c1fac21a0c51029e780d8b35d6dd2a40a8b88100e
+
+=== design.md's reading-convenience copy (informative only) ===
+lines 289..300 (12 wrapped lines)
+length : 789
+sha256 : 8d68608bd078408c4800948c1fac21a0c51029e780d8b35d6dd2a40a8b88100e
+identical to requirements.md : YES
+
+=== SCHEMA: $defs.evidenceDeepVerifyData.properties.hostRequiredChecks.description ===
+length : 789
+sha256 : 8d68608bd078408c4800948c1fac21a0c51029e780d8b35d6dd2a40a8b88100e
+
+=== VERDICT ===
+schema.description === requirements.md literal : true
+schema.description.includes(requirements literal): true
+sha256 equal                                    : true
+
+=== placeholder guard (no TODO/FIXME/TBD/XXX/placeholder in the value) ===
+none
+EXIT: 0
+
+The same extraction rule is re-executed INSIDE the test suite by
+"TEST-016 (AC-016): the schema description is verbatim requirements.md's
+CONFIRMED literal" (green.log:280), so the check is a standing regression
+guard, not a one-shot measurement at implementation time.
+
+------------------------------------------------------------------------------
+BL-005 / AC-004 -- the `verdict` formula line and the whole
+`failures[]`-building block are BYTE-IDENTICAL between HEAD (2335a8de) and the
+working tree, proven by sha256 over the extracted regions rather than by
+eyeballing a diff.
+
+COMMAND: node <extract-and-hash script over git show HEAD:... vs worktree>
+------------------------------------------------------------------------------
+=== verdict formula line ===
+HEAD    : "    verdict: failures.length === 0 ? \"pass\" : \"fail\","
+worktree: "    verdict: failures.length === 0 ? \"pass\" : \"fail\","
+BYTE-IDENTICAL: true
+
+=== failures[]-building block ===
+HEAD     lines: 26, sha256 151fb7507583d5fe1ca4a6e331439f61bcd89058cce133a29c543498f9b5365f
+worktree lines: 26, sha256 151fb7507583d5fe1ca4a6e331439f61bcd89058cce133a29c543498f9b5365f
+BYTE-IDENTICAL: true
+
+=== hostRequiredChecks is never read by verdict/failures logic ===
+  +73: const hostRequiredChecks: HostRequiredCheck[] = [
+  +86: hostRequiredChecks,
+(the only references inside evidenceDeepVerify are the const declaration and
+the ok({...}) property -- never a read by failures[] or verdict)
+EXIT: 0
+
+------------------------------------------------------------------------------
+AC-015 LEG -- fresh SUFFIX match of the 6 paths this task writes against
+PROTECTED_GATE_SUFFIXES and PHASE2_HUMAN_COPY_TARGETS, re-read live from
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js at
+implementation time (NOT carried forward from investigation.md's or tasks.md's
+authoring-time snapshot, and NOT carried forward from T-001's own run).
+Matching is by path SUFFIX, the guard's own rule, not by substring.
+
+COMMAND: node <suffix comparison over the generated invariants module>
+------------------------------------------------------------------------------
+guard-invariants SCHEMA_VERSION: 1
+PROTECTED_GATE_SUFFIXES entries: 42
+PHASE2_HUMAN_COPY_TARGETS entries: 18
+mcp/sdd-forge-mcp/src/tools/evidence.ts -> gate matches: 0, human-copy matches: 0
+contracts/sdd-forge-mcp-tools.v1.schema.json -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/dist/index.js -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts -> gate matches: 0, human-copy matches: 0
+mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts -> gate matches: 0, human-copy matches: 0
+TOTAL MATCHES ACROSS ALL 6 PATHS: 0
+AC-015 LEG: PASS (zero matches)
+EXIT: 0
+
+(tasks.md's Planned Files names 4 paths and folds the sibling deep-verify
+suites into one entry; this run enumerates all 6 concrete files actually
+written, which is a superset, not a substitution.)
+
+------------------------------------------------------------------------------
+RE-VERIFY item 2 (tasks.md Global Constraints) -- mcp/sdd-forge-mcp/package.json's
+private/publishConfig/files/exports fields. requirements.md Assumptions makes
+these the factual basis for REQ-005/BL-004's `required`-not-`optional` choice.
+Re-read at THIS task's implementation start; the basis holds (private,
+unpublished, no publishConfig/files/exports), so adding a new `required`
+property to the v1 contract cannot strand an independently-versioned external
+consumer.
+
+COMMAND: node -e '<read mcp/sdd-forge-mcp/package.json>'
+------------------------------------------------------------------------------
+private: true
+publishConfig: null
+files: null
+exports: null
+version: 0.1.0
+
+------------------------------------------------------------------------------
+RE-VERIFY item 3 (tasks.md Global Constraints) -- CHANGELOG.md's `## Unreleased`
+section. Not applicable to this task and deliberately not touched: CHANGELOG.md
+and USERGUIDE.md are T-005's single doc-follow concern (this task's Out of
+Scope). Confirmed unmodified below.
+
+------------------------------------------------------------------------------
+NO-VERSION-LITERAL SELF-CHECK -- no version string mutated anywhere outside
+scripts/bump-version.sh (which this task does not touch at all).
+
+COMMAND: git diff -U0 -- mcp/sdd-forge-mcp/src/tools/evidence.ts \
+  contracts/sdd-forge-mcp-tools.v1.schema.json mcp/sdd-forge-mcp/tests/tools/ \
+  | grep -E '^\+' | grep -vE '^\+\+\+' | grep -E '[0-9]+\.[0-9]+\.[0-9]+'
+------------------------------------------------------------------------------
+(none)
+
+COMMAND: git status --short -- scripts/bump-version.sh
+------------------------------------------------------------------------------
+(empty = untouched)
+
+------------------------------------------------------------------------------
+OUT-OF-SCOPE / FROZEN SURFACES CONFIRMED UNTOUCHED. Covers every hash-bound
+spec document for this feature, the T-005-owned doc surfaces, and the guard/CI
+surfaces this task must not touch.
+
+COMMAND: git status --short -- .github/workflows plugins CHANGELOG.md USERGUIDE.md \
+  specs/epic-136-phase4-mcp/{requirements,design,acceptance-tests,traceability,security-spec,infra-spec,ux-spec,frontend-spec,investigation}.md
+------------------------------------------------------------------------------
+(empty = none modified)
+
+COMMAND: git status --short   (whole working tree, before Commit A)
+------------------------------------------------------------------------------
+ M contracts/sdd-forge-mcp-tools.v1.schema.json
+ M mcp/sdd-forge-mcp/dist/index.js
+ M mcp/sdd-forge-mcp/src/tools/evidence.ts
+ M mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts
+ M mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts
+ M mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts
+?? specs/epic-136-phase4-mcp/verification/T-002/
+
+------------------------------------------------------------------------------
+REPOSITORY GATE: ./scripts/check-sdd-structure.sh
+------------------------------------------------------------------------------
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+EXIT: 0
+
+(The two advisories are pre-existing and unrelated to this task -- T-001's own
+selfcheck.log records the identical pair.)
+
+------------------------------------------------------------------------------
+REPOSITORY GATE: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh
+
+Run over the CHANGED PRODUCTION FILES only, which is what the scanner's own
+usage line scopes it to ("Pass changed production files (not test fixtures)").
+The 3 changed test files are additionally scanned, informationally.
+------------------------------------------------------------------------------
+COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+  mcp/sdd-forge-mcp/src/tools/evidence.ts \
+  contracts/sdd-forge-mcp-tools.v1.schema.json
+Placeholder scan passed.
+EXIT: 0
+
+COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+  mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts \
+  mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts \
+  mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts
+Placeholder scan passed.
+EXIT: 0
+
+KNOWN, DISCLOSED CONDITION -- the whole-directory run
+(`check-placeholders.sh specs/epic-136-phase4-mcp`) was deliberately NOT used
+as this task's gate, and is expected to remain red for the reason T-001's own
+selfcheck.log:119-128 already documents in full: this task's captured npm test
+output contains the ✔ PASS line of an unrelated, pre-existing test whose NAME
+carries the marker literal
+(mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts:129,
+`test("src/ contains no TODO/FIXME/stub/placeholder markers", ...)`). Measured
+occurrences in THIS task's own logs:
+
+COMMAND: grep -c "TODO/FIXME/stub/placeholder" \
+  specs/epic-136-phase4-mcp/verification/T-002/red.log \
+  specs/epic-136-phase4-mcp/verification/T-002/green.log
+------------------------------------------------------------------------------
+specs/epic-136-phase4-mcp/verification/T-002/green.log:1
+specs/epic-136-phase4-mcp/verification/T-002/red.log:1
+
+Both are captured test-runner PASS lines -- evidence that src/ is clean, not
+placeholders in this task's deliverables. The logs are left byte-verbatim
+rather than edited, because editing captured verification output to satisfy a
+scanner would falsify the evidence. Flagged for the quality gate's explicit
+acceptance alongside T-001's two.
+
+------------------------------------------------------------------------------
+DIST PARITY (AC-010 leg) -- the build itself is recorded in green.log; the
+post-commit re-verification (`npm run build` then
+`git diff --exit-code -- mcp/sdd-forge-mcp/dist/`) is recorded in
+dist-parity.log.
+------------------------------------------------------------------------------

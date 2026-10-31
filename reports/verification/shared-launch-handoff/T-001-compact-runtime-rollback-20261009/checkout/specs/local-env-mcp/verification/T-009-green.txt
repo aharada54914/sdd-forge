@@ -1,0 +1,76 @@
+########################################################################
+# T-009 GREEN evidence — passing runs AFTER implementation
+# Captured: 2026-07-05T13:11:12Z
+########################################################################
+
+======================================================================
+== bash -n uninstall.sh (syntax check) ==
+======================================================================
+bash -n uninstall.sh: OK (exit 0)
+
+======================================================================
+== [sh] bash tests/uninstall.tests.sh (GREEN) ==
+======================================================================
+ok: full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents
+ok: --keep-files preserves installed files while unregistering
+ok: --skip-agent-uninstall preserves shipped agent role files
+ok: subset --plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: --skip-plugin-uninstall proceeds when CLI is absent
+ok: idempotency: second uninstall exits 0
+ok: invalid plugin name rejected
+ok: invalid --target rejected
+ok: empty --install-root rejected
+ok: filesystem root rejected as --install-root
+ok: home directory rejected as --install-root
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: uninstall removes only managed Cursor/VS Code keys for both MCPs, preserves user + unknown keys
+ok: uninstall removes both managed MCP payloads, Claude regs, and both Codex marker blocks
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+
+Results: 24 passed, 0 failed.
+
+sh exit code: 0
+
+======================================================================
+== [ps1] pwsh -NoProfile -File tests/uninstall.tests.ps1 (GREEN) ==
+======================================================================
+ok: full uninstall unregisters all plugins+marketplace, removes files and only shipped agents
+ok: -KeepFiles preserves installed files while unregistering
+ok: -SkipAgentUninstall preserves shipped agent role files
+ok: subset -Plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: -SkipPluginUninstall proceeds when CLI is absent
+ok: idempotency: second uninstall succeeds
+ok: invalid plugin name rejected
+ok: invalid -Target rejected
+ok: empty -InstallRoot rejected
+ok: filesystem root rejected as -InstallRoot
+ok: home directory rejected as -InstallRoot
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: -Mcp <list> selects MCP payload/registration removal
+ok: invalid -Mcp name rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+ok: uninstall removes only managed Cursor/VS Code keys for both MCPs, preserves user + unknown keys
+ok: uninstall removes both managed MCP payloads, Claude regs, and both Codex marker blocks
+Kept installed files at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-uninstall-mcp-q-10579510-58d7-437a-8c17-eb9d8b904a2d/installed (-KeepFiles).
+
+SDD plugins uninstalled.
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+
+uninstall.tests.ps1: all scenarios passed.
+
+ps1 exit code: 0

@@ -1,0 +1,63 @@
+{
+  "task_id": "T-013",
+  "feature": "ci-mcp",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "c5263db0b50cb98a62cbd12a603dda426e5c1a58adac87fd0d53b7bdfe169933",
+  "quality_report": "reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-013.md",
+  "verification_contract": "specs/ci-mcp/verification/T-013.contract.json",
+  "git_commit": "a994adc7bcc5579ec4a59364eed2cd69fd0349ff",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/ci-mcp/verification/T-013.contract.json",
+      "sha256": "fb9dcbc9d09da931a21901e088b33aa0ffb2dfef230b033a7c7f9b7497b66daa"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-013.md",
+      "sha256": "69ddd2e3364cf2553d26801086c1dee1126ecf773f5923713d1756b757ab4b47"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/build.log",
+      "sha256": "7022f7105559125b16a941046734f394b6557b0e868930d01f1a96cf4c760b5a"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/check-placeholders.log",
+      "sha256": "f7096307e6f8466085d0bb7f852c87d47ec2762f246fc8d2df21a25e0bf7ab39"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/check-task-state.log",
+      "sha256": "0e2fc7e1de160af88865ebc925a7d209176f722d5e60bffdc120013bf453bc41"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/check-traceability.log",
+      "sha256": "b34873e9dc5c6f651afb7e181cf9b3e007b91f5ceb9248de09a2c9fcb61fe274"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/tests.log",
+      "sha256": "3b988794b993307b5c2cd0435dd887a22453307f53b3d6c0bd4ae5f7c1f92e62"
+    },
+    {
+      "path": "specs/ci-mcp/verification/qg/T-013/typecheck.log",
+      "sha256": "194ff5bca66278888f0f00be5c7ca523d15098ece958b14952533811089f6106"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-a-seq0214",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-a2-0214",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 27-60) gives a mermaid flowchart with 16 named nodes covering top-level component boundaries (HWT/SEED/CPB/DP/SP/GPA/RA new deliverables vs HLT/CP/LD/LDR/LDT/LCT/WFISKILL/WFIDOCS real existing surfaces), integration with existing components, and technology choices per the Components table cross-referenced against Layer Specifications (UX/Frontend explicitly N/A with rationale; Infra/Security populated). Verified against the live repo: the Protected-File Statement's core claim matches plugins/sdd-quality-loop/scripts/sdd-hook-guard.py's protected-suffix table exactly (lines 886-927), with only a minor line-citation imprecision (design.md cites 917-923; the 6 sdd-review-loop entries actually span 919-924) that does not affect the substantive, verified-correct claim."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Built the directed graph from the ## Architecture mermaid diagram's stated edges. No node has an outgoing edge that returns (directly or transitively) to an ancestor; the graph is a DAG. Checked specifically for a false cycle from LC and LCT denoting the same underlying file from two vantage points: even collapsing them, the relationship is 'test consumes driver library' plus 'driver's existence-guard state is observed when the test runs' - a normal test-harness/library-under-test interaction, not a reciprocal cycle."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (lines 146-162) specifies all three required sub-fields: Data Entities (new committed tests/fixtures/loops/brownfield-seed/ plus mktemp-scoped synthetic fixtures, explicitly naming the two real files read but never written with SHA-256-unchanged verification called out); Existing Data Affected ('none'); Migration Strategy ('none') with rationale supplied by the preceding text."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (lines 164-367) substitutes script CLI contracts for HTTP endpoints appropriately for this feature type: exact param() surfaces for both new .ps1 scripts (domain: -Attempt/-Round/-EditSummary/-Reset, no -Feature, matching the .sh original's feature-less signature; spec: -Feature/-Attempt/-Round/-EditSummary/-Reset) plus preconditions. Verified against the live repository: the domain precheck's usage line (line 9) and attempt/round/edit-summary logic (lines 37-40) match design.md's citations. HITL/WFI-audit reference-check and check-placeholders-brownfield contracts documented in comparable detail."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 473-482) names all four trust boundaries (B1 fixture vs real repository, B2 harness vs real gate semantics, B3 test payloads vs hook-guard command-line analysis, B4 WFI-audit fixture vs GitHub), consistent with security-spec.md's identical B1-B4 table (lines 14-33). Each boundary states its isolation mechanism. Data classification addressed and cross-confirmed; OWASP concerns addressed per boundary and expanded in security-spec.md's OWASP Mapping and STRIDE Analysis."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'deterministic test infrastructure + two precheck script ports (Pillar A completion)', not fullstack UI work. ux-spec.md and frontend-spec.md both declare N/A with rationale; design.md contains no ## Frontend Plan or ## Backend Plan sections to cross-check, so this check has no scoped surface, matching calibration guidance to SKIP rather than manufacture a finding."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (lines 369-402) covers unit scope (HITL CHECK-stub/mocked-stdin legs, WFI-audit synthetic sweep, check-placeholders positive/negative pair), integration scope (brownfield-profile leg through the real loop driver; port proof via the two wave-1 pwsh suites' boundary crossings), and AC mapping via the Cross-Layer Dependencies table plus acceptance-tests.md's full correspondence table. Concrete planned verification evidence named throughout (suite paths, run-all both lanes, LOOP_SUITE_BUDGET_SECONDS=300, per-task before/after SKIP-count recording)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 16 nodes referenced in ## Architecture are defined in the Components table, the 'Real surfaces exercised READ-ONLY' paragraph, or established existing components cited with file:line precision in investigation.md and requirements.md. Verified the loop-driver.ps1 line citations against the live repository: Copy-LoopFixtureScripts (line 204) lists the spec twin at 206 and the domain twin at 211 exactly as design.md states; Invoke-LoopDriveSpecRound (533) and Invoke-LoopDriveDomainRound (1083) as cited."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 133-144) references ADR-0010 and states no new ADR is needed because the greenfield/brownfield fixture-profile vocabulary is already ADR-0010's contract. Verified docs/adr/0010-loop-inventory-and-fixture-vocabulary.md lines 46-47 define brownfield with the canonical seed pre-anticipated as A6/#146's deliverable. Remaining deliverables are translations of an established pattern, not a new architectural departure."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "99ed87ddd1037adf4a1d728e2854d0dc3d956c426752cf69089236dcba3da995"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/investigation.md",
+      "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/ux-spec.md",
+      "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+      "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/precheck-result.json",
+      "sha256": "ef27d728545c61302c94488be068ba44b62d6240ab769ff2ee32e2ddbb62fe4e"
+    }
+  ]
+}

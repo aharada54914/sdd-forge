@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "agent-cost-context-isolation",
+  "task_id": "T-002",
+  "run_id": "RUN-agent-cost-context-isolation-qg-T-002-seq0824",
+  "host_session_id": "SESS-qg-agent-cost-context-isolation-T-002-0824",
+  "sequence": 824,
+  "previous_record_sha256": "8ec95d200b6365ee1ad01aead3fc8cec4e5457b8402cd6ff97c580d98bfa6dfe",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "8e9f597013d4a8fb102af9c2169f2f7cf42dc2e290d7534204b4ad32e5ceb6e3",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/design.md",
+      "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/tasks.md",
+      "sha256": "59b71685ed2feb7a5b84ef1517d9f37e64e8fcad83131374c4ad38a29befc96f"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/traceability.md",
+      "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/security-spec.md",
+      "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/agent-cost-context-isolation/T-002.md",
+      "sha256": "63d9b1f403b2945f217e197c46c3cdadf7483aee630a4600397041484914ab44"
+    },
+    {
+      "path": "contracts/terminal-tier-blocked-state.schema.json",
+      "sha256": "bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
+      "sha256": "924650079942c623414ae1334f8a9d9b8d1e8bdbdc84b3615715aba7c9e6d794"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "sha256": "eef6c101c5995cc550df36d3e833d26fb85b823b48bd54f6172e0704d9fb39e4"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-002/red.log",
+      "sha256": "785e59674cf0edca53754f319fe80885fadf5639224eee92297191ec00ace79b"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-002/green.log",
+      "sha256": "d659e7464ec0d20783324778129b23073c2cb634faecc9ea7b56871ad2365b65"
+    },
+    {
+      "path": "reports/implementation/agent-cost-context-isolation/T-002-review-3.md",
+      "sha256": "43dbcb0402c46301174415aed51d09c2861831e5d1509e364207be04fa36171f"
+    }
+  ]
+}

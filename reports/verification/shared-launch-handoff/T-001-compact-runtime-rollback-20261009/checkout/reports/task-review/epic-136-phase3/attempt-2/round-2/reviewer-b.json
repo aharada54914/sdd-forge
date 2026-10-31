@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase3",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-b-seq0446",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0446",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-2/integrated-summary.json",
+        "sha256": "224bd58a2afdb9c2033deac2f282ee593a9dc5b2f20f736f517141910a744a0c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-2/precheck-result.json",
+        "sha256": "828e919ef7e57f80595f2e09479437d718343db9374c76cfe696bd1858f80e52"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+        "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+        "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+        "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+        "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+        "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+        "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/tasks.md",
+        "sha256": "110e3d2951c183f52910b0b73a52d2c2ae1a0b30348bb9603d5c59c6d813f2db"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/traceability.md",
+        "sha256": "6a9606ba0a04384edbbb110349e46f345d8792bdcd28638da4935d894838640c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+        "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002 (Risk: medium, tasks.md:184,396) are new unprotected test files exercising live guards read-only via PATH/env-var indirection -- no auth/payment/PII/migration surface touched, medium is proportionate. T-003 (Risk: high, tasks.md:601) edits the sole R-10-protected file via human-copy, a CI-gate/required-checks surface where 'silent defect causes material harm' (policy high-tier clause) -- correctly high. T-004 (Risk: high, tasks.md:858) validates an inbound-prompt-injection security property (security-spec.md Boundary B2), a genuine security-sensitive test target -- correctly classified at the highest applicable tier per the policy's 'spans tiers, classify at highest' rule. No task shows a mismatch between declared tier and scope."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Both high-risk tasks carry the required Done-When evidence items. T-003 (tasks.md:802-812): explicit RED (dropped-step fixture fails self-check) / GREEN (staged candidate passes) pair, plus 'An independent quality-gate verdict, plus an independent review verdict distinct from the implementing agent, records PASS for this task (high-risk requirement)'. T-004 (tasks.md:1088-1097): explicit RED (mutated-stub fixture fails non-execution assertion) / GREEN (real entry-point result recorded regardless of outcome) pair, plus the same independent-review-verdict language. Neither task is Risk: critical, so second-approver/signed-bundle evidence is not required."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002/T-003/T-004 each carry 6 Done-When items. T-001 carries 9 (tasks.md:338-369), nominally over the 8-item indicator, but all 9 map 1:1 onto REQ-001's already-approved AC-001..AC-007 enumeration (WFI-014 branch-enumeration discipline) plus 2 shared cross-cutting boilerplate items common to every task in this feature -- all confined to ONE file and ONE script's fallback chain, not scope creep. Scope sections across all 4 tasks stay within a single primary suite/artifact plus the same shared registration/CHANGELOG/doc-surface legs; no task title implies multiple sequential phases. No fragmentation observed."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001: AC-005 (deny_unavailable fail-closed, both emit modes) is an explicit error-path case (acceptance-tests.md:25). T-002: AC-008/009/010 are themselves a negative/adversarial corpus, and AC-010 adds a false-positive control case (acceptance-tests.md:28-30). T-003: AC-017 is a RED-then-GREEN dropped-step detection self-check (acceptance-tests.md:37) and AC-018 an explicit non-regression case (acceptance-tests.md:38). T-004: AC-014 is a RED/GREEN non-vacuity proof for the injection defense (acceptance-tests.md:34), and AC-013's closed-list cross-check catches invented tool_name literals. Every functional task pairs happy-path ACs with at least one genuine error/edge-path AC."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:210-224) and T-002 (tasks.md:427-436) explicitly override acceptance-tests.md's coarser 'unit' column label with a task-level 'integration' classification, correctly justified: TEST-001..011 each drive 2+ real independent components -- matching this check's own integration definition. T-003/T-004 carry no task-level override, but acceptance-tests.md's per-TEST-ID Test Type column accurately describes each test's actual scope. No mismatch found between any stated type and its target's real scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003 (Risk: high, tasks.md:683-692) carries a detailed Rollback field covering both the un-applied-commit-revert case and the already-human-applied case, requiring a second human-copy application with an explicit revert-boundary record. T-004 (Risk: high, tasks.md:959-961) carries a Rollback field stating a reviewed commit revert suffices since it stages no protected-file candidate of its own. Both high-risk tasks satisfy the rollback-consideration requirement."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only genuinely protected/shared file is staged solely by T-003 (Protected Files, tasks.md:56-94 -- T-001/T-002/T-004 never touch it, staged or live), so no uncoordinated write collision exists there. tests/run-all.sh and CHANGELOG.md are each edited by all 4 tasks, but Global Constraints (tasks.md:120-133,140-145) pre-assigns each task a distinct, non-overlapping line/entry (run-all.sh lines 37/47/48/49; four independently-keyed CHANGELOG entries citing different issue numbers) with an explicit non-conflict rationale. No two tasks claim the same primary implementation file for the same purpose without this documented non-overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The new T-003->T-004 edge itself is truthful and non-spurious: staged-workflow-candidate.draft.yml:387-389 genuinely names T-004's suite path, the quotation at tasks.md:843-844 now matches requirements.md's Main Workflows item 4 verbatim, and no cycle exists (T-004's own Blockers, tasks.md:1124-1126, remain 'None'). However, a second, uncorrected defect of the same class remains elsewhere: T-003's Done-When bullet for TEST-020 (tasks.md:794-797) states 'TEST-020 confirms the staged candidate contains a CI step for each new suite from T-001 and T-002 (AC-020)' -- omitting T-004 -- and traceability.md's Acceptance Mapping row for AC-020 (traceability.md:56) states 'T-003 (stages T-001's and T-002's CI steps; T-004's own leg explicitly deferred, requirements.md Non-goals)'. Both contradict: (1) acceptance-tests.md's hash-frozen AC-020 row, which explicitly reconciles Stream C's own workflow-scenarios suite into this AC's scope now that Stream C is unblocked and landed; (2) design.md:409,584 ('AC-019/AC-020 name Streams A, B, and C's three product suites as the required minimum'); (3) requirements.md:335, whose Non-goals section states Stream C's CI step is no longer deferred once ADR-0010 was Accepted -- the opposite of what traceability.md cites it for; and (4) the verified staged-workflow-candidate.draft.yml:387-389, which does contain T-004's step. T-003's own Scope section (tasks.md:750-756) correctly lists all 4 suites, so this is an internal inconsistency confined to the Done-When acceptance bullet and the traceability mapping row -- a downstream quality-gate reviewer following T-003's stated Done-When text for TEST-020/AC-020 could certify AC-020 without re-confirming Stream C's CI step is present, and traceability.md's row misattributes requirements.md Non-goals as authority for excluding it when that section says the opposite."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 4 tasks are new-test-suite/CI-lane-addition tasks (Stream A-D), not bugfix, regression-fix, debugging, flaky-test-resolution, or incident-remediation tasks by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "tasks.md:794-797's Done-When bullet for TEST-020/AC-020 and traceability.md:56's Acceptance Mapping row both state AC-020 covers only T-001's and T-002's CI steps with 'T-004's own leg explicitly deferred' -- contradicting acceptance-tests.md's AC-020 row, design.md:409/584, requirements.md:335 (Non-goals: Stream C's step is no longer deferred), and the verified content of staged-workflow-candidate.draft.yml:387-389 which does contain T-004's step. T-003's own Scope section correctly lists all 4 suites, so this is an internal documentation inconsistency in the task's own acceptance criterion and in traceability.md's mapping, risking an incomplete AC-020 verification by a downstream quality-gate reviewer who follows the stated Done-When text literally."
+    }
+  ]
+}

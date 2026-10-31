@@ -1,0 +1,25 @@
+$ bash tests/downstream-review-precheck.tests.sh
+ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges
+$ pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+$ bash tests/downstream-review-precheck-parity.tests.sh
+ok: downstream review precheck shell and PowerShell outputs have equivalent semantics

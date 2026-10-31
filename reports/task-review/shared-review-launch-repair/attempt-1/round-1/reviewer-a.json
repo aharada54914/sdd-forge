@@ -1,0 +1,155 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "f91282c3-d456-46b3-b012-1596b65a29c0",
+  "host_session_id": "f91282c3-d456-46b3-b012-1596b65a29c0",
+  "manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/tasks.md",
+      "sha256": "8f41f8e48ae9a731c00eed22b2f4d6a1f60e4c0a0d53b982f076a264dfe2e40b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/traceability.md",
+      "sha256": "036a87c62f3dcf97fa4a3b0b30f5eba2c3679726a2d43829368235c74a2314f7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+      "sha256": "1a91029ed02d4bb0d101ecca50702511798ac4d3133e0c902b6484b78e759bbd"
+    },
+    {
+      "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-1/dependency-graph.json",
+      "sha256": "bed8d20e773af2ec5b7e2994041d25b6bb65c4b7db2339517d69761d93135919"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md T-001 の Done When が参照する AC-001〜AC-006 はすべて acceptance-tests.md に存在し、TEST 行の AC 列と一致する。dangling ID なし。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 の Blockers は literal 'None'。precheck の blockers_format_valid=true。blockers_format_valid: true。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜REQ-006 は T-001 の Requirements 欄に全て列挙されている。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001〜AC-006 は T-001 の Done When 各項目で明示参照されている(AC-001〜AC-006 の行)。未被覆 AC なし。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 は REQ-001〜REQ-006 を参照している。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 のタイトルはテスト専用ではなく、Done When で AC-001〜AC-006 を全て参照しているため孤立テストなし。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 は Approval: Draft、Status: Planned(attempt 1 round 1 の事前実装レビュー規則に適合)。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 は Risk: high と Required Workflow: tdd で risk-gate-matrix と一致。precheck workflow_match_precheck=PASS。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "タスクは T-001 のみであり、AC の重複主担当はない。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Blockers=None。dependency-graph.json の nodes は [T-001] で、存在しないタスク参照はない。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT が PASS。dependency-graph.json の edges は空で、循環なし。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 は互いに独立した 6 つの関心事(REQ-001 CLI エイリアス/非TTY経路、REQ-002 予約前の入力受付、REQ-003 CI 登録、REQ-004 WFI-030 traceability 正規化、REQ-005 PowerShell ハッシュ同等性、REQ-006 保護エントリポイント目録)を単一タスクで扱い、Planned Files は launcher・PowerShell・CI・ガード生成物・AGENTS.md・workflow-state-registry など多数の領域にまたがる。部分的な AC 失敗でもタスク全体の Done が止まり、独立した実装・検証・差し戻しができない。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "precheck の frozen_artifact_done_when は空配列で、凍結成果物を編集する Done When 項目はない。最終項は traceability を書き換えず、実装報告と verification/T-001/ の非凍結 addendum に記録すると明記している。各 AC 項目は TEST-ID と run-all / exact-head CI を検証証跡として名指ししている。助言: 'applicable post-merge checks' は具体性が弱い。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md の序文が 'T-001 owns every row' と T-001 を明記する。表の REQ-001〜REQ-006 は requirements.md に存在し、design.md/各レイヤー spec のアンカー(bounded-approach、risk-and-persisted-evidence-preflight、validation-and-deployment、acceptance-mapping、scope-and-user-journeys、trust-boundaries、threats-and-authorization、data-protection-and-security-tests、state-routes-api-client-and-performance、dependencies-and-testing、cicd-sequence、runtime-dependencies-and-environment、observability-and-rollback)は全て実在する。"
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "SINGLE-CONCERN",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "tasks.md T-001 (Requirements: REQ-001〜REQ-006, Scope/Planned Files) は CLI エイリアス/非TTY経路、予約前入力受付、CI 登録、WFI-030 traceability 正規化、PowerShell ハッシュ同等性、保護エントリポイント目録という独立した 6 つの関心事を 1 タスクに束ねている。単一タスクでは個別の実装・検証・差し戻しができず、1 つの AC 失敗が全体の Done を止めるため、関心事ごとに分割するか、単一タスクとして許容する根拠を明記する必要がある。"
+    }
+  ]
+}

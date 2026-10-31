@@ -1,0 +1,86 @@
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel fails (diversity)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel passes diversity
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel passes (non_anthropic>=1, distinct>=2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+=== TEST-003/TEST-012: PowerShell timeout configuration ===
+ok: TEST-012: gpt default is extracted from runner source
+ok: TEST-003: gpt accepts unset timeout
+ok: TEST-003: gpt accepts empty timeout
+ok: TEST-003: gpt accepts one timeout
+ok: TEST-003: gpt accepts its source-derived default
+ok: TEST-003: gpt rejects '0' before vendor invocation
+ok: TEST-003: gpt rejects '-5' before vendor invocation
+ok: TEST-003: gpt rejects 'abc' before vendor invocation
+ok: TEST-012: gemini default is extracted from runner source
+ok: TEST-003: gemini accepts unset timeout
+ok: TEST-003: gemini accepts empty timeout
+ok: TEST-003: gemini accepts one timeout
+ok: TEST-003: gemini accepts its source-derived default
+ok: TEST-003: gemini rejects '0' before vendor invocation
+ok: TEST-003: gemini rejects '-5' before vendor invocation
+ok: TEST-003: gemini rejects 'abc' before vendor invocation
+ok: TEST-012: PowerShell runners declare the same source-derived default
+=== TEST-004(a)/TEST-005: PowerShell timeout lifecycle ===
+measurement: TEST-004(a) runner=gpt elapsed_ms=2710 limit_ms=10000 stub_pid=75605 stub_alive=0 child_pid=75622 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gpt returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gpt timeout exits 1 without a verdict
+measurement: TEST-004(a) runner=gemini elapsed_ms=2622 limit_ms=10000 stub_pid=75626 stub_alive=0 child_pid=75627 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gemini returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gemini timeout exits 1 without a verdict
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness
+=== TEST-004(c): PowerShell near-boundary completion ===
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=3355 exit=0 verdict=1
+ok: TEST-004(c): gpt near-boundary completion iteration 1
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=3356 exit=0 verdict=1
+ok: TEST-004(c): gpt near-boundary completion iteration 2
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=3355 exit=0 verdict=1
+ok: TEST-004(c): gpt near-boundary completion iteration 3
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=3364 exit=0 verdict=1
+ok: TEST-004(c): gpt near-boundary completion iteration 4
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=3351 exit=0 verdict=1
+ok: TEST-004(c): gpt near-boundary completion iteration 5
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=3333 exit=0 verdict=1
+ok: TEST-004(c): gemini near-boundary completion iteration 1
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=3407 exit=0 verdict=1
+ok: TEST-004(c): gemini near-boundary completion iteration 2
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=3346 exit=0 verdict=1
+ok: TEST-004(c): gemini near-boundary completion iteration 3
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=3355 exit=0 verdict=1
+ok: TEST-004(c): gemini near-boundary completion iteration 4
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=3350 exit=0 verdict=1
+ok: TEST-004(c): gemini near-boundary completion iteration 5
+=== TEST-001/002: panelist failure taxonomy ===
+ok: TEST-001: CLI absent states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+ok: TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+
+Results: 62 passed, 0 failed

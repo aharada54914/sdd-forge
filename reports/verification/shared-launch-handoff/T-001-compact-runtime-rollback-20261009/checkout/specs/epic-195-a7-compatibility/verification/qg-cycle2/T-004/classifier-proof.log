@@ -1,0 +1,17 @@
+The width- and ANSI-independence of the mutation classifier, re-run by the gate
+host. Each of the two normalization operations is mutated independently and must
+fail its own self-test; the restored classifier must pass.
+
+$ sh -c bash specs/epic-195-a7-compatibility/verification/T-004/classifier-proof.sh
+VIOLATE ANSI: remove escape-sequence stripping from the diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI or wrapped diagnostic did not match
+ANSI_VIOLATED_EXIT_CODE=2
+VIOLATE WRAP: remove newline compaction from the diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI or wrapped diagnostic did not match
+WRAP_VIOLATED_EXIT_CODE=2
+RESTORE: run the delivered ANSI/wrapped diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI and wrapped diagnostic matched
+RESTORED_EXIT_CODE=0
+CLASSIFIER-PROOF PASS: violation failed and restored classifier passed
+
+exit status: 0

@@ -1,0 +1,87 @@
+
+SDD plugins installed at: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-compact-rollback-20261009/tmp/shared-launch-build-_jlet8fx/installed
+Plugin registration was skipped because --target=FilesOnly.
+usage: validate-nontty-spec-launch.py [-h] [--prompt PROMPT]
+                                      [--wrapper WRAPPER] [--receipt RECEIPT]
+                                      {preflight,postflight} root invocation
+                                      transcript
+
+positional arguments:
+  {preflight,postflight}
+  root
+  invocation
+  transcript
+
+options:
+  -h, --help            show this help message and exit
+  --prompt PROMPT
+  --wrapper WRAPPER
+  --receipt RECEIPT
+usage: preflight-host-review.py [-h] --manifest-sha256 MANIFEST_SHA256
+                                [--host-cli HOST_CLI]
+                                [--required-flag REQUIRED_FLAG]
+                                [--help-subcommand HELP_SUBCOMMAND]
+                                [--runtime {bash,powershell}]
+                                [--verify-scratch-projection]
+                                repository_root invocation
+
+Host-neutral, non-reserving review input preflight. This is not a permission
+proof. The canonical validator remains the only reservation authority and must
+recheck current bytes immediately before launch.
+
+positional arguments:
+  repository_root
+  invocation
+
+options:
+  -h, --help            show this help message and exit
+  --manifest-sha256 MANIFEST_SHA256
+  --host-cli HOST_CLI
+  --required-flag REQUIRED_FLAG
+  --help-subcommand HELP_SUBCOMMAND
+  --runtime {bash,powershell}
+  --verify-scratch-projection
+usage: launch-impl-review.py [-h] [--manifest-sha256 MANIFEST_SHA256]
+                             root invocation output
+
+Shared Claude spec/impl transport; canonical validators own admission.
+
+positional arguments:
+  root
+  invocation
+  output
+
+options:
+  -h, --help            show this help message and exit
+  --manifest-sha256 MANIFEST_SHA256
+                        external caller pin; required for quality
+usage: preflight-evaluator-delivery.py [-h] --manifest MANIFEST
+                                       --manifest-sha256 MANIFEST_SHA256
+                                       --repository-root REPOSITORY_ROOT
+                                       [--scratch-root SCRATCH_ROOT]
+                                       [--reserve]
+
+Preflight caller delivery before delegating an optional identity reservation.
+
+options:
+  -h, --help            show this help message and exit
+  --manifest MANIFEST
+  --manifest-sha256 MANIFEST_SHA256
+  --repository-root REPOSITORY_ROOT
+  --scratch-root SCRATCH_ROOT
+  --reserve
+usage: review-conditional-inputs.py [-h] --root ROOT --feature FEATURE
+                                    --stage {spec,impl}
+
+Resolve role-defined conditional inputs without reserving review identities.
+
+options:
+  -h, --help           show this help message and exit
+  --root ROOT
+  --feature FEATURE
+  --stage {spec,impl}
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.837s
+
+OK

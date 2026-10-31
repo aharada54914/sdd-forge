@@ -1,0 +1,57 @@
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "epic-192-a4-facet-manifest",
+  "affected_components": [
+    "cli-core",
+    "desktop-client"
+  ],
+  "required_facets": [
+    "backend-patterns",
+    "cli-patterns"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "ui-patterns",
+      "applied": false,
+      "reason": "no UI surface in this feature",
+      "evidence": [
+        {
+          "operator": "exists",
+          "path": "/components/desktop-client/ui_layer",
+          "outcome": "no-match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "task-review",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "schema-validation"
+  ],
+  "capability_minimum_enforcement": "required",
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "missing-security-spec"
+    ]
+  },
+  "context_binding": {
+    "full_context_revision": "sha256:fd0c979e7d0f6e8d614fcbe8ea2d64f0a9456a2dda7a6fd95f1bbb26f4029c15",
+    "dependency_pointers": [
+      "/components/desktop-client/artifact_kinds",
+      "/workflow/capability_enforcement"
+    ],
+    "projection_sha256": "sha256:e0e67dad1515d7a3a5ad986cc0ab5846fef018a6608f78172f0f351e589ac57a",
+    "registry_digest": "sha256:91eb1f7fb8b3f417368fd592c454b010a6ee83938589319cfe113427a6c9efc2",
+    "ownership_digest": "sha256:ad9ec77d1780b1bd48a4a20fd4b6929bfcf17d9aef089f4adbcd2cf6b0057e14"
+  },
+  "resolver": {
+    "version": "1.1.0",
+    "rule_set_revision": "sha256:19d563180f12ff313d7001c130e31cc01701abc25c1a320730c84660ce3b1575"
+  }
+}

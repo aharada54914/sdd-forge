@@ -1,0 +1,78 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b2-localenvmcp-a1r1-20260705-8bd7",
+  "host_session_id": "hs-task-b2-6503d1ba-0007",
+  "allowed_input_manifest": [
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-1/integrated-summary.json", "sha256": "f5551e42304efc931e8499af96f791204d96943923053fa2f9a1e8a1bd3b45d6" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "7f053005d5cda2505f1e6cca888549b4446d49b86d83bee1f6d9e9bfb7c9660f" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/design.md", "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/tasks.md", "sha256": "ff842ef9335dc6f7262ed7179b9d7cd858d4e1f212917874fc4afcaf954bb58f" },
+    { "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/traceability.md", "sha256": "5d4ebf6859ee7b253c5f750399181273b863532ae32b88c3edab1b14643c285a" }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 7 tasks' Risk tiers match risk-classification-policy.md sensitive-surface criteria. T-001 (probe-engine/allowlist, the sole execution-boundary chokepoint per security-spec.md B2) = high, matching 'anything where a silent defect causes material harm'. T-002 (tool input schema = B1 boundary per security-spec.md, secrets exposure REQ-005) = high. T-004/T-005 (IDE config file mutation, ~/.cursor/mcp.json and VS Code mcp.json, security-spec.md B3) = high, matching the policy's 'data mutation' sensitive surface. T-006 (uninstall = deletion of user config entries, security-spec.md B3 STRIDE 'erroneous deletion') = high. T-003 (dist bundling + CI job addition, no new sensitive surface, detectable via dist-parity) = medium, correctly not escalated. T-007 (docs + traceability Status field update only) = low, matching 'is cosmetic or non-behavioral: docs...no control-flow, data, or security impact'. No under- or over-classification found; each Risk Rationale names the concrete sensitive surface as required by risk-classification-policy.md 'Rationale requirement'."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No task is Risk: critical (max tier used is high), so signed-bundle + second-approver items are not required per risk-gate-matrix.md tier minimums. All 5 Risk: high tasks (T-001, T-002, T-004, T-005, T-006) declare 'Required Workflow: tdd' and carry all three mandated Done When items: 'Red→Green evidence 記録(tdd)' (tasks.md lines 40,80,148,178,210), '独立レビュー verdict PASS が evidence に記録される' (independent review verdict, lines 41,81,149,179,211), and 'provenance(spec_revision 含む)付き evidence bundle 生成' (lines 42,82,150,180,212). This satisfies risk-gate-matrix.md's high-tier required set (red→green evidence, requirement-traceability, independent-review verdict, provenance)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002 and T-004 are oversized. T-002's Done When list has 10 distinct verifiable items (tasks.md lines 75-84: AC-001, AC-002, AC-003, AC-005, AC-007, Red→Green evidence, independent review, provenance bundle, implementation report, quality gate), exceeding the '>8 distinct verifiable items' oversizing indicator, and its Scope spans 5 areas (server.ts/index.ts/tools/env.ts implementation plus four separate test suites: tools/, no-exec/, no-secrets/, smoke/) covering 3 MCP tools, contract/ajv validation, no-secrets canary checks, and an Inspector smoke test in one task. T-004 similarly has 10 Done When items (tasks.md lines 143-152: OQ-001 resolution + AC-009/010/011/015 + tdd evidence chain + report + gate) and bundles three distinct concerns in one task — (1) resolving OQ-001 via official-doc research and updating design.md, (2) install.sh core selection/bundling logic (VALID_MCPS/MCP_LIST), and (3) two separate IDE client integrations (Cursor mcpServers upsert and VS Code servers upsert), each with its own idempotency/fail-safe edge cases (AC-010, AC-011, AC-015). This combination of a spec-resolution sub-task plus two independent client integrations in a single task risks exceeding a single focused implementation session."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md 'Edge Cases' section explicitly lists 'Node < 20 → 既存の MCP 配置ゲート(MCP_NODE_OK)により配置・登録とも行わない' as a material edge case, but no AC in acceptance-tests.md references Node<20/MCP_NODE_OK gating (checked all AC-001..AC-015), and no task's Done When or Scope claims verification of this behavior for local-env-mcp specifically (T-003's Scope only covers dist-parity CI, not a Node-version gate check; T-004/T-005 Done When lists AC-009/010/011/015/013 only). The other four requirements.md edge cases (missing CLI → AC-002; hung/oversized probe → AC-004; corrupt JSON → AC-015; absent client config dirs → AC-010/AC-011 skip-notify clauses) are all covered by a task's Done When, but the Node<20 edge case is an orphaned requirement with no owning task or AC."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each declared test type in acceptance-tests.md matches its scope. AC-001 'unit (snapshot)' targets a single module boundary (get_os_info via os/process API), correctly unit. AC-002/AC-004/AC-005 'integration' each involve ≥2 components (tool layer + probe-engine + child process, or tool layer + no-secrets grep across stdout/stderr), correctly integration. AC-003 'unit + static' matches schema-boundary unit checks plus a static grep, correct. AC-006 'static (grep)' matches a source-tree static scan, correct. AC-007 'smoke' traverses full stdio startup through tools/list, a complete workflow, correct. AC-008 'CI (dist-parity)' is a build-verification check, correctly scoped to CI. AC-009/010/011/012/013/015 'integration (installer harness...)' each involve ≥2 components (installer script + filesystem + JSON config state), correctly integration, not mislabeled as unit or e2e. AC-014 'doc review (quality gate)' matches a non-code documentation artifact. No mismatches found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 7 tasks (including the 5 Risk: high tasks T-001, T-002, T-004, T-005, T-006) carry a concrete 'Rollback:' field (tasks.md lines 18, 57, 97, 127, 165, 195, 227), each consistent with infra-spec.md's 'Rollback' section strategy of a single PR/commit revert (infra-spec.md lines 86-94: '該当 PR を単一 revert...installer 再実行で旧構成を再登録'). T-004's Rollback additionally names uninstall.sh (T-006) or manual key removal as a supplementary path and cites the broken-JSON fail-safe design; T-006's Rollback names the 'installer-managed-name-only deletion' design as the safeguard against irreversible damage, matching security-spec.md B3 mitigation for the erroneous-deletion STRIDE row."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No uncoordinated file overlap found. T-001 and T-003 both list mcp/local-env-mcp/package.json (T-001 scaffolds it, T-003 later sets the build script), but T-003's Blockers (T-002, which is itself blocked by T-001) enforces strict sequential ordering, matching the 'legitimate multi-task scope sharing...provided the Blockers field enforces the ordering' exception. T-004 (install.sh) and T-005 (install.ps1) touch distinct files with no overlap. T-006 (uninstall.sh/uninstall.ps1) and T-007 (traceability.md) touch distinct files from T-004's design.md edit. No two tasks claim the same primary implementation file without a Blockers-enforced order."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers chain matches genuine artifact/spec dependencies: T-002←T-001 (tools consume envelope.ts/allowlist.ts/probe-engine.ts built in T-001). T-003←T-002 (esbuild bundling needs a complete, tested src tree from T-002). T-004←T-003 (installer placement needs dist/index.js per infra-spec.md deployment topology 'dist + package.json 配置'). T-005←T-004 is a legitimate soft dependency, not spurious: T-004's Done When resolves OQ-001 ('公式ドキュメント確認結果が design.md...に反映') and T-005's Goal explicitly states it implements 'T-004 と同一挙動', i.e. T-005 depends on the design decision T-004 finalizes, not merely on unrelated code. T-006←T-004,T-005 (uninstall needs both sh/ps1 registration formats to remove symmetric entries). T-007←all (documentation/traceability finalization genuinely needs every task's AC/TEST status settled per its Done When 'REQ→AC→TEST→Task チェーンが全行最終化'). No spurious blockers inflating the critical path, and no missing blockers were found between tasks whose scopes are otherwise independent."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. local-env-mcp is a new-feature decomposition (Phase 1 of the approved MCP adoption plan, Issue #64); none of T-001..T-007's titles, Goals, Scopes, or Done When items describe a bugfix, regression fix, debugging, failure diagnosis, or incident remediation."
+    }
+  ]
+}

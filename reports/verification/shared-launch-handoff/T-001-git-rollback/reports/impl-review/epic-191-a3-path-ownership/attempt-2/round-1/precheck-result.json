@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 2,
+  "round": 1,
+  "impl_review_status_field": "Passed",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "5ef30332ee9a78da6a6a72604dd53081a6381d93ca5f8b9bd39d0654da8424eb",
+  "requirements_sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939",
+  "acceptance_sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0",
+  "layer_sha256": {"ux-spec.md":"b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6","frontend-spec.md":"4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8","infra-spec.md":"759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0","security-spec.md":"3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+  "input_sha256": "1a4eba2473479b7d6ccd770711b4d2f2aa53a0d004f84bd20d5db23f6dd8e03c",
+  "generated_at": "2026-08-11T09:34:17Z"
+}

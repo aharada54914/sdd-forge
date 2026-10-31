@@ -1,0 +1,17 @@
+# Thin PowerShell dispatcher for compare-facet-manifest-staleness (Python
+# master; its exit vocabulary reserves 3 for no-verdict diagnostic failure,
+# which a missing interpreter is).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
+$ErrorActionPreference = "Stop"
+
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("compare-facet-manifest-staleness: COMPARE_FACET_MANIFEST_STALENESS_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
+}
+. $lib
+
+Invoke-SddPyDispatch -Master (Join-Path $dir "compare-facet-manifest-staleness.py") -DiagnosticPrefix "compare-facet-manifest-staleness: COMPARE_FACET_MANIFEST_STALENESS_RUNTIME_UNAVAILABLE" -Arguments $args

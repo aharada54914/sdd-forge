@@ -7,6 +7,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
     if ($Relative -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$' -or
@@ -327,17 +328,6 @@ function Fail([string]$Message) { throw "impl-review-precheck: $Message" }
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
   return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
 }
-function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$ReviewedStatus) {
-  $content = [IO.File]::ReadAllText($Path)
-  $normalized = [Text.RegularExpressions.Regex]::Replace(
-    $content,
-    "(?m)^$([Text.RegularExpressions.Regex]::Escape($StatusField)):[^\r\n]*(\r?)$",
-    "${StatusField}: $ReviewedStatus`$1"
-  )
-  return [Convert]::ToHexString(
-    [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
-  ).ToLower()
-}
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')
   $normalizedRoot = $RepoRoot.Replace('\', '/').TrimEnd('/')
@@ -348,7 +338,7 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     $anchorMatch = [Text.RegularExpressions.Regex]::Match(
-      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+)$')
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\.md|domain-contract\.json|aggregates/[^/]+\.md)|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
     if (-not $anchorMatch.Success) { return $null }
     $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
@@ -385,6 +375,23 @@ function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [st
     }
   }
 }
+function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$FeatureName, [string]$RepoRoot) {
+  if ($Stage -cnotin @('spec', 'impl')) { return @() }
+  $entries = @($Contract.reviewers | ForEach-Object { $_.allowed_input_manifest })
+  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch '^(domain|design-system)/' }).Count) { return @() }
+  $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage
+  if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
+  $selected = @(($raw | ConvertFrom-Json).inputs)
+  foreach ($entry in $entries) {
+    $relative = Get-ManifestRelativePath $entry.path $RepoRoot
+    if ($relative -cmatch '^(domain|design-system)/') {
+      if (-not @($selected | Where-Object { $_.path -ceq $relative -and $_.sha256 -ceq $entry.sha256 }).Count) {
+        Fail 'persisted conditional input is outside selection or its hash changed'
+      }
+    }
+  }
+  return $selected
+}
 function Test-AllowedManifestPath(
   [string]$Role,
   [string]$Path,
@@ -392,7 +399,8 @@ function Test-AllowedManifestPath(
   [string]$FeatureName,
   [int]$Attempt,
   [int]$Round,
-  [string]$CalibrationPath
+  [string]$CalibrationPath,
+  [string[]]$ConditionalPaths = @()
 ) {
   $roleA = "$Stage-reviewer-a"
   $roleB = "$Stage-reviewer-b"
@@ -404,6 +412,7 @@ function Test-AllowedManifestPath(
     $CalibrationPath,
     "$roundRoot/precheck-result.json"
   )
+  if ($Stage -cin @('spec', 'impl')) { $allowed += $ConditionalPaths }
   if (Test-OrdinalEqual $Stage 'spec') {
     $allowed += "specs/$FeatureName/investigation.md"
     if (Test-OrdinalEqual $Role $roleB) { $allowed += "$roundRoot/integrated-summary.json" }
@@ -466,6 +475,7 @@ function Require-Pass(
   if (@($reviewers.run_id | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count -gt 0 -or @($reviewers.run_id | Select-Object -Unique).Count -ne 2) { Fail "persisted $Stage contract has invalid reviewer run IDs" }
   $manifest = @($reviewers | ForEach-Object { @($_.allowed_input_manifest) })
   $calibrationPath = if ($Stage -eq 'spec') { 'plugins/sdd-review-loop/references/spec-review-calibration.md' } else { 'plugins/sdd-review-loop/references/reviewer-calibration.md' }
+  $conditionalPaths = @(Get-PersistedConditionalInputs $contract $Stage $FeatureName $repoRoot | ForEach-Object { $_.path })
   $calibrationHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $calibrationPath) -Algorithm SHA256).Hash.ToLower()
   $invalidManifest = @($reviewers | ForEach-Object {
     $role = $_.role
@@ -473,7 +483,7 @@ function Require-Pass(
       $relativePath = Get-ManifestRelativePath $_.path $repoRoot
       [string]::IsNullOrWhiteSpace($relativePath) -or
         $_.sha256 -cnotmatch '^[0-9a-f]{64}$' -or
-        -not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath)
+        -not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath $conditionalPaths)
     }
   }).Count -gt 0
   $duplicateManifestPath = $false

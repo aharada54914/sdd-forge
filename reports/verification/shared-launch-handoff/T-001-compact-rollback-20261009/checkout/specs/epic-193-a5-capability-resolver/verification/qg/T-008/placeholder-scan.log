@@ -1,0 +1,10 @@
+# Re-scoped at gate cycle 1 (evaluator Major, run seq 0819): the first capture
+# over-scoped this scan to include the suite driver, whose five hits are the
+# driver's own template-token constants. check-placeholders.sh's usage note
+# states the scan takes changed PRODUCTION files, not test drivers or fixtures,
+# so the over-scoped run was the wrong command rather than a real finding.
+# This is the correctly scoped run over T-008's three production validator files.
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1
+Placeholder scan passed.
+Exit: 0

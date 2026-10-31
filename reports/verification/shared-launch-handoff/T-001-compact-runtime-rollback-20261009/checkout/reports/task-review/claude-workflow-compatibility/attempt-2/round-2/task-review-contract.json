@@ -1,0 +1,19 @@
+{
+  "schema": "task-review-contract/v1",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 2,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "ca7e65a3f039969377737af611e9be9cc77aae846faa034b05ddec468500ab81",
+  "requirements_sha256": "da2aa02b868bcf62162366973be5c19e5b7a2ceb2fe212c3d19e2d210e1ea576",
+  "acceptance_sha256": "919361f04ebcc2fbb6dcb70bc7a0b2ae2f6d217f6ded0304149d21e7d7d56352",
+  "tasks_sha256": "aaaca845640667da6d0c1d27bf59d0c1fe1a730af79da2c12ec8f45a75fc3ba5",
+  "human_edit_summary": "T-001 explicitly adopts T-002's shared foundation; T-005 now depends only on the gate it documents.",
+  "timestamp": "2026-06-23T00:00:00Z"
+}

@@ -1,0 +1,5 @@
+components:
+  - id: c1
+    paths:
+      include:
+        - "src/*/file.ts"

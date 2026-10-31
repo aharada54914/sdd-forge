@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a12608-3c98-7fc0-9d9f-461daa965549",
+    "turn": {
+      "id": "01a12608-3dbe-74b3-ab86-66038755d4fc",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0f105a69c65917c9016aca41388e2487d0a23ae1fb2cd0db6d",
+          "text": "T-004 の修正候補を作成しました。本体変更は CI workflow への依存インストール2行追加です。\n\n- 検証：実 RED→GREEN、全13テスト、TEST-013、generator、復元ハッシュ確認が成功。\n- [納品一覧](delivery-index.json)／[実装報告](work/reports/implementation/shared-review-launch-repair/T-004.md)\n\n未実施：全体回帰、Windows、exact-head CI、combined rollback、独立レビュー・quality gate、merge。\n親側への適用は未実施で、Implementation Complete／Done にはしていません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791639436,
+      "completedAt": 1791639867,
+      "durationMs": 430886
+    }
+  },
+  "emittedAtMs": 1791639867625
+}

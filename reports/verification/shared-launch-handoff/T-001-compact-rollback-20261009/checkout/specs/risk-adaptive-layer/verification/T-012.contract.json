@@ -1,0 +1,111 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-012",
+  "feature": "risk-adaptive-layer",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "12f73f04e6abb520cb14106e6fc7c636c8359b11",
+  "created": "2026-08-23T09:30:00Z",
+  "comment": "Cycle-2 PASS contract (gate report 20260823T091500Z.md, seq 831). First contract authored under verification-contract/v2 - dogfooding the schema this task's fix cycle shipped: spec_revision is the branch HEAD at authoring (40-hex git commit). stack=shell per the T-012-ratified waiver axis: lint/typecheck/build carry waiver_reason; every test/quality check is required:true with fresh captured evidence under verification/qg/T-012/. TDD red/green pair is the original 2026-06-14 differential (T-012.red.log 106/3 designed-red -> T-012.green.log 109/0), genuineness re-established by the cycle-2 evaluator.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell/docs repository: no lint toolchain (stack: shell waiver, risk-gate-matrix.md Stack descriptor)",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "no typed language surface (stack: shell waiver)",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "no compile step; interpreted scripts and markdown (stack: shell waiver)",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/risk-adaptive-layer/verification/T-012.red.log",
+      "green_evidence": "specs/risk-adaptive-layer/verification/T-012.green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/acceptance-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/risk-adaptive-layer/verification/T-012.red.log",
+      "green_evidence": "specs/risk-adaptive-layer/verification/T-012.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-012/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

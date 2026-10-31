@@ -1,0 +1,15 @@
+T-008 TEST-AFTER
+
+Manifest and marketplace version assertions:
+- 18 plugin manifests resolve to 1.4.0
+- Claude marketplace contains six 1.4.0 entries
+- Agents/Codex marketplace contains six 1.4.0 entries
+- Result: exit 0
+
+Validation commands:
+- pwsh -NoProfile -File tests/claude-manifest-validation.tests.ps1
+  Result: exit 0; six shipped Claude manifests validated
+- pwsh -NoProfile -File tests/validate-repository.ps1
+  Result: exit 0; Repository validation passed
+- git diff --check
+  Result: exit 0

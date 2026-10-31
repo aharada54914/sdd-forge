@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncconsent-spec-a2r1-a-seq0488",
+  "host_session_id": "SESS-spec-a2r1-a-designsyncconsent-0488",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-2/round-1/precheck-result.json",
+      "sha256": "f1a6803b43a4d936a477fd6837a6ef5fb11ab4684c216c8b80baeb532952ef17"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "72171f6d383501c81ab19752f80578f5afa48d8764d28f58412549b84605056d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "1181c655014b95ea1c6d90e9a7c3a2b5f2978641638892cd0ebfde0b8f010173"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-030 (specs/design-sync-consent/requirements.md:84-94) states the push-failure rule has exactly three parts: (1) failure does not change consent state, (2) the agent reports the failure, (3) a same-scope retry proceeds without a new consent prompt, re-entering at the pre-upload check point. Both the AC's own numbered list and the Test Matrix one-line summary for TEST-051 (specs/design-sync-consent/acceptance-tests.md:61) restate only these three parts. But the Test Details prose for TEST-051 (specs/design-sync-consent/acceptance-tests.md:248) adds a fourth, unenumerated requirement: 'As with TEST-043, the assertion must also find the boundary statement: a push failure is not AC-019's persistent \"not permitted\" outcome and writes no standing forbiddance.' Nothing in AC-030's three parts states this distinguishing claim explicitly (unlike AC-026, whose own text at requirements.md:56-64 makes the equivalent distinction its own explicit third numbered element, separately verified by TEST-043) -- AC-030 part (1)'s generic 'does not change consent state' is not the same textual commitment, by the document's own established reasoning at requirements.md:64 ('An implementation that persists a decline for the rest of the scope satisfies rows 1 and 2 while silently manufacturing the configuration-level control that #140 owns' -- i.e. a general non-change claim does not by itself establish the vacuous-satisfaction-resistant distinguishing statement). Downstream failure mode: a task author decomposing AC-030 strictly from its three stated parts could write skill text that plainly satisfies all three ('a push failure does not revoke consent; the agent reports it; retry proceeds without asking again') without an explicit sentence distinguishing it from AC-019's persistent 'not permitted' outcome, and a verifier applying TEST-051's Test Details literally would then fail that text even though it conforms to AC-030 as written -- an implementer/verifier disagreement this gate is responsible for catching, since it is a contradiction between two Phase 1 artifacts (requirements.md's AC-030 vs acceptance-tests.md's TEST-051 detail), not an implementation-time judgement call. Severity is Major rather than Critical because it is a traceable ambiguity/downstream-mismatch risk on one AC, not a contradictory goal, impossible criterion, or missing safety/approval boundary that makes the whole specification unreviewable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated goal in the Overview (specs/design-sync-consent/requirements.md:9-19) maps to at least one REQ and AC: consent-unit change to REQ-001/AC-001,002,026-028,030 (requirements.md:23-94); disclosure accuracy to REQ-002/AC-003-005,029 (:96-128); flow inversion and demotion of local review to REQ-003/AC-006-009 (:130-150); the Design-Source record to REQ-004/AC-010-012 (:152-168); fallback preservation to REQ-005/AC-013-016 (:170-188); leaving DS-30/DS-31 implementable to REQ-006/AC-017-020 (:190-212); reconciling the four live per-upload sites to REQ-007/AC-021-023 (:214-238); and CI enforcement of the assertions to REQ-008/AC-024-025 (:240-260). The new 2026-08-05 addition (AC-030 under REQ-001, requirements.md:84-94) also traces cleanly to a matching TEST row, TEST-051 (acceptance-tests.md:61)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All acceptance criteria, including the new AC-030 (requirements.md:84-94), state concrete, externally observable textual assertions against skill/documentation content rather than vague intent, and acceptance-tests.md's opening (:1-5) is explicit that every criterion is a document-conformance assertion against specific file text. AC-030's three parts are each independently falsifiable against SKILL.md's push-step prose (does the text change consent state on failure; does it state the agent reports the failure; does it state a same-scope retry skips re-prompting), matching the pattern used throughout (e.g. AC-026/TEST-041-043, AC-028/TEST-046-047)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (specs/design-sync-consent/requirements.md:262-269) explicitly excludes implementing #139's scan, implementing #140's ds_upload_consent setting or touching AGENTS.md, changing the pull direction, adding redaction/input_digest/machine-checkable consent objects, removing the egress gate, and rewriting the already-correct half of the loop. The new push-failure rule (AC-030) stays inside REQ-001's existing scope (consent-state semantics) and does not expand into #139/#140 territory; its rationale at requirements.md:92 explicitly ties the new rule back to the existing AC-028 withdrawal model rather than opening new surface."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are enumerated in the Baseline Constraints section (specs/design-sync-consent/requirements.md:292-304): BL-001 (egress gate not removed), BL-002 (fallback behaviour-preserving), BL-003 (non-blocking invariant), BL-004/BL-005 (protected-file write boundaries with a stated re-verification instruction), BL-006 (CHANGELOG immutability), BL-007 (locked DS-006 literals), BL-008 (dual-runtime parity), BL-009 (registry entry). Security/approval boundaries around consent are stated explicitly, including the new AC-030 constraint that a push failure must not be treated as an implicit revocation (requirements.md:92), which closes exactly the kind of unstated approval-boundary gap this check watches for."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claim in this spec -- that Design-Source becomes a load-bearing but untrusted (agent self-report) authorization record (requirements.md:17, INV-021 in investigation.md:242-244) -- has a named validation surface: AC-012/TEST-018 requires the record be characterised as an audit trace, not an enforcement point. The privacy-delta risk of removing local review before push (requirements.md:13, INV-003) is covered by AC-008/TEST-013 (the demotion's consequence must be stated). The new push-failure/retry risk (AC-030) is covered by its own TEST-051 document-conformance row, with an explicit rationale distinguishing it from an implicit-revocation reading (requirements.md:92)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain/ directory exists at the repository root (glob returned no files) and no domain-model artifacts exist under specs/design-sync-consent/ (directory listing shows only the eight spec documents -- no domain-contract.json or context-map.md). Skip condition met; check recorded as skipped per instruction."
+    }
+  ]
+}

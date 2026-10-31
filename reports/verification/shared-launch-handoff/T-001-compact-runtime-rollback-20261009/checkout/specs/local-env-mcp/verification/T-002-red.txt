@@ -1,0 +1,34 @@
+# Command: npm test  (from mcp/local-env-mcp; pretest runs tsc -p tsconfig.test.json)
+# Captured: 2026-07-05T11:06:04Z
+# TDD RED phase: src/tools/env.ts, src/server.ts, src/index.ts do not exist yet; tests must fail.
+# ---------------------------------------------------------------------------
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/no-exec/input-schema.test.ts(25,8): error TS2307: Cannot find module '../../src/tools/env.js' or its corresponding type declarations.
+tests/tools/os-info.test.ts(21,27): error TS2307: Cannot find module '../../src/tools/env.js' or its corresponding type declarations.
+tests/tools/os-info.test.ts(87,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: {}): string[]', gave the following error.
+    Argument of type 'unknown' is not assignable to parameter of type '{}'.
+  Overload 2 of 2, '(o: object): string[]', gave the following error.
+    Argument of type 'unknown' is not assignable to parameter of type 'object'.
+tests/tools/os-info.test.ts(114,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/os-info.test.ts(115,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/os-info.test.ts(116,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(27,57): error TS2307: Cannot find module '../../src/tools/env.js' or its corresponding type declarations.
+tests/tools/toolchain.test.ts(72,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(73,27): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(79,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(79,42): error TS7006: Parameter 'e' implicitly has an 'any' type.
+tests/tools/toolchain.test.ts(94,19): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(109,19): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(117,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(119,5): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(119,30): error TS7006: Parameter 'e' implicitly has an 'any' type.
+tests/tools/toolchain.test.ts(128,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(129,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(130,19): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(135,16): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/toolchain.test.ts(135,42): error TS7006: Parameter 'e' implicitly has an 'any' type.
+# --- exit code: 2 ---

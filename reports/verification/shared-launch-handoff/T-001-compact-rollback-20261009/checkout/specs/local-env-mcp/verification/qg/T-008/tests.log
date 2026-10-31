@@ -1,0 +1,273 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-008, fresh run this session)
+$ pwsh -NoProfile -File tests/install.tests.ps1
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-907c91aa-fc54-479d-9fd1-8d0b3a2e39c1/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-907c91aa-fc54-479d-9fd1-8d0b3a2e39c1/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-13cf8f9c-badd-4b5c-a2d5-2a6e6d20a3cf/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-13cf8f9c-badd-4b5c-a2d5-2a6e6d20a3cf/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-review-loop.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-404ef826-80de-4418-911c-56f5489cc0c0/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-404ef826-80de-4418-911c-56f5489cc0c0/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-filesonly-c1d7eb84-1af5-45e7-a5cd-c68f6a851031/installed
+Plugin registration was skipped because Target=FilesOnly.
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-tracked-only-770a62c4-2a25-4fea-85b1-980b3183bb96/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: local source installs Git-tracked files only
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+ok: untracked required release file is rejected before deployment
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-59c0b63b-a055-498c-9f52-961697c2eba2/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-59c0b63b-a055-498c-9f52-961697c2eba2/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-59c0b63b-a055-498c-9f52-961697c2eba2/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-59c0b63b-a055-498c-9f52-961697c2eba2/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: idempotency: second install exits 0, state consistent
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-nonest-320bf9a7-63b6-4b60-9bd1-794cfb3133fd/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-nonest-320bf9a7-63b6-4b60-9bd1-794cfb3133fd/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+ok: malformed source agent TOML rejected before deployment
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-remote-ce44cd8f-1359-401c-8f76-d9de68463e10/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-remote-ce44cd8f-1359-401c-8f76-d9de68463e10/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: authenticated remote install uses GitHub token flow
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-lock-5ebec368-ad9c-41bc-ab95-e8ececf8e91b/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after mutex released
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-locksucc-fb11f385-1411-4a0b-9b3b-728cd4b27c4a/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: released on success — mutex acquirable after install
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-smoke-fc700360-2bc7-4d6e-89a2-190514179885/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-ide-92e9ab9c-e3c8-4480-b3aa-768a5271eaf9/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-default-16fb691c-f759-4d9d-94aa-4122136feae1/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: default install places and registers BOTH MCP servers
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-skip-00a36390-621e-49e9-b58a-8f554cd8a89b/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: -SkipMcp skips both MCP placement and registration
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-valid-05c9e215-8585-4914-92f1-3b5111a6962a/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp sdd-forge-mcp installs only the selected MCP
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-le-acecad46-bcf6-4e29-bf20-12d5aebdad51/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp local-env-mcp installs only the selected MCP
+ok: -Mcp bogus-mcp is rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-oldnode-13f0866f-cd7e-438c-ab05-4434d72654c5/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node < 20 warns and skips MCP only, plugin install continues
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-v18-b6d76e0f-f46a-4fc2-a10b-d05f57d81822/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-noconfig-1c1400fc-64ce-433d-b748-80e4bf4b99a2/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-cursor-98ae545a-e399-49da-923f-f5beb4bc837d/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-cursor-98ae545a-e399-49da-923f-f5beb4bc837d/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-vscode-c5b958c8-2421-449b-9389-58c1205c782f/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-vscode-c5b958c8-2421-449b-9389-58c1205c782f/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+Installer integration tests passed.
+
+exit 0

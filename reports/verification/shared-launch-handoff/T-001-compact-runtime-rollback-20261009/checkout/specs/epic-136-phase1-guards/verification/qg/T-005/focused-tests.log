@@ -1,0 +1,15 @@
+TARGET_YML=/Users/jrmag/Projects/active/sdd-forge/.github/workflows/self-improvement.yml
+GUARD_SH=/Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh
+
+ok: TEST-010: id-token: write absent from permissions (OIDC not used by the pinned action) -- AC-010
+ok: TEST-010: retains used permission 'contents: write'
+ok: TEST-010: retains used permission 'pull-requests: write'
+ok: TEST-010: retains used permission 'issues: write'
+ok: TEST-011: workflow runs self-improvement-pr-guard.sh after the session -- AC-011
+ok: TEST-011: violating diff fails the guard (exit 1) -- AC-011
+ok: TEST-011: guard lists both violating paths
+ok: TEST-011: compliant diff passes the guard (exit 0) -- AC-011
+ok: TEST-014: empty changed-paths file passes vacuously (exit 0) -- AC-014
+ok: TEST-014: absent changed-paths file passes vacuously (exit 0) -- AC-014
+
+TEST-010/011/014 results: 10 passed, 0 failed

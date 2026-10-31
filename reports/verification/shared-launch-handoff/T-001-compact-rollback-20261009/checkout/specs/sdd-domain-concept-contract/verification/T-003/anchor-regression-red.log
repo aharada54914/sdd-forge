@@ -1,0 +1,132 @@
+T-003 REQ-002 pattern ANCHOR regression -- RED (mutation) verification log
+=========================================================================
+
+Purpose
+-------
+Proof that the anchor-regression checks appended to
+tests/sdd-domain/contract-v2-schema.Tests.ps1 actually KILL the mutation they
+were written to catch. A test that cannot fail closes nothing.
+
+The behaviour under protection: the three REQ-002 patterns are COMPILED with
+\A ... \Z (.sh, Python) and \A ... \z (.ps1, .NET) rather than ^ ... $.
+contracts/domain-contract.v2.schema.json declares those patterns for JSON
+Schema draft-07, whose `pattern` keyword is ECMA-262 WITHOUT the multiline
+flag -- there `$` matches END OF INPUT only, so the schema REJECTS "Order\n"
+as a concepts[].name. Python's `$` and .NET's `$` both ALSO match immediately
+before a final newline, so a twin re-anchored ^ ... $ would ACCEPT a value the
+schema it implements rejects.
+
+Before this change that behaviour had ZERO regression protection: reverting
+either twin's anchors left the full 269-check suite at 269 passed / 0 failed,
+because no fixture anywhere carried a trailing-newline value.
+
+Method
+------
+The real repository was never mutated. The working tree (excluding mcp/) was
+copied to a scratch directory and both mutations were applied and reverted
+only inside that copy. Both twins in the real repository are byte-unchanged:
+
+  4613aacd33ed9c30956f218374a300503e25ddfa936e478759ca2a1253e152e4  plugins/sdd-domain/scripts/validate-domain-contract.sh
+  8410894d3d4dd26b0d46b99e60e4de1e96bfa733c14949c503cb9be2c75a9eac  plugins/sdd-domain/scripts/validate-domain-contract.ps1
+
+Toolchain: pwsh 7.6.2, Pester 4.10.1, macOS (darwin 25.5.0).
+Command:  pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 4.10.1; Invoke-Pester -Script "tests/sdd-domain/contract-v2-schema.Tests.ps1"'
+
+Windows PowerShell 5.1 could NOT be exercised here (this host is macOS); the
+5.1 leg of the .ps1 twin is unverified by these runs.
+
+Reference points
+----------------
+  pristine tree, before this change      269 passed /  0 failed / 0 skipped
+  pristine tree, after  this change      287 passed /  0 failed / 0 skipped   (+18 new checks)
+
+
+-------------------------------------------------------------------------
+MUTATION 1 of 2 -- .sh twin anchors reverted to ^ ... $
+-------------------------------------------------------------------------
+
+Edit applied in the copy, plugins/sdd-domain/scripts/validate-domain-contract.sh
+(3 lines; each literal verified to occur exactly once before substitution):
+
+  - CONCEPT_ID_RE   = re.compile(r"\ACONCEPT-[A-Z][A-Z0-9-]*\Z")
+  + CONCEPT_ID_RE   = re.compile(r"^CONCEPT-[A-Z][A-Z0-9-]*$")
+  - CONCEPT_NAME_RE = re.compile(r"\A[A-Z][A-Za-z0-9]*\Z")
+  + CONCEPT_NAME_RE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
+  - CONTEXT_RE      = re.compile(r"\A[a-z][a-z0-9]*(-[a-z0-9]+)*\Z")
+  + CONTEXT_RE      = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
+
+Result: 281 passed / 6 FAILED / 0 skipped   (287 - 6; no pre-existing check moved)
+
+All 6 failures are new anchor-regression checks:
+
+  [-] sh twin rejects a trailing newline in concepts[0].id -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].id [SKIPPED when bash/python3 is absent from PATH]
+  [-] sh twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].name [SKIPPED when bash/python3 is absent from PATH]
+  [-] sh twin rejects a trailing newline in concepts[0].context -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].context [SKIPPED when bash/python3 is absent from PATH]
+
+Representative failure detail (the mutated .sh twin ACCEPTS the value):
+
+  [-] sh twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH] 58ms
+  Expected 1, but got 0.
+  2518:     $Result.ExitCode | Should Be 1
+
+  -- "Expected 1, but got 0" on ExitCode: the re-anchored twin exits 0, i.e.
+     it accepts "Order\n" as a valid concepts[].name. The sibling parity check
+     fails on the same fixture because the untouched .ps1 twin still exits 1,
+     so the two twins no longer agree.
+
+
+-------------------------------------------------------------------------
+MUTATION 2 of 2 -- .ps1 twin anchors reverted to ^ ... $
+-------------------------------------------------------------------------
+
+The .sh twin was restored to its pristine bytes first (verified with diff),
+so this mutation is isolated.
+
+Edit applied in the copy, plugins/sdd-domain/scripts/validate-domain-contract.ps1
+(3 lines; each literal verified to occur exactly once before substitution):
+
+  - $ConceptIdMatchPattern   = '\ACONCEPT-[A-Z][A-Z0-9-]*\z'
+  + $ConceptIdMatchPattern   = '^CONCEPT-[A-Z][A-Z0-9-]*$'
+  - $ConceptNameMatchPattern = '\A[A-Z][A-Za-z0-9]*\z'
+  + $ConceptNameMatchPattern = '^[A-Z][A-Za-z0-9]*$'
+  - $ContextMatchPattern     = '\A[a-z][a-z0-9]*(-[a-z0-9]+)*\z'
+  + $ContextMatchPattern     = '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
+
+Result: 281 passed / 6 FAILED / 0 skipped   (287 - 6; no pre-existing check moved)
+
+All 6 failures are new anchor-regression checks:
+
+  [-] ps1 twin rejects a trailing newline in concepts[0].id -- FAILS if \A ... \z is reverted to ^ ... $
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].id [SKIPPED when bash/python3 is absent from PATH]
+  [-] ps1 twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \z is reverted to ^ ... $
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].name [SKIPPED when bash/python3 is absent from PATH]
+  [-] ps1 twin rejects a trailing newline in concepts[0].context -- FAILS if \A ... \z is reverted to ^ ... $
+  [-] both twins agree byte for byte on the trailing newline in concepts[0].context [SKIPPED when bash/python3 is absent from PATH]
+
+Representative failure detail (the mutated .ps1 twin ACCEPTS the value):
+
+  [-] ps1 twin rejects a trailing newline in concepts[0].name -- FAILS if \A ... \z is reverted to ^ ... $ 803ms
+  Expected 1, but got 0.
+  2518:     $Result.ExitCode | Should Be 1
+
+  -- Same mechanism, mirrored: [Regex]::IsMatch with ^ ... $ matches "Order"
+     followed by a final newline, the twin exits 0, and the parity check sees
+     the untouched .sh twin still exiting 1.
+
+
+-------------------------------------------------------------------------
+Conclusion
+-------------------------------------------------------------------------
+Each twin's anchors are independently protected. Reverting either one alone
+turns 6 checks red; neither mutation is silent any more. Coverage is
+symmetric by construction -- per pattern field there is one .ps1-only check,
+one .sh-only check, and one cross-twin parity check -- so a single-twin
+regression is attributed to the twin that caused it.
+
+The three paired newline-free controls stayed green under BOTH mutations,
+which is what rules out the block passing by rejecting everything.
+
+Both twins restored and verified byte-identical after the runs.

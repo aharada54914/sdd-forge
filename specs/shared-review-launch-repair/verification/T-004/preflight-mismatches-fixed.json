@@ -1,0 +1,29 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.py"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+  "started_at": "2026-10-10T13:40:24.810861+00:00",
+  "expected_exit": 0,
+  "exit": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/preflight-mismatches.py\", line 93, in <module>\n    assert old in text, name\n           ^^^^^^^^^^^\nAssertionError: bash-t001-evaluation-preparation\n",
+  "environment": {
+    "TMPDIR": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "npm_config_cache": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/npm-cache"
+  },
+  "source_sha256": {
+    ".github/workflows/test.yml": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "tests/run-all.sh": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "tests/run-all.ps1": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+    "tests/task-structured-output.tests.py": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+    "tests/host-review-preflight.tests.py": "409ca99a956d432b7fd293760c2521b22a898086fcbd48477c136900cb5eaa6f",
+    "mcp/ci-mcp/package.json": "787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713",
+    "mcp/ci-mcp/package-lock.json": "cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f"
+  }
+}

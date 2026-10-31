@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a12583-257f-7080-be3a-990769d55d37",
+    "turn": {
+      "id": "01a12583-2678-7f21-aeec-05ce90694923",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0df0225daf006e77016aca1e2ac77487d09be1eb23144def51",
+          "text": "T-003 は入力欠落により停止しました。既存 host suite が必要とする `plugins/sdd-quality-loop/scripts/review-conditional-inputs.py` が manifest にありません。baseline は 7 テスト中 4 エラー。ソース変更はありません。\n\n全56入力のハッシュ一致、構造チェック、generator `--check`、報告書検証を確認済みです。[報告書](work/reports/implementation/shared-review-launch-repair/T-003.md)と[delivery index](delivery-index.json)に詳細を保存しました。再開には親側で admission の修正が必要です。\n\n実装・追加テスト・rollback・guard parity は未実施。独立レビュー、正式 quality gate、Windows、CI、merge も NOT RUN です。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791630714,
+      "completedAt": 1791630894,
+      "durationMs": 180103
+    }
+  },
+  "emittedAtMs": 1791630894596
+}

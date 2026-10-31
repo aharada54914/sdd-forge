@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase3-impl-a2r3-b-seq0432",
+  "host_session_id": "SESS-impl-a2r3-b-epic136phase3-0432",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-2/round-3/integrated-summary.json",
+      "sha256": "80b27c298cd74901de5efd4e7ed223446169039b3b3a2558fa1ff5cb009d4086"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-2/round-3/precheck-result.json",
+      "sha256": "f0393df4b7d425fc5cbbda859857ecee95f0345883fd09cde34988e8e98f5ab1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "9a02dd4f341e0196c94edb9d7451a8e3fecda819ef40a43d7a3b3f5998571b94"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "23131b728869fa60829cb56dcbbaddd983193a28789624c087a1af6116c41ec9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "aa598bd1fd255cf51178d220bab263a96fbf1717b68e60d6f6499d8167fd0665"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "506b00e3d09088d5479cfd168e60b10f874e12c40ccca69ab4ad6f5516cfe25b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline technology/architecture decision in design.md carries a stated rationale: bash-only suites (no pwsh twin) 'matching the quality-loop-fixes Stream 1 convention for a suite that does not need a separate pwsh leg' (API/Contract Plan); thin forwarding shims vs real interpreters, justified 'keeps the decision-under-test genuine... while still controlling exactly which NAME the dispatcher's command -v loop observes' (Design Decisions); job-count-preserving lane marking over a job split, justified by blast-radius ('toolchain setup re-run per new job per OS', Design Decisions OQ-5); NEW (not reused) triple-quote/task-id corpora, justified because the injection surface structurally differs from prepare-panelist-input.sh's HMAC field (Design Decisions). No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Open Questions section (lines 626-634) contains no open entries: 'None blocking for any stream. All investigation.md OQ-1..OQ-6 are resolved above with design decisions.' Each resolved OQ is cross-referenced to a concrete Design Decisions entry with an owner and rationale (e.g. OQ-2's ADR-0010 external precondition, discharged at commit 67015a5). No unresolved entry lacks an owner or resolution path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-031). design.md's Assumptions section (line 612-624) is explicitly 'Carried from requirements.md Assumptions', each grounded in a cited INV: registration-gap state (INV-006/INV-025), PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership (INV-024), identity-ledger tail sequence 337 (INV-026), ADR-0010 status (INV-015, now superseded/re-verified to Accepted per commit 67015a5), loop-driver.sh stage-'spec'-only scope (INV-016), and the PATH='/usr/bin:/bin' technique (INV-005). All grounded."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has a ## Constraint Compliance section whose 'protected file' row (line 607) correctly states all four streams share the one staged test.yml candidate. However, design.md self-contradicts this in multiple other sections that were evidently NOT updated when Stream C's CI step was folded into the shared batch between rounds: (1) Components table, line 117: 'existing, edited via human-copy (Streams A + D, ONE shared staged batch...)' omits B and C; (2) Architecture mermaid diagram, line 97: TESTYML_HC node text lists only '...+ Streams A/B's new steps', omitting Stream C; (3) Layer Specifications table, line 165: 'Infrastructure | one shared test.yml human-copy batch (Streams A + D); no new deployment target' omits B and C; (4) Security Boundaries table, line 559 (B3 row): 'ONE shared staged batch (Streams A + D)' omits B and C; (5) Protected-File Statement narrative, lines 149-157, the most operationally-worded staging instruction in the document, states the combined candidate contains 'BOTH Stream A's new CI step AND Stream D's step-prefix lane marking' and separately folds in Stream B, but never mentions Stream C at all. infra-spec.md carries the same defect: line 129-130 states 'one shared human-copy batch, Streams A + D only' (with the word 'only'), directly contradicting its own line 12 ('covering Streams A/B/C's 3 new CI steps') and line 50 ('Streams A, B, and C together add exactly 3 new steps') 65-79 lines earlier in the same file; line 106 and line 115 repeat the 'Streams A + D' framing. requirements.md's Non-goals (lines 324-337) is unambiguous that Stream C's CI step must ride the ONE shared batch, not a later feature's batch. Failure mode: an implementer following the Protected-File Statement narrative or infra-spec.md's IaC/Runtime-Dependencies/Environments sections (rather than the API/Contract Plan heading or Global Constraints section) would construct a staged test.yml candidate missing Stream C's CI step -- reproducing exactly the round-2 coverage gap this round's edit was intended to close (per the invoking context) via an incomplete fix that updated only some sections."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This feature is test/CI hardening work (4 new-test-suite/CI-lane additions); no numeric latency/throughput/concurrency threshold or SLA statement appears anywhere in requirements.md's Goals, Acceptance Criteria, or Edge Cases."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Deployment / CI Plan section (lines 573-596) states the deployment target ('No runtime deployment'), the CI pipeline change required (3 new steps to test.yml's single test job, ONE shared human-copy batch, explicitly naming 'Streams A, B, and C' at line 575), the fail-closed staging behavior (PR CI stays red on TEST-019/020 until the human applies the candidate, no fallback), and rollback guidance per stream. No database/schema migration exists (Data Plan: 'Migration Strategy: none'), so migration-execution-order is correctly N/A. This section itself (unlike the several stale summary sections flagged under NO-REQ-CONTRADICTION) correctly names all three suite-adding streams."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Data Plan states 'Existing Data Affected: none' and 'Migration Strategy: none. No schema changes to any existing artifact.' Stream C's new scenario-schema.json is a brand-new schema for new files, not a column/table change to an existing artifact. Per the check's own exemption, PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## External Integrations section states 'None... no new network call, external API, or credential is introduced,' and explicitly confirms no stream invokes the real gh CLI or a live network call (Security Boundaries B4; STRIDE B2 row). No external system or third-party service is referenced anywhere in design.md without this explicit disclaimer. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table maps every requirement (REQ-001..REQ-006) to design elements and AC/TEST IDs with no gaps. Components table introduces only the new suite files and schema explicitly named in requirements.md's Goals/Main Workflows (guard-dispatch-fallback.tests.sh, guard-negative-corpus.tests.sh, tests/workflow-scenarios/); no undocumented component, data model, or API endpoint appears. ds_profile: none, so the design-system-contract scope-creep clause does not apply. No under- or over-scoped area found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Two high-risk surfaces are present: (1) Stream C's inbound prompt-injection boundary (B2) -- concrete validation path named: TEST-014 in tests/workflow-scenarios/workflow-scenarios.tests.sh, a RED/GREEN-paired proxy harness with a documented multi-expression accepted-directive detector and a named known-defect allowlist (security-spec.md Security Tests table, design.md API/Contract Plan). (2) The protected-file human-copy carve-out (B3) -- concrete validation path named: TEST-016/TEST-017 self-checks comparing the staged candidate's MANIFEST.sha256 against the live file, plus a text-marker step-name-coverage enumeration (design.md Test Strategy item 3). Both surfaces have a concrete, artifact-named verification path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in the target project (confirmed: `ls domain/` returns 'No such file or directory' at the repository root). DOMAIN-CONFORMANCE is inapplicable."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+ok: TEST-005 (AC-005): schedule: trigger with a cron: entry present
+ok: TEST-005 (AC-005): workflow_dispatch: trigger present
+ok: TEST-005 (AC-005): runs-on: ubuntu-latest present
+ok: TEST-005 (AC-005): permissions: block contains ONLY contents: read and issues: write
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+ok: TEST-006 (AC-006, both-fail): main exits 0
+ok: TEST-006 (AC-006, both-fail): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, both-fail): zero issue-create calls
+ok: TEST-006 (AC-006, both-fail): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, anthropic-only-fails): main exits 0
+ok: TEST-006 (AC-006, anthropic-only-fails): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, anthropic-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, anthropic-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, openai-only-fails): main exits 0
+ok: TEST-006 (AC-006, openai-only-fails): a comment call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, openai-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, openai-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+=== TEST-007 (AC-007): divergence detected + dedup ===
+ok: TEST-007 (AC-007): main exits 0 on the divergence-detected branch
+ok: TEST-007 (AC-007): exactly one issue-create call recorded
+ok: TEST-007 (AC-007): create call carries the [model-freshness-divergence] marker and workflow-improvement label
+ok: TEST-007 (AC-007): the genuinely-new token model-gamma-3 appears in the create call
+ok: TEST-007 (AC-007, dedup): main exits 0
+ok: TEST-007 (AC-007, dedup): zero additional issue-create calls when a matching open issue already exists
+=== TEST-009 (AC-009): CI resilience + self-registration ===
+ok: TEST-009 (AC-009, CI-resilience): fixture-root normalization uses pwd -P
+ok: TEST-009 (AC-009, CI-resilience): this suite declares no bash array anywhere -- no possibly-empty array can be expanded under set -u
+ok: TEST-009 (AC-009, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-009 (AC-009, CI-resilience): this suite drives no real validator (non-use declaration)
+ok: TEST-009 (AC-009): registered in tests/run-all.sh
+ok: TEST-009 (AC-009): registered in tests/run-all.ps1
+FAIL: TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* case pattern (real glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh exists
+ok: TEST-016 (AC-016): tests/model-freshness-check.tests.ps1 exists (suite twin pair)
+ok: TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+ok: TEST-020 (AC-020): main exits 0
+ok: TEST-020 (AC-020): zero gh invocations of any kind recorded
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+ok: TEST-021 (AC-021): main exits 0
+ok: TEST-021 (AC-021): the allowlist-validated missing token model-delta-4 is present in the issue body
+ok: TEST-021 (AC-021): no adversarial fixture substring reached the issue body verbatim
+---- summary: pass=39 fail=1 ----
+not ok: model-freshness-check suite FAILED (1 failures)

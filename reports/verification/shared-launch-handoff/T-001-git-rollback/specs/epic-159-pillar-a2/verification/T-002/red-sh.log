@@ -1,0 +1,29 @@
+=== RED evidence: T-002 deliverables absent (pre-implementation) ===
+--- fixture seed directory ---
+ls: tests/fixtures/loops/brownfield-seed/: No such file or directory
+
+--- check-placeholders-brownfield suite twin ---
+ls: tests/check-placeholders-brownfield.tests.ps1: No such file or directory
+ls: tests/check-placeholders-brownfield.tests.sh: No such file or directory
+
+--- attempt to run the suite directly ---
+bash: tests/check-placeholders-brownfield.tests.sh: No such file or directory
+exit=127
+
+--- registration grep across run-all.sh / run-all.ps1 / test.yml ---
+0
+0
+0
+0
+0
+0
+
+--- brownfield-profile leg absent from loop-consistency.tests.sh/.ps1 ---
+0
+0
+0
+0
+
+--- CHANGELOG citing #146 (T-002) ---
+0
+0

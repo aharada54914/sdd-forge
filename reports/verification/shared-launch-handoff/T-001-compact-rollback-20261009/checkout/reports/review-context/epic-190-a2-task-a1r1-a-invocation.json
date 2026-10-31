@@ -1,0 +1,29 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "epic-190-a2-capability-registry",
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-a1r1-seq0342",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-a1r1-0342",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2ee133872b57477b91e87bbcade784948aaa5617d7c8010f18c8043dfaa18fe0",
+  "previous_record_sha256": "a6989e3afd084c8be5bdae640b8e5682696311305812abc5d5708cc154c7377c",
+  "sequence": 342,
+  "allowed_input_manifest": [
+    {"path":"specs/epic-190-a2-capability-registry/requirements.md","sha256":"8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path":"specs/epic-190-a2-capability-registry/acceptance-tests.md","sha256":"591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path":"specs/epic-190-a2-capability-registry/design.md","sha256":"f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"},
+    {"path":"specs/epic-190-a2-capability-registry/tasks.md","sha256":"50d7806f1f1473546b2b741c1eff3ac28e5bfe791461d0f05f3b25e1ea2c7a07"},
+    {"path":"specs/epic-190-a2-capability-registry/traceability.md","sha256":"52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"},
+    {"path":"specs/epic-190-a2-capability-registry/ux-spec.md","sha256":"da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path":"specs/epic-190-a2-capability-registry/frontend-spec.md","sha256":"84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path":"specs/epic-190-a2-capability-registry/infra-spec.md","sha256":"513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path":"specs/epic-190-a2-capability-registry/security-spec.md","sha256":"e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json","sha256":"8aca75feeccadadbbefec4d5efa52b8c6fe4c7c6063e60e7fea2e15fb86ec6e3"},
+    {"path":"reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/dependency-graph.json","sha256":"b9c794641cd9fc709b53157febdac5850adf80ccec02908e038485e2301d3efd"}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a8r1",
+ "verdict": "PASS",
+ "round": 1,
+ "attempt": 8,
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "verdict_note": "Provenance re-review (--provenance-rereview) round 1 of attempt 8: both reviewers PASS with zero FAIL findings (A: 14/14 PASS; B: 8 PASS / 1 SKIP). Opened to re-bind the task-stage provenance after one lifecycle Status flip recorded by the independent quality-gate cycle-3 PASS at ledger seq 690: T-003 Status: Planned -> Done (net against the attempt-7 round-2 bound bytes; the intermediate Implementation Complete state was itself gate-recorded). The frozen tasks.md body is otherwise byte-unchanged, and requirements.md, acceptance-tests.md, design.md, traceability.md, and the four layer specs are unchanged since the attempt-7 round-2 clean PASS. AC-COVERAGE's AC-056 deferral rationale in traceability.md was re-judged on its own merits by reviewer A and again satisfies the fallback branch. Clean PASS re-binds the task-stage provenance to the current bytes. The plan remains status-mixed (T-001/T-002/T-003/T-004/T-005 Done, T-006 Planned), so this binding is again raw-bytes and will need repeating after the next lifecycle flip (T-006)."
+}

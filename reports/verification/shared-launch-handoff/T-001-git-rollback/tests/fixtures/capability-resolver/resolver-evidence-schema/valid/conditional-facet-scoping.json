@@ -1,0 +1,75 @@
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "epic-193-a5-capability-resolver",
+  "state": "required",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": ["/workflow", "/components/svc-a"],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "ownership_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "pii-handling",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            { "operator": "equals", "path": "characteristics.pii", "outcome": "match" }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "encryption-at-rest",
+          "declaration_index": 0,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                { "operator": "exists", "path": "characteristics.storage", "outcome": "match" }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "encryption-at-rest",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                { "operator": "exists", "path": "characteristics.other_storage", "outcome": "no-match" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "payments",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            { "operator": "equals", "path": "characteristics.handles_payments", "outcome": "no-match" }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

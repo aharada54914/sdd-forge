@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-10-08T18:31:41.670902+00:00",
+  "manifest_sha256": "347c102120352a273c7f83cb1785824ed1cd53837bf451c958a76b9cbcf09218",
+  "snapshot_verified_files": 606,
+  "changed_admitted_files": [
+    "tests/unified-launch-order.tests.py"
+  ],
+  "removed_unchanged_staged_files": 605,
+  "command": "rtk proxy python3 -B scratch/finalize_evidence.py"
+}

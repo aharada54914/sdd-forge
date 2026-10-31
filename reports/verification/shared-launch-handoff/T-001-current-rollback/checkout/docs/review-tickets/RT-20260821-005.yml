@@ -1,0 +1,47 @@
+ticket_id: RT-20260821-005
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-006"
+  files:
+    - "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+    - "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1"
+    - "plugins/sdd-quality-loop/scripts/check-contract.py"
+summary: >-
+  Evidence bundles never emit the per-check telemetry REQ-006 names; the
+  check-contract half of AC-005 (high/critical spec_revision) is
+  unimplemented; no red log exists for this tdd task (human waiver needed)
+problem: |
+  QG evaluator (seq 0815, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T054500Z.md) accepted four Majors, two of them
+  implementable here:
+
+  1. Neither generator twin emits the checks array with per-check
+     command/exit_code/started_at/finished_at/evidence_sha256 that REQ-006,
+     design.md:152-153 and the task Goal name. Measured on fixtures in both
+     runtimes: 13 top-level keys, checks absent. Zero test coverage on
+     exactly this field.
+  2. AC-005 reads "check-contract/check-evidence-bundle: high/critical
+     missing spec_revision => fail". The bundle side is implemented; the
+     contract side is not - a risk high contract with no spec_revision passes
+     the contract gate (measured exit 0). No contract-side test exists.
+
+  Major 3 (no red log for a tdd task; red state unrecoverable 14 months
+  later) requires a human waiver decision, not a code fix. Major 4 (the
+  recovery appendix's wrong drift cell) is the report launcher's defect,
+  fixed separately.
+expected_fix:
+  - "Emit the checks array from both generator twins per design.md section 5, with tests asserting presence and shape on both runtimes"
+  - "Add the contract-side spec_revision requirement for high/critical to the contract checker with both-polarity fixtures on both runtimes"
+  - "Human decision: waive or otherwise disposition the unrecoverable missing red log for this task's tdd workflow"
+  - "Re-run the quality gate for T-006 once fixed"
+references:
+  - "reports/quality-gate/20260821T054500Z.md"
+  - "specs/risk-adaptive-layer/requirements.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "specs/risk-adaptive-layer/acceptance-tests.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

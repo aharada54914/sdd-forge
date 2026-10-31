@@ -1,0 +1,13 @@
+{
+  "schema": "sdd-capability-summary/v1",
+  "track": "lite",
+  "capabilities": [
+    "desktop-local"
+  ],
+  "required_lite_checks": [
+    "build",
+    "test",
+    "installer-dry-run"
+  ],
+  "full_upgrade_required": false
+}

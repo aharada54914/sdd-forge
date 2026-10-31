@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0768",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0768",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-2/integrated-summary.json", "sha256": "3f9081dc6ef700b2cdc4f61ae0d0d4dcd1985fbf1772c4586db3025cbdcd7544"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-2/precheck-result.json", "sha256": "5e85f6d47d0aa50693e01828fdc64a1ce4d9dee8575038287aee661f384515b9"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "a95d3f68a4394bf50d9f6991483ab84af6d812ca72f633f704aed71b0241d6c9"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, states, and observables are unusually concretely fixed: the Field Definitions section pins six fixture-state definitions and the event-kind vocabulary; AC-006 fixes the identifier regex `^(REQ|AC)-[0-9]{3}$`; AC-028/AC-029 fix a mutually-exclusive three-class disposition legend (ASSERT / SKIP-with-activation / N/A; byte / structural / event) applied exhaustively over the F1-F8 x REQ-001-003 cross-product; AC-034 fixes the allowlist manifest's exact field shapes and a closed `merged()`/`fingerprint_match()` AND/OR grammar. Two implementers reading requirements.md/acceptance-tests.md together would build the same fixture matrix, event schema, and skip-governance behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's Overview states this package is 'Phase 1 (specification) only: investigation.md, requirements.md, design.md, acceptance-tests.md... tasks.md and traceability.md follow in a later phase once this package passes spec-review-loop', and Non-goals states 'Authoring the actual test code, fixtures, or registry/driver/run-record edits... are Phase 2/3 deliverables of a later task once this package passes spec-review-loop/impl-review-loop' -- i.e., by this package's own text, tasks.md and the T-NNN work it defines do not exist yet. Directly conflicting with that, acceptance-tests.md's TEST-009 row (and requirements.md AC-009, which cites TEST-009 for the same hash values) narrates the re-baselined `assert_terminal` hash as '(provenance, historical record only... this epic's own later-phase implementation cycle, recorded in specs/epic-195-a7-compatibility/tasks.md under T-005/T-006, found the prior hash locked a body omitting that call... and re-baselined the lock)' -- past-tense language ('found', 're-baselined') asserting that tasks.md T-005/T-006 already exists and already ran, and that its outcome is the binding truth condition for TEST-009's own two hash values. A task-decomposition author reading this package cannot determine whether tasks.md/T-005/T-006 genuinely exist yet (contradicting Overview/Non-goals) or whether the 'historical record' language is aspirational placeholder text mislabeled as settled provenance (contradicting TEST-009's own 'historical record' and 'found'/'re-baselined' wording) -- undermining whether the two committed hash values are a genuine Phase-1 pre-commitment or values retrofitted from undisclosed out-of-package work. This is an internal conflict between requirements.md's own Overview/Non-goals sections and requirements.md's AC-009 plus acceptance-tests.md's TEST-009, so it is a spec-review-scoped defect (not an implementation or quality-gate concern) that must be resolved before task decomposition can proceed without guessing at which framing is authoritative -- a workflow-boundary contradiction about what phase this package is actually in, justifying Critical severity."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material negative/boundary paths are covered: AC-002 requires a deliberately mutated golden-baseline fixture to fail the byte-identical test; AC-035 requires three independent hard-fail negative checks (dependency-present SKIP, unknown SKIP, fingerprint drift); AC-041 requires two independent negative fixtures for `promote-golden-baseline.sh`'s runtime refusal (CI env var set; `--approved-by` omitted/empty); AC-033 requires a golden negative test for the capability-only flag usage error; AC-019-AC-021 add the required `PROJECT_CONTEXT_INVALID` negative variant for F3/F4. The Edge Cases section separately itemizes the invalid-Context distinguishability, baseline-SHA-pinning-vs-later-drift, and partial-registry-extension scenarios."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section names exactly three items (unmerged upstream epics A1/A3/A4/A5/A6, decision-doc/ADR authority, runtime toolchain) and each is either explicitly monitored by a mechanism this package already specifies (AC-035's fingerprint-drift hard-fail directly targets the first assumption's own named risk) or stated as a stable, cited premise. All three Open Questions (OQ-001, OQ-002, OQ-003) are marked '(resolved)' with a concrete resolution and a citation to where the decision lives (Non-goals / Field Definitions / design.md Design Decisions), leaving no open decision that Phase 2/3 or design review would need to invent."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline candidate-to-canonical promotion boundary (REQ-006c) is concretely testable, not just narratively described: AC-018 requires the promotion to occur only via a human-reviewed pull request; AC-040 requires a static scan of the committed `.github/workflows/test.yml` to hard-fail if either mutation-capable command string appears; AC-041 requires direct exercise of `promote-golden-baseline.sh`'s own runtime refusal guard with two independent negative fixtures (non-empty `CI` env var; omitted/empty `--approved-by`), each asserting non-zero exit and no file write. Roles and Permissions and Security Boundaries B1 state CI is never the actor that writes the canonical baseline. This is a testable, non-bypassable approval boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same TEST-009/AC-009 provenance narrative flagged under CONTRADICTION (a completed 'later-phase implementation cycle... recorded in specs/epic-195-a7-compatibility/tasks.md under T-005/T-006' cited as settled 'historical record' for two locked hash values, while requirements.md's own Overview/Non-goals state tasks.md 'follow[s] in a later phase' and Phase 2/3 work has not been authored by this task) leaves a downstream design/task-decomposition reader unable to hand this package off without inventing an explanation of which framing is authoritative -- specifically, whether the two `assert_terminal` hash values are a genuine Phase-1-authored pre-commitment (as the rest of AC-009's text implies) or values already fixed by out-of-package implementation work this Phase 1 package's own Non-goals disclaims having happened. Implementation-policy review should not need to guess at this product-level provenance question; it is unresolved by anything else in requirements.md or acceptance-tests.md."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per check definition: the target project has no `domain/` directory (no `domain/context-map.md`, no `domain/domain-contract.json`) at the repository root, so the Domain-Model-Status/Approved and schema-valid domain-contract preconditions for this check cannot be met."
+    }
+  ]
+}

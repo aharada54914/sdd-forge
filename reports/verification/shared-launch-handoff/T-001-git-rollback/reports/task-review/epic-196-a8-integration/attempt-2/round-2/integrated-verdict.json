@@ -1,0 +1,14 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-196-a8-integration",
+ "run_id": "task-orch-epic-196-a8-integration-a2r2",
+ "verdict": "NEEDS_WORK",
+ "round": 2,
+ "attempt": 2,
+ "findings_critical": 0,
+ "findings_major": 1,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "NEEDS_WORK",
+ "reviewer_b_verdict": "PASS"
+}

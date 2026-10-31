@@ -1,0 +1,106 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "risk-adaptive-layer",
+  "task_id": "T-010",
+  "run_id": "RUN-risk-adaptive-layer-qg-T-010-seq0820",
+  "host_session_id": "SESS-qg-risk-adaptive-layer-T-010-0820",
+  "sequence": 820,
+  "previous_record_sha256": "145b0154bc433b9bd87495a88d71e6b3b16039885da14c2ac284a21c9d09a75b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "f9e082bbadb3ebde0c7cb328dfe22d8908fc020814304c3fe484adb7e7f03b9e",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "sha256": "50cf26530ab5ae15a09392a5cac1c6cf8b2dd5fe2410a83dc5e25815c4a26631"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/design.md",
+      "sha256": "c1887fddcaeac082865401a64806fad92f1a84abd5dd6bdd311c0372db1967cb"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+      "sha256": "2493628bb15c78d43b9edcd4e4e0430bd6051e5946531a0f7cab108e3de50d01"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/tasks.md",
+      "sha256": "c4d135250dc1ec2f6943bbbe4a7a331460800f28f63722867e93d8376f12d03e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.md",
+      "sha256": "54e5e4d476e4db78c4c7cdbbfef065da5749ef436f84ce0242d13ba0bc5fa7f4"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.json",
+      "sha256": "47f8e1d527006d665f356682b7994487a4bdb87c5f22c6be25596343a665264f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/risk-adaptive-layer/T-010.md",
+      "sha256": "a7db93039c6b88e1f9717d577e98062bac238fb9600e819852c85a20a2545cd5"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "sha256": "fa3c4ad2c28c68832abb3ddefe52094bab872d909f53e4bb72eb75b39d8187d0"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "bb9ca1940475b95efdc6eb5066a687e483afa43db9ea586861b873d0e50cf525"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/phase-quality-gates.md",
+      "sha256": "c16b2ea90340a78ba9c31df205ae2805a2488f205278e161baa108560c93e4d7"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6c0f1f78d88a8ed1255f3c178113a02df192e3b69a1f9c559b12b2283d2083ce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/deterministic-check-policy.md",
+      "sha256": "3cc831e645b0f033342a34911c608a62fb56601941c6b01204b676159f130300"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/test-policy.md",
+      "sha256": "d08c3c5463c2a6028ad4e3d07187bfb5e6437b8a6026680ab6a86a049947ee55"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/verification-policy.md",
+      "sha256": "3209e110db2ee0460289ea427dfbe7c85eed82fb43c2f28f2a5281fc7532c3ee"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.ps1",
+      "sha256": "3e1a77558b8c415a03c9093041254719e83ee93e38977d0f082c97705084e36a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "sha256": "02539fd590cffe7063df0285e83293a1d562bbb467c36d683d2c0caa644b5c6d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "a9080b0fc94e2ddd5313eb74c07a139406e7c0231ff53cb187469d0e5a08374a"
+    },
+    {
+      "path": "tests/eval.tests.sh",
+      "sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a"
+    },
+    {
+      "path": "tests/gates.tests.sh",
+      "sha256": "31d8581dda3eceac63ccb5a05b9d7608cd280e637407aa032e89e8cd9a57dcc2"
+    },
+    {
+      "path": "tests/scripts.tests.ps1",
+      "sha256": "0b717f4449967966af3d49c5d1c28958360271832315e45ff6e110c37b737c93"
+    }
+  ]
+}

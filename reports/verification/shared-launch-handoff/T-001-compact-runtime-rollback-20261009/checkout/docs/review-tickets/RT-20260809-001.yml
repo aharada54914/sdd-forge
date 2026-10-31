@@ -1,0 +1,67 @@
+ticket_id: RT-20260809-001
+status: open
+type: evidence-gap
+severity: major
+target:
+  feature: "epic-190-a2-capability-registry"
+  task: "T-005"
+  files:
+    - "reports/implementation/epic-190-a2-capability-registry/T-005.md"
+    - "specs/epic-190-a2-capability-registry/verification/T-005/green-sh.log"
+    - "specs/epic-190-a2-capability-registry/verification/T-005/green-ps1.log"
+summary: "T-005 の QG cycle 上限 (3) 到達。実装本体は 3 サイクルを通じて健全と独立確認されたが、Outputs 表の網羅漏れが 3 サイクル連続で再発し、acceptance evidence のログも現行スイート形状を記述していない"
+problem: |
+  実装は cycle 3 で完全に検証済み: 両ランタイム 17/0、8 個のミュータント
+  全 kill (隔離コピーで実行)、cycle 2 の指摘「ソート決定性が運任せ
+  (8 回中 7 回生存)」は TEST-024(9) により決定論的に閉鎖。golden 自体も
+  evaluator が registry-digest-base.json からダイジェスト 9510419b... を
+  手で再構成し CLI 出力と一致を確認している。実装に対する Major は 1 件も
+  残っていない。
+
+  残 Major は 2 件とも evidence 側:
+
+  1. Outputs 表の網羅漏れ (3 サイクル連続・同一クラス)
+     - tests/fixtures/capability-registry/registry-digest-fragment-multi-cap.json
+       は cycle-3 コミット 1790bacd が追加し両スイートが参照しているが、
+       レポート中に一度も現れない (grep -c multi-cap -> 0)
+     - tests/fixtures/capability-registry/validate-registry-fully-clean.json
+       は T-005 自身のコミット 0d45fdb7 が変更したが未宣言。にもかかわらず
+       本文は "see Outputs above" と参照している
+     Outputs 表は evaluator の入力を認可する唯一の根拠 (validate-review-
+     context-set の awk は `^## Outputs` から次の `^## ` までの間の、現行
+     ハッシュと一致する行だけを見る) なので、未宣言ファイルは後続の
+     evaluator が読めない。
+
+  2. acceptance evidence が現行スイートを記述していない
+     verification/T-005/green-{sh,ps1}.log は 14 checks 時点のもので、
+     現行は 17。増えた 3 件は過去サイクルの指摘を閉じた当のチェックであり、
+     リポジトリ内に green 証跡が存在しない。
+
+  真因 (オーケストレータ側の手法欠陥、これが本チケットの核心):
+    是正に使った scratchpad/refresh-outputs.py は「レポート内のいずれかの
+    表に既に宣言されているパス」を集めて再測定する設計だった。したがって
+    ハッシュの陳腐化は直せるが、一度も宣言されたことのない新規ファイルを
+    発見できない。再測定はできても発見ができない。3 サイクル同じ失敗を
+    繰り返したのは、症状 (ハッシュ不一致) だけを見て導出元の誤りを
+    直さなかったため。
+    正しい導出元はレポートの既存記述ではなく、そのタスクのコミットが
+    実際に変更したファイル一覧 (git diff --name-only) である。
+proposed_resolution: |
+  fresh session で以下を実施し、T-005 の evaluator を 1 サイクル予約・起動
+  する。PASS なら quality-gate として Status: Done を記録する。
+
+  1. Outputs 表を git diff から導出し直す (再発防止の本体)
+     そのタスクに属する全コミットの
+       git diff --name-only <base>..<head>
+     を母集合とし、spec ファイル (tasks.md 等) を除いた全ファイルを
+     現行ハッシュ付きで `## Outputs` 表に宣言する。既存宣言の再測定だけで
+     済ませない。最低限 registry-digest-fragment-multi-cap.json と
+     validate-registry-fully-clean.json が含まれること。
+     この導出は全エピック共通の是正であり、他タスクのレポートにも
+     同じ手順を適用する。
+  2. green-{sh,ps1}.log を現行 17 checks で取り直す
+     追加 3 チェックの green 証跡がリポジトリ内に存在する状態にする。
+  3. Outputs 表の更新は他の全編集の後に 1 回だけ行う
+     (先に表を直してからファイルを変えると再び陳腐化する)
+requires_human_decision: false
+created: 2026-08-09

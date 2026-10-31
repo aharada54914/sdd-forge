@@ -1,0 +1,32 @@
+# T-002 GREEN evidence — new invariant tests against the unmodified source
+#
+# Command: node --test dist-test/tests/tools/deep-verify-invariants.test.js
+# Task: T-002 / Feature: evidence-deep-verify / Run: evidence-deep-verify-T-002-run-01
+# Result: 15/15 pass. Full regression (node scripts/run-tests.mjs): 181/181 pass,
+# 0 fail (see report "Regression Tests Run"). No source change was required —
+# T-001 already satisfied T-002's acceptance criteria; T-002 adds the invariant
+# verification suite (AC-006/007/008/009/010/019) and the no-exec runtime guard.
+# ---------------------------------------------------------------------------
+✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (4.935125ms)
+✔ AC-007: a missing git_commit is shape-invalid + verdict fail (1.7245ms)
+✔ AC-007: a short git_commit is shape-invalid + verdict fail (1.849791ms)
+✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (1.961791ms)
+✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (2.097167ms)
+✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (1.744125ms)
+✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (2.106ms)
+✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (1.882ms)
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (1.850084ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (1.855042ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (1.973333ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (1.773292ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (2.00125ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (1.727458ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (1.74325ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 72.647333

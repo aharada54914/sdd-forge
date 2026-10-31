@@ -1,0 +1,54 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-CLASSIFICATION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002 is correctly classified Risk: high. Risk rationale covers all three major risk vectors: (1) hook guard PROTECTED_GATE_SUFFIXES changes requiring human/sudo, (2) caller update gap causing runtime errors in sdd-bootstrap, and (3) irreversible deletion of old plugins in Phase 4. T-001 (docs only), T-003 (4-line additions), T-004 (docs/links), and T-005 (test additions + CI fix) are all correctly classified low."
+    },
+    {
+      "id": "TASK-SIZING",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 is the most complex task but its 5-phase structure distributes the work appropriately. Phases 1 and 5 are single-file human/sudo edits. Agent phases (2, 3, 4) each cover a bounded unit: create new plugin, update callers, delete old plugins. No agent session is asked to span multiple phase boundaries. T-003/T-004/T-005 are well-scoped incremental tasks."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Phase ordering (1 → 2 → 3 → 4 → 5) ensures guard paths are added before the new plugin is created (Phase 1 before Phase 2), and callers are updated before old plugins are deleted (Phase 3 before Phase 4). The sdd-bootstrap-interviewer bare relative path calls (INV-005) are explicitly covered at L105/111/118/119/145/150. Scenario 20 in T-005 includes the required 'cd $WORK' for CWD-relative path resolution."
+    },
+    {
+      "id": "ROLLBACK-PLANNING",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Phase 4 (deleting plugins/sdd-impl-review/ and plugins/sdd-task-review/) is irreversible, but the task specifies no explicit pre-condition gate requiring verification that the new plugin is functional before deletion proceeds. Done-When lists 'AC-001, AC-002, AC-003 pass' as overall completion criteria, but these are post-hoc checks, not pre-deletion gates. There is no instruction to run scenario.tests.sh or AC-001 (new path invoked successfully) BEFORE executing Phase 4. Without a 'verify new plugin works before delete' step, an agent could delete old plugins even if the new plugin is broken. Recommended fix: add a Done-When sub-condition 'Phase 3 verified: AC-001 passes before Phase 4 begins' or an explicit Phase 3.5 verification step."
+    },
+    {
+      "id": "HUMAN-SUDO-CLARITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The top-level warning block explicitly states 'T-002 Phase 1 と Phase 5 は human/sudo セッションが必須'. Each phase header in Scope is labeled '[human/sudo — エージェント不可]' or '[human/sudo — Phase 4 完了後]', and '[エージェント]' for agent phases. Done-When conditions reference phases by number. The distinction is consistently maintained throughout the task description."
+    },
+    {
+      "id": "WORKFLOW-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 uses 'tdd' workflow, appropriate for a complex multi-phase change involving guard modifications where writing the parity tests (Scenarios 19/20/21) first verifies the guard changes are correct before proceeding. T-003, T-004, T-005 use 'acceptance-first', appropriate for incremental additions (caller headers, docs restructure, test additions + CI fix). The precheck-result.json also confirms workflow_match_precheck: PASS."
+    },
+    {
+      "id": "TEST-ALIGNMENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-005 Done-When explicitly states 'guard-parity.tests.sh が 21 シナリオすべてで pass する（AC-006）'. This requires Scenarios 19/20/21 to pass (not merely exist), which matches AC-006's pass condition of 'all 21 scenarios pass'. Scenarios are individually specified: 19 (verdict-less Impl-Review-Status Passed → exit 2 for both JS/Python), 20 (valid PASS verdict → exit 0), 21 (FAIL verdict → exit 2). Coverage is complete."
+    },
+    {
+      "id": "BLOCKER-COMPLETENESS",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "The blocking chain is logically sound (T-001 → T-002 → T-003/T-004 → T-005). However, there is a scope overlap: T-002 Phase 5 step 9 adds 'plugins/sdd-impl-review' and 'plugins/sdd-task-review' to $forbiddenPaths in tests/validate-repository.ps1, and T-005 Scope also lists adding the identical entries to $forbiddenPaths. This duplication risks a conflict if T-002 Phase 5 runs before T-005, or if both tasks modify the same lines. One of these should own the $forbiddenPaths change exclusively. Since T-005 is blocked by T-002, it is possible T-002 Phase 5 does it first and T-005 finds it already done — but without explicit coordination, an agent implementing T-005 may not check for pre-existing entries. Recommended fix: remove the $forbiddenPaths step from T-002 Phase 5 and let T-005 own it exclusively, or add a note in T-005 that this may already be done by T-002 Phase 5 (idempotency check required)."
+    }
+  ]
+}

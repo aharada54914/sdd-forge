@@ -1,0 +1,75 @@
+$ bash tests/resolve-project-context-parity.tests.sh
+# runner: bash
+PASS: TEST-022 quick-block-canonicalizer-invocation-failed: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022)
+PASS: TEST-022 clean-full-track-publication: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022)
+PASS: TEST-023 disabled-legacy-invocation: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 disabled-legacy-invocation (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 disabled-legacy-invocation (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 disabled-legacy-invocation (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 canonicalizer-invocation-failed (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 canonicalizer-invocation-failed (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 windows-style-path (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023)
+PASS: TEST-023 clean-full-track-publication (py): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication (sh): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 clean-full-track-publication (ps1): stderr is empty or consists entirely of this feature's own 'capability-resolver: <id>: <detail>' canonical line(s) -- never a dependency subprocess's own raw stderr text (M8)
+PASS: TEST-023 windows-style-path non-vacuity: the published diagnostic detail genuinely embeds a raw backslash byte, unmutated (AC-023)
+PASS: TEST-023 validate-resolver-evidence/clean: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr (AC-023, T-008's own triad)
+PASS: TEST-023 validate-resolver-evidence/schema-invalid: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr (AC-023, T-008's own triad)
+PASS: TEST-024 fixture sanity: the Registry's own capabilities[] declaration order is genuinely NOT ascending (['cap-gamma', 'cap-beta', 'cap-alpha']) -- otherwise this fixture could not distinguish 'sorted by construction' from 'sorted because the Resolver itself sorts'
+PASS: TEST-024 registry-reordering (py): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (py): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (py) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 registry-reordering (sh): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (sh): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (sh) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 registry-reordering (ps1): reaches the SPECIFIC forced snapshot-generation-mismatch Block (steps 0-12 all passed, capability_evaluations[] is observable), not some earlier, different Block that would leave capability_evaluations[] vacuously empty
+PASS: TEST-024 registry-reordering (ps1): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024)
+PASS: TEST-024 registry-reordering (ps1) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list
+PASS: TEST-024 white-box fixture sanity: this hand-built Registry's own capabilities[] declaration order is genuinely NOT ascending (['cap-zebra', 'cap-mango', 'cap-apple'])
+PASS: TEST-024 white-box: Facet Manifest capabilities[] is stable-sorted regardless of Registry declaration order or fed capability_evaluations order (AC-024)
+PASS: TEST-024 white-box: Facet Manifest required_facets[] is stable-sorted (AC-024, Epic-A4-mandated array)
+PASS: TEST-024 white-box: Facet Manifest resolved_gates[] is stable-sorted by id, deduplicated across contributing Capabilities (AC-024, Epic-A4-mandated array)
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: TEST-024 diagnostics-sort reuse non-vacuity: reusing resolve-project-context-block-check.py's own dsl-warn-unsorted-affected-components case actually ran 6 assertion(s), not zero
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025: scan target exists: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1 contains no datetime.now()/time.time()/network-primitive call (AC-025)
+PASS: TEST-025: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1 contains no provider-API-client allowlist term (AC-025)
+PASS: TEST-025 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-025 non-vacuity canary: the dirty fixture is flagged for every one of this scan's own 5 categories
+PASS: TEST-025 false-positive control: the clean fixture (benign English prose about time/networking, no literal forbidden API call) is not flagged
+PASS: TEST-025 non-vacuity canary: the dirty provider-term fixture is flagged
+PASS: TEST-025 false-positive control: the clean provider-term fixture (this feature's own vocabulary plus near-miss substrings) is not flagged
+PASS: self-registration: tests/run-all.sh lists tests/resolve-project-context-parity.tests.sh
+PASS: self-registration: tests/run-all.ps1 lists tests/resolve-project-context-parity.tests.ps1
+PASS: self-registration: the staged .github/workflows/test.yml candidate carries this suite's CI steps
+PASS: self-registration: staged .github/workflows/test.yml candidate sha256 matches its own MANIFEST.sha256 entry
+PASS: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it)
+resolve-project-context-parity (sh launcher): 70 passed, 0 failed
+RESULT: 70 passed, 0 failed
+Exit: 0

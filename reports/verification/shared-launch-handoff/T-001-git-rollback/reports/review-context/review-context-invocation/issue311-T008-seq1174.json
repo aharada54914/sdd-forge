@@ -1,0 +1,1 @@
+{"schema":"review-context-invocation/v2","stage":"quality","role":"sdd-evaluator","feature":"agent-cost-context-isolation","task_id":"T-008","run_id":"RUN-agent-cost-context-isolation-qg-T-008-gemini8-20260925","host_session_id":"SESS-qg-agent-cost-context-isolation-T-008-gemini8-20260925","scratch_root":"/tmp/sdd-gemini-qg-agent-cost-context-isolation-T-008-8-20260925"}

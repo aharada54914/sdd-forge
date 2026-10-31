@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:35:49Z (quality-gate T-001, fresh run this session)
+$ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/local-env-mcp/tasks.md
+Task state check passed for 10 task(s).
+
+exit 0

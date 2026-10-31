@@ -1,0 +1,115 @@
+Standalone fixture proof against live check-contract.py
+Live checker: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/check-contract.py
+Live producer: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/check-component-coverage.py
+
+FIXTURE T-003.7
+  extracted-before: tests/gates.tests.sh :: T-003.7.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-003.7:
+ - risk high requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-003.7.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-003.7.
+
+FIXTURE T-003.8
+  extracted-before: tests/gates.tests.sh :: T-003.8.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-003.8:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-003.8.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-003.8.
+
+FIXTURE T-012.7
+  extracted-before: tests/gates.tests.sh :: T-012.7.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-012.7:
+ - risk high requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-012.7.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-012.7.
+
+FIXTURE T-004.3
+  extracted-before: tests/gates.tests.sh :: t004_test3/T-003.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-003:
+ - risk high requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: t004_test3/T-003.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-003.
+
+FIXTURE T-004.7
+  extracted-before: tests/gates.tests.sh :: t004_test7/T-007.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-007:
+ - risk high requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: t004_test7/T-007.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-007.
+
+FIXTURE T-006.3b / T-007a.9
+  extracted-before: tests/gates.tests.sh :: T-100.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-100:
+ - risk high requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-100.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-100.
+
+FIXTURE T-007a.1d
+  extracted-before: tests/gates.tests.sh :: T-200.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-200:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-200.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-200.
+
+FIXTURE T-007a.5
+  extracted-before: tests/gates.tests.sh :: T-201.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task T-201:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: T-201.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task T-201.
+
+FIXTURE CM.1
+  extracted-before: tests/gates.tests.sh :: CM-1.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task CM-1:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: CM-1.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task CM-1.
+
+FIXTURE CM.3
+  extracted-before: tests/gates.tests.sh :: CM-3.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task CM-3:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: CM-3.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task CM-3.
+
+FIXTURE CM.4
+  extracted-before: tests/gates.tests.sh :: CM-4.contract.json
+  before-exit: 1
+  before-output: Verification contract FAILED for task CM-4:
+ - risk critical requires check 'check-component-coverage' present and required:true (missing)
+  extracted-after: human-copy/tests/gates.tests.sh :: CM-4.contract.json
+  producer: check-component-coverage.py (live)
+  after-exit: 0
+  after-output: Verification contract passed for task CM-4.
+
+RESULT: 11 repaired contracts failed before and passed after; 12 suite assertions covered.

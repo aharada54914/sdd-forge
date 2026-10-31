@@ -1,0 +1,43 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-191-a3-path-ownership",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "21853420bb4914935370c6c25c1c9f8c845eda55ee4a27c2a91d60804f239ac0",
+  "quality_report": "reports/quality-gate/epic-191-a3-path-ownership/T-003.md",
+  "verification_contract": "specs/epic-191-a3-path-ownership/verification/T-003.contract.json",
+  "git_commit": "bd07b778fafe7c4f468211f185c4b19f48ce73b0",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-003.contract.json",
+      "sha256": "f1d4dfa6739efe0a077dfda58fb3f038a8169f2c424c5d494025b9de35a6a0f5"
+    },
+    {
+      "path": "reports/quality-gate/epic-191-a3-path-ownership/T-003.md",
+      "sha256": "092bd7abaced04c1aa4e0c9535c4fb29bee8eefe813f692c01dbb462e1f512ea"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/backfill-20260813-checks.log",
+      "sha256": "0499c8d49eaf569f9869dca232b60c87fb0ab0f54bae8d5fb9fe48f6bfe58151"
+    }
+  ]
+}

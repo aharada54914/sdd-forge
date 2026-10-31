@@ -1,0 +1,17 @@
+{
+  "schema": "integrated-summary/v1",
+  "round": 2,
+  "attempt": 3,
+  "reviewer_a_check_ids": [
+    "TASK-A-001",
+    "TASK-A-002",
+    "TASK-A-003",
+    "TASK-A-004",
+    "TASK-A-005",
+    "TASK-A-006"
+  ],
+  "reviewer_a_fail_count": 0,
+  "reviewer_a_pass_count": 6,
+  "reviewer_a_skip_count": 0,
+  "generated_at": "2026-06-27T06:30:42Z"
+}

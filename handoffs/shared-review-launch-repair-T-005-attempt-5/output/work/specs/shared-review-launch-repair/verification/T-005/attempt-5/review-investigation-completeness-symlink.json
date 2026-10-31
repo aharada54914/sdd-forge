@@ -1,0 +1,20 @@
+{
+  "label": "review-investigation-completeness-symlink",
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "tests/review-investigation-completeness.tests.py",
+    "--repo",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+    "--file-kind",
+    "symlink"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work",
+  "stdin": "DEVNULL",
+  "started_at": "2026-10-08T22:21:06.411398+00:00",
+  "ended_at": "2026-10-08T22:21:43.914450+00:00",
+  "elapsed_seconds": 37.503,
+  "exit_code": 0
+}

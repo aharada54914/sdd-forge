@@ -1,0 +1,2 @@
+not ok: bugfix flow must run spec-review-loop, impl-review-loop, and task-review-loop in order
+exit=1

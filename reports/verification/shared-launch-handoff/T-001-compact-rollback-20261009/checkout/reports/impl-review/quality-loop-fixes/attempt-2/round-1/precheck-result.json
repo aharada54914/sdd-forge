@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "quality-loop-fixes",
+  "attempt": 2,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "7f0794f002efa2608fd10bef6a9c193d7db412571e110bc56fb52d544ac55214",
+  "requirements_sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c",
+  "acceptance_sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01",
+  "layer_sha256": {"ux-spec.md":"0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15","frontend-spec.md":"c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a","infra-spec.md":"40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e","security-spec.md":"7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"},
+  "input_sha256": "1789014e2b08bb4e5a07375bebdc972d25fe835290190b43990ceb43ffba1815",
+  "generated_at": "2026-07-19T15:01:18Z"
+}

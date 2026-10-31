@@ -1,0 +1,223 @@
+# Threat Model — SDD Quality Loop & Risk-Adaptive Layer
+
+## Trust Assumptions
+
+### Trusted
+- **Human operators** who invoke skills directly and sign approvals in tasks.md
+- **External signing keys** (`~/.sdd/sudo-key`, `~/.sdd/evidence-key`) held outside the repository and protected at OS level (mode 600)
+- **CI environment** for generating evidence bundles and sigstore attestations
+- **Deterministic gate scripts** running out-of-process and fail-closed on any validation error
+
+### NOT Trusted
+- **Agent self-reports**: agents cannot write approval fields, evidence signatures, or sudo tokens
+- **In-repo files**: evidence bundles and signatures are generated locally or in CI and verified against external keys; bundles with self-asserted risk are re-validated against hash-verified contracts (T-006)
+- **Agent memory or state**: every gate decision is stateless and enforced by an external file guard (sdd-hook-guard)
+- **External content** fed to agents: agents treat external URLs, docs, and provided code as data only; external directives are never executed
+- **External LLMs (GPT / Gemini panelists)**: panelist verdicts are advisory signals only; they cannot approve tasks, sign bundles, or set risk classifications. Verdict divergence with the primary evaluator triggers `requires_human_decision` rather than auto-resolution.
+
+---
+
+## Assets Protected
+
+1. **Task approval state** (`tasks.md` Approval/Second Approval/WFI fields)
+   - Approval determines when a task moves to Done
+   - Second Approval is a distinct second human judgment for critical tasks
+   - WFI Approval changes the SDD workflow itself
+
+2. **Evidence bundles** (`specs/<feature>/verification/*.json`)
+   - Contain risk tier, spec revision, build provenance, review verdict
+   - Critical bundles are HMAC-signed; forgery would require external key
+
+3. **SDD_SUDO token** (project root)
+   - Time-limited bypass of routine approval gates
+   - Signed with external key; expiration and repo-binding prevent reuse
+
+4. **Signing keys** (`~/.sdd/sudo-key`, `~/.sdd/evidence-key`)
+   - External; agents should never read them
+   - Protected by OS file permissions
+
+5. **Agent role files** (`.codex/agents/*.toml`)
+   - Define agent capabilities and constraints
+   - Must carry `developer_instructions` or Codex rejects them; guard enforces this
+
+6. **Protected branch** (`main`; requires status checks and CODEOWNERS review)
+   - Once T-008 lands, enforced by GitHub ruleset
+
+---
+
+## Controls Table
+
+| Control / Gate | What It Defends | Enforcement | Bypassed By | Enforcement Notes |
+|---|---|---|---|---|
+| **Kill switch (AGENT_STOP)** | Blocks all tool use | File-exists check at every tool call entry (sdd-hook-guard) | Only human deletion | Fail-closed; checked BEFORE all other gates; sudo mode has zero effect |
+| **Approval guard** | Prevents agent from setting `Approval: Approved` in tasks.md | sdd-hook-guard counts `Approval: Approved` lines on `+` vs `−`; denies if net positive | Human approval; sudo mode (respects TTL + signature) | Approvals under sudo are marked `(sudo <ISO8601>)` for audit trail |
+| **WFI guard** | Prevents agent from setting `Status: Approved` in WFI docs | sdd-hook-guard counts `Status: Approved` in workflow-improvements/*.md; denies if net positive | Only human | Never bypassed by sudo; WFI is governance and requires human judgment |
+| **Second Approval guard** | Prevents agent from setting `Second Approval: Approved` in tasks.md | sdd-hook-guard counts `Second Approval: Approved` lines; denies any increase; gate enforces DISTINCT approvers (T-007b-2) | Only second human approver | Never bypassed by sudo; distinct from first approval (enforced by gate check-task-state: parse approver names, require different humans) |
+| **Agent-role guard** | Ensures agent role files are not misconfigured | sdd-hook-guard verifies `.codex/agents/*.toml` contains `developer_instructions` field; denies write without it | Only by editing the file with developer_instructions present | Malformed agent roles are rejected by Codex at startup and by the guard; prevents privilege escalation via role modification |
+| **Evidence HMAC signing (critical)** | Prevents agent from forging critical evidence bundles | `generate-evidence-bundle` signs bundle canonical string with external `SDD_EVIDENCE_KEY`; `check-evidence-bundle` verifies constant-time against re-resolved key | Only key holder (external to repo) | Signature required for `risk: critical`; fail-closed (bundle rejected if absent or mismatched); agents cannot generate signatures without the key |
+| **SDD_SUDO signature + repo-binding** | Prevents token forgery, cross-repo reuse, modification after issuance | sdd-hook-guard verifies HMAC, checks `repo` field equals canonical realpath, validates TTL (`issued-epoch <= now < expires-epoch`, max 24h) | Only human via `/sdd-sudo` skill with valid key | Token file read-only by guards (agents cannot edit); constant-time HMAC compare (Python/Node); string-compare in PowerShell |
+| **Risk-tier gate (check-contract)** | Enforces minimum checks per risk tier; prevents downgrade | check-contract reads `risk` field and requires superset of checks; rejects contract if required[] ⊉ tier-minimum | Only by human re-setting risk in tasks.md and approving | Tier minimums are non-downgradable (fail-closed superset rule); legacy mode (no risk field) only enforces baseline checks |
+| **Deterministic checks** (lint, typecheck, build, tests, placeholders, task-state) | Enforces code quality and correctness | Out-of-process scripts; exit 1 on failure; no bypassable in-memory state | None (never bypassed, even by sudo) | Fail-closed; dual-runtime parity (py + PowerShell); applied before any approval sign-off |
+| **Spec-revision requirement (high/critical)** | Ensures bundle ties to specific spec version | check-contract requires `spec_revision` for high/critical; check-evidence-bundle verifies it is present and non-empty | None (enforced deterministically) | Backward compat: legacy bundles (no risk field) do not require spec_revision |
+| **Traceability gate (check-traceability)** | Proves REQ→AC→TEST→evidence chain is complete for high/critical tasks | check-traceability reads traceability.json; validates every REQ has AC, every AC has TEST, every TEST has evidence file | None | Fail-closed; dual-runtime |
+| **Review verdict requirement (high/critical)** | Ensures bundle carries independent evaluator's PASS judgment | check-evidence-bundle requires `review_verdict.verdict == PASS` for high/critical; reject if absent or non-PASS | None | Fail-closed; verdict recorded by sdd-evaluator agent or human review |
+| **Two-person approval (critical tasks)** | Enforces distinct first and second approver for critical Done | check-task-state parses `Approval` and `Second Approval` fields; requires non-empty distinct approver names (compare strings after `(` in timestamp) | None (enforced deterministically) | Fail-closed; sudo does NOT auto-pass second approval (it is judgment, like WFI); must be recorded by second human |
+| **Branch protection (main)** | Prevents commits without required status checks and CODEOWNERS | GitHub ruleset: required checks (test matrix), dismiss-stale-reviews: false, require CODEOWNERS | Only GitHub org owners (admin override) | Deployed via `.github/rulesets/main.json` and apply-branch-protection.sh (T-008) |
+
+---
+
+## Threats & Mitigations
+
+### Threat: Agent self-approves a task
+**Attack:** Agent writes `Approval: Approved` to tasks.md to move task to Done without human judgment.
+- **Mitigation:** Approval guard in sdd-hook-guard detects increase in `Approval: Approved` count and denies the write. Approval gate only auto-passes under a valid, unexpired SDD_SUDO token (which requires external key to forge).
+
+### Threat: Agent mints its own SDD_SUDO token
+**Attack:** Agent creates a SDD_SUDO file with forged epochs and signature to bypass approval gates.
+- **Mitigation:** HMAC-SHA256 signature requires external key (`~/.sdd/sudo-key`). Without the key, agent cannot produce valid `sig` field. Guard rejects unsigned/mismatched tokens as inactive (fail-closed). Repo-binding check ensures token created in one repo cannot be copied to another.
+
+### Threat: Agent forges a critical evidence bundle signature
+**Attack:** Agent creates an evidence-bundle.json with fabricated `signature.value` to bypass verification.
+- **Mitigation:** `generate-evidence-bundle` computes HMAC-SHA256 over the canonical bundle string using external `SDD_EVIDENCE_KEY` (same external-key pattern as sudo). Agent cannot generate a valid signature without the key. `check-evidence-bundle` verifies signature constant-time; mismatch ⇒ FAIL (fail-closed). Non-critical bundles carry no signature field; only critical requires and verifies it.
+
+### Threat: Agent rubber-stamps a critical task alone
+**Attack:** Agent sets both `Approval: Approved` and `Second Approval: Approved` to move critical task to Done as a single entity.
+- **Mitigation:** Second Approval guard in sdd-hook-guard denies any increase in `Second Approval: Approved` count (just like Approval guard). Additionally, check-task-state enforces **distinct approver names** (parses the human identifier from the timestamp annotation). Sudo mode does NOT auto-pass Second Approval; it is a judgment action like WFI.
+
+### Threat: Agent modifies a gate script to weaken enforcement
+**Attack:** Agent edits `plugins/sdd-quality-loop/scripts/check-contract.sh` to skip evidence validation.
+- **Mitigation:** Gate scripts are protected by CODEOWNERS review (root CODEOWNERS file). Once T-008 lands, main branch is protected by GitHub ruleset requiring status checks + CODEOWNERS approval. Script changes are code-reviewed.
+
+### Threat: Prompt injection from external content
+**Attack:** Agent fetches external URL containing JSON with instructions embedded in a field, then executes those instructions.
+- **Mitigation:** Agents are instructed to treat external content (URLs, provided code, fetched docs) as **data only**. External directives embedded in comments, JSON fields, or HTML attributes are not executed. No agent skill evaluates or evals external code.
+
+### Threat: Agent reads signing keys and mints tokens
+**Attack:** Agent reads `~/.sdd/sudo-key` or `~/.sdd/evidence-key` via a Bash command, then mints arbitrary tokens.
+- **Mitigation:** Key files are protected by OS file permissions (mode 600) and stored **outside the repository**. If an agent has read access to these files, that is a host-level compromise beyond SDD's scope. Mitigations: run agents with restricted umask, use dedicated key-holder accounts, audit file permissions. At SDD level, evidence signatures raise the bar against attacks on local keys (cannot be guessed or brute-forced; HMAC prevents tampering).
+
+### Threat: WFI approval is bypassed by sudo to change workflow
+**Attack:** Agent sets `Status: Approved` in a WFI doc under sudo mode to unilaterally change SDD governance.
+- **Mitigation:** WFI approval is **never** bypassed by sudo. It is a governance/judgment action, not a routine approval gate. sdd-hook-guard treats WFI exactly like Second Approval: no bypass regardless of sudo state. Sudo mode only bypasses routine approvals (task Done sign-off), not workflow changes.
+
+### Threat: Code leakage to external LLMs via cross-model panelists
+**Attack:** The cross-model verification collection layer sends raw repository content (secrets, keys, private URLs, absolute paths) to third-party LLM APIs (OpenAI / Google), exposing sensitive data externally.
+- **Mitigation (explicit activation):** The collection layer is never auto-invoked. `prepare-panelist-input` requires an explicit human consent signal — either a `Cross-Model: enabled` flag in `tasks.md` or a valid `SDD_SUDO` token — before any external send. Absent consent, the script exits with error and no panelist is contacted (fail-closed).
+- **Mitigation (sanitization):** Before any external send, `prepare-panelist-input` strips `.env` content, SSH/AWS/GCP key material, absolute filesystem paths, and private URLs using the same patterns as `check-placeholders`. The `input_digest` (SHA-256 of the sanitized bundle) in each verdict JSON lets auditors verify that only the redacted form was sent.
+- **Mitigation (CI isolation):** The collection layer is **never invoked by any CI job**. Only the deterministic gate layer (`check-cross-model`) runs in CI, reading pre-collected fixture files with no network access. This prevents accidental external send from automated pipelines.
+- **Mitigation (key isolation):** `SDD_EVIDENCE_KEY` and `SDD_SUDO_KEY` are never passed to panelists and never appear in verdict JSONs. Panelists hold read-only roles (`disallowedTools: Write, Edit, NotebookEdit`) and cannot access signing infrastructure.
+
+---
+
+## Residual Risks
+
+1. **Key read-access (High residual risk, out-of-scope)**
+   - If an agent or attacker can read `~/.sdd/sudo-key` or `~/.sdd/evidence-key`, they can mint arbitrary tokens and signatures.
+   - **Mitigation:** Protect key files with OS-level permissions (mode 600), store outside repo, rotate keys regularly, use dedicated key-holder accounts or Hardware Security Modules (HSM) for production.
+
+2. **PowerShell string-compare vs. constant-time compare (Low residual risk)**
+   - PowerShell's ordinal compare for HMAC verification is not constant-time (timing attacks theoretically possible).
+   - **Mitigation:** For local development, this is acceptable. For CI, use Python (constant-time `compare_digest`). If timing attacks are a concern, migrate to a constant-time comparison library in PowerShell or use CI exclusively.
+
+3. **Local .ps1 script execution untested in all environments (Low residual risk)**
+   - PowerShell scripts (`sdd-hook-guard.ps1`, check-*.ps1`) are verified by code review and CI, but local execution environment variability may introduce edge cases.
+   - **Mitigation:** Comprehensive test suite in `tests/scripts.tests.ps1` covering all control branches. Python is the preferred runtime; PowerShell is a fallback with parity testing.
+
+4. **SDD_SUDO session isolation (Low residual risk)**
+   - If sudo mode is enabled in one session and the token file persists on shared infrastructure after the session ends, a different session with the same key may accept the still-valid token.
+   - **Mitigation:** Hard TTL (max 24h) limits exposure. Operators should delete SDD_SUDO manually when done or rely on script cleanup. For CI, tokens should not persist across runs.
+
+5. **Evidence bundle tampering after signing (Low residual risk)**
+   - A bundle's fields could be edited in git history or in a file system backup after signing.
+   - **Mitigation:** Bundles are stored in git and signed by commit hash (`git_commit` field is part of the canonical string). Changes to the bundle invalidate the signature. Bundles are immutable artifacts once signed; use git history and CI attestation for provenance.
+
+6. **Approval audit trail erasure (Low residual risk)**
+   - If tasks.md `(sudo <ISO8601>)` notation is accidentally or maliciously removed, the audit trail is obscured.
+   - **Mitigation:** Quality-gate reports and evidence bundles are immutable artifacts stored separately from tasks.md and serve as the authoritative record. Audits should cross-reference bundles and reports, not only tasks.md.
+
+7. **Unbounded external panelist (Closed by this feature)**
+   - The prior unbounded external panelist invocation could wait forever on a vendor CLI and stall critical verification. This historical availability risk is **closed by this feature** through the positive whole-second `SDD_PANELIST_TIMEOUT` bound and fail-closed process termination.
+   - **Implemented evidence:** the bound and timeout branch are live in all four runners: `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:317`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:30` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:224`; `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:44` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:211-214`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:26` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:143-146`.
+
+---
+
+## Enforcement by Runtime
+
+### Python (preferred for sdd-hook-guard, deterministic gates)
+- HMAC verification: `hmac.compare_digest()` for constant-time comparison
+- File I/O: follows POSIX conventions
+- Regex: standard library `re` module
+
+### PowerShell (fallback runtime)
+- HMAC verification: ordinal string compare (acceptable for local; not constant-time)
+- File I/O: PowerShell cmdlets; UTF-8 BOM handling per spec
+- Regex: .NET `[regex]` class or `Select-String`
+
+### Dual-Runtime Parity
+- Every gate change includes tests in both `tests/gates.tests.sh` (Python) and `tests/scripts.tests.ps1` (PowerShell)
+- Behavior must be identical; deviations are bugs
+
+---
+
+## Cross-References
+
+- **Sudo Mode Policy** (details on token format, key resolution, audit trail): [`plugins/sdd-quality-loop/references/sudo-mode-policy.md`](../plugins/sdd-quality-loop/references/sudo-mode-policy.md)
+- **Evidence Signing Policy** (HMAC canonical string, verification rules, fail-closed cases): [`plugins/sdd-quality-loop/references/evidence-signing-policy.md`](../plugins/sdd-quality-loop/references/evidence-signing-policy.md)
+- **Risk-Adaptive Layer Design** (security considerations section, control surfaces): [`specs/risk-adaptive-layer/design.md`](../specs/risk-adaptive-layer/design.md)
+- **Deterministic Check Policy**: [`plugins/sdd-quality-loop/references/deterministic-check-policy.md`](../plugins/sdd-quality-loop/references/deterministic-check-policy.md)
+- **SDD Hook Guard** (Python, JavaScript, PowerShell implementations): [`plugins/sdd-quality-loop/scripts/sdd-hook-guard.{py,ps1,js}`](../plugins/sdd-quality-loop/scripts/)
+
+---
+
+## OWASP LLM Top 10 (2025) Cross-Reference
+
+This repository-level mapping uses the identifiers and category names from the
+[OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/?cat=253).
+It does not claim that a mapped control eliminates the category; it identifies
+the existing control that constrains the repository's exposure. `N/A` means the
+category has no applicable attack surface in this repository's current scope.
+
+| OWASP entry | Disposition | Repository evidence |
+|---|---|---|
+| LLM01 | Control — Prompt Injection: external content is treated as untrusted data, and injected instructions do not override repository policy. | The trust assumption and prompt-injection mitigation are defined at `docs/THREAT-MODEL.md:15` and `docs/THREAT-MODEL.md:91-93`. |
+| LLM02 | Control — Sensitive Information Disclosure: panelist activation, output sanitization, CI isolation, and key isolation constrain outbound data. | The four existing code-leakage controls are defined at `docs/THREAT-MODEL.md:103-108`. |
+| LLM03 | Partial control — Supply Chain: **Branch protection (main)** requires status checks and CODEOWNERS review for repository changes. | The named control is defined in the Controls Table at `docs/THREAT-MODEL.md:65`; this mapping does not assert model or dataset supply-chain coverage. |
+| LLM04 | N/A — Data and Model Poisoning does not apply because this repository does not train, fine-tune, or maintain model-training datasets. | Repository scope contains workflow tooling and documentation, not a training or model-data pipeline. |
+| LLM05 | Control — Improper Output Handling: **Deterministic checks** and the **Review verdict requirement** reject malformed or unverified agent-produced artifacts before approval. | Both named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60` and `docs/THREAT-MODEL.md:63`. |
+| LLM06 | Control — Excessive Agency: the **Approval guard**, **WFI guard**, **Second Approval**, and **Two-person rule** keep privileged workflow transitions human-controlled. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:53-55` and `docs/THREAT-MODEL.md:64`. |
+| LLM07 | N/A — System Prompt Leakage does not apply because the repository does not host a model or treat its versioned role and instruction files as a confidential security boundary. | The repository's prompts are reviewable configuration; no secret system prompt is asserted as a protected asset. |
+| LLM08 | N/A — Vector and Embedding Weaknesses do not apply because the repository has no vector database, embedding pipeline, or retrieval-augmented generation store. | No vector, embedding, or RAG trust boundary exists in the documented system scope. |
+| LLM09 | Control — Misinformation: the **Traceability gate**, **Review verdict requirement**, and **Deterministic checks** require claims and completion evidence to be independently checkable. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60`, `docs/THREAT-MODEL.md:62`, and `docs/THREAT-MODEL.md:63`. |
+| LLM10 | Control — Unbounded Consumption: `SDD_PANELIST_TIMEOUT` enforces a positive bounded panelist runtime and terminates the spawned process group on expiry. | The control is implemented in `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49`, validated at lines 65-76, and enforced at lines 178-230. |
+
+## MCP Security Cross-Reference
+
+The MCP servers use local stdio rather than exposing a network listener. Their
+postures follow the MCP project's primary guidance to obtain consent for local
+server commands, apply least privilege and sandboxing where possible, and use
+authorization for HTTP transports that access protected resources.
+
+| Server | Trust posture | Repository evidence | Primary MCP source |
+|---|---|---|---|
+| sdd-forge-mcp | Local stdio under the caller's OS-user boundary; read-only, project-root-confined access through a fail-closed allowlist and denylist path guard; no network listener or server-side authentication. | `specs/sdd-forge-mcp/security-spec.md:17-18`, `specs/sdd-forge-mcp/security-spec.md:33-36`, and `specs/sdd-forge-mcp/security-spec.md:42-45`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| local-env-mcp | Local stdio under the caller's OS-user boundary; exposes only bounded environment probes from a compile-time allowlist, executes them without a shell, and provides no caller-selected command or filesystem access. | `specs/local-env-mcp/security-spec.md:21-22`, `specs/local-env-mcp/security-spec.md:29-33`, and `specs/local-env-mcp/security-spec.md:39-48`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| ci-mcp | Local stdio under the caller's OS-user boundary; uses an environment-provided read-only token solely for fixed-host GitHub API GET requests, scrubs token values, and exposes no write or local-filesystem operation. | `specs/ci-mcp/security-spec.md:23-24`, `specs/ci-mcp/security-spec.md:31-38`, `specs/ci-mcp/security-spec.md:59-61`, and `specs/ci-mcp/security-spec.md:67-70`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+
+---
+
+## Runtime Trust Surfaces
+
+These configuration surfaces decide whether the deterministic controls above
+are invoked. They are security boundaries even though most live in a user's
+tool configuration rather than in repository source. The agent role definition
+files are not restated here: their `developer_instructions` control remains
+documented by **Assets Protected**, item 5, and the **Agent-role guard** row in
+the Controls Table.
+
+| Surface | Trust assumption | Mitigation or residual risk | Repository evidence |
+|---|---|---|---|
+| `--dangerously-bypass-hook-trust` | Trust assumption — on first use, an operator reviews the repository hook configuration and grants Codex's first-run trust approval only when the checkout and hook commands are trusted. | Mitigation — do not pass `--dangerously-bypass-hook-trust` during normal operation. An operator who uses it **forfeits the first-run trust approval checkpoint** and allows the repository hooks to execute without that interactive trust confirmation; the shipped hook chain is the kill switch followed by the write guard. | Codex's repository hook commands are declared at `plugins/sdd-quality-loop/hooks/hooks.json:2-26`. |
+| `hooks.state` | Trust assumption — the `hooks.state` field in the user-level `~/.codex/config.toml` accurately persists the operator's hook-trust decision and is not silently changed by another process with access to that file. | Mitigation — treat the user config as security-sensitive, protect it with OS-user permissions, do not hand-edit `hooks.state` to bypass review, and use Codex's normal trust flow when approving this repository's hook configuration. | The decision controls whether the shipped Codex hook chain in `plugins/sdd-quality-loop/hooks/hooks.json:2-26` is allowed to run. |
+| `managed by sdd-forge installer` | Trust assumption — each installer-managed MCP-registration marker block in `~/.codex/config.toml` still points `command = "node"` and `args` at the intended, operator-approved install root. | Mitigation — the installer bounds each registration with per-server begin/end markers, replaces only the matching block idempotently, and refuses to create a missing config file; operators should inspect marker-delimited command paths after changing the install root. This configuration-file surface does **not** substitute for the separate three-server trust-posture cross-reference above. | POSIX writes and replaces the markers at `install.sh:361-395`; PowerShell mirrors it at `install.ps1:239-268`. |
+| `claude-hooks.json` | Trust assumption — Claude Code loads the quality-loop plugin's declared hooks file and resolves `${CLAUDE_PLUGIN_ROOT}` to the installed plugin before executing its commands. | Mitigation — `plugins/sdd-quality-loop/hooks/claude-hooks.json` uses node exec form for both `PreToolUse` layers: the kill switch matches every tool and the guard matches repository-mutating tools with fail-closed exit emission. | The plugin declares the hook file at `plugins/sdd-quality-loop/.claude-plugin/plugin.json:8`; node exec entries are at `plugins/sdd-quality-loop/hooks/claude-hooks.json:2-22`. |
+| `Claude Code settings/permissions` | Trust assumption — as the counterpart to Codex hook trust, the operator keeps Claude Code's user/project settings and interactive permissions least-privileged and does not grant tools broader access than the task requires. | Residual risk — this repository ships no `.claude/settings.json`, so host-level grants remain operator-controlled and can enlarge blast radius. The plugin's `PreToolUse` guard still constrains covered writes while hooks are active; read-only review roles separately declare disallowed write tools. | The hook matcher is at `plugins/sdd-quality-loop/hooks/claude-hooks.json:15-22`; the existing permission model is summarized at `docs/agent-capability-matrix.md:55-61`. |

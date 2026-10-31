@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a10r1-seq0882",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a10r1-0882",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "ed1d467d951e2195cd68f244d107bfd1b12049632cee218783732ec7316ab48d"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "3630e70fe17611a8adc056de00d594cce1a7663fd3acf34087c845b726ae1c72"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-10/round-1/precheck-result.json", "sha256": "9a92a1f2733544d358c8926bff2d6a98ced7cca0e2c77a4330e90e17d71ca964"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-10/round-1/integrated-summary.json", "sha256": "c388273c3240b288efe0d50a7023f172719ca76626ca5d709b91ef29b3602b6c"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every technology/architecture decision this design makes carries an explicit rationale. The six genuinely-new decisions (union-match, facet-name aggregation, WARN-scope widening, staged-generation/atomic-commit, track-exclusive publication, provenance canonicalization) are each grounded in a cited upstream CLI shape, ADR, or adversarial-review finding (design.md ADR Change Log lines 428-462, Design Decisions section from line 2189). No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Open Questions (lines 3012-3042) restates OQ-001/OQ-002 with explicit Owner, Blocks Implementation: no, and Resolution Path fields (added 2026-09-03, ruling (G), per investigation.md's own Ruling (G) entry lines 2840-2883). OQ-003 is fully resolved with a concrete anchor citation. requirements.md's own Open Questions section (lines 1460-1481) is consistent with the same content. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-020) and every assumption in requirements.md ## Assumptions (lines 1433-1459) and design.md ## Assumptions (lines 3001-3010) is grounded in a cited INV-xxx reference or a named sibling-epic sequencing fact (issue #187's own Epic sequencing). investigation.md's Ruling (G) entry now carries SHA-256/commit pins for its two verification-artifact citations (investigation.md lines 2860-2871), strengthening rather than weakening this grounding. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a `## Constraint Compliance` section (lines 2964-3000) addressing AGENTS.md contract/ADR rules, the task's own file-boundary hard constraint, Security constraints (cross-referencing Security Boundaries/Global Constraints), and Compatibility constraints (content-freeze of Epic A1-A4 contracts). requirements.md's own Security Boundaries (lines 1332-1431) and constraint language are mirrored verbatim in design.md's Security Boundaries (lines 2755-2921) with no narrowing or contradiction. The requirements.md Ruling Annotations mirror-enumeration addition (line 928-940, now naming design.md's ruling-(G) sites) is citation-only and does not conflict with design.md's own annotated sites (design.md lines 1213, 1217, 1861-1864, 2444-2445, 2883-2885). No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md — no numeric threshold, SLA, throughput, concurrency, or latency statement appears anywhere in the document (grep for these keywords returns no requirement-level hits)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Deployment / CI Plan` (lines 2929-2962) names the deployment target (vendored-copy packaging under plugins/sdd-quality-loop/, matching Epic A2/A4 precedent), the CI change required (new tests/*.tests.sh/.tests.ps1 registration plus a staged test.yml human-copy patch), and the CHANGELOG discipline binding the future implementation task. This feature has no schema/DB migration (Data Plan states 'Migration Strategy: none'), so no migration-execution-order statement is required; no incremental feature-flag rollout applies since this is a deterministic CLI, not a user-facing toggle. No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (lines 464-729) explicitly states 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature' and 'Existing Data Affected: none written' (two existing artifacts read-only, never modified). Per the check's own rule, a Data Plan stating 'No data changes' emits PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## External Integrations` (lines 2923-2927) states 'None — every input and output this feature touches is repository-local.' Every dependency this feature invokes (canonicalize-sdd-yaml, evaluate-predicate, generate-registry-digest, resolve-component-paths) is an internal, same-repository sibling-Epic script, each with its own failure-behaviour mapping fully enumerated in the REQ-002 sixteen-row diagnostic taxonomy (requirements.md lines 416-433) — not a third-party or cross-service integration requiring the INTEGRATION-IDENTIFIED table shape. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001 through REQ-008, requirements.md lines 219-848) maps to a named design.md section (Architecture/API Contract Plan for REQ-001/002/003, Data Plan for REQ-004, Test Strategy item 5 + Global Constraints for REQ-005, Test Strategy items 1-10 for REQ-006, Design Decisions 'caller insertion point' + Test Strategy item 10 for REQ-007, Data Plan 'resolver.version' + Deployment/CI Plan CHANGELOG discipline for REQ-008). No component, endpoint, or data model in design.md's Components table (lines 191-201) lacks a corresponding requirement; Non-goals (requirements.md lines 849-901) are respected (no new ADR authored, no upstream schema edited, no SKILL.md edit performed by this package). No project design-system/ contract applies (no UI surface). No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one high-risk surface this feature carries — the non-diagnostic Evidence-target containment refusal (ruling (a)) — names a concrete, shipped verification path: Test Strategy item 2 (design.md lines 1860-1864) names the fixture `publication-staging-parent-symlink[feature-dir-symlinked]`, and investigation.md's Ruling (G) entry (lines 2864-2871) pins it to a shipped suite file sha256, a green log line, and a commit hash. The transactional-publication/crash-recovery/TOCTOU risk surfaces each have named fixtures in Test Strategy items 2 and 9 (design.md lines 1850-2138). No unaddressed high-risk claim found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: the target project has no `domain/` directory (`ls domain/` returns nothing under the repository root), so the Domain-Model-Status/domain-contract.json precondition this check requires is absent."
+    }
+  ]
+}

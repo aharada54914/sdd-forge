@@ -1,0 +1,20 @@
+# Human-application draft for .github/workflows/test.yml.
+#
+# Staged here under reports/implementation/<feature>/drafts/, not under
+# specs/*/human-copy/: T-001 established (commit 01df4cbd) that this
+# drafts/ location is the accepted, hash-verified staging convention the
+# write guard permits (T-001's own TEST-045.5 hash-verifies exactly this
+# pattern) -- not merely a fallback chosen because human-copy/ is
+# guard-blocked. A human (or a session not subject to sdd-hook-guard.sh's
+# PreToolUse hook) still needs to copy these steps into the live
+# .github/workflows/test.yml; that structural fact is unchanged. A human
+# may place these steps in the existing repository test job, appended
+# after T-001's component-path-resolver-ci-steps.yml steps (Global
+# Constraints: this suite's CI steps are appended after T-001's).
+- name: Component path diff basis (Bash)
+  shell: bash
+  run: bash tests/component-path-diff-basis.tests.sh
+
+- name: Component path diff basis (PowerShell)
+  shell: pwsh
+  run: pwsh -NoProfile -File tests/component-path-diff-basis.tests.ps1

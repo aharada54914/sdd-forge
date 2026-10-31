@@ -1,0 +1,13 @@
+{
+  "changed": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+      "after_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5"
+    }
+  ],
+  "unchanged_admitted_count": 61,
+  "runtime_guard_entrypoint_test_frozen_sources": "unchanged",
+  "historical_integration_record": "unchanged",
+  "registry_and_runners": "unchanged"
+}

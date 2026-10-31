@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt3-seq0341",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt3-seq0341",
+  "manifest": [
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+    {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "46a5d0d2da13316a4c2f55a58aeb15b3257461840c585658b8924f3d33ef4b2c"},
+    {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json", "sha256": "dced6205c8a332261d2b3db4e868f5f4c910dbd22fd10fe2cfaa92f017c72dd6"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/dependency-graph.json", "sha256": "50f74301fb056d01b1e3e8a00b0c6f518d6ee3243aa4b24fb00ba956f2e35137"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 46 AC-NNN identifiers referenced in tasks.md (AC-001..AC-046, e.g. T-001 Done-When cites AC-001/002/003/004/040/041/042) resolve exactly to defined criteria in acceptance-tests.md; grep of both files produces an identical AC-001..AC-046 set with no dangling ID."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid: true. Every task's Blockers field machine-readable first line is either the literal 'None' (T-001) or a comma-separated T-NNN list (T-002: T-001; T-003: T-002; T-004: T-003; T-005: T-002, T-004; T-006: T-003, T-004, T-005; T-007: T-006; T-008: T-007; T-009: T-002, T-003, T-005, T-006, T-007, T-008; T-010: T-009; T-011: T-001, T-006, T-008, T-010; T-012: T-009, T-011; T-013: T-001..T-012), consistent with precheck-result.json's blockers_format_valid: true and the attempt-1-restored machine-readable first-line convention noted in the invocation context."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-011 (requirements.md's full set) each appear in at least one task's Requirements field: REQ-001/002 (T-001), REQ-003 (T-002), REQ-004 (T-003), REQ-006 (T-004, T-005), REQ-005 (T-006), REQ-007 (T-007, T-009), REQ-010 (T-008, T-012), REQ-008 (T-010), REQ-009 (T-011, T-012), REQ-011 (T-013)."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 46 AC-NNN in acceptance-tests.md are traced to a task via tasks.md Done-When AC citations and traceability.md's Acceptance Mapping table (e.g. AC-046 explicitly three-way split across T-004/T-005/T-006 with stated scope differentiation)."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-013 declares a real REQ-NNN in its Requirements field (verified via grep of all 13 'Requirements:' lines); no task uses INFRA/HOUSEKEEPING pseudo-requirements."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Only T-010 ('Verify the hook-guard extension...') and T-013 ('...three-environment test coverage...') match the test/spec/verify title pattern; T-010's Done-When cites AC-023, T-013's cites AC-028/AC-029. No orphaned test task found."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Evaluated under the post-implementation provenance re-review lifecycle-validity rule (declared by the orchestrator). T-003, T-005..T-013 carry Approval: Draft / Status: Planned (valid). T-001, T-002, T-004 carry Approval: Approved (sudo <ISO8601>) / Status: Blocked — a valid workflow-bypass-mode audit mark and a Status value in the permitted post-implementation set (Planned/In Progress/Blocked/Implementation Complete/Done). No task carries an invalid or missing field."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every task's Risk/Required Workflow pairing matches the risk-gate-matrix: medium→acceptance-first (T-001, T-013), high→tdd (T-002, T-003, T-004, T-005, T-006, T-008, T-010, T-011, T-012), critical→tdd (T-007, T-009). Consistent with precheck-result.json's workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared ACs across tasks (AC-009: T-002 primary/T-013 audit share; AC-019/020: T-006, referenced contextually elsewhere; AC-025/026/039: T-011 unprotected-consumer half vs. T-012 full 5-consumer matrix; AC-043: T-006; AC-046: T-004 schema-conformance half / T-005 verdict half / T-006 structural fail-closed half) each carry explicit scope differentiation in tasks.md Done-When text and traceability.md's Acceptance Mapping table. No undifferentiated duplicate primary-target claim found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers reference in tasks.md (T-002 through T-013) resolves to a task ID present in dependency-graph.json's nodes array (T-001..T-013) and tasks.md itself; no reference to a non-existent task ID."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Runs because BLOCKERS-FORMAT is PASS. Traversed all 35 edges in dependency-graph.json: every edge points from a higher-numbered task to a lower-numbered one (e.g. T-013→T-001..T-012, T-009→T-002/003/005/006/007/008), producing a strict DAG with no revisited node. No cycle found."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-009 ('...sidecar, registry, publisher, and verification scripts...'), T-011 ('...PLUGIN-CONTRACTS.md and the unprotected track-selection consumers'), T-012 ('...and close out consumer wiring'), and T-013 ('...test coverage and CI wiring') fall under the mandatory-housekeeping/tied-verification exceptions (design.md's exact-match constraint requires the guard-invariants batch land together; T-012/T-013 close out verification of work already scoped in the first clause). T-001 ('...project-context.yaml and provider-bindings.yaml schemas') and T-003 ('...approval sidecar schema and staging-only signer') join tightly-coupled sibling artifacts for the same REQ pair/REQ (design.md Technical Summary treats REQ-001/REQ-002 as 'the two YAML schemas' root pair; REQ-004's schema and signer are one mechanism). This wording is byte-identical to the Scope/Goal/Done-When text already bound by attempt-1 round-2's persisted task-review PASS evidence (reports/task-review/epic-189-a1-project-context/attempt-1/round-2/, contract verdict PASS, commit 38d525f1) — per the post-implementation provenance re-review convergence rule, no new findings entry is created for this observation."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done-When item across T-001..T-013 names a concrete TEST-ID-linked proof tied to a specific AC (e.g. 'TEST-001 proves schema field presence... (AC-001)'), a specific artifact (implementation report, CHANGELOG.md's #189 entry, docs/adr/0025-human-copy-transactional-bundle.md, staged human-copy candidate + MANIFEST.sha256, sha256sum output recorded before/after), or a named second reviewer/approver sign-off. Grep for forbidden phrases ('ensure', 'consider', 'works correctly', 'verify is correct', bare 'update'/'review'/'confirm' without a target) found none in any Done-When block. No item requires editing a review-frozen artifact (tasks.md, traceability.md, or design.md); staged edits route through human-copy candidates and CHANGELOG.md/implementation-report addenda instead. This content is byte-identical to what attempt-1 round-2's persisted PASS evidence already bound (reports/task-review/epic-189-a1-project-context/attempt-1/round-2/), corroborating this PASS under the post-implementation provenance re-review convergence rule."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table lists T-001..T-013 (exact match to tasks.md); its Requirement table lists REQ-001..REQ-011 (exact match to requirements.md), no dangling ID either direction. Every requirement row cites at least one canonical layer-spec anchor (security-spec.md#trust-boundaries for REQ-001..REQ-010; infra-spec.md#cicd-sequence and infra-spec.md#deployment-topology for REQ-011/REQ-007), and both '## Trust Boundaries' and '## CI/CD Sequence'/'## Deployment Topology' headers are verified present in the hash-bound security-spec.md and infra-spec.md. UX/Frontend layers are recorded N/A with a stated cross-layer reason ('no UI, no new plugin' — design.md header) in the Layer Coverage table, consistent with ux-spec.md/frontend-spec.md's own N/A sections."
+    }
+  ],
+  "findings": []
+}

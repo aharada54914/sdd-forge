@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 4,
+  "round": 1,
+  "nodes": ["T-001","T-002","T-003","T-004","T-005","T-006"],
+  "edges": [{"from":"T-003","to":"T-001"},{"from":"T-003","to":"T-002"},{"from":"T-004","to":"T-003"},{"from":"T-005","to":"T-003"},{"from":"T-006","to":"T-004"},{"from":"T-006","to":"T-005"}],
+  "generated_at": "2026-06-28T10:52:10Z"
+}

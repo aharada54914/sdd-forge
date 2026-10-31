@@ -1,0 +1,246 @@
+--- attempt6/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
++++ current-owner/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@ -108,7 +108,7 @@
+     require(policy_path.read_bytes() == policy_bytes and load(settings_path) == expected_settings,
+             'session guard settings or policy mismatch')
+     relative = invocation.relative_to(root).as_posix()
+-    require(permissions == receipt_control(data, receipt.read_text(), relative)['exact_permission_rules'],
++    require(permissions == receipt_control(data, receipt.read_text(), relative, root=root)['exact_permission_rules'],
+             'permission rules mismatch')
+     admitted_raw_hashes(root, data)
+     require((root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs').is_file(),
+@@ -119,7 +119,7 @@
+     command = ['rtk', 'proxy', executable, '-p', '--session-id', session,
+                '--model', selected_model, '--permission-mode', 'dontAsk',
+                '--tools', 'Read,Bash', '--disallowedTools',
+-               'Grep,Glob,Write,Edit,NotebookEdit', '--allowedTools', *permissions,
++               'Grep,Glob,Write,Edit,NotebookEdit',
+                '--settings', str(settings_path), '--plugin-dir',
+                str(root / 'plugins/sdd-review-loop'), '--agents',
+                json.dumps({role_name: role}), '--agent', role_name, '--output-format', 'json']
+@@ -132,7 +132,7 @@
+                              (line.strip() for line in help_result.stdout.splitlines())
+                              if line.startswith('-'))
+     for flag in ('-p', '--session-id', '--model', '--permission-mode', '--tools',
+-                 '--disallowedTools', '--allowedTools', '--settings', '--plugin-dir',
++                 '--disallowedTools', '--settings', '--plugin-dir',
+                  '--agents', '--agent', '--output-format',
+                  *(['--json-schema'] if data['stage'] in JSON_REVIEW_STAGES else [])):
+         require(re.search(r'(?<![\w-])' + re.escape(flag) + r'(?=[\s,=<\[]|$)', declarations) is not None,
+@@ -250,7 +250,52 @@
+             'batch hash result differs from ordered pinned digests')
+ 
+ 
+-def receipt_control(data, receipt_text, invocation_path=None):
++def safe_compact_path(root, relative):
++    require(isinstance(relative, str) and
++            re.fullmatch(r'[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*', relative) is not None and
++            all(part not in ('.', '..') for part in relative.split('/')),
++            'invalid compact verification path')
++    path = root / relative
++    require(path.is_file() and not any((root / pathlib.Path(*pathlib.Path(relative).parts[:i])).is_symlink()
++            for i in range(1, len(pathlib.Path(relative).parts) + 1)),
++            'compact verification path missing or symlinked')
++    return path
++
++
++def compact_raw_digest(data, hashes):
++    return hashlib.sha256('\n'.join(entry['path'] + '\t' + hashes[entry['path']]
++        for entry in data['allowed_input_manifest']).encode()).hexdigest()
++
++
++def compact_result(control, invocation_hash, boundary_hash, raw_hash, count):
++    return json.dumps({'status': 'REVIEW_INPUTS_OK', 'invocation_sha256': invocation_hash,
++        'boundary_sha256': boundary_hash, 'raw_inputs_sha256': raw_hash,
++        'inputs_sha256': control['inputs_sha256'], 'record_sha256': control['record_sha256'],
++        'input_count': count}, sort_keys=True, separators=(',', ':'))
++
++
++def compact_verify(root, invocation_path, invocation_hash, boundary_hash, raw_hash, receipt_text):
++    root = pathlib.Path(root).resolve()
++    invocation = safe_compact_path(root, invocation_path)
++    require(sha(invocation) == invocation_hash, 'compact invocation hash mismatch')
++    data = load(invocation)
++    control = receipt_control(data, receipt_text, invocation_path)
++    for entry in data['allowed_input_manifest']:
++        safe_compact_path(root, entry['path'])
++    boundary = safe_compact_path(root, BOUNDARY_PATH)
++    require(sha(boundary) == boundary_hash, 'compact boundary hash mismatch')
++    hashes = admitted_raw_hashes(root, data)
++    require(compact_raw_digest(data, hashes) == raw_hash, 'compact raw input set mismatch')
++    require(sha(invocation) == invocation_hash and sha(boundary) == boundary_hash,
++            'compact control input changed during verification')
++    return compact_result(control, invocation_hash, boundary_hash, raw_hash, len(hashes))
++
++
++def require_compact_result(result_text, expected):
++    require(result_text in (expected, expected + '\n'), 'compact verification result mismatch')
++
++
++def receipt_control(data, receipt_text, invocation_path=None, *, root=None):
+     match = re.fullmatch(
+         r'REVIEW_CONTEXT_OK ([0-9a-f]{64}) sequence=([1-9][0-9]*) '
+         r'previous_record_sha256=(-|[0-9a-f]{64}) pre_append_tip_sequence=([0-9]+) '
+@@ -294,6 +339,35 @@
+         record_text = '|'.join(fields) + '|allowed-inputs-v1|' + inputs_hash
+     if hashlib.sha256(record_text.encode('utf-8')).hexdigest() != digest:
+         raise ValueError('receipt record hash mismatch')
++    if root is not None:
++        root = pathlib.Path(root).resolve()
++        invocation = safe_compact_path(root, invocation_path)
++        require(load(invocation) == data, 'compact invocation differs from supplied manifest')
++        for entry in entries:
++            safe_compact_path(root, entry['path'])
++        boundary = safe_compact_path(root, BOUNDARY_PATH)
++        source = safe_compact_path(root, 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')
++        raw_hash = compact_raw_digest(data, admitted_raw_hashes(root, data))
++        invocation_hash, boundary_hash = sha(invocation), sha(boundary)
++        bootstrap = ('import hashlib,pathlib,sys; p=pathlib.Path(sys.argv[1]); b=p.read_bytes(); '
++                     'valid=not any(q.is_symlink() for q in (p,*p.parents)) and hashlib.sha256(b).hexdigest()==sys.argv[2]; '
++                     'valid or sys.exit("verifier hash mismatch"); '
++                     'n={"__name__":"pinned_review_verifier","__file__":str(p)}; '
++                     'exec(compile(b,str(p),"exec"),n); '
++                     'print(n["compact_verify"](pathlib.Path.cwd(),*sys.argv[3:]))')
++        command = 'rtk proxy python3 -B -c ' + shlex.quote(bootstrap) + ' ' + ' '.join(
++            shlex.quote(value) for value in (str(source), sha(source), invocation_path,
++                invocation_hash, boundary_hash, raw_hash, receipt_text.rstrip('\n')))
++        control: dict[str, Any] = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
++                   'record_text': record_text, 'record_sha256': digest,
++                   'compact_command': command, 'hash_commands': [command],
++                   'exact_permission_rules': ['Bash(' + command + ')']}
++        control['compact_output'] = compact_result(control, invocation_hash, boundary_hash, raw_hash, len(entries))
++        if data['stage'] == 'quality':
++            control['scratch_declaration_sha256'] = scratch_binding
++        else:
++            control['exact_permission_rules'].append('Bash(rtk proxy test -d domain)')
++        return control
+     if data['stage'] in ('impl', 'task'):
+         inputs_format = '\\n'.join('\\t'.join(('%s', '%s')) for _ in entries)
+         input_values = ' '.join(shlex.quote(value)
+@@ -305,7 +379,7 @@
+         producers = ["printf '%s' " + shlex.quote(text)
+                      for text in (inputs_text, record_text)]
+     commands = [producer + ' | rtk proxy shasum -a 256' for producer in producers]
+-    control: dict[str, Any] = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
++    control = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
+             'record_text': record_text, 'record_sha256': digest,
+             'hash_commands': commands}
+     if data['stage'] == 'quality':
+@@ -333,14 +407,22 @@
+ 
+ 
+ def control_prompt(data, receipt_text, boundary_sha256, *, strict=False,
+-                   invocation_path=None, invocation_sha256=None):
+-    control = receipt_control(data, receipt_text, invocation_path)
++                   invocation_path=None, invocation_sha256=None, root=None):
++    control = receipt_control(data, receipt_text, invocation_path, root=root)
+     enforced = data['stage'] in ('impl', 'task', 'quality') or strict
+     if enforced:
+         require(invocation_path is not None and
+                 isinstance(invocation_sha256, str) and
+                 re.fullmatch(r'[0-9a-f]{64}', invocation_sha256) is not None,
+                 'invocation raw hash missing')
++    if 'compact_command' in control:
++        return ('Launch-control: execute this exact source-hash-pinned verifier before any substantive Read. '
++                'It checks every admitted input, invocation, boundary, ordered receipt and raw input binding.\n'
++                '```sh\n' + control['compact_command'] + '\n```\n'
++                'Require exactly this result (one trailing newline allowed):\n' + control['compact_output'] + '\n'
++                'Wait for and check the result before any other tool call. A routine first-Bash fact-forcing '
++                'refusal allows one immediate identical-command retry after the requested facts; any other '
++                'failure stops without a verdict. Never inspect the ledger or reserve again.\n')
+     if not enforced:
+         # Preserve the historical spec prompt byte-for-byte.
+         del control['exact_permission_rules']
+@@ -395,7 +477,7 @@
+ def launch_policy(root, invocation, receipt, policy_path):
+     data, _ = manifest(root, invocation)
+     invocation_relative = invocation.relative_to(root).as_posix()
+-    control = receipt_control(data, receipt.read_text(), invocation_relative)
++    control = receipt_control(data, receipt.read_text(), invocation_relative, root=root)
+     paths = [invocation, root / 'plugins/sdd-review-loop/references/review-context-boundary.md']
+     paths.extend(root / entry['path'] for entry in data['allowed_input_manifest'])
+     for path in paths:
+@@ -405,8 +487,6 @@
+             for index in range(1, len(relative.parts) + 1)),
+                 'impl admitted path is missing or symlinked')
+     bash = list(control['hash_commands'])
+-    bash.append(file_hash_batch_command([invocation_relative] +
+-                [entry['path'] for entry in data['allowed_input_manifest']] + [BOUNDARY_PATH]))
+     if data['stage'] != 'quality':
+         bash.append('rtk proxy test -d domain')
+     policy = {'schema': 'impl-nontty-pretool/v1',
+@@ -419,7 +499,8 @@
+     policy_sha256 = hashlib.sha256(policy_bytes).hexdigest()
+     command = ('rtk proxy node ' + shlex.quote(str(guard)) + ' ' +
+                shlex.quote(str(policy_path)) + ' ' + policy_sha256 + ' || exit 2')
+-    settings = {'hooks': {'PreToolUse': [
++    settings = {'permissions': {'allow': control['exact_permission_rules']},
++                'hooks': {'PreToolUse': [
+         {'matcher': '*', 'hooks': [{'type': 'command', 'command': command}]}]}}
+     return policy_bytes, settings
+ 
+@@ -466,7 +547,7 @@
+             + conditional_note
+             + control_prompt(data, receipt_text, sha(root / 'plugins/sdd-review-loop/references/review-context-boundary.md'),
+                              strict=strict, invocation_path=relative,
+-                             invocation_sha256=sha(invocation))
++                             invocation_sha256=sha(invocation), root=root if enforced else None)
+             + 'Verify the invocation, reserved receipt and every admitted input hash using the '
+             'canonical review-context contract before reading review inputs. Do not reserve again.\n'
+             'Read only admitted inputs; follow the pinned role and precheck obligations. '
+@@ -474,7 +555,13 @@
+             + ('Use admitted Read for review analysis; do not run grep, jq, wc, diff, '
+                'or any other unlisted Bash command in this exact-command non-TTY session.\n'
+                if enforced else '')
+-            + ('Evaluate independently. Return the evaluator plaintext contract exactly: '
++            + ('Evaluate independently. Before deciding, read the admitted task, requirements, '
++               'design, acceptance tests, contracts and applicable layer specifications yourself, '
++               'then inspect the changed implementation and evidence for every in-scope criterion. '
++               'Hash verification proves identity, not review coverage; an implementation report '
++               'or earlier verdict cannot substitute for these reads. If required review coverage '
++               'is incomplete, return NEEDS_WORK and name the unread inputs or unchecked criteria. '
++               'Return the evaluator plaintext contract exactly: '
+                'RUN_ID and HOST_SESSION_ID matching this invocation, ALLOWED_INPUT_MANIFEST '
+                'as this invocation path followed by its SHA-256, VERDICT: PASS or NEEDS_WORK, '
+                'then FINDINGS: and CHECKED: sections. This session allows only manifest Read '
+@@ -500,7 +587,7 @@
+             'reserved identity absent or repeated')
+     meta_turn_seen = False
+     if enforced:
+-        control = receipt_control(data, receipt.read_text())
++        control = receipt_control(data, receipt.read_text(), invocation.relative_to(root).as_posix(), root=root)
+         record = next(record for record in ledger['records']
+                       if record.get('run_id') == session and
+                       record.get('host_session_id') == session)
+@@ -531,21 +618,10 @@
+         allowed_reads.update((root / entry['path']).resolve()
+                              for entry in data['allowed_input_manifest'])
+         allowed_bash = set(control['hash_commands'])
+-        batch_paths = [invocation.relative_to(root).as_posix()] + [
+-            entry['path'] for entry in data['allowed_input_manifest']] + [BOUNDARY_PATH]
+-        batch_command = file_hash_batch_command(batch_paths)
+-        allowed_bash.add(batch_command)
++        batch_command = control['compact_command']
+         if data['stage'] != 'quality':
+             allowed_bash.add('rtk proxy test -d domain')
+-        raw_hashes = (admitted_raw_hashes(root, data) if data['stage'] == 'task' else
+-                      {entry['path']: entry['sha256'] for entry in data['allowed_input_manifest']})
+-        batch_expected = [(batch_paths[0], sha(invocation))] + [
+-            (entry['path'], raw_hashes[entry['path']])
+-            for entry in data['allowed_input_manifest']] + [
+-            (BOUNDARY_PATH, sha(root / BOUNDARY_PATH))]
+         required_hashes: dict[str, str | None] = {batch_command: None}
+-        required_hashes.update(zip(control['hash_commands'],
+-                                   (control['inputs_sha256'], control['record_sha256'])))
+         required_order = list(required_hashes)
+         file_hash_order = [batch_command]
+         proven: set[str] = set()
+@@ -601,7 +677,7 @@
+                                     command not in proven,
+                                     'impl hash tool result differs from pinned digest')
+                             if command == batch_command:
+-                                require_hash_batch_result(result_text, batch_expected)
++                                require_compact_result(result_text, control['compact_output'])
+                             else:
+                                 expected_hash = required_hashes[command]
+                                 require(isinstance(expected_hash, str) and

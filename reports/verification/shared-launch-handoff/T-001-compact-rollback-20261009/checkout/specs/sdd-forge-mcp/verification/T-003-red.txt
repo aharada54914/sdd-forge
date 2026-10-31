@@ -1,0 +1,21 @@
+T-003 Red evidence
+==================
+
+Command: npx tsc -p tsconfig.test.json
+Context: tests/parsers-state/{agents-md,review-ticket,quality-report}.test.ts
+         written first, against src/parsers/{agents-md,review-ticket,quality-report}.ts
+         removed to reproduce the pre-implementation state (these modules did
+         not exist yet before this task).
+
+Output:
+
+tests/parsers-state/agents-md.test.ts(10,67): error TS2307: Cannot find module '../../src/parsers/agents-md.js' or its corresponding type declarations.
+tests/parsers-state/agents-md.test.ts(24,31): error TS7006: Parameter 's' implicitly has an 'any' type.
+tests/parsers-state/quality-report.test.ts(7,56): error TS2307: Cannot find module '../../src/parsers/quality-report.js' or its corresponding type declarations.
+tests/parsers-state/quality-report.test.ts(32,6): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/parsers-state/review-ticket.test.ts(7,54): error TS2307: Cannot find module '../../src/parsers/review-ticket.js' or its corresponding type declarations.
+
+Result: test compilation fails (5 errors) — the new parser test suite cannot
+even build, let alone pass, before src/parsers/agents-md.ts,
+src/parsers/review-ticket.ts, and src/parsers/quality-report.ts are
+implemented. This is the expected Red state for T-003.

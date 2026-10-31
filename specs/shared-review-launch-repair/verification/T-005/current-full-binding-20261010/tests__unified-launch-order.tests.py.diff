@@ -1,0 +1,20 @@
+--- attempt6/tests/unified-launch-order.tests.py
++++ current-owner/tests/unified-launch-order.tests.py
+@@ -34,6 +34,8 @@
+                     'infra-spec.md', 'security-spec.md'))
+                 required.append(str(Path(relative).parent / 'dependency-graph.json'))
+             paths = required + ['invocation.json', 'bin',
++                     'plugins/sdd-review-loop/references/review-context-boundary.md',
++                     'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py',
+                      'plugins/sdd-review-loop/scripts/probe-nontty-review.py',
+                      f'plugins/sdd-review-loop/agents/{stage}-reviewer-a.md']
+             for name in paths:
+@@ -202,7 +204,7 @@
+                  patch.object(launcher.transport, 'launch_policy', return_value=(b'{}', {})), \
+                  patch.object(launcher.transport, 'receipt_control',
+                               side_effect=receipt_control if validator_runtime else
+-                              lambda *args: {'exact_permission_rules': []}), \
++                              lambda *args, **kwargs: {'exact_permission_rules': []}), \
+                  patch.object(launcher.transport, 'claude_command', side_effect=command), \
+                  patch.object(launcher.transport, 'expected_prompt', return_value=b'prompt') as expected_prompt, \
+                  patch.object(launcher.transport, 'postflight', return_value={'delivery': 'ok'}), \

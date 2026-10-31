@@ -1,0 +1,55 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "verdict": "NEEDS_WORK",
+  "legacy_design": true,
+  "checks": [
+    {
+      "id": "TASK-IMPLEMENTABILITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All tasks in tasks.md are implementable. T-002 Phase 2 now explicitly lists scripts/ (2 files) and templates/ (4 files) in its scope, directly matching the 6 paths listed in design.md §Directory Structure. The Phase 2 scope also includes the mandatory SKILL.md path-reference rewrite (plugins/sdd-impl-review/ → plugins/sdd-review-loop/, plugins/sdd-task-review/ → plugins/sdd-review-loop/). One minor gap: the old plugins contain references/ with rubric and proposal-policy files (impl-review-rubric.md, impl-review-proposal-policy.md, task-review-rubric.md, task-review-proposal-policy.md) in addition to the checklists. Phase 2 scope mentions only references/phase-review-checklist.md (merged checklist) but does not explicitly state whether rubric/proposal-policy files are also migrated or deliberately omitted. Neither SKILL.md references these files directly (grep confirmed no references/ usage in either SKILL.md), so omitting them from sdd-review-loop does not break functionality — but implementers may be uncertain. This is Minor ambiguity, not a blocker."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Phase 1→2→3→4→5 ordering is sound. Phase 1 (human/sudo): new guard paths added before new plugin exists — correct, ensures protection before files are created. Phase 2 (agent): new plugin created after guard protects it — safe. Phase 3 (agent): caller sites updated before old plugins deleted — correct, prevents runtime no-op window. Phase 4 (agent): old plugins deleted only after callers are updated — safe. Phase 5 (human/sudo): old guard entries and forbiddenPaths updated only after old dirs are gone — correct. ADR-002's prerequisite ('caller の更新が完了してから旧ディレクトリを削除する') is enforced by the Phase 3→4 ordering. T-003 and T-004 block on T-002 completion; T-005 blocks on T-002/T-003/T-004 — dependency chain is valid."
+    },
+    {
+      "id": "RISK-COVERAGE",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Round 1 flagged missing scripts/templates migration coverage. Design.md now explicitly enumerates all 6 artifact files in the Directory Structure (impl-review-precheck.sh, task-review-precheck.sh, 4 template files) with source origin annotations. The §SKILL.md パス参照更新 section (new since Round 1) specifies exactly 6 hardcoded path strings that must be rewritten and shows the exact substitutions. Tasks.md Phase 2 scope mirrors these requirements. The risk of deploying SKILL.md with stale sdd-impl-review/ paths is now addressed — implementers are explicitly told path update is mandatory and is part of Phase 2, not an afterthought."
+    },
+    {
+      "id": "GUARD-UPDATE-SPEC",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The design specifies 6 new PROTECTED_GATE_SUFFIXES paths to add (4 agent files + 2 SKILL.md files). However, the existing actual PROTECTED_GATE_SUFFIXES in both sdd-hook-guard.js (L148-153) and sdd-hook-guard.py (L748-754) protect 6 old-plugin paths but do NOT include scripts/ or templates/ files from either plugin. The new design similarly specifies only the same 6 structural paths (agents + skills) — it does not add protection for the newly-migrated scripts/impl-review-precheck.sh, scripts/task-review-precheck.sh, or any of the 4 template files. These are now part of the enforcement chain (the precheck script gates reviewer invocation). While the old plugins did not protect these files either, the design's ADR-003 says 'プラグイン移動（統合ではなく移動）' — and the migration is explicitly framed as preserving all security properties. If scripts/ and templates/ were unprotected before and remain unprotected, that is strictly parity. However, the design does not explicitly acknowledge this decision (analogous to how ADR-005 explicitly justifies marketplace non-registration). The omission creates implementer ambiguity: should Phase 1 also add script/template paths or not? A terse ADR-006 acknowledging that scripts/templates are intentionally left unprotected (consistent with prior state) would close this gap. As written, the spec is silent, which is a specification gap. Rated Major because an implementer acting in good faith might either (a) skip them correctly but feel uncertain, or (b) add them without guidance, creating inconsistency between JS and Python guards."
+    },
+    {
+      "id": "PYTHON-CHECK2E-SPEC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Python Check 2e specification in design.md §Python Check 2e 追加仕様 is implementable. The _impl_review_verdict_exists() function uses bare relative path (os.listdir('reports/impl-review/' + feature) via glob.glob pattern), matching JS behavior per ADR-004. The glob pattern `reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json` correctly mirrors the JS walkdir logic. The function checks verdict in ('PASS', 'PASS-with-warnings') matching JS. Insertion point is specified as 'Check 2d 末尾（L973 付近）の後'. One minor note: the spec shows _impl_review_verdict_exists() but does not show the full Check 2e conditional block (the equivalent of implReviewStatusPassedIncreases() in JS — i.e., the path extraction logic and the deny call). The spec shows the helper function but not its caller. An implementer must infer the full integration pattern from the JS analogue at L898-936. This is implementable but slightly underspecified. Confirmed: Python guard currently has no Check 2e (grep confirms no match). The gap is real and the spec adequately addresses it."
+    },
+    {
+      "id": "CALLER-UPDATE-COMPLETENESS",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "INV-005 identified 8 call sites across 2 files. Tasks.md Phase 3 specifies all 8 exactly: sdd-bootstrap/SKILL.md L88 and L99 (2 sites), sdd-bootstrap-interviewer/SKILL.md L105, L111, L118, L119, L145, L150 (6 sites). Verified against actual file content: sdd-bootstrap/SKILL.md L88 references /sdd-impl-review:impl-review-loop and L99 references /sdd-task-review:task-review-loop. sdd-bootstrap-interviewer/SKILL.md uses bare names /impl-review-loop and /task-review-loop at the specified lines. The 8-site enumeration is complete. Note: L119 is flagged as '同行の2箇所確認' — the design acknowledges possible double occurrence on the same line, which is good practice. Tasks.md Done When checklist explicitly lists L105/111/118/119/145/150 for verification."
+    },
+    {
+      "id": "DELETION-SAFETY",
+      "result": "PASS",
+      "severity": "None",
+      "finding": "Round 1 flagged deletion safety concerns. The updated design and tasks.md now address this: (1) New plugin is fully created with all content (Phase 2) before deletion (Phase 4). (2) All 8 caller sites are updated (Phase 3) before deletion (Phase 4). (3) PROTECTED_GATE_SUFFIXES still contains the old paths during Phase 4 (old entries not removed until Phase 5), so any attempt to write to the old paths during the deletion window would still be caught. (4) The guard cannot prevent deletion (rm) via Bash, but ADR-002's reasoning explicitly accepts this — there are no stub files, and the validate-repository.ps1 $forbiddenPaths update in Phase 5 will flag any accidental re-creation. AC-003 confirms that post-deletion, old paths becoming a no-op is the expected and safe state. The sequencing is safe."
+    },
+    {
+      "id": "DOC-SCOPE-CLARITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-004 doc restructuring is specified at line-level granularity: L3, L16-17, L786-788, L851-853 of skill-reference.md are called out. workflow-guide.md split is described (full-track detail → docs/contributor/workflow-detail.md, Mermaid unchanged). wfi-category-guide.md gets one forbidden-terms entry. README/USERGUIDE link validity check is included. Done When criteria include a measurable line-count target (workflow-guide.md ≤ 450 lines). The creation of docs/contributor/ as a new directory is implicit in the scope but not flagged as a potentially protected or CI-checked path — validate-repository.ps1 should be checked to ensure it does not fail on the new contributor/ subdirectory. This is Minor: the risk is low since validate-repository.ps1 appears to scan for specific skill names and plugin names, not directory structure. No blocker."
+    }
+  ]
+}

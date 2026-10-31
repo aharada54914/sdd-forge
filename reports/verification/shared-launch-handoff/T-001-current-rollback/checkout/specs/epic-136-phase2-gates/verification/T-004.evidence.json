@@ -1,0 +1,43 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-136-phase2-gates",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "7467fd75ec4a6e8b00cff32f6e1870e708673fe13cdc7e4f630e04b951647bae",
+  "quality_report": "reports/quality-gate/2026-07-15T080524Z-epic-136-phase2-gates-T-004.md",
+  "verification_contract": "specs/epic-136-phase2-gates/verification/T-004.contract.json",
+  "git_commit": "9a9169be25f7262d369d4ac0eb6bc4c1cdf60f0d",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "windows",
+    "python": "3.14.0",
+    "git": "git version 2.54.0.windows.1",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase2-gates/verification/T-004.contract.json",
+      "sha256": "73f4bd48a3a5d6d3e92a042559449c0ba52b4bbd83dc2bbfebc56c3b6e5b03a0"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-15T080524Z-epic-136-phase2-gates-T-004.md",
+      "sha256": "2fb14bad72b815aa854a61d8f3d8c1ea0afa3a5332d023a7c09dc752485c533c"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/verification/T-004/quality-gate-evidence.md",
+      "sha256": "884957a674bc2a12795a6b5e345c565dbfb82e4a56e33b03fae86871daf63e04"
+    }
+  ]
+}

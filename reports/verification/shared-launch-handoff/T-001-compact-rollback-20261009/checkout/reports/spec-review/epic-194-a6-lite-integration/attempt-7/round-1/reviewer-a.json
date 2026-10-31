@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a7-r1b-reviewer-a-seq903",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a7-r1b-reviewer-a-903",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "226a43a2d3be398822ec445842d8078ff48f4d1a21156cfeff519f1f012de727"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "ccba1c282f5bf3d12971748d8ef56d048dc9db413174709b204938fd32add524"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-7/round-1/precheck-result.json", "sha256": "bd3ac339a51b2ba577d4dba6043c9bab4c5f691652c71b6bd7249a7912f78b98"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ (001-006) states concrete, measurable behavior (exact exit codes, schema shapes, ordering rules). The amendment's own addition to REQ-002 (shape-invalid `upgrade_reasons` on an `eligible: true` entry must exit 2, present-but-falsy values treated as absent on both runtimes) is stated with observable, testable conditions and is now explicitly named as REQ-006 fixture (i), matching the concrete grammar `[a-z0-9][a-z0-9_-]*` and enumerated invalid shapes (requirements.md:662-673). No in-scope requirement lacks an observable success/failure condition."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001..REQ-006) traces to at least one Acceptance Criterion in the AC table (requirements.md:813-846); the amendment's own new obligation (exit-2 on shape-invalid `upgrade_reasons` for an `eligible: true` entry) traces to AC-027 (requirements.md:841, acceptance-tests.md AC-027 row), which explicitly states the same 2026-08-28 amendment language and the vacuous-assertion caveat. No goal is left without a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outputs throughout (exit codes 0/2/10, `triggers=` ordering, `VERDICT: FAIL`/`Status` fields, schema-validity booleans). AC-027 (acceptance-tests.md row AC-027) states the amendment's own new observable behavior precisely: exit `2`, no trigger output, and explicitly flags that 'absence of forged output tokens' would be a vacuous assertion for the `eligible: true` case, directing the fixture to assert the exit code instead — this is externally observable behavior, not vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md:696-785) is extensive and explicit, and the amendment's own closing update (investigation.md:2149-2184) explicitly scopes what the amendment does and does NOT ratify (the validation logic vs. its placement), naming the placement fix as a separately-landed follow-up (commit cf7c9b975..., HUMAN APPLY 80694f623...) rather than leaving an open-ended boundary."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The prior round's evidence-bar failure (abbreviated hashes/no sha256 pins in the seventh Amendment Re-Review Context entry) is remedied: investigation.md's seventh entry (lines 2060-2184) now cites full 40-character commit hashes (remediation commit 2499e81324fb122448b6cab0dd5da9bdf1ca0153, amendment commit dd3a81298ffd84193ee50e4495fda23ac26a3ea3, RT-20260828-001 commits, the stage-2 landing commit cf7c9b975c25f22532e16fe2c4dc7c042bbed8c6, and the HUMAN APPLY commit 80694f623b3f50210897a3e9998e156545aa2196), full sha256 fingerprints for design.md and requirements.md as of the amendment commit, and a verbatim dated human-approval quotation (2026-08-28, quoted in Japanese) satisfying spec-review-calibration.md's evidence bar for a declared amendment re-review. The security-constraint (fail-closed grammar/shape validation) is stated explicitly in the Security Boundaries section (requirements.md:1172-1209)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The high-risk claim (trigger-forgery via unvalidated `upgrade_reasons` shape) has an explicit validation surface: REQ-006 fixture (i) and AC-027/TEST-027 in acceptance-tests.md, plus investigation.md's seventh entry citing concrete regression fixtures already landed (TEST-013ag/ah, TEST-013ai/aj in tests/check-risk-upgrade-fragment-fail-closed.tests.{sh,ps1}, verified green on both runtimes per the cited commits). The Risks section (requirements.md:1338-1380) separately names and bounds every other identified high-risk claim (A5 not-yet-Passed dependency, defense-in-depth Block timing, tokenization interpretation, catalog seed narrowness) with an explicit acceptance/follow-up path for each."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/context-map.md` exists in the target project (Glob search for `domain/context-map.md` returned no files), so the domain-model precondition for this check is absent. Skipped per the check's explicit skip condition; requirements.md carries no `Bounded-Context:` field, which is consistent with there being no Approved domain model to conform to."
+    }
+  ]
+}

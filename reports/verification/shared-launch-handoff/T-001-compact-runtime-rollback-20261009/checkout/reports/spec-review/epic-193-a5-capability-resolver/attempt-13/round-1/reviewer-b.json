@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a13r1-seq0870",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a13r1-0870",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "6f99607959b0d40e290c6526254d6a9e4e3a4b5c67fab11ef419a97a8c3a24ae"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b80ded58f0742c5a6c9f57d18a61880a9430d9186ed3bb6b60b180ecd4d1559b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-13/round-1/precheck-result.json", "sha256": "c04c368a568ed922f88607095a36d78d1dddb173b338afe5e0b0aca42ce5ebe5"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-13/round-1/integrated-summary.json", "sha256": "e0fedc7725c1d67e36f63f0f93d2ad1efe417c03ebc63e15516e940201cd3875"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "The new document-wide 'Ruling Annotations' scoping rule (requirements.md:928-949, acceptance-tests.md:63-84) explicitly states rulings (a)/(A)/(B) verbatim, so terms like the Evidence exception count, PRE-restoration scope, and crash-recovery durability guarantee are concretely resolved rather than left to inference; no residual ambiguous term found in this round's diff surface."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "Independently grepped both frozen documents for the literal 'ruling (F)' marker: 12 hits in requirements.md and 5 in acceptance-tests.md, matching investigation.md's own claimed count exactly, and confirmed AC-011/AC-012/AC-039/AC-040/AC-047/AC-049 all now carry consistent rollback/no-write scoping language with the sixteen-row diagnostic enum unchanged and no new contradiction introduced between REQ-002's exception-count sentence and the AC-012/AC-047 rows."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "The sixteen-row Block taxonomy (AC-010/TEST-010) plus dedicated fixtures for crash-recovery (AC-047), rollback (AC-039/AC-049), TOCTOU (AC-040/AC-048), and the ruling-C sub-triggers (AC-057/AC-058) remain intact and unaffected by this round's edits; the ruling-(B) Windows limitation is explicitly disclosed as an accepted risk rather than a required, testable behavior, consistent with the calibration's false-positive guard."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "requirements.md's Assumptions section (three items) each cites a resolution path or a re-verification obligation for a future task; none is an unresolved open decision blocking design/task decomposition."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "AC-059/TEST-059 lock the Resolver's write-scope boundary against *.approval.json / sdd/.approved-context/ / guard-invariants.json via a repository-wide grep self-check, closing the gap ruling E identified; this boundary is in scope and testable."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "The amendment's scope is narrow (annotation-only, no behavioral requirement changed per Ruling (F)'s own closing sentence) and its propagation is verifiably complete by direct grep; nothing in this package requires a downstream design/impl reviewer to invent missing product behavior."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": "No domain/ directory exists in this repository (confirmed via glob for domain/domain-contract.json and domain/context-map.md), so this check is out of scope per its own skip condition."}
+  ]
+}

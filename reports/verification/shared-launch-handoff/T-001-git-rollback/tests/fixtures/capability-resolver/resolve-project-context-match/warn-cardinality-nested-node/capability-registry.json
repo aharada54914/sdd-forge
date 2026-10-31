@@ -1,0 +1,30 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-nested-warn",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "characteristics.auto_update",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "scope": "affected_component",
+            "field": "characteristics.local_persistence",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "delivery_strategy": {"kind": "cap-nested-warn"}
+    }
+  ]
+}

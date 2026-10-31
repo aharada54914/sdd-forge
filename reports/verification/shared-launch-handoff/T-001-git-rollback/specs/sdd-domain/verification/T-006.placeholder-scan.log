@@ -1,0 +1,12 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/sdd-hook-guard.js plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+Placeholder scan passed.
+$ echo "exit code: $?"
+exit code: 0
+
+Note: these four files contain guard-check identifier strings and comments
+that reference words such as "TODO"-adjacent guard-check names (e.g. task
+state markers, review-status literals) as part of their legitimate regex/
+matcher logic and documentation, not as unresolved placeholder markers. The
+scan's real exit code (0 / "Placeholder scan passed.") was inspected directly
+rather than assumed; no stub/TODO/FIXME/NotImplementedError-style pattern was
+flagged by the scanner in any of the four files.

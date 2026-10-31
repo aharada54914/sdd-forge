@@ -1,0 +1,8 @@
+{
+    "schema":  "phase2-contract-path-golden/v1",
+    "field":  "evidence",
+    "case":  "unresolvable",
+    "expected_exit":  1,
+    "stdout":  "Verification contract FAILED for task T-003-FIXTURE:\n - check \u0027unit-tests\u0027 evidence path could not be resolved: evidence/phase2\u0000unresolvable.log\n",
+    "stderr":  ""
+}

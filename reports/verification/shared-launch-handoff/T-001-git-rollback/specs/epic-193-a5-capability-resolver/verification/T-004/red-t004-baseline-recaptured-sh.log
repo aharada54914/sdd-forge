@@ -1,0 +1,264 @@
+Genuine full-scope RED for T-004's own scope (steps 10-13), captured
+2026-08-25 (fourth-round cross-model panel remediation). NEW filename:
+this task's own previously-cited red_evidence pair,
+verification/T-004/red-cycle5-{sh,ps1}.log (177 passed / 7 failed against
+what was then a 184-assertion driver), is left on disk unchanged and is
+no longer cited.
+
+WHY THIS RE-CAPTURE WAS NEEDED. The Anthropic slot's own T-004 Minor
+(round 3, on an otherwise-PASS verdict) was that red-cycle5 was "two
+remediation rounds behind the 205-assertion GREEN"; it has since fallen
+four rounds behind a 219-assertion GREEN, and two of those rounds
+(92f21702's governing-schema delta, 18d90c67's warn-forwarding
+restoration) changed T-004-scope production code directly. Rather than
+disclose the staleness for a fifth time, the pair is replaced with a
+genuine, full-scope rewind capture in the same shape T-003 already uses.
+
+TECHNIQUE. `git clone --no-hardlinks` scratch copy of this worktree; the
+live worktree's own current uncommitted tree overlaid; then
+resolve-project-context.py ALONE rewound with `git checkout 752723fa --`.
+752723fa is the direct parent of 56155686, T-004's own implementation
+commit -- so this baseline has T-002's steps 0-3 and T-003's steps 4-9
+PRESENT and complete, and T-004's steps 10-13 entirely absent. That makes
+this a T-004-SCOPE RED rather than the whole-feature RED T-003's own
+rewind produces, which is the point: the failures below are attributable
+to T-004's own missing production code, not to the whole pipeline being
+absent.
+
+REWIND VERIFIED BY DIRECT INSPECTION: at 752723fa, grep -c returns 0 for
+`_assemble_facet_manifest`, `_capability_minimum_enforcement` and
+`_draft7_conforms_or_raise` (T-004/T-005 code absent) and 2 for
+`_discover_registry` (T-003's step 5 present, as intended for a
+T-004-scope baseline).
+
+RESULT: 143 passed, 71 failed, both runtimes. The suite reaches its own
+RESULT line cleanly. Three FAIL details legitimately quote a raw
+`Traceback` captured from the resolver SUBPROCESS's own stderr
+(registry-discovery-unimportable, evaluate-predicate-output-malformed,
+registry-discovery-syntax-error): at this baseline commit the closed-Block
+taxonomy work that routes those conditions to a canonical
+`capability-resolver:` diagnostic line does not exist yet, so a raw
+traceback IS the pre-fix behaviour those fixtures were written to detect.
+That is captured evidence of the RED condition, never a crash of this
+driver -- the driver itself raises nothing and prints its RESULT line.
+
+Full driver output follows.
+
+----------------------------------------------------------------------
+
+# runner: bash
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: no Resolver Evidence on the success path
+PASS: projection-two-components: no partial live artifact
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+FAIL: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr='capability-resolver: affected-component-resolution-failed: resolve-component-paths exited 3 resolving project-context.yaml; see resolve-component-paths diagnostics\n'
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+FAIL: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr="capability-resolver: affected-component-resolution-failed: resolve-component-paths exited launch failed: [Errno 2] No such file or directory: 'resolve-component-paths' resolving project-context.yaml; see resolve-component-paths diagnostics\n"
+FAIL: resolve-component-paths-launch-failed: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': "resolve-component-paths exited launch failed: [Errno 2] No such file or directory: 'resolve-component-paths' resolving project-context.yaml; see resolve-component-paths diagnostics", 'id': 'affected-component-resolution-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+FAIL: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0dj5ors4/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 603, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0dj5ors4/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 545, in main\n    registry_path, registry_document = _discover_registry(script_dir)\n                                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0dj5ors4/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 198, in _discover_registry\n    import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0dj5ors4/plugins/sdd-quality-loop/scripts/registry_discovery.py", line 9, in <module>\n    raise ImportError("FIXTURE_INJECTED_FAILURE: registry_discovery deliberately unimportable")\nImportError: FIXTURE_INJECTED_FAILURE: registry_discovery deliberately unimportable\n'
+FAIL: registry-discovery-unimportable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0dj5ors4/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-unimportable: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+FAIL: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='capability-resolver: registry-validation-failed: capability-registry.json failed validate-capability-registry checks\n'
+FAIL: validate-capability-registry-launch-failed: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'capability-registry.json failed validate-capability-registry checks', 'id': 'registry-validation-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+FAIL: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr='capability-resolver: dependency-subprocess-failed: generate-registry-digest failed while computing registry_digest\n'
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+FAIL: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1k4jvirx/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 603, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1k4jvirx/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 572, in main\n    any_warn = _evaluate_capabilities(\n        script_dir, registry_document, affected_components, projection_components, capability_evaluations,\n    )\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1k4jvirx/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 323, in _evaluate_capabilities\n    if _evidence_has_warn(evidence):\n       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1k4jvirx/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 296, in _evidence_has_warn\n    if node.get("outcome") == "warn":\n       ^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+FAIL: evaluate-predicate-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1k4jvirx/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+FAIL: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr='capability-resolver: dependency-subprocess-failed: evaluate-predicate failed while evaluating a predicate\n'
+FAIL: evaluate-predicate-failure-after-warn: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-warn-first', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'evaluate-predicate failed while evaluating a predicate', 'id': 'dependency-subprocess-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-unmatched-warn', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-matched-warn', 'conditional_facet_evaluations': [], 'matched': True, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.pii', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'required'}
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-order', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-z', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}, {'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+FAIL: registry-swapped-during-validation: exit 1: got 0
+FAIL: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-swapped-during-validation: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-y5lr02hx/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-swapped-during-validation: Resolver Evidence schema agreement: evidence absent
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+FAIL: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c5r75gbd/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 603, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c5r75gbd/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 545, in main\n    registry_path, registry_document = _discover_registry(script_dir)\n                                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c5r75gbd/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 198, in _discover_registry\n    import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c5r75gbd/plugins/sdd-quality-loop/scripts/registry_discovery.py", line 18\n    def this_is_invalid_python_syntax(\n                                     ^\nSyntaxError: \'(\' was never closed\n'
+FAIL: registry-discovery-syntax-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c5r75gbd/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-syntax-error: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-syntax-error: no partial live artifact
+FAIL: lite-check-source-undefined: exit 1: got 0 stderr=''
+FAIL: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: lite-check-source-undefined: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-eay_tf8u/specs/example-feature/resolver-evidence.yaml'
+FAIL: lite-check-source-undefined: Resolver Evidence schema agreement: evidence absent
+PASS: lite-check-source-undefined: no partial live artifact
+FAIL: output-schema-validation-failed-evidence: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+FAIL: output-schema-validation-failed-artifact: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-8nfv__06/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-artifact: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+FAIL: output-schema-validation-failed-facet-manifest: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-eyntrqs0/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+FAIL: snapshot-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-j0fuzeih/specs/example-feature/resolver-evidence.yaml'
+FAIL: snapshot-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-rhuxveej/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-xsawo2ma/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-wfulqyz6/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-pa7yrayt/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-j154vfor/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+FAIL: recheck-dependency-failed: exit 1: got 0 stderr=''
+FAIL: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: recheck-dependency-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-cx1dizpr/specs/example-feature/resolver-evidence.yaml'
+FAIL: recheck-dependency-failed: Resolver Evidence schema agreement: evidence absent
+PASS: recheck-dependency-failed: no partial live artifact
+FAIL: draft7-validator-keywords: _draft7_conforms exists on the staged module: TDD RED: T-004 step-12 self-validation absent from this staged snapshot
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+FAIL: sys-path-hygiene: _discover_registry restores sys.path on a clean return: outcome=returned added=['/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmppuws4nc4/ok']
+FAIL: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path: outcome=RuntimeError added=['/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmpfg5ibigc/boom']
+FAIL: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call: outcome=returned occurrences=2
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 143 passed, 71 failed

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "d5343f2f74181021daf7de3c0501ffaf95a9948f33688f10e94d0996b9c8e7c5",
+  "acceptance_sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "2c2f33f9895b355409d6f9166c23ec3e536bab6a007c838dbe1752b4341495bb",
+  "edit_summary": "Remedy round-1 findings: fixed REQ-006 arithmetic contradiction (eleven->ten, matching design.md's 10-item Test Strategy and acceptance-tests.md's ten-suites text); reworded REQ-002 project-context-validation-failed to specify this feature's own JSON-Schema-conformance check against contracts/project-context.schema.json rather than an unreachable Epic A1 CLI; added a closed diagnostics[] severity block/warn cardinality rule (REQ-004); fixed AC-012 and added AC-055/AC-056 to close the EDGE-CASE-COVERAGE and AMBIGUITY findings.",
+  "reset": false,
+  "generated_at": "2026-07-22T02:51:55Z"
+}

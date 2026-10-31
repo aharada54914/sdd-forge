@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 8,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "515466ed5a61906dd640ccc4447c8b5ad3ef141bc439db45093d8f31c840aed7",
+  "acceptance_sha256": "fce2aa09b2999174dba37536c08d41b450183cb9b11acc52459f423fd8658618",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "fb45b8c488815faa9d4e3905e932e44ad8efb81ba4aa99145206e47950a44702",
+  "edit_summary": "Round 2 findings closed, plus four cross-model whole-package audits. The Critical (both reviewers, independently) was the AC-026 ten-to-nine narrowing applied at TEST-026 alone; commit 23be1630 closed it at every sibling across eight files, so the package now states one position everywhere: ten suites specified at contract level, nine scheduled and registered here, the tenth deferred. Reviewer A also found that AC-042, AC-046 and AC-053 name that deferred suite as their sole Test Target; each of those rows and its mirror now carries a deferral note, and the Risks anchor-drift mitigation is restated as the recorded fingerprint pair plus a specified obligation rather than a running guard. Reviewer B Major: AC-009 demanded all three non-Blocking Lite states while its own test row supplies two and shows the third unreachable under a frozen upstream schema; AC-009 now carries the same untestable-branch scoping AC-016 and AC-026 use. Four audits followed, run because this gate reads only two of the seven documents: 12fd1241 closed ten findings, 071c42fa four, 0647dad2 three, 4c80eb35 two. Trend 10, 5, 4, 3, 2 with severity falling; the fifth found nothing in either document this gate reads. No AC or TEST id added, renumbered or removed; the diagnostic enum stays closed at sixteen; no exception added to REQ-002. Full detail, commit hashes and per-document SHA-256 are in investigation.md under Amendment Re-Review Context.",
+  "reset": false,
+  "generated_at": "2026-08-28T00:39:07Z"
+}

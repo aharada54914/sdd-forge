@@ -1,0 +1,1027 @@
+[
+  {
+    "mutation": "consuming-install",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "consuming-install"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL consuming-install\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "consuming-install-order",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "0828924da3741b422d5eae296e7e473cbd148dbd66a0a80bc51e9504e52d5731",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "consuming-install"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL consuming-install\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-direct-transport",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "20ab625cee023711d665cf1dc0ba6429a81806c26a7aabe1a4822436f6137510",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-direct-transport"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-direct-transport\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-traceability",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "0f7ef8db192f836c21ef77ab3dbd1deb45e7e3360d1908986b23afe564baa3a5",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-traceability"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-traceability\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-transport",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "ab7ae47c26b54c202a9479809637bfeac3d0cbf78f4b1db5c8532b164280225f",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-transport"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-transport\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-traceability",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "cbe850a264eb86ccfa5839d24701629c37bf255c30c66c923a5bcf5e1e39dbe3",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-traceability"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-traceability\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-python-execution",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "6c907001a0e44c8132723e0c6cc3e9f150a955c5353f196af269e13abcbc8d99",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-python-execution"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-python-execution\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "powershell-transport",
+    "file": "tests/run-all.ps1",
+    "before_sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+    "mutated_sha256": "aeb3d80b14c237d178458ed74033c682412b6d391ec3ea1552aab400ce3c7294",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "powershell-transport"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL powershell-transport\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "powershell-hash-parity",
+    "file": "tests/run-all.ps1",
+    "before_sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+    "mutated_sha256": "65d5f993e1a402a559f911efea0606dce102364314c995e498edcb7dca40c818",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "powershell-hash-parity"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL powershell-hash-parity\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "powershell-python-execution",
+    "file": "tests/run-all.ps1",
+    "before_sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414",
+    "mutated_sha256": "30178f87c29389b00f7ad012d863b4aa477652751a7481a3478d1e7d9f206cad",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "powershell-python-execution"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL powershell-python-execution\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "registry-full-profile",
+    "file": "specs/workflow-state-registry.json",
+    "before_sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8",
+    "mutated_sha256": "97a614bd51d1e0ab91bc80194768de93160b14b171fc0fbcc47a83a7cca902ff",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "registry-full-profile"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL registry-full-profile\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-review-conditional-inputs",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "f02951c78f78aa3f07b3605058c41d93e219c8511d5d10ab236a7ead286ddd3e",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-review-conditional-inputs"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-review-conditional-inputs\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-review-conditional-inputs",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "e56649213ec33bd9229ba256ac331f5c6e3c8ed9ebfc432c1b8d8451af42e18a",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-review-conditional-inputs"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-review-conditional-inputs\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-spec-review-verify-inputs",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "f2fa48c9577415e89bc7ba681dd477e9c18677e3bd064a2deaa000a7b3e3be77",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-spec-review-verify-inputs"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-spec-review-verify-inputs\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-spec-review-verify-inputs",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "72361700e3df60e9edff918c0c0e244ee43b35f9680f58df2a70cb08c16e39f9",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-spec-review-verify-inputs"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-spec-review-verify-inputs\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-host-review-preflight",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "c054b54e7409088a3cd4f1746bca1e96d889bb7d74547176513d899985f8b8b3",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-host-review-preflight"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-host-review-preflight\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-host-review-preflight",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "3fa244aa5950fadc2566440c253c78b23bc8ed72f36fed4f9a6cf71e075e02c9",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-host-review-preflight"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-host-review-preflight\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-unified-launch-order",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "858a4467f88eaa6099269bfff6b1d191a998d72b8f04b7a02d684c74e5371e8f",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-unified-launch-order"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-unified-launch-order\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-unified-launch-order",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "43d2b843d785b32a51d731b994f7f317c97bb3cd6771d66617b4e73d5a1610b1",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-unified-launch-order"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-unified-launch-order\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-unified-task-launch",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "b5894ff81c321f73ede28be446bf1938b118172940a142b7db3284887bde1ec8",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-unified-task-launch"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-unified-task-launch\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-unified-task-launch",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "2009a200243dcb5ec07e4cf91e65f77fa175e8692685c138f4e7e5f736657a6b",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-unified-task-launch"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-unified-task-launch\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-task-structured-output",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "3dd064333685a6bdc6ce1b64385a33ffc6c66632e0ccd30b863731a4d6af3de9",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-task-structured-output"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-task-structured-output\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-task-structured-output",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "3d9ad99f49ceabd31dbef8cbef636f387b7259064796d6d41a1ec1869cea3bee",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-task-structured-output"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-task-structured-output\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-supplemental-delivery-declaration",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "d686ce10976392fae9a35afa63654902b3a97741fec60e0f1dba0b89c60ca9fc",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-supplemental-delivery-declaration"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-supplemental-delivery-declaration\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-supplemental-delivery-declaration",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "6e38276b59ba02062e014b470585c5d90a9d6e0827d211d9265ae248d73b24ab",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-supplemental-delivery-declaration"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-supplemental-delivery-declaration\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "bash-t001-evaluation-preparation",
+    "file": "tests/run-all.sh",
+    "before_sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486",
+    "mutated_sha256": "f19ae49b0491d10b24e46814e79ae147173d1a1f68269b0e6f7e5e9361ad9ee9",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "bash-t001-evaluation-preparation"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL bash-t001-evaluation-preparation\n",
+    "stderr": ""
+  },
+  {
+    "mutation": "ci-t001-evaluation-preparation",
+    "file": ".github/workflows/test.yml",
+    "before_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "mutated_sha256": "6fefcbb4ef56ebf4543c40ce92582e324709f114c5fdd112231e9467e505d3b3",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work/specs/shared-review-launch-repair/verification/T-004/wiring-check.py",
+      "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/tmp/t004-mismatch-ewluxqry",
+      "--only",
+      "ci-t001-evaluation-preparation"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/work",
+    "exit": 1,
+    "stdout": "FAIL ci-t001-evaluation-preparation\n",
+    "stderr": ""
+  },
+  {
+    "field": "task_id",
+    "result": "mismatch rejected",
+    "diagnostic": "task_id"
+  },
+  {
+    "field": "run_id",
+    "result": "mismatch rejected",
+    "diagnostic": "run_id"
+  },
+  {
+    "field": "session_id",
+    "result": "mismatch rejected",
+    "diagnostic": "session_id"
+  },
+  {
+    "field": "agent_instance_id",
+    "result": "mismatch rejected",
+    "diagnostic": "agent_instance_id"
+  },
+  {
+    "field": "isolation_mode",
+    "result": "mismatch rejected",
+    "diagnostic": "isolation_mode"
+  },
+  {
+    "field": "task_attempt_count",
+    "result": "mismatch rejected",
+    "diagnostic": "task_attempt_count"
+  },
+  {
+    "field": "manifest_sha256",
+    "result": "mismatch rejected",
+    "diagnostic": "manifest_sha256"
+  },
+  {
+    "field": "scratch_root",
+    "result": "mismatch rejected",
+    "diagnostic": "scratch_root"
+  },
+  {
+    "field": "spec_revision",
+    "result": "mismatch rejected",
+    "diagnostic": "spec_revision"
+  },
+  {
+    "field": "input:.github/workflows/test.yml",
+    "result": "mismatch rejected",
+    "diagnostic": "input:.github/workflows/test.yml"
+  },
+  {
+    "field": "input:AGENTS.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:AGENTS.md"
+  },
+  {
+    "field": "input:contracts/agent-model-capabilities.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:contracts/agent-model-capabilities.json"
+  },
+  {
+    "field": "input:contracts/agent-model-capabilities.v2.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:contracts/agent-model-capabilities.v2.json"
+  },
+  {
+    "field": "input:contracts/task-input-manifest.schema.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:contracts/task-input-manifest.schema.json"
+  },
+  {
+    "field": "input:contracts/workflow-state-registry.schema.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:contracts/workflow-state-registry.schema.json"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-003-attempt-1/t004-ci-dependency-preparation.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-003-attempt-1/t004-ci-dependency-preparation.md"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/before-byte-inventory.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/before-byte-inventory.json"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/inputs.txt",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/inputs.txt"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/native-instructions.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/native-instructions.md"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/registry-topology.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/registry-topology.json"
+  },
+  {
+    "field": "input:mcp/ci-mcp/package-lock.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:mcp/ci-mcp/package-lock.json"
+  },
+  {
+    "field": "input:mcp/ci-mcp/package.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:mcp/ci-mcp/package.json"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/skills/implement-task/SKILL.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/skills/implement-task/SKILL.md"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md"
+  },
+  {
+    "field": "input:plugins/sdd-implementation/templates/implementation-report.template.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-implementation/templates/implementation-report.template.md"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/references/guard-invariants.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/references/guard-invariants.json"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/generate-guard-invariants.py"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/generated/guard_invariants.py"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh"
+  },
+  {
+    "field": "input:plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/references/review-context-boundary.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/references/review-context-boundary.md"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/scripts/launch-impl-review.py"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/scripts/preflight-host-review.py"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/scripts/probe-nontty-review.py"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
+  },
+  {
+    "field": "input:plugins/sdd-review-loop/templates/task-review-contract.template.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:plugins/sdd-review-loop/templates/task-review-contract.template.json"
+  },
+  {
+    "field": "input:reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json"
+  },
+  {
+    "field": "input:reports/verification/issue137-model-registration-candidate-20260928/report.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:reports/verification/issue137-model-registration-candidate-20260928/report.md"
+  },
+  {
+    "field": "input:reports/verification/shared-review-launch-integration.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:reports/verification/shared-review-launch-integration.md"
+  },
+  {
+    "field": "input:scripts/check-sdd-structure.sh",
+    "result": "mismatch rejected",
+    "diagnostic": "input:scripts/check-sdd-structure.sh"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/acceptance-tests.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/acceptance-tests.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/authority.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/authority.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/design.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/design.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/frontend-spec.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/frontend-spec.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/infra-spec.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/infra-spec.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/requirements.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/requirements.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/security-spec.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/security-spec.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/tasks.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/tasks.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/traceability.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/traceability.md"
+  },
+  {
+    "field": "input:specs/shared-review-launch-repair/ux-spec.md",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/shared-review-launch-repair/ux-spec.md"
+  },
+  {
+    "field": "input:specs/workflow-state-registry.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:specs/workflow-state-registry.json"
+  },
+  {
+    "field": "input:tests/host-review-preflight.tests.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:tests/host-review-preflight.tests.py"
+  },
+  {
+    "field": "input:tests/run-all.ps1",
+    "result": "mismatch rejected",
+    "diagnostic": "input:tests/run-all.ps1"
+  },
+  {
+    "field": "input:tests/run-all.sh",
+    "result": "mismatch rejected",
+    "diagnostic": "input:tests/run-all.sh"
+  },
+  {
+    "field": "input:tests/task-structured-output.tests.py",
+    "result": "mismatch rejected",
+    "diagnostic": "input:tests/task-structured-output.tests.py"
+  },
+  {
+    "field": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/source-modes.json",
+    "result": "mismatch rejected",
+    "diagnostic": "input:handoffs/shared-review-launch-repair-T-004-attempt-1/source-modes.json"
+  },
+  {
+    "field": "original-wiring-red:command",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:command"
+  },
+  {
+    "field": "original-wiring-red:cwd",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:cwd"
+  },
+  {
+    "field": "original-wiring-red:exit",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:exit"
+  },
+  {
+    "field": "original-wiring-red:stdout",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:stdout"
+  },
+  {
+    "field": "original-wiring-red:stderr",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:stderr"
+  },
+  {
+    "field": "original-wiring-red:source_sha256",
+    "result": "mismatch rejected",
+    "diagnostic": "original-wiring-red:source_sha256"
+  },
+  {
+    "field": "original-missing-ajv-red:command",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:command"
+  },
+  {
+    "field": "original-missing-ajv-red:cwd",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:cwd"
+  },
+  {
+    "field": "original-missing-ajv-red:exit",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:exit"
+  },
+  {
+    "field": "original-missing-ajv-red:stdout",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:stdout"
+  },
+  {
+    "field": "original-missing-ajv-red:stderr",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:stderr"
+  },
+  {
+    "field": "original-missing-ajv-red:source_sha256",
+    "result": "mismatch rejected",
+    "diagnostic": "original-missing-ajv-red:source_sha256"
+  },
+  {
+    "field": "baseline-test013:command",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:command"
+  },
+  {
+    "field": "baseline-test013:cwd",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:cwd"
+  },
+  {
+    "field": "baseline-test013:exit",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:exit"
+  },
+  {
+    "field": "baseline-test013:stdout",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:stdout"
+  },
+  {
+    "field": "baseline-test013:stderr",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:stderr"
+  },
+  {
+    "field": "baseline-test013:source_sha256",
+    "result": "mismatch rejected",
+    "diagnostic": "baseline-test013:source_sha256"
+  },
+  {
+    "field": "TEST-006a",
+    "result": "mismatch rejected",
+    "diagnostic": "TEST-006a"
+  },
+  {
+    "field": "TEST-006b",
+    "result": "mismatch rejected",
+    "diagnostic": "TEST-006b"
+  },
+  {
+    "field": "native-windows",
+    "result": "mismatch rejected",
+    "diagnostic": "native-windows"
+  },
+  {
+    "field": "combined-rollback",
+    "result": "mismatch rejected",
+    "diagnostic": "combined-rollback"
+  },
+  {
+    "field": "independent-review",
+    "result": "mismatch rejected",
+    "diagnostic": "independent-review"
+  },
+  {
+    "field": "quality-gate",
+    "result": "mismatch rejected",
+    "diagnostic": "quality-gate"
+  },
+  {
+    "field": "merge",
+    "result": "mismatch rejected",
+    "diagnostic": "merge"
+  },
+  {
+    "field": "postmerge",
+    "result": "mismatch rejected",
+    "diagnostic": "postmerge"
+  }
+]

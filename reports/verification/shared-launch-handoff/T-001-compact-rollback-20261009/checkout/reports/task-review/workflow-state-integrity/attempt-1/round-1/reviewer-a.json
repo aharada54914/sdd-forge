@@ -1,0 +1,33 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "E1030DE3-7687-44CD-A8CA-8796356DC67C",
+  "host_session_id": "4027D251-6782-4867-9DE0-FA817933B5D4",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"2b23f39dda605c88dac1fbc07d50e0d579e8e1c1b241c9176ab6aa0793950641"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-1/dependency-graph.json","sha256":"6bb206e4696092e022d4a593c1952722e17b5416e314b47019f6e18b0d241cad"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"1874381dfee8263d7b8f5c9218017137fa063431deb13219d5b794d358795dac"},
+    {"path":"specs/workflow-state-integrity/traceability.md","sha256":"7d137457c90f7c452b9b2a59564f57d2883b68f54a1446820fb2900da1e0dcf4"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS","severity":"Critical","finding":"tasks.md references AC-001 through AC-014, and every identifier exists in acceptance-tests.md."},
+    {"id":"BLOCKERS-FORMAT","result":"PASS","severity":"Major","finding":"T-001 and T-002 use None; T-003 uses T-001, T-002; T-004 uses T-003; T-005 uses T-004. blockers_format_valid=true."},
+    {"id":"REQ-COVERAGE","result":"PASS","severity":"Critical","finding":"The Requirements fields across T-001 through T-005 cover every requirements.md identifier REQ-001 through REQ-012."},
+    {"id":"AC-COVERAGE","result":"PASS","severity":"Critical","finding":"The Requirements fields across T-001 through T-005 cover every acceptance-tests.md identifier AC-001 through AC-014."},
+    {"id":"ORPHAN-TASK","result":"PASS","severity":"Major","finding":"Every task T-001 through T-005 references at least one REQ-NNN in its Requirements field."},
+    {"id":"ORPHAN-TEST","result":"PASS","severity":"Major","finding":"No task title contains test, spec, or verify, and no task scope is exclusively test-file work; no orphan test task exists."},
+    {"id":"INITIAL-STATE","result":"PASS","severity":"Major","finding":"In attempt 1 round 1, every task T-001 through T-005 has Approval: Draft and Status: Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS","severity":"Critical","finding":"T-001 through T-004 pair high with tdd; T-005 pairs medium with acceptance-first, matching the matrix and workflow_match_precheck=PASS."},
+    {"id":"NO-DUPLICATE-AC","result":"PASS","severity":"Major","finding":"Primary AC allocations are disjoint: T-001 AC-010; T-002 AC-001/002/006/011; T-003 AC-003/004/005/007/008/014; T-004 AC-009/012; T-005 AC-013."},
+    {"id":"DEPENDENCY-COMPLETE","result":"PASS","severity":"Major","finding":"Every blocker reference resolves to a dependency-graph.json node among T-001 through T-005."},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS","severity":"Critical","finding":"The graph edges T-003→T-001/T-002, T-004→T-003, and T-005→T-004 are acyclic."},
+    {"id":"SINGLE-CONCERN","result":"PASS","severity":"Major","finding":"Each task has one coherent concern: transition repair, registry/migration data, validator implementation, gate integration, or release metadata."},
+    {"id":"OBSERVABLE-DONE","result":"PASS","severity":"Major","finding":"Every task's Done When list names inspectable commands, exit outcomes, exact artifacts, hashes, diagnostics, or exercised rollback evidence; each non-documentation task includes concrete verification evidence."},
+    {"id":"TRACEABILITY-SYNC","result":"PASS","severity":"Major","finding":"traceability.md contains task mappings for T-001 through T-005, and all referenced REQ-001 through REQ-012 exist in requirements.md."}
+  ]
+}

@@ -1,0 +1,25 @@
+=== TEST-001 (AC-001): green path (both loop suites stubbed passing) ===
+ok: TEST-001 (AC-001): bump-version.sh exits 0 when both loop suites are stubbed passing
+ok: TEST-001 (AC-001): a plugin manifest now carries the new version string 9.9.9
+ok: TEST-001 (AC-001): README.md current-release line carries the new version string
+ok: TEST-001 (AC-001): tests/validate-repository.ps1 carries the new version string
+=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ===
+ok: TEST-002 (AC-002): bump-version.sh exits non-zero when loop-consistency.tests.sh is stubbed failing
+ok: TEST-002 (AC-002): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ===
+ok: TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)
+ok: TEST-003 (AC-003): git status --porcelain is empty after the run (zero release-surface mutation)
+=== TEST-004 (AC-004): no-bypass self-check (real scripts/bump-version.sh) ===
+ok: TEST-004 (AC-004): the loop-gate 'for' statement is unindented (top-level, not nested inside a conditional)
+ok: TEST-004 (AC-004): no bypass-suggestive token (SKIP/BYPASS/OVERRIDE) inside the loop-gate block's code
+ok: TEST-004 (AC-004): no statement (conditional or otherwise) precedes the loop-gate 'for' entry
+=== TEST-005 (AC-005): loop-gate precedes the first mutation step (real scripts/bump-version.sh) ===
+ok: TEST-005 (AC-005): loop-gate invocation (line 46) precedes the first mutation step (line 71)
+=== TEST-006 (AC-006): CI-resilience + self-registration ===
+ok: TEST-006 (AC-006, CI-resilience): fixture-root normalization uses pwd -P
+ok: TEST-006 (AC-006, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): this suite drives no real validator (non-use declaration)
+ok: TEST-006 (AC-006, CI-resilience): no unguarded bash array expansion found (set -u empty-array safety)
+ok: TEST-006 (AC-006): bump-version-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml
+---- summary: pass=17 fail=0 ----
+ok: bump-version-gate suite passed (17 checks)

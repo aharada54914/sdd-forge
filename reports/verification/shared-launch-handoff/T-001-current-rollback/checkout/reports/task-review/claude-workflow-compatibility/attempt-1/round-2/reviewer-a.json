@@ -1,0 +1,20 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS","severity":"Critical","finding":"All task references resolve."},
+    {"id":"BLOCKERS-FORMAT","result":"PASS","severity":"Major","finding":"All blockers have valid syntax."},
+    {"id":"REQ-COVERAGE","result":"FAIL","severity":"Major","finding":"REQ-006 installer behavior belongs to T-003, not documentation-only T-005."},
+    {"id":"AC-COVERAGE","result":"FAIL","severity":"Major","finding":"AC-006 installer ordering belongs to T-003, not documentation-only T-005."},
+    {"id":"ORPHAN-TASK","result":"PASS","severity":"Major","finding":"Every task has requirement coverage."},
+    {"id":"ORPHAN-TEST","result":"PASS","severity":"Major","finding":"No orphan test task."},
+    {"id":"INITIAL-STATE","result":"PASS","severity":"Major","finding":"Tasks are Draft and Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS","severity":"Critical","finding":"Risk workflows are valid."},
+    {"id":"NO-DUPLICATE-AC","result":"FAIL","severity":"Major","finding":"AC-008 has two primary owners."},
+    {"id":"DEPENDENCY-COMPLETE","result":"FAIL","severity":"Major","finding":"The precheck graph omits declared blocker edges; its parser must be corrected by the bootstrap exception before approval."},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS","severity":"Critical","finding":"No declared cycle."},
+    {"id":"SINGLE-CONCERN","result":"PASS","severity":"Major","finding":"Tasks are coherent."},
+    {"id":"OBSERVABLE-DONE","result":"PASS","severity":"Major","finding":"Done conditions are observable."},
+    {"id":"TRACEABILITY-SYNC","result":"FAIL","severity":"Major","finding":"REQ-006 and AC-006 map to the wrong task scope."}
+  ]
+}

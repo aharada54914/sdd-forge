@@ -1,0 +1,15 @@
+test_invocation_raw_hash_is_required_by_formal_transport (__main__.QualityTransport.test_invocation_raw_hash_is_required_by_formal_transport) ... ERROR
+
+======================================================================
+ERROR: test_invocation_raw_hash_is_required_by_formal_transport (__main__.QualityTransport.test_invocation_raw_hash_is_required_by_formal_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-path-candidate/tests/quality-nontty-transport.tests.py", line 458, in test_invocation_raw_hash_is_required_by_formal_transport
+    targets = TRANSPORT.canonical_read_paths(root, relative_reads)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'quality_transport' has no attribute 'canonical_read_paths'. Did you mean: 'diagnostic_read_paths'?
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=1)

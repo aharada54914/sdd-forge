@@ -1,0 +1,27 @@
+{
+  "method": "turn/completed",
+  "params": {
+    "threadId": "01a11d91-960e-7ac1-b455-e32576ea3fc3",
+    "turn": {
+      "id": "01a11d96-39de-7db0-ad50-0ba9a7150c22",
+      "items": [
+        {
+          "type": "agentMessage",
+          "id": "msg_0a95c4796a0b013c016ac817fe98048191aaa386493467d702",
+          "text": "T-005 attempt5 の再検証を完了しました。\n\n- 指定8スイートを含む15コマンドを実行：**終了コード0が13件、1が2件**。\n- 失敗：boundary の引用行番号ずれ、isolation の未収載 reviewer fixture。\n- supplemental delivery は17テスト成功。\n- snapshot・コピーの内容とモードは不変。報告書の全見出し・必須項目・証拠106ファイルのハッシュを検証済み。\n\n[実装報告書と証拠一覧](/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-005-attempt-5/output/work/reports/implementation/shared-review-launch-repair/T-005.md)\n\n未実施：独立レビュー・quality gate・CI・実モデル起動。task状態は変更していません。  \n未解決の2失敗があり、正式PASS・Doneは宣言していません。",
+          "phase": "final_answer",
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        }
+      ],
+      "itemsView": "summary",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1791497746,
+      "completedAt": 1791498243,
+      "durationMs": 496690
+    }
+  },
+  "emittedAtMs": 1791498243620
+}

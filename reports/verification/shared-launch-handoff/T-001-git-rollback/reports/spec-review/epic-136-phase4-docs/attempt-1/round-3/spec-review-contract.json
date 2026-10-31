@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 1,
+  "round": 3,
+  "requirements_sha256": "7f3fe2c3a56cd291287a498c59b04cb1e35be319db5e6c926565be472cfaace9",
+  "acceptance_sha256": "7d439134de57d99a86430ea1d0fbc941d7db452d2abc00852f805e35e72d8780",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-spec-a1r3-a-seq0392",
+      "host_session_id": "SESS-spec-a1r3-a-epic136phase4docs-0392",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-3/precheck-result.json",
+          "sha256": "11b1536ab48c9e55b3b1229b3dd911ee9a342dc1fdd6c3301d0e79d94b662928"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+          "sha256": "7d439134de57d99a86430ea1d0fbc941d7db452d2abc00852f805e35e72d8780"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+          "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+          "sha256": "7f3fe2c3a56cd291287a498c59b04cb1e35be319db5e6c926565be472cfaace9"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-spec-a1r3-b-seq0393",
+      "host_session_id": "SESS-spec-a1r3-b-epic136phase4docs-0393",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-3/integrated-summary.json",
+          "sha256": "7a136c8088fbe88debdee2d06b99d00b67289c095cef5c4684cf6c5da5a596aa"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-3/precheck-result.json",
+          "sha256": "11b1536ab48c9e55b3b1229b3dd911ee9a342dc1fdd6c3301d0e79d94b662928"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+          "sha256": "7d439134de57d99a86430ea1d0fbc941d7db452d2abc00852f805e35e72d8780"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+          "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+          "sha256": "7f3fe2c3a56cd291287a498c59b04cb1e35be319db5e6c926565be472cfaace9"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic136phase4docs-a1r3",
+  "verdict": "BLOCKED",
+  "warningCount": 0
+}

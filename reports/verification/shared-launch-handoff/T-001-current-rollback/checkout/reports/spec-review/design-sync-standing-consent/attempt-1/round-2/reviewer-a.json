@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncstandingconsent-spec-a1r2-a-seq0546",
+  "host_session_id": "SESS-spec-a1r2-a-designsyncstandingconsent-0546",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "6a49f310e1720a30de1be60e60c894c015fd0e43d4373e5cb5067e256cab9175"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "daa3d89e023d3da4a5146d46a84ebf6d08ce9db564c5df7c3d9815ef80a04eb0"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (requirements.md:23-207, REQ-001 through REQ-010) maps to enumerated ACs each backed by a concrete document-conformance or baseline-relative TEST row in acceptance-tests.md:15-69 (TEST-001-TEST-056). Assertions name exact oracles, e.g. TEST-002 (acceptance-tests.md:16) requires both the heading and a table-row key, not a heading-only check; TEST-044 (acceptance-tests.md:58) is an executable oracle comparing this resolution's reading vs. the previous one (REQ-007/AC-020, requirements.md:149-151); TEST-051 (acceptance-tests.md:65) is baseline-relative rather than an unconditional pass. No REQ lacks a verifiable downstream check."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every capability stated in the Overview (requirements.md:9-19) traces 1:1 to a REQ with its own ACs: three-valued setting -> REQ-001/AC-001-004,031 (:23-45); host-independence -> REQ-002/AC-005-006 (:47-59); standing's skip+audit -> REQ-003/AC-007-010,030 (:61-85); off's persistent forbiddance -> REQ-004/AC-011-014 (:87-105); per-feature default preserved -> REQ-005/AC-015 (:107-113); Design-Source field reflection -> REQ-006/AC-016-019,029 (:115-141); live re-read -> REQ-007/AC-020-021 (:143-155); fallback-document consequence -> REQ-008/AC-022-024 (:157-175). No stated goal is left without a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally observable document-text assertions rather than vague intent, consistent with this feature's declared document-conformance style (acceptance-tests.md:3). Examples: AC-002 (requirements.md:31-33) 'Verified by asserting the section heading and the key name both exist, not by asserting the heading alone'; AC-025 (requirements.md:183-191) names five specific pre-existing rows and a before/after baseline diff rather than an unqualified 'passes' claim; AC-020 (requirements.md:149-151) is framed as an executable comparison, operationalized by TEST-044 (acceptance-tests.md:58)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md:209-216) explicitly excludes: implementing #139/design-sync-scan (with the serialization caveat stated), touching plugins/sdd-lite/skills/lite-spec/SKILL.md, touching contracts/design-system.contract.v1.schema.json, adding a protected-file guard for AGENTS.md/ds_upload_consent, adding a docs/THREAT-MODEL.md entry, and re-litigating DS-29's per-feature/session/decline/withdrawal/push-failure rules. Each exclusion states the reason it is out of scope."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001 through BL-006 (requirements.md:239-246) state material compatibility, data-shape, and process constraints (DS-29's gate/content unmodified; five existing field names and Egress-Consent domain unchanged; zero-upload and no-'consent'-substring invariants preserved; no protected file touched; workflow-state-registry.json entry; AGENTS.md Active Spec Directories update deferred). The security/approval boundary is explicitly disclosed rather than silently omitted: requirements.md:13-15 and :214 state plainly that AGENTS.md is unguarded and that an agent, not only a human, could write ds_upload_consent: standing, recorded as the feature's principal residual risk."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claim is explicit: requirements.md:13 states standing 'removes the one bounded moment of live human attention DS-29's entire design exists to defend' and reconstructs the exact blast radius DS-29's own security review closed as R2; requirements.md:15 states AGENTS.md carries no protected-file guard, so an agent could set the value with no distinction from deliberate human configuration. A validation surface exists on two axes: (a) acceptance criteria requiring a traceable audit record on every standing/off occasion (AC-008/AC-009/AC-016-019/AC-029, requirements.md:71-85,123-141), so the residual risk is at least detectable after the fact, and (b) a named manual-inspection target, security-spec.md, explicitly stated to carry 'the full treatment' of the risk (requirements.md:13) and recorded as the tracked residual risk (requirements.md:214). Not SKIP because a concrete high-risk claim is present with an identified surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (verified via Glob on domain/*, the single permitted existence-check exception per review-context-boundary.md:154-156), so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist either. The check's applicability precondition is unmet; per spec-reviewer-a.md:87-92 this is recorded as skipped rather than evaluated against Bounded-Context/canonical-term rules."
+    }
+  ]
+}

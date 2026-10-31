@@ -1,0 +1,42 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt2-seq0338",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt2-seq0338",
+  "manifest": [
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+    {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "961a93f5319b3f4cd176be2f241bab7b19ee94da9740e1fca42af7efc35ec9ab"},
+    {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-1/precheck-result.json", "sha256": "c620e2a767e3c671762e72bb2823637682159019b709683a7a8db54d6008757e"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-1/dependency-graph.json", "sha256": "742f980565bdb188818f333eb2dc483f462329248eed42f067c62cac0421ef6b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "tasks.md references exactly AC-001..AC-046 (46 unique IDs, verified via grep across Must Read / Done When sections); acceptance-tests.md defines exactly AC-001..AC-046 (46 entries); the two sets are identical — no dangling AC ID."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "All 13 '### Blockers' first lines are valid: T-001=None, T-002=T-001, T-003=T-002, T-004=T-003, T-005=T-002, T-004, T-006=T-003, T-004, T-005, T-007=T-006, T-008=T-007, T-009=T-002, T-003, T-005, T-006, T-007, T-008, T-010=T-009, T-011=T-001, T-006, T-008, T-010, T-012=T-009, T-011, T-013=T-001..T-012 — no range notation, no prose on the first line. precheck-result.json records blockers_format_valid: true, consistent with direct inspection. blockers_format_valid: true."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "requirements.md's Goals section defines REQ-001..REQ-011; every one appears in at least one task's Requirements: field (REQ-001/002→T-001; REQ-003→T-002; REQ-004→T-003; REQ-005→T-006; REQ-006→T-004,T-005; REQ-007→T-007,T-009; REQ-008→T-010; REQ-009→T-011,T-012; REQ-010→T-008,T-012; REQ-011→T-013)."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "traceability.md's Acceptance Mapping table (lines 49-96) maps every AC-001..AC-046 to a Test ID and Task; each mapped task's own Done When list independently cites the identical AC (e.g. T-001 Done When cites AC-001/002/003/004/040/041/042)."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "Every task T-001..T-013 declares a Requirements: field with at least one real REQ-NNN; no task relies on an INFRA/HOUSEKEEPING pseudo-requirement."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "Only T-010 ('Verify the hook-guard extension...') and T-013 ('...test coverage...') titles match test/verify keywords; both cite AC-NNN in Done When (T-010: AC-023; T-013: AC-028, AC-029). No task's scope is exclusively test-file changes."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "Post-implementation provenance re-review lifecycle-validity rule applied per orchestrator declaration. T-001/T-002/T-004 carry Approval: Approved (sudo <ISO8601>) / Status: Blocked (both explicitly permitted under this invocation); T-003, T-005..T-013 carry Approval: Draft / Status: Planned. All Status values fall within {Planned, In Progress, Blocked, Implementation Complete, Done}; no disallowed value found."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "Every task's Risk/Required-Workflow pair matches the risk-gate-matrix: T-001 medium/acceptance-first; T-002 high/tdd; T-003 high/tdd; T-004 high/tdd; T-005 high/tdd; T-006 high/tdd; T-007 critical/tdd; T-008 high/tdd; T-009 critical/tdd; T-010 high/tdd; T-011 high/tdd; T-012 high/tdd; T-013 medium/acceptance-first. precheck-result.json records workflow_match_precheck: PASS, consistent with direct inspection."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "traceability.md's Acceptance Mapping assigns each AC-NNN a single primary task, except AC-046 (explicit three-way split: T-004 schema-conformance half, T-005 verdict half, T-006 structural fail-closed half, each task's own Done-When text naming its own distinct half) and AC-009 (T-002 primary, T-013 audit-share re-run) — both satisfy the distinct-scope exception."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "dependency-graph.json nodes = [T-001..T-013]; every Blockers reference found in tasks.md resolves to a node in that list; no reference to a non-existent task ID."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "Ran because BLOCKERS-FORMAT is PASS. dependency-graph.json's 34 edges each point from a higher-numbered task to a strictly lower-numbered one (e.g. T-013→T-001..T-012, T-002→T-001), matching numeric task order exactly — no edge points forward, so no cycle exists."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "Multi-artifact task titles/scopes (T-001 two co-scoped schemas under REQ-001/REQ-002; T-009 one guard-invariants registration batch across several already-built scripts; T-011 one REQ-009 migration rollout across 4 files; T-012 migration-completion tied to its own verification matrix) each address one coherent requirement-scoped concern, not two distinct feature concerns."},
+    {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Major", "finding": "Every Done-When item across all 13 tasks names a concrete TEST-NNN result tied to an AC-NNN, a named CHANGELOG.md entry, a staged-file+MANIFEST.sha256 pairing, a recorded SHA-256 comparison, or a named second-reviewer PASS verdict. Grep for forbidden vague phrasing ('ensure ', 'consider ', 'works correctly', 'verify... is correct', unresolved 'review'/'confirm') inside Done-When bullets returned zero matches. No Done-When item requires editing the frozen design.md or the frozen tasks.md/traceability.md bodies; new-file/log evidence targets are used instead (e.g. T-007's docs/adr/0025-*.md, specs/epic-189-a1-project-context/verification/T-XXX/*.log)."},
+    {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Major", "finding": "traceability.md's Task Mapping table (lines 33-45) contains an entry for every task ID T-001..T-013; every requirement ID in traceability.md (REQ-001..REQ-011) exists in requirements.md. Every Requirement row cites security-spec.md#trust-boundaries (confirmed present at security-spec.md:27); REQ-007/REQ-011 additionally cite infra-spec.md#deployment-topology (infra-spec.md:8) and infra-spec.md#cicd-sequence (infra-spec.md:32), both confirmed present; ux-spec.md and frontend-spec.md each carry a reasoned N/A at the Layer Coverage table level."}
+  ],
+  "findings": []
+}

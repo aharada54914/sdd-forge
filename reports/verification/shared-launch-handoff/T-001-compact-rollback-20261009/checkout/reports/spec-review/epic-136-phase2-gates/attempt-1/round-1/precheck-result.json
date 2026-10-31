@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase2-gates",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f702a7c27829806762fca33ca3ebe74caa82c209f3badcba7ac920264c750c7d",
+  "acceptance_sha256": "4e1718b6e5cf2019ab290e83aa8ef4035acc8529d6185ef02ceb93d779ee0fd9",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "f92c561cae3f6d1b97aba5993f56a815249ca2f51736978d6fe029418c49d9eb",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-13T04:09:08Z"
+}

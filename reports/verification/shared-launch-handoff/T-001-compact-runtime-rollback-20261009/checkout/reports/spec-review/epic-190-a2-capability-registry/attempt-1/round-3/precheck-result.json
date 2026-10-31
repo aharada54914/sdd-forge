@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "925d139290a9ea2b4b042068eb9b438505063875fff663681b56584ae67c3112",
+  "acceptance_sha256": "13f6ec1f63fa86424a80ab5cde151c2f8b5afc31b5b57d90956ed9aa0df8c85c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "7686cd650cfb161528aa5c0e1ce89c9345e0a2d6a4640f706d740bd20f0c4a47",
+  "edit_summary": "Defined review_check_ids shape (Field Definitions + AC-038/TEST-038) and capabilities[].id uniqueness (REQ-003(i) + AC-039/TEST-039), independent of gates[].id uniqueness.",
+  "reset": false,
+  "generated_at": "2026-07-21T16:28:47Z"
+}

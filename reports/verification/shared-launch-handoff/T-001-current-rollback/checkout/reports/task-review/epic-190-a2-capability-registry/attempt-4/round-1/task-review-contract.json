@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 4,
+  "round": 1,
+  "requirements_sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97",
+  "acceptance_sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b",
+  "design_sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c",
+  "tasks_sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a",
+  "traceability_sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6",
+  "layer_sha256": {
+    "ux-spec.md": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5",
+    "frontend-spec.md": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793",
+    "infra-spec.md": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96",
+    "security-spec.md": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "Task-stage evidence re-bind: Blockers sections normalized to bare task-ID lists, their prose relocated verbatim into the implementation reports; T-005 implemented after its external precondition landed on main",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-seq0661",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-0661",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/dependency-graph.json",
+          "sha256": "505df17c641e2c746e8d8acaf745c835e46092586b13c14f504296f728e2bc59"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/precheck-result.json",
+          "sha256": "e823dbe8bbb263bc38afe8e8e54f26da5c66e3fc0e76d962ef5012eed5ad19e0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md",
+          "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/design.md",
+          "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/frontend-spec.md",
+          "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/infra-spec.md",
+          "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md",
+          "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/security-spec.md",
+          "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/tasks.md",
+          "sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/traceability.md",
+          "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/ux-spec.md",
+          "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-seq0662",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-0662",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/integrated-summary.json",
+          "sha256": "f060e2fd2b5e432053ac42fce366d3b36e016e817c80cf680b5c3095b369ab4b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/precheck-result.json",
+          "sha256": "e823dbe8bbb263bc38afe8e8e54f26da5c66e3fc0e76d962ef5012eed5ad19e0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md",
+          "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/design.md",
+          "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/frontend-spec.md",
+          "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/infra-spec.md",
+          "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md",
+          "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/security-spec.md",
+          "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/tasks.md",
+          "sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/traceability.md",
+          "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/ux-spec.md",
+          "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "task-orch-epic-190-a2-capability-registry-a4r1",
+  "timestamp": "2026-08-08T15:37:17Z"
+}

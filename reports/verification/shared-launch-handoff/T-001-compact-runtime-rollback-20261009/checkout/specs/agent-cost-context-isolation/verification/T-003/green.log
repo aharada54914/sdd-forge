@@ -1,0 +1,88 @@
+T-003 Green Evidence — Review Remediation Attempt 2
+
+Run:
+agent-cost-context-isolation-T-003-run-02
+
+Task attempt:
+2
+
+Allowed-input integrity:
+PASS (7/7 SHA-256 values matched T-003-attempt-2.json before use)
+
+Commands and results:
+
+1. jq -e . contracts/task-input-manifest.schema.json
+   Result: PASS (exit 0)
+
+2. bash -n plugins/sdd-implementation/scripts/prepare-task-snapshot.sh
+   plugins/sdd-implementation/scripts/validate-task-input-manifest.sh
+   tests/task-context-isolation.tests.sh
+   Result: PASS (exit 0)
+
+3. PowerShell parser over prepare-task-snapshot.ps1,
+   validate-task-input-manifest.ps1, and task-context-isolation.tests.ps1
+   Result: PASS (exit 0; "PowerShell parse OK")
+
+4. /bin/bash tests/task-context-isolation.tests.sh
+   Result: PASS (exit 0)
+   Output:
+   ok: task context isolation manifests, snapshots, fallback, and selector are deterministic
+
+5. pwsh -NoLogo -NoProfile -File tests/task-context-isolation.tests.ps1
+   Result: PASS (exit 0)
+   Output:
+   ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic
+
+Persisted paired negative matrix:
+- post-publication file write, creation, and deletion -> blocked
+- snapshot root, parent-component, and final-component symlinks -> TASK_INPUT_PATH
+- source parent/final symlinks -> TASK_INPUT_PATH
+- invalid leap day, invalid month length, hour 24, impossible fields, and
+  non-Z offset timestamps -> TASK_INPUT_COST
+- input/output exact, ancestor, and descendant overlap in both directions ->
+  TASK_INPUT_PATH
+- output/output ancestor and descendant overlap in both orderings ->
+  TASK_INPUT_PATH
+- scalar input/output declarations -> TASK_INPUT_PATH
+- destination injected at the publication boundary -> TASK_INPUT_PATH; the
+  attacker-owned destination and marker remain unchanged
+- task identity, traversal, hash, handoff, cost, unauthorized output, source
+  mutation, and snapshot-content tampering regressions remain covered
+
+Review remediation:
+- immutable publication: Unix 0444/0555 modes; Windows read-only file
+  attributes plus current-user deny-write ACLs, verified before publication
+- snapshot validation: no-follow component walk and opened-file hashing
+- timestamps: strict calendar-valid invariant UTC with exact canonical round trip
+- overlaps: normalized component-boundary comparison across input/output and
+  output/output sets
+- publication: macOS renamex_np(RENAME_EXCL), Linux
+  renameat2(RENAME_NOREPLACE), and .NET Directory.Move no-replace semantics
+
+Final implementation hashes:
+- contracts/task-input-manifest.schema.json
+  fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9
+- plugins/sdd-implementation/scripts/prepare-task-snapshot.sh
+  c5127c08c9ab251d13d390695b60e868560ba5ea00c4f4790584bfea531dfc93
+- plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1
+  74c2cd878ea95ea4eb43c4eba6f3b09bbc6392b341c454ff631611ddc345ef21
+- plugins/sdd-implementation/scripts/validate-task-input-manifest.sh
+  917f29dca2e2d96856a33c426320e9bf9a6b8cc71d8fa6a2603a44252e8e9f30
+- plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1
+  d911bff3e812efe5c040af284687fde08a138c2da888a1f315ad0f5dcb3651aa
+- tests/task-context-isolation.tests.sh
+  0813ce453e0431b4795244049a40e1b2afa94b68e46cd2914dc65ad1d00c2f3c
+- tests/task-context-isolation.tests.ps1
+  2de4f74b70be8b08e6225675fe774cd338ee350e1e4ebb8a85ab66a9108c66b1
+
+Isolation evidence:
+- mode: fresh-agent
+- run_id: agent-cost-context-isolation-T-003-run-02
+- session_id: agent-cost-context-isolation-T-003-session-02
+- agent_instance_id: agent-cost-context-isolation-T-003-agent-02
+- fallback_reason: none
+- handoff_reload_evidence_hash: not applicable
+
+Residual platform verification:
+- Native Windows reparse-point, ACL inheritance, and Directory.Move behavior
+  require Windows CI; local PowerShell parity passed on macOS.

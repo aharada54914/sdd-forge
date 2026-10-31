@@ -1,0 +1,15 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "task-orch-epic-191-a3-path-ownership-a6r2",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 6,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "verdict_note": "Provenance re-review (--provenance-rereview) round 2 of attempt 6: both reviewers PASS with zero FAIL findings. Round-1 sole Critical (AC-COVERAGE: AC-056/TEST-056 without a traceability anchor) is confirmed closed by the traceability.md refresh (AC-056 | TEST-056 | T-001 row + dated note + REQ-001 Test ID extension); the frozen tasks.md body is byte-unchanged. Clean PASS re-binds the task-stage provenance to the amended spec bytes; Task-Review-Status remains Passed per the mode contract (no flip performed or needed). Binding is raw-bytes: the plan remains status-mixed (T-001/T-004 Implementation Complete, T-002/T-005 Done, T-003/T-006 Planned) and will stale at the next lifecycle flip."
+}

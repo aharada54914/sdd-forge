@@ -1,0 +1,55 @@
+{
+  "task_id": "T-005",
+  "feature": "sdd-domain-concept-contract",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "fe58e6d899a1385cf001065441b0f60a22cd2d94cf451052a827a9e93224c4c1",
+  "quality_report": "reports/quality-gate/20260819T154837Z.md",
+  "verification_contract": "specs/sdd-domain-concept-contract/verification/T-005.contract.json",
+  "git_commit": "858ee5199f96b8b420377f0568fb4cf50745c2ad",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/T-005.contract.json",
+      "sha256": "c6ca0883d3031037d6c7d118c6e0a85a5d9745deeaa55cf352e51bd3294a6a0f"
+    },
+    {
+      "path": "reports/quality-gate/20260819T154837Z.md",
+      "sha256": "27993334a54d7bf5e6a39258bc434d34afcbced7bd5de7b53d2f26a868df231d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-005/acceptance-tests.log",
+      "sha256": "29dedeb5c27f87020bc4372cd81fc716ee1ca3a39f3b9f99c9e281d8261ac1bf"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-005/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-005/regression.log",
+      "sha256": "ed5b06f856057f075fd31e48916476f9fbfa5bf2d7840ac57593d8e96e86df06"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-005/task-state.log",
+      "sha256": "077f6db0e149f3a9548427cf473b002c259f4416d21144997d15c7a4c5a787b9"
+    }
+  ]
+}

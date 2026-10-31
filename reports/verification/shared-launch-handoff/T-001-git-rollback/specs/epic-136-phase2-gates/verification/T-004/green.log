@@ -1,0 +1,43 @@
+Command: bash tests/phase2-risk-upgrade.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-risk-upgrade.tests.ps1
+Result: GREEN (both commands exit 0)
+
+Both suites passed 26/26 assertions:
+- ordered primary and complete trigger diagnostics;
+- every required auth, token/credential, MCP, external/third-party API,
+  secret, and GitHub Actions trigger family;
+- design-token/API-design exclusions and hyphen/non-ASCII token boundaries;
+- valid non-ASCII boundary and ordinary non-ASCII behavior;
+- invalid UTF-8, NUL, opaque URL, and missing input fail-closed behavior;
+- staged policy contract presence and full-override clause;
+- lite-spec pre-write risk gate and unavailable-input stop;
+- ship --full scan bypass, mandatory task-block/requirements input, risk-hit
+  full precedence, unavailable-input stop, and risk scan before `--lite`.
+
+Resume correction GREEN (missing checker argument):
+
+After making the staged PowerShell `Path` parameter optional and routing an
+absent or empty value through `Write-InputUnavailable`, both focused suites
+passed 30/30 assertions. The new parity assertion confirms that invocation
+without a checker path prints `risk-upgrade: input unavailable` and exits 2
+from both runtimes. The workflow checks additionally prove the risk scan sits
+after the `--full` bypass and before `--lite`, profile, and default selection.
+`bash -n` and Windows PowerShell ScriptBlock parsing of the staged checkers
+also pass.
+
+Security-review correction GREEN (cygpath failure, exclusion boundaries, and
+risk-forced full artifact stop):
+
+Commands:
+
+- `bash tests/phase2-risk-upgrade.tests.sh`
+- `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-risk-upgrade.tests.ps1`
+- `bash -n specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh`
+- Windows PowerShell `ScriptBlock` parse of the staged
+  `check-risk-upgrade.ps1` candidate
+
+Result: PASS. Both focused suites passed 33/33 assertions and both staged
+checkers parsed successfully. The new cross-runtime cases confirm that a
+failing available `cygpath` produces only `risk-upgrade: input unavailable`
+with exit 2; that the `design token(s)` exclusion accepts `/`, `@`, `"`, `|`,
+and non-ASCII token boundaries; and that a risk-forced full route stops with a
+bootstrap/full-track diagnostic when full artifacts are missing.

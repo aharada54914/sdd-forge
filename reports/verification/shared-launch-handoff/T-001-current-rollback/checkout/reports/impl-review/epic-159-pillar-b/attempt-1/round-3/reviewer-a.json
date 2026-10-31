@@ -1,0 +1,110 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-b-impl-impl-reviewer-a-seq0239",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-b-0239",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:28-59 Architecture mermaid diagram states top-level component boundaries and integration with existing components (real loop suites, existing release job via needs); design.md:9-18 Technical Summary narrates the integration; design.md:63-72 Components table and design.md:100-107 Layer Specifications table give technology choices per layer, with explicit N/A+rationale where a layer (frontend/UX) does not apply to this CLI/CI-only feature. Not a one-sentence description."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Built a directed graph from the Architecture mermaid edges (design.md:28-59): BV->LC, BV->LI, BVG->FX->STUB, RY->LG, RY->RJ, LG->RJ(needs), LG->LC2, LG->LI2, RLG->RY, RA->BVG, RA->RLG. No cycle exists in this graph."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:135-151 Data Plan states 'Data Entities: none', 'Existing Data Affected: none', and 'Migration Strategy: none' with concrete rationale for each sub-field (this is the section remedied after the round-1 Major finding; confirmed intact and unchanged in round 3)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:153-308 API / Contract Plan documents the exact scripts/bump-version.sh insertion point and planned code block, the fixture-repo test technique, the release.yml loop-gate job's planned YAML, and the text-marker test technique for release.yml -- the CLI/CI-appropriate coverage for a feature with no HTTP surface, consistent with ux-spec.md:1-11 and frontend-spec.md:1-6 both stating no browser/frontend application exists."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:409-418 Security Boundaries table names B1-B4, states Auth/Authz Mechanism per boundary, addresses Data Classification (no PII; synthetic/internal source only, consistent with requirements.md:328-337's own boundary table), and states OWASP Concerns per boundary, cross-referencing security-spec.md#trust-boundaries' fuller OWASP Mapping table (security-spec.md:75-83). Confirmed the round-2 remedy is present: Constraint Compliance rows for fail-closed pre-mutation ordering/zero-mutation (design.md:448) and the cross-host named-SKIP degradation note (design.md:451)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'release-gate wiring (two additive test suites + edits to two already-existing release surfaces)'. ux-spec.md:1-11 and frontend-spec.md:1-6 both state 'N/A -- no change: ... no browser or frontend application.' No frontend/backend split exists to check consistency against."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:310-342 Test Strategy covers a positive/negative test pairing rationale (item 1: AC-001 green vs AC-002/AC-003 red), a RED-demonstrable structural proof (item 2: AC-009 negative-branch canary), concrete planned commands ('bash tests/run-all.sh', 'pwsh tests/run-all.ps1', item 4) plus the 3-OS CI matrix and release-only ubuntu-latest job as authoritative evidence, and self-registration verification (item 5). acceptance-tests.md maps every AC-001..014 to a named TEST-001..014."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node named in the Architecture diagram (BV, LC, LI, BVG, FX, STUB, RY, LG, RJ, LC2, LI2, RLG, RA) is defined in the Components table (design.md:63-72), the 'Real surfaces exercised READ-ONLY' note (design.md:74-78), or the API/Contract Plan subsections (design.md:196-308)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:125-133 ADR Change Log states no new ADR is needed with rationale (reuses epic-159-pillar-a2's established fixture-copy and text-marker precedents; introduces no new vocabulary, schema, or architectural pattern). The two 'New decision' entries in Design Decisions (design.md:364-391) are scoping choices following existing precedent, not architectural departures requiring an ADR."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "a0da09b64455cec1eb22ee499a8cdf07ab506759b88ea33398b44dfbb62434c2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/investigation.md",
+      "sha256": "f1a71be18532189bbb2d68b5ca92b52b493eae0bf7e7ebf3ed1cc6358f4a95dc"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-3/precheck-result.json",
+      "sha256": "03c88cb3e653fba0bef871717319701e65e2cc5c5a191155ef9b0baa7c3b5079"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-2/integrated-summary.json",
+      "sha256": "8e2ab241eac2d6ae0e4f15f40b180b6dafc7c822de235b30f4dc9f9fde9337c7"
+    }
+  ]
+}

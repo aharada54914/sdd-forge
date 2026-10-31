@@ -1,0 +1,24 @@
+{
+  "task_id": "T-002",
+  "feature": "workflow-state-integrity",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c",
+  "created": "2026-06-27T08:55:00Z",
+  "comment": "Default-FAIL contract for the strict registry schema, exact migration records, retrospective, and portable contract tests.",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"No configured lint command for Shell, PowerShell, JSON, and Markdown artifacts.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"No statically typed build target exists for this repository.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"No build step exists; executable validation is provided by scoped suites.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":["REQ-001","REQ-005","REQ-006","REQ-007","REQ-009"],"red_evidence":"specs/workflow-state-integrity/verification/T-002.red.log","green_evidence":"specs/workflow-state-integrity/verification/T-002.green.log"},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":["REQ-001","REQ-005","REQ-006","REQ-007","REQ-009"],"red_evidence":"specs/workflow-state-integrity/verification/T-002.red.log","green_evidence":"specs/workflow-state-integrity/verification/T-002.green.log"},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":["REQ-001","REQ-005","REQ-006","REQ-007","REQ-009"],"red_evidence":"specs/workflow-state-integrity/verification/T-002.red.log","green_evidence":"specs/workflow-state-integrity/verification/T-002.green.log"},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/workflow-state-integrity/verification/T-002.green.log","waiver_reason":"","requirement_ids":["REQ-001","REQ-005","REQ-006","REQ-007","REQ-009"],"red_evidence":"","green_evidence":""},
+    {"id":"smoke-run","required":false,"passes":false,"evidence":"","waiver_reason":"No interactive service or UI is changed.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"differential-baseline","required":false,"passes":false,"evidence":"","waiver_reason":"Exact commit-bounded migration records and adversarial mutations replace a runtime differential baseline.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"ui-verification","required":false,"passes":false,"evidence":"","waiver_reason":"No user-facing UI is in scope.","requirement_ids":[],"red_evidence":"","green_evidence":""}
+  ]
+}

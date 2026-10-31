@@ -1,0 +1,45 @@
+$ bash tests/downstream-review-precheck.tests.sh
+not ok: impl-review-precheck.sh must invoke scoped workflow-state validation
+exit=1
+
+$ bash tests/gates.tests.sh
+FAIL: H-02.1d: cross-feature PASS report should fail evidence validation
+PASS: 121
+FAIL: 1
+exit=1
+
+$ pwsh -NoProfile -File tests/scripts.tests.ps1
+T-040 cross-feature PASS report expected exit 1 but got 0
+exit=1
+
+$ bash tests/gates.tests.sh
+FAIL: H-02.1e: empty bundle feature must not bypass contract binding
+PASS: 122
+FAIL: 1
+exit=1
+
+$ pwsh -NoProfile -File tests/scripts.tests.ps1
+check-evidence-bundle empty feature cannot bypass contract binding expected
+exit 1 but got 0
+exit=1
+
+$ bash tests/gates.tests.sh
+FAIL: H-02.1g: duplicate quality report features must be rejected
+PASS: 125
+FAIL: 1
+exit=1
+
+$ pwsh -NoProfile -File tests/scripts.tests.ps1
+check-evidence-bundle duplicate report features fail expected exit 1 but got 0
+exit=1
+$ pwsh -NoProfile -File tests/scripts.tests.ps1
+Exception: /Users/jrmag/sdd-forge/tests/scripts.tests.ps1:23
+Line |
+  23 |          throw "$Name expected exit $Expected but got $Actual`n$detail …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | check-task-state good expected exit 0 but got 1 Verification contract
+     | passed for task T-001. Evidence bundle passed for task T-001. Task state
+     | check FAILED:  - T-001 is Done but quality-gate report does not contain
+     | VERDICT: PASS:
+     | /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-script-tests-0d6e252a-9f72-45e3-b738-1d553d724ffa/reports/quality-gate/000-conflicting-T-001.md
+exit=1

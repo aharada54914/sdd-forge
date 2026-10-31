@@ -1,0 +1,132 @@
+{
+  "task_id": "T-005",
+  "feature": "workflow-state-integrity",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+  "created": "2026-06-28T11:30:00Z",
+  "comment": "Default-FAIL contract for quality and downstream review gate integration.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No configured lint command spans PowerShell, Bash, Markdown, and workflow integration.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No statically typed build target exists for these gate scripts.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No build step exists; executable gate and regression suites provide validation.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-008", "REQ-010"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-005.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-005.green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-008", "REQ-010"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-005.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-005.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-008", "REQ-010"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-005.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-005.green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-005.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-008", "REQ-010"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No interactive service or UI is changed.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The RED evidence and isolated gate-call rollback fixtures cover the differential.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI is in scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

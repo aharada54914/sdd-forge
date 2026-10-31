@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "task-a-epic136guards-a1r1-20260712-a5b6",
+  "host_session_id": "hs-task-a-epic136guards-0160",
+  "manifest": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/tasks.md",
+      "sha256": "e08eccadfb8fb8008f90b34dbfeff19eea33b74d702d89ce4351b3c113cff0ff"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/traceability.md",
+      "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/ux-spec.md",
+      "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+      "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+      "sha256": "50d0b77291d6e505504997d896b61fb48ec418b8f2377bb0108a460d162fb1de"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-1/dependency-graph.json",
+      "sha256": "97573a9f2cd597ca697bdb5cd331b0c4eae28122ca212011da957bae4eb2f772"
+    }
+  ],
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in tasks.md resolves to a matching row in acceptance-tests.md (AC-001..AC-016). No dangling AC identifiers."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks use valid Blockers: T-001 'T-002'; T-002..T-006 'None'. Matches blockers_format_valid:true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each appear in exactly one task Requirements field (REQ-001->T-001 ... REQ-006->T-006). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-016 each map to exactly one task via Done When and traceability.md Acceptance Mapping. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task declares a Requirements field naming a real REQ-NNN. No orphan tasks."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains test/spec/verify and no task's Planned Files are exclusively test-file changes; no test-only task requiring an AC reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks show Approval: Draft and Status: Planned, matching the round-1/attempt-1 state."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk/Required Workflow pairing matches the matrix (high/critical->tdd): T-001/T-002 critical/tdd; T-003..T-006 high/tdd. Consistent with workflow_match_precheck:PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md Acceptance Mapping shows a strict one-to-one AC-to-Task mapping; no AC claimed by more than one task."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001's sole task-ID blocker T-002 exists in dependency-graph.json nodes; no dangling references."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS so this ran. Single edge T-001->T-002; T-002 has no outgoing edges. No cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "'and' in titles/scopes connects facets of one requirement (T-001 R-10 port facets; T-002 same bug in .py/.js for parity; T-005 two mitigations of the same REQ-005/B2 boundary on one file, single issue #114). No task combines unrelated concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item names a concrete TEST-NNN result, an exact file/section change, or a named evidence artifact; no forbidden vague verbs. Non-doc tasks name a concrete TEST target; doc-only T-004 names ship/SKILL.md content plus a document-conformance artifact."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-006 has a traceability.md Task Mapping entry; every REQ in traceability.md exists in requirements.md; full-profile layer anchors verified against actual headings; no dangling anchors or misused N/A."
+    }
+  ],
+  "findings": [],
+  "verdict": "PASS"
+}

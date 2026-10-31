@@ -1,0 +1,34 @@
+T-007 prerequisite-gate evidence (AC-045 pre-check, requirements.md REQ-007)
+Captured: 2026-07-21T14:36:36Z
+Implementation-time HEAD: e5d61cbc2e01dbd0726c423fd45cb739bf67ca60 (chore(pillar-c): T-007 sudo audit mark + In Progress (#155))
+Branch: feature/epic-159-pillar-c-t007
+
+--- Check 1: A3 (commit 2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f, "fix: unblock impl review rounds after the first (#143)") is an ancestor of HEAD ---
+$ git merge-base --is-ancestor 2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f HEAD
+exit=0 -> A3 IS an ancestor of HEAD (satisfied)
+
+--- Check 2: T-001..T-006's Phase 1 landing commit is an ancestor of HEAD ---
+Identified via: git log main --oneline --grep="T-00[1-6]" -i
+Phase 1 squash-merge commit: 825d6c6623ba98b6588a3c9942420dd13fceec88
+  "feat(effort-routing): epic-159 Pillar C - effort routing v2 (Phase 1) (#185)"
+  (this single squash-merge commit's own body enumerates all six per-task
+   sub-commits for T-001 (#149) .. T-006 (#152), each landing both its
+   implementation and documentation commit; confirmed via git log -1 --format=%B)
+$ git merge-base --is-ancestor 825d6c6623ba98b6588a3c9942420dd13fceec88 HEAD
+exit=0 -> Phase 1 merge commit IS an ancestor of HEAD (satisfied)
+
+--- Corroborating evidence: all six tasks' quality-gate PASS + Done commits ---
+(from git log --grep, confirms T-001..T-006 each independently reached Done
+ under quality-gate before the Phase 1 PR merged, not merely 'commit present')
+825d6c6 feat(effort-routing): epic-159 Pillar C - effort routing v2 (Phase 1) (#185)
+
+==== CONCLUSION ====
+Both prerequisite-gate facts (a) T-001..T-006 merged to main, (b) A3 present
+in main, are satisfied as of this implementation-time HEAD. This log is the
+IMPLEMENTATION-TIME pre-check only (tasks.md T-007 Scope step 1 / this task's
+own instructions). AC-045's own authoritative TEST-045 re-runs the same
+git merge-base --is-ancestor checks (specs/epic-159-pillar-c/verification/T-007/
+green-sh.log); the RELEASE-COMMIT re-run (against the actual tagged release
+commit, once scripts/bump-version.sh executes) is the caller's own job at
+release time, per this task's explicit instructions -- this session does not
+invoke scripts/bump-version.sh.

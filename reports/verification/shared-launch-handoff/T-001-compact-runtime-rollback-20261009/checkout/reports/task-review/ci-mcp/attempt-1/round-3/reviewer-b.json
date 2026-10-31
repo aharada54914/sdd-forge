@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task-review",
+  "role": "reviewer-b",
+  "feature": "ci-mcp",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "task-b-cimcp-a1r3-20260706-5c8e",
+  "host_session_id": "hs-task-b-8eee4773-0012",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-mcp/requirements.md",
+        "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+      },
+      {
+        "path": "specs/ci-mcp/acceptance-tests.md",
+        "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+      },
+      {
+        "path": "specs/ci-mcp/design.md",
+        "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+      },
+      {
+        "path": "specs/ci-mcp/tasks.md",
+        "sha256": "043bb5fc01d122f10c37b2894e34bec76f40c9227b7865ed74e76ffaaec1d394"
+      },
+      {
+        "path": "specs/ci-mcp/traceability.md",
+        "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"
+      },
+      {
+        "path": "specs/ci-mcp/ux-spec.md",
+        "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+      },
+      {
+        "path": "specs/ci-mcp/frontend-spec.md",
+        "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+      },
+      {
+        "path": "specs/ci-mcp/infra-spec.md",
+        "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+      },
+      {
+        "path": "specs/ci-mcp/security-spec.md",
+        "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "reports/task-review/ci-mcp/attempt-1/round-3/precheck-result.json",
+        "sha256": "1b35eea90110cfa603f8f285032ebf6502b2442255d0a00296a92a432d0813e4"
+      },
+      {
+        "path": "reports/task-review/ci-mcp/attempt-1/round-3/integrated-summary.json",
+        "sha256": "1fcf79fad57db0f0451fab050b058de9b9dd23cf81a288e8e2f05772fe170889"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-002/T-003/T-004 (github-client, auth, repo-resolve) correctly Risk: high — touch SSRF, credential/token, and injection sentinel surfaces per risk-classification-policy.md. T-005/T-012/T-013 correctly Risk: high as public-API-contract sentinel tasks (external client-consumed response shapes). T-006 Risk: high — sole mechanical chokepoint for write-boundary enforcement. T-007 Risk: high — canonical JSON Schema contract. T-009/T-010 Risk: high — installer/uninstall mutate external IDE config files with credential-adjacent guidance text. T-001 Risk: medium (scaffold/envelope, no sentinel surface yet) and T-008 Risk: medium (dist/CI) are appropriately not over-classified. T-011 Risk: low is correctly scoped to docs/traceability-status-only changes with no control-flow impact."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. All Risk: high tasks (T-002, T-003, T-004, T-005, T-006, T-007, T-009, T-010, T-012, T-013) include both 'Red→Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される' in their Done When lists. No Risk: critical tasks exist in this task set, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Post-split, T-005 has 8 Done When items (AC-001, AC-002, Red-Green, review verdict, provenance, typecheck/tests-green, impl report, quality-gate) with Scope limited to tools/actions.ts (2 functions) + server.ts registration + one test dir. T-012 has 8 Done When items with an equivalent 2-tool scope. T-013 has 7 Done When items scoped to a single tool (get_job_log) plus its truncation logic. All three are at or under the 8-item threshold and each spans a single coherent implementation area (tool logic + registration + tests), resolving the round-2 TASK-SIZE finding. No fragmentation indicators found elsewhere in the 13-task set (e.g., T-009/T-010 each bundle sh+ps1 parity as one coherent cross-platform unit, which is appropriate, not fragmented)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. AC-002 (T-005) includes the not-found edge case for nonexistent run id. AC-005 (T-012) includes the expired-artifact edge case (expired: true, not an error). AC-004 (T-013) includes the over-256KiB truncation edge case. AC-008/AC-009 (T-003) are dedicated negative/security cases (missing token, secret leakage). AC-012 (T-004) is a dedicated invalid-input edge case. AC-010/AC-011 (T-002) explicitly cover 401/403/404/429/5xx error paths applicable across all tool tasks. AC-006/AC-007 (T-006) are dedicated negative static/input checks. No functional task relies on happy-path-only acceptance criteria without a corresponding error-path AC."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. AC-001/002/003/004/005 declared 'integration (fake GitHub API)' correctly involve >= 2 components (tool handler + github-client + fake HTTP server). AC-006 'unit + static' and AC-007 'static (grep)' match their single-module/whole-src-scan scope. AC-013 'unit (schema validation)' appropriately targets the single contract-schema boundary. AC-014 'CI (dist-parity)' and AC-015 'smoke' are correctly typed for their respective build/startup verification scope. AC-016/017/018 'integration (installer harness)' correctly span installer script + IDE config file components. AC-019 'doc review (quality gate)' is appropriately non-code. No mismatched test-type declarations found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All Risk: high tasks (T-002, T-003, T-004, T-005, T-006, T-007, T-009, T-010, T-012, T-013) carry an explicit `Rollback:` field describing single-commit revert semantics, consistent with infra-spec.md 'Deployment / CI Plan' and 'Rollback' sections. T-004's Rollback field reads '本タスクのコミットを revert(他モジュールは独立して残置可能)。' — the round-2 stale-wording issue is resolved and is now consistent with sibling tasks."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-005 (Scope line 185-187), T-012 (Scope line 223-225), and T-013 (Scope line 261-262) all list `mcp/ci-mcp/src/tools/actions.ts` and `mcp/ci-mcp/src/server.ts` as primary implementation files. None of T-005/T-012/T-013 blocks another in its `### Blockers` field (each lists only 'T-002, T-003, T-004'); they are mutual siblings with no ordering constraint between them. This is uncoordinated parallel scope overlap on identical files for related-but-distinct additive purposes (each adds different tool functions to the same file and registers different tools in the same server.ts) — the legitimate-sharing exception (create-then-test with an enforcing Blockers edge) does not apply here since these are three parallel 'add functionality' tasks, not a create/test pair. Concrete failure mode: if implemented without explicit sequencing, simultaneous edits to the same two files risk merge conflicts or one task silently overwriting another's registration/function additions in server.ts and tools/actions.ts. Recommend adding either a linear Blockers chain among T-005/T-012/T-013, or an explicit scope note in each task instructing additive-only edits to shared files."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No additional distinct finding beyond SCOPE-DISJOINT. T-005/T-012/T-013 blocking on T-002, T-003, T-004 is logically sound (tool implementations depend on github-client, auth, and repo-resolve outputs). T-006/T-007 blocking on 'T-005, T-012, T-013' is logically sound (write-boundary static checks and the ajv contract schema need all 5 tools implemented first). T-008 blocking on T-006, T-007 is sound (dist/CI smoke needs the write-boundary and contract checks settled). T-009 blocking on T-008, T-010 blocking on T-009, and T-011 blocking on the full task set are all logically justified by their described sequencing. No spurious blockers found. The missing-blocker exposure between T-005/T-012/T-013 is already captured once under SCOPE-DISJOINT and is not duplicated here per the evidence-gate no-duplication rule."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 13 tasks (T-001 through T-013) are greenfield feature-build tasks for a new MCP server; none is scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    "Major (SCOPE-DISJOINT): T-005/T-012/T-013 all scope mcp/ci-mcp/src/tools/actions.ts and server.ts with no ordering Blockers among the three siblings. Recommend a linear Blockers chain or explicit additive-only scope coordination."
+  ]
+}

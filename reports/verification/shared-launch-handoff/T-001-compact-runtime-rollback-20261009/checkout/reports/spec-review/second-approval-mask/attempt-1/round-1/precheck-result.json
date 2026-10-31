@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "49faa858c8df0a4a4a8ac63247cbe6e01aa3f37c467c01260c73f23494300ed3",
+  "acceptance_sha256": "9f05a83675ea68923fdfccf1868bce49104ffff6ad02325511580749cd2f22df",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "e0b30e4ba36d82ebe9eb9de76521f8843cd142f7ea55392320a14740551261a3",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-12T09:09:55Z"
+}

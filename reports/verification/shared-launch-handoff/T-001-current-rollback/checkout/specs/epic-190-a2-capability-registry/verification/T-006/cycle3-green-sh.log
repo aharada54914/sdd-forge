@@ -1,0 +1,155 @@
+# TDD evidence for the quality-gate cycle 3 remediation of T-006
+# (tests/generate-gate-capabilities.tests.sh), bash runtime -- CURRENT
+# STATE run (command: `bash tests/generate-gate-capabilities.tests.sh`,
+# captured 2026-08-09).
+#
+# What "GREEN" means here: the new assertions behave EXACTLY as designed,
+# not that the suite's exit code is 0. It is NOT 0 here, by design, and
+# will not be until a human applies the fix. Read this file as:
+#   - The pre-existing 16 checks (TEST-025/026, run-all.sh registration,
+#     the QG-fix candidate checks, Done When #4) are unaffected: all still
+#     "ok".
+#   - Two of the checks in the "human-copy: staged workflow..." pair are
+#     now correctly split: one strengthened check (now requiring the
+#     --check drift-lock step) reports DESIGNED-RED instead of a false
+#     "ok" (Critical item 2 / the cycle-2 finding "納品スイート自身が旧
+#     staged workflow を ok: 2 件で肯定している" is resolved); the other
+#     (MANIFEST hash self-consistency) legitimately stays "ok" and is now
+#     labeled to make clear it is not a freshness proof.
+#   - The new ".py tuple superset" check against the regenerated
+#     drafts/human-copy-candidate/ candidate is "ok" (green) -- the
+#     candidate itself is correct.
+#   - A new, genuinely structural (not string/hash) job-set superset check
+#     was also added (Minor finding 10): every job key the LIVE workflow
+#     defines must also appear in the candidate. Against
+#     drafts/human-copy-candidate/, this is "ok" (green).
+#   - The three checks that inspect the REAL specs/epic-190-a2-capability-
+#     registry/human-copy/ bundle directly (JSON, .py, and the workflow's
+#     job-set) are DESIGNED-RED -- this is the deterministic gate the
+#     cycle-2 Critical asked for ("罠が残置されたまま、決定論的ゲートが
+#     無い"). The job-set check against the real human-copy/ workflow is
+#     the starkest of the three: it is missing three whole jobs outright
+#     (`installers`, `loops-routing`, `version-gates` -- it predates the
+#     `test`-job parallel split, commit 3baadda5), not just a missing
+#     step inside an existing job. All three turn "ok" automatically, with
+#     no suite-code change required, the moment a human replaces
+#     human-copy/'s contents with drafts/human-copy-candidate/'s (see that
+#     directory's README.md "Human apply step").
+#
+# Summary: pass=17 fail=0 designed-red=4 (21 checks total), exit code 1
+# (non-zero because of the 4 designed-red results, not because of a
+# genuine failure -- see the suite's own final two lines below, which
+# state the human action required in the suite's own output, not just in
+# prose here).
+
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+ok: TEST-025(2): fresh output is byte-identical to the golden expected projection
+ok: TEST-025(3): _generated block carries source/schema_version/sha256/notice correctly
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+ok: TEST-025(5): capability_gate_map omits the promotion-stage gate (dangling-reference filtering), sorted, empty-array capability preserved
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+ok: TEST-026(2): --check exits non-zero with a 'stale' diagnostic against a hand-mutated file
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+ok: TEST-026(4): missing canonical Registry fails closed with a diagnostic
+ok: run-all.sh registers this suite
+DESIGNED-RED (pre-human-copy): human-copy: staged workflow candidate is STALE -- missing this suite's --check drift-lock step and/or predates the current CI job structure -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: regenerated guard-invariants candidate drops no live-protected path/key
+ok: QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)
+DESIGNED-RED (pre-human-copy): human-copy/ staged guard-invariants.json is STALE and would DROP live-protected paths/keys if applied -- FAIL: candidate drops 58 live-protected entr(y/ies):
+  [top-level keys] epic_a1_targets
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/detect-policy-weakening.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/resolve-project-context.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  [protected_gate_suffixes] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh
+  [protected_gate_suffixes] sdd/.approved-context/project-context.approved.yaml
+  [protected_gate_suffixes] sdd/.approved-context/provider-bindings.approved.yaml
+  [protected_gate_suffixes] sdd/.hook-canary-sentinel
+  [protected_gate_suffixes] sdd/approver-registry.yaml
+  [protected_gate_suffixes] sdd/project-context.approval.json
+  [protected_gate_suffixes] sdd/provider-bindings.approval.json
+  [phase2_human_copy_targets] tests/guard-parity.tests.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/detect-policy-weakening.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/resolve-project-context.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  [epic_a1_targets] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh
+  [epic_a1_targets] sdd/.approved-context/project-context.approved.yaml
+  [epic_a1_targets] sdd/.approved-context/provider-bindings.approved.yaml
+  [epic_a1_targets] sdd/.hook-canary-sentinel
+  [epic_a1_targets] sdd/approver-registry.yaml
+  [epic_a1_targets] sdd/project-context.approval.json
+  [epic_a1_targets] sdd/provider-bindings.approval.json -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md), then re-run this suite
+DESIGNED-RED (pre-human-copy): human-copy/ staged generate-guard-invariants.py is STALE (e.g. missing EPIC_A1_TARGETS entirely) and would DROP live-protected .py tuple entries if applied -- FAIL: script drops 29 live-protected entr(y/ies):
+  [PHASE2_TARGETS] tests/guard-parity.tests.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/detect-policy-weakening.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/resolve-project-context.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  [EPIC_A1_TARGETS] plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh
+  [EPIC_A1_TARGETS] sdd/.approved-context/project-context.approved.yaml
+  [EPIC_A1_TARGETS] sdd/.approved-context/provider-bindings.approved.yaml
+  [EPIC_A1_TARGETS] sdd/.hook-canary-sentinel
+  [EPIC_A1_TARGETS] sdd/approver-registry.yaml
+  [EPIC_A1_TARGETS] sdd/project-context.approval.json
+  [EPIC_A1_TARGETS] sdd/provider-bindings.approval.json -- HUMAN ACTION REQUIRED: same as above
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+ok: QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)
+DESIGNED-RED (pre-human-copy): human-copy/ staged workflow is STALE and would DROP whole live job(s) if applied -- FAIL: candidate drops 3 live job(s): installers loops-routing version-gates -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=17 fail=0 designed-red=4 ----
+generate-gate-capabilities suite is DESIGNED-RED (17 passed, 4 designed-red pending human apply, 0 genuine failures)
+HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md "Human apply step"), then re-run this suite.

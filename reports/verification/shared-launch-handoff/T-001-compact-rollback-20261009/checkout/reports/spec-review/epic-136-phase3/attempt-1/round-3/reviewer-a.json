@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a1r3-a-seq0342",
+  "host_session_id": "SESS-spec-a1r3-a-epic136phase3-0342",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-3/precheck-result.json",
+      "sha256": "7e43405e7517c8adc4b36f5d27bb1a938b90d339fe3f9408915e66a5c50a0981"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "932cad5187ae6aab63b8ae7ba88e8288a49b7b5b921f58f246aaee690f945cab"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement resolves to a concretely measurable outcome. REQ-001's fallback chain is enumerated into 5 PATH-availability branches + 1 precedence-order case, each with its own decision-parity assertion against a direct guard invocation (requirements.md:196-208, AC-001..AC-007:347-374), and acceptance-tests.md:15-21 pins each to a distinct TEST-ID with a named script/fixture target. REQ-002's 3-class x 4-runtime x 3-tool_name-shape matrix is required to be reported as 12 independently PASS/FAIL fixture+assertion pairs, not one combined assertion (AC-008..011:375-401, acceptance-tests.md:22-25,41-52 WFI-014 note). REQ-004's job-count-preserving change has a literal RED-then-GREEN self-check (AC-017:443-452, 'a text-marker-based self-check ... proves BOTH that every step name ... is still present ... AND that the needs: membership is unchanged'; acceptance-tests.md:31 TEST-017). REQ-005/REQ-006 use grep-based self-checks (AC-019..021:458-474). Even Blocked REQ-003 defines concrete, executable-once-unblocked criteria (AC-012..015:402-434) rather than leaving Stream C's shape undefined. No in-scope requirement is left as unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All six Goals map onto explicit AC ranges: REQ-001 (requirements.md:196-208) -> AC-001..AC-007 (347-374); REQ-002 (209-217) -> AC-008..AC-011 (375-401); REQ-003 (218-230) -> AC-012..AC-015 (402-434, Blocked but defined); REQ-004 (231-244) -> AC-016..AC-018 (435-457); REQ-005 (245-255) -> AC-019..AC-020 (458-469); REQ-006 (256-271) -> AC-021..AC-023 (470-489). acceptance-tests.md's table (15-37) independently confirms a 1:1 AC-NNN -> TEST-NNN correspondence with a stated Requirement column for every row, and the Notes section (39-85) explains the two rows (TEST-012..015) that are Blocked rather than Planned. No goal lacks a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The round-2 Critical defect (REQ-004/Stream D job-split/needs:-update framing surviving outside AC-016/AC-017) is genuinely resolved: Overview (119-127), Main Workflows item 4 (593-605), Roles and Permissions (540-563), the CI role (560-563), Edge Cases (644-651), and the Stream-D-specific Risk (790-802) all now consistently state the single-job, needs:-byte-unchanged reading. However, a fresh full-document read surfaces a DIFFERENT, still-live contradiction the round-3 edit_summary itself claims to have fixed ('batch cardinality decided at spec level ... OQ-4/Main Workflows/Non-goals now agree'): Main Workflows item 2 (Stream B, requirements.md:578-579) reads 'stage a CI step via human-copy (may share the SAME staged `test.yml` batch as Stream A's step, design.md decides)' -- hedged, uncertain language that assigns the sharing decision to design.md. This directly contradicts three other locations in the SAME document: Non-goals (298-308, 'Any ... staging beyond the ONE shared staged batch ... it does NOT mean a Stream B suite ships without its own explicit CI step'), OQ-4 (736-740, 'The batch COUNT is decided at this spec level ... not a cross-feature collision, and not a one-vs-two-batches choice'), and Main Workflows item 4 itself (601-602, 'design.md decides only the internal ordering of edits WITHIN that single reviewed diff, not the batch count'). Item 4's explicit disclaimer that design.md does NOT decide batch count is precisely the guard-language item 2 lacks -- strong evidence item 2 is an unswept leftover. The Risks section (769-775) compounds this: it names only 'Streams A and D' as staging the same file (omitting B) and frames 'two separate, sequential human-copy rounds rather than one coordinated batch' as a live contingency, rather than reflecting OQ-4's settled 'not a one-vs-two-batches choice.' Downstream effect: a Stream B task author or design.md author reading Main Workflows item 2 in isolation could reasonably conclude the batch-sharing decision is still open to design.md, causing Stream B to stage a second, separate test.yml human-copy batch (violating the Non-goal) or to defer its CI step (violating AC-019/AC-020's requirement that every new suite from Streams A and B has its own explicit staged CI step). This is a spec-authoring-level internal contradiction, not a downstream design ambiguity to resolve later -- three of four locations already state the resolution unambiguously, so the fourth (item 2) is a residual drift from the claimed sweep."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:273-317) is comprehensive and explicit: protected-suite edits excluded (275-278), ADR-0010-gated Stream C blocker with no fallback vocabulary invented (279-284), no migration of tests/scenario.tests.sh (285-288), Stream D scoped as preventive-only not a mixed-lane fix (289-292), epic Phase 4 / design-sync issues explicitly excluded (293-297), the single shared test.yml human-copy batch boundary (298-308), and tasks.md/traceability.md/baseline-behavior.md explicitly deferred to later phases with a stated rationale (309-317). The one internal inconsistency found in this batch-boundary framing (Main Workflows item 2 vs. Non-goals/OQ-4) is evaluated and reported under AC-OBSERVABLE above rather than double-counted here; the boundary itself, as stated in Non-goals, OQ-4, and Roles and Permissions (540-563), is explicit and would prevent scope expansion if consistently followed."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated with concrete detail: the Security Boundaries table (requirements.md:653-660) names 4 trust boundaries (B1 live-guard read-only access, B2 inbound-injection fixture isolation, B3 human-copy-only edits to the protected test.yml, B4 mktemp-scoped fixtures / no live network calls) each with an Auth/Authz requirement and data classification. Roles and Permissions (540-563) states exactly which files the Agent may write directly versus must stage via human-copy, and reserves the ADR-0010 Accepted decision and human-copy application to the Human maintainer only. REQ-006 (256-260) states bash-3.2-safety (`declare -A` avoidance, `set -u` array guards) and .ps1 ASCII/LF/no-BOM/`exit N` constraints. The human-copy staging protocol itself is defined once as a Field Definition (522-527) and the Assumptions section (664-704) explicitly flags five stale-state risks (ledger tail, PROTECTED_GATE_SUFFIXES membership, ADR-0010 status, loop-driver.sh stage support, PATH-restriction technique) each with a re-verify-at-implementation-time instruction. No material constraint category (data, compatibility, security, migration, approval) is left unstated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every risk in the Risks section (requirements.md:760-802) carries an explicit validation surface. High (Stream C's ADR-0010 rejection risk, 762-768) is tied to the deliberate no-fallback-vocabulary design decision itself. Medium (test.yml staging sequencing, 769-775) names design.md's Global Constraints as the sequencing owner. Medium (Stream B's 12-combination matrix silently passing on a subset, 776-782) is mitigated by AC-008/009/010's explicit per-combination enumeration and acceptance-tests.md's TEST-ID traceability table. Low-Medium (PATH-restricted stub false-pass, 783-789) is mitigated by the Edge Cases requirement (619-625) that each fixture assert genuine tool absence before asserting on the guard's decision. Low (Stream D step-drop / needs: weakening, 790-802) is mitigated by AC-017's enumerate-and-confirm self-check plus a stated human reviewer verification step in design.md's Deployment/CI Plan. No high-risk claim lacks a planned acceptance-criterion, design.md provision, or explicit human-review validation surface."
+    }
+  ]
+}

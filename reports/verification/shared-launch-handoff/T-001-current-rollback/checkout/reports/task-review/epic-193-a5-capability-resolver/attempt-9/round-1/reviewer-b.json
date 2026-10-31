@@ -1,0 +1,91 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 9,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a9r1-seq0802",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a9r1-0802",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "65877d63b4a385b9e2ed6aaee2f5034cc98e1674fca346e51338d0bfa77cfadd"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-9/round-1/precheck-result.json", "sha256": "0bafc63d6f504032558a1257e1b399311df6801fa36f0c47369310aeda7cf04c"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-9/round-1/integrated-summary.json", "sha256": "ccfdaa2536b6897ecdd5c705fa3690390a6ff710683513ff26e87621c34bfaf8"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003's Risk: high remains consistent with its scope (Registry discovery, per-Capability/per-component trigger evaluation, union-match, any-branch WARN Block — Requirements section, design.md ADR items 1/3). The attempt-9 additions to T-003's REQ-002 share text (rulings C(1)/C(2), AC-057/AC-058) are two more Block/error-path fixture sites within the identical steps 4-9 surface already classified high; they do not change the sensitive-surface classification. No sentinel-surface mismatch found across T-001..T-010. Advisory: this content is unchanged/consistent with the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002, T-003, T-004, T-007, T-008) carries a 'TDD evidence' Done When item requiring RED (fixtures against a deliberately broken/absent implementation) and GREEN (full fixture set against the correct implementation), plus 'An independent quality-gate verdict records PASS' — the framework's independent-review-verdict mechanism (risk-gate-matrix.md 'independent-review verdict', enforced via check-contract/check-evidence-bundle's review_verdict field). No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply to any task. T-003's Done When text supplying this evidence is unchanged by this attempt's amendment (only its Requirements-section citation text and Out-of-Scope note changed)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Task sizing is unchanged by this attempt's amendment (the engine split T-002/T-003/T-004, the isolated T-005 match suite, and the T-006/T-008/T-009/T-010 test tasks reflect four documented remedy passes across attempt-1/attempt-2 task-review rounds). T-003's Scope/Done When still list five named fixtures and four Done-When bullet items, well within bounds. Advisory: unchanged from the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003's Requirements section (new text this attempt) now claims REQ-002 'share' coverage of AC-057 (ruling C(1), TEST-057, fixture `registry-swapped-during-validation`) and AC-058 (ruling C(2), TEST-058, fixture `affected-component-absent-from-context`; acceptance-tests.md lines 97-98), and T-003's Out-of-Scope note affirms by exclusion that 'the step-6.5 site's own fixture is T-003's, ruling C(1)'. But T-003's own Scope (Commit A), Planned Files, and Done When sections still enumerate only the original five fixtures (`affected-component-resolution-failed`, `registry-validation-failed`, `contract-discovery-failed`, `dependency-subprocess-failed`, `dsl-warn-on-matched-capability`) and still say 'five more of sixteen rows, ten of sixteen complete' — no Scope or Done When item in T-003, and no other task in tasks.md, schedules writing the `registry-swapped-during-validation` or `affected-component-absent-from-context` fixtures (verified via repository-wide grep for AC-057/AC-058/TEST-057/TEST-058/the two fixture names across tasks.md: the only hits are the two citation lines inside T-003's Requirements paragraph). AC-058 in particular is not referenced anywhere outside that one Requirements citation, including no Out-of-Scope exclusion attributing it elsewhere. This is new content added by this attempt (not byte-identical to any prior-PASS-bound text), so the TYPE-H convergence rule does not shield it."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-005 (match, integration-style real-subprocess pipeline exercise), T-006 (cli/discovery/lite, integration), T-008 (validate-resolver-evidence, structural/unit-style validator suite), T-009 (parity, cross-runtime integration/determinism), and T-010 (metamorphic, integration) each declare a scope matching their stated test surface; none of this attempt's changes touch these tasks' text. Advisory: unchanged from the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002, T-003, T-004, T-007, T-008 (all Risk: high) each carry an explicit `Rollback:` field describing commit-revert plus explicit human-copy-application-state guidance (e.g. T-003: 'revert this task's two commits ... a revert PR states explicitly whether a human should also hand-revert that applied content back to T-002's own prior version'). This text is unchanged by this attempt's amendment. Advisory: unchanged from the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared-file scope (the four-task `resolve-project-context-block.tests.sh`/`.ps1` suite, the seven-task CI-registration chain, the four-task `resolve-project-context.{py,sh,ps1}` script) is governed by explicit Blockers-ordered append-only rules in Global Constraints, already remedied across four documented task-review passes. This attempt's changes (Requirements citation text, Out-of-Scope clarification, Cross-Model flag, Status flips) do not introduce a new file claim or remove an existing Blockers edge. Advisory: unchanged from the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003's Blockers (T-002) is unchanged by this attempt; the full dependency graph (T-002<-T-003<-T-004; T-005 blocked by T-002+T-004; T-006 blocked by T-004+T-005; T-007 blocked by T-004; T-008 blocked by T-001+T-006+T-007; T-009 blocked by T-002..T-008; T-010 blocked by T-004+T-007+T-008+T-009) was already remedied for spurious/missing edges in attempt-2 round-1 per the documented round-3 DEPENDENCY-OVERLAP remedy. No Blockers field changed in this attempt. Advisory: unchanged from the prior attempt's persisted task-review PASS evidence (reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 through T-010 are all greenfield feature-authoring/test-authoring tasks (schema, engine stages, publication transaction, validator, parity/metamorphic suites) with no task scoped as bugfix, regression fix, debugging, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "EDGE-CASE-COVERAGE",
+      "task_id": "T-003",
+      "severity": "Major",
+      "description": "T-003's Requirements section cites AC-057/AC-058 (rulings C(1)/C(2)) as REQ-002 share coverage, and its Out-of-Scope note attributes the AC-057 fixture to T-003 by exclusion, but no Scope, Planned Files, or Done When item in T-003 (or any other task in tasks.md) schedules authoring the `registry-swapped-during-validation` (TEST-057/AC-057) or `affected-component-absent-from-context` (TEST-058/AC-058) fixtures acceptance-tests.md defines for these two rows. T-003's Done When still counts only 'five more of sixteen rows, ten of sixteen complete.' This is new text added in this attempt (not byte-identical to prior-PASS-bound content), so it requires a scheduled task item before these two edge-case acceptance criteria can be satisfied."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+Requirement-traceability check passed for T-011:
+ - tasks.md T-011 -> REQ-009 (tasks.md:2368, "Requirements: REQ-009"); REQ-009 defined in
+   requirements.md (requirements.md:882, the track-selection contract migration requirement,
+   ADR-0023 / INV-001 / INV-002) and present in traceability.md; T-011 present in
+   traceability.md (requirement row traceability.md:16, task row traceability.md:43,
+   AC->TEST->task row traceability.md:74, planned-files row traceability.md:112).
+ - AC/TEST-024 present in acceptance-tests.md (line 46, document conformance: PLUGIN-CONTRACTS.md
+   documents the 4-case Project-Context-present rule ahead of the retitled compatibility-fallback
+   order), referenced by T-011 (Must Read, Scope and Done When), and implemented in BOTH suites
+   (tests/plugin-contracts-track-selection.tests.sh 4 AC-024 / 3 TEST-024 references,
+   tests/plugin-contracts-track-selection.tests.ps1 3 / 3).
+ - AC->TEST->task mapping table rows checked INDIVIDUALLY rather than by scanning for T-011:
+   AC-024 -> TEST-024 -> T-011 (traceability.md:74) is the ONLY row assigning an AC to T-011.
+   AC-025 -> TEST-025 -> T-012 (:75), AC-026 -> TEST-026 -> T-012 (:76),
+   AC-035 -> TEST-035 -> T-012 (:85) and AC-039 -> TEST-039 -> T-012 (:89) are all owned by
+   T-012. This is consistent, not a gap: tasks.md's T-011 Done When claims only "the
+   unprotected-consumer HALF" of TEST-025/026/039 plus "partial evidence toward AC-035,
+   completed at T-012". The suite's reference counts match that split exactly - TEST-026 15/14,
+   TEST-039 16/11, TEST-035 3/3 (referenced as TEST-035P, the partial marker), and TEST-025
+   ZERO in both lanes, because AC-025 is sdd-ship's own instance of the matrix and sdd-ship is
+   T-012's protected scope. No AC owned elsewhere is CLAIMED by T-011; the partial coverage is
+   labelled as partial in the suite itself.
+ - suite self-registration verified: tests/run-all.sh:67 and tests/run-all.ps1:50, eleventh in
+   numeric order immediately after hook-guard-epic-a1-boundary (T-010). Both runner entries were
+   read directly; the suite also asserts its own registration and the existence of its twin
+   (3 self-registration assertions per lane).
+ - staging verified and PERFORMED, as for T-010: traceability.md:112 names
+   specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml (staged, appended) and
+   .../human-copy/MANIFEST.sha256 among T-011's supporting files. Both exist on disk. The staged
+   workflow registers T-011's suite in both lanes (test.yml:261 bash lane, test.yml:265 pwsh
+   lane), and the manifest entry
+     71b331353ca97dfb97887c36b341e2ec7123b10f1a770101d3cbcfed797064d8  .github/workflows/test.yml
+   was re-computed against the staged bytes this round with `shasum -a 256` and matches
+   byte-for-byte.
+ - planned-files row traceability.md:112 checked item by item against the commit range. Every
+   named path exists and was touched by T-011's two implementation commits: the suite in both
+   lanes, PLUGIN-CONTRACTS.md, the three unprotected consumer SKILL.md files, tests/run-all.sh,
+   tests/run-all.ps1, CHANGELOG.md (APPEND - a single 35-line insertion at line 584), the staged
+   test.yml and MANIFEST.sha256. `git diff --name-only 9652430e HEAD` lists 21 paths in total;
+   the extra ones are the implementation report, the quality-gate report, the evaluator identity
+   ledger and its pending manifest, tasks.md, and T-011's own five Red/Green evidence logs.
+ - EVIDENCE FILENAME CONVENTION, in contrast to T-010: traceability.md:43 names
+   specs/epic-189-a1-project-context/verification/T-011/green-sh.log and .../T-011/red-sh.log as
+   T-011's evidence artifacts, and those are exactly the filenames the implementation recorded,
+   together with their PowerShell twins green-ps1.log / red-ps1.log and mutation-external.log.
+   T-010's chain had to record a mismatch here (green-posix.log / red-posix.log against a row
+   naming green-sh.log); no such divergence exists for T-011.
+ - NOTE, observed rather than adjudicated: the STAGED CI workflow candidate registers only FOUR
+   of this feature's ELEVEN suites - project-context-schema (test.yml:221/225),
+   approver-registry-schema (:232/:236), hook-guard-epic-a1-boundary (:246/:250) and
+   plugin-contracts-track-selection (:261/:265). The seven others (canonicalize-sdd-yaml,
+   generate-approval-sidecar, detect-policy-weakening, validate-approval-sidecar,
+   apply-human-copy, check-hook-activation-handshake, guard-invariants-epic-a1) are registered in
+   tests/run-all.sh and tests/run-all.ps1 but NOT in the staged workflow. Counted directly in the
+   staged file this round. The implementer disclosed this and assigned the backfill to a later
+   task; recorded here so the gap is carried rather than assumed closed.
+ - NOTE, observed rather than adjudicated: REQ-009's requirement row (traceability.md:16) is
+   SHARED between T-011 and T-012. It names PLUGIN-CONTRACTS.md, the three unprotected consumer
+   SKILL.md files and tests/plugin-contracts-track-selection.tests.{sh,ps1} - T-011's half, all
+   present - alongside the two human-copy-protected consumers and
+   tests/ship-track-selection-migration.tests.{sh,ps1}, which are T-012's half and do not exist
+   yet. The split is by design (tasks.md T-011 Out of Scope), not a gap.
+ - NOTE, observed rather than adjudicated: the seq0369 evaluator's fourth Minor records that the
+   handshake wiring text added to the three consumers says "stop with
+   CAPABILITY_RUNTIME_UNAVAILABLE" unqualified, where design.md:1112 says "MUST stop Capability
+   Mode", and requirements.md:1825-1827 calls a disabled-legacy project "a normal, expected
+   condition ... not an error". The gate judged this a forward risk for T-012/AC-035 rather than
+   a T-011 defect, since T-011's Done When requires only that the wiring be PRESENT at each entry
+   point, which it is. Recorded here so it reaches T-012 rather than resting only in the gate
+   report.
+ - NOTE: the two PROTECTED consumers are untouched. `git diff --name-only 9652430e HEAD` contains
+   neither plugins/sdd-ship/skills/ship/SKILL.md nor plugins/sdd-lite/skills/lite-spec/SKILL.md,
+   and the six-case matrix in this task's suite spans four documents, not six - AC-039's full
+   five-consumer matrix remains T-012-owned by specification.

@@ -1,0 +1,167 @@
+{
+  "task_id": "T-001",
+  "feature": "shared-review-launch-repair",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "80584525647fccd41d560850d1b8dfa9a44439644047ab6540212a6bffe60348",
+  "quality_report": "reports/quality-gate/20261009-shared-review-launch-repair-T-001.md",
+  "verification_contract": "specs/shared-review-launch-repair/verification/T-001/T-001.contract.json",
+  "git_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/final-local-checks.md",
+      "evidence_sha256": "667573a2bcbc08231dc77ba50f119a129cc9e6f8cc2632d75e1d82767ce07313"
+    },
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-static-final.log",
+      "evidence_sha256": "43d453bd2d33b121f758026f728256a1a5a2ba9ef1d758bf40a05ab302310ee9"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-static-final.log",
+      "evidence_sha256": "43d453bd2d33b121f758026f728256a1a5a2ba9ef1d758bf40a05ab302310ee9"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-regression-final.log",
+      "evidence_sha256": "b8e9922757232d0a7173eda1e135397bb792811deffb2982577fca8e13c87d25"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-regression-final.log",
+      "evidence_sha256": "b8e9922757232d0a7173eda1e135397bb792811deffb2982577fca8e13c87d25"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/final-local-checks.md",
+      "evidence_sha256": "667573a2bcbc08231dc77ba50f119a129cc9e6f8cc2632d75e1d82767ce07313"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/final-local-checks.md",
+      "evidence_sha256": "667573a2bcbc08231dc77ba50f119a129cc9e6f8cc2632d75e1d82767ce07313"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-current-native-diagnostic.md",
+      "evidence_sha256": "aea0a85710669953e4571a8ae56074b002d7c4b34efa43323d3a9e3982738fbe"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/shared-launch-handoff/T-001-regression-final.log",
+      "evidence_sha256": "b8e9922757232d0a7173eda1e135397bb792811deffb2982577fca8e13c87d25"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/shared-review-launch-repair/verification/T-001/final-local-checks.md",
+      "evidence_sha256": "667573a2bcbc08231dc77ba50f119a129cc9e6f8cc2632d75e1d82767ce07313"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/T-001.contract.json",
+      "sha256": "34e8b5dea8b16b726a252e231e90acb656367445e9045d8fb5c551a18b80f002"
+    },
+    {
+      "path": "reports/quality-gate/20261009-shared-review-launch-repair-T-001.md",
+      "sha256": "c5fbd4421f26dc8f04da021c5c47e504340ad631c912ac7c477b2bb52c828adb"
+    },
+    {
+      "path": "reports/verification/shared-launch-handoff/T-001-current-native-diagnostic.md",
+      "sha256": "aea0a85710669953e4571a8ae56074b002d7c4b34efa43323d3a9e3982738fbe"
+    },
+    {
+      "path": "reports/verification/shared-launch-handoff/T-001-regression-final.log",
+      "sha256": "b8e9922757232d0a7173eda1e135397bb792811deffb2982577fca8e13c87d25"
+    },
+    {
+      "path": "reports/verification/shared-launch-handoff/T-001-static-final.log",
+      "sha256": "43d453bd2d33b121f758026f728256a1a5a2ba9ef1d758bf40a05ab302310ee9"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/final-local-checks.md",
+      "sha256": "667573a2bcbc08231dc77ba50f119a129cc9e6f8cc2632d75e1d82767ce07313"
+    }
+  ]
+}

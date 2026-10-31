@@ -1,0 +1,79 @@
+{
+  "feature": "epic-159-pillar-b",
+  "generated_by": "Phase 2 task-decomposition machine-readable companion; evidence paths are planned and populated at implementation/quality-gate time; frozen traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-004",
+        "TEST-005",
+        "TEST-006"
+      ],
+      "evidence": [
+        "specs/epic-159-pillar-b/verification/T-001/green-sh.log",
+        "specs/epic-159-pillar-b/verification/T-001/red-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010"
+      ],
+      "tests": [
+        "TEST-007",
+        "TEST-008",
+        "TEST-009",
+        "TEST-010"
+      ],
+      "evidence": [
+        "specs/epic-159-pillar-b/verification/T-002/green-sh.log",
+        "specs/epic-159-pillar-b/verification/T-002/red-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-011",
+        "AC-012"
+      ],
+      "tests": [
+        "TEST-011",
+        "TEST-012"
+      ],
+      "evidence": [
+        "specs/epic-159-pillar-b/verification/T-001/green-sh.log",
+        "specs/epic-159-pillar-b/verification/T-002/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-013",
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-013",
+        "TEST-014"
+      ],
+      "evidence": [
+        "specs/epic-159-pillar-b/verification/T-001/green-sh.log",
+        "specs/epic-159-pillar-b/verification/T-001/red-sh.log"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-b-seq0504",
+  "host_session_id": "SESS-task-task-reviewer-b-mcp-readonly-preflight-0504",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-3/integrated-summary.json",
+        "sha256": "8da35babc2a186cd58a00b1c3c7ad5259eb46e1123735e34fb5316575764a7c6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-3/precheck-result.json",
+        "sha256": "c0b4a0fe452b35e945dbdebc1c9a563150892a61ce2a6fb60e6dc464f14eaced"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+        "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+        "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+        "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+        "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+        "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+        "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/tasks.md",
+        "sha256": "af0b579f6492ba6877c592141b2c6e6a53076f362f7581a89d5799349598b60c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/traceability.md",
+        "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+        "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "grep-confirmed current tiers: T-001 tasks.md:243 Risk: medium (adds advisory prose only to bootstrap/SKILL.md; design.md:40 'No contract change is required or permitted by this feature'); T-002 tasks.md:396 Risk: medium (stages a human-copy candidate only, never opens live protected path for write, tasks.md:502-518); T-003 tasks.md:542 Risk: medium and T-004 tasks.md:612 Risk: medium (documentation-only capability-inventory claims, security-spec.md B4, no executable behavior); T-005 tasks.md:670 Risk: low (zero product-file changes, BL-001, read-only verification of an already-true property, requirements.md:166). No task's Scope/Done-When touches authentication, authorization, payment, PII storage, data migration, or an externally-visible API contract (design.md:40 explicitly rules out contract change) so no low/medium task under-classifies a sentinel surface, and no task carries Risk: high/critical so the over-classification clause cannot be triggered. Unchanged from round 2 and re-verified fresh against current text."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "grep-confirmed (tasks.md:243,396,542,612,670): T-001/T-002/T-003/T-004 = Risk: medium, T-005 = Risk: low. No task carries Risk: high or Risk: critical, so the mandatory Done-When evidence set (Red->Green TDD capture, named independent-reviewer verdict, and for critical a second approver + signed evidence bundle) has no task to attach to; the check is vacuously satisfied per risk-gate-matrix.md:28-33's tier-conditioned requirements."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Re-counted directly (grep '^- \\[ \\]'): T-001 has exactly 8 top-level Done-When checkboxes (tasks.md:305,320,330,343,348,355,365,381); T-002 has exactly 8 (tasks.md:457,469,486,492,497,502,519,524); T-003, T-004, T-005 each have exactly 5 (tasks.md:586-601, 646-659, 710-733). None exceeds the >8-item oversized threshold. Round-3 edits touched only the two Test Type prose fields (tasks.md:271-282, 427-435); no checkbox was added, removed, or split, so the round-2-verified checkbox counts and their sub-item TEST-ID coverage (e.g. T-001's absence-checks item at tasks.md:330-342 still separately names TEST-004/005/006/007) are unchanged. Scope remains single-file/single-concern per task (T-001->bootstrap/SKILL.md, T-002->one staged candidate+manifest, T-003->USERGUIDE.md, T-004->README.md, T-005->verification-only reads of 3 mcp/*/src/server.ts files with zero writes); no title implies multi-phase work; no fragmentation indicators (no task reduced to a single trivial edit, no 3+ single-function-only tasks)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task binds error-path/edge-case ACs, not only happy-path. T-001/T-002 (Requirements lines tasks.md:284-288, :437-440) carry AC-008/AC-009/AC-010/AC-011 (fallback when MCP absent or call fails, requirements.md:116-126), AC-012/AC-013 (differential outcome-equality, requirements.md:134-140), and AC-027a/AC-027b (probe/file divergence branch, requirements.md:148-157). T-003/T-004 (AC-021-024, happy-path-shaped claims) are guarded by an explicit false-positive check: acceptance-tests.md:140 records USERGUIDE.md:99 already contains an unrelated advisory-wording occurrence making a bare-keyword check a live false positive, reflected in tasks.md:596-600 (T-003 Done-When item 4) and T-004's AC-027 regression guarantee (tasks.md:653-654) that the existing suite must stay green unmodified. T-005 is itself a preservation/edge-case verification task (confirms an absence property, requirements.md:164-179). No functional task has only unguarded happy-path criteria. Unchanged from round 2, re-verified fresh."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2's FAIL is resolved. T-001's Test Type field (tasks.md:271-282) now separately types the AC-001 wording check as 'Integration (real file read)' (matches acceptance-tests.md:11, TEST-001) and the AC-004...AC-007 absence checks as 'unit (literal-absence, both skills -- acceptance-tests.md rows TEST-004...TEST-007)' (matches acceptance-tests.md:14-17 exactly, which classify TEST-004/005/006/007 as 'unit (literal-absence, both skills)'), plus 'integration' for AC-008/009/012/027a/027b (matches acceptance-tests.md:18,19,22,38,39) and 'runtime exercise with no determined method' for AC-017-020 (matches acceptance-tests.md:27-30 + design.md Test Strategy point 3). T-002's field (tasks.md:427-435) now itemizes: wording elements 'integration, real file read' (matches acceptance-tests.md:12, TEST-002), absence checks 'unit -- literal-absence, both skills' for the ship leg of AC-004...AC-007 (matches acceptance-tests.md:14-17), fallback/differential/divergence cases as 'integration' (matches acceptance-tests.md:20,21,23,38,39 for TEST-010/011/013/027a/027b), 'integration (guard/provenance)' for TEST-003 (matches acceptance-tests.md:13 exactly) and 'integration (hash conformance)' for TEST-025/TEST-026 (matches acceptance-tests.md:35,36 exactly). Also re-verified the two tasks not touched by the round-3 edit: T-003's field (tasks.md:567-571, 'integration (real file read) -- TEST-021/TEST-022') matches acceptance-tests.md:31,32; T-004's field (tasks.md:630-631, 'integration (real file read) -- TEST-023/TEST-024') matches acceptance-tests.md:33,34; T-005's field (tasks.md:692-698, 'unit (static, tool registry read across three servers, plus an HTTP-method check for ci-mcp) -- TEST-014/TEST-015/TEST-016') matches acceptance-tests.md:24-26 exactly, including the HTTP-method element unique to TEST-016. No task's declared type now contradicts acceptance-tests.md's per-row typing anywhere in the document."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task carries Risk: high or Risk: critical (tasks.md:243,396,542,612,670), so the check's mandatory trigger is absent. All 5 tasks nonetheless carry explicit Rollback: fields, unchanged by the round-3 edit and re-verified at current line numbers: T-001 tasks.md:292-301 (single-commit prose revert, cross-task interaction with T-002 disclosed), T-002 tasks.md:444-453 (agent-commit revert vs. human-apply-commit revert distinguished), T-003 tasks.md:577-582, T-004 tasks.md:638-642, T-005 tasks.md:704-706 (nothing functional to revert). No gap."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Global Constraints (tasks.md:190-197) states 'no two tasks below write the same file'; current per-task scopes confirm this, unchanged by the round-3 edit: T-001 writes only bootstrap/SKILL.md; T-002 writes only the staged human-copy candidate + MANIFEST.sha256, never the live protected path (tasks.md:502-518); T-003 writes only USERGUIDE.md; T-004 writes only README.md; T-005 writes no product file (verification-only, tasks.md:733-735). tests/workflow-documentation.tests.sh is referenced by both T-001 (tasks.md:381-386, 'passes unmodified') and T-004 (tasks.md:653-654, 'passes unmodified') but both are explicit read-only regression checks, not writes -- no write-write overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 tasks declare 'Blockers: None' (tasks.md:290, :442, :575, :636, :702), unchanged by the round-3 edit. Justified by Global Constraints (tasks.md:190-197: 'no two tasks below write the same file, and none of the four writable-target tasks ... depends on T-002's content') and corroborated by traceability.md:118-125 ('every task above carries Blockers: None ... T-002's human-applied second commit ... is a handoff, not a task dependency: no other task's Done-When depends on that commit having landed'). No task's Scope consumes another task's output artifact, so no missing blocker is evident and no declared 'None' is spurious."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 5 tasks (T-001 add probe to bootstrap, T-002 stage probe for ship, T-003/T-004 add policy prose, T-005 verify existing write-tool absence) are net-new feature, documentation, or preservation-verification work. requirements.md:11 states 'The probe is a genuine create ... there is no partial implementation to extend', and T-005 is framed as a 'preservation obligation ... satisfied today' (requirements.md:166, tasks.md:672-684), not remediation of a broken state."
+    }
+  ],
+  "findings": []
+}

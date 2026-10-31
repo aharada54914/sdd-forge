@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 12,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "fa3c54bd6d25479715718a3eec228c4e683a626d4814763d49e9b3b88f9dabde",
+  "acceptance_sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "85353793882f62b70bd41574c55325580f34739801a30170f7d501743490c5d9",
+  "edit_summary": "Round-3 comprehensive amendment under ruling (F): both round-2 Criticals were the same amendment-propagation defect (three sites amended, siblings left contradicting). This round covers the UNION of both reviewers enumerations - a Ruling Annotations reading rule before the AC table, inline markers at requirements.md AC-011/012/039/047/049 rows, the REQ-002 closing paragraph, the REQ-004 reconciliation footnote, the Field Definitions Block entry, Edge Cases, and both Security Boundaries sentences (12 sites), with a sweep grep proving no exception-count statement survives unannotated.",
+  "reset": false,
+  "generated_at": "2026-09-03T04:02:18Z"
+}

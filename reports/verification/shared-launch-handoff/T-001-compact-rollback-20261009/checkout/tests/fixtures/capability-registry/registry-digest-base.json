@@ -1,0 +1,15 @@
+{
+  "schema": "capability-registry/v1",
+  "note": "baseline",
+  "gates": [
+    {"id": "gate-z", "weight": 1e+0, "label": "zeta"},
+    {"id": "gate-b", "weight": 2, "label": "beta"},
+    {"id": "gate-a", "weight": 1.0, "label": "alpha"},
+    {"id": "gate-x", "weight": 10, "label": "extra"}
+  ],
+  "capabilities": [
+    {"id": "cap-beta", "gate_ids": ["gate-b"], "label": "Beta"},
+    {"id": "cap-alpha", "gate_ids": ["gate-z", "gate-a"], "label": "Alpha"},
+    {"id": "cap-empty", "gate_ids": [], "label": "Empty"}
+  ]
+}

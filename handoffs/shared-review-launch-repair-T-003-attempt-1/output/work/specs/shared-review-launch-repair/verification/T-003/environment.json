@@ -1,0 +1,13 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.5 (main, May 10 2026, 10:21:34) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "native_cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-1/output",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "identity_source": "user launch and admitted manifest",
+  "session_id": "01a12583-257f-7080-be3a-990769d55d37",
+  "agent_instance_id": "01a12583-257f-7080-be3a-990769d55d37",
+  "runtime_probe": "NOT RUN after required-input stop; Python exercised only",
+  "native_windows": "NOT RUN"
+}

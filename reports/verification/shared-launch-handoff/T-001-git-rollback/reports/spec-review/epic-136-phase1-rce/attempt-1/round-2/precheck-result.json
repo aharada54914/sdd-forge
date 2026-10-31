@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-rce",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "57d21b51140436f462910eaaa46cd4d6f69292de676f3c960a992d357fa8bae7",
+  "acceptance_sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "b3fb92b04269e9b259e78bd09bf63ee6db9e2d5defae5f99c8c2a72d839c138c",
+  "edit_summary": "round2-coverage-and-powershell-parity",
+  "reset": false,
+  "generated_at": "2026-07-10T06:06:21Z"
+}

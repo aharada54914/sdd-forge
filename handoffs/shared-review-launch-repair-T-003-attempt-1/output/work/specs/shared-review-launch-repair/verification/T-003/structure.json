@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "sh",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-1/output/work/scripts/check-sdd-structure.sh",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-1/output/work",
+    "shared-review-launch-repair"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-003-attempt-1/output",
+  "exit": 0,
+  "stdout": "advisory: CLAUDE.md\nhost: github\ncheck-sdd-structure: OK\n",
+  "stderr": ""
+}

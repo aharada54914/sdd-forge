@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-194-a6-impl-review-a2-r1-reviewer-a-seq773",
+  "host_session_id": "SESS-epic-194-a6-impl-review-a2-r1-reviewer-a-773",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-194-a6-lite-integration/attempt-2/round-1/precheck-result.json", "sha256": "cca02227fd1f6db7c8ff803b3064744b8e3b4f581472ebf9e060997b1953d615"},
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "c2a0be281775fdd94ce67b09f3e043416f4748ba5f982436cac256ea5080ae41"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/design.md", "sha256": "43d486353958d1b344774dfd0604461dc667c8eb5fd1ec84df313773a3090c3c"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "929d112f3f33705c1458cfbd5f67bfa005878673c0807dd5a89c5c9f44830012"},
+    {"path": "specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+    {"path": "specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"},
+    {"path": "specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "245e19aa940e95118502671eb4b6ce16799e72a02115e43f36161c83e763991e"},
+    {"path": "specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "7aee7ea715e9abe36a9bbc3ee8cd3368d3b38a12595830022a03775bf2d3f88d"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "non-UI schema/CLI/skill-process design (design.md Feature Type header does not literally match fullstack/api-only/frontend-only/cli/library, but ux-spec.md and frontend-spec.md independently confirm no UI surface)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:45-131 Architecture section provides an ASCII diagram split by REQ area (REQ-001 Registry v1.1 extension; REQ-002/005 pre-generation gate wiring; REQ-003/004 post-implementation gate wiring), each showing top-level component boundaries (contracts/capability-registry.schema.json, lite-check-catalog.json, lite-upgrade-reason-catalog.json, check-risk-upgrade.{sh,ps1}, lite-spec/SKILL.md, lite-gate/SKILL.md) and their interactions (arrows showing data/control flow, merge/OR logic, exit-code branches). Integration with existing components is explicit throughout (A2's Registry/validator, A4's Capability Summary schema, A5's Resolver, Epic A1 Project Context, the live sdd-lite plugin). Technology choices are named per component in the Components table (135-148): JSON Schema for contracts, bash/PowerShell for scripts, Markdown for skills; frontend/infra layers are explicitly N/A (confirmed independently by ux-spec.md/frontend-spec.md/infra-spec.md, all in this manifest). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture (design.md:45-131) and Components (133-148) sections state an explicit, one-directional dependency graph: capability-registry.schema.json -> lite-check-catalog.json / lite-upgrade-reason-catalog.json -> validate-capability-registry; lite-spec/SKILL.md -> evaluate-predicate (signal source) -> check-risk-upgrade.{sh,ps1}; lite-gate/SKILL.md -> capability-summary.yaml (A5-written) / Project Context (A1, read-only) -> command-discovery contract. No component is stated to depend, directly or transitively, on a component that itself depends on it (e.g. check-risk-upgrade never reads back from lite-gate; the Registry never reads from lite-gate/lite-spec). No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:389-537 Data Plan does not use the literal bolded labels 'Data Entities:'/'Existing Data Affected:'/'Migration Strategy:' but substantively covers all three: new/modified entities are named and schema-fixed (lite_policy v1.1 fragment, new contracts/lite-check-catalog.json, lite-upgrade-reason-catalog.json catalog_version 2, the in-process Capability-derived trigger fragment); the existing entity affected is explicit (capability-registry.schema.json's lite_policy sub-schema, an A2-owned file, gains one additive optional key); and a migration/backward-compatibility rule is stated (absent required_lite_checks key defaults to [], cross-referenced to requirements.md REQ-001's own migration rule item 3, confirmed present at requirements.md:625). No missing sub-field content."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:539-767 API / Contract Plan lists every new/changed contract surface this feature introduces: REQ-001 validator check (j), REQ-002 check-risk-upgrade's extended CLI (full request/processing/response shape, exit codes 0/2/10), REQ-005 lite-spec Risk-Upgrade Gate extension, REQ-003/004 lite-gate Process extension (Step 2a/2b), and the new Lite-check command-discovery contract. Byte-identical-when-omitted behavior for the extended CLI is explicit (AC-007), so no existing call site breaks; no deprecation is proposed. Comprehensive for a design with no HTTP surface (CLI/skill-process contracts are the feature's equivalent surface)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1045-1083 Security Boundaries names the fail-closed behavior at every new input/read this design adds (invalid --capability-reasons fragment, unknown catalog token, absent/invalid Capability Summary under active enforcement, full_upgrade_required, unmapped/malformed check-id), states the protected-file/human-copy authorization mechanism at the one write-adjacent boundary this feature touches, and is elaborated in full in security-spec.md (Trust Boundaries B1-B6, STRIDE table, Authorization table, Data Classification table explicitly stating no PII/credential anywhere in this feature's data, and an OWASP Mapping table covering Injection/Software-and-Data-Integrity/Security-Misconfiguration/Broken-Access-Control, with N/A correctly recorded and justified for Cryptographic Failures and Identification/Authentication Failures). All items required by the primary TYPE-D check are present and cross-cited to design.md/requirements.md content already at Spec-Review-Status: Passed."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md contains no '## Frontend Plan' or '## Backend Plan' section (full '## ' heading list checked, design.md:18-1141), and both ux-spec.md and frontend-spec.md (in this manifest) independently and explicitly state this feature has no browser/client UI, no new runtime service, and no new plugin. design.md's 'Feature Type:' header is a descriptive sentence rather than one of the five literal enum values, but its substance (an additive schema-revision design plus documented, non-implemented extensions to existing CLI/skill-process files) places it in the same non-UI class as 'library'/'cli', for which this check is defined to skip."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:768-905 Test Strategy elaborates requirements.md REQ-006's twelve-item lettered inventory into seventeen numbered, concrete design-phase-target fixtures, each naming a suite file family, exact expected output/exit code, and its requirements.md AC citation (cross-checked against acceptance-tests.md's own AC/TEST-NNN rows, e.g. TEST-007/AC-007, TEST-027/AC-027). Coverage spans schema/catalog-shape locks (unit-level), cross-component consumption fixtures (lite-gate-summary-consumption, integration-level, item 7), and a Global registration-drift fixture (item 10, AC-025) run against the live repository post-registration. No critical user journey / E2E path applies (no UI feature, confirmed by ux-spec.md/frontend-spec.md), so no E2E artifact is required; acceptance-tests.md's own Spec-Authoring-Time Manual Review Record additionally documents which ACs (AC-020/022/023/024/025/029) are verified by direct inspection rather than an automated suite, with reasoning for each. Concrete, inspectable evidence throughout."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture/Components/API-Contract-Plan is defined in the Components table (design.md:135-148) or is an established, already-existing system component cited via investigation.md (e.g. generate-gate-capabilities, design.md:66/855/1092, cited unmodified against investigation.md INV-018; check-sdd-structure.sh/check-workflow-state.sh, Test Strategy item 10, cited against investigation.md INV-011; evaluate-predicate, Components table row, cited as 'A2's existing evaluate-predicate CLI'). No reference to an undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:373-387 ADR Change Log states explicitly 'No new ADR is proposed by this design'; every rule applied is already Accepted (ADR-0016, ADR-0017, ADR-0022) or already content-frozen in a sibling epic's own Passed schema. The two decisions this design newly makes (the eleven-category-to-token mapping, and OQ-002's resolved signal-source mechanism) are explicitly flagged as 'candidates for a possible future ADR', explicitly not proposed as one by this package -- matching the check's own 'no ADRs referenced and no new architectural decisions requiring one' PASS condition. No file-existence verification of docs/adr/ was performed or required, since no new ADR document is referenced as already authored by this design."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: verified no design-system/ directory exists at the project root (test -d design-system, run against the checked-out worktree, by direct analogy to the boundary reference's explicitly permitted domain/-existence check, since DESIGN-SYSTEM-CONFORMANCE requires the identical applicability determination). Per the check's own rule this is an automatic PASS/skip regardless of design.md's Design System Compliance section wording. design.md's own section ('Not applicable -- no UI surface') is additionally consistent with ux-spec.md's and frontend-spec.md's independent 'no UI' statements."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: verified no domain/ directory exists at the project root (test -d domain, the explicitly permitted existence check per the review-context boundary reference). Check does not apply."
+    }
+  ]
+}

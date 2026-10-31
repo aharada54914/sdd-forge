@@ -1,0 +1,207 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "shared-review-launch-repair",
+  "task_id": "T-001",
+  "implementation_report": {
+    "path": "reports/implementation/shared-review-launch-repair/T-001.md",
+    "sha256": "b4ca097a7cc797845b24ddf412cb3d7dbff566a45d539563e09f52ed8d8acf6e"
+  },
+  "artifacts": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37"
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c"
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77"
+    },
+    {
+      "path": "tests/task-structured-output.tests.py",
+      "sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+      "sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1"
+    },
+    {
+      "path": "tests/t001-evaluation-preparation.tests.py",
+      "sha256": "3084930b388fbda017321217249cead798bd0e30812895a1cc6c58ffc273431b"
+    },
+    {
+      "path": "tests/supplemental-delivery-declaration.tests.py",
+      "sha256": "71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "sha256": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "eba7b35b371e355110182682eddbe431b8eecf13c91350077e530cac9d64839a"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "af2225cf472973a84bac1c7727d2d79ff1844a87d36fe1c00701152d48b21486"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "891b86d9d21b63e66c4cf320fd8c67dd05e5653bbc5effebb2d32daca7ffd414"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-repair-evidence.md",
+      "sha256": "eac4b750811c010050706ae38ded5fb8a572c794d48db8a9ab10154d16c461cf"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-audit.md",
+      "sha256": "dbb5b624b0973a91afed055d6b0f85ad7f11ac17993a13f276a329f80d465911"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-baseline-hashes.json",
+      "sha256": "5c5d520898e6fdebc5f108b33ef5a8a70d4ecf25223049079890c5ddc390c025"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-host-review-preflight.log",
+      "sha256": "e31f3e41311d72413b992a5800b780157f60b95540dcb55efa41c0f24fd2c625"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-quality-nontty-transport.log",
+      "sha256": "ca74e548595f582b06dc9c2c9cb7fe0829c3249deea87e6fc4136c2da8ea293b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-results.json",
+      "sha256": "f2793fc8213188e26d271f0e03e639b6d56d684355093d49ae3a413994c57af9"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-review-conditional-inputs.log",
+      "sha256": "fe8688dba4de04d62266df7e4445b5206c5c85d6425f5767230e7965ade1a922"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-shared-launch-build.log",
+      "sha256": "2ccabbecd5d22a0a4223473796c0e32a371c48d7004b730001f2768cb0243cfa"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-unified-launch-order.log",
+      "sha256": "981350af972e9ca365d29ea97ee1134a50c8f56b017984a7af22f1fe6d08b071"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-candidate-unified-task-launch.log",
+      "sha256": "3618db4238830ab18d523d1dd5fcbfc1b6acc124de9cc0ec51778e3cc376d93c"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-check-candidate.json",
+      "sha256": "61dc72c88cf0528ef14ffe6d11214a0e042ba61269e3ae45b2d1586e70476a7d"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-check-restored.json",
+      "sha256": "10ab2d2e8bb7e0b97bc0e1ff1704f01c66510d832e3e0ef19886c3c5cd4b28df"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-context.json",
+      "sha256": "1f4272f810a67bb67e4d855b001745c8772130e885619c73c64d21a5f37135fe"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-26-hashes.json",
+      "sha256": "5c5d520898e6fdebc5f108b33ef5a8a70d4ecf25223049079890c5ddc390c025"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-host-review-preflight.log",
+      "sha256": "62f4decbacb2e031de4e76f2bc96caa7cf3ec498967ced4083e0885df723cc1e"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-quality-nontty-transport.log",
+      "sha256": "1fb44a12dd8a56cd9b00448451555b7f43fdc98501374f3348f2a84eac327661"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-results.json",
+      "sha256": "2570b24f040a4f27469485bcc59d01486a5f8daf600ae0fb3fbe0218a85f3641"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-unified-launch-order.log",
+      "sha256": "771dcb69cad7d0fb2ff1f9f4ec638c5fda9e3b7e7d22095934b5942b2463e021"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-restored-unified-task-launch.log",
+      "sha256": "1ebdce91439e9bfc7a21d0017ff6adf6c8480a0f84b52a3bd00476c3ff1911d8"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-target-hashes.json",
+      "sha256": "b86266048a54074b48e3329c4468601985dc11884aebf17ba40ecbe6eac47f8f"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/compact-runtime-rollback-verify.mjs",
+      "sha256": "a6082c649a2fdd5fab78315b4f385e54d5d0dbf1324180c3558dbcefaef50461"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/historical-evidence.json",
+      "sha256": "9496ea8b1719efb9fae6093a09e0e1445c0f26a543822a98ab69e87b6541d371"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/historical-quality-pass.md",
+      "sha256": "c5fbd4421f26dc8f04da021c5c47e504340ad631c912ac7c477b2bb52c828adb"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/host-review-preflight.log",
+      "sha256": "9928c97198be540f25b2cb1d2ad108f7aed79a15ebca980295c3601f33afdb7f"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/quality-nontty-transport.log",
+      "sha256": "ede4580e60c525ab5b1b6f432f6965eff43911dcff42f3f8692e906d6ad11b2a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/review-conditional-inputs.log",
+      "sha256": "ad3ba8714cb9dd3525708b72afbd140afd79adb172c9f9480080c7ac97a6f3b7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/shared-launch-build.log",
+      "sha256": "11f1e5cb99bea7856340240d499e56810442651b08d8f45f2ba1d75d1fce6a95"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/supplemental-delivery-declaration.log",
+      "sha256": "c283c0de54622b73b300c5378eca1e2c42379ecd2d53e98e3579b1b96c3060b9"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/t001-evaluation-preparation.log",
+      "sha256": "de9c51d6f58a00782c299c05bebf9b644162cb297004a333333ce19b793d012b"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/task-structured-output.log",
+      "sha256": "8566ac2033b669b6e07fac77019f2ec824bb9b5e2431dc9d434d89929d2d562e"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/unified-launch-order.log",
+      "sha256": "2ca92068b0f026455a5639d6e77d6ad2ee972684cf766464e64b13c8fdeca9e3"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/unified-task-launch.log",
+      "sha256": "1d5e16341afb0f8d079dfb79054c2f9e4aa8d0c83fbf88a9bce0380da7daf3dc"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/addendum.md",
+      "sha256": "b5377d4a8a65c7b5e47d1fdc9f6aecfb314e95c187103563fb3965956cc696df"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-001/current-20261009/coverage-repair.md",
+      "sha256": "290332a318722a231b88822a1eafef6b53f773b7ef31da908dce4af742b36f29"
+    }
+  ]
+}

@@ -1,0 +1,494 @@
+=== gate-time checks for T-005 (epic-192-a4-facet-manifest) cycle 1 ===
+date: 2026-08-17T08:28:15Z
+HEAD: 24e4b1ebe627ac8ba3ff64a8321d9f82d0c2e2bc
+git status --short (expect empty):
+?? specs/epic-192-a4-facet-manifest/verification/T-005/gate-c1-checks.log
+
+----- bash tests/facet-manifest-parity.tests.sh -----
+ok: TEST-031 validate-facet-manifest: canonicalizer-roundtrip-valid.yaml (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-absent-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-aggregate-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-invalid-value.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-false-missing-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-false-with-reason-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-true-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-true-with-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-empty-dependency-pointers.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-full-context-revision-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-ownership-digest-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-projection-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-registry-digest-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-registry-digest-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: decision-doc-v2-section16-worked-example.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-all-roots-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-malformed-rfc6901.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-root-not-allowlisted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-affected-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-required-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: empty-arrays-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-invalid-operator.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-warn-missing-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-warn-with-reason-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-empty-upgrade-reasons-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-missing-eligible.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-missing-upgrade-reasons.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: manifest-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-affected-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-conditional-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-context-binding.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-feature.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-lite-eligibility.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-required-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-resolved-gates.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-resolver.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-invalid-stage.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-blocking.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-id.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-stage.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-valid-multi.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-malformed-semver.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-valid-semver.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-version-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: upgrade-reasons-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: valid-base.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: affected-components-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capabilities-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facets-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: facet-classification-conflict.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: fully-clean.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-facets-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-id-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gates-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: schema-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: upgrade-reasons-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: feature-invalid-pattern.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: feature-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-feature.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-full-upgrade-required.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-required-lite-checks.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-track.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: summary-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: track-invalid-value.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: characteristics-pii-non-boolean.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: component-unknown-field.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: components-empty-string-key.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: components-still-array-shaped.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: platform-targets-missing-architecture.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: projection-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: provider-bindings-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: rekeyed-two-component-non-slug-id.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-shared-paths.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-source-sha256.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-workflow.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: schema-invalid-const.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-both-rejected.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-bounded-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-missing-pattern.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-neither-rejected.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-unbounded-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-omission-empty-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-sha256-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-artifact-layout-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-capability-enforcement-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-artifact-layout.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-capability-enforcement.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-spec-profile.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-spec-profile-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs registry-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs gate-blocking-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs evidence-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: minimum-enforcement-old.json vs minimum-enforcement-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs projection-digest-only-new.json (weakened/not-weakened/not-weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs registry-digest-only-new.json (not-weakened/indeterminate/not-weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs no-axis-change-semantic-differs-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs ownership-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs ownership-digest-only-new.json (not-weakened/not-weakened/indeterminate/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-axis-mixed-verdict-new.json (not-weakened/not-weakened/weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-axis-mixed-verdict-new.json (not-weakened/indeterminate/weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs patch-bump-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-changed-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-unchanged-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-new.json (not-weakened/not-weakened/not-weakened/major) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-block-new.json (weakened/not-weakened/not-weakened/major) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-rule-set-bump-changed-new.json (not-weakened/not-weakened/not-weakened/minor-rule-set) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-semantic-changed-new.json (not-weakened/not-weakened/not-weakened/major) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs feature-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs affected-components-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs required-facets-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs lite-eligibility-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-component-bump-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: schema-invalid-manifest.json vs registry-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs schema-invalid-manifest.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-changed-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: manifest-non-utf8-bytes.bin vs base-old.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: nonexistent --old-manifest path (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: missing --resolver-version-bump (exit-3 diagnostic channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: out-of-enum --registry-weakening (exit-3 diagnostic channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: Windows-style backslash path argument (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: Windows-style backslash --old-manifest path (exit-3 channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (py)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (py)
+ok: TEST-032 installed-layout discovery: validate-context-projection (py)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (py)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (sh)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (sh)
+ok: TEST-032 installed-layout discovery: validate-context-projection (sh)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (sh)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (ps1)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (ps1)
+ok: TEST-032 installed-layout discovery: validate-context-projection (ps1)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (ps1)
+ok: TEST-032 non-vacuity canary: removing the packaged contracts/ copy makes discovery fail closed (schema-discovery-failed)
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-semantics.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-semantics.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/capability-summary-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/capability-summary-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/context-projection-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/context-projection-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-staleness.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-staleness.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-parity.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-parity.tests.ps1
+ok: TEST-033: the staged .github/workflows/test.yml candidate carries all six suites' CI steps
+ok: TEST-033: staged candidate sha256 matches its own MANIFEST.sha256 entry
+ok: TEST-033: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it)
+ok: TEST-043: facet-manifest.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: capability-summary.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: context-projection.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: validate-facet-manifest.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: validate-capability-summary.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: validate-context-projection.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: compare-facet-manifest-staleness.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043 non-vacuity canary: the dirty fixture is correctly flagged (azure,aws)
+ok: TEST-043: the clean fixture (this feature's own provider-neutral vocabulary) produces no false positive
+ok: TEST-043: the clean fixture genuinely contains 'distribution_channels' (the no-hit result above is not vacuous)
+ok: vendor-capability-registry.py --check exits 0 against the clean tree (extended to cover the three new schema filenames)
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-parity: 178 passed, 0 failed
+exit=0
+
+----- pwsh -NoProfile -File tests/facet-manifest-parity.tests.ps1 -----
+ok: TEST-031 validate-facet-manifest: canonicalizer-roundtrip-valid.yaml (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-absent-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-aggregate-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capability-minimum-enforcement-invalid-value.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-false-missing-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-false-with-reason-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-true-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-applied-true-with-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-empty-dependency-pointers.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-full-context-revision-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-ownership-digest-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-projection-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-registry-digest-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: context-binding-registry-digest-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: decision-doc-v2-section16-worked-example.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-all-roots-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-malformed-rfc6901.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: dependency-pointer-root-not-allowlisted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-affected-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: duplicate-required-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: empty-arrays-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-invalid-operator.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-warn-missing-reason.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: evidence-warn-with-reason-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-empty-upgrade-reasons-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-missing-eligible.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: lite-eligibility-missing-upgrade-reasons.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: manifest-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-affected-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-conditional-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-context-binding.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-feature.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-lite-eligibility.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-required-facets.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-resolved-gates.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-resolver.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-invalid-stage.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-blocking.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-id.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-missing-stage.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-valid-multi.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-malformed-semver.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-valid-semver.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolver-version-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: upgrade-reasons-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: valid-base.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: affected-components-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: capabilities-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facet-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: conditional-facets-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: facet-classification-conflict.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: fully-clean.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: required-facets-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gate-id-duplicate.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: resolved-gates-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: schema-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: upgrade-reasons-not-sorted.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: feature-invalid-pattern.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: feature-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-capabilities.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-feature.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-full-upgrade-required.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-required-lite-checks.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: required-missing-track.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: summary-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-capability-summary: track-invalid-value.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: characteristics-pii-non-boolean.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: component-unknown-field.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: components-empty-string-key.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: components-still-array-shaped.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: multi-diagnostic-ordering.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: platform-targets-missing-architecture.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: projection-non-utf8-bytes.bin (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: provider-bindings-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: rekeyed-two-component-non-slug-id.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-components.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-schema.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-shared-paths.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-source-sha256.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: required-missing-workflow.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: schema-invalid-const.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-both-rejected.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-bounded-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-missing-pattern.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-neither-rejected.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: shared-path-unbounded-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-omission-empty-valid.json (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-sha256-malformed-digest.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: source-sha256-trailing-newline.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-artifact-layout-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-capability-enforcement-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-artifact-layout.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-capability-enforcement.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-missing-spec-profile.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-context-projection: workflow-spec-profile-invalid.json (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs registry-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs gate-blocking-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs evidence-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: minimum-enforcement-old.json vs minimum-enforcement-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs projection-digest-only-new.json (weakened/not-weakened/not-weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs registry-digest-only-new.json (not-weakened/indeterminate/not-weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs no-axis-change-semantic-differs-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs ownership-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs ownership-digest-only-new.json (not-weakened/not-weakened/indeterminate/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-axis-mixed-verdict-new.json (not-weakened/not-weakened/weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-axis-mixed-verdict-new.json (not-weakened/indeterminate/weakened/none) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs patch-bump-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-changed-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-unchanged-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=0, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-new.json (not-weakened/not-weakened/not-weakened/major) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-block-new.json (weakened/not-weakened/not-weakened/major) (exit=2, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-rule-set-bump-changed-new.json (not-weakened/not-weakened/not-weakened/minor-rule-set) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-semantic-changed-new.json (not-weakened/not-weakened/not-weakened/major) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs feature-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs affected-components-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs required-facets-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs lite-eligibility-change-new.json (not-weakened/not-weakened/not-weakened/none) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs multi-component-bump-new.json (not-weakened/not-weakened/not-weakened/minor) (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: schema-invalid-manifest.json vs registry-digest-only-new.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs schema-invalid-manifest.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs minor-bump-changed-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: base-old.json vs major-bump-new.json (not-weakened/not-weakened/not-weakened/patch) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: manifest-non-utf8-bytes.bin vs base-old.json (not-weakened/not-weakened/not-weakened/none) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: nonexistent --old-manifest path (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: missing --resolver-version-bump (exit-3 diagnostic channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: out-of-enum --registry-weakening (exit-3 diagnostic channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 validate-facet-manifest: Windows-style backslash path argument (exit=1, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-031 compare-facet-manifest-staleness: Windows-style backslash --old-manifest path (exit-3 channel) (exit=3, stdout/stderr byte-identical across .py/.sh/.ps1)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (py)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (py)
+ok: TEST-032 installed-layout discovery: validate-context-projection (py)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (py)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (sh)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (sh)
+ok: TEST-032 installed-layout discovery: validate-context-projection (sh)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (sh)
+ok: TEST-032 installed-layout discovery: validate-facet-manifest (ps1)
+ok: TEST-032 installed-layout discovery: validate-capability-summary (ps1)
+ok: TEST-032 installed-layout discovery: validate-context-projection (ps1)
+ok: TEST-032 installed-layout discovery: compare-facet-manifest-staleness (ps1)
+ok: TEST-032 non-vacuity canary: removing the packaged contracts/ copy makes discovery fail closed (schema-discovery-failed)
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-semantics.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-semantics.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/capability-summary-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/capability-summary-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/context-projection-schema.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/context-projection-schema.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-staleness.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-staleness.tests.ps1
+ok: TEST-033: tests/run-all.sh registers tests/facet-manifest-parity.tests.sh
+ok: TEST-033: tests/run-all.ps1 registers tests/facet-manifest-parity.tests.ps1
+ok: TEST-033: the staged .github/workflows/test.yml candidate carries all six suites' CI steps
+ok: TEST-033: staged candidate sha256 matches its own MANIFEST.sha256 entry
+ok: TEST-033: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it)
+ok: TEST-043: facet-manifest.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: capability-summary.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: context-projection.schema.json contains no provider-neutrality-allowlist term
+ok: TEST-043: validate-facet-manifest.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: validate-capability-summary.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: validate-context-projection.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043: compare-facet-manifest-staleness.py contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)
+ok: TEST-043 non-vacuity canary: the dirty fixture is correctly flagged (azure,aws)
+ok: TEST-043: the clean fixture (this feature's own provider-neutral vocabulary) produces no false positive
+ok: TEST-043: the clean fixture genuinely contains 'distribution_channels' (the no-hit result above is not vacuous)
+ok: vendor-capability-registry.py --check exits 0 against the clean tree (extended to cover the three new schema filenames)
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+facet-manifest-parity: 178 passed, 0 failed
+exit=0
+
+----- bash tests/facet-manifest-schema.tests.sh -----
+ok: TEST-001: $schema is draft-07
+ok: TEST-001: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
+ok: TEST-002 positive baseline: valid-base.json valid (exit 0, no diagnostics)
+ok: TEST-002 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
+ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property 'affected_components'')
+ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property 'required_facets'')
+ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property 'conditional_facets'')
+ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property 'resolved_gates'')
+ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property 'lite_eligibility'')
+ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property 'context_binding'')
+ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property 'resolver'')
+ok: TEST-003: empty-arrays-valid.json valid (exit 0, no diagnostics)
+ok: TEST-003: duplicate-affected-components.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-003: duplicate-required-facets.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-003: duplicate-capabilities.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-004: conditional-facet-applied-false-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
+ok: TEST-004: conditional-facet-applied-true-with-reason.json invalid as expected (contains 'matched a schema under 'not'')
+ok: TEST-004: conditional-facet-applied-true-valid.json valid (exit 0, no diagnostics)
+ok: TEST-004 acceptance case (applied: false WITH reason): conditional-facet-applied-false-with-reason-valid.json valid (exit 0, no diagnostics)
+ok: TEST-005: evidence-invalid-operator.json invalid as expected (contains 'expected one of')
+ok: TEST-005: evidence-warn-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
+ok: TEST-005: evidence-warn-with-reason-valid.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-invalid-stage.json invalid as expected (contains 'expected one of')
+ok: TEST-006: resolved-gate-valid-multi.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-missing-id.json invalid as expected (contains 'missing required property 'id'')
+ok: TEST-006: resolved-gate-missing-stage.json invalid as expected (contains 'missing required property 'stage'')
+ok: TEST-006: resolved-gate-missing-blocking.json invalid as expected (contains 'missing required property 'blocking'')
+ok: TEST-007: capability-minimum-enforcement-invalid-value.json invalid as expected (contains 'expected const 'required'')
+ok: TEST-007: capability-minimum-enforcement-absent-valid.json valid (exit 0, no diagnostics)
+ok: TEST-007: capability-minimum-enforcement-aggregate-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-upgrade-reasons.json invalid as expected (contains 'missing required property 'upgrade_reasons'')
+ok: TEST-008: lite-eligibility-empty-upgrade-reasons-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-eligible.json invalid as expected (contains 'missing required property 'eligible'')
+ok: TEST-009: context-binding-malformed-digest.json invalid as expected (contains 'does not match pattern')
+ok: TEST-009: context-binding-empty-dependency-pointers.json invalid as expected (contains '< minItems 1')
+ok: TEST-009: context-binding-full-context-revision-malformed-digest.json invalid as expected (contains '/context_binding/full_context_revision: does not match pattern')
+ok: TEST-009: context-binding-projection-sha256-malformed-digest.json invalid as expected (contains '/context_binding/projection_sha256: does not match pattern')
+ok: TEST-009: context-binding-registry-digest-malformed-digest.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: TEST-009: context-binding-ownership-digest-malformed-digest.json invalid as expected (contains '/context_binding/ownership_digest: does not match pattern')
+ok: TEST-010: resolver-malformed-semver.json invalid as expected (contains 'does not match pattern')
+ok: TEST-010: resolver-valid-semver.json valid (exit 0, no diagnostics)
+ok: TEST-011: decision-doc-v2-section16-worked-example.json valid (exit 0, no diagnostics)
+ok: TEST-017: dependency-pointer-root-not-allowlisted.json invalid as expected (contains 'does not match pattern')
+ok: TEST-018: dependency-pointer-malformed-rfc6901.json invalid as expected (contains 'does not match pattern')
+ok: TEST-017/018: dependency-pointer-all-roots-valid.json valid (exit 0, no diagnostics)
+ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above
+ok: TEST-048: upgrade-reasons-duplicate.json invalid as expected (contains 'uniqueItems violated')
+ok: ECMA pattern semantics: trailing-newline digest rejected: context-binding-registry-digest-trailing-newline.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline digest rejected: resolver-version-trailing-newline.json invalid as expected (contains '/resolver/version: does not match pattern')
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=1, single-line diagnostic, no traceback)
+ok: manifest-unreadable: non-UTF-8 byte input diagnostic is exactly one line
+ok: TEST-034: facet-manifest.yaml/capability-summary.yaml alongside specs/<feature>/ files does not break check-sdd-structure.sh
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-schema: 57 passed, 0 failed
+exit=0
+
+----- bash tests/facet-manifest-semantics.tests.sh -----
+ok: TEST-028: schema-invalid.json invalid as expected (contains 'facet-manifest: schema-invalid:')
+ok: TEST-028: resolved-gate-id-duplicate.json invalid as expected (contains 'facet-manifest: resolved-gate-id-duplicate:')
+ok: TEST-028: facet-classification-conflict.json invalid as expected (contains 'facet-manifest: facet-classification-conflict:')
+ok: TEST-028: conditional-facet-duplicate.json invalid as expected (contains 'facet-manifest: conditional-facet-duplicate:')
+ok: TEST-028: affected-components-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted:')
+ok: TEST-028 negative proof: fully-clean.json valid (exit 0, no diagnostics)
+ok: AC-047: conditional-facet-duplicate.json invalid as expected (contains 'duplicate conditional_facets facet')
+ok: array-not-stable-sorted: required-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /required_facets:')
+ok: array-not-stable-sorted: capabilities-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /capabilities:')
+ok: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:')
+ok: array-not-stable-sorted: conditional-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /conditional_facets:')
+ok: array-not-stable-sorted: resolved-gates-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /resolved_gates:')
+ok: determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly
+ok: determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-semantics: 15 passed, 0 failed
+exit=0
+
+----- bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-192-a4-facet-manifest/tasks.md -----
+Risk check passed for 5 task(s).
+exit=0
+
+----- bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/vendor-capability-registry.py -----
+Placeholder scan passed.
+exit=0
+
+----- bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh -----
+workflow-state: ok
+exit=0
+
+----- bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-192-a4-facet-manifest/tasks.md -----
+Verification contract passed for task T-001.
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+Evidence bundle passed for task T-003.
+Verification contract passed for task T-004.
+Evidence bundle passed for task T-004.
+Task state check passed for 5 task(s).
+exit=0
+
+----- bash plugins/sdd-quality-loop/scripts/check-component-coverage.sh -----
+{
+  "check_id": "check-component-coverage",
+  "fail_conditions": [],
+  "manifest_status": "not-consulted",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "f2ec1f5bff9aceca04fa51ae5f46d8774790b7e77b3f6b7befdc5076d8b49b45"
+  },
+  "schema": "check-component-coverage-verdict/v1",
+  "state": "not-applicable (disabled-legacy)",
+  "warnings": []
+}
+exit=0
+
+=== end gate-time checks (T-002 cycle 1) ===

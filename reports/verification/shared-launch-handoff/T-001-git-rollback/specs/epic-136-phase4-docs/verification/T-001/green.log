@@ -1,0 +1,53 @@
+Command: sh -n plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh && sh -n plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh && bash -n tests/cross-model.tests.sh && bash tests/cross-model.tests.sh
+
+T-001 acceptance output:
+ok: TEST-003 gpt/unset: valid timeout invokes CLI
+ok: TEST-003 gpt/empty: valid timeout invokes CLI
+ok: TEST-003 gpt/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gpt/one: valid timeout invokes CLI
+ok: TEST-003 gpt/0: exit 2 without CLI invocation
+ok: TEST-003 gpt/-5: exit 2 without CLI invocation
+ok: TEST-003 gpt/abc: exit 2 without CLI invocation
+ok: TEST-003 gemini/unset: valid timeout invokes CLI
+ok: TEST-003 gemini/empty: valid timeout invokes CLI
+ok: TEST-003 gemini/explicit-default: valid timeout invokes CLI
+ok: TEST-003 gemini/one: valid timeout invokes CLI
+ok: TEST-003 gemini/0: exit 2 without CLI invocation
+ok: TEST-003 gemini/-5: exit 2 without CLI invocation
+ok: TEST-003 gemini/abc: exit 2 without CLI invocation
+ok: TEST-012: POSIX timeout defaults are derived from source and match (600s)
+measurement: TEST-004(a) runner=gpt elapsed_ms=4244 deadline_ms=1000 margin_ms=10000 stub_pid=3292 stub_alive=0 child_pid=3293 child_alive=0
+ok: TEST-004(a) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gpt elapsed_ms=4246 deadline_ms=1000 margin_ms=10000 stub_pid=3352 stub_alive=0 child_pid=3353 child_alive=0
+ok: TEST-004(b) gpt: deadline enforced and process group is dead
+ok: TEST-005 gpt/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(a) runner=gemini elapsed_ms=4244 deadline_ms=1000 margin_ms=10000 stub_pid=3416 stub_alive=0 child_pid=3417 child_alive=0
+ok: TEST-004(a) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/a: timeout exits 1 with no verdict JSON
+measurement: TEST-004(b) runner=gemini elapsed_ms=4245 deadline_ms=1000 margin_ms=10000 stub_pid=3471 stub_alive=0 child_pid=3472 child_alive=0
+ok: TEST-004(b) gemini: deadline enforced and process group is dead
+ok: TEST-005 gemini/b: timeout exits 1 with no verdict JSON
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=2113 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/1: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=2112 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/2: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=2097 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/3: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=2112 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/4: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=2102 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gpt/5: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=2097 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/1: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=2108 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/2: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=2110 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/3: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=2093 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/4: near-boundary completion stays successful
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=2104 deadline_ms=2000 exit=0 verdict=present
+ok: TEST-004(c) gemini/5: near-boundary completion stays successful
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+
+Results: 52 passed, 0 failed

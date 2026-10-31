@@ -1,0 +1,33 @@
+## Ensure design-system/
+
+Before the mockup loop, guarantee the project-level `design-system/` contract
+exists at the target repository root. Skip this section entirely when it
+already exists and `design-tokens.json` carries a valid meta envelope
+(`schema: design-system-contract/v1`).
+
+1. **Seed via ui-ux-pro-max (preferred when available).** Detect the
+   ui-ux-pro-max skill (`.claude/skills/ui-ux-pro-max/` or a global install)
+   and a working `python3`. If both are present, interview the human for the
+   product type and industry, then run the skill's search engine with
+   `--design-system --persist -p "<app name>"` (Basic/MIT features only).
+   The human reviews the generated `design-system/MASTER.md`; map the
+   approved values into `design-system/design-tokens.json` (DTCG, meta
+   `generated_by: ui-ux-pro-max`) and fill `design-system.md` /
+   `ui-patterns.md` from the templates in
+   `../sdd-bootstrap-interviewer/templates/`. MASTER.md and its
+   `design-system/pages/` overrides remain input seeds — the contract
+   artifacts are always authoritative over them.
+2. **Import a Figma DTCG export (when the human has one).** If the human
+   supplies a Figma Variables → DTCG JSON export, map its values into
+   `design-tokens.json` (meta `generated_by: figma-dtcg-import`). No Figma
+   API access — file import only.
+3. **D6 template interview (fallback).** When neither source is available,
+   record `ui-ux-pro-max unavailable — D6 template interview used`, then
+   create `design-system/` from the three templates
+   (`design-tokens.template.json`, `design-system.template.md`,
+   `ui-patterns.template.md`) by asking the human for brand color, base
+   typography, and spacing scale (meta `generated_by: manual`). The
+   ui-patterns.md D6 defaults apply unless the human edits them.
+4. **Human approval.** The human reviews and approves the created
+   `design-system/` before any mockup is generated. Record
+   `ds_profile: custom` and the design-system version in the layer file.

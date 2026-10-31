@@ -1,0 +1,75 @@
+# T-004 Green Log — all tests passing after implementation
+
+## bash (prepare-panelist.tests.sh)
+
+=== PP-001: Fail closed — no consent ===
+ok: PP-001a: no consent → non-zero exit (1)
+ok: PP-001b: no consent → output file NOT created
+ok: PP-001c: error message mentions consent
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: PRIVATE_TOKEN (GitHub PAT) value stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-004: Digest is deterministic (same input → same digest) ===
+ok: PP-004: same input → same digest (7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+
+Results: 21 passed, 0 failed
+
+## pwsh (prepare-panelist.tests.ps1)
+
+=== PP-001: Fail closed — no consent ===
+ok: PP-001a: no consent → non-zero exit (1)
+ok: PP-001b: no consent → output file NOT created
+ok: PP-001c: error message mentions consent
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: GitHub PAT stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: ac72346c8140308a526ec901403156a5b0c6c74ece139d4153aaf2493e2fccf6
+=== PP-004: Digest is deterministic ===
+ok: PP-004: same input → same digest (ac72346c8140308a526ec901403156a5b0c6c74ece139d4153aaf2493e2fccf6)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+
+Results: 21 passed, 0 failed
+
+## Notes
+- digest differs between runtimes (bash uses Python sha256 on raw string; pwsh
+  uses .NET SHA256 on the same string — cross-platform line-ending differences
+  produce different hashes). Determinism is per-runtime, which is what matters:
+  each verdict JSON will carry the digest from whichever tool produced the bundle.
+- PP-007 (SDD_SUDO path) uses SDD_SUDO_SKIP_SIG=1 test scaffolding; full HMAC
+  verification is implemented but requires a key to be present.

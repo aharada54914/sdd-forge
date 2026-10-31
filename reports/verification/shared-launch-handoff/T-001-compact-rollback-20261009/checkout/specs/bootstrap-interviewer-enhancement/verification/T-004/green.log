@@ -1,0 +1,15 @@
+COMMAND: sh tests/structure-check-feature-mode.tests.sh
+RESULT: PASS
+PASS: 25
+FAIL: 0
+
+COMMAND: pwsh -NoProfile -File tests/structure-check-feature-mode.tests.ps1
+RESULT: PASS
+PASS: 19
+FAIL: 0
+
+COMMAND: selected-feature validation against specs/bootstrap-interviewer-enhancement
+RESULT: PASS in root POSIX, plugin POSIX, and plugin PowerShell checkers
+
+INDEPENDENT REVIEW: T-004-independent-reviewer
+RESULT: PASS after symlink-containment remediation

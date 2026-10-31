@@ -1,0 +1,124 @@
+{
+  "schema": "t005-parent-binding/v1",
+  "historical_count": 620,
+  "historical_actual_copies_match": 620,
+  "current_byte_matches": 614,
+  "mismatches": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "historical_copy_sha256": "180259940e5cb050f95cfde64e1557faf57cb1b64202a6873fd171a157659775",
+      "current_owner_sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "180259940e5cb050f95cfde64e1557faf57cb1b64202a6873fd171a157659775",
+      "current_mode": "0o644",
+      "classification": "source/control"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "historical_copy_sha256": "13b20038c62d67a63d90b7c7fbbcb15f87b69f6789e0d9984dc5b08a17d263f9",
+      "current_owner_sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "13b20038c62d67a63d90b7c7fbbcb15f87b69f6789e0d9984dc5b08a17d263f9",
+      "current_mode": "0o644",
+      "classification": "source/control"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "historical_copy_sha256": "a6c7c49fe568b7fbd539a23a03e9ab591844dae201dbb2120bb27f09183036f1",
+      "current_owner_sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "a6c7c49fe568b7fbd539a23a03e9ab591844dae201dbb2120bb27f09183036f1",
+      "current_mode": "0o644",
+      "classification": "source/control"
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "historical_copy_sha256": "7099669122c1715a1a9900f784fa4090777d72777c8234ae2a30e5ffcace1c51",
+      "current_owner_sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "7099669122c1715a1a9900f784fa4090777d72777c8234ae2a30e5ffcace1c51",
+      "current_mode": "0o644",
+      "classification": "test-only"
+    },
+    {
+      "path": "tests/task-structured-output.tests.py",
+      "historical_copy_sha256": "70fc6a773aeec37ccbd91f35b9d9e26fdb86b0557f8dccba4f34e8c9b8a2a789",
+      "current_owner_sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "70fc6a773aeec37ccbd91f35b9d9e26fdb86b0557f8dccba4f34e8c9b8a2a789",
+      "current_mode": "0o644",
+      "classification": "test-only"
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "historical_copy_sha256": "612c0b9194c014bf4cb07d8ac13d551c1243b2ade2b268c7c28be6d7e1aba50e",
+      "current_owner_sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+      "bytes_match": false,
+      "historical_mode": "0o644",
+      "historical_copy_present": true,
+      "historical_copy_actual_sha256": "612c0b9194c014bf4cb07d8ac13d551c1243b2ade2b268c7c28be6d7e1aba50e",
+      "current_mode": "0o644",
+      "classification": "test-only"
+    }
+  ],
+  "mode_mismatches": 0,
+  "compared_bytes_stable": true,
+  "newly_executed_current_owner": [
+    {
+      "suite": "quality-nontty-transport",
+      "exit_code": 0,
+      "source": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c"
+    },
+    {
+      "suite": "task-structured-output",
+      "exit_code": 0,
+      "source": "tests/task-structured-output.tests.py",
+      "source_sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2"
+    },
+    {
+      "suite": "unified-launch-order",
+      "exit_code": 0,
+      "source": "tests/unified-launch-order.tests.py",
+      "source_sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77"
+    },
+    {
+      "suite": "unified-task-launch",
+      "exit_code": 0,
+      "source": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e"
+    }
+  ],
+  "historical_execution_is_owner_execution": false,
+  "formal_quality_gate": "NOT RUN",
+  "native_review": "NOT RUN",
+  "ci": "NOT RUN",
+  "windows": "NOT RUN",
+  "evidence_sha256": {
+    "README.md": "fa2db6e69e2fbb08ffd3f58f3ef20ecfdda75aa951c4e00969e4637d9259a097",
+    "compare.py": "3fccd583df7677629ca3de6d1b7b64055cb545b88fbc5f909add58892314ee3e",
+    "comparison-after.json": "2fc8cb87a01034b08666203d4167b49e0ccc65e4bc682086cbd1ad120a9a1daa",
+    "comparison.json": "7989a9fc8be73f2d29bdf5b4e49c9adce3cde685739740d69f5a56688898ada3",
+    "current-tests.json": "46757271de7d181f6f6b5d899a4d2e5626f22e993994d0a9b7cd98c9e66d9798",
+    "quality-nontty-transport.json": "ab84d249ad773ffcfc4cb97d142cfdf545cd0c4b13d6dd201f0ff248227919dc",
+    "quality-nontty-transport.log": "3a8dbee65558c2074e221e1c7adf1951779b4b73f1a915be35f1e66caf824bed",
+    "run-current.py": "0ec29fd1eb38f1680d7b5132b3a20586a180b780a2d76b750afcea29312901e6",
+    "summarize.py": "6067bc65419df4a3a1444e88d095f29686cb14ad8e952be9f0efe26afe027541",
+    "task-structured-output.json": "6e36887c8e47849a6638d06fb905dcd9456b7649d54f8d2b99eba8fae2049097",
+    "task-structured-output.log": "fb78343342d5d41dfa312dd92dcf3981c09886015b10368c9b6bba76373b03c7",
+    "unified-launch-order.json": "33ce10562ac44ff9f9334b69412fd6e75da2542f366619d238cd8e906eb44ea3",
+    "unified-launch-order.log": "34a25d5d55167cc948b71b69c4623a10e6576eabb1dba40a5b099cb299446573",
+    "unified-task-launch.json": "a998e053bcefe0d630c77aca53c5a96090e5844cc25ded0b93f318bfff9fe8dc",
+    "unified-task-launch.log": "71f61d21a154b07089b9e85ce0c1024e305450eee34634b3b3ac65c21a2b9b61"
+  }
+}

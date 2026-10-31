@@ -1,0 +1,12 @@
+test_canonical_preview_rejection_and_all_callers_wired (__main__.HostReviewPreflightTests.test_canonical_preview_rejection_and_all_callers_wired) ... ok
+test_cli_help_flags_and_unsupported_argument (__main__.HostReviewPreflightTests.test_cli_help_flags_and_unsupported_argument) ... ok
+test_impl_and_task_use_stage_precheck_before_preview (__main__.HostReviewPreflightTests.test_impl_and_task_use_stage_precheck_before_preview) ... ok
+test_nonobject_and_scratch_alias_reject (__main__.HostReviewPreflightTests.test_nonobject_and_scratch_alias_reject) ... ok
+test_pin_missing_input_outside_and_changed_scratch_reject (__main__.HostReviewPreflightTests.test_pin_missing_input_outside_and_changed_scratch_reject) ... ok
+test_powershell_selects_existing_precheck_and_validator (__main__.HostReviewPreflightTests.test_powershell_selects_existing_precheck_and_validator) ... ok
+test_spec_and_quality_normal_preview_never_reserve (__main__.HostReviewPreflightTests.test_spec_and_quality_normal_preview_never_reserve) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.085s
+
+OK

@@ -1,0 +1,61 @@
+[
+  {
+    "label": "before-hash-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/review-hash-normalization.tests.ps1"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "exit_code": 0
+  },
+  {
+    "label": "before-traceability",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "tests/traceability-freeze-contract.tests.py"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "exit_code": 0
+  },
+  {
+    "label": "restored-hash-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/review-hash-normalization.tests.ps1"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "exit_code": 0
+  },
+  {
+    "label": "restored-traceability",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "tests/traceability-freeze-contract.tests.py"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "exit_code": 0
+  },
+  {
+    "label": "restored-downstream-parity",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "tests/downstream-review-precheck-parity.tests.sh"
+    ],
+    "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/checkout",
+    "exit_code": 1
+  }
+]

@@ -1,0 +1,82 @@
+Class A mutation transcript — 2026-08-14
+
+Mutation root: /tmp/epic191-mutation.EvZNnN
+The tracked workspace was not mutated. A disposable git-archive copy received the current twin files, then only the TEST-024 cloned-submodule identity setup was removed from each copy.
+Expected RED: bash must expose git exit 128; PowerShell must throw on the same native git exit instead of continuing to a false green.
+
+===== bash identity removed =====
+exit=128
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'jrmag@02-C1-50-65-F3-3D.(none)')
+
+===== PowerShell identity removed =====
+exit=1
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories fail closed with a diagnostic
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once
+=== TEST-021: NUL-safe framing ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a direct call to the product function itself (dot-sourced from resolve-component-paths.ps1; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants
+ok: TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning, confirmed via a direct call to the product function itself with Invoke-GitRaw monkeypatched (mirrors the bash twin's monkeypatching of rcp._run_git on the real module)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'jrmag@02-C1-50-65-F3-3D.(none)')
+Exception: /private/tmp/epic191-mutation.EvZNnN/tests/component-path-diff-basis.tests.ps1:31
+Line |
+  31 |          throw "component-path-diff-basis fixture git command failed:  …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | component-path-diff-basis fixture git command failed: commit the dirty
+     | submodule content (exit 128)
+
+Restore/GREEN evidence: see class-a-empty-home-and-normal.log; both unmutated twins returned 18 passed / 0 failed under the same empty HOME.
+

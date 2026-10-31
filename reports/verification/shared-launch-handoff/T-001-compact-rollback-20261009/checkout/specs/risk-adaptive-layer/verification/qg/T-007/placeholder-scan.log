@@ -1,0 +1,5 @@
+COMMAND: bash /Users/jrmag/Projects/active/sdd-forge-gates/plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1 plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1 plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 plugins/sdd-quality-loop/scripts/sdd-hook-guard.js plugins/sdd-quality-loop/references/evidence-signing-policy.md
+EXIT: 0
+LABEL: no placeholder markers in T-007's delivered surface (10 files)
+------------------------------------------------------------
+Placeholder scan passed.

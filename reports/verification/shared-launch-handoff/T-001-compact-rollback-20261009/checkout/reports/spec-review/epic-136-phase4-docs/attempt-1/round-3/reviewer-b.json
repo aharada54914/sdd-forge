@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-spec-a1r3-b-seq0393",
+  "host_session_id": "SESS-spec-a1r3-b-epic136phase4docs-0393",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-3/integrated-summary.json",
+      "sha256": "7a136c8088fbe88debdee2d06b99d00b67289c095cef5c4684cf6c5da5a596aa"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-3/precheck-result.json",
+      "sha256": "11b1536ab48c9e55b3b1229b3dd911ee9a342dc1fdd6c3301d0e79d94b662928"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "7d439134de57d99a86430ea1d0fbc941d7db452d2abc00852f805e35e72d8780"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "7f3fe2c3a56cd291287a498c59b04cb1e35be319db5e6c926565be472cfaace9"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 fix verified: TEST-003 now reads 'First four (unset, empty, 600, 1)... Last three (0, -5, abc)', covering all seven sub-cases with no unclassified value. Swept remaining surface (grace-period duration, 'same section' wording in AC-009/TEST-009, AC-012's default-derivation mechanism) for two-implementer divergence risk; each resolves to a concrete, testable outcome (e.g. AC-004's 'SIGTERM, then SIGKILL after a grace period' is bounded by TEST-004's fixed <=10s assertion regardless of the chosen grace value, so implementer variance there does not change pass/fail). No blocking ambiguity found."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Round-2 fix verified: AC-004/AC-005 rescoped to all four runners, per-runtime table added, and a scope note isolates TEST-004(c)'s boundary-race sub-case from AC-004's 'terminates the stub' clause -- the exact contradiction flagged in round 2 is closed. Checked the new PowerShell single-step Kill($true) escalation language against BL-004 parity and the Assumptions section's 'which signal / whether it escalates' requirement: the table explicitly frames Kill($true) as the outcome-parity analogue of SIGTERM-then-SIGKILL, not a second mechanism, so no new contradiction was introduced by the remediation. No other REQ/AC/Non-Goal/Baseline-Constraint conflict found on full re-read."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 fix verified: Test Matrix Target column for TEST-004/TEST-005 now reads 'all 4 runners (.sh + .ps1)', and Test Details gained explicit PowerShell sub-case mapping for (a)/(b)/(c). Cross-checked all seven Edge Cases in requirements.md against acceptance-tests.md: EC1 (no timeout(1)) is a stated design constraint verified by investigation's command -v result; EC2 (child must die) -> AC-004 assertion 2; EC3 (partial verdict) -> AC-005/TEST-005; EC4 (0/negative) -> TEST-003; EC5 (sleep-based rate limit) -> folds into TEST-004/005/006 per AC-002's own reasoning; EC6 (polling boundary race) -> TEST-004(c); EC7 (SIGTERM-ignoring) -> TEST-004(b). All covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 fix verified: investigation.md OQ-3 for #134 is closed via new AC-014/TEST-014, explicitly labeled as resolving that open question. Checked all remaining investigation Open Questions and the requirements.md Assumptions section entry-by-entry: each is either resolved with a stated answer (REQ-002's per-runner scope answers #133 OQ2; REQ-003 answers OQ3; AC-011 answers OQ4; AC-013 answers #134 OQ2) or explicitly recorded as a documented limitation rather than an invented guarantee (AC-002 for #133 OQ1). No unresolved, unmarked assumption remains."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A governance/workflow boundary is in scope: check-cross-model's fail-closed block on auto-Done, which this feature extends to cover the timeout path (REQ-003, 'exit 1 leaves the already-documented chain intact... the gate fails and blocks auto-Done'). That boundary is concretely testable and tested: AC-006/TEST-006 assert that a timed-out sole non-Anthropic panelist makes the gate fail with no consensus PASS. Not SKIPped, since the boundary is demonstrably in scope and covered."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ (001-006) traces to at least one AC, every AC traces to at least one TEST, and the round-2 remediation closed the only remaining scope/edge-case/open-question gaps identified across two prior rounds. The document is explicit about what design/implementation is and is not free to decide. No missing product-behavior decision was found that would force a design reviewer to invent scope."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory exists at the repository root, so there is no domain/context-map.md with an approved Domain-Model-Status and no domain/domain-contract.json to check against. requirements.md also carries no Bounded-Context: field."
+    }
+  ]
+}

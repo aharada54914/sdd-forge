@@ -1,0 +1,21 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: listRunJobs / listRunArtifacts not yet implemented in
+# src/tools/actions.ts — the pretest compile fails, so no tests can run.
+# This is the genuine failing-first (Red) state for T-012
+# (tests/tools/list-run-jobs.test.ts, tests/tools/list-run-artifacts.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/tools/list-run-artifacts.test.ts(10,10): error TS2305: Module '"../../src/tools/actions.js"' has no exported member 'listRunArtifacts'.
+tests/tools/list-run-artifacts.test.ts(52,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-artifacts.test.ts(53,22): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-artifacts.test.ts(88,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-artifacts.test.ts(113,22): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-jobs.test.ts(11,10): error TS2305: Module '"../../src/tools/actions.js"' has no exported member 'listRunJobs'.
+tests/tools/list-run-jobs.test.ts(64,18): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-jobs.test.ts(65,22): error TS18046: 'result.data' is of type 'unknown'.
+tests/tools/list-run-jobs.test.ts(108,18): error TS18046: 'result.data' is of type 'unknown'.
+
+npm test exit code: 2

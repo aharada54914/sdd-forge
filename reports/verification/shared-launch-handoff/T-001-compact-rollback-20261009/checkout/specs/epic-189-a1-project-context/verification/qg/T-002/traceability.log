@@ -1,0 +1,5 @@
+Requirement-traceability check passed for T-002:
+ - tasks.md T-002 -> REQ-003 (Requirements field)
+ - REQ-003 present in requirements.md and traceability.md; T-002 present in traceability.md
+ - AC-005..AC-009, AC-037 and TEST-005..TEST-009, TEST-037 present in acceptance-tests.md,
+   referenced by tasks.md T-002, and implemented in tests/canonicalize-sdd-yaml.tests.sh

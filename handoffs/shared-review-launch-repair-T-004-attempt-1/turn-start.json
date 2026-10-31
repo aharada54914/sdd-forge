@@ -1,0 +1,14 @@
+{
+  "id": 5,
+  "method": "turn/start",
+  "params": {
+    "threadId": "01a12608-3c98-7fc0-9d9f-461daa965549",
+    "input": [
+      {
+        "type": "text",
+        "text": "Fresh native implementation context. Session and agent identity 01a12608-3c98-7fc0-9d9f-461daa965549; Run ID T-004-01a12608-3c98-7fc0-9d9f-461daa965549; Task Attempt Count 1. Manifest /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/manifest.json SHA256 565e5fcccf4b60629d24aad73a3d246c9e69b036a634829c211be63c68688a90; immutable snapshot /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/snapshot; sole output root /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output. Snapshot builder and manifest validator succeeded: TASK_INPUT_OK. Read and obey the manifest-admitted instructions /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/snapshot/handoffs/shared-review-launch-repair-T-004-attempt-1/native-instructions.md. Start by verifying all admitted hashes, then read the governing instructions. Do not read launcher history or owner files. Scoped npm cache is /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/npm-cache."
+      }
+    ],
+    "effort": "high"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "task_id": "T-002",
+  "run_id": "T-002-01a12434-0673-7350-8804-0f487e843da6",
+  "task_attempt_count": 4,
+  "session_id": "01a12434-0673-7350-8804-0f487e843da6",
+  "agent_instance_id": "01a12434-0673-7350-8804-0f487e843da6",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "isolation_mode": "fresh-agent",
+  "manifest_path": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-002-attempt-4/manifest.json",
+  "manifest_sha256": "b06463ce5af79d8c5c600dd4814d91dbfdc8a39998658fc137c62ecba89aeb63",
+  "spec_revision": {
+    "kind": "sha256-of-canonical-sorted-artifact-map",
+    "encoding": "UTF-8 JSON sort_keys=true separators=comma:colon no trailing newline",
+    "sha256": "8b33cd22574991352e7307358f68abda9c92b2386456ec0ad7c42ddc12857110",
+    "artifacts": {
+      "specs/shared-review-launch-repair/acceptance-tests.md": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+      "specs/shared-review-launch-repair/authority.md": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0",
+      "specs/shared-review-launch-repair/design.md": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+      "specs/shared-review-launch-repair/frontend-spec.md": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+      "specs/shared-review-launch-repair/infra-spec.md": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+      "specs/shared-review-launch-repair/requirements.md": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+      "specs/shared-review-launch-repair/security-spec.md": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+      "specs/shared-review-launch-repair/tasks.md": "c3dea28a9bbe10b52784536c944b89cdafb69430a9b25470e3f7030f6ecb503d",
+      "specs/shared-review-launch-repair/traceability.md": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+      "specs/shared-review-launch-repair/ux-spec.md": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    }
+  },
+  "source_sha256": {
+    "AGENTS.md": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7",
+    "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "238e835d6283ac2489fc0b2df3786384e051c7c044d7032425c9e0e80474ee90",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18"
+  },
+  "test_sha256": {
+    "tests/review-hash-normalization.tests.ps1": "5d922dca8a6d92828315c5349e4b40bd657a9ddeb0388bad77c14e41574220d1",
+    "tests/traceability-freeze-contract.tests.py": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+    "tests/downstream-review-precheck-parity.tests.sh": "0e1f9e51f740ef6178242aee59b01bdb95ac7f60bca1dbfaabde55a7e5a75bb1",
+    "tests/workflow-state.tests.sh": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+    "specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1": "c32d20d4db6ce7dd1afaa91b2ae509050089824d535f114856846371d78c6fa5"
+  },
+  "behavioral_results": {
+    "runtime-versions": 0,
+    "hash-parity": 0,
+    "traceability-freeze": 1,
+    "traceability-freeze-retry-1": 0,
+    "downstream-parity": 0,
+    "unreadable-equivalence": 0
+  },
+  "formal_quality_gate": "NOT RUN: parent responsibility",
+  "native_windows": "NOT RUN",
+  "final_head_ci": "NOT RUN: T-004",
+  "historic_red_scope": "shared-helper extraction structural RED only",
+  "historic_traceability_failures": "fixture errors, not product RED",
+  "rollback_scope": "admitted historical current-dirty-byte restoration only; no new rollback executed",
+  "source_changes": [],
+  "frozen_artifact_changes": [],
+  "continuity_limitation": "Context compaction occurred during this native run. Fresh-agent identifies the launch, not an uninterrupted context. Higher-priority host instructions require continuing across compaction; parent must assess admissibility."
+}

@@ -1,0 +1,160 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-159-pillar-c",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "created": "2026-07-18T05:53:00Z",
+  "comment": "Default-FAIL verification contract for T-004 (medium, acceptance-first). Populated after the quality gate reran tests/emit-run-record-feature-scope.tests.sh/.ps1 (36/36 passed both lanes; specs/epic-159-pillar-c/verification/qg/T-004/focused-tests.log) and the epic-159-pillar-c cross-suite regression set (all six T-001..T-006 suites, both lanes, 0 failed; specs/epic-159-pillar-c/verification/qg/T-004/regression.log). Shell stack waives the three compile-oriented checks (lint/typecheck/build) for shell/PowerShell test-infrastructure files plus the Markdown template/skill docs this task edits. Per the implementation report (reports/implementation/epic-159-pillar-c/T-004.md): one disclosed, pre-existing, non-blocking condition -- validate-implementation-report.sh already rejects every epic-159-pillar-c implementation report (T-001..T-004) for a pre-existing '## Output Paths And Hashes' vs. this template's '## Outputs' heading mismatch, independent of this task's own Model/Effort addition; confirmed by running the pre-T-004 validator against T-003's report on main and observing the identical failure. This is the same gap tests/turn-first-workflow.tests.sh already documents as a known, non-contact pre-existing failure the task instructions explicitly excluded from this task's scope. No unresolved items blocking this task's own scope. AC-051 (Codex-host, non-flag-control degradation) is proven host-independent in the suite output above, not merely asserted for Claude Code.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus the Markdown template/skill docs this task edits (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files plus the Markdown template/skill docs this task edits.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-004/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what unit/acceptance already exercise against the real, fixture-copied or fixture-driven scripts this task edits; no separate service-integration surface exists.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-004/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-004/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files plus the Markdown template/skill docs this task edits.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-004/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-004/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's suite fully covers its own CLI/script surface via the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is additive per design.md's API/Contract Plan; the saved red/green evidence and cross-suite regression set provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are contract/script/test/doc files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

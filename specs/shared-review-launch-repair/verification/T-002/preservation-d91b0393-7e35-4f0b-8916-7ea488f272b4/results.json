@@ -1,0 +1,27 @@
+{
+  "claim": "AC-004 preservation, not retrospective RED or a review verdict",
+  "records": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "baseline_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+      "baseline_sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "current_sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "byte_identical": true,
+      "baseline_copy": {
+        "path": "specs/shared-review-launch-repair/verification/T-002/preservation-d91b0393-7e35-4f0b-8916-7ea488f272b4/baseline-check-workflow-state.sh",
+        "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f"
+      }
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "baseline_commit": "9ce19abe90df0cb83e385f96855e4843318a8807",
+      "baseline_sha256": "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db",
+      "current_sha256": "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db",
+      "byte_identical": true,
+      "baseline_copy": {
+        "path": "specs/shared-review-launch-repair/verification/T-002/preservation-d91b0393-7e35-4f0b-8916-7ea488f272b4/baseline-check-workflow-state.ps1",
+        "sha256": "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db"
+      }
+    }
+  ]
+}

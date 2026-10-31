@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase3-impl-a3r2-b-seq0440",
+  "host_session_id": "SESS-impl-a3r2-b-epic136phase3-0440",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/integrated-summary.json",
+      "sha256": "6b4bb932c6109618533b858b12f41f1934de0a72ec2ff3c9c829b071e074fca4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-2/precheck-result.json",
+      "sha256": "6ca2c009e326ddb2b7925f78b637912aa7597c5a9914ff52bcaafe9c9347f2ba"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "2e03b014b01995e24915d023840e5784156ccf0e08562543798df65ef79c66bd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "78db64f86bf9cc4c08aa7fa663195935948d5a5b84f52979ffc6beeb1e1e2062"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "75a4b4fa4db0c46a617fab88138126a2f867c863b05fb7197f9de7efae50105a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural/technology decision in design.md carries an explicit rationale. Examples: the PowerShell-stub decision ('Decided: thin forwarding shims (API/Contract Plan) that satisfy `command -v` under the narrowed `PATH` while forwarding actual execution to the real interpreter... this keeps the decision-under-test genuine', Design Decisions); the Stream B corpus-reuse decision ('Decided: NEW for both -- `prepare-panelist-input.sh`'s triple-quote fix operates on an environment-carried HMAC-key field, a structurally different injection surface from a PreToolUse command string, so reusing that exact payload would not exercise the guard's own tokenizer', Design Decisions); Stream D's job-count-preserving choice over job-splitting, justified by blast-radius reasoning ('a much larger blast radius than #126's own issue text asks for... re-plumbing the 3-OS matrix, checkout, and toolchain setup steps per job', API/Contract Plan; Design Decisions OQ-5). No bare 'we will use X' statement without a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Open Questions` section (lines 660-668) states 'None blocking for any stream. All investigation.md OQ-1..OQ-6 are resolved above with design decisions.' No active entries remain that require owner/Blocks-Implementation/Resolution-Path fields. Stream C's sole external precondition (ADR-0010 approval) is recorded as a discharged Blocker, not a live open question, and I independently verified its resolution: `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md:3-6` reads 'Accepted', matching design.md's claim (commit `67015a5`)."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/epic-136-phase3/investigation.md is present (INV-001..031, OQ-1..6), so the investigation-absent trigger does not apply. Every entry in design.md's `## Assumptions` (lines 646-658) is grounded: ADR-0010 status independently verified Accepted (docs/adr/0010-...md:3), matching the 'SUPERSEDED, now Accepted' annotation; `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` membership independently verified byte-identical against `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4,18`; the identity-ledger `sequence: 337` assumption is explicitly time-bound and non-load-bearing ('re-verified at each stream's actual implementation start... no stream's own fixtures need to `--reserve` against the real ledger at all') so its staleness (ledger now at sequence 440, confirmed via `reports/review-context/identity-ledger.json`) does not invalidate any fixture behavior; `loop-driver.sh`'s stage-'spec'-only scope and the `PATH=\"/usr/bin:/bin\"` technique are both grounded in investigation.md INV-016/INV-005 respectively."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Primary (TYPE-D) applies: design.md's `## Constraint Compliance` section (lines 631-644) is present and addresses every constraint requirements.md states (BL-001 baseline preservation, bash-3.2 `set -u` safety, `.ps1` ASCII/exit-N [N/A explained], CHANGELOG discipline, sibling-workflow isolation, read-only guard-exercise boundary, protected-file carve-out, doc-following, version-bump-via-script discipline, ADR-0010 dependency) -- no constraint lacks a compliance statement. Specifically re-examined per this round's question: design.md's framing that 'AC-019/AC-020 name Streams A, B, and C's three product suites as the required minimum; the batch is a superset of that minimum, never smaller' (API/Contract Plan, Global Constraints) is coherent with, not contradictory to, the frozen acceptance-tests.md text -- AC-019 names 'every new suite (Streams A + B, and Stream C...)' and AC-020 requires 'a CI step for each new suite from AC-019'; these establish a floor, not a ceiling. I verified the staged candidate (`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`, sha256 `ad07d8dfa9caa3e9119ca49030771f64ed94886742ee15fa6feeaf5611338c51`, matching `human-copy/MANIFEST.sha256`'s recorded hash) contains all three named suites' steps (`guard-dispatch-fallback`, `guard-negative-corpus`, `workflow-scenarios`) plus Stream D's own self-check step, so the stated minimum is met and the superset framing does not shrink or omit anything AC-019/AC-020 require. No contradiction of the frozen requirements.md/acceptance-tests.md text found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. There is no response-time, throughput, concurrency, or SLA language anywhere in requirements.md's Goals, Acceptance Criteria, Edge Cases, or Risks -- this feature is entirely test/CI-hardening work. infra-spec.md's Runtime Budget section (lines 131-138) independently confirms 'No stream's suite requires a runtime-budget assertion... no live network call, no subprocess-loop-driving beyond what `guard-cwd-bypass.tests.sh` and `guard-parity.tests.sh` already do.'"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's own description of WHERE the shared `.github/workflows/test.yml` staged candidate lives is self-contradictory across four locations, and the CHANGELOG.md artifact design.md's Constraint Compliance table treats as accurate (AC-022) is stale relative to design.md's own current account of Stream C's CI-step status. (1) Path contradiction: design.md's Architecture diagram (TESTYML_HC node, line 97), Protected-File Statement ('the agent stages ONE combined candidate under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` containing ALL FOUR streams' changes... with ONE `MANIFEST.sha256` entry', line 150-151), and Global Constraints ('all four streams' edits are staged as ONE shared human-copy batch under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE `MANIFEST.sha256` entry', line 544-546) -- repeated in infra-spec.md's CI/CD Sequence (line 79-81) -- all assert the staged candidate IS the file at `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`. But design.md's own API/Contract Plan section, giving the 'byte-exact tail of the staged candidate' (line 388-390), and infra-spec.md's CI/CD Sequence two lines earlier in the SAME document (line 56-58), both cite a DIFFERENT real path: `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`. I confirmed against the actual repository: `find specs/epic-136-phase3/human-copy -type f` returns only `MANIFEST.sha256` -- no `.github/workflows/test.yml` file exists there; the real candidate exists solely at `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml` (624 lines, sha256 `ad07d8dfa9caa3e9119ca49030771f64ed94886742ee15fa6feeaf5611338c51`, matching `human-copy/MANIFEST.sha256`'s recorded hash). `human-copy/MANIFEST.sha256`'s own comment explains why: 'The agent cannot write that path itself: sdd-hook-guard denies every agent write whose path ends with the protected workflow suffix, and the suffix match has no human-copy carve-out.' I independently verified this empirically by invoking `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py --emit exit` with a Write `tool_input` targeting the human-copy path: the guard denies with exit 2, because `_is_protected_gate_file` (`sdd-hook-guard.py:1001-1013`) matches via `normalized.endswith(suffix.lower())` regardless of the `human-copy/` directory prefix -- there genuinely is no carve-out, so all four repeated claims about the candidate's location are factually false as written and never reconciled with the correct path design.md itself cites two sections later in the same document. (2) Stale shipped artifact: CHANGELOG.md's Stream C (#125) entry, already released under '## v1.12.0 (2026-07-28)' (CHANGELOG.md:132-134,172-174, written by commit `fd4db859`), states that CI step registration to test.yml is intentionally deferred to a follow-on feature per requirements.md Non-goals. This directly contradicts design.md's current API/Contract Plan text ('Stream C's step is part of THIS batch, not a later feature's: its Blocker was discharged before the batch was finalized', design.md line 378-380) and the actual staged candidate, which (per commit `feb3118b`) now includes the `workflow-scenarios` CI step in the same batch (verified: `staged-workflow-candidate.draft.yml:383-389`). Concrete downstream failure: a human maintainer following design.md's Protected-File Statement/Global Constraints/Architecture-diagram instructions verbatim will look for the staged candidate at `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`, find nothing there, and have no design.md-internal signal redirecting them to `verification/T-003/`. A maintainer who instead consults CHANGELOG.md -- the release-facing historical record -- will conclude Stream C's CI-step registration is still pending in a future feature and may apply an incomplete batch or defer application of Stream C's step entirely, which is precisely the 'two sequential human-copy rounds' scenario design.md's Global Constraints explicitly says must never happen for this file. Rated Major, not Critical: the underlying deployment mechanism (SHA-256 verification of the actual draft file against MANIFEST.sha256) still functions correctly once the correct path is found, so this is an implementability/clarity gap in the design's own account of its one infrastructure-facing deliverable, not a violation of a security/regulatory constraint."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## Data Plan` (lines 199-213) states 'Migration Strategy: none. No schema changes to any existing artifact' and 'Existing Data Affected: none.' Per this check's own rule ('If Data Plan states \"No data changes,\" emit PASS'), this is satisfied verbatim -- no stream introduces or alters an application data schema."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## External Integrations` section (lines 597-604) states 'None. All 4 streams operate entirely on repository-local files (guard binaries, test fixtures, `test.yml`) -- no new network call, external API, or credential is introduced.' security-spec.md's B2/B4 boundary rows and Data Classification table (lines 59, 78-81) independently corroborate: Stream C's scenario-5 fixture is a SYNTHETIC issue body, 'NEVER a real fetched issue body,' and no suite invokes the real `gh` CLI or makes a live network call. infra-spec.md and frontend-spec.md both state the same 'no new service/dependency' claim consistently. No external system reference was found in passing anywhere in design.md that lacks this treatment."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table maps to a named REQ/AC: `tests/guard-dispatch-fallback.tests.sh` (REQ-001), `tests/guard-negative-corpus.tests.sh` (REQ-002), `tests/workflow-scenarios/` (REQ-003, verified present with 10 scenario JSON files + schema + driver, matching AC-012's '10 representative classes'), `.github/workflows/test.yml` edits (REQ-004/REQ-005), `tests/deterministic-lane-selfcheck.tests.sh` (fulfills AC-017's self-check requirement), `tests/run-all.sh` edits (REQ-005, verified 4 new lines at lines 37/47/48/49 exactly as design.md's Global Constraints states). No UI component library or styling framework is introduced (ds_profile: none per ux-spec.md/frontend-spec.md, both N/A stubs -- no design-system contract exists in this repository to violate). design.md's Cross-Layer Dependencies table (lines 177-186) maps every one of REQ-001..006 to design content and TEST-IDs; every Goal/User-Story in requirements.md (Streams A-D) has a corresponding design section. No under- or over-scoped capability found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: B1 read-only guard-exercise boundary, B2 inbound prompt-injection, B3 protected-file carve-out (security-spec.md Trust Boundaries). Each names a concrete, verified validation path: B1 -> TEST-001..011 in `tests/guard-dispatch-fallback.tests.sh` (376 lines, confirmed present) / `tests/guard-negative-corpus.tests.sh` (440 lines, confirmed present), both grep-confirmed to contain no `declare -A`; B2 -> TEST-014 in `tests/workflow-scenarios/workflow-scenarios.tests.sh` (536 lines, confirmed present) with a documented RED/GREEN-paired proxy-harness technique (security-spec.md Security Tests table); B3 -> TEST-016/017 self-check plus MANIFEST.sha256 hash verification, which I mechanically re-executed: `shasum -a 256 specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml` = `ad07d8dfa9caa3e9119ca49030771f64ed94886742ee15fa6feeaf5611338c51`, exactly matching the hash recorded in `specs/epic-136-phase3/human-copy/MANIFEST.sha256`. The B3 verification MECHANISM itself is concrete and functions correctly independent of the path-label inconsistency already flagged under DEPLOYMENT-CONCRETE (not double-counted here, per calibration's duplicate-finding guidance)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in this repository (confirmed: `ls domain/` -> 'No such file or directory'), so the Approved-domain-model precondition this check requires is absent. Consistent with the integrated-summary.json's record that reviewer A also skipped this check (reviewer_a_skip_count: 1)."
+    }
+  ]
+}

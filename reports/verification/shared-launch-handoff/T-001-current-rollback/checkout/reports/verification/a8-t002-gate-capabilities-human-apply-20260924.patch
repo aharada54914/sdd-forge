@@ -1,0 +1,20 @@
+--- a/plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json
++++ b/plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json
+@@ -2,10 +2,16 @@
+   "_generated": {
+     "source": "contracts/capability-registry.json",
+     "schema_version": 1,
+-    "sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc",
++    "sha256": "1105650802b04b11072d81f22c806c4cfbb4f0e8e5a759c48b6acd1255fd512b",
+     "notice": "This file is generated. Do not edit."
+   },
+   "gates": [
++    {
++      "id": "check-installed-plugin-drift",
++      "stage": "implementation",
++      "blocking": true,
++      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
++    },
+     {
+       "id": "check-update-migration",
+       "stage": "implementation",

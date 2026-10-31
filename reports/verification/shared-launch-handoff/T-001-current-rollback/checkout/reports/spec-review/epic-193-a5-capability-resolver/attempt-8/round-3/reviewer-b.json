@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a8r3-seq0839",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a8r3-0839",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "515466ed5a61906dd640ccc4447c8b5ad3ef141bc439db45093d8f31c840aed7"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "fce2aa09b2999174dba37536c08d41b450183cb9b11acc52459f423fd8658618"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "dd82e6664501225e28171582aea51ff7a0069d4be7c2b98b9040be81ff0dc9f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-8/round-3/precheck-result.json", "sha256": "f48158630aa1994f3e03d627c79ed24dae397d7f255159270aafe1a16e616bfd"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-8/round-3/integrated-summary.json", "sha256": "3ac64b42d9c86ff7d0a73470cf098085be780c24a1f06cb71bfca1742040ee06"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every actor/state/input/output this package fixes is closed and precisely defined: REQ-002's Block taxonomy is a fixed, named sixteen-row table with one trigger condition per row; REQ-003 collapses state-awareness to an explicit two-way branch (disabled-legacy vs {advisory,required}) with the byte-identity exception set enumerated field-by-field; Field Definitions pins 'Resolver', 'Affected component', 'Matched Capability', 'Block', and 'Resolver Evidence' each to one citation-grounded meaning used consistently. No term surveyed in requirements.md/acceptance-tests.md would let two implementers diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the package's own historically-contested seams at their current bytes: REQ-002's/REQ-004's two Evidence-write-exception statements are explicitly reconciled ('these two scopes are not in conflict', requirements.md:637-642); REQ-001 step (m)'s rollback-and-no-write scope rule ('the subject is the three publication artifacts... and never resolver-evidence.yaml', requirements.md:378-395) is applied consistently at REQ-002's artifact-publication-failed and post-publication-generation-mismatch rows and at AC-011/AC-038/AC-039/AC-047/AC-049; REQ-003/AC-016's widened byte-identity exception set is stated identically in REQ-003 prose and the AC-016 table row. No unresolved conflict found between goals, ACs, constraints, or non-goals in the current text."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-010/TEST-010 requires one independently-triggerable fixture per each of the sixteen REQ-002 Block rows plus a clean-pass fixture; AC-045/TEST-045 covers metamorphic completeness (all four true/false combinations, order-invariance, multi-true, nested-array completeness); Edge Cases (requirements.md:1159-1290) separately covers zero-affected-components, any-branch WARN, duplicate-facet-name aggregation, the pre-publication TOCTOU window, the post-publication-recheck race, and crash recovery, each paired with a dedicated AC/TEST row (AC-047 through AC-058). Negative/boundary/failure paths implied by the requirements are covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section (requirements.md:1390-1416) states three items; the two conditional on external timing (the protected-suffix reservation's live status, SKILL.md's unprotected status) each name a concrete fallback procedure for the future implementation task rather than leaving the gap open ('the future implementation task re-verifies the file's then-current protection status before choosing a direct unprotected-first-then-register sequencing... instead of the content-population-only human-copy this package assumes')."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Security Boundaries (requirements.md:1302-1307) states a governance boundary this feature implies: 'The Resolver never writes to any *.approval.json sidecar, any sdd/.approved-context/ anchor, or guard-invariants.json itself... this feature only reads project-context.yaml's already-approved content via the canonicalizer, it never participates in the approval-sidecar workflow itself.' No AC in the 58-row table, and no TEST row in acceptance-tests.md, exercises or locks this claim (grep for 'approval'/'approved-context'/'guard-invariants' against acceptance-tests.md returns zero matches) -- unlike its sibling Security Boundaries claim on the same page (no-clock/no-network/no-provider-API), which is locked by a dedicated AC-025/TEST-025 repository-wide grep check. A future task author has no acceptance criterion to trace a fixture against for this specific write-scope boundary, and a Phase-2 implementer has no test obligation proving the Resolver's write set excludes these three protected-file classes -- this is a specification-completeness gap (a missing acceptance criterion for an implied approval/governance boundary), which is spec review's own responsibility to catch before design/task decomposition, not an implementation or quality-gate concern since no code exists yet. Severity is Major rather than Critical because Epic A1's own already-Passed, content-frozen guard-invariants.json/PROTECTED_GATE_SUFFIXES mechanism (investigation.md INV-003) independently protects these same paths at write time, so this is a coverage gap in this package's own test surface rather than an unreviewable, unenforced boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001's processing procedure is an ordered, lettered step sequence (steps 0, a-m) with every branch, digest-binding rule, and Block condition already fixed; every output field traces to an already-fixed upstream schema (Dependencies section) or is fixed here (REQ-004 enumerates every Resolver Evidence field, cardinality, and keying rule). A design reviewer is not required to invent missing product behavior for the surface this package is scoped to (REQ-007's caller-integration contract is explicitly design-only and cites a concrete file:line anchor)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (glob 'domain/*' returns no files), so the DOMAIN-CONFORMANCE skip condition applies."
+    }
+  ]
+}

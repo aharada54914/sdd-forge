@@ -1,0 +1,154 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-scan",
+  "task_id": "T-005",
+  "run_id": "RUN-design-sync-scan-qg-T-005-seq0572",
+  "host_session_id": "SESS-qg-design-sync-scan-T-005-0572",
+  "sequence": 572,
+  "previous_record_sha256": "b73b57bd9a226bbfcc4ef5cc64ffd6b8d4564f7bb622407c78b3957b15c19f72",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "884034be892a8158e557204fe8e3726431db9c8776c66552564a16b26a75e75c",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-scan/T-005.md",
+      "sha256": "962217e6aa6c6e7921b30f9deb0fb08b1fbb52c37489c52ced370e4572d96439"
+    },
+    {
+      "path": "specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "specs/design-sync-scan/design.md",
+      "sha256": "2c8583fc2d049eaafc22cde106c092050d7e3252a387fec0ad7aa86afe259756"
+    },
+    {
+      "path": "specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "specs/design-sync-scan/tasks.md",
+      "sha256": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2"
+    },
+    {
+      "path": "specs/design-sync-scan/traceability.md",
+      "sha256": "1ba636c49eee5aff0608eb5d142d6e1b89da6eb34f9dcc410b876854ed350ee4"
+    },
+    {
+      "path": "specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/run-all-sh-full.log",
+      "sha256": "a810eb5e4d3adf40463b788611bf09079b749d5d2875d70626845898847d2528"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/standalone-ps1.log",
+      "sha256": "28f1561885e580b09d2ba4dfe3627fda048adec92ad1a0adb851d67c75045176"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/standalone-sh.log",
+      "sha256": "c7cf6b5abacf841340164485a7f0b068652bad59eb59cc4d66f6067c25db01ec"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness-ps1.log",
+      "sha256": "757c5d1a1855c43db5850bb86291de182f15ccfc570c188aa3b55091074b21de"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness-sh.log",
+      "sha256": "7b40a475c8e51bf01bb39b4b75ecc0b260035464c82cbdfe93d3bc2d18fe5ced"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness.ps1",
+      "sha256": "677c5932d5538b1fa315b8a9a4ca251e61ddfc69d4213da712574d67f5d0555a"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness.sh",
+      "sha256": "ed93ca442416823020123ddb3b600bcc6aa6df12ac84b74fe7d4896bc25e24ac"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/README.md",
+      "sha256": "bb2eb3f66d9b28313af04349319de9217839e20d982bf8754f2983fcb61864ed"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/post-fix-ps1-full.log",
+      "sha256": "f7188634c5761f2e737a4ef2839c1d547033f733c6f13d1d3f3e7a3a160a9a1b"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/post-fix-sh-full.log",
+      "sha256": "bceeb4faad5f6bcb584564bed4641cedaae63af2a0fd8cf78f9749c40ee343af"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m1-xxx-add.log",
+      "sha256": "4c58c2c314fb154bc3b34ad032be86b148622448569ce569cd6bef9fa3f46946"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m1ps1-xxx-add.log",
+      "sha256": "3577a25176f7e8faa53e5479bf2a5feba192adaa889641bdb7d3ead1dafd4ad8"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m2-remove-todoreplace.log",
+      "sha256": "4407128096f52095382d56bef30d73f6f3895e8f2a84ea45f28ff62607ed026a"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m3-hack-noboundary.log",
+      "sha256": "2bd0d7140b7f3026d2cf6ec88644e6efe0786f83f374aa0f8e9d7c8b4f533d5b"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m4-remove-notimplemented.log",
+      "sha256": "5462cdf42ddb8a307079abf49e23f7ffacba2f65322d2cd6ef48c0047a7290d7"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m5ps1-edu-excluded.log",
+      "sha256": "2117e68cf68174e30f629ea64ee6fde97cf0c133710a9d78b27b9a475e50494c"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m5sh-edu-excluded.log",
+      "sha256": "3271892c3f6d30aaeda213620457ad81402d3a00ee9a4819aa63909a342906a4"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m6ps1-unregister.log",
+      "sha256": "5d4c11ac2e80e74027a7a1ffd00ca8c47bf18a8eabb487292fe34301b18904f1"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg-cycle2-fixes/trial-m6sh-unregister.log",
+      "sha256": "474636830f961b9aa2b494d87fdd80695b27d49247023a95952bfa4b1c1b7c75"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.ps1",
+      "sha256": "446de48c439111c190dbe78ddeea19852b6354c99edb368e69277d4ba35246ae"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.sh",
+      "sha256": "2295a3ebf37c1063c27130a356b783db4feffc2a9a34e2650489a806d08458be"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "f0a1e3f79839e6084f8354f3b214a881a092886ac6615667f3abaf0d68747ecc"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "585466786b7e71da73aed661a41007c9cd1b1df0cfd23c820e15df54872cd1d7"
+    }
+  ]
+}

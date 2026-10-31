@@ -1,0 +1,17 @@
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/error-paths/deep-verify-error-paths.test.ts(17,10): error TS2305: Module '"../../src/tools/evidence.js"' has no exported member 'evidenceDeepVerify'.
+tests/error-paths/deep-verify-error-paths.test.ts(40,49): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/error-paths/deep-verify-error-paths.test.ts(67,45): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/error-paths/deep-verify-error-paths.test.ts(70,48): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/error-paths/deep-verify-error-paths.test.ts(95,49): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/error-paths/deep-verify-error-paths.test.ts(122,50): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(20,10): error TS2305: Module '"../../src/tools/evidence.js"' has no exported member 'evidenceDeepVerify'.
+tests/tools/deep-verify.test.ts(36,37): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(41,52): error TS7006: Parameter 'b' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(61,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(67,35): error TS7006: Parameter 'f' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(92,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/tools/deep-verify.test.ts(143,35): error TS7006: Parameter 'f' implicitly has an 'any' type.

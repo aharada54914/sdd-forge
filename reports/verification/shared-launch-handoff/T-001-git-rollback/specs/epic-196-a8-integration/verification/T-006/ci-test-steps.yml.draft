@@ -1,0 +1,9 @@
+# T-006 draft insertion for the existing `jobs.test.strategy.matrix.os` job.
+# Both shells intentionally run on all three existing OS rows; this adds no job.
+- name: Test path-lineending regression suite (bash)
+  shell: bash
+  run: bash ./tests/path-lineending-regression.tests.sh
+
+- name: Test path-lineending regression suite (pwsh)
+  shell: pwsh
+  run: ./tests/path-lineending-regression.tests.ps1

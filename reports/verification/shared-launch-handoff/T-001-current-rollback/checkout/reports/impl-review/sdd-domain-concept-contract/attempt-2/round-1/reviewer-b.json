@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-b-a2r1-seq0779",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-domain-concept-contract-a2r1-0779",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain-concept-contract/design.md", "sha256": "28bd5415ad62afd26f4b167cbe418dc1f2dbc10ec7dd93aabce35d3a31465d64"},
+    {"path": "specs/sdd-domain-concept-contract/requirements.md", "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"},
+    {"path": "specs/sdd-domain-concept-contract/acceptance-tests.md", "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"},
+    {"path": "specs/sdd-domain-concept-contract/investigation.md", "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"},
+    {"path": "specs/sdd-domain-concept-contract/ux-spec.md", "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"},
+    {"path": "specs/sdd-domain-concept-contract/frontend-spec.md", "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"},
+    {"path": "specs/sdd-domain-concept-contract/infra-spec.md", "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"},
+    {"path": "specs/sdd-domain-concept-contract/security-spec.md", "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-2/round-1/precheck-result.json", "sha256": "7807e53ff675e3d30b92526d6a9718770239b6a2a6ca5181041aca709be48a4d"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-2/round-1/integrated-summary.json", "sha256": "d613d623a1a212d317e6195fd6485bb67856570f613beb7a00b7c607c6971b05"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Design Decisions' table (lines 22-30) states a rationale for every row DD-1..DD-7. DD-1: distinguished_from needs cross-context references, so a nested structure would double the resolution rule; JSON Schema draft-07 cannot express referential integrity so membership enforcement is pushed to the validator (INV-003, plan review P-7). DD-2: 'owner 決定（2026-08-16）: v1 資産は存在しない'. DD-3: a cross-file $ref would create fragile coupling with v1 deletion (OQ-001) and duplication drift is constrained by TEST-001/002. DD-4: explicit comparison against jq/ajv/Test-Json with reasons for exclusion (INV-005 house pattern, PS5.1/Test-Json incompatibility). DD-5: cites INV-006's existing convention. DD-6: resolves OQ-004's proposal and avoids duplicating v1's existing validation path. DD-7: gate needs machine-consumable per-line violations, fail-closed non-zero exit. No inline decision in design.md lacks an accompanying rationale clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has no '## Open Questions' heading; the closest section is '## Open Items' (design.md:148-154). Repository-wide grep across all 38 spec design.md files shows sdd-domain-concept-contract/design.md is the only one that does not use the '## Open Questions' heading (37 use it directly; the design.template.md at plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md:99-107 requires 'Owner:', 'Blocks Implementation: yes | no', and 'Resolution Path:' fields per entry). Neither entry in '## Open Items' carries these fields: OQ-001 ('v1 ファイルの最終処遇') defers to 'Phase 3' without naming a resolving role, has no literal 'Blocks Implementation:' field, and no literal 'Resolution Path:' field (only prose 'Phase 3 で判断'). OQ-003 is stated as already resolved ('確定') so it is not an outstanding open item. Concrete failure mode: a Phase-3 implementer or reviewer scanning design.md cannot mechanically determine who owns the v1-disposition decision or whether it gates Phase-0 sign-off. Per the check's explicit rule, 'An open question with no owner is a Major finding.'"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no separate '## Assumptions' section (its headings are Technical Summary, Design Decisions, v2 Schema Shape, Architecture, Error Handling, Test Strategy, Constraint Compliance, Open Items — confirmed by heading scan). investigation.md is present (not absent), so the fallback trigger requiring investigation.md ('investigation.md absent; design has <N> non-trivial assumptions...') does not activate. The assumptions embedded in the Design Decisions table are each individually grounded: DD-1/DD-3 cite INV-003; DD-4/DD-5 cite INV-005/INV-006; DD-2 cites an explicit dated owner decision (2026-08-16); DD-6 resolves OQ-004 by explicit proposal. No ungrounded, non-trivial assumption is present in design.md."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md HAS a '## Constraint Compliance' section (lines 138-146, a 5-row table: v1 無変更/hook-guard 保護/content-as-data/外部依存禁止/ASCII改行規約), so the Primary/TYPE-D branch applies. requirements.md '## Security Boundaries' states a third, distinct security constraint not mirrored in that table: 'fixture に秘密情報・実在の個人情報を含めない' (fixtures must not contain secrets or real personal data). This constraint is not addressed anywhere in design.md — not as a Constraint Compliance row, and not in any other section (Technical Summary, Design Decisions, v2 Schema Shape, Architecture, Error Handling, Test Strategy, Open Items were all checked; none restates or complies with it). Concrete failure mode: security-spec.md's own Threat Considerations note that seed/interview material can carry 'external text (issue bodies, article excerpts)' into hand-written fixtures — exactly the vector this constraint guards against — yet design.md's Test Strategy section (which defines the 73-fixture negative corpus plus 5 positive fixture families) gives no design-level directive against it, and the Constraint Compliance ledger (this check's designated rollup) omits it entirely. Per the check's Primary/TYPE-D rule, 'A constraint with no compliance statement is a Critical finding.'"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. No numeric latency/throughput/concurrency/SLA threshold appears anywhere in the document. The only size-bound note (Edge Cases: '契約ファイルが10MBを超える等の異常入力: validator は fail-closed で非0終了') is a fail-closed input-size boundary for malformed/oversized-input handling, not a performance or response-time target."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md contains no '## Deployment / CI Plan' section at all (heading scan confirms only: Technical Summary, Design Decisions, v2 Schema Shape, Architecture, Error Handling, Test Strategy, Constraint Compliance, Open Items). Substantively equivalent content does exist, but only in infra-spec.md ('## CI / Release Impact' and '## Rollback' sections), a separate artifact — the check requires this content inside design.md's own dedicated section. Per the check's explicit rule, 'Absent Deployment / CI Plan section ... is a Major finding.'"
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no '## Data Plan' section, and no database/application-data schema change is declared anywhere in requirements.md or design.md. requirements.md Non-goals explicitly excludes 'domain/ アーティファクト（Markdown 側）の生成・変更', and infra-spec.md confirms 'N/A — no change to CI workflows, release surfaces, install/uninstall scripts, or runtime environments ... no registration changes.' The three deliverables (a JSON Schema contract file, sh/ps1 validator scripts, a Pester test suite) are new files with no existing table/column mutation. MIGRATION-PLANNED's trigger condition (declared schema changes) is not met."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No external system, third-party service, or cross-service API call is referenced anywhere in design.md. security-spec.md explicitly confirms 'No network, no external dependency ... Nothing is fetched, uploaded, or cached,' and infra-spec.md confirms the scripts are 'Read-only, no network.' SKIP: no integration surface present."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's three deliverables (contracts/domain-contract.v2.schema.json, plugins/sdd-domain/scripts/validate-domain-contract.{sh,ps1}, tests/sdd-domain/contract-v2-schema.Tests.ps1) map directly to Goals G1-G5 and REQ-001..REQ-007 in requirements.md; no additional component, data model, or API endpoint is introduced beyond these. DD-2 explicitly declines to build a dual-version loader, matching requirements.md's Non-goals list. Repository check confirms no design-system/ directory exists at repo root, and ux-spec.md declares 'ds_profile: none', so no UI-library scope-creep applies. All Goals G1-G5 and User Stories US-001..US-003 are covered across the Technical Summary/Design Decisions/Test Strategy sections."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no high-risk design claim or risk surface requiring a separate verification path. None of the five listed categories applies: no security/authorization mechanism is touched, no PII is processed (fixtures are required to exclude PII per requirements.md Security Boundaries), no payment or externally-visible contract surface exists, no cross-service integration exists (see INTEGRATION-IDENTIFIED), and there is no UI/fullstack user journey (ux-spec.md: 'N/A — no change: ... There is no GUI, view, dialog, menu item, or interactive shell surface')."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP (check condition not met): verified via direct repository listing that no domain/ directory exists at the sdd-forge repo root (`test -d domain` returned false), consistent with investigation.md INV-009 ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'). Per the check's own instruction, record as skipped when the project has no domain/ directory."
+    }
+  ]
+}

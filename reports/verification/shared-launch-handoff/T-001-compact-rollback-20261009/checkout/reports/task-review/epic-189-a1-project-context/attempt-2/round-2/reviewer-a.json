@@ -1,0 +1,44 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt2-seq0340",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt2-seq0340",
+  "manifest": [
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+    {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "46a5d0d2da13316a4c2f55a58aeb15b3257461840c585658b8924f3d33ef4b2c"},
+    {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-2/precheck-result.json", "sha256": "277be9a4215495a41a145994894f383dd1a283337f7a8809484bb13462448fc8"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-2/dependency-graph.json", "sha256": "0cdfa8a75f42b7005d2902f9dcc44e5e889cfbd9a14d023bd65316c75ac133d7"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "Every AC-NNN/TEST-NNN referenced anywhere in tasks.md (AC-001..AC-046, TEST-001..TEST-046) resolves to a matching row in acceptance-tests.md's table; no dangling ID found."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "Every task's `### Blockers` first line is either the literal `None` (T-001) or a comma-separated T-\\d{3} list (T-002..T-013, e.g. `T-002, T-004`, `T-002, T-003, T-005, T-006, T-007, T-008`); no range notation or prose in the machine-readable line. blockers_format_valid: true, matching precheck-result.json."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "REQ-001..REQ-011 each appear in at least one task's `Requirements:` field (REQ-001/002→T-001; REQ-003→T-002; REQ-004→T-003; REQ-005→T-006; REQ-006→T-004,T-005; REQ-007→T-007,T-009; REQ-008→T-010; REQ-009→T-011,T-012; REQ-010→T-008,T-012; REQ-011→T-013)."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "traceability.md's Acceptance Mapping table maps AC-001..AC-046 each to at least one task, and tasks.md's own Done-When items independently cite the matching AC-NNN for each TEST-NNN it lists."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "Every task T-001..T-013 declares a `Requirements:` field with at least one valid REQ-NNN; no orphan task found."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "Only T-010 (\"Verify the hook-guard extension...\") and T-013 (\"...three-environment test coverage...\") trigger the title-based test-task definition; both reference AC-NNN in their Done When lists (T-010: AC-023; T-013: AC-028, AC-029)."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "Post-implementation provenance re-review rule applied per orchestrator declaration. T-001/T-002/T-004 carry `Approval: Approved (sudo <ISO8601>)` audit-marked entries (workflow-bypass-mode authorization) with `Status: Blocked`; all other tasks carry `Approval: Draft`/`Status: Planned`. All Status values (Planned, Blocked) are within the permitted re-review set {Planned, In Progress, Blocked, Implementation Complete, Done}."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "Every task's Risk/Required Workflow pairing matches the risk-gate-matrix: T-001/T-013 medium→acceptance-first; T-002..T-008,T-010,T-011,T-012 high→tdd; T-007/T-009 critical→tdd. precheck-result.json records workflow_match_precheck: PASS, consistent with this direct verification."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "AC-046 is claimed by three tasks (T-004, T-005, T-006) but each Done-When item explicitly differentiates its own scope (\"schema-conformance half\" T-004 line 727; \"verdict half\" T-005 line 883; \"structural half\" T-006 line 1001). AC-009 is claimed only by T-002's own Done-When (line 444); traceability.md's T-013 \"audit share\" note is not restated as a T-013 Done-When claim. No undifferentiated duplicate found."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "Every task ID referenced in any `### Blockers` field (T-001..T-012) exists in dependency-graph.json's `nodes` array (T-001..T-013); no dangling reference found."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "BLOCKERS-FORMAT is PASS, so this check runs. Every edge in dependency-graph.json goes from a numerically higher task to a numerically lower or equal-tier task (e.g. T-002→T-001, T-009→T-002..T-008, T-013→T-001..T-012); following edges strictly decreases the task number, so no path can revisit a node. No cycle found."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "Tasks bundling multiple artifacts under \"and\" (T-001: project-context+provider-bindings schemas, cross-referenced via `provider_binding_ids`; T-003: schema+signer, both REQ-004's own single requirement; T-009: sidecar/registry/publisher/verification registration, required atomic per design.md's exact-match `expected_protected` constraint; T-011/T-012: doc+consumer-skill edits implementing one ADR-0023 rule across sibling files) each bundle tightly-coupled artifacts sharing one requirement or one mandatory atomic edit, not two independent feature concerns."},
+    {"id": "OBSERVABLE-DONE", "status": "FAIL", "severity": "Major", "finding": "T-003 (line 614), T-004 (729), T-005 (884), T-006 (1003), T-007 (1123), T-008 (1247), T-010 (1525), T-011 (1666), and T-012 (1806) each carry the identical Done-When item `Suite self-registers; \\`test.yml\\` staged correctly.` with no named verification command, hash, or artifact specifying what 'correctly' means — structurally the same forbidden pattern as 'works correctly (no observable criterion)'. This is inconsistent with T-001 (line 244-247: names `sha256sum .github/workflows/test.yml` recorded before/after) and T-002 (line 447-448: `live \\`test.yml\\` unchanged (SHA-256 recorded before/after)`), which give a concrete, inspectable criterion for the identical staging step."},
+    {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Major", "finding": "Every task ID T-001..T-013 has a Task Mapping/Acceptance Mapping/Deliverables row in traceability.md; every REQ-NNN in traceability.md (REQ-001..REQ-011) exists in requirements.md. Every requirement row's Layer Spec column cites a canonical `<layer>-spec.md#<section>` anchor (security-spec.md#trust-boundaries; infra-spec.md#deployment-topology; infra-spec.md#cicd-sequence) whose section headers were confirmed present in the hash-verified layer-spec files."}
+  ],
+  "findings": [
+    {"check_id": "OBSERVABLE-DONE", "severity": "Major", "task_id": "T-003", "finding": "T-003 (line 614), T-004 (729), T-005 (884), T-006 (1003), T-007 (1123), T-008 (1247), T-010 (1525), T-011 (1666), and T-012 (1806) in specs/epic-189-a1-project-context/tasks.md each carry the Done-When item `Suite self-registers; \\`test.yml\\` staged correctly.` — 'correctly' names no command, hash, or artifact a human can inspect, matching the forbidden 'works correctly (no observable criterion)' pattern. T-001 and T-002's equivalent item names a concrete check (`sha256sum .github/workflows/test.yml` recorded before/after; 'SHA-256 recorded before/after'), proving the same repo/task convention supports a concrete phrasing that these nine tasks omit."}
+  ]
+}

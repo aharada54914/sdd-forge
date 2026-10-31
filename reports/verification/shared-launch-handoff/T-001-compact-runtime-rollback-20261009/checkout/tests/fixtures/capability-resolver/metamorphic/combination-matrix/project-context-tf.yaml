@@ -1,0 +1,24 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: facet-hybrid
+  capability_enforcement: advisory
+components:
+  - id: comp-a
+    characteristics:
+      pii: true
+      ui: false
+      auto_update: false
+      local_persistence: false
+    paths:
+      include:
+        - "comp-a/**"
+  - id: comp-b
+    characteristics:
+      pii: false
+      ui: false
+      auto_update: false
+      local_persistence: false
+    paths:
+      include:
+        - "comp-b/**"

@@ -1,0 +1,437 @@
+#!/usr/bin/env bash
+# Integration coverage for the specification-review precheck state boundary.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
+IMPL_PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
+FEATURE="spec-review-fixture-$RANDOM-$$"
+SPEC_DIR="${ROOT}/specs/${FEATURE}"
+REPORT_ROOT="${ROOT}/reports/spec-review/${FEATURE}"
+IMPL_REPORT_ROOT="${ROOT}/reports/impl-review/${FEATURE}"
+REGISTRY="${ROOT}/specs/workflow-state-registry.json"
+REGISTRY_BACKUP="$(mktemp)"
+cp "${REGISTRY}" "${REGISTRY_BACKUP}"
+
+# cleanup is re-invoked mid-run to rebuild fixtures, so the registry restore
+# must stay out of it and run only once on EXIT.
+restore_registry() {
+  cp "${REGISTRY_BACKUP}" "${REGISTRY}"
+  rm -f "${REGISTRY_BACKUP}"
+}
+
+cleanup() {
+  rm -rf "${SPEC_DIR}" "${REPORT_ROOT}" "${IMPL_REPORT_ROOT}"
+}
+trap 'cleanup; restore_registry' EXIT
+
+fail() {
+  echo "FAIL: $*" >&2
+  exit 1
+}
+
+expect_failure() {
+  if "$@" >/dev/null 2>&1; then
+    fail "expected failure: $*"
+  fi
+}
+
+write_contract() {
+  local directory="$1" verdict="$2" severity="$3"
+  local requirements_sha acceptance_sha investigation_sha investigation_json precheck_sha summary_sha calibration calibration_sha round attempt a_verdict a_result a_fails a_passes critical major minor warning check_severity
+  round="$(jq -r .round "${directory}/precheck-result.json")"
+  attempt="$(jq -r .attempt "${directory}/precheck-result.json")"
+  case "${severity}" in
+    none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=7; critical=0; major=0; minor=0; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=6; critical=1; major=0; minor=0; check_severity="Critical" ;;
+    Major) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=6; critical=0; major=1; minor=0; check_severity="Major" ;;
+    Minor) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=6; critical=0; major=0; minor=1; check_severity="Minor" ;;
+    *) fail "unknown fixture severity: ${severity}" ;;
+  esac
+  warning=0
+  [[ "${round}" == 3 && "${severity}" == Minor ]] && warning=1
+  jq -n --argjson attempt "${attempt}" --argjson round "${round}" --arg result "${a_result}" --arg severity "${check_severity}" \
+    --argjson fail_count "${a_fails}" --argjson pass_count "${a_passes}" \
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
+    {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
+     reviewer_a_checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end)})),
+     reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
+    > "${directory}/integrated-summary.json"
+  requirements_sha="$(jq -r .requirements_sha256 "${directory}/precheck-result.json")"
+  acceptance_sha="$(jq -r .acceptance_sha256 "${directory}/precheck-result.json")"
+  investigation_sha="$(jq -r '.investigation_sha256 // empty' "${directory}/precheck-result.json")"
+  investigation_json='null'
+  [[ -n "${investigation_sha}" ]] && investigation_json="\"${investigation_sha}\""
+  precheck_sha="$(sha256sum "${directory}/precheck-result.json" | awk '{print $1}')"
+  summary_sha="$(sha256sum "${directory}/integrated-summary.json" | awk '{print $1}')"
+  calibration="${ROOT}/plugins/sdd-review-loop/references/spec-review-calibration.md"
+  calibration_sha="$(sha256sum "${calibration}" | awk '{print $1}')"
+  jq -n --arg feature "${FEATURE}" --arg result "${a_result}" --arg severity "${check_severity}" --arg verdict "${a_verdict}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg precheck "${directory}/precheck-result.json" --arg calibration "${calibration}" \
+    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg investigation_sha "${investigation_sha}" --arg precheck_sha "${precheck_sha}" --arg calibration_sha "${calibration_sha}" \
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
+    {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
+     allowed_input_manifest: ([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),
+     verdict:$verdict,
+     checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
+    > "${directory}/reviewer-a.json"
+  jq -n --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
+    --arg calibration "${calibration}" --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg investigation_sha "${investigation_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
+    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
+    {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
+     allowed_input_manifest: ([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),
+     verdict:"PASS",
+     checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
+    > "${directory}/reviewer-b.json"
+  jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" --argjson attempt "${attempt}" --argjson round "${round}" --argjson warning "${warning}" --argjson critical "${critical}" --argjson major "${major}" --argjson minor "${minor}" \
+    '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,reviewer_a_run_id:"fixture-a",reviewer_b_run_id:"fixture-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
+    > "${directory}/integrated-verdict.json"
+  jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" \
+    --arg requirements_sha256 "${requirements_sha}" --arg acceptance_sha256 "${acceptance_sha}" --argjson investigation_sha256 "${investigation_json}" \
+    --argjson attempt "${attempt}" --argjson round "${round}" --argjson warning "${warning}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg investigation_sha "${investigation_sha}" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" --arg calibration "${calibration}" \
+    --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
+    '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,reviewers:[
+      {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:
+        ([{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}])
+      },
+      {role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:
+        ([{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}])
+      }
+    ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}' \
+    > "${directory}/spec-review-contract.json"
+}
+
+jq --arg feature "${FEATURE}" \
+  '.entries += [{feature:$feature,profile:"lite"}]' "${REGISTRY}" > "${REGISTRY}.tmp"
+mv "${REGISTRY}.tmp" "${REGISTRY}"
+
+mkdir -p "${SPEC_DIR}"
+cat > "${SPEC_DIR}/requirements.md" <<'EOF'
+# Requirements
+
+Spec-Review-Status: Pending
+
+## Goals
+
+- Demonstrate the spec-review precheck fixture.
+EOF
+cat > "${SPEC_DIR}/acceptance-tests.md" <<'EOF'
+# Acceptance tests
+
+| AC-ID | Requirement | Status |
+|---|---|---|
+| AC-001 | REQ-001 | Planned |
+EOF
+cat > "${SPEC_DIR}/investigation.md" <<'EOF'
+# Investigation
+
+- Initial repository observation.
+EOF
+
+# Clean first round writes immutable hashes before any reviewer runs.
+"${PRECHECK}" "${FEATURE}" 1 1
+ROUND_ONE="${REPORT_ROOT}/attempt-1/round-1"
+[[ -f "${ROUND_ONE}/precheck-result.json" ]] || fail "missing precheck artifact"
+jq -e '.schema == "spec-review-precheck/v1" and .requirements_sha256 and .acceptance_sha256' \
+  "${ROUND_ONE}/precheck-result.json" >/dev/null || fail "missing canonical hashes"
+
+# Replays and skipped/invalid transitions must fail without overwriting evidence.
+before_hash="$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 1
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2
+expect_failure "${PRECHECK}" "../escape" 1 1
+FEATURE_UPPER=$(printf '%s' "$FEATURE" | tr '[:lower:]' '[:upper:]')
+expect_failure "${PRECHECK}" "${FEATURE_UPPER}" 0 1
+[[ "${before_hash}" == "$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')" ]] || fail "replay overwrote evidence"
+
+# A NEEDS_WORK result authorizes exactly one edited next round; stale input is rejected.
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+tmp_contract="${ROUND_ONE}/spec-review-contract.missing-investigation.tmp"
+jq 'del(.investigation_sha256)' "${ROUND_ONE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_ONE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="missing investigation hash"
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
+round_one_investigation_sha="$(jq -r .investigation_sha256 "${ROUND_ONE}/precheck-result.json")"
+printf '\n- Investigation-only correction recorded.\n' >> "${SPEC_DIR}/investigation.md"
+tmp_reviewer="${ROUND_ONE}/reviewer-a.tmp"
+jq '.checks = [.checks[0]]' "${ROUND_ONE}/reviewer-a.json" > "${tmp_reviewer}"
+mv "${tmp_reviewer}" "${ROUND_ONE}/reviewer-a.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
+tmp_contract="${ROUND_ONE}/spec-review-contract.tmp"
+jq '.reviewers[0].allowed_input_manifest += [{"path":"../reports/impl-review/x/reviewer-a.json","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
+  "${ROUND_ONE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_ONE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
+"${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+ROUND_TWO="${REPORT_ROOT}/attempt-1/round-2"
+[[ "$(jq -r .investigation_sha256 "${ROUND_TWO}/precheck-result.json")" != "${round_one_investigation_sha}" ]] || fail "investigation-only edit did not change the recorded hash"
+
+# Round-three Minor-only PASS is represented by a PASS contract with warnings.
+write_contract "${ROUND_TWO}" NEEDS_WORK Major
+printf '\n- Another human correction.\n' >> "${SPEC_DIR}/requirements.md"
+"${PRECHECK}" "${FEATURE}" 1 3 --edit-summary="addressed major findings"
+
+# Round-three Minor-only PASS keeps the warning count while Major/Critical BLOCK.
+ROUND_THREE="${REPORT_ROOT}/attempt-1/round-3"
+write_contract "${ROUND_THREE}" PASS Minor
+jq -e '.verdict == "PASS" and .warningCount == 1' "${ROUND_THREE}/spec-review-contract.json" >/dev/null || fail "round-three Minor finding must pass with a warning"
+tmp_verdict="${ROUND_THREE}/integrated-verdict.tmp"
+jq '.finding_counts.major = 1 | .verdict = "BLOCKED"' "${ROUND_THREE}/integrated-verdict.json" > "${tmp_verdict}"
+mv "${tmp_verdict}" "${ROUND_THREE}/integrated-verdict.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+write_contract "${ROUND_THREE}" PASS Minor
+tmp_reviewer="${ROUND_THREE}/reviewer-a.tmp"
+jq '.allowed_input_manifest += [{"path":"../reports/task-review/x/reviewer-a.json","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' "${ROUND_THREE}/reviewer-a.json" > "${tmp_reviewer}"
+mv "${tmp_reviewer}" "${ROUND_THREE}/reviewer-a.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+write_contract "${ROUND_THREE}" BLOCKED Critical
+"${PRECHECK}" "${FEATURE}" 2 1 --reset
+rm -rf "${REPORT_ROOT}/attempt-2"
+write_contract "${ROUND_THREE}" BLOCKED Major
+"${PRECHECK}" "${FEATURE}" 2 1 --reset
+rm -rf "${REPORT_ROOT}/attempt-2"
+write_contract "${ROUND_THREE}" PASS Minor
+
+# Reset starts only from a validated terminal contract; symlinked/pre-existing destinations are denied.
+sed -i.bak 's/^Spec-Review-Status: Pending$/Spec-Review-Status: Passed/' "${SPEC_DIR}/requirements.md"
+rm -f "${SPEC_DIR}/requirements.md.bak"
+cat > "${SPEC_DIR}/design.md" <<'EOF'
+# Design
+
+Impl-Review-Status: Pending
+
+Feature Type: workflow
+Data Entities: None
+Existing Data Affected: No
+
+## Components
+
+- Review precheck fixture.
+
+## Security Boundaries
+
+- Repository-local files only.
+EOF
+"${IMPL_PRECHECK}" "${FEATURE}" 1 1
+[[ -f "${IMPL_REPORT_ROOT}/attempt-1/round-1/precheck-result.json" ]] ||
+  fail "spec PASS contract did not authorize the next review stage"
+
+# The rollback path remains viable: removing status normalization reproduces the
+# original raw-hash mismatch, while the normalized transition restores the
+# reviewed Pending hash in an isolated fixture.
+rollback_dir="$(mktemp -d)"
+printf 'Spec-Review-Status: Pending\n' > "${rollback_dir}/reviewed.md"
+cp "${rollback_dir}/reviewed.md" "${rollback_dir}/current.md"
+sed -i.bak 's/Spec-Review-Status: Pending/Spec-Review-Status: Passed/' "${rollback_dir}/current.md"
+rm -f "${rollback_dir}/current.md.bak"
+reviewed_raw_sha="$(sha256sum "${rollback_dir}/reviewed.md" | awk '{print $1}')"
+current_raw_sha="$(sha256sum "${rollback_dir}/current.md" | awk '{print $1}')"
+[[ "${reviewed_raw_sha}" != "${current_raw_sha}" ]] ||
+  fail "rollback fixture did not reproduce the raw-hash mismatch"
+sed 's/Spec-Review-Status: Passed/Spec-Review-Status: Pending/' "${rollback_dir}/current.md" > "${rollback_dir}/normalized.md"
+[[ "${reviewed_raw_sha}" == "$(sha256sum "${rollback_dir}/normalized.md" | awk '{print $1}')" ]] ||
+  fail "status-normalized rollback fixture did not recover the reviewed hash"
+rm -rf "${rollback_dir}"
+
+# Regression (same-turn edit + reset): editing requirements.md while it still
+# declares Passed, then running --reset, must persist the hash of the
+# post-reset (Pending) bytes in precheck-result.json — never the pre-mutation
+# bytes hashed before the script's own sed. A stale hash permanently wedges
+# the round-2 remedy path: reviewers and contracts carry the live post-reset
+# hash while precheck-result.json carries the pre-reset one, and
+# validate_contract can never reconcile the two.
+printf '\n- Spec addendum recorded while still Passed.\n' >> "${SPEC_DIR}/requirements.md"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset
+ATTEMPT_TWO_ROUND_ONE="${REPORT_ROOT}/attempt-2/round-1"
+grep -q '^Spec-Review-Status: Pending$' "${SPEC_DIR}/requirements.md" || fail "reset did not restore Pending status"
+live_requirements_sha="$(sha256sum "${SPEC_DIR}/requirements.md" | awk '{print $1}')"
+[[ "$(jq -r .requirements_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${live_requirements_sha}" ]] ||
+  fail "reset persisted a stale requirements hash (pre-reset bytes)"
+live_acceptance_sha="$(jq -r .acceptance_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")"
+live_investigation_sha="$(jq -r .investigation_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")"
+expected_input_sha="$(printf '%s:%s:%s' "${live_requirements_sha}" "${live_acceptance_sha}" "${live_investigation_sha}" | sha256sum | awk '{print $1}')"
+[[ "$(jq -r .input_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${expected_input_sha}" ]] ||
+  fail "reset persisted a stale composite input hash"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+# The previously wedged remedy path: a NEEDS_WORK round 1 reached via a
+# same-turn edit + reset must still authorize round 2.
+write_contract "${ATTEMPT_TWO_ROUND_ONE}" NEEDS_WORK Major
+printf '\n- Remedy applied after reset.\n' >> "${SPEC_DIR}/requirements.md"
+"${PRECHECK}" "${FEATURE}" 2 2 --edit-summary="remedy after same-turn edit and reset"
+
+# Evidence records absolute paths from the checkout that produced it, so a run
+# from anywhere else -- a git worktree, CI, another machine -- sees a different
+# repository root. Comparing recorded paths to locally built ones literally
+# rejects valid evidence: that is what made epic-136-phase3's attempt 2
+# unverifiable outside the checkout that wrote it, and it blocked every
+# subsequent attempt. The canonical gate (check-workflow-state.sh relative_path)
+# and the PowerShell precheck (Get-ManifestRelativePath, issue #61) already
+# normalized; this validator was the last one comparing raw absolute strings.
+FOREIGN_ROOT="/opt/ci-checkout/sdd-forge"
+reroot() {
+  local file="$1" tmp="$1.reroot"
+  jq --arg from "${ROOT}/" --arg to "${FOREIGN_ROOT}/" '
+    def rerooted: if startswith($from) then $to + .[($from | length):] else . end;
+    if has("reviewers")
+    then .reviewers[].allowed_input_manifest[].path |= rerooted
+    else .allowed_input_manifest[].path |= rerooted end' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
+rebuild_rerooted_terminal_contract() {
+  local file
+  rm -rf "${REPORT_ROOT}/attempt-2"
+  write_contract "${ROUND_THREE}" PASS Minor
+  for file in spec-review-contract.json reviewer-a.json reviewer-b.json; do
+    reroot "${ROUND_THREE}/${file}"
+  done
+}
+
+rebuild_rerooted_terminal_contract
+# The fixture proves nothing unless every recorded path really left the local
+# root: under the previous literal comparison a shared prefix would still match.
+if jq -e --arg root "${ROOT}/" '[.reviewers[].allowed_input_manifest[].path | select(startswith($root))] | length > 0' \
+  "${ROUND_THREE}/spec-review-contract.json" >/dev/null; then
+  fail "re-rooted fixture still carries local-root paths, so it proves nothing"
+fi
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "a contract recorded under a different repository root must still validate"
+
+# Normalizing the root must not normalize away tampering. Each case below is the
+# recipe just proven to pass, plus exactly one mutation.
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq --arg other "/opt/other-checkout/sdd-forge/specs/${FEATURE}/requirements.md" \
+  '.reviewers[0].allowed_input_manifest[0].path = $other' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq '.reviewers[0].allowed_input_manifest[0].sha256 = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq '.reviewers[0].allowed_input_manifest += [{"path":"/elsewhere/random.md","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+# A sealed contract is evidence about the past. Validating any of its entries
+# against the live working tree is a category error, and investigation.md is the
+# entry where that error is fatal: it is BY DESIGN the document that accumulates
+# the amendment record across stages, so it legitimately grows after a round is
+# sealed. Comparing live bytes to the correctly-pinned ones mismatched and
+# refused --reset with "previous terminal contract is invalid" -- permanently,
+# because nothing can un-grow the file. Reproduced on epic-195. The live-vs-
+# pinned question belongs to check-workflow-state.sh, which asks it deliberately
+# and carries the amendment-record growth tolerance for exactly this file.
+pin_investigation() {
+  local directory="$1" sha tmp file
+  sha="$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')"
+  for file in reviewer-a.json reviewer-b.json; do
+    tmp="${directory}/${file}.tmp"
+    jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
+      'if any(.allowed_input_manifest[]; .path == $path) then . else .allowed_input_manifest += [{path:$path,sha256:$sha}] end' "${directory}/${file}" > "${tmp}"
+    mv "${tmp}" "${directory}/${file}"
+  done
+  tmp="${directory}/spec-review-contract.tmp"
+  jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
+    'if any(.reviewers[].allowed_input_manifest[]; .path == $path) then . else .reviewers[].allowed_input_manifest += [{path:$path,sha256:$sha}] end' \
+    "${directory}/spec-review-contract.json" > "${tmp}"
+  mv "${tmp}" "${directory}/spec-review-contract.json"
+}
+
+cleanup
+mkdir -p "${SPEC_DIR}"
+printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
+printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+"${PRECHECK}" "${FEATURE}" 1 1
+SEALED="${REPORT_ROOT}/attempt-1/round-1"
+write_contract "${SEALED}" PASS none
+pin_investigation "${SEALED}"
+sealed_investigation_sha="$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "a terminal contract that pins investigation.md must validate while the file is untouched"
+
+# The real shape: the amendment record grows after the seal. The pin is still
+# correct evidence; only the present moved on.
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '\n## Amendment Re-Review Context\n\n- Recorded after the round was sealed.\n' >> "${SPEC_DIR}/investigation.md"
+[[ "$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')" != "${sealed_investigation_sha}" ]] ||
+  fail "growth fixture did not actually change investigation.md, so it proves nothing"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "investigation.md growing after the seal must not invalidate the sealed contract"
+
+# The mirror image: a contract that never pinned investigation.md must not be
+# invalidated by the file appearing in the tree afterwards either.
+rm -rf "${REPORT_ROOT}/attempt-2"
+rm -f "${SPEC_DIR}/investigation.md"
+tmp_precheck="${SEALED}/precheck-result.no-investigation.tmp"
+jq '.investigation_sha256 = null' "${SEALED}/precheck-result.json" > "${tmp_precheck}"
+mv "${tmp_precheck}" "${SEALED}/precheck-result.json"
+write_contract "${SEALED}" PASS none
+tmp_contract="${SEALED}/spec-review-contract.no-investigation.tmp"
+jq 'del(.investigation_sha256)' "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "baseline: a contract with no investigation.md pin must validate"
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '# Investigation\n\n- Created after the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "an investigation.md created after the seal must not invalidate an unpinning contract"
+
+# Deriving from the contract must not mean trusting whatever it says: the
+# reviewers have to agree on the bytes they read.
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+write_contract "${SEALED}" PASS none
+pin_investigation "${SEALED}"
+tmp_contract="${SEALED}/spec-review-contract.tmp"
+jq --arg path "${SPEC_DIR}/investigation.md" \
+  '(.reviewers[1].allowed_input_manifest[] | select(.path == $path) | .sha256) = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"' \
+  "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+cleanup
+mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
+printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
+printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
+ln -s "${ROOT}/reports/spec-review" "${REPORT_ROOT}"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 1
+cleanup
+mkdir -p "${SPEC_DIR}"
+printf 'Spec-Review-Status: Passed\n' > "${SPEC_DIR}/requirements.md"
+printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 1
+mkdir -p "${REPORT_ROOT}/attempt-1/round-1"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+rm "${SPEC_DIR}/requirements.md"
+ln -s "${ROOT}/README.md" "${SPEC_DIR}/requirements.md"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 1
+
+# Reviewer definitions are distinct, read-only, and deny raw cross-role input.
+agent_a="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-a.md"
+agent_b="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-b.md"
+agent_names="$(sed -n 's/^name: //p' "${ROOT}"/plugins/sdd-review-loop/agents/*-reviewer-*.md | sort -u | wc -l | tr -d ' ')"
+[[ "${agent_names}" == 6 ]] || fail "expected six distinct review roles"
+grep -q '^name: spec-reviewer-a$' "${agent_a}" || fail "missing reviewer A identity"
+grep -q '^name: spec-reviewer-b$' "${agent_b}" || fail "missing reviewer B identity"
+grep -q '^tools: Read, Grep, Glob$' "${agent_a}" || fail "reviewer A is not read-only"
+grep -q '^tools: Read, Grep, Glob$' "${agent_b}" || fail "reviewer B is not read-only"
+grep -q 'host-session identifier' "${agent_a}" || fail "reviewer A lacks session contract"
+grep -q 'allowed-input manifest' "${agent_b}" || fail "reviewer B lacks input manifest contract"
+grep -q 'allowed_input_manifest' "${agent_a}" || fail "reviewer A does not persist its input manifest"
+grep -q 'allowed_input_manifest' "${agent_b}" || fail "reviewer B does not persist its input manifest"
+grep -q 'reviewer-a.json' "${agent_b}" || fail "reviewer B lacks raw-report denial"
+
+echo "ok: spec review precheck enforces state, hashes, replay, reset, and safe paths"

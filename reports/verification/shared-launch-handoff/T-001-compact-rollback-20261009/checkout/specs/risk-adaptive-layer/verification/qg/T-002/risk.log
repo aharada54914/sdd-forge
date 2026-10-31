@@ -1,0 +1,3 @@
+COMMAND: bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/risk-adaptive-layer/tasks.md T-002
+EXIT: 0
+Risk check passed for task T-002.

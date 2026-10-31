@@ -1,0 +1,48 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -32,6 +32,26 @@ jobs:
+           fetch-depth: 0
+       - name: Install contract validator
+         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
++      - name: Test required-checks POSIX failure propagation
++        run: python3 tests/required-checks-posix.tests.py
++      - name: Test guard dispatch fallback
++        shell: bash
++        run: bash ./tests/guard-dispatch-fallback.tests.sh
++      - name: Test guard negative corpus
++        shell: bash
++        run: bash ./tests/guard-negative-corpus.tests.sh
++      - name: Test deterministic lane coverage
++        shell: bash
++        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
++      - name: Test workflow scenarios
++        shell: bash
++        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
++      - name: Test design system contract (Bash)
++        shell: bash
++        run: bash ./tests/design-system-contract.tests.sh
++      - name: Test design system contract (PowerShell)
++        shell: pwsh
++        run: ./tests/design-system-contract.tests.ps1
+       - name: Run every otherwise-unwired POSIX suite
+         shell: bash
+         run: bash ./tests/run-ci-unwired.sh
+@@ -1162,7 +1182,7 @@ jobs:
+   required-checks:
+     name: required-checks
+     if: always()
+-    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement]
++    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -1200,4 +1220,8 @@ jobs:
+             echo "cli-hook-enforcement job failed"
+             exit 1
+           fi
++          if [ "${{ needs.posix-regression.result }}" != "success" ]; then
++            echo "posix-regression job failed"
++            exit 1
++          fi
+           echo "all required checks passed"

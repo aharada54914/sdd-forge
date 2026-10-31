@@ -1,0 +1,34 @@
+GREEN (T-007) -- the full suite against the four correct, already-shipped scripts.
+The parity matrix (TEST-031 x6, TEST-033 x7) is entirely green with 0 genuine failures;
+the suite's exit code is 1 solely because of the DESIGNED-RED human-copy apply gate,
+which turns green with no code change once a human performs the apply step.
+Reproduce: bash tests/capability-registry-parity.tests.sh
+Captured 2026-08-09 on macOS (bash 5.3, pwsh 7.6.2, node v24.13.0, python 3.14.5).
+--------------------------------------------------------------------
+ok: TEST-031(1): evaluate-predicate .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(2): validate-capability-registry .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(3): generate-registry-digest .sh/.ps1/.js stdout is byte-identical
+ok: TEST-031(4): the parity digest matches an independently reconstructed canonicalization of the same fixture Registry
+ok: TEST-031(5): generate-gate-capabilities .sh/.ps1 stdout is byte-identical
+ok: TEST-031(6): generate-gate-capabilities .sh/.ps1 write byte-identical projections matching the committed golden
+ok: TEST-033(1): evaluate-predicate yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(2): validate-capability-registry yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(3): generate-registry-digest yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(4): generate-gate-capabilities yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(5): generate-gate-capabilities writes an identical projection in all three installed-plugin contexts
+ok: TEST-033(6): generate-gate-capabilities --check exits zero in all three installed-plugin contexts, via both wrappers
+ok: TEST-033(7): no invocation in any of the three contexts fell back or failed closed on artifact discovery
+ok: non-vacuity canary: an injected cross-wrapper divergence is detected (content difference (172 vs 189 bytes))
+ok: self-registration: capability-registry-parity.tests.sh registered in tests/run-all.sh
+ok: self-registration: capability-registry-parity.tests.ps1 registered in tests/run-all.ps1
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate carries every one of this feature's seven suite pairs in task order
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate's sha256 matches its own MANIFEST.sha256.candidate entry
+DESIGNED-RED (pre-human-copy): human-copy/ staged workflow does not yet carry this feature's full, task-ordered suite registration -- missing CI steps: tests/capability-registry-parity.tests.sh -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md), then re-run this suite
+ok: human-copy: staged workflow sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=21 fail=0 designed-red=1 ----
+capability-registry-parity suite is DESIGNED-RED (21 passed, 1 designed-red, 0 genuine failures)
+HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md "Human apply step"), then re-run this suite.
+--------------------------------------------------------------------
+exit code: 1

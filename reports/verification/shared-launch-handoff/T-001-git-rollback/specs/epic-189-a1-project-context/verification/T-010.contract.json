@@ -1,0 +1,164 @@
+{
+  "task_id": "T-010",
+  "feature": "epic-189-a1-project-context",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-03T23:24:48Z",
+  "comment": "Default-FAIL verification contract for T-010 (high, tdd). Populated after the quality gate reran T-010's own suite in BOTH lanes (sh tests/hook-guard-epic-a1-boundary.tests.sh PASS 211 / FAIL 0; pwsh -NoProfile -File tests/hook-guard-epic-a1-boundary.tests.ps1 PASS 207 / FAIL 0; ZERO skip lines in either lane, so every assertion genuinely executed on this platform; specs/epic-189-a1-project-context/verification/qg/T-010/focused-tests.log). The AC-023 matrix was decomposed from the logs rather than taken on trust, and it holds identically in both lanes: 96 cell assertions = 24 per basename x 4 basenames = 8 per surface x 12 surfaces = 48 sudo=ACTIVE + 48 sudo=inactive, i.e. exactly the 4x12x2 design.md Test Strategy item 8 requires, plus one exhaustiveness counter assertion. The 211 vs 207 lane difference is precisely the four SUPP-prefilter assertions, POSIX-only by declaration and excluded from the AC-023 counter (211 - 4 = 207); those four cover the load-bearing R-10 pre-filter call site at plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:1348 that design.md's 12-row surface table omits, verified as SUPPLEMENTARY per the 2026-08-03 human adjudication rather than folded into the 96. The PowerShell lane takes roughly two minutes (192 process spawns, one pwsh per cell; tests.ps1:191 invokes pwsh -NoProfile -ExecutionPolicy Bypass -File $guardPath -Emit exit) - a deliberate design choice, and it was allowed to run to completion rather than assumed hung. Regression run as the epic-189-a1 NINE-suite set (every suite except T-010's own) via INDIVIDUAL runs, both lanes, all eighteen green (project-context-schema 41/41 x2, approver-registry-schema 8/8 x2, canonicalizer 80/80 + 77/77, signer 59/59 + 57/57, detector 60/60 + 59/59, validator 40/40 + 39/39, publisher 218/0 + 146/0, handshake 88/0 + 87/0, guard-invariants-epic-a1 78/0 + 82/0 - the guard-invariants suite newly added to the set now that T-009 has landed; all eighteen runs exit=0; specs/epic-189-a1-project-context/verification/qg/T-010/regression.log). Individual-suite mode is used because tests/run-all.sh runs a fixed ordered list under set -euo pipefail and aborts at the first failing suite, while the epic-189-a1 suites sit at tests/run-all.sh:57-66 behind 49 unrelated suites. That exclusion was MEASURED this round, not assumed: a full bash tests/run-all.sh against an isolated git clone of HEAD (cf0f8808) in a throwaway directory aborted after 21 suites at tests/turn-first-workflow.tests.sh ('not ok: implementation report template omits: ## Output Paths And Hashes', exit 1), whose assertion reads plugins/sdd-implementation/templates/implementation-report.template.md - a file T-010 does not touch (git diff --name-only d2f37d0e HEAD lists 19 paths, none under plugins/). The regression log also records a CORRECTION rather than repeating a stale claim: T-006..T-009's logs named tests/prepare-panelist.tests.sh as the abort point, and that suite now PASSES 32/0 exit 0 under bash. Every sh-lane run in the regression set uses bash rather than POSIX sh, matching T-007/T-008/T-009, because suites across this epic's guard surface use process substitution. The regression log carries a clearly-labelled SUPPLEMENTARY section BEYOND the required set - the three adjacent guard suites, since T-010 is the task that proves the LIVE guard's deny matrix: phase2-guard-invariants 33/0 (bash lane), guard-staging-exemption 33/0, guards 133/0 (bash lane). TWO pre-existing failures appear there and are recorded as such rather than hidden or dropped, each PROVEN pre-existing rather than asserted. (1) tests/phase2-guard-invariants.tests.ps1 fails 9 (59 passed / 9 failed, exit 1); all nine are TEST-013 cases resting on Windows/NTFS semantics exercised on macOS, and this one is already a registered epic-189-a1 carryover item from T-009's chain. (2) tests/guards.tests.sh is INVOCATION-DEPENDENT: under bash it is 133 passed / 0 failed (exit 0), but under POSIX sh it fails exactly the case the seq0366 evaluator reported - 'sh: copilot deny -> JSON deny' - and the run aborts (46 ok lines, no Results line, exit 2). The failing case names the guard's sh IMPLEMENTATION, not the harness shell; the deny JSON it emits carries an embedded newline the POSIX-sh harness path does not survive. Both invocations are transcribed in the log. Proof for both failures: git log d2f37d0e..HEAD -- <suite> plugins/sdd-quality-loop/scripts/ returns 0 commits (d2f37d0e is the parent of T-010's first commit 2e68b373, so T-010's range touches neither suite nor any guard script), and the tree at d2f37d0e was extracted with git archive into a throwaway directory where both reproduce identically - the guards sh-lane output is byte-identical (sha256 0bdd7b370d972aff62a442ba6335c09e11a74d32e8cf64217f77c7ccf5616afb on both sides) and the phase2 pwsh FAIL-line set diffs empty. Neither is attributable to T-010 and neither gates the regression check, whose evidence is the eighteen green runs. Recorded for the coordinator: only the phase2 pwsh failure is currently written up in reports/notes/epic-189-a1-carryover-items.md; the guards sh-lane failure is NOT yet there and needs its own carryover entry. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-010/placeholder.log: 'Placeholder scan passed.' over T-010's entire editable surface - tests/hook-guard-epic-a1-boundary.tests.sh, tests/hook-guard-epic-a1-boundary.tests.ps1, tests/run-all.sh, tests/run-all.ps1 and the staged specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml; T-010 edits no production script by design, and git diff --stat d2f37d0e HEAD -- plugins/sdd-quality-loop/scripts/ is empty). Task-state (13 tasks passed, with T-002..T-009 contracts and evidence bundles revalidated in the same run; T-009's is the second bundle in this feature carrying no dirty-tree warning; specs/epic-189-a1-project-context/verification/qg/T-010/task-state.log) and scripted requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-010/traceability.log; REQ-008 -> AC/TEST-023 chain verified directly against requirements.md:828, traceability.md:15/42/73/111, acceptance-tests.md:45 and both suites, plus suite self-registration at tests/run-all.sh:66 / tests/run-all.ps1:49, tenth in numeric order) are both green; the traceability log additionally records three facts the gate observed rather than adjudicated - the human-copy staging that T-001..T-008 deliberately deferred was actually PERFORMED this round (the staged .github/workflows/test.yml registers T-010's suite in both lanes at :246 and :250, and its MANIFEST.sha256 digest 506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873 was re-computed against the staged bytes and matches byte-for-byte), traceability.md's T-010 rows name verification/T-010/green-sh.log and red-sh.log while the logs actually recorded are green-posix.log / red-posix.log with PowerShell twins (evidence present and complete in both lanes; only the filename convention differs from the frozen row), and the R-10 pre-filter design-table omission described above. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set). TDD red = specs/epic-189-a1-project-context/verification/T-010/red-posix.log (PASS 115 / FAIL 96) with its twin specs/epic-189-a1-project-context/verification/T-010/red-powershell.log (111 / 96) - in BOTH Red logs every one of the 96 failures is an AC-023 matrix cell with no collateral failure; green = specs/epic-189-a1-project-context/verification/T-010/green-posix.log (211 / 0) with its twin specs/epic-189-a1-project-context/verification/T-010/green-powershell.log (207 / 0), commit 2e68b373. A five-mutation battery (specs/epic-189-a1-project-context/verification/T-010/mutation-battery-posix.log) additionally binds the assertions rather than leaving them merely green: M0 pristine 211/0, M1 bogus sudo signature 210/1, M2 stripping neutralised 159/52, M3 pristine copy corrupted 199/12, M4 surface 12 dropped 193/2, M5 surface-11 payload made malformed 207/4. Independent skeptical evaluation PASSed on the FIRST round, seq0366 (reports/quality-gate/2026-08-03T225408Z-T-010.md, 0 Critical / 0 Major / 1 Minor recorded). The single Minor is that the BASE-*/MUT-* wrong-reason pairing covers only the 48 sudo-inactive cells; it is explicitly non-blocking - AC-023 requires no MUT pairing at all, the asymmetry is stated in-file, and the sudo lane is bound by PRE-sudo-active plus mutation M1. Risk high (not critical) means the evidence bundle is generated here in the same manner as T-002..T-006 and T-008, with no second-approver signature required by generate-evidence-bundle.sh - verified this round by reading the script: signing is gated on contract_risk == 'critical' (generate-evidence-bundle.sh:390). This chain-authoring commit touches no tasks.md line at all.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-010/red-posix.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-010/green-posix.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-010's scope; the task drives the LIVE in-repo hook guard end-to-end in both runtimes (sdd-hook-guard.py and sdd-hook-guard.ps1) from its own suite, using scratch-directory fixtures only, and that end-to-end exercise is recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-010/red-posix.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-010/green-posix.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-010/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the guard CLI is smoke-exercised 192 times per lane by every suite invocation recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-010 is net-new verification work over an existing deny path, not a refactor/bugfix, and it edits no decision logic.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-010's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

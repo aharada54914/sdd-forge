@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncconsent-spec-a2r2-a-seq0491",
+  "host_session_id": "SESS-spec-a2r2-a-designsyncconsent-0491",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-2/round-2/precheck-result.json",
+      "sha256": "2d8d633e704e9c4a07272c9b93d56487e5bdcad9e08bcce440f62888fbff0da6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "7be40d82b6e67aa613d46fdd1f3d3eed34675614497bad2c4e9f19c1660fdacd"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Round-1 defect verified fixed. requirements.md AC-030 (lines 84-95) now enumerates four parts, with part 4 (line 91) -- 'the failure is explicitly distinguished from AC-019's persistent \"not permitted\" outcome -- a push failure writes no standing forbiddance' -- added to mirror AC-026's third element (line 62: 'the decline is explicitly distinguished from the persistent \"not permitted\" outcome of AC-019 ... and is not #140's off'), and the rationale at line 95 states explicitly '(4) exists for the same reason AC-026 carries its own distinguishing element'. acceptance-tests.md TEST-051's matrix row (line 61) and its detail block (lines 246-248) now enumerate the same four parts, and line 248 states 'Every element this test asserts is an enumerated part of AC-030 -- the assertion set and the criterion's own numbered list are the same list.' The precheck edit_summary (reports/spec-review/design-sync-consent/attempt-2/round-2/precheck-result.json:12) confirms no other change was made. Re-examining the rest of the document, every requirement (REQ-001 through REQ-008) resolves to document-conformance acceptance criteria with concrete, file-grounded assertions (e.g. AC-002's decidedness-only check at requirements.md:52-54, AC-005/AC-018's explicit gap-acceptance hedges for OQ-6/OQ-9), so no other requirement is left unobservable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ has at least one matching AC: REQ-001 (requirements.md:23) -> AC-001/002/026/027/028/030 (lines 40,50,56,66,75,84); REQ-002 (97) -> AC-003/004/005/029 (111,117,121,125); REQ-003 (131) -> AC-006/007/008/009 (137,141,145,149); REQ-004 (153) -> AC-010/011/012 (159,163,169); REQ-005 (171) -> AC-013/014/015/016 (175,179,183,187); REQ-006 (191) -> AC-017/018/019/020 (199,203,207,211); REQ-007 (215) -> AC-021/022/023 (229,233,237); REQ-008 (241) -> AC-024/025 (255,259). The Overview's stated consequence ('the operator answers one egress question per feature ... and gives up ... the guarantee that a human saw the content before it left', requirements.md:19) is traced to AC-008 (145-148) and its TEST-013 (acceptance-tests.md:23,114-118). No stated goal lacks a corresponding acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria are written as concrete, externally checkable text/structure assertions rather than vague intent, e.g. AC-006/AC-009 require parsing the Loop's ordered list and comparing relative step positions rather than presence-only checks (acceptance-tests.md:101-105); AC-010/TEST-015 explicitly rejects a section-heading check in favor of asserting enumerated field names (acceptance-tests.md:120-123, requirements.md:159-161); AC-017/TEST-026 requires structurally enumerating every upload path and confirming each passes the named choke point (acceptance-tests.md:142-146). These are all externally observable document-conformance targets with stated failing shapes."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:263-270) explicitly bound the feature: excludes implementing #139's scan, excludes implementing/wiring ds_upload_consent or AGENTS.md (#140), excludes changing the pull direction (with an explicit carve-out that the disclosure must still mention it, tied to AC-029(e)), excludes adding redaction/input_digest/machine-checkable consent objects, excludes removing the egress gate, and excludes rewriting the already-correct half of the loop with named line ranges. Boundaries are stated with enough specificity to prevent scope creep."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints (requirements.md:293-305) state material constraints explicitly: BL-001 (egress gate not removed), BL-002/BL-003 (fallback and non-blocking invariant preserved), BL-004/BL-005 (protected-file write boundaries with re-verification instructions), BL-006 (CHANGELOG immutability), BL-007 (locked DS-006 literals), BL-008 (dual-runtime parity), BL-009 (workflow-state-registry entry needed). Security/approval boundaries (human decision authority, consent record trust status per AC-012) and compatibility constraints (protected suffixes, human-copy staging) are all named with citations to the enforcing mechanism."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claim in this specification -- a fabricated/copy-pasted Design-Source consent record now authorizing 'the whole feature' rather than one upload (Edge Case 4, requirements.md:277; investigation.md INV-011/INV-021 lines 123-135, 242-244, citing docs/THREAT-MODEL.md:12 'Agent self-reports ... NOT Trusted') -- has a stated validation surface: AC-012 (requirements.md:169) requires the record be characterised as an audit trace, not an enforced authorization, verified by TEST-018 (acceptance-tests.md:28,124). The second major risk -- first upload egressing with no prior human review (requirements.md:9,69) -- is covered by AC-008/TEST-013 (requirements.md:147-148; acceptance-tests.md:114-118), which requires the skill to state the consequence where the demotion is described. The OQ-5 authority risk is covered by AC-029(f)/TEST-050 (requirements.md:127; acceptance-tests.md:60,244). No high-risk claim was found lacking a validation surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain model artifacts exist under specs/design-sync-consent/ -- the allowed input manifest contains no domain/context-map.md or domain/domain-contract.json for this feature, and neither requirements.md nor investigation.md references a Bounded-Context or domain-contract. Per the task instruction to skip when this feature has no domain model, this check is skipped."
+    }
+  ]
+}

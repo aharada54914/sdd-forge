@@ -1,0 +1,165 @@
+{
+  "task_id": "T-002",
+  "feature": "design-sync-consent",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "3eeac61f5502cc78523b6dae795abc16c8ce7a7f120ae11693c825795096b060",
+  "created": "2026-08-05T14:02:20Z",
+  "comment": "T-002 (Loop restructure, high/tdd, commit c33e1525). RED byte-identical to T-001 baseline; GREEN measured in an isolated git-archive tree carrying only this task file so the concurrent T-003 landing cannot contaminate attribution; 37 flips with identical id-sets in both runtimes, zero regressions. requirement-traceability evidenced by check-traceability over the derived traceability.json (8 links, exit 0). Two design.md self-contradictions resolved against the requirements authority and disclosed (decline binds the current upload attempt only; Finalize preserved as an unnumbered paragraph). Independent-review verdict and provenance land in the evidence bundle per tier high.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; tasks.md Global Constraints declares stack shell with lint/typecheck/build waivable).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; tasks.md Global Constraints declares stack shell with lint/typecheck/build waivable).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; no compile toolchain exists (risk-gate-matrix.md Stack descriptor; tasks.md Global Constraints declares stack shell with lint/typecheck/build waivable).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/qg/placeholder-T-002.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/T-002/green-sh-isolated.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/design-sync-consent/verification/T-002/red-sh.log",
+      "green_evidence": "specs/design-sync-consent/verification/T-002/green-sh-isolated.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/T-002/tdd-evidence.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/design-sync-consent/verification/T-002/red-sh.log",
+      "green_evidence": "specs/design-sync-consent/verification/T-002/green-sh-isolated.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/design-sync-consent/verification/T-002/red-sh.log",
+      "green_evidence": "specs/design-sync-consent/verification/T-002/green-sh-isolated.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-consent/verification/qg/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

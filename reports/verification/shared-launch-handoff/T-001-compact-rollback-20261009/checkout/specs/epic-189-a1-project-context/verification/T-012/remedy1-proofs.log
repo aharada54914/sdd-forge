@@ -1,0 +1,20 @@
+=== A. fidelity diffs ===
+wrote ship-SKILL.live-vs-staged.diff (195 lines)
+wrote lite-spec-SKILL.live-vs-staged.diff (143 lines)
+
+=== B. mutation proofs (throwaway copy; repository never mutated) ===
+throwaway copy at /private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/t012mut2/mutroot
+M1 baseline (pristine copy): 81/0
+PROOF-OK   M1 baseline passes on the pristine copy (81/0)
+M1 mutant: manifest now has 8 entries (was 10)
+M1 mutant result: 79/2
+PROOF-OK   M1 dropping BOTH T-012 manifest entries is DETECTED by name (ship=1 lite-spec=1 FAIL lines)
+M2 baseline (pristine copy): 139/0
+PROOF-OK   M2 baseline passes on the pristine copy (139/0)
+M2 mutant result: 138/1
+PROOF-OK   M2 a half-applied pair (ship published, lite-spec not) is DETECTED by the pair-consistency assertion (1 FAIL line)
+PROOF-OK   M2 the half-applied pair trips ONLY the pair assertion (every other assertion stays green -- confirming nothing else covers it)
+M3 mutant result: 107/32
+PROOF-OK   M3 deleting the capability-gate block is DETECTED by the g3/g4 assertion itself (1 FAIL line) -- it no longer passes vacuously on two empty sides
+
+ALL PROOFS OK

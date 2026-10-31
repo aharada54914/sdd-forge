@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-b-a2r2-seq0674",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-191-a3-path-ownership-a2r2-0674",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-2/round-2/precheck-result.json", "sha256": "34f69cacabdce9467ceafc3e1eb98765030698e6a947debd1d1c6bd5df467518"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-2/round-2/integrated-summary.json", "sha256": "f27350c7843b677b0d6f8bc4cc907b5c9da5a63453aabfed312c654ced05c5a0"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline technology/architecture decision in design.md's 'Design Decisions' section carries an explicit 'chosen because'/'corrected from an earlier draft'/precedent rationale (e.g. glob semantics rationale citing decision-document v2 §11's determinism precedent; shared_paths precedence rationale; Fail-2/Fail-4 mutual-exclusivity rationale citing a rejected alternative; capability-derived three-state applicability rationale citing the rejected file-presence and two-bucket alternatives; ownership_digest full-input-binding rationale citing the blind-spot it closes; dual-runtime parity harness rationale). Python-master-plus-sh/ps1-wrapper choice is justified by cited precedent (INV-008, decision-document v2 §18.3). No decision found stated without a rationale clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Open Questions (lines 983-1007) now carries OQ-002 in the mandated schema: Owner = 'the implementing agent for T-001' (a role, not TBD), Blocks Implementation: no, Resolution Path = 'T-001's own Done state is gated on the AC-011 schema-conformance fixture...'. OQ-001 is separately noted as already resolved with a pointer to its normative statement (requirements.md Dependencies, Design Decisions 'Fail-6 scope'), which does not require the three-field schema since it is closed, not open. This resolves the round-1 gap the edit summary describes."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-021, OQ-001/OQ-002) and every assumption in requirements.md's ## Assumptions (lines 1653-1688, carried into design.md) cites either an INV-xxx-grounded Dependencies/Investigation reference (schema shape stability -> OQ-002/Dependencies; git command availability -> INV-010 crlf-parity precedent; canonicalizer entry point -> Dependencies/INV-002; Facet Manifest shape -> decision-document v2 §16; template artifact -> Dependencies/REQ-006/INV-021) or an explicitly accepted risk ('a project that sets capability_enforcement active prematurely will see the Gate's hard error... as intended fail-closed behavior, not a spec defect'). design.md's own additional assumption (SKILL.md/risk-gate-matrix.md/check-contract structural extensibility) cites a direct file:line basis (SKILL.md:30-204) and is explicitly flagged as 'verified at Phase-2 implementation time, not asserted as unconditionally permanent' -- an accepted-risk framing. No non-trivial assumption lacks grounding."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a ## Constraint Compliance section (lines 958-971) with 9 rows. Cross-checked against every constraint-bearing phrase in requirements.md ('must not depend on host OS' at line 67 -> 'Cross-OS path semantics' row; requirements.md's ## Security Boundaries bullets on protected-file/reachability boundary, no-write-side-effect, submodule/symlink reference-only, Fail-6 credential exclusion, and no-file-presence-mode-selection -> the 'Protected-file write boundary', 'Submodule/symlink reference-only boundary', 'Fail-6 credential exclusion', and 'No file-presence mode selection' rows; REQ-008/Global Constraints doc-following and version-bump discipline -> their own rows; Non-goals' 'No Registry/Epic A2 coupling' -> its own row). The producer-digest/tamper-evidence sub-boundary (NEW-001, requirements.md Security Boundaries bullet 2) is not a separate table row but is substantively covered by the 'Protected-file write boundary' row's pointer to the Protected-File Statement section (situation 2), which explicitly documents the producer-digest verification pass -- addressed via citation, not omitted. No requirements.md constraint found unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Searched for response-time/throughput/concurrency/latency/SLA keywords and numeric thresholds; none present -- this feature is a deterministic, synchronous, single-invocation CLI/Gate script with no runtime service (infra-spec.md Scaling Strategy, Service Level Objectives: 'N/A -- no live service')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Deployment / CI Plan (lines 915-956) states the deployment target (existing GitHub Actions 3-OS lane, no new CI job/matrix dimension), the feature-flag/rollout strategy (the capability-derived three-state applicability model, disabled-legacy/advisory/required, governs whether the Gate blocks; the 2026-08-11 conditional-activation supersession is documented as the mechanism keeping this repository's own adoption non-blocking), and the CI pipeline changes required (five new suite pairs registered in tests/run-all.sh/.ps1 and staged into .github/workflows/test.yml via human-copy; no new secrets/env vars, consistent with External Integrations: None). No schema/database migration exists in this feature (Data Plan: 'Migration Strategy: none... no schema migration exists anywhere in this feature'), so migration-execution-order relative to deployment is correctly inapplicable rather than omitted."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Data Plan states 'Migration Strategy: none. No database, no runtime storage, and no schema migration exists anywhere in this feature.' The three new data shapes (resolver output, ownership_digest, Gate evidence record) are net-new, additive, non-persistent CLI/evidence artifacts, not database tables/columns; 'Existing Data Affected' entries (guard-invariants.json, generate-guard-invariants.py, generated siblings, check-contract.*, test.yml) are read-only inputs staged via human-copy, not column/table schema changes. This satisfies the check's 'No data changes' PASS condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## External Integrations section states 'None. This feature calls only local git plumbing commands and (T-003) a local Epic A1 canonicalizer utility -- no network call, no external service, no gh invocation.' The Epic A1 canonicalizer is an internal, same-repository, local (non-network) utility, not a third-party/external/cross-service integration, so it does not fall under this check's scope; frontend-spec.md's Dependencies table nonetheless separately names it (purpose, version-pending note, 'Internal (same repository); no external package', and the documented-blocker failure behaviour if absent, AC-037/design.md Data Plan). No external system or cross-service API call is referenced anywhere in design.md without this treatment."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table maps every REQ-001..REQ-009 to design.md content, and every Goals/User Stories item in requirements.md (resolver, git-diff basis, Gate, ownership_digest, cross-cutting seed-inventory validation, monorepo fixture, doc/versioning discipline, dual-runtime parity) has a corresponding Components-table entry and Architecture-diagram stage. No component/data model/endpoint in design.md's Components table lacks a corresponding REQ (the withdrawn 'default-shared-paths.md' reference document is explicitly marked '~~withdrawn~~ ... removed from scope', confirming no residual scope creep there). No Registry/Epic A2 coupling is introduced (Non-goals, Constraint Compliance). ds_profile: none matches this feature's no-UI nature, so no design-system contract applies."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This feature's high-risk surface is security/authorization-boundary changes (protected-file content registration, required-check-set reachability registration, producer-digest tamper-evidence, git-diff-collection integrity, applicability-derivation trust -- security-spec.md B1-B5). Each boundary names a concrete acceptance-test artifact: TEST-036 (B1), TEST-035 (B2), TEST-054/TEST-055 (B3), TEST-021/TEST-024/TEST-025 (B4), TEST-026/TEST-027 (B5), all mapped in security-spec.md's Security Tests table to specific suite files (tests/check-component-coverage.tests.sh/.ps1, tests/component-path-diff-basis.tests.sh/.ps1) and cross-referenced in design.md's own Test Strategy. No high-risk surface lacks a named validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the repository root has no domain/ directory (verified: `ls -d domain` returns 'No such file or directory'), so this check's Approved-domain-model precondition is absent and DOMAIN-CONFORMANCE does not apply."
+    }
+  ]
+}

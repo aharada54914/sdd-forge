@@ -1,0 +1,15 @@
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -228,0 +229,12 @@
++
++      # epic-196-a8-integration T-001 (REQ-001, AC-001..006): offline
++      # cross-runtime handoff contract and activation-gate fixture. The live
++      # CLI path is opt-in inside the suite and is never used by CI.
++      - name: "[deterministic] Test cross-runtime handoff fixture (pwsh)"
++        shell: pwsh
++        run: ./tests/cross-runtime-handoff.tests.ps1
++
++      - name: "[deterministic] Test cross-runtime handoff fixture (bash)"
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/cross-runtime-handoff.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-runtime-handoff-tests.log"

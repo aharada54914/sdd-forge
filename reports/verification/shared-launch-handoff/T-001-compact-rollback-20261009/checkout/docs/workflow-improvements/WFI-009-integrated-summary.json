@@ -1,0 +1,26 @@
+{
+  "schema": "wfi-integrated-summary/v1",
+  "wfi_id": "WFI-009",
+  "cycle": 1,
+  "auditor_a_check_ids": [
+    "EVIDENCE-CITED",
+    "ROOT-CAUSE-PLAUSIBLE",
+    "CATEGORY-LANGUAGE-MATCH",
+    "CHANGE-CONCRETE",
+    "EFFECT-MEASURABLE",
+    "VERIFICATION-METRIC-DEFINED",
+    "VERIFICATION-PLAN-SPECIFIC",
+    "NO-PLUGIN-SCOPE-CREEP",
+    "META-CHANGE-ANTI-GOODHART"
+  ],
+  "auditor_a_fail_ids": [
+    "EVIDENCE-CITED",
+    "CHANGE-CONCRETE",
+    "NO-PLUGIN-SCOPE-CREEP"
+  ],
+  "auditor_a_fail_count": 3,
+  "auditor_a_pass_count": 6,
+  "auditor_a_skip_count": 0,
+  "auditor_a_verdict": "NEEDS_REVISION",
+  "generated_at": "2026-07-12T16:05:00Z"
+}

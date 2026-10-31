@@ -1,0 +1,123 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task-review",
+  "role": "reviewer-b",
+  "feature": "ci-mcp",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "task-b-cimcp-a1r1-20260706-6898",
+  "host_session_id": "hs-task-b-8eee4773-0008",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-mcp/requirements.md",
+        "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+      },
+      {
+        "path": "specs/ci-mcp/acceptance-tests.md",
+        "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+      },
+      {
+        "path": "specs/ci-mcp/design.md",
+        "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+      },
+      {
+        "path": "specs/ci-mcp/tasks.md",
+        "sha256": "b16d3fbc887736f19d460091150242f1aa3574daf4a87735f7361c01f69f42b9"
+      },
+      {
+        "path": "specs/ci-mcp/traceability.md",
+        "sha256": "3e4643649785046e2e90990848f387636aeec36e1d7043995a47b285be9f2563"
+      },
+      {
+        "path": "specs/ci-mcp/ux-spec.md",
+        "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+      },
+      {
+        "path": "specs/ci-mcp/frontend-spec.md",
+        "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+      },
+      {
+        "path": "specs/ci-mcp/infra-spec.md",
+        "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+      },
+      {
+        "path": "specs/ci-mcp/security-spec.md",
+        "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "reports/task-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+        "sha256": "42cb867983467a749140f48adfc72a1c35eb3ec319751f3eacc08783fd8e4317"
+      },
+      {
+        "path": "reports/task-review/ci-mcp/attempt-1/round-1/integrated-summary.json",
+        "sha256": "6f1af978e150e2316e010ec9ed73dd7d7ba983a28ad300d1cfb5165f4eb72443"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-005 (Risk: medium) and T-007 (Risk: medium) implement/define the externally-visible API contract of ci-mcp: T-005's Scope creates `mcp/ci-mcp/src/tools/actions.ts` implementing the 5 publicly-consumed tool request/response shapes (design.md 'API / Contract Plan', REQ-002), and T-007's Scope creates `contracts/ci-mcp-tools.v1.schema.json`, the canonical JSON Schema contract artifact for all tool responses (REQ-004). Public/externally-visible API contracts are an explicit sentinel surface requiring Risk: high per risk-classification-policy.md ('public API contracts' listed alongside auth/payment/PII/migration). Both tasks' own Risk Rationale text concedes they only avoid write/token/SSRF concerns, but does not address the API-contract sentinel itself. A silent defect in either task (wrong field shape, wrong error-code enum entry) breaks every downstream MCP client's parsing without any TDD-level Red→Green enforcement, since acceptance-first (T-005, T-007's Required Workflow) does not mandate the independent-review/provenance evidence set that high tier requires."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All Risk: high tasks (T-002, T-003, T-004, T-006, T-009, T-010) carry identical Done When items: 'Red→Green evidence 記録(tdd)', '独立レビュー verdict PASS が evidence に記録される', and 'provenance(spec_revision 含む)付き evidence bundle 生成' (tasks.md lines 85-89, 125-129, 159-163, 236-240, 340-344, 371-375). No task in tasks.md declares Risk: critical, so the additional second-approver/signed-bundle requirement does not apply. No Critical finding."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task's Scope spans more than 2-3 tightly related files/areas and no Done When list exceeds 8 items (T-005 and T-007 top out at 8 and 5 items respectively). No task title implies multiple sequential phases beyond a cohesive unit. No fragmentation pattern observed: no group of 3+ tasks each scoped to a single function/file with no integration concern, and no task scoped merely to a variable rename. Sizing is appropriate throughout T-001–T-011."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge-case/error-path coverage is present for every functional task's associated ACs: T-002 → AC-010/AC-011 (401/403 with/without rate-limit signal/404/429/5xx/network failure); T-003 → AC-008 (token missing) and AC-009 (canary leak); T-004 → AC-012 (unresolvable owner/repo); T-005 → AC-001–005 embed not-found/truncation/expired-artifact edge cases alongside happy path; T-009/T-010 → AC-016–018 cover --skip-mcp, non-default selection, idempotency, and other-entries-untouched cases. No functional task found with only happy-path ACs and no error-path counterpart."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md Test Type column entries match their described scope: TEST-001–005/010/011 'integration (fake GitHub API...)' involve ≥2 components (tool layer + fake upstream server) and are correctly integration, not unit; TEST-006/012 'unit + static' and TEST-007 'static (grep)' correctly target single-module/repo-wide static scans; TEST-013 'unit (schema validation)' correctly targets a single ajv validator boundary; TEST-016–018 'integration (installer harness)' correctly span script + filesystem + config-file components; TEST-019 'doc review (quality gate)' is not mislabeled as a functional test type. No mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit `Rollback:` field: T-002 (line 61), T-003 (line 102), T-004 (line 142), T-006 (line 216), T-009 (line 319, additionally naming the broken-JSON failsafe as an irreversibility guard), T-010 (line 357, naming the 'installer-managed-name-only deletion' design as the safeguard). Each cites a coherent single-commit-revert strategy consistent with infra-spec.md's Deployment/CI Plan. No gap found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files claimed by more than one task are `mcp/ci-mcp/src/server.ts` (T-001 creates it at line 39; T-005 registers tools in it at line 190) and `tests/install.tests.ps1` (T-009 creates it at line 335 for AC-017; T-010 reuses it at line 366 for AC-018 uninstall cases). Both cases have an enforcing Blockers relationship (T-005 blocked by T-001 at line 206; T-010 blocked by T-009 at line 378), matching the legitimate create-then-extend exception. No uncoordinated parallel overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004's Blockers field (tasks.md line 166) lists T-002, but T-004's own Goal/Scope (lines 144-154) describe `repo-resolve.ts` as a self-contained module (owner/repo resolution from tool args or `CI_MCP_REPO` env, no exec) whose own Done-When/tests (tests/repo-resolve/, AC-012) do not call or import github-client.ts, and whose stated output is merely 'github-client に渡す' (passed to github-client) — i.e., T-004 produces an input that a later consumer (T-005, tools/actions.ts) uses, not something that depends on T-002's github-client.ts artifact. T-005 already correctly lists T-004 as one of its own blockers (line 206), so the actual consumer relationship is captured there. The T-004→T-002 blocker is spurious: it inflates the critical path by forcing repo-resolve.ts implementation to wait on github-client.ts with no cited logical dependency in either task's Scope/Goal text."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All eleven tasks (T-001 through T-011) are new-feature implementation tasks for the ci-mcp server; none is scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    "Major (RISK-APPROPRIATE): T-005 and T-007 are classified Risk: medium despite defining/implementing the externally-visible API contract of the 5 MCP tools (sentinel surface per risk-classification-policy.md). Recommend re-classifying to Risk: high with Required Workflow: tdd, or recording an explicit human-approved rationale for why the API-contract sentinel does not apply here (e.g., contract is additive/backward-compatible and covered by ajv+dist-parity CI).",
+    "Major (DEPENDENCY-OVERLAP): T-004's Blockers: T-002 is spurious — repo-resolve.ts has no cited dependency on github-client.ts's artifact; the real consumer dependency is already captured by T-005's Blockers: T-002, T-003, T-004. Recommend removing T-002 from T-004's Blockers (T-004 could logically proceed in parallel with T-002/T-003, blocked only by T-001 for scaffold)."
+  ]
+}

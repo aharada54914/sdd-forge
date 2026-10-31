@@ -1,0 +1,18 @@
+[
+  {
+    "suite": "quality-nontty-transport",
+    "exit_code": 0
+  },
+  {
+    "suite": "task-structured-output",
+    "exit_code": 0
+  },
+  {
+    "suite": "unified-launch-order",
+    "exit_code": 0
+  },
+  {
+    "suite": "unified-task-launch",
+    "exit_code": 0
+  }
+]

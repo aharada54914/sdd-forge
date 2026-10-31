@@ -1,0 +1,553 @@
+==============================================================================
+T-004 GREEN EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29T12:28:39Z, immediately after implementing
+          mcp/sdd-forge-mcp/src/parsers/report-lookup.ts and
+          mcp/sdd-forge-mcp/src/tools/evidence.ts and completing the schema
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+
+STAGE: GREEN. Red and Green are SEPARATE files. The red state is in
+specs/epic-136-phase4-mcp/verification/T-004/red.log, captured before this
+src/ edit existed (its header carries the git status / git diff --stat proof
+that src/ and dist/ were untouched at that moment).
+
+*** THIS GREEN IS NOT FULLY GREEN. READ THE BLOCKER SECTION. ***
+  npm test -> tests 232 / pass 231 / fail 1, EXIT CODE 1.
+All 5 of T-004's new cases pass and all 3 extended pre-existing cases pass.
+The single failure is a T-003 scope-guard assertion that T-004 cannot satisfy
+and that this task deliberately did NOT edit. It is stated up front rather
+than buried.
+
+What was implemented (design.md API/Contract Plan, followed literally):
+
+  mcp/sdd-forge-mcp/src/parsers/report-lookup.ts
+  * exported interface DirectoryReadError { path, reason } -- structurally
+    identical to path-guard.ts's GuardedListError, which is what actually
+    populates it;
+  * exported anyFileContainingWithDiagnostics(root, relDir, pattern)
+      : { matches: string[]; errors: DirectoryReadError[] }
+    carrying the match loop that was previously inside anyFileContaining,
+    now iterating listGuardedFilesWithDiagnostics(root, relDir).files and
+    passing .errors through UNMODIFIED (no message rewritten, no absolute
+    path interpolated -- security-spec.md B4);
+  * anyFileContaining reduced to
+      return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
+    with its exported signature intact, so a scan failure still collapses to
+    [] for it exactly as before (BL-003);
+  * hasAnyFileMentioning and hasQualityGateVerdictPass UNTOUCHED -- they
+    still call the anyFileContaining wrapper.
+
+  mcp/sdd-forge-mcp/src/tools/evidence.ts
+  * undeterminable: string[] added to EvidenceMissingData;
+  * the quality-gate block replaced with design.md's quoted 3-branch form,
+    errors-first and short-circuiting;
+  * the new field added to the final ok({...});
+  * the evidence-bundle / verification-contract guardedExists checks
+    UNTOUCHED;
+  * the module doc comment's parity sentence restated in its POST-REQ-004
+    UNION form (tasks.md T-004 Breaking API requires this restatement).
+
+  contracts/sdd-forge-mcp-tools.v1.schema.json
+  * $defs.evidenceMissingData gains the "undeterminable" property completing
+    the RED-stage `required` addition. $id unchanged, still v1,
+    additionalProperties: false preserved.
+
+  mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+  * NOT EDITED (BL-003). Proven by `git diff --exit-code` on that path,
+    reproduced below: EXIT 0.
+
+--- THE BLOCKER: ONE PRE-EXISTING TEST THAT T-004 CANNOT SATISFY ---
+
+FAILING TEST
+  mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts:463
+  "TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed
+   to opt into the diagnostics function"
+
+It loops over 3 source files -- report-lookup.ts, quality-report.ts,
+review-ticket.ts -- and for each asserts BOTH:
+  (1) source.includes("listGuardedFiles(root, relDir)")            must be true
+  (2) !source.includes("listGuardedFilesWithDiagnostics")           must be true
+with the failure message on (2) reading, verbatim:
+  "... must NOT opt into listGuardedFilesWithDiagnostics in this task
+   (requirements.md Non-goals; T-004 owns report-lookup.ts's opt-in)"
+
+The assertion that actually fired is (1):
+  AssertionError [ERR_ASSERTION]: mcp/sdd-forge-mcp/src/parsers/report-lookup.ts
+  must still call listGuardedFiles(root, relDir) unchanged
+
+WHY IT IS UNSATISFIABLE FOR T-004, NOT A DEFECT IN THIS IMPLEMENTATION
+design.md's API/Contract Plan quotes anyFileContainingWithDiagnostics'
+implementation literally, and its second statement is
+    const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+So T-004's required implementation necessarily (a) contains the string
+"listGuardedFilesWithDiagnostics" in report-lookup.ts, violating (2), and
+(b) no longer contains the literal "listGuardedFiles(root, relDir)" in that
+file, violating (1). Both halves of the loop's body contradict T-004 for
+report-lookup.ts specifically. There is no implementation of design.md's
+quoted code that passes this test; the only ways to "pass" it would be to
+keep a dead listGuardedFiles call or to obscure the identifier, both of which
+are gaming a test rather than satisfying it.
+
+design.md agrees with the implementation, not with the test. Its
+report-lookup.ts section says only:
+    "quality-report.ts/review-ticket.ts are UNCHANGED (Non-goals; they keep
+     calling listGuardedFiles directly, never
+     listGuardedFilesWithDiagnostics)."
+naming exactly TWO files that must not opt in -- report-lookup.ts is
+deliberately not among them, because report-lookup.ts is where T-004's opt-in
+lives. The test's own message says the same thing ("T-004 owns
+report-lookup.ts's opt-in"); it simply asserts the T-003-era scope over all 3
+files without re-scoping itself when T-004 lands.
+
+WHAT WAS NOT DONE, AND WHY
+This task's constraints forbid weakening or rewriting an existing test to make
+a change pass, and require stopping and reporting instead when one
+legitimately must change. That is this case, so the test was left BYTE-
+UNCHANGED and the red result is reported here rather than edited away. The
+minimal correct fix is recorded in the implementation report for a human to
+approve; it is NOT applied in this commit.
+
+--- WHAT IS GREEN ---
+
+All 5 new T-004 cases pass:
+  1. TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts
+     quality-gate-report-pass in undeterminable and in NEITHER present NOR
+     missing
+  2. TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that
+     really holds a VERDICT: PASS report is undeterminable, not missing
+  3. TEST-007/TEST-008 (Test Strategy 4(b)): evidenceFindMissing/
+     parseTaskState parity holds over `missing u undeterminable` on both
+     fixtures
+  4. TEST-007 (Test Strategy 4(b)): the scan-failure asymmetry is pinned
+  5. TEST-009 leg (AC-009): the v1 contract requires undeterminable on
+     evidenceMissingData, and all 3 of this feature's new fields are
+     simultaneously required
+
+The 3 pre-existing evidence_find_missing cases extended with the new field
+(AC-012 leg) pass, including TEST-008's regression fixture at
+evidence.test.ts:403, whose own two original assertions are byte-unchanged.
+
+The 3 named task-validation.ts-dependent suites (design.md Test Strategy
+item 4(a)) were run explicitly, unmodified, and are green: 32 tests /
+32 pass / 0 fail. `git status --short` on those 3 paths is empty.
+
+--- GREEN TOTALS ---
+  npx tsc --noEmit                      -> EXIT 0, no output
+  npm run build                         -> EXIT 0, dist/index.js 1.3mb
+  npm test                              -> tests 232 / pass 231 / fail 1 /
+                                           skipped 0, EXIT 1
+                                           (the 1 failure is the T-003
+                                           scope-guard test above)
+  node --test <the 3 named suites>      -> tests 32 / pass 32 / fail 0, EXIT 0
+  git diff --exit-code -- src/parsers/task-validation.ts -> EXIT 0 (unchanged)
+  ./scripts/check-sdd-structure.sh      -> "check-sdd-structure: OK"
+  ./plugins/sdd-quality-loop/scripts/check-placeholders.sh
+      <3 changed production files>      -> "Placeholder scan passed."
+==============================================================================
+
+=== TREE STATE AT GREEN CAPTURE TIME ===
+--- git status --short at capture time ---
+ M contracts/sdd-forge-mcp-tools.v1.schema.json
+ M mcp/sdd-forge-mcp/dist/index.js
+ M mcp/sdd-forge-mcp/src/parsers/report-lookup.ts
+ M mcp/sdd-forge-mcp/src/tools/evidence.ts
+ M mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts
+?? specs/epic-136-phase4-mcp/verification/T-004/
+
+--- git diff --stat (excluding the regenerated bundle) ---
+ contracts/sdd-forge-mcp-tools.v1.schema.json      |   9 +-
+ mcp/sdd-forge-mcp/src/parsers/report-lookup.ts    |  62 +++-
+ mcp/sdd-forge-mcp/src/tools/evidence.ts           |  40 +-
+ mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts | 426 +++++++++++++++++++++-
+ 4 files changed, 519 insertions(+), 18 deletions(-)
+
+--- git diff --stat -- mcp/sdd-forge-mcp/dist/ ---
+ mcp/sdd-forge-mcp/dist/index.js | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+--- host / time ---
+Darwin 25.5.0
+arm64
+v24.13.0
+11.6.2
+2026-07-29T12:28:39Z
+
+=== COMMAND: git diff --exit-code -- mcp/sdd-forge-mcp/src/parsers/task-validation.ts (BL-003) ===
+EXIT: 0  (0 = byte-unchanged)
+
+=== COMMAND: grep -rn 'anyFileContaining' mcp/sdd-forge-mcp/src   (consumer inventory re-verified) ===
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:105:  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:44: * This is the diagnostics-carrying form of `anyFileContaining` below. It
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:60:export function anyFileContainingWithDiagnostics(
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:82: * wrapper over `anyFileContainingWithDiagnostics` that discards the
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:85: * `anyFileContainingWithDiagnostics` instead.
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:87:export function anyFileContaining(root: SddRoot, relDir: string, pattern: string): string[] {
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:88:  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:96:  return anyFileContaining(root, relDir, taskId).length > 0;
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:163:  const qgMatches = anyFileContaining(root, reportsDir, taskId);
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:7:import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass } from "./report-lookup.js";
+mcp/sdd-forge-mcp/src/tools/evidence.ts:243:  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+mcp/sdd-forge-mcp/src/tools/evidence.ts:41:import { anyFileContainingWithDiagnostics, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npx tsc --noEmit ===
+EXIT: 0
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm run build ===
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  1.3mb ⚠️
+
+⚡ Done in 24ms
+
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm test ===
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (114.042666ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (16.693375ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (6.341666ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (5.050042ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (4.455625ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (9.923417ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (6.661958ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (8.304041ms)
+✔ get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority (8.252625ms)
+✔ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (19.542083ms)
+✔ every tool's input schema never declares a root parameter (5.543958ms)
+✔ invalid feature argument shape is rejected as invalid-input (5.214417ms)
+✔ AC-004: an artifact absent on disk is classified missing without throwing (verdict fail) (5.395125ms)
+✔ AC-005: an oversize artifact is too-large and an allowlist-escaping path is path-denied (no throw) (3.600917ms)
+✔ AC-017: a non-64-hex recorded sha is invalid-recorded-sha (not mismatch) even when the file exists (2.31025ms)
+✔ AC-017: a malformed recorded sha co-occurring with a missing file still converges to invalid-recorded-sha + fail (5.4425ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (2.781458ms)
+✔ accepts a file exactly at the 2 MiB limit (3.820709ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.257625ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (0.306042ms)
+✔ isSddRoot is true for a properly-shaped SDD root (0.798917ms)
+✔ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (80.589166ms)
+✔ evidence_get_bundle: synthetic, echoes signature value without verifying it (9.760375ms)
+✔ evidence_get_bundle: not-found for a task with no evidence.json (3.285791ms)
+✔ evidence_get_bundle: invalid-input for a malformed taskId (3.117917ms)
+✔ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (2.275334ms)
+✔ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (11.339458ms)
+✔ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (38.021584ms)
+✔ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (6.793792ms)
+✔ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (3.691916ms)
+✔ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (6.932583ms)
+✔ TEST-007 (AC-007): a FAILED reports/quality-gate directory scan puts quality-gate-report-pass in undeterminable and in NEITHER present NOR missing (3.757667ms)
+✔ TEST-007 (AC-007): an UNREADABLE reports/quality-gate directory that really holds a VERDICT: PASS report is undeterminable, not missing (2.855875ms)
+✔ TEST-007/TEST-008 (design.md Test Strategy 4(b)): evidenceFindMissing/parseTaskState parity holds over `missing ∪ undeterminable` on both fixtures (13.739ms)
+✔ TEST-007 (design.md Test Strategy 4(b)): the scan-failure asymmetry is pinned — undeterminable yes, missing no, task-validation.ts still reporting the failure (9.577167ms)
+✔ TEST-009 leg (AC-009): the v1 contract requires undeterminable on evidenceMissingData, and all 3 of this feature's new fields are simultaneously required (0.364375ms)
+✔ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (1.145667ms)
+✔ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (2.607417ms)
+✔ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (6.303ms)
+✔ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (466.58925ms)
+✔ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (4.440875ms)
+✔ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (4.488292ms)
+✔ evidence_compare_to_traceability: not-found when traceability.md does not exist (4.3885ms)
+✔ TEST-001/TEST-011/TEST-017 (AC-001/AC-011/AC-017): unreadableContracts names every task whose contract could not be read, verbatim reason, without disturbing matches/mismatches (3.298667ms)
+✔ TEST-002 (AC-002): unreadableContracts is present and empty when every task's contract is readable (2.819375ms)
+✔ TEST-009 leg (AC-009): the v1 contract requires unreadableContracts on traceabilityComparisonData and keeps additionalProperties:false and $id (0.271584ms)
+✔ every evidence tool rejects a malformed feature argument as invalid-input (2.448792ms)
+✔ AC-012: consistent bundle -- check-evidence-bundle.sh and evidence_deep_verify both pass (380.405458ms)
+✔ AC-012: tampered on-disk artifact -- check-evidence-bundle.sh and evidence_deep_verify both fail (337.77325ms)
+✔ AC-012: spec drift on a high-risk bundle -- check-evidence-bundle.sh and evidence_deep_verify both fail (235.047833ms)
+✔ AC-012: tampered recorded artifact hash -- check-evidence-bundle.sh and evidence_deep_verify both fail (183.102042ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (8476.664875ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (646.178666ms)
+✔ phase1-not-started: requirements.md does not exist (90.690042ms)
+✔ spec-review: requirements.md exists but Spec-Review-Status is not Passed (4.7885ms)
+✔ spec-review: requirements.md has no Spec-Review-Status header at all (2.436666ms)
+✔ impl-review: design.md exists but Impl-Review-Status is not Passed (1.60475ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (1.108916ms)
+✔ phase2-not-started: design.md Passed but tasks.md does not exist (1.191709ms)
+✔ task-review: tasks.md exists but Task-Review-Status is not Passed (1.308333ms)
+✔ approval-gate: Task-Review-Status Passed but every task is Draft (1.672ms)
+✔ implementation: an Approved task is Planned (4.671958ms)
+✔ implementation: an Approved task is In Progress (5.56625ms)
+✔ quality-gate: every Approved task is Implementation Complete (5.662541ms)
+✔ done: every Approved task is Done (7.153334ms)
+✔ blocked: a Blocked task takes priority even when another task is Planned/Approved (1.7775ms)
+✔ cannot-determine: malformed feature name is rejected before any file access (0.770417ms)
+✔ auto-select: exactly one active feature -> resolved without a feature argument (2.397834ms)
+✔ auto-select: zero active features -> cannot-determine naming none-active (3.322792ms)
+✔ auto-select: multiple active features -> cannot-determine naming all candidates (5.718417ms)
+✔ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (474.185ms)
+✔ AC-011: signature is echoed as present/verified:false without reading any signing key (18.377167ms)
+✔ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (5.692875ms)
+✔ AC-011: a thrown path (unreadable bundle) never carries the canary key value (2.138083ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (3.525334ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (3.044125ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (8.425542ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (1.323792ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (3.218209ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (6.986833ms)
+✔ Done with evidence.json but missing contract.json fails (2.178625ms)
+✔ Done with an empty contract.json fails (4.916459ms)
+✔ Done with a contract.json whose task_id does not match fails (1.734666ms)
+✔ Done with no quality-gate report mentioning the task id fails (3.682041ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (2.3665ms)
+✔ Implementation Complete without a matching implementation report fails (1.047709ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (1.407625ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (4.651958ms)
+✔ critical Done without a distinct Second Approval fails (3.002125ms)
+✔ critical Done where both approvals are the same person fails (2.755791ms)
+✔ critical Done where either approver is 'sudo' fails (2.175042ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (8.490916ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (6.717666ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (6.155042ms)
+✔ critical risk Done bundle without a signature object fails (5.7505ms)
+✔ duplicate task ids are reported and the verdict is fail (2.465708ms)
+✔ an invalid Status value is reported and the verdict is fail (1.884375ms)
+✔ a missing Approval line is reported and the verdict is fail (1.171041ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (1.130708ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (1.359375ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (1.292958ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (2.151ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (0.449208ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (0.513792ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (6.088875ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (3.897ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (3.362375ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (1.309125ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (1.273209ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (0.791042ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (1.138375ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (1.240667ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (1.035042ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (4.265875ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (1.527084ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (0.4065ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (1.996417ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (1.117083ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (1.192542ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (1.152541ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (0.886459ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (1.016ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (0.330958ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (1.522834ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (1.947875ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (5.312708ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (1.566167ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (1.193291ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (7.262083ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (3.714375ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (16.368917ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (10.679625ms)
+✔ synthetic: well-formed report with all fields parses every value (2.052625ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (1.097583ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (0.935083ms)
+✔ listQualityReports aggregates reports and failures across a directory (1.44375ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (2.200625ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (8.212167ms)
+✔ synthetic: well-formed ticket parses all optional fields (2.026292ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (3.126625ms)
+✔ cannot-parse: invalid YAML syntax (2.980291ms)
+✔ cannot-parse: missing required fields (2.638959ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (2.046083ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (2.453375ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (4.656541ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (2.978834ms)
+✔ denies reads under a .git/ directory (1.119125ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (2.230042ms)
+✔ denies .env files reached via an allowlisted directory (2.872042ms)
+✔ never includes file contents or the offending value in the denial message or details (3.649792ms)
+✔ TEST-005 sub-case (a) (AC-005): a genuinely empty, readable allowlisted directory returns { files: [], errors: [] } (8.288917ms)
+✔ TEST-005 sub-case (b1) (AC-005): a relDir that does not exist returns files: [] plus the not-found guard reason (2.179ms)
+✔ TEST-005 sub-case (b2) (AC-005, security-spec B3): a READABLE, NON-EMPTY directory outside the allowlist is denied BEFORE any walk-level readdirSync (4.028083ms)
+✔ TEST-005 sub-case (b3) (AC-005, security-spec B3): a denylisted directory reached through an allowlisted parent is denied BEFORE any walk-level readdirSync (1.391ms)
+✔ TEST-005 sub-case (c1) (AC-005): a mid-walk statSync failure is reported while every readable sibling is still collected (2.242542ms)
+✔ TEST-005 sub-case (c2) (AC-005): a mid-walk readdirSync failure is reported while siblings both before and after it are still collected (7.003042ms)
+✔ TEST-005 (AC-005): the three sub-cases are distinguishable by errors.length and never collapse into one another (1.482584ms)
+✔ TEST-006 (AC-006): quality-report.ts's own aggregation fixture lists byte-identically through both functions (4.1905ms)
+✔ TEST-006 (AC-006): review-ticket.ts's own aggregation fixture lists byte-identically through both functions (1.606916ms)
+✔ TEST-006 (AC-006): report-lookup.ts's nested reports-directory scan shape lists byte-identically through both functions (1.721583ms)
+✔ TEST-006 (AC-006): the real repository directories the 3 call sites scan list byte-identically through both functions (16.011125ms)
+✔ TEST-006 (AC-006): every guard-failure class still collapses to [] for the legacy function (2.589667ms)
+✖ TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed to opt into the diagnostics function (0.921083ms)
+✔ rejects a relative path containing a parent traversal segment (3.269625ms)
+✔ rejects an absolute path argument outright (1.515458ms)
+✔ rejects an empty path as invalid input (1.176833ms)
+✔ rejects a path argument containing backslashes (0.8525ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (1.297209ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (0.827375ms)
+✔ allows a legitimate allowlisted file to be read (1.367542ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (54.004709ms)
+✔ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (4.987958ms)
+✔ src/tools/evidence.ts reaches the disk only through path-guard's guarded helpers (0.262458ms)
+✔ src/ contains no filesystem write API references (7.916917ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (2.8975ms)
+✔ resources/list + resources/templates/list together expose all 5 sdd:// resources (23.263833ms)
+✔ sdd://active-specs matches list_active_specs exactly (157.419084ms)
+✔ sdd://spec/{feature} matches get_spec_status exactly (15.009458ms)
+✔ sdd://tasks/{feature} matches get_task_state exactly (3.617666ms)
+✔ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (14.695959ms)
+✔ sdd://review-tickets matches list_review_tickets exactly (7.226417ms)
+✔ sdd://quality-reports matches get_quality_gate_summary exactly (13.852875ms)
+✔ resolved root is frozen and immutable after construction (5.650291ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (2.459666ms)
+✔ changing cwd after resolution does not affect the already-resolved root (1.021084ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.560333ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (0.826375ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.838958ms)
+✔ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (389.902084ms)
+✔ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (282.708458ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (527.979125ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (1852.068625ms)
+✔ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (164.441125ms)
+✔ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (11.154834ms)
+✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (7.05225ms)
+✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (6.718125ms)
+✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (3.178708ms)
+✔ TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures (9.493833ms)
+✔ TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks (6.301167ms)
+✔ TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks (4.494292ms)
+✔ TEST-009 leg (AC-009): the schema requires hostRequiredChecks and pins its nested shape (0.278ms)
+✔ TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation (6.772083ms)
+✔ TEST-016 (AC-016): the schema description is verbatim requirements.md's CONFIRMED literal (1ms)
+✔ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (13.18475ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two calls, same connection (26.408375ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two independently seeded, independently connected servers (8.64725ms)
+✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (2.588416ms)
+✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (9.650083ms)
+✔ AC-007: a missing git_commit is shape-invalid + verdict fail (2.326833ms)
+✔ AC-007: a short git_commit is shape-invalid + verdict fail (2.162291ms)
+✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (3.63775ms)
+✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (2.232042ms)
+✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (2.272042ms)
+✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (2.143708ms)
+✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (2.115583ms)
+✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (1.899667ms)
+✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (2.050417ms)
+✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (3.523166ms)
+✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (3.812875ms)
+✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (2.882708ms)
+✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (2.625833ms)
+✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.409625ms)
+✔ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (14.746834ms)
+✔ error envelope: an invalid taskId maps to invalid-input through the tool (67.488709ms)
+✔ error envelope: an invalid feature maps to invalid-input through the tool (3.149083ms)
+✔ error envelope: a missing bundle maps to not-found through the tool (4.5345ms)
+✔ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (5.759375ms)
+✔ AC-001: a fully consistent bundle verifies as pass with no failures (4.07425ms)
+✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (3.036542ms)
+✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (2.895542ms)
+✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (2.447ms)
+✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (2.6385ms)
+ℹ tests 232
+ℹ suites 0
+ℹ pass 231
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9195.409667
+
+✖ failing tests:
+
+test at dist-test/tests/path-security/list-guarded-files-diagnostics.test.js:351:1
+✖ TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed to opt into the diagnostics function (0.921083ms)
+  AssertionError [ERR_ASSERTION]: mcp/sdd-forge-mcp/src/parsers/report-lookup.ts must still call listGuardedFiles(root, relDir) unchanged
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/path-security/list-guarded-files-diagnostics.test.js:360:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+npm test EXIT: 1
+
+=== COMMAND: node --test <the 3 named task-validation.ts-dependent suites> ===
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (7429.08625ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (647.63925ms)
+✔ phase1-not-started: requirements.md does not exist (34.885791ms)
+✔ spec-review: requirements.md exists but Spec-Review-Status is not Passed (1.525583ms)
+✔ spec-review: requirements.md has no Spec-Review-Status header at all (1.180458ms)
+✔ impl-review: design.md exists but Impl-Review-Status is not Passed (1.299542ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (1.301083ms)
+✔ phase2-not-started: design.md Passed but tasks.md does not exist (1.367542ms)
+✔ task-review: tasks.md exists but Task-Review-Status is not Passed (1.463625ms)
+✔ approval-gate: Task-Review-Status Passed but every task is Draft (1.785334ms)
+✔ implementation: an Approved task is Planned (1.545541ms)
+✔ implementation: an Approved task is In Progress (1.790958ms)
+✔ quality-gate: every Approved task is Implementation Complete (2.201583ms)
+✔ done: every Approved task is Done (3.656333ms)
+✔ blocked: a Blocked task takes priority even when another task is Planned/Approved (1.383792ms)
+✔ cannot-determine: malformed feature name is rejected before any file access (0.686667ms)
+✔ auto-select: exactly one active feature -> resolved without a feature argument (2.54425ms)
+✔ auto-select: zero active features -> cannot-determine naming none-active (1.325167ms)
+✔ auto-select: multiple active features -> cannot-determine naming all candidates (1.989542ms)
+✔ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (155.941666ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (2.273208ms)
+✔ Done with evidence.json but missing contract.json fails (2.076584ms)
+✔ Done with an empty contract.json fails (1.692208ms)
+✔ Done with a contract.json whose task_id does not match fails (1.873375ms)
+✔ Done with no quality-gate report mentioning the task id fails (1.614583ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (2.620333ms)
+✔ Implementation Complete without a matching implementation report fails (1.059708ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (1.343959ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (1.242416ms)
+✔ critical Done without a distinct Second Approval fails (2.063584ms)
+✔ critical Done where both approvals are the same person fails (2.498375ms)
+✔ critical Done where either approver is 'sudo' fails (2.302917ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8115.280416
+EXIT: 0
+
+=== COMMAND: ./scripts/check-sdd-structure.sh ===
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+EXIT: 0
+
+=== COMMAND: ./plugins/sdd-quality-loop/scripts/check-placeholders.sh <3 changed production files> ===
+Placeholder scan passed.
+EXIT: 0
+
+=== AC-015 leg: the 5 paths T-004 writes vs PROTECTED_GATE_SUFFIXES (fresh grep) ===
+PROTECTED_GATE_SUFFIXES, read at implementation time from
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js:5 .
+The 5 paths this task writes, each checked against every entry:
+  mcp/sdd-forge-mcp/src/parsers/report-lookup.ts        -> no match
+  mcp/sdd-forge-mcp/src/tools/evidence.ts               -> no match
+  contracts/sdd-forge-mcp-tools.v1.schema.json          -> no match
+  mcp/sdd-forge-mcp/dist/index.js                       -> no match
+  mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts     -> no match
+The only tests/* entries in the list are the repo-root gate suites
+(tests/gates.tests.sh, tests/eval.tests.sh, tests/guard-parity.tests.sh,
+tests/constant-parity.tests.sh); none is under mcp/sdd-forge-mcp/tests/.
+Zero matches => AC-015 leg satisfied.
+
+=== Global Constraints RE-VERIFY item 2: mcp/sdd-forge-mcp/package.json ===
+2:  "name": "sdd-forge-mcp",
+3:  "version": "0.1.0",
+4:  "private": true,
+(private: true present; no publishConfig, no files, no exports => the
+ factual basis for REQ-005/BL-004's required-not-optional choice still holds)
+
+=== no version literal changed outside scripts/bump-version.sh ===
+git diff (hand-edited files only, bundle excluded) filtered for x.y.z literals:
+(no matches => no version literal mutated)

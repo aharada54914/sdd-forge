@@ -1,0 +1,22 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "specs/shared-review-launch-repair/verification/T-002.contract.json",
+    "."
+  ],
+  "exit_code": 0,
+  "stdout": "Verification contract passed for task T-002.\n",
+  "stderr": "",
+  "before": {
+    "contract": "85770cc07f3fe919cf29a8e7db0e03bde08c96a554af5394df5fe41b2d26986c",
+    "coverage": "7e46a3bf35f7eb28ffff18e907f291b426166d693f2b6167f0b13364e384b4ab"
+  },
+  "after": {
+    "contract": "d63c95d86ed924618f0c4c2ccd47beeedc2349f82b9c2b6c9abdea7adfd0349e",
+    "coverage": "8c9abae21246170b6dd1a9d669f32d6674487b06b17aef286799ba28ac04e311"
+  },
+  "old_failure_result_sha256": "709633f612002713a6220b6ef08a9e9dbc45268f27e5ff5cc349334d083077e8"
+}

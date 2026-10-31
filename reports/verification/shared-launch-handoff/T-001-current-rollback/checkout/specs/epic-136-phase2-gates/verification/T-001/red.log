@@ -1,0 +1,16 @@
+Command: powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-tokenizer.tests.ps1
+Result: expected RED (exit 1 before staged candidates exist)
+
+FAIL: legal: quoted regex escaped alternation plus standalone fd duplicate expected=0 ps1=2 py=2 js=2
+ok: legal: fd duplicate on protected inspection (all exit 0)
+ok: legal: ls protected inspection (all exit 0)
+ok: legal: cat protected inspection (all exit 0)
+ok: legal: find protected inspection (all exit 0)
+ok: deny: unquoted backslash changes token boundary (all exit 2)
+ok: deny: unclosed quoted regex (all exit 2)
+ok: deny: regex plus protected redirect (all exit 2)
+ok: deny: tee writes protected target (all exit 2)
+ok: deny: cp writes protected target (all exit 2)
+ok: deny: rm protected target (all exit 2)
+ok: PowerShell candidate is ASCII-only without BOM
+phase2-guard-tokenizer.tests.ps1: 11 passed, 1 failed

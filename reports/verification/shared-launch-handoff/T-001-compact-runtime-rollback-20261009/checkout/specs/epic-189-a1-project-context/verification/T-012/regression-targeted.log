@@ -1,0 +1,103 @@
+=== T-012 remedy-1 targeted regression (UTC 2026-08-04T04:14:43Z, HEAD 753ba9d2) ===
+
+### POSIX lane (the 18 suites)
+
+--- bash tests/project-context-schema.tests.sh
+PASS: 44
+FAIL: 0
+exit=0
+
+--- bash tests/canonicalize-sdd-yaml.tests.sh
+PASS: 80
+FAIL: 0
+exit=0
+
+--- bash tests/generate-approval-sidecar.tests.sh
+PASS: 59
+FAIL: 0
+exit=0
+
+--- bash tests/approver-registry-schema.tests.sh
+PASS: 8
+FAIL: 0
+exit=0
+
+--- bash tests/detect-policy-weakening.tests.sh
+PASS: 60
+FAIL: 0
+exit=0
+
+--- bash tests/validate-approval-sidecar.tests.sh
+PASS: 40
+FAIL: 0
+exit=0
+
+--- bash tests/apply-human-copy.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/check-hook-activation-handshake.tests.sh
+PASS: 88
+FAIL: 0
+exit=0
+
+--- bash tests/guard-invariants-epic-a1.tests.sh
+PASS: 81
+FAIL: 0
+exit=0
+
+--- bash tests/hook-guard-epic-a1-boundary.tests.sh
+PASS: 211
+FAIL: 0
+exit=0
+
+--- bash tests/plugin-contracts-track-selection.tests.sh
+PASS: 106
+FAIL: 0
+exit=0
+
+--- bash tests/ship-track-selection-migration.tests.sh
+PASS: 139
+FAIL: 0
+exit=0
+
+--- bash tests/guard-staging-exemption.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/guard-parity.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/phase2-guard-invariants.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/render-agent-frontmatter.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/workflow-state-ci-integration.tests.sh
+exit=0 (suite prints no tally)
+
+--- bash tests/workflow-documentation.tests.sh
+exit=0 (suite prints no tally)
+
+### PowerShell twins of the four epic-a1 suites T-012 touched or depends on
+
+--- pwsh tests/guard-invariants-epic-a1.tests.ps1
+PASS: 85
+FAIL: 0
+exit=0
+
+--- pwsh tests/hook-guard-epic-a1-boundary.tests.ps1
+PASS: 207
+FAIL: 0
+exit=0
+
+--- pwsh tests/plugin-contracts-track-selection.tests.ps1
+PASS: 106
+FAIL: 0
+exit=0
+
+--- pwsh tests/ship-track-selection-migration.tests.ps1
+PASS: 139
+FAIL: 0
+exit=0
+
+=== sweep complete ===

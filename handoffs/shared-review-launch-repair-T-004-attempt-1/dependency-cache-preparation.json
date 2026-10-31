@@ -1,0 +1,17 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "npm",
+    "ci",
+    "--prefix",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/dependency-cache",
+    "--ignore-scripts",
+    "--cache",
+    "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/handoffs/shared-review-launch-repair-T-004-attempt-1/output/npm-cache"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge",
+  "exit": 0,
+  "stdout": "\nadded 200 packages, and audited 201 packages in 6s\n\n78 packages are looking for funding\n  run `npm fund` for details\n\n7 vulnerabilities (1 moderate, 5 high, 1 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues, run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n",
+  "stderr": "npm warn deprecated @modelcontextprotocol/server-legacy@2.0.0: This package is a frozen copy of v1's SSE transport and OAuth Authorization Server helpers for migration purposes only. Use StreamableHTTP from @modelcontextprotocol/server and a dedicated OAuth server in production. Will not receive new features.\nnpm notice\nnpm notice New minor version of npm available! 11.6.2 -> 11.21.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v11.21.0\nnpm notice To update run: npm install -g npm@11.21.0\nnpm notice\n"
+}

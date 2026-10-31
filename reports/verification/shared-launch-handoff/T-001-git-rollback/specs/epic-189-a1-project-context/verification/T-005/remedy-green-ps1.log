@@ -1,0 +1,61 @@
+PASS: TEST-016 capability_enforcement_weakened: tool exits 0
+PASS: TEST-016 capability_enforcement_weakened classifies 'weakened' (required -> advisory)
+PASS: TEST-016 capability_enforcement_weakened: overall policy_weakening is True
+PASS: TEST-016 N/A category 'capability_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'public_distribution_descoped' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'criticality_lowered' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'provider_allowlist_widened' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'production_write_path_changed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'required_gate_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 component_path_narrowed classifies 'weakened' (src/** -> src/desktop/**)
+PASS: TEST-016 component_path_narrowed: overall policy_weakening is True
+PASS: TEST-016 spec_profile_full_to_lite classifies 'weakened' (full -> lite)
+PASS: TEST-016 spec_profile_full_to_lite: overall policy_weakening is True
+PASS: TEST-017 a strengthening change (advisory -> required) classifies 'not_weakened'
+PASS: TEST-017 a strengthening change is NOT misclassified as weakening
+PASS: TEST-018 a 2-distinct-identity registry emits two_person_required: true
+PASS: TEST-018 the two-person path emits cooldown_hours: null
+PASS: TEST-018 a 1-identity registry emits two_person_required: false
+PASS: TEST-018 a 1-identity registry emits cooldown_hours: 24
+PASS: TEST-046 a zero-entry (approvers: []) registry emits two_person_required: false
+PASS: TEST-046 a zero-entry registry emits cooldown_hours: 24, identical to the 1-identity case
+PASS: TEST-046 a MISSING registry file is treated identically to a zero-entry one (two_person_required: false)
+PASS: TEST-046 a MISSING registry file emits cooldown_hours: 24
+PASS: TEST-031 (1) an include pattern removed narrows coverage
+PASS: TEST-031 (2) an include pattern replaced by a more specific one at unchanged count narrows coverage
+PASS: TEST-031 (3) an exclude pattern added narrows coverage
+PASS: TEST-031 (4) an exclude pattern replaced by a broader one narrows coverage
+PASS: TEST-031 (5) a pure-broadening change (include pattern added, nothing removed) does NOT narrow
+PASS: TEST-031 (5) a pure-broadening change is not classified as policy-weakening
+PASS: TEST-031 (6a) a whole component removed (docs) narrows coverage (fail-closed extension beyond design.md's five literal fixtures)
+PASS: TEST-031 (6a) a whole component removed is classified as policy-weakening
+PASS: TEST-031 (6b) mirror case: a NEW component added (docs) does NOT narrow (the baseline's own components are untouched)
+PASS: TEST-031 (6b) a component addition is NOT classified as policy-weakening
+PASS: TEST-030 (1) a candidate identical to the approved anchor classifies policy_weakening: false
+PASS: TEST-030 (2a) before any change, candidate matches the anchor: policy_weakening: false
+PASS: TEST-030 (2b) a genuine weakening diff classifies true IMMEDIATELY (before any commit)
+PASS: TEST-030 (2c) the weakening diff STILL classifies true AFTER landing as an ordinary git commit (a commit never moves the anchor)
+PASS: TEST-030 (3) generate-approval-sidecar.py never passes --approved-context to the detector
+PASS: TEST-030 (4) no approved-context anchor yet: exit 0 with the documented NO_APPROVED_CONTEXT_ANCHOR note
+PASS: TEST-030 (4) with no anchor, every category treated as a new addition (policy_weakening: false)
+PASS: TEST-030 (5) a live TRANSACTION.json naming the anchor fails closed (exit 21/HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-030 (5) the in-progress-publish refusal emits no verdict on stdout
+PASS: WIRING a non-bootstrap signing fixture succeeds now that the detector is present (exit 0)
+PASS: WIRING WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture
+PASS: WIRING a staged sidecar candidate was written
+PASS: WIRING the sidecar's embedded weakening_verdict is EXACTLY the in-process-computed verdict
+PASS: WIRING carry-forward #1: an unexpected compute_verdict() exception surfaces as classified WEAKENING_DETECTOR_ERROR (exit 17), never a raw traceback
+PASS: WIRING carry-forward #1b: the detector's own named category is passed through verbatim (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never collapsed to a generic label
+PASS: WIRING carry-forward #2: a malformed verdict is rejected BEFORE preimage construction (exit 18/WEAKENING_VERDICT_MALFORMED), never a downstream TypeError
+PASS: WIRING carry-forward #2b: a non-serializable cooldown_hours value is rejected as WEAKENING_VERDICT_MALFORMED (exit 18), never an uncaught TypeError
+PASS: WIRING carry-forward #3: a None verdict for a non-bootstrap transition is refused (exit 18/WEAKENING_VERDICT_MALFORMED), never embedded as weakening_verdict: null
+PASS: WIRING carry-forward #3: the refusal writes no staged candidate
+PASS: TEST-HARDEN(a) a missing --candidate file is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(b) an unrecognized 'schema' field is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(c) a corrupt (out-of-subset) approved-context anchor is rejected cleanly (exit 22/APPROVED_CONTEXT_ANCHOR_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(d) a malformed (non-object) approver-registry.yaml is rejected cleanly (exit 23/APPROVER_REGISTRY_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(e) a missing required --candidate argument is a clean usage error (exit 2), never a traceback
+PASS: self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/detect-policy-weakening.tests.ps1 registered in tests/run-all.ps1
+PASS: 59
+FAIL: 0

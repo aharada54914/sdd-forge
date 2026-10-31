@@ -1,0 +1,7 @@
+{"timestamp":"2026-10-10T11:19:52.647323Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T11:19:52.647394Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T11:19:53.121627Z","level":"WARN","fields":{"message":"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T11:19:53.121645Z","level":"WARN","fields":{"message":"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/"},"target":"codex_skills::interface"}
+{"timestamp":"2026-10-10T11:28:16.615701Z","level":"WARN","fields":{"message":"dropping turn-scoped item for unknown turn id `01a1258a-7308-7db1-b91d-3673d1f564f7`","item_id":"exec-090a7903-b46a-459f-a837-b24636e5705c"},"target":"codex_app_server_protocol::protocol::thread_history"}
+{"timestamp":"2026-10-10T11:28:16.616009Z","level":"ERROR","fields":{"message":"failed to record rollout items: thread 01a1258a-7238-78c3-a0b0-a630c254f506 not found"},"target":"codex_core::session"}
+{"timestamp":"2026-10-10T11:28:16.616073Z","level":"WARN","fields":{"message":"dropping turn-scoped item for unknown turn id `01a1258a-7308-7db1-b91d-3673d1f564f7`","item_id":"exec-090a7903-b46a-459f-a837-b24636e5705c"},"target":"codex_app_server_protocol::protocol::thread_history"}

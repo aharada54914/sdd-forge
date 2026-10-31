@@ -1,0 +1,1370 @@
+[
+  {
+    "runtime": "bash",
+    "stage": "spec",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as",
+          "--reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "99900fb08cde977f8dffeb2f4e1b5ffe58accf23a02695de85c8a124e6e03b57",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "3cce4db0-43d6-4295-8220-37fab51d4437",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpyoxff1as",
+          "--reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "99900fb08cde977f8dffeb2f4e1b5ffe58accf23a02695de85c8a124e6e03b57",
+        "after_sha256": "99900fb08cde977f8dffeb2f4e1b5ffe58accf23a02695de85c8a124e6e03b57",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "3cce4db0-43d6-4295-8220-37fab51d4437",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "3cce4db0-43d6-4295-8220-37fab51d4437",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "76b47e0327411016362a9222e947e0f6ea5796cd4a51b9101a97ef847609bb67",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "runtime": "bash",
+    "stage": "impl",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg",
+          "--reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "7af5b3a633b123fc160e85ad5a75c5410b6591b4d9d58098ccd26a8d53165ff4",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "25215674-0ec6-4396-97b8-c76a311cd1b7",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpbp9utvbg",
+          "--reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "7af5b3a633b123fc160e85ad5a75c5410b6591b4d9d58098ccd26a8d53165ff4",
+        "after_sha256": "7af5b3a633b123fc160e85ad5a75c5410b6591b4d9d58098ccd26a8d53165ff4",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "25215674-0ec6-4396-97b8-c76a311cd1b7",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "25215674-0ec6-4396-97b8-c76a311cd1b7",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "0839f9bb663ea50f192f23ae5b6c4130eabe0673a517880a4315964e73e1ba8b",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "runtime": "bash",
+    "stage": "task",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u",
+          "--reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "2bd37c3071773dd83def216d0967f9c3d7f5087383010af276a68430417f4f1c",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "33ec406e-854b-4762-b8ea-93da88166aa1",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "bash",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u/invocation.json",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpwbfxnk5u",
+          "--reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "2bd37c3071773dd83def216d0967f9c3d7f5087383010af276a68430417f4f1c",
+        "after_sha256": "2bd37c3071773dd83def216d0967f9c3d7f5087383010af276a68430417f4f1c",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "33ec406e-854b-4762-b8ea-93da88166aa1",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "33ec406e-854b-4762-b8ea-93da88166aa1",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "e055608dbfa4027d0f6ee1fceb91d904fc5a7d8972f6c0255dfca4131e2568ac"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "runtime": "powershell",
+    "stage": "spec",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o",
+          "-Reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9 sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "c9931fe4ca413dafcebc453f1bb08c7dd4f22c331a35e579778594d366046d79",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "5d8cd7ca-3e37-4807-bf6e-72eb49626d5b",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp5ajl1f1o",
+          "-Reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "c9931fe4ca413dafcebc453f1bb08c7dd4f22c331a35e579778594d366046d79",
+        "after_sha256": "c9931fe4ca413dafcebc453f1bb08c7dd4f22c331a35e579778594d366046d79",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "5d8cd7ca-3e37-4807-bf6e-72eb49626d5b",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "5d8cd7ca-3e37-4807-bf6e-72eb49626d5b",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "bfb3201de277d6230522f8a50982d940cb71706b54d3553687d7101c656d38a9",
+              "allowed_inputs_sha256": "00dd641eaa86d82d0ef44170778da3b555f09c677a5631b0dfef35c46cd3a05e"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "runtime": "powershell",
+    "stage": "impl",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen",
+          "-Reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "907270a7df34c8a3573a3ae904809f41bf4c397247a1b1a7af651dddfcae3319",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "d190c104-8ee0-494f-8b3d-2da222a64507",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmpsxok7fen",
+          "-Reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "907270a7df34c8a3573a3ae904809f41bf4c397247a1b1a7af651dddfcae3319",
+        "after_sha256": "907270a7df34c8a3573a3ae904809f41bf4c397247a1b1a7af651dddfcae3319",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "d190c104-8ee0-494f-8b3d-2da222a64507",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "impl",
+              "role": "impl-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "d190c104-8ee0-494f-8b3d-2da222a64507",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "2a8096141dbb1e66d56509d07ac0b8656a1d85a3ee6729c3693d74cf0292a06f",
+              "allowed_inputs_sha256": "d355aa87d09c7151e12b8c23a7235bc51a3760150ae565f9ddb7cbe3bf076f5c"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "runtime": "powershell",
+    "stage": "task",
+    "failure": "postappend-receipt",
+    "events": [
+      "common-input-preflight",
+      "precheck-before-output",
+      "verify-before.txt",
+      "preview.txt",
+      "native.jsonl",
+      "verify-after.txt",
+      "preview-after.txt",
+      "reserved.txt"
+    ],
+    "validators": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk",
+          "-Reserve"
+        ],
+        "returncode": 0,
+        "stdout": "REVIEW_CONTEXT_OK 7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde sequence=2 previous_record_sha256=953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b pre_append_tip_sequence=1 identity_unique=yes\n",
+        "stderr": "",
+        "before_sha256": "6f8f18a08c5d387bbd25f0f693772d7d3e794b0edd72b7fe5d76bf5ed814719d",
+        "after_sha256": "cfa44021f37f50be5831037185e2a972366fd1e757c84dc09418742afe25aa3a",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "20867626-4471-48ee-ab98-647ea1ad6239",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde"
+            }
+          ]
+        }
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "pwsh",
+          "-NoProfile",
+          "-File",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+          "-Manifest",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk/invocation.json",
+          "-RepositoryRoot",
+          "/Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-005/attempt-2/output/tmp/tmp65zbu7xk",
+          "-Reserve"
+        ],
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "REVIEW_CONTEXT_IDENTITY: run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice\n",
+        "before_sha256": "cfa44021f37f50be5831037185e2a972366fd1e757c84dc09418742afe25aa3a",
+        "after_sha256": "cfa44021f37f50be5831037185e2a972366fd1e757c84dc09418742afe25aa3a",
+        "before": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "20867626-4471-48ee-ab98-647ea1ad6239",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde"
+            }
+          ]
+        },
+        "after": {
+          "schema": "review-identity-ledger/v1",
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "fixture-1",
+              "host_session_id": "session-1",
+              "previous_record_sha256": "",
+              "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"
+            },
+            {
+              "sequence": 2,
+              "stage": "task",
+              "role": "task-reviewer-a",
+              "run_id": "fixture-2",
+              "host_session_id": "20867626-4471-48ee-ab98-647ea1ad6239",
+              "previous_record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b",
+              "record_sha256": "7ede5d4807bb88a5563d1b15f951b8ff64513379e4ed0a234f0644c57d69acde"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

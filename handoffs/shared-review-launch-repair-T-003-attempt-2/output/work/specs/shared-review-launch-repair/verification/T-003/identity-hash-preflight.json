@@ -1,0 +1,27 @@
+[
+  {
+    "field": "run_id",
+    "mismatch_rejected": true
+  },
+  {
+    "field": "session_id",
+    "mismatch_rejected": true
+  },
+  {
+    "field": "agent_instance_id",
+    "mismatch_rejected": true
+  },
+  {
+    "field": "model",
+    "mismatch_rejected": true
+  },
+  {
+    "field": "isolation_mode",
+    "mismatch_rejected": true
+  },
+  {
+    "field": "source_sha256",
+    "mismatch_rejected": true,
+    "baseline_sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333"
+  }
+]

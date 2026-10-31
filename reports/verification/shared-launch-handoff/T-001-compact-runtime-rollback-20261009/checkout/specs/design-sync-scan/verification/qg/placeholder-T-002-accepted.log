@@ -1,0 +1,23 @@
+=== Wave 9 quality-gate preprocessing: explicit finding-acceptance record (2026-08-08) ===
+Raw check-placeholders.sh run (production file only, T-002's own edit target):
+Placeholder scan FAILED (2 finding(s)):
+ - plugins/sdd-bootstrap/scripts/design-sync-scan.ps1:145:$placeholderPatternCs = 'TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+ - plugins/sdd-bootstrap/scripts/design-sync-scan.ps1:146:$placeholderPatternCi = 'not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+raw_exit=1
+
+ACCEPTANCE: both findings ($placeholderPatternCs / $placeholderPatternCi,
+design-sync-scan.ps1:145-146) are the scanner's own detection-pattern
+catalogue, necessarily present as regex source since detecting
+TODO/FIXME/PLACEHOLDER is this script's entire purpose -- the .ps1 twin
+of T-001's identical, already-accepted finding class (see
+verification/qg/placeholder-T-001-accepted.log). This is the same
+self-referential finding class check-placeholders.sh itself produces
+when pointed at its own source
+(plugins/sdd-quality-loop/scripts/check-placeholders.sh). Already
+disclosed by the implementer in
+reports/implementation/design-sync-scan/T-002.md Specification
+Differences #2, flagged there "for the reviewer's/gate's explicit
+acceptance" per quality-gate/SKILL.md:45. Accepted here as that
+explicit gate-level acceptance.
+gate_verdict=ACCEPTED

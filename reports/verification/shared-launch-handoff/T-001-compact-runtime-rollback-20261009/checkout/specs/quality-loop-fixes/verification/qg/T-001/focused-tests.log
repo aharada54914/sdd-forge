@@ -1,0 +1,113 @@
++ bash tests/quality-gate-cycle-limit.tests.sh
+== start: 2026-07-19T17:36:02Z ==
+=== QGCL-001: 0 reports (empty dir) -> continue ===
+ok: QGCL-001 (sh): continue / exit 0
+ok: QGCL-001 (ps1): continue / exit 0
+=== QGCL-002: 1 feature-scoped report -> continue ===
+ok: QGCL-002 (sh): continue / exit 0
+ok: QGCL-002 (ps1): continue / exit 0
+=== QGCL-003: 2 feature-scoped reports -> continue ===
+ok: QGCL-003 (sh): continue / exit 0
+ok: QGCL-003 (ps1): continue / exit 0
+=== QGCL-004: 3 feature-scoped reports -> Escalate-Human ===
+ok: QGCL-004 (sh): Escalate-Human / exit 1
+ok: QGCL-004 (ps1): Escalate-Human / exit 1
+=== QGCL-005: 4 feature-scoped reports -> Escalate-Human ===
+ok: QGCL-005 (sh): Escalate-Human / exit 1
+ok: QGCL-005 (ps1): Escalate-Human / exit 1
+=== QGCL-006: prefix collision T-0010 does not count for T-001 ===
+ok: QGCL-006 (sh): continue / exit 0
+ok: QGCL-006 (ps1): continue / exit 0
+=== QGCL-007: absent reports dir -> continue ===
+ok: QGCL-007 (sh): continue / exit 0
+ok: QGCL-007 (ps1): continue / exit 0
+=== QGCL-008: invalid task-id -> exit 2 ===
+ok: QGCL-008a (too few digits) (sh): usage error exit 2
+ok: QGCL-008a (too few digits) (ps1): usage error exit 2
+ok: QGCL-008b (four digits) (sh): usage error exit 2
+ok: QGCL-008b (four digits) (ps1): usage error exit 2
+ok: QGCL-008c (lowercase) (sh): usage error exit 2
+ok: QGCL-008c (lowercase) (ps1): usage error exit 2
+ok: QGCL-008d (non-task) (sh): usage error exit 2
+ok: QGCL-008d (non-task) (ps1): usage error exit 2
+ok: QGCL-008e (empty) (sh): usage error exit 2
+ok: QGCL-008e (empty) (ps1): usage error exit 2
+=== QGCL-009: punctuation-adjacent counts, embedded does not ===
+ok: QGCL-009a (bracket/colon adjacent) (sh): Escalate-Human / exit 1
+ok: QGCL-009a (bracket/colon adjacent) (ps1): Escalate-Human / exit 1
+ok: QGCL-009b (embedded in word) (sh): continue / exit 0
+ok: QGCL-009b (embedded in word) (ps1): continue / exit 0
+=== QGCL-010: default reports-dir = reports/quality-gate ===
+ok: QGCL-010 (sh): default dir counts 3 -> Escalate-Human
+ok: QGCL-010 (ps1): default dir counts 3 -> Escalate-Human
+=== QGCL-011: sh/ps1 output+exit parity (new 2-required-arg contract) ===
+ok: QGCL-011: parity for T-001/this-feature in r0 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001/this-feature in r2 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001/this-feature in r3 (exit=1, out=[Escalate-Human])
+ok: QGCL-011: parity for T-001/this-feature in rc (exit=0, out=[continue])
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[UPPER] (both exit 2)
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[-leading] (both exit 2)
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[] (both exit 2)
+=== QGCL-012: .ps1 ASCII-only and no BOM ===
+ok: QGCL-012a: .ps1 is ASCII-only (byte count 4089/4089)
+ok: QGCL-012b: .ps1 has no UTF-8 BOM
+=== QGCL-013: cross-feature exclusion (AC-002) ===
+ok: QGCL-013a: 3 other-feature reports, 0 this-feature -> continue (sh): continue / exit 0
+ok: QGCL-013a: 3 other-feature reports, 0 this-feature -> continue (ps1): continue / exit 0
+ok: QGCL-013b: same dir queried for other-feature -> Escalate-Human (sh): Escalate-Human / exit 1
+ok: QGCL-013b: same dir queried for other-feature -> Escalate-Human (ps1): Escalate-Human / exit 1
+ok: QGCL-013c: 3 other-feature + 1 this-feature -> continue (count=1, not 4) (sh): continue / exit 0
+ok: QGCL-013c: 3 other-feature + 1 this-feature -> continue (count=1, not 4) (ps1): continue / exit 0
+=== QGCL-014: RT-20260712-001 cross-feature-collision regression (GREEN; RED recorded separately) ===
+ok: QGCL-014a (0 this-feature reports) (sh): continue / exit 0
+ok: QGCL-014a (0 this-feature reports) (ps1): continue / exit 0
+ok: QGCL-014b (1 this-feature report) (sh): continue / exit 0
+ok: QGCL-014b (1 this-feature report) (ps1): continue / exit 0
+ok: QGCL-014c (2 this-feature reports) (sh): continue / exit 0
+ok: QGCL-014c (2 this-feature reports) (ps1): continue / exit 0
+ok: QGCL-014d: RED evidence log present at specs/quality-loop-fixes/verification/qg/T-001/red.log
+=== QGCL-015: staged ship/SKILL.md human-copy candidate matches MANIFEST.sha256 (AC-006) ===
+FAIL: QGCL-015: staged ship/SKILL.md candidate or MANIFEST.sha256 is missing
+ok: QGCL-015: live ship/SKILL.md exists (unmodified by this feature -- protected, human-applied only)
+=== QGCL-016: self-registration + human-copy test.yml conformance (AC-007) ===
+ok: QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh registered in tests/run-all.sh
+ok: QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh deliberately ABSENT from tests/run-all.ps1 (combined-suite convention)
+ok: QGCL-016 (AC-007, cross-check): second-approval-mask likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007, cross-check): review-agent-isolation likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007, cross-check): review-contract-foundation-parity likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007): staged .github/workflows/test.yml candidate SHA-256 matches its MANIFEST.sha256 entry
+FAIL: QGCL-016 (AC-007, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+
+Results: 59 passed, 2 failed
+== end: 2026-07-19T17:36:02Z ==
+EXIT_CODE: 1
+
+=== Designed-fail disclosure (gate-time re-verification; both failures pre-existing, documented, non-blocking per tasks.md/T-001's implementation report) ===
+QGCL-015 (AC-006): the staged ship/SKILL.md human-copy candidate at
+specs/quality-loop-fixes/human-copy/plugins/sdd-ship/skills/ship/SKILL.md was
+never written. T-001's implementation report (Unresolved Items) records that
+every write path to that staging destination was denied: first by
+sdd-hook-guard.sh's R-10 protected-suffix check (a pure path.endswith() test
+with no exemption for specs/*/human-copy/ staging paths that happen to end in
+the protected ship/SKILL.md suffix), and then, on a Python-indirection retry,
+by the Claude Code harness's own auto-mode action classifier. The composed
+content (byte-identical to the intended live-file diff, verified against the
+live file at report-authoring time) is preserved at the report's cited
+scratchpad path, SHA-256
+6e9d9c44641171c2934178cb8fa1bda4a4e10f156a349189e2ed3a2df050ec43, with a
+4-step human remedy recorded (copy content to the staging path, append the
+MANIFEST.sha256 entry, commit / apply). classifier-blocked, not a code
+defect in check-quality-gate-cycle-limit.{sh,ps1}. This quality-gate
+preparation pass re-confirmed the candidate is still absent (re-run above)
+and did not attempt to write it -- writing either live or staged protected
+targets is out of scope for evidence collection.
+QGCL-016 (AC-007, DESIGNED-RED pre-human-copy): the live
+.github/workflows/test.yml intentionally does not yet carry the staged
+CI-registration step. The staged candidate at
+specs/quality-loop-fixes/human-copy/.github/workflows/test.yml matches its
+MANIFEST.sha256 entry (verified green in the same run, above), but applying
+it to the live, protected workflow file is a human pre-merge action per the
+epic-136 Human-Copy Procedure (R-10 protected; tasks.md Global Constraints,
+Commit A note) that no agent commit -- including this evidence-collection
+pass -- may perform. This is the designed fail-closed state until that human
+commit lands; it is not a new regression from re-running the suite now.

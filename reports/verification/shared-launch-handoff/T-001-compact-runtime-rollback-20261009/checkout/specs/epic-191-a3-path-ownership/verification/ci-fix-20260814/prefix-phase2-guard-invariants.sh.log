@@ -1,0 +1,46 @@
+### PRE-FIX baseline (git archive HEAD ca1dac14) bash tests/phase2-guard-invariants.tests.sh
+2026-08-13T23:20:21Z
+ok: staged stdlib generator exists
+ok: committed native output exists: guard_invariants.py
+ok: committed native output exists: guard-invariants.generated.js
+ok: committed native output exists: guard-invariants.generated.ps1
+ok: committed native output exists: guard-invariants.generated.sh
+ok: --check accepts committed outputs
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-011 live CI uses platform-native generator and invariant suites before validation and guards
+ok: two independent write-mode renders are byte-identical
+ok: --check rejects stale output without writing
+ok: --check rejects missing output
+ok: --check rejects invalid type schema
+ok: --check rejects invalid version schema
+ok: --check rejects malformed canonical JSON
+ok: --check rejects canonical read I/O errors
+ok: Python uses explicit fixed module loading
+ok: Python loader targets its generated module
+ok: Node loader targets its generated module
+ok: Node loader is script-directory based
+ok: PowerShell loader targets its generated module
+ok: PowerShell loader is script-directory based
+ok: dispatcher sources schema/provenance module
+ok: sdd-hook-guard.py does not parse canonical JSON at runtime
+ok: sdd-hook-guard.js does not parse canonical JSON at runtime
+ok: sdd-hook-guard.ps1 does not parse canonical JSON at runtime
+ok: sdd-hook-guard.sh does not parse canonical JSON at runtime
+ok: Python ignores CWD/PYTHONPATH shadow and preserves read-only decision
+ok: Node ignores CWD/NODE_PATH shadow and preserves read-only decision
+ok: Python denies a missing fixed generated module
+ok: Node denies a missing fixed generated module
+ok: Python denies an unconsumed fixed-module export
+ok: Node denies an unconsumed fixed-module export
+  out of sync: plugins/sdd-quality-loop/scripts/check-contract.ps1
+  out of sync: plugins/sdd-quality-loop/references/guard-invariants.json
+  out of sync: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  out of sync: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+FAIL: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.sh: 34 passed, 1 failed
+rc=1

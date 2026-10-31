@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0327",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0327",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "704313265ee92a7eb81f842dc967ef9452ff52a34c3a8ff7b43f81a748d8be78"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "ce543ba950a65466f9c2a016929ee64e688d340612015f49361e41868418eeee"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-1/precheck-result.json", "sha256": "7bd5dfc2d3ffc1db6e9ce9718c3a01648ba3f05d3ee06fc9e66594e93fa04c7f"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-1/integrated-summary.json", "sha256": "ad5bda0d350a9499bacef479edf5f884de2d5f2ae07d80167d547c28d4d9cd25"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core terms/actors/states are pinned to concrete shapes: Field Definitions section fixes trigger/required_facets/conditional_facets/gate_ids/implementation_ref/registry_digest/lite_policy/delivery_strategy.kind precisely; OQ-002 (trigger vs conditions) and OQ-003 (delivery_strategy.kind vocabulary) are closed by orchestrator ruling with explicit schema consequences (AC-004, AC-006). REQ-003(g)'s label 'allowlist-based term list' for what is functionally a denylist of provider tokens is odd terminology, but the described behavior ('any match fails validation') is unambiguous, so two implementers would not diverge on behavior from this naming choice alone (calibration: do not fail for a naming quirk absent a concrete behavioral fork)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked Goals vs Non-goals vs Roles-and-Permissions vs Acceptance Criteria for direct conflicts: delivery_strategy required-with-open-vocabulary is stated consistently in REQ-001, AC-004, and Field Definitions; minimum_enforcement's optionality (AC-005) does not conflict with delivery_strategy's mandatory presence (AC-004) since requirements.md explicitly contrasts the two; Non-goals' 'no file under plugins/, scripts/, contracts/, tests/, .github/ is created' matches Roles and Permissions' identical constraint and AC-034. No requirement, acceptance criterion, constraint, or non-goal found in direct conflict."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002 states: 'Every operator forbidden by ADR-0020 (regex, arbitrary JSONPath, shell, JS, Python, dynamic code, Provider API calls, time-/network-dependent conditions) must be structurally inexpressible in the DSL's own grammar, not merely undocumented.' No acceptance criterion or test in acceptance-tests.md (TEST-007 through TEST-013, the full evaluate-predicate suite) exercises this claim: none supplies a fixture using a forbidden/unknown operator token (e.g. 'regex') and asserts schema-level rejection (e.g. via the same PREDICATE_SCHEMA_ERROR class AC-011/TEST-011 already uses for the field-allowlist violation). Downstream failure mode: a task author scheduling REQ-002's test suite has no acceptance criterion instructing them to prove the forbidden-operator boundary is enforced, so the implementation could parse an unlisted operator token in an undefined way (silently no-op, unhandled exception, or worse) without any test catching the regression -- this directly undermines ADR-0020's 'no second condition language' / no-arbitrary-code-execution guarantee, the exact property REQ-002 calls out as a must. This belongs to spec review because it is a missing-acceptance-criterion problem in acceptance-tests.md's coverage of a requirements.md clause, not an implementation-review or quality-gate concern. Severity is Major per calibration's own wording: 'high-risk claim with no planned validation surface.'"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's Open Questions section tracks OQ-001..OQ-004 explicitly: OQ-002/OQ-003 are marked RESOLVED with orchestrator rulings and corresponding REQ/AC updates; OQ-001 is marked partially resolved with a concrete fail-closed mitigation (REQ-003(h)/AC-022) while explicitly deferring vocabulary-freezing to Epic A6 as a named future decision, not a silent assumption; OQ-004 is marked open but is itself flagged as 'this spec's own design proposal, not a quoted requirement' with the proposal's specifics fully closed (AC-016/AC-017) pending only attribution, not behavior. INV-004a, INV-013, and INV-016 each record a judgment call with explicit reasoning and forward obligations (drift-check, revisit-if-A1-differs) rather than leaving them unmarked."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human approval boundaries are in scope and testable: Roles and Permissions states the Agent 'does not write Approved in any Status/approval field' and Spec-Review-Status stays Pending for a human to change (confirmed independently by precheck-result.json's spec_review_status_field: 'Pending'); the protected-file/human-copy boundary (guard-invariants registration, .github/workflows/test.yml registration) is made testable via AC-029's three-part verification (staged human-copy candidate + MANIFEST.sha256, byte-identical live files until a human cp, post-cp verification) and AC-030's analogous test-registration procedure proof."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md/acceptance-tests.md/investigation.md together define concrete schema shapes, field semantics, validator check boundaries (REQ-003 a-i), a fully specified Gate implementation identity scheme (AC-016/AC-017), a discovery contract (AC-027), and a digest fragment-selection contract (AC-024) without requiring a downstream reviewer to invent product behavior; open items (OQ-001 vocabulary, OQ-004 attribution) are explicitly scoped as future/human decisions rather than gaps left for a design reviewer to silently fill. The single coverage gap identified above (EDGE-CASE-COVERAGE) is a missing test, not missing product-behavior definition, so it does not itself block handoff readiness."
+    }
+  ]
+}

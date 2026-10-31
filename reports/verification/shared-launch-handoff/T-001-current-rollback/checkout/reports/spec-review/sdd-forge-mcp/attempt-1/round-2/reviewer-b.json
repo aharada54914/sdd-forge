@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-sddforgemcp-a1r2-20260704-c3e9",
+  "host_session_id": "hs-spec-b-7ea701ba-0005",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "7e93432023de67884d215f4dbe4c6e38076401264880b11e29f592a5ff404a01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "8618c3ef9faa5c5828ae3c78086b0a605badd3ce62fe303bdf6c9d80b23c7b66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+      "sha256": "983f6e46c5e07249194234cbcc131eccd215d769e20e430b1f593e73b0533204"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002's 8 named tools, REQ-007's fixed-root rule, and the round-2 AC-016 (no root-like input argument; env/cwd changes post-launch do not affect the response root) and AC-017 (named error codes cannot-parse/not-found/not-sdd-root/too-large) leave no reasonable room for divergent implementer interpretation of these behaviors."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md Edge Cases (size limit explicitly deferred to design: 'サイズ上限（設計で規定）') directly conflicts with the new acceptance-tests.md AC-017 (a concrete, already-fixed 2 MiB value asserted as a binding, tested acceptance criterion). A design reviewer or task author cannot determine whether 2 MiB is an approved spec decision or a still-open design parameter, because one source-of-truth artifact says 'design will decide' while the acceptance test already hardcodes and tests a specific number. This is a specification-review-owned conflict because it is a disagreement between two Phase 1 artifacts about whether a testable value is fixed, and it blocks safe hand-off since implementers building against acceptance-tests.md vs. requirements.md would build different validation thresholds and different levels of design freedom."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 added AC-016 (root immutability boundary test) and AC-017 (three named error paths: not-found for missing tasks.md, not-sdd-root for a root lacking SDD structure, too-large for oversized files), which materially close the round-1 gap and now cover the negative/boundary states already listed in requirements.md Edge Cases alongside existing AC-002/AC-003/AC-004/AC-012."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The size-limit value is asserted as a settled fact in acceptance-tests.md AC-017 ('2 MiB') while requirements.md Edge Cases explicitly states it is 'design で規定' (to be determined by design). This unresolved discrepancy is not captured anywhere in the Open Questions section (only OQ-R1 is tracked) and is not marked as a decision needed before design/task decomposition, so it remains a silent, unflagged assumption rather than either resolved-by-investigation or explicitly-marked-as-open, per the check's requirement."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Non-goals explicitly exclude all write tools, Approval mutation, SDD_SUDO, and tasks.md state transitions; REQ-001/AC-011 test the no-write boundary via static analysis plus runtime mtime/content invariance; REQ-007/AC-016 (new in round 2) test the startup-fixed-root boundary is not alterable at runtime. These governance/irreversibility boundaries are concretely testable."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Round-2's AC-015/AC-016/AC-017 additions successfully close the round-1 GOAL-AC-TRACE and EDGE-CASE-COVERAGE gaps cited in the edit summary. However, the newly introduced size-limit contradiction (requirements.md says design-deferred; acceptance-tests.md AC-017 hardcodes 2 MiB) would force the next reviewer/design author to silently invent or guess which artifact is authoritative for a testable numeric threshold, which is exactly the kind of missing product decision this check exists to prevent from reaching implementation-policy review."
+    }
+  ]
+}

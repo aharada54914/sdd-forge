@@ -1,0 +1,63 @@
+{
+  "task_id": "T-011",
+  "feature": "risk-adaptive-layer",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "da025416ef244f085108a0ff71a87e50b789e401b3697d4b92ff5b95242245fb",
+  "quality_report": "reports/quality-gate/T-011.md",
+  "verification_contract": "specs/risk-adaptive-layer/verification/T-011.contract.json",
+  "git_commit": "91fa6645905cf351a37b8f3e77cd438148290739",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.contract.json",
+      "sha256": "da59a7fe82cd22be933e8b16b909167005dd7aae30bd1156d89d66d60b55853c"
+    },
+    {
+      "path": "reports/quality-gate/T-011.md",
+      "sha256": "34a2e51f987f8f05ffbd5721f4499c6ac6ffaf64c2f42cc3c22b06a51e0315c2"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.eval.log",
+      "sha256": "82a24ebc6a73cedfd9c33ad42b21490e60509bc79408690cbaefe78f471dd085"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.gates.log",
+      "sha256": "6846ab6696dc186529b3c1d42dc3552f8a4b541a479830c4f57a9045b993222e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.guards.log",
+      "sha256": "b853bc0b74459151383b4565e8d86fac1e9a34139afb63947d0efc2e03623b10"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.placeholder.log",
+      "sha256": "97a9058dbb57efc5dcfb53c4a597b8a24838ca87376693a0e950cb5b2ed1d306"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.self-gates.log",
+      "sha256": "274389454e7b0d4356b8f5218c076efe6cfd74a7fbd5cb7824763c8d81e37114"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-011.taskstate.log",
+      "sha256": "82bbfbce2cac45e97aff9491a90aadd7c0366acb3972535fb9047aff343b32ec"
+    }
+  ]
+}

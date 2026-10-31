@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 10,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-a-a10r1-seq0813",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-a-a10r1-0813",
+  "manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "f3c4b50ad9190178be26b3bab47bc36744d3080c5d88990527cd3d8d3f06d031"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+      "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+      "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+      "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/precheck-result.json",
+      "sha256": "f4f27313cfe45b37cb382b9ee38f60dfbd9665f77915a471609be0a94e417999"
+    },
+    {
+      "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/dependency-graph.json",
+      "sha256": "21162f6b70cc10829b521cf90118cb7f162cd6bb362f0fdd4a5aa52efc375ee6"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D check, unaffected by the T-003 status-line flip (the sole diff vs. the attempt-9/round-2 PASS-bound content, confirmed via git diff against blob b62874e9 and git show b62874e9:.../tasks.md | shasum = 42d52579... = attempt-9/round-2's own reviewed sha). All AC-NNN ids referenced in tasks.md Requirements fields (including AC-057/AC-058) resolve to real acceptance-tests.md rows; no dangling id found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Verified directly: every task's Blockers field is None (T-001, line 476) or a comma-separated T-NNN list (T-002..T-010, lines 739/1014/1286/1484/1661/1894/2086/2239/2389); no range notation or prose. Matches precheck's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D check, unaffected by the status-line flip. REQ-001 through REQ-008 all appear in tasks.md Requirements fields; grep -oE 'REQ-[0-9]{3}' confirms all eight represented across T-001..T-010."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D check, unaffected by the status-line flip. All acceptance-tests.md AC ids are covered by a task Requirements field except AC-030/AC-031, which traceability.md row 14 (REQ-007) explicitly defers with rationale (Spec-Authoring-Time Manual Review Record, no task scoped)."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-010 carries a non-empty Requirements: field citing at least one REQ-NNN; unaffected by the status-line flip."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Test-titled/test-scope tasks (T-005, T-006, T-009, T-010) each cite AC-NNN ids in their Requirements field (e.g. T-006 cites AC-001/AC-002/AC-028/AC-009; T-010 cites AC-045); unaffected by the status-line flip."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review lifecycle rule applied per orchestrator declaration. Verified all 10 Approval/Status pairs directly (lines 302-2248): every task's Approval field holds the value sudo-audit-marked and approved, formatted as 'Approved (sudo <timestamp>)' (a valid audit-mark); Status values are T-001..T-005 = Done, T-006..T-010 = Planned -- all within the permitted post-implementation vocabulary {Planned, In Progress, Blocked, Implementation Complete, Done}. T-003's own flip from Implementation Complete to Done (the human-sanctioned lifecycle change this round exists to re-bind) is a valid post-implementation state, backed per the orchestrator's context by a passing quality-gate report and passing cross-model aggregate (independently corroborated by commit e75e22c8, 'T-003 cross-model round 7 consensus PASS', present in this branch's history)."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D check, unaffected by the status-line flip. Risk/Required-Workflow pairs match risk-gate-matrix on all 10 tasks (medium->acceptance-first: T-001,T-005,T-006,T-009,T-010; high->tdd: T-002,T-003,T-004,T-007,T-008); precheck's workflow_match_precheck: PASS corroborates."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-D check, unaffected by the status-line flip. AC-057/AC-058 (rulings-C fixtures) are cited only by T-003. Broadly shared ACs elsewhere (e.g. AC-010 across T-002/T-003/T-004/T-007) each carry explicit '(share -- N of sixteen rows)' differentiation per task."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Verified directly: every Blockers-cited task id (T-001..T-010) is present in dependency-graph.json's nodes array; no dangling reference. Cross-checked tasks.md's own Blockers sections against the 23 edges in dependency-graph.json -- exact match."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS so this check runs. dependency-graph.json's 23 edges all point from a higher-numbered task to a strictly lower-numbered one (T-010's furthest edge is T-010->T-004); no path revisits a node -- no cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H check. Content governing this check (task titles and Scope sections) is byte-identical to the attempt-9/round-2 PASS-bound content -- the working-tree diff against that round's reviewed blob (b62874e9, sha 42d52579) is exactly the single T-003 Status line flip (Implementation Complete -> Done), a human-authorized status line, and touches no title or Scope text. Per the TYPE-H convergence rule this is recorded PASS with the prior observation carried as advisory: T-001's artifact+own-suite title, T-002/T-003/T-004's same-stage sub-activity titles, and T-006's three co-located test suites for one component were already found non-Major (test/housekeeping-tied 'and', not two distinct feature concerns) in reports/task-review/epic-193-a5-capability-resolver/attempt-9/round-2/reviewer-a.json. No new finding raised."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H check. This round's precheck-result.json carries no frozen_artifact_done_when key (confirmed by direct read -- the file is 16 lines, none named frozen_artifact_done_when), so there are zero flagged items to individually address this round. Every Done When block's content is byte-identical to the attempt-9/round-2 PASS-bound content (the only tasks.md diff since that PASS is T-003's own Status line). Per the TYPE-H convergence rule this is recorded PASS with the prior observation carried as advisory: reports/task-review/epic-193-a5-capability-resolver/attempt-9/round-2/reviewer-a.json already found every Done-When item names a concrete exit code, diagnostic-id string, fixture name, byte-unchanged-file assertion, or independent quality-gate PASS record, with no forbidden vague verb ('ensure', 'consider', 'works correctly') and no item requiring an edit to a frozen artifact (design.md/tasks.md body/traceability.md). No new finding raised."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-D check, unaffected by the status-line flip. traceability.md rows cover T-001 through T-010; all REQ-NNN ids in traceability.md exist in requirements.md. Full-profile layer anchors present: security-spec.md#trust-boundaries/#stride-analysis, infra-spec.md#cicd-sequence/#journal-recovery/#rollback, and explicit reasoned 'N/A -- cross-layer only' entries for ux-spec.md/frontend-spec.md on REQ-007."
+    }
+  ],
+  "findings": []
+}

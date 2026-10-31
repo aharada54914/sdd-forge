@@ -1,0 +1,135 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-194-a6-lite-integration-impl-impl-reviewer-b-seq0906",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-194-a6-lite-integration-0906",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-194-a6-lite-integration/attempt-4/round-1/integrated-summary.json",
+      "sha256": "473fdd4c4f755f2446e1b1e6a9ad859587ed84e5b45537ce642c3c5ca1b8174f"
+    },
+    {
+      "path": "reports/impl-review/epic-194-a6-lite-integration/attempt-4/round-1/precheck-result.json",
+      "sha256": "e100179117acb5eb7622c23f9a66b3b2b38a8148f8bc6ea8bb2b8ed221d45fb6"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/design.md",
+      "sha256": "559622b69879a0628f3accc7ed3d6564863a61be895287431b3cdbf3699af781"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+      "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+      "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "ccba1c282f5bf3d12971748d8ef56d048dc9db413174709b204938fd32add524"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "e0867913178a6129877623940331d04bf06e3dfa0608fb7b9ff2cc7c53e38200"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+      "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+      "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "Additive schema-revision design for A2-owned Registry artifacts (lite_policy object, lite-upgrade-reason-catalog.json vocabulary), one new A6-owned catalog contract (lite-check-catalog.json), documented (not implemented) extensions to protected sdd-lite scripts/skills (check-risk-upgrade.{sh,ps1}, risk-upgrade-policy.md, lite-spec/SKILL.md) and one currently-unprotected skill (lite-gate/SKILL.md); a Phase 1, contract-fixing design package (design.md header, lines 4-21).",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "Every named decision in design.md's 'Design Decisions' section (lines 1016-1135) carries an explicit rationale clause ('chosen because...', 'because...'): field-name reuse of `required_lite_checks`, the three-token catalog seed, keyword-before-Capability merge ordering, the no-re-validation scoping, the Step 2b no-op/unmapped rule, and the OQ-002 candidate-(a) selection each state why the alternative was rejected. The amendment's own new content (Design Decisions bullet 'No re-validation inside check-risk-upgrade', design.md:1068-1080, and the equivalent Processing step 2b text, :622-663) is judged fully (no TYPE-H shield applies to it) and is itself justified: it cites the measured trigger-forgery attack it closes (TEST-013m/n/p) and states why the check must run unconditionally before eligibility is consulted (investigation.md seventh entry, :2098-2147). No unjustified 'we will use X' decision found. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "design.md's '## Open Questions' section (lines 1274-1281) states all three requirements.md open questions (OQ-001/002/003) are CLOSED/RESOLVED by orchestrator ruling 2026-07-22, each with a citation to investigation.md's full reasoning (OQ-001 at investigation.md:504-527, OQ-002 at :529-567, OQ-003 at :569-598) and an explicit owner (orchestrator ruling) and disposition. This content is unchanged by the 2026-08-28 amendment and matches what a prior attempt's PASS evidence covered (TYPE-H convergence). Advisory: the section is a restated-and-closed summary rather than the literal per-entry 'Blocks Implementation: yes/no' / 'Resolution Path:' template fields, but since no open question remains live, the substantive requirement (owner + block-status + resolution path, all now moot because resolved) is met. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "investigation.md is present (2185 lines) with 21 INV-entries plus an extensive Amendment Re-Review Context. design.md's Assumptions section (lines 1247-1272) grounds each of its three bullets in a specific investigation.md citation (INV-003 re-verified 2026-08-25, A5's Pending status per investigation.md INV-002, and the Protected-File Statement's own live-re-verification discipline). The investigation.md-absent Major-finding trigger does not apply since investigation.md exists and is cited per-assumption. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "type": "TYPE-D",
+      "finding": "design.md has a '## Constraint Compliance' section (lines 1232-1245) addressing this repository's two standard project-wide constraints (file-length limit, type-safety/error-handling), consistent with every sibling Foundation epic's design.md. requirements.md carries no separate itemized '## Constraints' section beyond its own Security Boundaries/Global Constraints text, which design.md's Global Constraints (lines 1137-1157) and Security Boundaries (lines 1159-1196) sections address point-for-point (no new plugin, no heavy lite-gate machinery/ADR-0022 item 4 boundary, cross-runtime parity, fail-closed for every new input). No requirements.md constraint found unaddressed in design.md. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "No performance requirements found in requirements.md \u00e2\u0080\u0094 no numeric threshold, SLA, response-time, throughput, or concurrency statement appears anywhere in the Goals/Acceptance Criteria/Field Definitions. infra-spec.md's Service Level Objectives section (lines 114-123) independently confirms 'N/A \u00e2\u0080\u0094 no live service to hold an availability/latency SLO' and names the two correctness properties (byte-identical output, post-copy hash re-verification) as the closest analogs. No issues found."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1203-1230) is present and states: deployment target (this feature adds no new CI job, reuses the existing generate-gate-capabilities.py --check drift cycle), CI pipeline changes (none \u00e2\u0080\u0094 no new job/matrix dimension; the staged CI-workflow append adds steps to the existing job only, per the 2026-08-25 scoping ruling at lines 1214-1230), and the human-copy application path for the staged CI-workflow candidate. Feature-flag strategy is inapplicable (no incremental runtime rollout \u00e2\u0080\u0094 this is a static contract/skill-text change). Explicit 'migration execution order relative to deployment' phrasing is absent, but this feature has no separate application-deployment step for schema changes to sequence against (infra-spec.md: 'No cloud, no region, no network boundary... no runtime service'); the Data Plan's own migration rule (design.md:449-505) states the schema/catalog changes are strictly additive and backward-compatible, which is the substantive reason ordering does not matter here. Given the false-positive guard against requiring an inapplicable workflow, this is PASS. No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-D",
+      "finding": "design.md's Data Plan (lines 449-599) declares schema changes: `lite_policy`'s new `required_lite_checks` key (v1.1), a new `contracts/lite-check-catalog.json`, and a `catalog_version` bump to `lite-upgrade-reason-catalog.json`. Migration path/naming convention: staged under `specs/epic-194-a6-lite-integration/human-copy/<repository-relative-path>` with a `MANIFEST.sha256` entry (Protected-File Statement, lines 171-184). Rollback strategy: infra-spec.md's Rollback section (lines 157-200) states the exact procedure per file class \u00e2\u0080\u0094 a human re-running the feature-scoped anchored runner against corrected staged bytes for protected paths, standard `git revert` for unprotected data files \u00e2\u0080\u0094 and design.md's migration rule confirms no cross-version compatibility break to reconcile (additive-only, AC-002). Data volume/performance impact: the affected artifacts are small catalog files (3 and 12 entries respectively), well under the 10k-row threshold, so this bullet is trivially satisfied. No issues found."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "design.md's '## External Integrations' section (lines 1198-1201) states 'None. Every artifact this design reads or extends is already internal to this repository.' Internal cross-epic mechanisms this design invokes (A2's evaluate-predicate CLI, A4's capability-summary.schema.json validator, A5's Resolver-written capability-summary.yaml) are each documented in Cross-Layer Dependencies (lines 373-431) with contract and fail-closed failure behavior specified (e.g., absent/invalid Summary -> VERDICT: FAIL at lite-gate Step 2a/2b, design.md API/Contract Plan lines 717-760). No unlisted third-party or cross-service call found. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "Every design.md component/API surface traces to a requirements.md REQ (REQ-001..REQ-006 map exhaustively to Architecture, Components, Data Plan, and API/Contract Plan sections, each carrying explicit REQ/AC citations), and every requirements.md Goal (REQ-001..REQ-006) and User Story is addressed by a corresponding design.md section \u00e2\u0080\u0094 verified by cross-reading both documents in full. No component, endpoint, or data model appears in design.md without a requirements.md anchor; no requirements.md Goal is left uncovered. This project has no `design-system/` contract (no UI surface, ux-spec.md/frontend-spec.md both state N/A), so the design-system-compliance scope-creep clause does not apply. No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "type": "TYPE-H",
+      "finding": "High-risk surfaces present: the fail-closed `--capability-reasons` fragment contract (security/injection-adjacent), the Lite-check command-discovery contract (path-traversal/symlink/shell-injection defenses, NEW-01), and the lite-gate full-upgrade backstop (authorization-adjacent gate). Each names a concrete validation path: design.md Test Strategy items 1-17 (each a named fixture with an explicit AC citation), mirrored in acceptance-tests.md's TEST-NNN rows and security-spec.md's Security Tests table (lines 176-189) naming exact fixture files and expected results. The amendment's own new content, Test Strategy item 13 (design.md lines 949-962), is judged fully and is itself concrete: it names the exact exit-2 assertion required for the `eligible: true`/malformed-`upgrade_reasons` case and explicitly flags the vacuous-assertion trap to avoid ('never the absence of forged output tokens... vacuous for this case'), plus companion present-but-falsy pinning fixtures \u00e2\u0080\u0094 this is judged sufficiently concrete on its own merits, independent of any prior-attempt shield. No issues found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "type": "TYPE-D",
+      "finding": "SKIP: no `domain/` directory exists at the repository root (verified: `ls domain/` -> No such file or directory), so no `domain/context-map.md` with `Domain-Model-Status: Approved` and no `domain/domain-contract.json` exist. This check's applicability precondition is not met."
+    }
+  ]
+}

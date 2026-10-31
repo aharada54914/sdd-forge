@@ -1,0 +1,9 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "nonexistent_field",
+    "operator": "equals",
+    "value": "x"
+  },
+  "properties": {}
+}

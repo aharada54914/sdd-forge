@@ -1,0 +1,66 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 2,
+  "requirements_sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197",
+  "acceptance_sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0",
+  "run_id": "RUN-second-approval-mask-spec-round2-host",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0172",
+      "host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0172",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+          "sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/precheck-result.json",
+          "sha256": "f9d8b364ccfffbf4b2e2f33fb8fd939e023638719feea8a4a18518a888dd513a"
+        }
+      ],
+      "verdict": "PASS"
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-second-approval-mask-spec-spec-reviewer-b-seq0173",
+      "host_session_id": "SESS-spec-spec-reviewer-b-second-approval-mask-0173",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+          "sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/precheck-result.json",
+          "sha256": "f9d8b364ccfffbf4b2e2f33fb8fd939e023638719feea8a4a18518a888dd513a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/integrated-summary.json",
+          "sha256": "c9655565de5685540f2691eb190a15f3f154f4024f098281acdb011310bebd35"
+        }
+      ],
+      "verdict": "NEEDS_WORK"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

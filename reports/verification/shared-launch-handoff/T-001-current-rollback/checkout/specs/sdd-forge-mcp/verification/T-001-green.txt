@@ -1,0 +1,63 @@
+=== T-001 GREEN evidence ===
+Date: 2026-07-04T15:16:12Z
+
+--- npx tsc --noEmit (src/) ---
+tsc exit: 0
+
+--- npm run build (esbuild bundle) ---
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  2.0kb
+
+⚡ Done in 5ms
+build exit: 0
+
+--- npx tsc -p tsconfig.test.json (build tests) ---
+test build exit: 0
+
+--- npm test (node --test, GREEN: full implementation) ---
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node --test dist-test/tests/**/*.test.js
+
+✔ rejects a file larger than the 2 MiB limit with too-large (2.355125ms)
+✔ accepts a file exactly at the 2 MiB limit (3.2475ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.248958ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (0.43825ms)
+✔ isSddRoot is true for a properly-shaped SDD root (1.011916ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (3.867791ms)
+✔ denies reads under a .git/ directory (2.585916ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (1.504166ms)
+✔ denies .env files reached via an allowlisted directory (1.230334ms)
+✔ never includes file contents or the offending value in the denial message or details (1.152916ms)
+✔ rejects a relative path containing a parent traversal segment (2.538291ms)
+✔ rejects an absolute path argument outright (2.097291ms)
+✔ rejects an empty path as invalid input (1.153542ms)
+✔ rejects a path argument containing backslashes (1.501833ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (1.620333ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (0.735708ms)
+✔ allows a legitimate allowlisted file to be read (1.012208ms)
+✔ src/ contains no filesystem write API references (1.879833ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (0.423709ms)
+✔ resolved root is frozen and immutable after construction (1.749417ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (1.825375ms)
+✔ changing cwd after resolution does not affect the already-resolved root (1.429667ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (3.337917ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (1.433209ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (1.045291ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.723708
+test exit: 0

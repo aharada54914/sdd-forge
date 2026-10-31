@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "sdd-domain",
+  "attempt": 2,
+  "round": 2,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "82de1e27bc333bb59aacdde4e592e2382e010ddc513fb1b3acaf3a4268143e72",
+  "requirements_sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20",
+  "acceptance_sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7",
+  "design_sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb",
+  "traceability_sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298",
+  "layer_sha256": {"ux-spec.md":"187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466","frontend-spec.md":"70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39","infra-spec.md":"ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a","security-spec.md":"bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+  "input_sha256": "1f78264f73907622fc7e650bee2f7dd031572eb0abd4fb7b25ad914834f0dd59",
+  "generated_at": "2026-07-06T05:11:32Z"
+}

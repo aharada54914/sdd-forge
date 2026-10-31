@@ -1,0 +1,148 @@
+{
+  "task_id": "T-002",
+  "feature": "mcp-readonly-preflight",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "docs",
+  "spec_revision": "b18c6a438be2554cf84548624011d8396529144108e36a24a799397a6aff4e60",
+  "created": "2026-08-05T13:04:07Z",
+  "comment": "Populated for T-002 (staged ship-leg candidate + MANIFEST, commit 00752542). unit-tests evidence: per-item verification record incl. shasum -a 256 -c OK and the live-path-never-opened provenance checks. acceptance-tests: the acceptance-first mapping. regression: shared clean-worktree run-all log. The live-file half of AC-026 is red by design until the human applies the candidate; TEST-011/013 live-runtime halves and 3 of 4 AC-017..020 cells disclosed open (OQ-009).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/placeholder-T-002.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/T-002/02-verification-record.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/T-002/00-acceptance-first-mapping.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-007",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

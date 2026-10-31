@@ -1,0 +1,48 @@
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
+
+  Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
+    [-] the v2 schema file exists 37ms
+      Expected $true, but got $false.
+      44:         Test-Path $v2SchemaPath | Should Be $true
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 44
+    [-] parses as valid JSON 10ms
+      Expected no exception to be thrown, but an exception "Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist." was thrown from /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1:48 char:11
+          +         { Get-Content -Raw -Encoding Utf8 $v2SchemaPath | ConvertFrom …
+          +           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
+      48:         { Get-Content -Raw -Encoding Utf8 $v2SchemaPath | ConvertFrom-Json } | Should Not Throw
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 48
+
+    Context once parsed
+      [-] declares draft-07 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 54
+      [-] declares the domain-contract/v2 schema const 3ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 60
+      [-] declares root required schema/meta/contexts/concepts, exactly those four 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 65
+      [-] declares a v1-shaped meta definition (version/status/generated_from) 1ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 74
+      [-] declares concepts as a required top-level array with minItems 1 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 96
+      [-] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 103
+      [-] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 113
+      [-] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 0ms
+        ItemNotFoundException: Cannot find path '/Users/jrmag/Projects/active/sdd-forge/contracts/domain-contract.v2.schema.json' because it does not exist.
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 118
+
+  Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
+    [+] the v1 schema file still exists 3ms
+    [+] v1 schema file SHA-256 equals the recorded feature-start baseline 5ms
+Tests completed in 216ms
+Tests Passed: 2, Failed: 10, Skipped: 0, Pending: 0, Inconclusive: 0 

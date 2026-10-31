@@ -1,0 +1,170 @@
+{
+  "task_id": "T-012",
+  "feature": "epic-189-a1-project-context",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-04T05:20:00Z",
+  "comment": "Default-FAIL verification contract for T-012 (high, tdd). Populated after the quality gate reran T-012's own suite in BOTH lanes (bash tests/ship-track-selection-migration.tests.sh PASS 139 / FAIL 0 exit 0; pwsh -NoProfile -File tests/ship-track-selection-migration.tests.ps1 PASS 139 / FAIL 0 exit 0; ZERO skip lines in either lane, so every assertion genuinely executed on this platform; specs/epic-189-a1-project-context/verification/qg/T-012/focused-tests.log). The two lanes agree more tightly than T-011's: sorting each lane's assertion text and diffing leaves exactly ONE line on each side (the mirror-image self-registration check - the POSIX lane asserts the .ps1 twin exists, the PowerShell lane the .sh twin), and the RAW unsorted diff is that same single line and nothing else, so unlike T-011 there is no emission-ORDER divergence to explain. The 139 were decomposed from the section markers rather than taken on trust: 31 live-document conformance (TEST-035 / TEST-039 / TEST-CGS / TEST-PRESERVE) + 6 fixture construction (TEST-025 / TEST-026) + 13 six independent present-but-invalid reasons (TEST-026) + 30 six-case matrix x five consumers (TEST-039) + 5 route-distinctness (TEST-026) + 9 sdd-ship error-stop and promotion behavior lock (TEST-025) + 12 capability-gate scope both directions (TEST-CGS) + 5 staged/live publication state (TEST-PUB) + 25 mutation detection power (TEST-MUT) + 3 self-registration = 139. ONE DISCREPANCY AGAINST THE FROZEN seq0371 REPORT is recorded rather than corrected, per this feature's precedent of not editing a frozen gate report: reports/quality-gate/2026-08-04T044444Z-T-012.md:24 enumerates its own per-block tallies as 'doc-conformance 31, fixtures 6, TEST-026 18, TEST-039 30, TEST-CGS 12, TEST-PUB 5, TEST-MUT 25, self-registration 3 = 139', but those eight figures sum to 130 - the TEST-025 behavior-lock block (9 assertions) is missing from the list, while the evaluator's TEST-026 figure of 18 correctly folds this log's 13 + 5. The TOTAL of 139 is right and matches this round's own count; only the enumeration is incomplete. HUMAN-APPLY STEP COMPLETE, which is T-012's distinguishing Done-When item and is evidenced by this round's own measurements rather than by report. The applying commit is c50f2c64 ('feat(epic-189-a1): apply the staged ADR-0023 track-selection migration to the protected consumers (T-012)'); `git log --oneline -1 --` against each protected live path returns c50f2c64 for BOTH, so that commit and no other carries the applied bytes. A human performed the apply through the now-protected apply-human-copy as TWO SINGLE-TARGET BATCHES; a single two-target batch is IMPOSSIBLE, not merely discouraged, because both targets' basename is literally SKILL.md and the publisher refuses a same-basename batch at manifest-parse time before any live mutation (plugins/sdd-quality-loop/scripts/apply-human-copy.sh:570-578, EXIT_DUPLICATE_BASENAME_IN_BATCH=19 at :102). That was demonstrated EMPIRICALLY this round, not argued from the spec: driven against an isolated git clone --local of HEAD in a throwaway directory outside the repository with a hand-written two-entry manifest naming both protected paths, the publisher emitted {\"status\":\"denied\",\"category\":\"DUPLICATE_BASENAME_IN_BATCH\", ...} and exited 19, and `git status --porcelain` in that clone was EMPTY afterwards, confirming the refusal preceded any mutation. This is round 1's Major finding and is why the runbook prescribes two batches. POST-APPLY LIVE DIGESTS measured with shasum -a 256 at HEAD: 0761a91547375da3456a5aa60d220543f3831d2e1986086f10a70a037bd6d5c9 plugins/sdd-ship/skills/ship/SKILL.md and 757c681731aa766bf95ec016fc0f4a39216feb00a9ecca71f8b70a94cb1a9679 plugins/sdd-lite/skills/lite-spec/SKILL.md - EQUAL to the staged candidates' digests exactly, and strengthened from digest equality to BYTE equality by cmp, which exits 0 for each live/staged pair. Pre-apply digests read out of git rather than remembered (`git show 856c514f:<path> | shasum -a 256`): 5748a0928443bc63307bf3ab7bdb75c158bdfbef9cde72e3b3f5354bac063e91 (ship) and 40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74 (lite-spec) - the same two values the seq0371 report independently reconstructed by reverse-applying each persisted diff onto the staged candidate, so the pre-state, the delta and the post-state now agree from three directions. `shasum -a 256 -c MANIFEST.sha256` run from specs/epic-189-a1-project-context/human-copy/ reports OK for all TEN entries, exit 0, including ship (entry 9) and lite-spec (entry 10). TEST-PUB now reports `published` for both consumers, `no staged/live drift` for both, and its pair-consistency assertion green - the first time the published branch has been exercised against a real post-apply repository rather than only via the M2 mutant, and that primacy was MEASURED: the same suite extracted with git archive at d3e8d631 (the commit immediately before the apply) into a throwaway directory reports `unpublished` for both and still tallies 139/0, so the suite passes in BOTH terminal publication states and is vacuous in neither. Regression run as the epic-189-a1 ELEVEN-suite set (every suite except T-012's own) via INDIVIDUAL runs, both lanes, all twenty-two green with exit 0 (project-context-schema 44/0 x2, canonicalizer 80/0 + 77/0, signer 59/0 + 57/0, approver-registry-schema 8/0 x2, detector 60/0 + 59/0, validator 40/0 + 39/0, publisher 218/0 + 146/0, handshake 88/0 + 87/0, guard-invariants-epic-a1 81/0 + 85/0, hook-guard-epic-a1-boundary 211/0 + 207/0, plugin-contracts-track-selection 106/0 + 106/0 - that last suite newly added to the set now that T-011, whose own focused suite it was, has landed; specs/epic-189-a1-project-context/verification/qg/T-012/regression.log). TWO tallies MOVED since T-011's log and both are recorded rather than glossed, and both moved because T-012 ITSELF changed the suite: guard-invariants-epic-a1 is 81/0 + 85/0 here where T-011 recorded 78/0 + 82/0, and plugin-contracts-track-selection is 106/0 + 106/0 where T-011's own focused log recorded 80/0 + 80/0. Both tests/guard-invariants-epic-a1.tests.{sh,ps1} and tests/plugin-contracts-track-selection.tests.{sh,ps1} appear in `git diff --name-only 856c514f HEAD`; the seq0371 report attributes the guard-invariants delta to the frozen ENTRIES = 8 assertion being replaced by a floor >= 8 plus a duplicate check plus two new by-name pins, and the plugin-contracts delta is this task extending that suite's matrix from four documents to the full five-consumer set. Intended scope, not drift; every other suite's tally is unchanged from T-011's log. Individual-suite mode is used because tests/run-all.sh runs a fixed ordered list of 61 suites under set -euo pipefail (run-all.sh:3) and aborts at the first failing suite, while the epic-189-a1 suites sit at tests/run-all.sh:57-68, positions 49-60 of 61, behind 48 unrelated suites. The exclusion reason was MEASURED THIS ROUND, not inherited: a full bash tests/run-all.sh against an isolated git clone --local of HEAD (c50f2c64) in a throwaway directory started 21 suites (`grep -c '^==> '` = exactly 21) and aborted at the 21st, tests/turn-first-workflow.tests.sh ('not ok: implementation report template omits: ## Output Paths And Hashes', exit 1), and a grep of that same captured output for any epic-189-a1 suite name returns 0 - the aggregate runner never reaches ANY of them. The failing assertion is at tests/turn-first-workflow.tests.sh:290 and reads $IMPLEMENTATION_REPORT_TEMPLATE, resolved at :8 to plugins/sdd-implementation/templates/implementation-report.template.md, last touched by the unrelated commit 825d6c66 (epic-159 Pillar C) and absent from T-012's 36 changed paths. The stale claim that run-all aborts at tests/prepare-panelist.tests.sh, carried by the T-006..T-009 logs, is deliberately NOT repeated and was re-disproved by measurement this round: that suite reports 'Results: 32 passed, 0 failed', exit 0. Every sh-lane regression run uses bash rather than POSIX sh, matching T-007..T-011, because suites across this epic's guard surface use process substitution. The regression log carries a clearly-labelled SUPPLEMENTARY section BEYOND the required set - the three adjacent guard suites, recorded for continuity with the T-009/T-010/T-011 chains rather than because T-012 is in their blast radius: phase2-guard-invariants 33/0 (bash lane), guard-staging-exemption 33/0, guards 133/0 (bash lane). TWO pre-existing failures appear there, each PROVEN pre-existing by this round's own re-measurement rather than by citing the carryover note. (1) tests/phase2-guard-invariants.tests.ps1 fails 9 (59 passed / 9 failed, exit 1); all nine are TEST-013 cases resting on Windows/NTFS semantics exercised on macOS, and the bash twin passes 33/0. (2) tests/guards.tests.sh is INVOCATION-DEPENDENT: under bash it is 133 passed / 0 failed (exit 0), but under POSIX sh it fails 'sh: copilot deny -> JSON deny' and aborts (46 ok lines, no Results line, 48 lines total, exit 2); the failing case name labels the guard's sh IMPLEMENTATION, not the harness shell, and the deny JSON it emits carries an embedded newline the POSIX-sh harness path does not survive. Proof for both: `git rev-parse --short 0afedf33^` = 856c514f (the commit immediately before T-012's first commit), `git log --oneline 856c514f..HEAD -- tests/guards.tests.sh tests/phase2-guard-invariants.tests.ps1 plugins/sdd-quality-loop/scripts/` returns 0 commits and `git diff --stat 856c514f HEAD -- plugins/sdd-quality-loop/scripts/` is empty; the tree at 856c514f was then extracted with git archive into a throwaway directory where both reproduce identically - the guards sh-lane output is byte-identical at sha256 0bdd7b370d972aff62a442ba6335c09e11a74d32e8cf64217f77c7ccf5616afb (the SAME digest T-010's and T-011's chains recorded, so the failure is unchanged across three rounds) and the phase2 pwsh FAIL-line sets diff empty at 9 lines a side. Neither is attributable to T-012 and neither gates the regression check, whose evidence is the twenty-two green runs. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-012/placeholder.log: 'Placeholder scan passed.', exit 0, over T-012's entire changed source surface derived from the commit range rather than from the Planned Files list - the two LIVE protected consumers, their two staged candidates, the staged .github/workflows/test.yml, tests/ship-track-selection-migration.tests.{sh,ps1}, tests/plugin-contracts-track-selection.tests.{sh,ps1}, tests/guard-invariants-epic-a1.tests.{sh,ps1}, tests/run-all.sh and tests/run-all.ps1: thirteen paths). This is the first task in the feature whose scanned surface includes LIVE R-10-protected files, because the human-apply has landed; live and staged are scanned independently and both are clean, though they are byte-identical so the four scans are not four independent chances to find a marker. CHANGELOG.md is excluded from that scan and the log records the measured reason rather than leaving the omission unexplained: adding it produces 5 findings, all long-standing prose that DESCRIBES the placeholder scanner's own behaviour, and re-running the scan on the pre-T-012 tree (git archive 856c514f) reproduces the same five at line numbers exactly 35 lower - T-012's CHANGELOG change is a single 35-line insertion at line 619 (`git log --oneline 856c514f..HEAD -- CHANGELOG.md` names exactly one commit, afac24ed, and `git diff --unified=0` reports a single hunk @@ -618,0 +619,35 @@), so it introduced no marker and merely shifted five pre-existing ones. Task-state (13 tasks passed, with T-001..T-011 contracts and evidence bundles revalidated in the same run; specs/epic-189-a1-project-context/verification/qg/T-012/task-state.log) and requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-012/traceability.log; the REQ-009 + REQ-010 -> AC/TEST-025/026/035/039 chains verified directly against tasks.md:2503, requirements.md:882 and :951, traceability.md:16/17/44/75/76/85/89/113, acceptance-tests.md:47/48/57/61 and both suite lanes, plus suite self-registration at tests/run-all.sh:68 / tests/run-all.ps1:51, twelfth in numeric order immediately after plugin-contracts-track-selection) are both green. The AC->TEST->task table was checked in BOTH directions rather than by scanning for T-012: exactly four rows assign an AC to T-012, and filtering the whole AC table for those four AC ids returns those same four rows and nothing else, so there is no double-claim in either direction. Unlike T-011, whose suite referenced TEST-025 ZERO times in both lanes, all four TEST ids are now non-zero in both lanes (TEST-025 13/13, TEST-026 20/18, TEST-035 3/2, TEST-039 11/5), which discharges T-011's explicit deferral. The traceability log additionally records five facts the gate observed rather than adjudicated: (a) AC-035's fifteen handshake assertions are genuinely per-consumer (5 x 3) and AC-039's thirty genuinely 6 cases x 5 consumers, both counted out of this round's transcript, BUT for ship and lite-spec the suite reads the STAGED candidate path rather than the live path, a consequence of the suite predating the apply - the live files are not left unasserted, since live and staged are byte-identical (cmp exit 0) and TEST-PUB independently pins 'no staged/live drift' for each, which is the assertion that carries the staged-path results onto the live files; (b) the STAGED CI workflow candidate now registers FIVE of this feature's TWELVE suites (project-context-schema test.yml:221/225, approver-registry-schema :232/:236, hook-guard-epic-a1-boundary :246/:250, plugin-contracts-track-selection :261/:265 and, new in T-012, ship-track-selection-migration :278/:282), the SEVEN others being present in both runners but not in the staged workflow - the absence proved by a single grep over the staged workflow for all twelve suite basenames returning exactly those ten lines and no others, so T-011's 'four of eleven' becomes 'five of twelve' with the shortfall unchanged at seven, disclosed by the implementer, backfill assigned to T-013, carried rather than assumed closed; (c) REQ-009's requirement row, SHARED between T-011 and T-012, now has T-012's half present on disk, so nothing in it is outstanding; (d) the seq0371 second Minor - the scan-bypass rule reworded from '--full is the only scan bypass' to 'A resolved full track is the only scan bypass' with no assertion pinning it - is a hardening candidate registered as carryover, not a T-012 defect, the gate having proved no check is loosened by walking all six contract cases; (e) carryover registration was COUNTED rather than taken on trust - commit d3e8d631 added FOUR sections covering seq0371 Minors 1-4, while Minor 5 (run-all aborting before T-012's suite is reached) is already covered by the pre-existing section naming tests/turn-first-workflow.tests.sh as the 21st-suite abort point, re-confirmed by this round's own run-all measurement, and Minor 6 records the evaluator's out-of-manifest scope limits and carries no repository-side action; so 'the six Minors are registered' is true in substance, and the on-disk shape is four new sections plus one pre-existing section plus one non-carryable item. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set). TDD red = specs/epic-189-a1-project-context/verification/T-012/red-sh.log (PASS 58 / FAIL 76) with its twin specs/epic-189-a1-project-context/verification/T-012/red-ps1.log (58 / 76) - identical tallies in both runtimes against the CURRENT, unmigrated consumer text; green = specs/epic-189-a1-project-context/verification/T-012/green-sh.log (139 / 0) with its twin .../green-ps1.log (139 / 0). Independent skeptical evaluation PASSed on the SECOND round, seq0371 (reports/quality-gate/2026-08-04T044444Z-T-012.md, sha256 7d8834db7ee068a3038e375b2c2e3d1ccf447a60c44989b157f9177841715710, 0 Critical / 0 Major / 6 Minor recorded); round 1, seq0370 (reports/quality-gate/2026-08-04T034559Z-T-012.md), returned NEEDS_WORK and was closed by remedy commits 4e682587 and ded58409. Risk high (not critical) means the evidence bundle is generated here in the same manner as T-002..T-006, T-008, T-010 and T-011, with no second-approver signature required by generate-evidence-bundle.sh - verified this round by READING the script rather than assuming: signing is gated on `if contract_risk == \"critical\":` at generate-evidence-bundle.sh:390, and spec_revision was recomputed from its definition there (sha256 over the concatenated bytes of requirements.md, design.md and acceptance-tests.md in that order, generate-evidence-bundle.sh:203-222) rather than copied from T-011's contract; it happens to be unchanged because none of those three frozen files moved. specs/epic-189-a1-project-context/verification/T-012/remedy1-evidence.sh was deliberately NOT re-run in place: its OUT=\"$HERE\" overwrites two committed, hash-pinned diff artifacts, which is registered carryover, so this chain reproduces nothing through it. Two enforcement denials were encountered during this run and NEITHER was bypassed or reshaped to evade: the CC safety net refused an `rm -rf` of a scratch path outside the cwd (worked around by cloning into a fresh mktemp -d instead of reusing a path, i.e. by not performing the destructive operation at all), and the repository's own deterministic gate denied a compound command that combined a redirect with an invocation of a gate script - the sanctioned fix, splitting it into a separate file-write and a separate invocation, was applied and the denial is reported verbatim to the coordinator. One artifact of the bundle GENERATOR is recorded here rather than left to look like a contradiction: the generated T-012.evidence.json carries review_verdict.minor = 0 although the frozen seq0371 report records SIX Minors. The cause was read out of the script, not guessed - generate-evidence-bundle.sh:255 counts findings by matching a `Minor: <N>` summary line, and this feature's reports do not emit one (`grep -c '^Minor:'` over the seq0371 report returns 0 while `grep -c '^- \\[Minor\\]'` returns 6, the bullet form the reports actually use). The same review_verdict.minor = 0 appears in T-008's, T-009's, T-010's and T-011's bundles, all of which likewise carried non-zero Minors, so this is long-standing generator behavior across the whole feature and not a T-012 discrepancy. The authoritative counts are 0 Critical / 0 Major / 6 Minor, as recorded in the report itself and above in this comment. This chain-authoring commit touches no tasks.md line at all.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-012/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-012/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-012's scope; the task's fixture half nonetheless drives the REAL in-repo signer and validator end-to-end (generate-approval-sidecar and validate-approval-sidecar, including the rotated-key case) from scratch-directory fixtures only, and the REAL publisher was driven end-to-end against an isolated clone to demonstrate the DUPLICATE_BASENAME_IN_BATCH exit-19 refusal. Both exercises are recorded in focused-tests.log and traceability.log respectively.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-012/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-012/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-012/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-009",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the signer, validator and publisher CLIs are smoke-exercised end-to-end by this round's fixture assertions and the exit-19 publisher demonstration, and the migrated consumer documents are prose contracts with no runnable entry point of their own.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature. T-012 deliberately CHANGES the real-world-enforced track-selection precedence per ADR-0023 rather than preserving prior behavior, so a differential baseline would be the wrong instrument; the intended change is instead pinned from both ends - the Red logs assert the new contract against the CURRENT unmigrated live text (58 pass / 76 fail in both runtimes), and the pre-apply live digests 5748a092... (ship) and 40fdba6f... (lite-spec) are recorded against the post-apply 0761a915... and 757c6817..., so the prior behavior is captured explicitly and by content hash.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-012's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

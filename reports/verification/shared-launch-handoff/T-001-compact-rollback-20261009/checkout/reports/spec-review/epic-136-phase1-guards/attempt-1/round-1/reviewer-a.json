@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-epic136guards-a1r1-20260711-d4e5",
+  "host_session_id": "hs-spec-a-epic136guards-0148",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "73bd0a31e6298d3ce7893d8056a648833f7d7cef97714d1e53b47ebf4c972351"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "dbacfa5593b7477237b7ba35547058ed140eaec8166f84d3884407381e4c83ff"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+      "sha256": "21fc9899f66f1d5282a95a6ad8daa16833e13491ab129d6ab2d4a2035e40408b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All six goals (REQ-001..REQ-006) resolve to concrete script- or config-level pass/fail outcomes with named artifacts; Edge Cases give concrete boundary conditions."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal is tagged with its issue and traced by at least one acceptance criterion citing the requirement ID; acceptance-tests.md mirrors the REQ column."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All acceptance criteria describe externally observable outcomes (deny/allow decisions, exit codes, document conformance, workflow fail/pass) with a Test Type and Target each."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals bound five expansion vectors; Assumptions pin the human-copy scope to PROTECTED_GATE_SUFFIXES."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PowerShell 5.1 ASCII-only, read-only short-circuit preservation, human-only copy with SHA-256 manifest, and a three-boundary security table are all stated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Four risk claims each tie to a named acceptance criterion, test, or documented rationale."
+    }
+  ]
+}

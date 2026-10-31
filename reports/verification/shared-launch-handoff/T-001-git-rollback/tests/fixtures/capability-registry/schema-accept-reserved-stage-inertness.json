@@ -1,0 +1,8 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {"id": "publish-release-notes", "stage": "artifact", "blocking": false},
+    {"id": "promote-to-stable", "stage": "promotion", "blocking": true}
+  ],
+  "capabilities": []
+}

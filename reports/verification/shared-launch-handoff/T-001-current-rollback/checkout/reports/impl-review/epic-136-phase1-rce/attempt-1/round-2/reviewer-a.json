@@ -1,0 +1,35 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-epic136rce-a1r2-20260710-0011",
+  "host_session_id": "hs-impl-a-epic136rce-0141",
+  "legacy_design": false,
+  "feature_type": "bugfix / local shell security boundary",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-1/integrated-summary.json", "sha256": "f3b0c23c7f0a58ae261b85069fe82be705bad312ff10387ab3bf9ca44b3f2dc7"},
+    {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-2/precheck-result.json", "sha256": "e3aae957144c6caf509a2d04c163ab5065ba31707b2324a2104f146e8245504a"},
+    {"path": "specs/epic-136-phase1-rce/acceptance-tests.md", "sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c"},
+    {"path": "specs/epic-136-phase1-rce/design.md", "sha256": "65a86eed5c8bdefbc92ac0950e798a066a26ed407523ee637672dad9abbf795f"},
+    {"path": "specs/epic-136-phase1-rce/frontend-spec.md", "sha256": "de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790"},
+    {"path": "specs/epic-136-phase1-rce/infra-spec.md", "sha256": "b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26"},
+    {"path": "specs/epic-136-phase1-rce/requirements.md", "sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59"},
+    {"path": "specs/epic-136-phase1-rce/security-spec.md", "sha256": "296432b7c0e28d5a3958bb7accef8964ad8d74cbc540d558ac482f75034d8a7a"},
+    {"path": "specs/epic-136-phase1-rce/ux-spec.md", "sha256": "72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d"}
+  ],
+  "checks": [
+    {"id": "ARCH-COVERAGE", "result": "PASS", "severity": "Minor", "finding": "design.md defines the shell, environment, quoted Python verifier, consent decision, bundle writer, and REQ/AC links."},
+    {"id": "NO-CIRCULAR-DEPS", "result": "PASS", "severity": "Minor", "finding": "The design specifies a one-way input-to-verifier-to-consent flow with no declared circular dependencies."},
+    {"id": "DATA-COVERAGE", "result": "PASS", "severity": "Minor", "finding": "The data plan and security specification define process-local HMAC inputs, fixture lifecycle, and no persisted-data change."},
+    {"id": "API-COVERAGE", "result": "PASS", "severity": "Minor", "finding": "The internal token, canonical-message, exit-code, consent-label, and output-bundle contract is preserved."},
+    {"id": "SECURITY-COVERAGE", "result": "PASS", "severity": "Minor", "finding": "The security specification covers injection prevention, real HMAC validation, fail-closed consent, key protection, and planned verification."},
+    {"id": "FRONTEND-BACKEND-CONSISTENCY", "result": "PASS", "severity": "Minor", "finding": "The frontend specification correctly marks browser work out of scope and agrees with the local CLI implementation."},
+    {"id": "TEST-STRATEGY-COVERAGE", "result": "PASS", "severity": "Minor", "finding": "TEST-001 through TEST-007 cover shell and PowerShell real-HMAC, tamper, hostile-input, invalid-validation, and isolated-fixture paths."},
+    {"id": "NO-UNDEFINED-COMPONENT", "result": "PASS", "severity": "Minor", "finding": "Every planned script, helper, decision point, and test participant is defined and scoped."},
+    {"id": "ADR-PRESENT", "result": "SKIP", "severity": "Minor", "finding": "No public contract, architecture, or data-model change requires an ADR for this internal correction."},
+    {"id": "DESIGN-SYSTEM-CONFORMANCE", "result": "PASS", "severity": "Minor", "finding": "No rendered UI exists, so visual design-system requirements are inapplicable."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "PASS", "severity": "Minor", "finding": "The plan preserves existing SDD_SUDO semantics and introduces no domain model, persistence, or external contract."}
+  ],
+  "verdict": "PASS"
+}

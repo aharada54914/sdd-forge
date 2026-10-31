@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-b-seq0321",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-189-a1-project-context-0321",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/requirements.md", "sha256": "c02197de9270a7c5e2a3ad056c9f4577f61fba2aaf817fbbb2d49942ad91d1e3"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "874fb3dbc2a1a03fdef1d11a8bf15b1d7e67c59c9400f0ea3bf1068509b540ab"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-1/precheck-result.json", "sha256": "f70b25d780fbf3aa32c86ccc6777e99b5df360bc3be525c5f6183b3b7fc91fb8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-1/integrated-summary.json", "sha256": "36e21ec7887f76ad0cd5dd8a5e231c02b9595d078943ecb04eb701db2bc0d2fc"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "sdd/approver-registry.yaml is designated by REQ-006 ('the detector additionally reads sdd/approver-registry.yaml ... two_person_required: true when the registry lists 2 or more distinct real identities'), by REQ-004 ('primary_approval.approver and second_approval.approver ... are each the immutable id field of an entry in sdd/approver-registry.yaml'), by Field Definitions ('Each entry's id is the immutable identity key ... never the entry's name'), and by Roles and Permissions ('is the sole registered identity in sdd/approver-registry.yaml (or one of several)') as the load-bearing file for the two-person-approval security gate, yet no REQ anywhere defines this file's concrete shape: no contracts/approver-registry.schema.json is specified (unlike REQ-001/REQ-002/REQ-004, which each fully enumerate every field of project-context.yaml/provider-bindings.yaml/the approval sidecar at the requirements level), no top-level key or list-vs-map structure is named, and no field beyond id/name is enumerated (no stated `schema` version const, no `active`/`revoked` flag, no timestamp field). This is a qualitatively different gap than this package's other design.md deferrals (the glob-coverage algorithm, the Field Requirement Matrix's exact JSON-Pointer list), each of which defers only algorithmic/formatting depth after requirements.md has already fixed the full field-level shape; here no field-level shape exists at all in Phase 1 scope. Downstream failure mode: two implementers would plausibly build genuinely different file structures for this file (e.g., a bare list of {id, name} vs. a schema-versioned object with an `approvers:` key and extra metadata), breaking the shared contract REQ-004/REQ-005/REQ-006 all depend on. This belongs to spec review because REQ-001/002/004 establish that defining a new artifact's field-level shape is this package's own Phase 1 responsibility for every other new artifact it introduces; only algorithmic depth is deferred elsewhere. Severity Major per calibration: a missing constraint on a security-critical artifact causing likely downstream divergence, not a contradictory or unreviewable goal."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements, acceptance criteria, constraints, or non-goals. Cross-checked internal arithmetic that could reveal contradiction and found it self-consistent: REQ-007's protected-manifest count (canonicalizer 4 + hash generator 3 + validator 3 + weakening detector 3 + handshake 3 + data files 6 + human-copy publisher 2 = 24 concrete, + resolver 3 + generated projection 1 = 4 reserved) sums to the 28 AC-021 states exactly; REQ-006's nine weakening categories (3 implemented + 6 documented N/A) match AC-016's 'sums to exactly nine' requirement exactly; REQ-009's physical-presence-vs-validation-failure routing (PROJECT_CONTEXT_INVALID vs. the compatibility fallback) is stated identically and without variance across REQ-009's own text, AC-026, the Edge Cases section, and Security Boundary B5. Non-goals (Reverse Coverage Gate, Capability Registry/Resolver, tasks.md/traceability.md deferral) are each consistently cross-referenced elsewhere rather than silently contradicted."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-018 (REQ-006) exercises only a 2-identity registry (two_person_required: true) and a 1-identity registry (two_person_required: false, cooldown_hours: 24); no acceptance criterion covers a 0-identity (empty) registry, a structurally malformed registry, or a registry containing two entries sharing the same id (the direct analogue of AC-040's DUPLICATE_COMPONENT_ID/DUPLICATE_BINDING_ID checks REQ-001/REQ-002 require for their own arrays). These are material boundary/failure states the requirements themselves imply: REQ-005 step 3 requires primary_approval.approver to already be a registered id before any sidecar can validate, so an empty registry is a real bootstrap/failure boundary (can a Project Context ever be validly signed with zero registered approvers?) the spec never addresses; REQ-006's two-person verdict logic depends on counting *distinct* identities, so duplicate ids within the registry's own entries (not the same-id-used-twice-in-one-sidecar case AC-014/AC-019 already cover) could silently inflate or deflate that count with no documented rejection. This belongs to spec review because it is a missing acceptance-criterion for a security-boundary failure mode implied directly by REQ-005/REQ-006's own text, not an implementation-architecture omission. Severity Major: an unhandled boundary state in a security-critical mechanism with no planned validation surface."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (4 items) and investigation.md's Open Questions (OQ-001..OQ-003) are each either resolved with a cited investigation/coordinator finding (OQ-003: 'RESOLVED by coordinator decision (2026-07-22)'; OQ-002: 'resolved provisionally by REQ-001's array choice') or explicitly flagged for task-start re-verification without blocking downstream work (e.g., 'an implementer of this epic's tasks re-verifies both at task-start time before relying on the human-copy procedure'). No stated assumption is left silently unaddressed at the decision level. (The approver-registry.yaml file-shape gap identified under AMBIGUITY/EDGE-CASE-COVERAGE is a missing definition, not an unresolved stated assumption -- OQ-001, which addresses only the registry's file location, is itself resolved.)"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This package's central mechanism is a human/CI-only-signed approval boundary (ADR-0019): REQ-004 restricts SDD_CONTEXT_KEY custody to a human/CI principal ('the signing operation always requires a human or CI principal holding SDD_CONTEXT_KEY'), REQ-007/REQ-008 enforce full-write-deny with no sudo bypass on the sidecars/registry, and REQ-006 conditionally activates two-person approval. Each boundary is concretely testable via a named acceptance criterion: AC-011/AC-034 (staged-only signing, no live-path write), AC-019 (two-person refusal + DUPLICATE_APPROVER_IDENTITY), AC-020 (cooldown gate), AC-021/AC-022 (staged-vs-live protected-file separation), AC-023 (96-cell full-write-deny + never-bypass-under-sudo matrix), AC-033 (human-copy anchored-publisher, atomic multi-target transaction with crash recovery). The boundary is testable, not merely asserted."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Because sdd/approver-registry.yaml's field-level shape is never defined anywhere in requirements.md (see AMBIGUITY finding), a downstream design/implementation-policy reviewer inheriting this package would have to invent this security-critical file's product-level structure (list vs. map, required fields, presence/absence of a schema-version field) themselves -- the exact outcome this check exists to prevent, given REQ-001/REQ-002/REQ-004 demonstrate this package's own established practice of fully specifying a new artifact's field-level shape at the requirements stage before deferring only algorithmic/formatting depth to design.md. The gap is narrowly scoped (one of four new schema-bearing artifacts this epic introduces is missing its Phase 1 field definition) within an otherwise exceptionally detailed and internally consistent ~2,200-line package, but it is a genuine invented-product-behavior risk specifically for the file the two-person-approval security boundary (B4) depends on. Severity Major: a missing constraint that would force the next review stage to originate product decisions rather than verify them."
+    }
+  ]
+}

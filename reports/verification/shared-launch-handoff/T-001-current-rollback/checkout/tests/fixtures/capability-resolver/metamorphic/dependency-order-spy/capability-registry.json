@@ -1,0 +1,31 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-spy",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.pii",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [
+        {
+          "facet": "spy-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.ui",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "lite_policy": {"eligible": true},
+      "delivery_strategy": {"kind": "cap-spy"}
+    }
+  ]
+}

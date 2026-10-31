@@ -1,0 +1,15 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: src/envelope.ts and src/server.ts not yet implemented — the
+# pretest compile fails, so no tests can run. This is the genuine
+# failing-first (Red) state for the T-001 acceptance test
+# (tests/envelope/envelope.test.ts, tests/envelope/server-startup.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/envelope/envelope.test.ts(22,38): error TS2307: Cannot find module '../../src/envelope.js' or its corresponding type declarations.
+tests/envelope/envelope.test.ts(23,32): error TS2307: Cannot find module '../../src/envelope.js' or its corresponding type declarations.
+tests/envelope/server-startup.test.ts(23,29): error TS2307: Cannot find module '../../src/server.js' or its corresponding type declarations.
+
+npm test exit code: 2

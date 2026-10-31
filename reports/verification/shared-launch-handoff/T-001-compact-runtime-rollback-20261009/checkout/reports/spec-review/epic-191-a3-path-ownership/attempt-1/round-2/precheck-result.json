@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "4ebfe16c671c17bff55898001ae06c4849453af06b6364026769909212dbcd04",
+  "acceptance_sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "144cdb710767d7f8e91b2ccc2e821508c54fb591923a49e13660177baf58e827",
+  "edit_summary": "Removed undefined Fail-6 'binding facet/binding revision' clause from REQ-004/AC-033; adapter_paths glob match against an EXCLUSIVE-owned changed path is now the sole trigger condition, aligned with design.md's Fail-6 scope decision; TEST-033 updated to match.",
+  "reset": false,
+  "generated_at": "2026-07-21T22:05:43Z"
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-009",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two problems. (1) Item 1's citation is imprecise: 'First cross-model task of the feature: ... (Feature gate report, Cross-Model Verification section; first-round verdicts superseded in git history.)' names neither a task ID nor a file path. It IS traceable -- verified against reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-006.md '## Cross-Model Verification' section ('an earlier panel round on an under-filled bundle ... returned 3x NEEDS_WORK for missing evidence; the bundle was rebuilt WITH the implementation artifacts and the panel re-ran fresh and blind') and specs/epic-136-phase1-guards/verification/T-006.cross-model.json git history (commit 0f8f00a, result PASS) -- but the WFI text itself gives no ID a reader/auditor can resolve without independent search. (2) The Frequency claim is factually contradicted by verifiable artifacts: 'Frequency: 2 occurrences across 2 tasks in one feature (the only two cross-model-enabled tasks of the period) -- every blind-panel first run this period failed for evidence-completeness reasons.' tasks.md shows THREE tasks carrying `Cross-Model: enabled` this period (specs/epic-136-phase1-guards/tasks.md lines 57 T-001, 153 T-002, 498 T-006), and T-002's cross-model panel passed cleanly on its only recorded round: specs/epic-136-phase1-guards/verification/T-002.cross-model.json was created directly with `\"result\": \"PASS\"` (commit c5a08b1, no prior FAIL state, unlike T-001's file which shows FAIL->PASS across commits c5a08b1->4f037a2), and reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md '## Cross-Model Verification' records 'Verdicts: anthropic PASS, openai-slot PASS, google-slot PASS. check-cross-model: consensus PASS, 3 distinct vendors, digest match.' with no mention of any prior failed round or re-staging (contrast T-001 and T-006's reports, which both narrate a failed first round). The true rate this period is 2 of 3 cross-model-enabled tasks / first runs (67%), not 'the only two' / effectively 100% as the WFI states. This same inaccurate framing is repeated verbatim in '## Expected Effect' ('2 per feature (this period -- 2 of 2 first runs)')."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names two specific mechanisms rather than restating the symptom: '(a) whether the sanitized bundle actually contains every artifact the implementation report declares as its outputs, and (b) whether a specification-enumerated coverage bar ... is exercised by the delivered test corpus. Because no deterministic pre-panel check exists for either property, evidence-completeness gaps ride through bundle assembly and are discovered by the panel itself, converting a cheap listing comparison into a full panel round.' This identifies a causal mechanism (absence of a deterministic pre-panel check) distinct from the symptom (expensive panel rounds failing on completeness), matching the PASS example pattern in wfi-category-guide.md Section 2."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category is plugin-improvement; scanned '## Root Cause Hypothesis', the Change Description column of '## Proposed Change', and '## Expected Effect' against the Forbidden Term table in wfi-category-guide.md Section 2 (sdd-impl-review, impl-review-loop, quality-gate, sdd-bootstrap-interviewer, spec-review-loop, implement-task, workflow-retrospective, spec_review_rounds/impl_review_rounds/task_review_rounds, *_blocked_rate, impl_review_legacy_design_rate, legacy_design, sdd-sudo/sdd-lite/sdd-adopt, sdd-review-loop). None of these terms occur in the three sections; the WFI consistently uses generic terms ('blind cross-model panel', 'sanitized bundle', 'implementation report', 'pre-panel readiness step', 'panel input preparation script'). No occurrences of raw metric field names in Problem Evidence were flagged (not applicable here; Problem Evidence cites report/ticket paths, not metric field names)."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Both rows in the GitHub-Issue Lane table fail requirement 1 (a specific file path in the Target File column). Row 1: Target File = 'Panel input preparation script (collection layer)' -- a descriptive label, not a path (no directory, filename, or extension); the plugin actually ships this as plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh (+ .ps1 twin), which the row does not name. Row 2: Target File = 'Cross-model verification skill (pre-panel step)' -- likewise not a path; the plugin ships this as plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md, which the row does not name. Both Change Description cells are concrete and non-vague (they specify exact new behavior: fail-closed artifact-hash verification and a coverage manifest gate), so only requirement 1 fails, not requirement 2."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found against the check's two literal criteria. '## Expected Effect' names a specific metric ('Blind-panel rounds returning NEEDS_WORK for evidence-completeness reasons ... per feature') and a quantitative target ('drop from 2 per feature ... to 0 in the next completed feature'), using only generic language (no forbidden terms). Note (carried from EVIDENCE-CITED): the section's parenthetical '(this period -- 2 of 2 first runs)' repeats the frequency inaccuracy documented under EVIDENCE-CITED; the metric-naming and quantitative-target requirements are still met, so this is not scored as a separate FAIL here."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. '## Verification Metric' names exactly one primary metric ('cross-model panel rounds returning NEEDS_WORK/FAIL for evidence-completeness reasons per feature (count)'), a baseline sourced from the retrospective ('Baseline: 2 (epic-136-phase1-guards, 2026-07-12: first-task round 1, second-task attempt 1)', matching reports/retrospective/2026-07-12T1530Z-epic-136-phase1-guards.md 'Improvement Verification Plan' row: Baseline '2 (this period)'), a quantitative target ('Target: 0'), and a next checkpoint ('Horizon: next completed feature retrospective with at least one Cross-Model: enabled task')."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. '## Verification Plan' names the specific artifact classes that will be re-examined next cycle ('read every aggregate verdict JSON and panel-related review ticket for the feature and count panel rounds whose NEEDS_WORK/FAIL findings are evidence-completeness class'), ties success to the same metric named in '## Verification Metric', and adds a concrete secondary check ('no panel round runs against a bundle whose digest was never preceded by a recorded completeness check') rather than a generic 'we will check if things improved' statement."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Neither row's Target File is a project-side workflow file (AGENTS.md, CLAUDE.md, project-root workflow docs, or specs/ template/task-splitting documents). Row 1: 'Panel input preparation script (collection layer)' | Row 2: 'Cross-model verification skill (pre-panel step)', both under the WFI's own section header '### GitHub-Issue Lane (plugins/ upstream fix)' and routing statement 'this WFI is a routing record for a plugin-side change'. No literal 'plugins/' string appears in the Target File cells themselves (the rows use descriptive labels rather than paths -- see CHANGE-CONCRETE), but the WFI's own prose and section header identify both targets as plugin-side scripts/skills, not project-side files, so the affirmative requirement ('must be a project-side workflow file') is unmet regardless of literal string match. Note for context (not a waiver): this exact pattern -- 'WFI Direct Target (project-side): None' + a plugins/-targeting 'GitHub-Issue Lane' table -- was used identically by WFI-004/WFI-006/WFI-007, and WFI-006's own Cycle-1 auditor-a record (docs/workflow-improvements/WFI-006-auditor-a.json) scored the identical structure FAIL/Major on this same check even with literal plugins/ paths present. wfi-category-guide.md Section 1 states a plugin-improvement WFI's application mechanism IS a GitHub Issue against plugin-side files, which is in tension with this check's literal project-side-only requirement; that tension is flagged for human resolution, not resolved by this audit."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found (extra check run because Meta-Change: true, per orchestrator instruction and wfi-category-guide.md Section 5). Answering the required question: 'Does this change make any gate, grader, threshold, or metric easier to satisfy without improving the underlying outcome?' -- No. Both proposed checks are additive, fail-closed, and run strictly BEFORE the existing blind panel ('fail closed with the list of gaps and do not print an input digest, so no panelist can run against an incomplete bundle'; 'fail the readiness step when any element is unmapped, BEFORE any panelist is invoked'); no existing gate, grader, or threshold is removed, loosened, or bypassed, and the panel itself still runs unchanged on bundles that pass the new pre-checks -- genuine behavioral defects still reach the same panel review. The non-decreasing guard is satisfied (check count increases by two; none removed). The '## Verification Plan' anti-gaming condition ('AND the pre-panel readiness step's fail-closed output (or its clean pass) is recorded in the feature's gate evidence') requires the new checks to be evidenced as actually running, which prevents the target metric from reaching 0 merely by the failure mode silently disappearing or being reclassified. Caveat: this assessment is Cycle-1 (auditor-a); wfi-category-guide.md Section 5 assigns the formal anti-Goodhart check to Cycle-2 (auditor-b), so this entry supplements rather than substitutes for that review."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Problem Evidence",
+      "change": "Replace 'Frequency: 2 occurrences across 2 tasks in one feature (the only two cross-model-enabled tasks of the period) -- every blind-panel first run this period failed for evidence-completeness reasons.' with an accurate count: 'Frequency: 2 occurrences across 2 of the period's 3 cross-model-enabled tasks (T-001, T-002, T-006 per tasks.md Cross-Model: enabled). T-001 and T-006 failed their first blind-panel round for evidence-completeness reasons; T-002 passed cleanly on its only recorded round (specs/epic-136-phase1-guards/verification/T-002.cross-model.json, result PASS with no prior FAIL state; reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md Cross-Model Verification section). 2 of 3 (67%) of first panel runs this period failed for evidence-completeness reasons.' Also add the missing task ID and file citation to item 1: append '(task: T-006; reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-006.md, ## Cross-Model Verification section; specs/epic-136-phase1-guards/verification/T-006.cross-model.json git history, commit 0f8f00a)'.",
+      "rationale": "Resolves the EVIDENCE-CITED Major finding: the current Frequency claim is contradicted by tasks.md and T-002's own artifacts, and item 1 lacks a resolvable task ID/file citation."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Replace '2 per feature (this period -- 2 of 2 first runs)' with '2 per feature (this period -- 2 of 3 first runs; T-002 passed cleanly)' to keep this section consistent with the corrected Problem Evidence frequency.",
+      "rationale": "Prevents the same frequency inaccuracy from propagating into the Expected Effect section after Problem Evidence is corrected."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "In the GitHub-Issue Lane table, replace the descriptive Target File labels with literal file paths: Row 1 Target File -> 'plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh (+ prepare-panelist-input.ps1 twin)'; Row 2 Target File -> 'plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md'. This resolves CHANGE-CONCRETE's file-path requirement but does NOT resolve NO-PLUGIN-SCOPE-CREEP, since both are still plugins/ paths -- per wfi-category-guide.md Section 1, this is an inherent property of the plugin-improvement category's GitHub-Issue application mechanism (same tension WFI-006 hit). Flagging for human/orchestrator decision: either (a) accept that GitHub-Issue Lane rows are structurally exempt from NO-PLUGIN-SCOPE-CREEP for plugin-improvement WFIs and update the check definition accordingly, or (b) require this WFI to state only descriptive plugin targets (never literal plugins/ paths) in that table to avoid ever satisfying CHANGE-CONCRETE's path requirement -- the two checks cannot both PASS simultaneously for this WFI's category under current definitions.",
+      "rationale": "Addresses CHANGE-CONCRETE's vagueness finding with real, verified file paths (confirmed to exist on disk) while making the structural conflict with NO-PLUGIN-SCOPE-CREEP explicit for human resolution rather than silently resolving it either way."
+    }
+  ]
+}

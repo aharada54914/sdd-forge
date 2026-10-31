@@ -1,0 +1,1089 @@
+{
+  "entries": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "7faad31c65b2bb160eecd85f55e0ceba74dd5843a39c9cf5cffd10539a7bf5e7",
+      "mode": 420
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "mode": 420
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b",
+      "mode": 420
+    },
+    {
+      "path": "contracts/domain-contract.v1.schema.json",
+      "sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841",
+      "mode": 420
+    },
+    {
+      "path": "contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16",
+      "mode": 420
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9",
+      "mode": 420
+    },
+    {
+      "path": "contracts/workflow-state-registry.schema.json",
+      "sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7",
+      "mode": 420
+    },
+    {
+      "path": "mcp/ci-mcp/package-lock.json",
+      "sha256": "cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f",
+      "mode": 420
+    },
+    {
+      "path": "mcp/ci-mcp/package.json",
+      "sha256": "787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "fb9047658a0640644401a777100cd638970a7d9a31aba1c3d5a8bc71bbdb0f05",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "e31c639003a9a9f4ace13f7a9a18c33f44aaac3113414ca9c0715aa75353c234",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.ps1",
+      "sha256": "22d5acfb0674d99c8fbf7075def3d4cb1bea8c129f94b7a9af710f19bc9af3bb",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "sha256": "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "sha256": "5fb9aa083ece03502365e1a145ba1074c2b25dd5548c427814a799708942753e",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "269aa324700d52e147ff5fbee2abc523d0edcf9329abc625738bd2c1d456e2bd",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "sha256": "9eed0fbad6f1285d81c5ec056284b89fecb9bfe299802ed7b17375e6e6f3ddea",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "sha256": "82a9330a63825bb693512bd7255883df986b8a0fc0033c78bc46724e22a1cf18",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "da4835ecedcfad44c34968cb968c06ecb48c2e41b1fad47da9c602235a9ad330",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "2256d28ffed9394c203daf90e6efccd0a4e3cc09da83abd1b82e2f8a42e57a45",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "sha256": "a2df15daa4b42c582b507f17d094df14cc369c512e7ed6ac314fb24cfd85a34d",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "sha256": "992a2e8ec18512e83d1813f369e84d40ef3ec0e1d38b43fea19dbd361b34ccd6",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+      "sha256": "95f994a868ed6a64299fdbca4eb5c5953e3a42fae303649fb66683d4ccb62fe1",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "sha256": "080254f8ca8c03cb90cc516559af70c9b8ce14c90cf90235d3c2fdf238881421",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
+      "sha256": "9c79ab9c9cc821a7a4a36df713633063321a34573f320c7b235d5761db89f621",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "6fe34b3622c660a6ce9ac06cc589f37c3f3226764ce6945fa03a6490695d1b37",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+      "sha256": "003180de314177a2d5c6de0ee119e65dcebe4f4dd38178f72088160edc215057",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+      "sha256": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "sha256": "562a12aa016456dabf215af524f453d7713878dc47f5de58d964dc2626831a67",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "sha256": "83abc29c14dc199a399ff7a92c19235e1c5ddc7688f98dbc46f39fa1f39db33c",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "sha256": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+      "sha256": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "sha256": "ed64eb57ca2db43810205a9b214ec2a7246cd5d6ca8d82798609c0afb5a315b3",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "sha256": "5743d637684e6d16ba452386b19fb944b00557ee3f399e3e101252e7c0d6187d",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "sha256": "238e835d6283ac2489fc0b2df3786384e051c7c044d7032425c9e0e80474ee90",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+      "sha256": "41ec7a52ba061fad5fb13b3bb79d5ecffb76fcc97908bb938ebd488b26ff96a7",
+      "mode": 493
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1",
+      "sha256": "03a36e7234f35c290a3648cecdbd72b4a48da50159b496330aca802dd94ba7b1",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-layer-traceability.py",
+      "sha256": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "28747c781b2b7973f2fa479069d4f4d6cd00d2d2db71829e2d390b2a26e2544b",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "153ff51caa2ef2c07941cb9c37e972380d235af87689211e2b0dc4cdf7b08186",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "mode": 420
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/design-round-1-proposed-changes.md",
+      "sha256": "4e46d74df1dbbb2417a8620ce7fcabc452d1c10ae156dd7398574de467ac2d2c",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/impl-review-contract.json",
+      "sha256": "c891ef702586503911a481cdc5590c3fba937f5ddb4bad5b70ea0bef005d6be4",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d150abcf80ea8464b2df563b88d7dc266395b661321c4cf57b19787f29949a55",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/integrated-verdict.json",
+      "sha256": "df556b1b9f215fe413936afe7922dde292e1589e19ce748b7245404dd79d7633",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/reviewer-a.json",
+      "sha256": "5f3cec7b83f466f242ca1d749ba4766b3f19f3e40530044d7edc13dc59455e30",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/reviewer-b.json",
+      "sha256": "0703c07178fe7cd4a178c3b4e7469f00abfc8fa6553bec4667c6edb1620fc5f3",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json",
+      "sha256": "40034006d773c1d6aa8aa0e31108b50a7335b4b9bcaac42aae36bb9db060c2aa",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json",
+      "sha256": "6d89bf5356b2e713e743beb4213f4ad2cd64eba8077d3a7668deccf6404f42ee",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json",
+      "sha256": "70f44850b79d4e074525aa728a46f7b62d4267411762c38ad78f414d9b322725",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json",
+      "sha256": "a34c8bf020980bd8108e91a8ef7c293fe5a809437ecd508d984609f27949a9e5",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json",
+      "sha256": "a133aadbd4f7b9313a3f93c5a93848ef1cf53f7be9e44d3135de1d0b3817c6df",
+      "mode": 420
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-b.json",
+      "sha256": "e1597167280f5f92869e274c705bf513d07b1eefe3e7406c2838fe47c5dee864",
+      "mode": 420
+    },
+    {
+      "path": "reports/implementation/shared-review-launch-repair/T-002.md",
+      "sha256": "c82f33515dfcfdf425543b2e67f4b7085edd438be6c0dfa64baedd585cd99bbd",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "cac61fefb96b57280c8e77ece956488517beafccd2ff5af0a9dce55055067b29",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/integrated-verdict.json",
+      "sha256": "9272b70600282aee7e028501b300b7ca75659209ce2a47df934a9dfd34fbdfe6",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "fbf90499a150b96a957c3d79059c3864368851a00174c22b9876e7145c93183b",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/reviewer-a.json",
+      "sha256": "463114fc8b81d1638e4366fa9a199890fe5e373a20f351f2ebccca46aac5f892",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/reviewer-b.json",
+      "sha256": "824d02179fb2d4fd7d94d277fb6b28ab13d36a79020c4041736ec742ff952b32",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/spec-review-contract.json",
+      "sha256": "19a37a0f046152e9cccbfe0127984b9ba2938c31214a37bc141e5489d2abc8ca",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-1/spec-review-report.md",
+      "sha256": "ccc477658a048004ba51a2d9a46e582410a3b412a7457aba4d3adae543f7db27",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json",
+      "sha256": "36e6987d9e154902602d1b7cd025705e3649cb9f5b2e65577c60593d61ac1be4",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json",
+      "sha256": "25cea8bb5f24e38f9385898eb87329206d02331ae02dfbb77b0b1127d1867dd3",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json",
+      "sha256": "7c9d317466f6eaa093359f13da7964f1ac5122fa60cfd879f6292409abccc727",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json",
+      "sha256": "34d0337389d44234f826f03a4abd4256df53d06974c84f58d654e67c0399a864",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/reviewer-b.json",
+      "sha256": "835bc0fdf94714c1ad1d331c7bc4e0225e163eb5701badcd2121f1784bbe9105",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/spec-review-contract.json",
+      "sha256": "c5b6f1eb6f85b0a15bffa5d48b02f038bb485cf12a19a3baaaab7d2d99e1aed7",
+      "mode": 420
+    },
+    {
+      "path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/spec-review-report.md",
+      "sha256": "0e85fa0f0a89fab0ed9b39976f21c8fe289341b99ccd701f8580f39d0b668a10",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/dependency-graph.json",
+      "sha256": "6bb206e4696092e022d4a593c1952722e17b5416e314b47019f6e18b0d241cad",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "9b108495774e218b924846d53a010aaadac006e8f66a19988a66b202376df567",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/integrated-verdict.json",
+      "sha256": "51482456ec779cf385c4c70908dc777bed4fda915930b722ac07af187b1915ac",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "2b23f39dda605c88dac1fbc07d50e0d579e8e1c1b241c9176ab6aa0793950641",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/reviewer-a.json",
+      "sha256": "b2b10436e6a7edb38560a8e7052c4884dc075871cf7ba810b973323bda7d2b15",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/reviewer-b.json",
+      "sha256": "d187d1c6d15d68e7abbc0fcbb007882f2502e19e23fe4eb67f5f6b3d12a78b8e",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/task-review-contract.json",
+      "sha256": "9ab1e20f3daeba545116d748dd17f9c56b1478dc75a2bdd4c862b5f675de031f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-1/tasks-round-1-proposed-changes.md",
+      "sha256": "cd023d2507840c72a7cf1a20aad0e2d6b241eaefd7c73df28988c58d30a97163",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/dependency-graph.json",
+      "sha256": "8e2dbd540160a6cb08aa9bfa61730003d4822149943b1871037eedec6b4cb09e",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json",
+      "sha256": "813e60bba6fd2ab359fdbd5a76b109cad443389c75473aab7c144a1a0e37b61f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json",
+      "sha256": "9375b0862c43f9084ee8ef63655335f316b0f703c33c021347b12129d1ad7b39",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json",
+      "sha256": "d15145aebaf676d64c58c6e9d26562e22a01a71b1d8e15c5631032a134046031",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json",
+      "sha256": "ceaba14d04b0161da2ebe08162c709666b01503f432c5e89e1ba044a1215380b",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/reviewer-b.json",
+      "sha256": "d44c4e140bbcc5c9c508dce28cea8d5cd8df58aa3502ae69a708a67f3b83ec7e",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/task-review-contract.json",
+      "sha256": "bb1afb68a4355d70ca946a3d5a36b9048b90c29371a11d2e3451dcc845cef3b0",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-2/tasks-round-2-proposed-changes.md",
+      "sha256": "e5702d240689b07acf38488f675a34dd1ff347d83500894d2e1545bc5fec2d42",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/dependency-graph.json",
+      "sha256": "7420ce6d5bcb2c1a8771c9b35a7fee791044a689f65a16721e2bf715db597c79",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/integrated-summary.json",
+      "sha256": "304c2b11b367c2258d6be582a99f43c7a7d00ce9c9a695693ca76f650722227b",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/integrated-verdict.json",
+      "sha256": "69bef69feaf5b7ae455d75bf1e068ad56e1c7d8a19bf572573f0aeb3ac08bcac",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/precheck-result.json",
+      "sha256": "026ca9ab1672f52bba34367dc14b98444836aea15f5786e371561efdbd794354",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/reviewer-a.json",
+      "sha256": "59687835fd41abcf7132e12f9dd68652fcfdf9b6b72acaae77c17185263fac01",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/reviewer-b.json",
+      "sha256": "62cb640ed20dedab4bf1b9db0eb4ff1320d06f4241f8865734f160736dc34234",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-1/round-3/task-review-contract.json",
+      "sha256": "a76074118326743e7ed31c2b86badbf352e816b98af960bdf0c7c8046392413f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/dependency-graph.json",
+      "sha256": "fb3f23b2c1a601c8634e6a629ef9edaa159fcf8e25a2266b1dbf9c2c53713df6",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/integrated-summary.json",
+      "sha256": "9f9e6dbed461b11437c74e85e506f2d483c339bfabcdc102073d43c58f359a6d",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/integrated-verdict.json",
+      "sha256": "f0cf7a0185413ea840f89a6f3be00cf6cb26fd5499416b128a46e1607212f4e4",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/precheck-result.json",
+      "sha256": "0c50ed98a52296760c99adfbb4db3820eace8c3807199c4721b8036895eed843",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/reviewer-a.json",
+      "sha256": "252532ad66748705b2b9a76db5af358fbdb36e223ba293311c7dbcf5f9d2ac85",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/reviewer-b.json",
+      "sha256": "c9a8776b14ae836e881d529dff0e403293756175fb754f2cd0b7fcbe44314d8f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/task-review-contract.json",
+      "sha256": "c0662d703450b18d19c079ca442b23df00a390a40ab06d4da025b5aec1f088b1",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-1/tasks-round-1-proposed-changes.md",
+      "sha256": "17a364478f3838fdfd286babe02115e05e12858ca79bfddcf4eb3dfa78210542",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/dependency-graph.json",
+      "sha256": "44744495b79b0153013fbc0db765b929e65ef378ae12ca234ebff283d179b3f1",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/integrated-summary.json",
+      "sha256": "91dcf1567b04df6a82c006cf64cbcc9440ed971bf4666af0d4369749ec60bc36",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/integrated-verdict.json",
+      "sha256": "e2f454e01835c84337b2fb7e720b18fb044f9f1ded8c7ed1d51d7905eca60d58",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/precheck-result.json",
+      "sha256": "d40e82cda25a3cd734ab44da43c120fb36ba003ef656316c10b28dfb4956972f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/reviewer-a.json",
+      "sha256": "f2a1d59eb66a9dc8b89a5d437594241705cbd012c0572288526e480934a3a3e7",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/reviewer-b.json",
+      "sha256": "8bfa11b07a952da08985fb72ab1670791b6a2c53368cd03b5de007a7205a6849",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-2/round-2/task-review-contract.json",
+      "sha256": "33ebca630942c3df7237de9d1cdb1478be4472ef2eb9b8330d88109a17dc3e43",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/dependency-graph.json",
+      "sha256": "e39053c585df8fff5f528a3e2a14936488268958c51021721ad081bf049f8e03",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/integrated-summary.json",
+      "sha256": "6bfa93910dfc624c11b18154257339cc7b47345a0c0fa1e3025260604bb4329a",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/integrated-verdict.json",
+      "sha256": "51402e93731b14adbde3b83b8023ab531495c79ccbefa77ae4978ee8f4d4166b",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/precheck-result.json",
+      "sha256": "376d0a244b0ef0944615d7d9c4bbe434d7b30650ad64b6d15a2054c53a90ad17",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/reviewer-a.json",
+      "sha256": "b40fe8cade6bab6b18ea547bb5c60f1f5404810fb3efc0cc582bf685e09ce5b1",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/reviewer-b.json",
+      "sha256": "ce82449c67754acd9db43b19a75c9fd6f59398d0b99e4001aab0c4fcaa726eb1",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/task-review-contract.json",
+      "sha256": "72b39472d1ed4232ac54dd61d67c35ee01c4d45466e551ef3710f8301b551f81",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-1/tasks-round-1-proposed-changes.md",
+      "sha256": "8e5f256023d3243a718c40cefa87c0b98561af95f4bfc48f28fa1002ed96cdae",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/dependency-graph.json",
+      "sha256": "a5c6779a1e85347dd6c4b6f4a397a81f8344e5c996205ea286e1bb35c80605ba",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/integrated-summary.json",
+      "sha256": "adea34beff47f20648b9bdea38cc6ab3cddb4658c48c6b7aa46342af0a408f99",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/integrated-verdict.json",
+      "sha256": "64b3b490d412f4c723e9b204994fb68900837889070849336cd02a249f6720c9",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/precheck-result.json",
+      "sha256": "7d1c3ea41528ee56db9af7058f6d7f63ced5aa52aa02cda75777c802deb298c1",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/reviewer-a.json",
+      "sha256": "42977df1125d4311ecc556b7b074e0169a8d87d205ae51f05d3b716614d3c33e",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/reviewer-b.json",
+      "sha256": "1a4c7a27ed02074c1eb26539a794410f06f803c9e70c3262e257adbb889ba943",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/task-review-contract.json",
+      "sha256": "a76f8a51cf93bc337e553ea28257e2db8ee5f8f50ed06bba1703b9572437fea0",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/tasks-round-2-proposed-changes.md",
+      "sha256": "96da0fd104c99d36d3ac0322bd8ed4b7655aa72ade730b582398af86564da8df",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json",
+      "sha256": "d41dd7f48169dec592d7ad37c2378cba0015a2a28d0148f4d2a606b2ed13393f",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json",
+      "sha256": "6a15affbbdf52a4c76b9044ba7c6f11744eb03e9ac1a2ab70f90195de7bac619",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-verdict.json",
+      "sha256": "3997a15e72c5f6376dde33e6801628a5c898686e24add5ec28862b7576f91fbe",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
+      "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-a.json",
+      "sha256": "53c305514f759ad6c09f190a722dd6a83699be5b6d52bba2f99660b4dcca2076",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-b.json",
+      "sha256": "6dbf916d709241d24b01cdbca64baaa3ba738bc05dd50f206fc9de187ec060df",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/task-review-contract.json",
+      "sha256": "f63e0cf8a791fa14b9648611cefa5d489fab505ca3cf2cea350a4aae15d58efd",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/dependency-graph.json",
+      "sha256": "377b52d8a4482291bfe44fcb4c598d6891782a1165f7742a5da45677d7869539",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/integrated-summary.json",
+      "sha256": "b5b9795b9ee209a58c7c84835d3d952e861330c158ccd19de9fb66bfe115d18a",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/integrated-verdict.json",
+      "sha256": "4611d45ef918a6f6ac829452242b658f800fe7d3fbdc87b21ef0e01016d04085",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/precheck-result.json",
+      "sha256": "4ed49f98867fa49a227226ec720fbead48d2019e58ee3dab014f337e71f95b61",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/reviewer-a.json",
+      "sha256": "6bc26ede2e71ddee3d85d3067d278df6117cb777bc2d6895a891329226e4c19a",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/reviewer-b.json",
+      "sha256": "4847e31a39810a438814a4a3085b0a8a395daaa4477979e894f41e4cc7ef3ca0",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/task-review-contract.json",
+      "sha256": "68c55c17f1786798eb9e20eda3c88f20f0a7e54ab2859907faa4d1ada9abdd69",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-1/tasks-round-1-proposed-changes.md",
+      "sha256": "e15c46cd0e395e7638ef3852c2a098bff605e35e840caad1a7e88e42b4089d63",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/dependency-graph.json",
+      "sha256": "6d69be416c00b20966de9bd750ff41c023cc523f5584bb959cefc0e1e10b1772",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/integrated-summary.json",
+      "sha256": "805b236f58b90d231eae6bf8943b4cdd628747d1f12935d310cbd5700ccfe629",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/integrated-verdict.json",
+      "sha256": "5c7ca419ee166d8e795ffa55535e3718bb54a091f3e82dd3dda7f3dc6405c4c0",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/precheck-result.json",
+      "sha256": "5c54661ac366df64b5e732b6aeefbfa14e009889e0fccd38bd46c746d5fbc7fa",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-a.json",
+      "sha256": "a4f7058ddb85ec5b2d9128bfadbc610ab9d9ca7d54dd314b236336a0fe4641a4",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-b.json",
+      "sha256": "e909022d47eca324b92b05cc4f134af849799d49087985ef82589f8294ad8764",
+      "mode": 420
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json",
+      "sha256": "e5d50dd785513e5ac080db30afed68185a6e418d4d91207c46261881672c7125",
+      "mode": 420
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/launch-candidates.json",
+      "sha256": "a2d0b04a160c198d6c45396721e07253f96191a26a5d073f717a5834e986c80f",
+      "mode": 420
+    },
+    {
+      "path": "reports/verification/issue137-model-registration-candidate-20260928/report.md",
+      "sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3",
+      "mode": 420
+    },
+    {
+      "path": "reports/verification/shared-launch-handoff/T-005/attempt-2/output/work/reports/implementation/shared-review-launch-repair/T-005.md",
+      "sha256": "33e2cc787f23b0e06af18a2e83bee5c51c309182623e9d97e33a25b6b05d7216",
+      "mode": 420
+    },
+    {
+      "path": "reports/verification/shared-review-launch-integration.md",
+      "sha256": "91e9e12ebee94367d463b134d7f79aa8ce212d095ff8a82e1560ec5c32486829",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/authority.md",
+      "sha256": "3a6cf567642b4186eb977b0b442283d5304094ff91dacd9432ca87dad0b531e0",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/tasks.md",
+      "sha256": "c3dea28a9bbe10b52784536c944b89cdafb69430a9b25470e3f7030f6ecb503d",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/traceability.md",
+      "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/admission-attempt-3-20261010/registry-topology.json",
+      "sha256": "78ac720d0b36393ce3f30ae577ff4f92741be1c4c28ece3cecbb7d1b75771f4c",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/before-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/independent-checks.json",
+      "sha256": "ea7bfde174db9f84dee1366df3af9b603822c7855ccc304b0e1c2a3b03f94227",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/mutated-hashes.json",
+      "sha256": "f3de6ec2b675b26ad746058726281cc61a3724d53c279b51be8203d56f89f2be",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/restored-hashes.json",
+      "sha256": "a9e1ba2fcc6a3fe6a6500a045ed17a918d2357d150eb574eef44229a1151102b",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/results.json",
+      "sha256": "b4b8327426981ea892fe3c4aa328736f85cbd7fff73df755c3c2f36420b27773",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/current-restoration-z04ertpw/unreadable-equivalence.log",
+      "sha256": "3c3734df92ca563bf99466a9dacc639992d6fb1e04f47279bac791d939baa72c",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/historical-red-recovery-20261010.md",
+      "sha256": "0db5fe1b86a1fa2414535b9a217d493450b8ae90860f2ee880b3961de63567e1",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/implementation-inspection-20261010.md",
+      "sha256": "9c0d0394b9baaa39a3f08f670541e1b9b64e4cc12453d83092d3a107dfe3f9d1",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/independent-diff-review-20261010.md",
+      "sha256": "fed9fdbf5a04948592cc5df588869b7fec5002afaf7b68a3b155677a0699c072",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/independent-verification-20261010.md",
+      "sha256": "14023e647a2ec3c0020fc4865d3f7883605fb0091599b49656a79a2f7c77fd07",
+      "mode": 420
+    },
+    {
+      "path": "specs/shared-review-launch-repair/verification/T-002/unreadable-equivalence.ps1",
+      "sha256": "c32d20d4db6ce7dd1afaa91b2ae509050089824d535f114856846371d78c6fa5",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/baseline-behavior.md",
+      "sha256": "7c37439e490162b7f9ebe7822ef01bbc9bb4791fb18acf19c3c6faff2ee8c883",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/design.md",
+      "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/investigation.md",
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/tasks.md",
+      "sha256": "7d68c9d258109350d890694b51c6b07e819b8bbc7bb8172657037a6aa5e3e2e1",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/traceability.json",
+      "sha256": "5c890d985dcd8d8ff36880a55e7f427a0e8d73cc959d06d34daea30d8c31c8f5",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-integrity/traceability.md",
+      "sha256": "8ec4a2b0fd4ebc2027969f1685dc3906844ccccbc095601e4305c736d7ca01f8",
+      "mode": 420
+    },
+    {
+      "path": "specs/workflow-state-registry.json",
+      "sha256": "dcdad8452fa977cc77338d13c76e2c495b1b7203d720773e93d660ef88ba1fd8",
+      "mode": 420
+    },
+    {
+      "path": "tests/downstream-review-precheck-parity.tests.sh",
+      "sha256": "0e1f9e51f740ef6178242aee59b01bdb95ac7f60bca1dbfaabde55a7e5a75bb1",
+      "mode": 420
+    },
+    {
+      "path": "tests/downstream-review-precheck.tests.sh",
+      "sha256": "a5d586e2a4ec272f962103abbcaded7cebd0c726ef90f9373e2e49da9b5047f4",
+      "mode": 420
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "sha256": "4a720c3d07aa888e6e44a42841a85bae74eb1c60eb797e62dab0b9a01dbff333",
+      "mode": 420
+    },
+    {
+      "path": "tests/quality-nontty-transport.tests.py",
+      "sha256": "d9ad337821876d8f4d2c65e996d1e963d0b2af90b5174d254cc9b878733b9f7c",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-agent-isolation.tests.sh",
+      "sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "mode": 493
+    },
+    {
+      "path": "tests/review-conditional-inputs.tests.py",
+      "sha256": "0d93497f9ef706855739ee7e048615895293baf01731a67a10dd04607e040570",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-context-boundary.tests.sh",
+      "sha256": "f8d6a0835d28285e74543f587798e9e4bba73bf15ff1c97ee19ea41cca1a8cff",
+      "mode": 493
+    },
+    {
+      "path": "tests/review-hash-normalization.tests.ps1",
+      "sha256": "5d922dca8a6d92828315c5349e4b40bd657a9ddeb0388bad77c14e41574220d1",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-investigation-completeness.tests.py",
+      "sha256": "90abc127e9961263d3ee5297e9df815588d9459cb19bb169934c9c6528b10b30",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-investigation-runtime.tests.py",
+      "sha256": "b5559a73005ab53a3ae9429388edf2140a2e2b30b84000348b8ada0efaf3a5c8",
+      "mode": 420
+    },
+    {
+      "path": "tests/review-scratch-history.tests.py",
+      "sha256": "9b201b1434ba2198a51cfedb6b838ed8bb98ee2ba6983ace296b7f3566bf6cff",
+      "mode": 420
+    },
+    {
+      "path": "tests/spec-review-verify-inputs.tests.py",
+      "sha256": "2bd313dd08284d5a7598bba5d2615c0a68ad3761091e32319ccf5c14c4d07d40",
+      "mode": 420
+    },
+    {
+      "path": "tests/supplemental-delivery-declaration.tests.py",
+      "sha256": "71bfcf19d19187d60ac1eba68a86c178d35f25666bcbcd92c60a92e549bf2aa0",
+      "mode": 420
+    },
+    {
+      "path": "tests/task-structured-output.tests.py",
+      "sha256": "b3afab85e17da643aff642192357423481a6f9a65137369b07d204c4306540e2",
+      "mode": 420
+    },
+    {
+      "path": "tests/traceability-freeze-contract.tests.py",
+      "sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "mode": 420
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "sha256": "648c179411f406c256e7db91cf8a27db78273981af9bf78eb141894fb677da77",
+      "mode": 420
+    },
+    {
+      "path": "tests/unified-task-launch.tests.py",
+      "sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "mode": 420
+    },
+    {
+      "path": "tests/workflow-state.tests.sh",
+      "sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+      "mode": 493
+    }
+  ]
+}

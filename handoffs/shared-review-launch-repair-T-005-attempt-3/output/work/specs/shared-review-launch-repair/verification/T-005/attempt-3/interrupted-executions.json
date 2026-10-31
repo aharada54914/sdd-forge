@@ -1,0 +1,35 @@
+{
+  "record_kind": "tool-observed interruption; not a child test completion record",
+  "reason": "Stop on the observed real Permission denied refusal; no alternate executor or chmod retry.",
+  "executions": [
+    {
+      "label": "unified-launch-order",
+      "requested_command": ["rtk", "proxy", "python3", "-B", "tests/unified-launch-order.tests.py", "-v"],
+      "exec_session_id": 18867,
+      "tool_action": "write_stdin chars U+0003",
+      "observed_outer_exit_code": 130,
+      "child_exit_code": null,
+      "status": "INTERRUPTED",
+      "raw_output_received": "",
+      "limitation": "Runner buffered child stdout/stderr and was interrupted before persisting either stream or completion metadata. No test outcome or count is recoverable from this tool result."
+    },
+    {
+      "label": "review-conditional-inputs",
+      "requested_command": ["rtk", "proxy", "python3", "-B", "tests/review-conditional-inputs.tests.py", "-v"],
+      "exec_session_id": 51655,
+      "tool_action": "write_stdin chars U+0003",
+      "observed_outer_exit_code": 130,
+      "child_exit_code": null,
+      "status": "INTERRUPTED",
+      "raw_output_received": "",
+      "limitation": "Runner buffered child stdout/stderr and was interrupted before persisting either stream or completion metadata. No test outcome or count is recoverable from this tool result."
+    }
+  ],
+  "already_completed_when_stop_requested": {
+    "label": "spec-review-verify-inputs",
+    "exec_session_id": 54585,
+    "observed_outer_exit_code": 0,
+    "recorded_child_exit_code": 1,
+    "note": "Harness exit 0 means evidence capture completed; its persisted child exit 1 is the failed test result."
+  }
+}

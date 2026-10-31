@@ -1,0 +1,101 @@
+--- a/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
++++ b/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@ -98,8 +98,7 @@
+     identity(session)
+     data, _ = manifest(root, invocation)
+     selected_model = role.get('model')
+-    require((selected_model in ('opus', 'sonnet') if data['stage'] == 'quality'
+-             else selected_model == 'sonnet') and
++    require(selected_model == 'sonnet' and
+             role.get('tools') == agent_tools(data['stage']) and
+             role.get('disallowedTools') == ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit'] and
+             isinstance(selected_model, str), 'unsupported role permission profile')
+--- a/tests/quality-nontty-transport.tests.py
++++ b/tests/quality-nontty-transport.tests.py
+@@ -40,6 +40,69 @@
+ 
+ 
+ class QualityTransport(unittest.TestCase):
++
++    def test_shared_argv_rejects_model_permission_and_session_mismatches(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            session = str(uuid.uuid4())
++            invocation = root / 'invocation.json'
++            invocation.write_text('{}')
++            receipt = root / 'receipt.txt'
++            receipt.write_text('receipt')
++            policy = root / 'policy.json'
++            policy.write_text('{}')
++            settings = root / 'settings.json'
++            settings.write_text('{}')
++            guard = root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
++            guard.parent.mkdir(parents=True)
++            guard.write_text('// fixture\n')
++            permissions = ['Read(source.md)']
++            flags = ('-p --session-id --model --permission-mode --tools '
++                     '--disallowedTools --allowedTools --settings --plugin-dir '
++                     '--agents --agent --output-format --json-schema')
++            for stage, roles in TRANSPORT.STAGE_ROLES.items():
++                for role_name in roles:
++                    data = {'stage': stage, 'host_session_id': session}
++                    role = {'model': 'sonnet', 'tools': TRANSPORT.agent_tools(stage),
++                            'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
++                    with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})), \
++                            mock.patch.object(TRANSPORT, 'launch_policy', return_value=(b'{}', {})), \
++                            mock.patch.object(TRANSPORT, 'receipt_control', return_value={
++                                'exact_permission_rules': permissions}), \
++                            mock.patch.object(TRANSPORT, 'admitted_raw_hashes', return_value={}), \
++                            mock.patch.object(TRANSPORT.shutil, 'which', return_value='claude'), \
++                            mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
++                                              subprocess.CompletedProcess([], 0, flags, '')):
++                        def command(selected_role=role, selected_permissions=permissions,
++                                    selected_session=session):
++                            return TRANSPORT.claude_command(
++                                root, selected_session, role_name, selected_role,
++                                selected_permissions, settings, invocation, receipt, policy)
++                        self.assertIn('--session-id', command())
++                        for flag in flags.split():
++                            if flag == '--json-schema' and stage == 'quality':
++                                continue
++                            with self.subTest(stage=stage, role=role_name, missing_flag=flag):
++                                missing = ' '.join(item for item in flags.split() if item != flag)
++                                with mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
++                                                       subprocess.CompletedProcess([], 0, missing, '')):
++                                    with self.assertRaisesRegex(ValueError, 'unsupported CLI argument'):
++                                        command()
++                        for model in ('opus', 'haiku', 'Sonnet', '', None):
++                            with self.subTest(stage=stage, role=role_name, model=model):
++                                with self.assertRaisesRegex(ValueError, 'unsupported role permission profile'):
++                                    command(dict(role, model=model))
++                        with self.subTest(stage=stage, mismatch='permissions'):
++                            with self.assertRaisesRegex(ValueError, 'permission rules mismatch'):
++                                command(selected_permissions=permissions + ['Read(outside.md)'])
++                        with self.subTest(stage=stage, mismatch='session'):
++                            with self.assertRaisesRegex(ValueError, 'session differs'):
++                                command(selected_session=str(uuid.uuid4()))
++                        settings.write_text('{"permissions": {"allow": ["Read"]}}')
++                        with self.subTest(stage=stage, mismatch='settings'):
++                            with self.assertRaisesRegex(ValueError, 'settings or policy mismatch'):
++                                command()
++                        settings.write_text('{}')
+     def test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag(self):
+         executable = shutil.which('claude')
+         if executable is None:
+@@ -409,6 +472,16 @@
+                                       'tool_input': {'command': candidate}}),
+                     text=True, capture_output=True, check=True)
+                 self.assertEqual(bool(result.stdout), denied)
++            outside = root / 'outside.md'
++            outside.write_text('not admitted')
++            for requested, denied in ((source, False), (outside, True)):
++                result = subprocess.run(
++                    ['rtk', 'proxy', 'node', str(guard), str(policy_path),
++                     hashlib.sha256(policy).hexdigest()],
++                    input=json.dumps({'tool_name': 'Read',
++                                      'tool_input': {'file_path': str(requested)}}),
++                    text=True, capture_output=True, check=True)
++                self.assertEqual(bool(result.stdout), denied)
+             self.assertEqual(sum(item.startswith('rtk proxy shasum -a 256 ') for item in
+                                  json.loads(policy)['bash_commands']), 1)
+             prompt = TRANSPORT.control_prompt(data, receipt, 'c' * 64,

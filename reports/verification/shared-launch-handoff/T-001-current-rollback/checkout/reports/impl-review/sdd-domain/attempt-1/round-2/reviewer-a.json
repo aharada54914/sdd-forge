@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-20260706T0333Z-impl-reviewer-a-r2",
+  "host_session_id": "SESS-impl-a-sdd-domain-a1r2",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain/attempt-1/round-2/precheck-result.json", "sha256": "23517636e8b158969e98d824ba68b48ee72752a9240dbd67065c0b9c1f7d91c6"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Architecture (lines 16-39) describes top-level component boundaries via the Mermaid flowchart and prose (upstream sdd-domain lane vs. downstream existing plugins), the integration point with existing components (domain-sync into sdd-bootstrap Phase 1, quality-gate, workflow-retrospective — lines 28-34), and technology choices are covered via the ## Components table (lines 43-56: SKILL.md, PowerShell+bash, JSON Schema, existing hook-guard/cross-model-verify reuse). No frontend/data/infra layer applies (Markdown/CLI plugin) and this is explicitly stated rather than omitted. All three required elements present. Round-2 change (Assumptions section only) does not affect this section."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Dependency graph from ## Architecture and ## Components (design.md lines 16-56) is unidirectional: DM -> DI -> DRL -> CMV -> HA -> DS -> B -> RL -> QG -> WR, with WR feeding back only into a new domain-model update run (line 35, dotted line), not a direct cycle. The round-2 Assumptions addition (domain-review-loop invoking cross-model-verify's underlying scripts directly under human authorization, bypassing the tasks.md-mediated consent path) is a refinement of the existing DRL -> CMV edge already shown in the diagram; it does not add a new edge or reverse any existing edge. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Data Plan (design.md lines 89-105) specifies Data Entities (bounded contexts, terms, aggregates, context relations, domain events, commands, policies, message flows), Existing Data Affected (\"none... additive Bounded-Context: field in future requirements.md files\"), and Migration Strategy (\"none required... absence keeps legacy behavior (AC-010)\"). All three required sub-fields present with explicit content, unaffected by the round-2 Assumptions edit."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## API / Contract Plan (design.md lines 107-117) lists the new machine-readable contract (contracts/domain-contract.v1.schema.json with schema shape and relation-pattern enum), states verdict outputs reuse review-contract.v1 and cross-model-verdict/v1 unchanged, and explicitly states \"No HTTP APIs.\" Unaffected by round-2 edit."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Security Boundaries (design.md lines 135-143) names three trust boundaries (seed inputs -> interviewer, agent -> approval lines, domain-contract.json -> gates), states the auth/authz mechanism at each (content-as-data rule, hook guard line-diff rejection, JSON Schema validation fail-toward-warn+skip), addresses data classification (\"internal\" per row), and names an OWASP concern per boundary (Injection, Broken Access Control, Software/Data Integrity). Cross-referenced and consistent with security-spec.md's fuller Trust Boundaries/STRIDE/OWASP Mapping tables (security-spec.md lines 3-19, 63-69). All four required items present; unaffected by the round-2 Assumptions edit, which only adds evidence for an already-declared risk (the cross-model-verify consent-gate mismatch) and records it as a stated, human-accepted residual risk rather than leaving it silent."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no frontend surface exists for this feature. frontend-spec.md is entirely N/A (\"no graphical frontend, no web runtime, no client-side state\"; Component Tree, State Shape, Routes and Components, API Client Strategy all N/A). design.md ## Design System Compliance states \"N/A — ds_profile: none.\" Feature Type header (\"framework plugin...\") is not a literal match to the four listed skip values, but the substantive skip condition (no frontend surface) is met, consistent with round 1's disposition of this check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Test Strategy (design.md lines 119-133) covers Unit scope (Pester: schema validation fixtures, conformance check fixtures, guard line-diff tests, template language checks, validate-repository expectations), Integration scope (end-to-end artifact-set generation, domain-sync injection, absence regression, update-mode re-run semantics, cross-model gate fixtures), and acceptance-criteria verification is traceable via acceptance-tests.md's Test ID column (TEST-001..TEST-017) referencing concrete fixture files (e.g. tests/sdd-domain/artifact-set.Tests.ps1, tests/hooks/domain-approval-guard.Tests.ps1). No fullstack critical user journey applies (CLI-only feature; UX-spec's Interaction Sequence plus TEST-016 update-mode fixture serves as the closest end-to-end path and is named). Concrete tool names and fixture paths are present throughout. Unaffected by round-2 edit."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components referenced in ## Architecture (domain-model, domain-interviewer, domain-reverse, domain-review-loop, cross-model-verify, domain-sync, sdd-bootstrap Phase 1, spec/impl review loops, quality-gate, workflow-retrospective) are defined either in the ## Components table (design.md lines 43-56: domain-model, domain-interviewer, domain-reverse, domain-review-loop, domain-sync, domain-reviewer-a, domain-reviewer-b, check-domain-conformance, contracts/domain-contract.v1.schema.json, Hook guard extension, cross-model-verify) or are established existing system components (sdd-bootstrap, quality-gate, workflow-retrospective — confirmed as existing plugins referenced consistently across requirements.md and infra-spec.md). The round-2 Assumptions edit references only already-defined components (cross-model-verify, domain-review-loop) plus concrete file paths in the existing repository, introducing no new undefined component names."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## ADR Change Log (lines 83-87) references ADR-0004 (\"DDD upstream lane as seventh plugin...\"). Verified the file exists at docs/adr/0004-ddd-upstream-domain-lane.md with Status: Accepted and Decision content matching the design.md summary (seven-stage pipeline, cross-model verification, hook-guard-protected approval, domain-sync, check-domain-conformance warn-first). No other new architectural departures are left uncovered by this ADR."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Design System Compliance (line 71) states \"N/A — ds_profile: none\", which is the correct reasoned N/A: the repository has no design-system/ directory, and this feature ships no graphical frontend (frontend-spec.md: \"no graphical frontend, no web runtime, no client-side state\"; ux-spec.md Design Tokens: \"N/A — ds_profile: none (repository has no design-system/)\"). No design tokens, components, or visual surface are introduced that would require design-system conformance. Consistent and unchanged from round 1's PASS on this check; the round-2 Assumptions edit does not touch this section or introduce any UI surface."
+    }
+  ]
+}

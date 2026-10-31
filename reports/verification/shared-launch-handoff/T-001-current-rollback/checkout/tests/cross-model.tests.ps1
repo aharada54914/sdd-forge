@@ -1,0 +1,1040 @@
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+# cross-model.tests.ps1 — tests for check-cross-model.ps1 (AC-002..004)
+# Style: mirrors scripts.tests.ps1 (Assert-ExitCode pattern, workDir fixtures)
+
+$repositoryRoot = Split-Path -Parent $PSScriptRoot
+$scriptsDir = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts"
+$threatModelPath = Join-Path $repositoryRoot "docs/THREAT-MODEL.md"
+$workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-cross-model-tests-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $workDir | Out-Null
+
+$Pass = 0
+$Fail = 0
+$script:gateOutput = ""
+
+function Ok { param([string]$Name) Write-Host "ok: $Name"; $script:Pass++ }
+function Fail { param([string]$Name) Write-Host "FAIL: $Name"; $script:Fail++ }
+
+function Invoke-CrossModel {
+    param([string[]]$Arguments)
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-cross-model.ps1") @Arguments 2>&1
+    return $LASTEXITCODE
+}
+
+function Assert-ExitCode {
+    param([string]$Name, [int]$Actual, [int]$Expected)
+    if ($Actual -ne $Expected) {
+        $details = ($script:gateOutput | Out-String).Trim()
+        Write-Host "FAIL: $Name expected exit $Expected but got $Actual`n$details"
+        $script:Fail++
+    } else {
+        Write-Host "ok: $Name"
+        $script:Pass++
+    }
+}
+
+# Standard digest used in fixture verdicts
+$DIGEST = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+$DIGEST2 = "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
+
+function New-Verdict {
+    param(
+        [string]$Path,
+        [string]$Vendor,
+        [string]$VerdictVal = "PASS",
+        [bool]$Critical = $false,
+        [string]$Digest = $DIGEST,
+        [bool]$Blind = $true,
+        [bool]$IncludeConsent = $true,
+        [bool]$HasConsentKind = $true
+    )
+    $dir = Split-Path -Parent $Path
+    New-Item -ItemType Directory -Path $dir -Force | Out-Null
+
+    $findings = @()
+    if ($Critical) {
+        $findings = @(@{ severity = "Critical"; ref = "file:1"; note = "critical issue" })
+    }
+
+    $consentObj = $null
+    if ($IncludeConsent) {
+        if ($HasConsentKind) {
+            $consentObj = @{ kind = "human-flag"; ref = "tasks.md T-002 Cross-Model: enabled" }
+        } else {
+            $consentObj = @{}
+        }
+    }
+
+    $verdict = [ordered]@{
+        schema       = "cross-model-verdict/v1"
+        task_id      = "T-002"
+        feature      = "cross-model-verification"
+        vendor       = $Vendor
+        model        = "$Vendor-model-1"
+        verdict      = $VerdictVal
+        findings     = $findings
+        blind        = $Blind
+        input_digest = $Digest
+        consent      = $consentObj
+    }
+
+    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $Path
+}
+
+function Get-MonotonicMilliseconds {
+    return [long]([System.Diagnostics.Stopwatch]::GetTimestamp() * 1000 / [System.Diagnostics.Stopwatch]::Frequency)
+}
+
+function Test-ProcessExited {
+    param([int]$ProcessId)
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+        if (-not (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) { return $true }
+        Start-Sleep -Milliseconds 100
+    }
+    return -not [bool](Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)
+}
+
+function Get-RunnerDefault {
+    param([string]$RunnerPath)
+    $source = Get-Content -Raw -LiteralPath $RunnerPath
+    $match = [regex]::Match($source, '(?m)^\$PanelistTimeoutDefault\s*=\s*([0-9]+)\s*$')
+    if ($match.Success) { return $match.Groups[1].Value }
+    return ""
+}
+
+function Invoke-PanelistRunner {
+    param(
+        [pscustomobject]$Runner,
+        [ValidateSet("unset", "set")][string]$TimeoutMode,
+        [string]$TimeoutValue,
+        [string]$SpecRoot,
+        [hashtable]$StubEnvironment = @{}
+    )
+
+    $savedPath = $env:PATH
+    $hadTimeout = Test-Path Env:SDD_PANELIST_TIMEOUT
+    $savedTimeout = $env:SDD_PANELIST_TIMEOUT
+    $savedStubValues = @{}
+    foreach ($key in $StubEnvironment.Keys) {
+        $savedStubValues[$key] = if (Test-Path "Env:$key") { (Get-Item "Env:$key").Value } else { $null }
+        Set-Item "Env:$key" ([string]$StubEnvironment[$key])
+    }
+
+    try {
+        $env:PATH = $script:panelistStubPath + [System.IO.Path]::PathSeparator + $savedPath
+        if ($TimeoutMode -eq "unset") {
+            Remove-Item Env:SDD_PANELIST_TIMEOUT -ErrorAction SilentlyContinue
+        } else {
+            $env:SDD_PANELIST_TIMEOUT = $TimeoutValue
+        }
+
+        $invocation = @('-File', $Runner.Path)
+        if ($StubEnvironment.ContainsKey('STUB_RECHECK_RELEASE_FILE')) {
+            $invocation = @('-File', $script:recheckLauncher, '-RunnerPath', $Runner.Path)
+        }
+        $output = & $script:powerShellHost -NoProfile -ExecutionPolicy Bypass @invocation `
+            --task T-901 --feature timeout-test --input $script:panelistInput `
+            --spec-root $SpecRoot 2>&1
+        $script:panelistExit = $LASTEXITCODE
+        $script:panelistOutput = ($output | Out-String).Trim()
+    } finally {
+        $env:PATH = $savedPath
+        if ($hadTimeout) { $env:SDD_PANELIST_TIMEOUT = $savedTimeout }
+        else { Remove-Item Env:SDD_PANELIST_TIMEOUT -ErrorAction SilentlyContinue }
+        foreach ($key in $StubEnvironment.Keys) {
+            if ($null -eq $savedStubValues[$key]) { Remove-Item "Env:$key" -ErrorAction SilentlyContinue }
+            else { Set-Item "Env:$key" $savedStubValues[$key] }
+        }
+    }
+}
+
+function Stop-TestProcess {
+    param([int]$ProcessId)
+    if ($ProcessId -gt 0 -and (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) {
+        Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Assert-ProcessObservation {
+    param([string]$Name, [bool]$Completed)
+    $pattern = '(?m)^panelist-process: pid=([0-9]+) wait_completed=([01]) observed_at=([0-9]+) observed_exited=([01]) cleanup_kill=([01])\r?$'
+    $records = [regex]::Matches($script:panelistOutput, $pattern)
+    $valid = $records.Count -eq 1
+    if ($valid) {
+        $fields = $records[0].Groups
+        $valid = [long]$fields[1].Value -gt 0 -and [long]$fields[3].Value -gt 0 -and
+            [int]$fields[2].Value -eq [int]$Completed -and
+            [int]$fields[5].Value -eq [int](-not $Completed)
+        if ($Completed) { $valid = $valid -and $fields[4].Value -ceq '1' }
+        Write-Host ("measurement: $Name " + $records[0].Value)
+    }
+    if ($valid) { Ok "$Name awaited process observation" }
+    else { Fail "$Name awaited process observation" }
+}
+
+function Test-BoundaryTiming {
+    param([long]$Deadline, [long]$WaitEnd, [long]$OutputEnd)
+    return $Deadline -gt 0 -and $WaitEnd -gt 0 -and
+        $OutputEnd -gt 0 -and $WaitEnd -ge ($Deadline - 300) -and
+        $WaitEnd -le $OutputEnd -and $OutputEnd -le $Deadline
+}
+
+Push-Location $workDir
+try {
+$script:powerShellHost = (Get-Process -Id $PID).Path
+$script:panelistStubPath = Join-Path $workDir "panelist-stubs"
+$script:panelistInput = Join-Path $workDir "panelist-input.txt"
+New-Item -ItemType Directory -Path $script:panelistStubPath -Force | Out-Null
+Set-Content -Encoding Utf8 -Path $script:panelistInput -Value "sanitized test input"
+
+$pythonName = if ($IsWindows) { 'python' } else { 'python3' }
+$python = Get-Command $pythonName -ErrorAction Stop
+& $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
+if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the panelist fixture' }
+$panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
+@'
+import json
+import os
+import subprocess
+import sys
+import time
+
+def now():
+    return time.time_ns() // 1_000_000
+
+def receipt(name, value):
+    path = os.environ.get(name)
+    if path:
+        with open(path, 'w', encoding='utf-8') as handle:
+            handle.write(str(value))
+
+receipt('STUB_START_FILE', now())
+receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', ''))
+receipt('STUB_CALLED_FILE', 'called')
+receipt('STUB_PID_FILE', os.getpid())
+if os.environ.get('STUB_MODE') == 'hang':
+    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    receipt('STUB_CHILD_PID_FILE', child.pid)
+    time.sleep(30)
+
+release_path = os.environ.get('STUB_RECHECK_RELEASE_FILE')
+if release_path:
+    release_limit = time.monotonic() + 15
+    while not os.path.exists(release_path):
+        if time.monotonic() >= release_limit:
+            sys.exit(2)
+        time.sleep(0.01)
+
+response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
+    feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
+    findings=[], blind=True, input_digest='a' * 64,
+    consent=dict(kind='human-flag', ref='test fixture')), separators=(',', ':'))
+if os.environ.get('STUB_WARMUP') != '1':
+    margin = os.environ.get('STUB_COMPLETE_BEFORE_DEADLINE_MS')
+    target = (int(os.environ['SDD_PANELIST_DEADLINE_EPOCH_MS']) - int(margin)
+              if margin else int(os.environ.get('STUB_COMPLETE_AT_EPOCH_MS', '0')))
+    remaining = target - now()
+    if remaining > 0:
+        time.sleep(remaining / 1000)
+
+wait_end = now()
+phase_path = os.environ.get('STUB_PHASE_FILE')
+receipt_end = now()
+console = sys.stdout
+console_ready = now()
+console.write((response[:10] if os.environ.get('STUB_OUTPUT_MODE') == 'incomplete' else response) + '\n')
+write_end = now()
+time.sleep(int(os.environ.get('STUB_OUTPUT_DELAY_MS', '0')) / 1000)
+console.flush()
+flush_end = now()
+output_end = now()
+if phase_path:
+    with open(phase_path, 'w', encoding='utf-8') as handle:
+        handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
+                     f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+sys.exit(int(os.environ.get('STUB_EXIT_CODE', '0')))
+'@ | Set-Content -Encoding Utf8 -Path $panelistWorker
+
+# Pause the unmodified runner after its real timed wait returns false. Release
+# and await its real child before resuming HasExited; neither result is mocked.
+$script:recheckLauncher = Join-Path $workDir 'recheck-launcher.ps1'
+@'
+param([string]$RunnerPath)
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+$recheckLine = @(Select-String -LiteralPath $RunnerPath -SimpleMatch '$waitObservedAt =')
+if ($recheckLine.Count -ne 1) { throw 'Expected exactly one process recheck location' }
+Set-PSBreakpoint -Script $RunnerPath -Line $recheckLine[0].LineNumber -Action {
+    if ($waitCompleted) { throw 'Expected the actual timed wait to expire before release' }
+    $releaseAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    [IO.File]::WriteAllText($env:STUB_RECHECK_RELEASE_FILE, 'release')
+    if (-not $proc.WaitForExit(10000)) {
+        $proc.Kill($true)
+        throw 'Released real child did not finish'
+    }
+    [Console]::Error.WriteLine("panelist-recheck: pid=$($proc.Id) wait_completed=$([int]$waitCompleted) release_at=$releaseAt child_exit=$($proc.ExitCode) observed_exited=$([int]$proc.HasExited)")
+} | Out-Null
+& $RunnerPath @args
+exit $LASTEXITCODE
+'@ | Set-Content -Encoding Utf8 -Path $script:recheckLauncher
+if ($IsWindows) {
+    foreach ($commandName in @("codex", "gemini")) {
+        $wrapper = Join-Path $script:panelistStubPath "$commandName.cmd"
+        "@echo off`r`n`"$($python.Source)`" `"$panelistWorker`" %*`r`n" |
+            Set-Content -Encoding Ascii -NoNewline -Path $wrapper
+    }
+} else {
+    $quotedHost = $python.Source.Replace('"', '\"')
+    $quotedWorker = $panelistWorker.Replace('"', '\"')
+    foreach ($commandName in @("codex", "gemini")) {
+        $wrapper = Join-Path $script:panelistStubPath $commandName
+        "#!/bin/sh`nexec `"$quotedHost`" `"$quotedWorker`" `"`$@`"`n" |
+            Set-Content -Encoding Utf8 -NoNewline -Path $wrapper
+        & chmod +x $wrapper
+    }
+}
+
+$panelistRunners = @(
+    [pscustomobject]@{
+        Name = "gpt"
+        Path = Join-Path $scriptsDir "run-panelist-gpt.ps1"
+        VerdictName = "T-901.panelist-openai.verdict.json"
+    },
+    [pscustomobject]@{
+        Name = "gemini"
+        Path = Join-Path $scriptsDir "run-panelist-gemini.ps1"
+        VerdictName = "T-901.panelist-google.verdict.json"
+    }
+)
+
+    # ============================================================================
+    # AC-002: Diversity checks
+    # ============================================================================
+    Write-Host "=== AC-002: Diversity checks ==="
+
+    # CM-001: Anthropic-only panel → exit 1 (diversity fail)
+    $cm001 = Join-Path $workDir "cm001/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm001 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm001 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    Assert-ExitCode "CM-001: anthropic-only panel fails (diversity)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm001/specs")) 1
+
+    # CM-001b: aggregate written with result=FAIL
+    $agg001 = Join-Path $cm001 "T-002.cross-model.json"
+    if (Test-Path $agg001) {
+        $agg001Data = Get-Content -Raw $agg001 | ConvertFrom-Json
+        if ($agg001Data.result -eq "FAIL") {
+            Ok "CM-001b: aggregate result=FAIL written"
+        } else {
+            Fail "CM-001b: aggregate result should be FAIL, got $($agg001Data.result)"
+        }
+    } else {
+        Fail "CM-001b: aggregate JSON should be written even on diversity fail"
+    }
+
+    # CM-002: anthropic+openai panel → exit 0 (diversity satisfied)
+    $cm002 = Join-Path $workDir "cm002/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm002 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm002 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm002 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    Assert-ExitCode "CM-002: anthropic+openai panel passes diversity" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm002/specs")) 0
+
+    # CM-003: no verdicts → exit 2 (tool error)
+    $cm003 = Join-Path $workDir "cm003/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm003 -Force | Out-Null
+    Assert-ExitCode "CM-003: no verdicts → exit 2 (tool error)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm003/specs")) 2
+
+    # CM-004: two non-anthropic vendors → pass
+    $cm004 = Join-Path $workDir "cm004/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm004 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm004 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    New-Verdict -Path (Join-Path $cm004 "T-002.panelist-google.verdict.json") -Vendor "google"
+    Assert-ExitCode "CM-004: openai+google panel passes (non_anthropic>=1, distinct>=2)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm004/specs")) 0
+
+    # ============================================================================
+    # AC-003: Schema validation
+    # ============================================================================
+    Write-Host "=== AC-003: Schema validation ==="
+
+    # CM-005: blind=false → exit 2
+    $cm005 = Join-Path $workDir "cm005/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm005 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm005 "T-002.panelist-openai.verdict.json") -Vendor "openai" -Blind $false
+    New-Verdict -Path (Join-Path $cm005 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    Assert-ExitCode "CM-005: blind=false → exit 2 (schema error)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm005/specs")) 2
+
+    # CM-006: bad input_digest → exit 2
+    $cm006 = Join-Path $workDir "cm006/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm006 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm006 "T-002.panelist-openai.verdict.json") -Vendor "openai" -Digest "not-a-valid-hex-digest"
+    New-Verdict -Path (Join-Path $cm006 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    Assert-ExitCode "CM-006: bad input_digest → exit 2 (schema error)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm006/specs")) 2
+
+    # CM-007: missing consent.kind → exit 2
+    $cm007 = Join-Path $workDir "cm007/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm007 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm007 "T-002.panelist-openai.verdict.json") -Vendor "openai" -HasConsentKind $false
+    New-Verdict -Path (Join-Path $cm007 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    Assert-ExitCode "CM-007: missing consent.kind → exit 2 (schema error)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm007/specs")) 2
+
+    # ============================================================================
+    # AC-004: Consensus checks
+    # ============================================================================
+    Write-Host "=== AC-004: Consensus checks ==="
+
+    # CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+    $cm008 = Join-Path $workDir "cm008/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm008 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm008 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm008 "T-002.panelist-openai.verdict.json") -Vendor "openai" -VerdictVal "NEEDS_WORK"
+    Assert-ExitCode "CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm008/specs")) 1
+
+    # CM-009: Critical finding → exit 1
+    $cm009 = Join-Path $workDir "cm009/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm009 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm009 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm009 "T-002.panelist-openai.verdict.json") -Vendor "openai" -Critical $true
+    Assert-ExitCode "CM-009: Critical finding → exit 1 (consensus fail)" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm009/specs")) 1
+
+    # CM-010: all PASS, no critical → exit 0
+    $cm010 = Join-Path $workDir "cm010/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm010 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm010 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm010 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    Assert-ExitCode "CM-010: all PASS no critical → exit 0" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm010/specs")) 0
+
+    # CM-010b: aggregate result=PASS written
+    $agg010 = Join-Path $cm010 "T-002.cross-model.json"
+    if (Test-Path $agg010) {
+        $agg010Data = Get-Content -Raw $agg010 | ConvertFrom-Json
+        if ($agg010Data.result -eq "PASS") {
+            Ok "CM-010b: aggregate result=PASS written"
+        } else {
+            Fail "CM-010b: aggregate should be PASS, got $($agg010Data.result)"
+        }
+    } else {
+        Fail "CM-010b: aggregate JSON should be written on pass"
+    }
+
+    # CM-011: --evaluator PASS matches panel → exit 0
+    $cm011 = Join-Path $workDir "cm011/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm011 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm011 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm011 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    Assert-ExitCode "CM-011: --evaluator PASS matches panel → exit 0" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--evaluator","PASS","--spec-root","$workDir/cm011/specs")) 0
+
+    # CM-012: --evaluator NEEDS_WORK diverges from panel PASS → exit 1, NEEDS_HUMAN
+    $cm012 = Join-Path $workDir "cm012/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm012 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm012 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm012 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    Assert-ExitCode "CM-012: evaluator diverges → exit 1" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--evaluator","NEEDS_WORK","--spec-root","$workDir/cm012/specs")) 1
+
+    $agg012 = Join-Path $cm012 "T-002.cross-model.json"
+    if (Test-Path $agg012) {
+        $agg012Data = Get-Content -Raw $agg012 | ConvertFrom-Json
+        if ($agg012Data.result -eq "NEEDS_HUMAN" -and $agg012Data.requires_human_decision -eq $true) {
+            Ok "CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true"
+        } else {
+            Fail "CM-012b: expected NEEDS_HUMAN/true, got result=$($agg012Data.result) requires_human=$($agg012Data.requires_human_decision)"
+        }
+    } else {
+        Fail "CM-012b: aggregate JSON should be written on divergence"
+    }
+
+    # CM-013: --expect-digest matches → exit 0
+    $cm013 = Join-Path $workDir "cm013/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm013 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm013 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic" -Digest $DIGEST
+    New-Verdict -Path (Join-Path $cm013 "T-002.panelist-openai.verdict.json") -Vendor "openai" -Digest $DIGEST
+    Assert-ExitCode "CM-013: --expect-digest matches → exit 0" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--expect-digest",$DIGEST,"--spec-root","$workDir/cm013/specs")) 0
+
+    # CM-014: --expect-digest mismatch → exit 1
+    $cm014 = Join-Path $workDir "cm014/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm014 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm014 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic" -Digest $DIGEST
+    New-Verdict -Path (Join-Path $cm014 "T-002.panelist-openai.verdict.json") -Vendor "openai" -Digest $DIGEST
+    Assert-ExitCode "CM-014: --expect-digest mismatch → exit 1" `
+        (Invoke-CrossModel @("--task","T-002","--feature","f1","--expect-digest",$DIGEST2,"--spec-root","$workDir/cm014/specs")) 1
+
+    # CM-015: aggregate JSON has correct schema fields
+    $cm015 = Join-Path $workDir "cm015/specs/f1/verification"
+    New-Item -ItemType Directory -Path $cm015 -Force | Out-Null
+    New-Verdict -Path (Join-Path $cm015 "T-002.panelist-anthropic.verdict.json") -Vendor "anthropic"
+    New-Verdict -Path (Join-Path $cm015 "T-002.panelist-openai.verdict.json") -Vendor "openai"
+    Invoke-CrossModel @("--task","T-002","--feature","f1","--spec-root","$workDir/cm015/specs") | Out-Null
+    $agg015 = Join-Path $cm015 "T-002.cross-model.json"
+    if (Test-Path $agg015) {
+        $d = Get-Content -Raw $agg015 | ConvertFrom-Json
+        $required = @('schema','task_id','feature','panelists','vendors_distinct','non_anthropic_count','all_pass','any_critical','evaluator_verdict','divergence','requires_human_decision','result')
+        $missing = @($required | Where-Object { -not ($d.PSObject.Properties.Name -contains $_) })
+        if ($missing.Count -eq 0 -and $d.schema -eq "cross-model-aggregate/v1") {
+            Ok "CM-015: aggregate JSON has all required fields"
+        } else {
+            Fail "CM-015: aggregate JSON missing fields: $($missing -join ',') schema=$($d.schema)"
+        }
+    } else {
+        Fail "CM-015: aggregate JSON not created"
+    }
+
+    # ============================================================================
+    # TEST-003 / TEST-012: PowerShell runner timeout configuration
+    # ============================================================================
+    Write-Host "=== TEST-003/TEST-012: PowerShell timeout configuration ==="
+    $runnerDefaults = @{}
+    foreach ($runner in $panelistRunners) {
+        $runnerDefault = Get-RunnerDefault $runner.Path
+        $runnerDefaults[$runner.Name] = $runnerDefault
+        if ($runnerDefault) {
+            Ok "TEST-012: $($runner.Name) default is extracted from runner source"
+        } else {
+            Fail "TEST-012: $($runner.Name) default must be extractable from runner source"
+        }
+
+        foreach ($validCase in @(
+            @{ Name = "unset"; Mode = "unset"; Value = "" },
+            @{ Name = "empty"; Mode = "set"; Value = "" },
+            @{ Name = "one"; Mode = "set"; Value = "1" },
+            @{ Name = "huge"; Mode = "set"; Value = "99999999" }
+        )) {
+            $caseRoot = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name)/specs"
+            $calledFile = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name).called"
+            Remove-Item $calledFile -ErrorAction SilentlyContinue
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode $validCase.Mode `
+                -TimeoutValue $validCase.Value -SpecRoot $caseRoot `
+                -StubEnvironment @{ STUB_CALLED_FILE = $calledFile }
+            $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+            if ($validCase.Name -eq "one") {
+                # A 1-second bound races stub start-up on slow runners:
+                # acceptance is proven by the stub being invoked without the
+                # exit-2 validation rejection, whether or not the timeout
+                # then fires.
+                if ((Test-Path $calledFile) -and ($script:panelistExit -in 0, 1)) {
+                    Ok "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout"
+                } else {
+                    Fail "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout (exit=$script:panelistExit called=$(Test-Path $calledFile))"
+                }
+            } elseif ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
+                Ok "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout"
+            } else {
+                Fail "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout (exit=$script:panelistExit verdict=$(Test-Path $verdict))"
+            }
+        }
+
+        if ($runnerDefault) {
+            $caseRoot = Join-Path $workDir "config-$($runner.Name)-source-default/specs"
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set `
+                -TimeoutValue $runnerDefault -SpecRoot $caseRoot
+            $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+            if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
+                Ok "TEST-003: $($runner.Name) accepts its source-derived default"
+            } else {
+                Fail "TEST-003: $($runner.Name) accepts its source-derived default (exit=$script:panelistExit verdict=$(Test-Path $verdict))"
+            }
+        } else {
+            Fail "TEST-003: $($runner.Name) source-derived default case is runnable"
+        }
+
+        foreach ($invalidValue in @("0", "-5", "abc")) {
+            $safeValue = $invalidValue.Replace("-", "negative-")
+            $caseRoot = Join-Path $workDir "config-$($runner.Name)-$safeValue/specs"
+            $calledFile = Join-Path $workDir "config-$($runner.Name)-$safeValue.called"
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue $invalidValue `
+                -SpecRoot $caseRoot -StubEnvironment @{ STUB_CALLED_FILE = $calledFile }
+            if ($script:panelistExit -eq 2 -and -not (Test-Path $calledFile)) {
+                Ok "TEST-003: $($runner.Name) rejects '$invalidValue' before vendor invocation"
+            } else {
+                Fail "TEST-003: $($runner.Name) rejects '$invalidValue' before vendor invocation (exit=$script:panelistExit called=$(Test-Path $calledFile))"
+            }
+        }
+    }
+
+    if ($runnerDefaults.gpt -and $runnerDefaults.gemini -and $runnerDefaults.gpt -eq $runnerDefaults.gemini) {
+        Ok "TEST-012: PowerShell runners declare the same source-derived default"
+    } else {
+        Fail "TEST-012: PowerShell runner source defaults must match (gpt='$($runnerDefaults.gpt)' gemini='$($runnerDefaults.gemini)')"
+    }
+
+    # ============================================================================
+    # TEST-004(a) / TEST-005: wall-clock bound and no orphaned descendants
+    # ============================================================================
+    Write-Host "=== TEST-004(a)/TEST-005: PowerShell timeout lifecycle ==="
+    $timeoutCaseRoots = @{}
+    foreach ($runner in $panelistRunners) {
+        $caseRoot = Join-Path $workDir "timeout-$($runner.Name)/specs"
+        $timeoutCaseRoots[$runner.Name] = $caseRoot
+        $stubPidFile = Join-Path $workDir "timeout-$($runner.Name).stub.pid"
+        $childPidFile = Join-Path $workDir "timeout-$($runner.Name).child.pid"
+        $started = Get-MonotonicMilliseconds
+        Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "1" `
+            -SpecRoot $caseRoot -StubEnvironment @{
+                STUB_MODE = "hang"
+                STUB_PID_FILE = $stubPidFile
+                STUB_CHILD_PID_FILE = $childPidFile
+            }
+        $elapsed = (Get-MonotonicMilliseconds) - $started
+        $stubPid = if (Test-Path $stubPidFile) { [int](Get-Content -Raw $stubPidFile) } else { 0 }
+        $childPid = if (Test-Path $childPidFile) { [int](Get-Content -Raw $childPidFile) } else { 0 }
+        # A timeout can occur before the stub reaches Start-Process.  In that
+        # case no child was created, which is safe; only an observed PID must
+        # be proven dead.  Treating an absent PID as alive made the Windows
+        # lane fail on legitimate cold-start timeouts.
+        $stubExited = $stubPid -le 0 -or (Test-ProcessExited $stubPid)
+        $childExited = $childPid -le 0 -or (Test-ProcessExited $childPid)
+        $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+        Write-Host "measurement: TEST-004(a) runner=$($runner.Name) elapsed_ms=$elapsed limit_ms=10000 stub_pid=$stubPid stub_alive=$([int](-not $stubExited)) child_pid=$childPid child_alive=$([int](-not $childExited)) exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+
+        if ($elapsed -le 10000 -and $stubExited -and $childExited) {
+            Ok "TEST-004(a): $($runner.Name) returns within the wall-clock bound with no stub or child alive"
+        } else {
+            Fail "TEST-004(a): $($runner.Name) returns within the wall-clock bound with no stub or child alive"
+            # JSON escaping keeps CLI output from becoming terminal/CI control lines.
+            $diagnostic = $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length))
+            Write-Host ("runner diagnostic: " + (ConvertTo-Json -InputObject $diagnostic -Compress))
+        }
+        if ($script:panelistExit -eq 1 -and -not (Test-Path $verdict)) {
+            Ok "TEST-005: $($runner.Name) timeout exits 1 without a verdict"
+        } else {
+            Fail "TEST-005: $($runner.Name) timeout exits 1 without a verdict"
+        }
+
+        Stop-TestProcess $childPid
+        Stop-TestProcess $stubPid
+        Assert-ProcessObservation -Name "timeout $($runner.Name)" -Completed $false
+    }
+
+    # TEST-006: the missing timed-out non-Anthropic verdict must prevent a
+    # consensus PASS at the existing gate.
+    $gateRoot = $timeoutCaseRoots.gpt
+    $gateVerification = Join-Path $gateRoot "timeout-test/verification"
+    $anthropicVerdict = Join-Path $gateVerification "T-901.panelist-anthropic.verdict.json"
+    @{
+        schema = "cross-model-verdict/v1"
+        task_id = "T-901"
+        feature = "timeout-test"
+        vendor = "anthropic"
+        model = "stub-model"
+        verdict = "PASS"
+        findings = @()
+        blind = $true
+        input_digest = ("a" * 64)
+        consent = @{ kind = "human-flag"; ref = "test fixture" }
+    } | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 -Path $anthropicVerdict
+    $gateExit = Invoke-CrossModel @(
+        "--task", "T-901", "--feature", "timeout-test", "--spec-root", $gateRoot
+    )
+    $gateAggregate = Join-Path $gateVerification "T-901.cross-model.json"
+    $gateResult = if (Test-Path $gateAggregate) {
+        (Get-Content -Raw $gateAggregate | ConvertFrom-Json).result
+    } else { "" }
+    $gateText = ($script:gateOutput | Out-String)
+    if ($gateExit -ne 0 -and $gateResult -ne "PASS" -and $gateText -notmatch "consensus PASS") {
+        Ok "TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS"
+    } else {
+        Fail "TEST-006: missing timed-out non-Anthropic verdict must fail gate (exit=$gateExit result='$gateResult')"
+    }
+
+    # TEST-004(b) is intentionally POSIX-only. Process.Kill() maps to an
+    # untrappable TerminateProcess operation, so PowerShell has no meaningful
+    # refusal stub. TEST-004(a)'s descendant-liveness check carries the
+    # Kill($true) escalation risk instead.
+    Write-Host "note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness"
+
+    # ============================================================================
+    # TEST-004(c): normal process completion, repeated five times
+    # ============================================================================
+    # The runner exports the one absolute deadline it uses for both process
+    # launch and WaitForExit. Leave 2000ms for output and process teardown;
+    # fixed boundary receipts below test timing independently of host speed.
+    Write-Host "=== TEST-004(c): PowerShell normal completion ==="
+    & (Join-Path $PSScriptRoot 'cross-model-empty-phase.tests.ps1')
+    if ($LASTEXITCODE -eq 0) { Ok "TEST-004(c): empty phase log regression" }
+    else { Fail "TEST-004(c): empty phase log regression" }
+    $completionSlackMs = 2000
+    $completionBudgetSec = 4
+    $outputDelayMs = 500
+    foreach ($case in @(
+        @{ Name = "lower edge"; WaitEnd = 1700; OutputEnd = 1800; Expected = $true },
+        @{ Name = "deadline edge"; WaitEnd = 1800; OutputEnd = 2000; Expected = $true },
+        @{ Name = "early completion"; WaitEnd = 1699; OutputEnd = 1800; Expected = $false },
+        @{ Name = "late child output"; WaitEnd = 1800; OutputEnd = 2001; Expected = $false },
+        @{ Name = "reversed child phases"; WaitEnd = 1800; OutputEnd = 1799; Expected = $false },
+        @{ Name = "missing output receipt"; WaitEnd = 1800; OutputEnd = 0; Expected = $false },
+        @{ Name = "missing wait receipt"; WaitEnd = 0; OutputEnd = 1800; Expected = $false }
+    )) {
+        if ((Test-BoundaryTiming 2000 $case.WaitEnd $case.OutputEnd) -eq $case.Expected) {
+            Ok "TEST-004(c): deterministic boundary evidence ($($case.Name))"
+        } else { Fail "TEST-004(c): deterministic boundary evidence ($($case.Name))" }
+    }
+    foreach ($runner in $panelistRunners) {
+        # Windows-hosted runners can pay a one-time process/runtime startup
+        # cost on the first Gemini invocation. Warm the exact runner + stub
+        # path once, outside the measured normal-completion cases.
+        $warmupRoot = Join-Path $workDir "normal-$($runner.Name)-warmup/specs"
+        $warmupMarker = Join-Path $workDir "normal-$($runner.Name)-warmup.called"
+        Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "5" `
+            -SpecRoot $warmupRoot -StubEnvironment @{
+                STUB_WARMUP = "1"
+                STUB_CALLED_FILE = $warmupMarker
+            }
+        $warmupVerdict = Join-Path $warmupRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+        if ($script:panelistExit -eq 0 -and (Test-Path $warmupVerdict) -and (Test-Path -LiteralPath $warmupMarker)) {
+            Ok "TEST-004(c): $($runner.Name) startup warm-up"
+        } else {
+            Fail "TEST-004(c): $($runner.Name) startup warm-up (exit=$script:panelistExit)"
+            Write-Host ("runner diagnostic: " + $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length)))
+        }
+        for ($iteration = 1; $iteration -le 5; $iteration++) {
+            $deadlineMs = $completionBudgetSec * 1000
+            $caseName = "normal-$($runner.Name)-$iteration"
+            $caseRoot = Join-Path $workDir "$caseName/specs"
+            $startFile = Join-Path $workDir "$caseName.stub-start"
+            $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
+            $phaseFile = Join-Path $workDir "$caseName.phases"
+            $started = Get-MonotonicMilliseconds
+            $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$completionBudgetSec" `
+                -SpecRoot $caseRoot -StubEnvironment @{
+                    STUB_COMPLETE_BEFORE_DEADLINE_MS = "$completionSlackMs"
+                    STUB_OUTPUT_DELAY_MS            = "$outputDelayMs"
+                    STUB_DEADLINE_FILE                = $deadlineFile
+                    STUB_START_FILE                   = $startFile
+                    STUB_PHASE_FILE                   = $phaseFile
+                }
+            $elapsed = (Get-MonotonicMilliseconds) - $started
+            $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+            $stubLaunchMs = -1
+            $stubStartEpoch = [long]0
+            if (Test-Path $startFile) {
+                if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $startFile)".Trim(), [ref]$stubStartEpoch)) {
+                    $stubLaunchMs = $stubStartEpoch - $invokedAt
+                }
+            }
+            $runnerDeadline = if (Test-Path $deadlineFile) { "$(Get-Content -Raw -LiteralPath $deadlineFile)".Trim() } else { "missing" }
+            # Report receipts only after the runner returns. Operation timestamps
+            # add in-deadline observation cost; no timestamp proves process exit.
+            $startupInsideBudgetMs = "missing"
+            $parsedDeadline = [long]0
+            $waitEnd = [long]0
+            $outputEnd = [long]0
+            $observedAt = [long]0
+            if ($stubStartEpoch -gt 0 -and [long]::TryParse($runnerDeadline, [ref]$parsedDeadline)) {
+                $startupInsideBudgetMs = $stubStartEpoch - ($parsedDeadline - $deadlineMs)
+            }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration invoked_at_epoch_ms=$invokedAt stub_start_epoch_ms=$stubStartEpoch startup_inside_budget_ms=$startupInsideBudgetMs"
+            $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            if (Test-Path -LiteralPath $phaseFile) {
+                $phaseText = [string](Get-Content -Raw -LiteralPath $phaseFile)
+                $waitRecords = [regex]::Matches($phaseText, '(?m)^wait_end=([0-9]+)\r?$')
+                if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
+                $outputRecords = [regex]::Matches($phaseText, '(?m)^output_end=([0-9]+)\r?$')
+                if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
+                foreach ($phase in Get-Content -LiteralPath $phaseFile) {
+                    if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
+                        Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
+                    }
+                }
+            }
+            $processRecords = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=[0-9]+ wait_completed=1 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
+            if ($processRecords.Count -eq 1) { $observedAt = [long]$processRecords[0].Groups[1].Value }
+            $processObservationValid = $processRecords.Count -eq 1 -and $observedAt -gt 0
+            $completionTiming = $parsedDeadline -gt 0 -and $waitEnd -gt 0 -and
+                ($outputEnd - $waitEnd) -ge $outputDelayMs -and $outputEnd -le $parsedDeadline
+            $expectedVerdict = [ordered]@{
+                schema = 'cross-model-verdict/v1'; task_id = 'T-901'; feature = 'timeout-test'
+                vendor = $(if ($runner.Name -ceq 'gpt') { 'openai' } else { 'google' })
+                model = 'stub-model'; verdict = 'PASS'; findings = @(); blind = $true
+                input_digest = ('a' * 64); consent = [ordered]@{ kind = 'human-flag'; ref = 'test fixture' }
+            } | ConvertTo-Json -Depth 5 -Compress
+            $actualVerdict = if (Test-Path $verdict) {
+                Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+            } else { '' }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd output_end=$outputEnd observed_at=$observedAt deadline=$parsedDeadline completion_timing=$([int]$completionTiming)"
+            if ($script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict -and $processObservationValid -and $completionTiming) {
+                Ok "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration"
+            } else {
+                Fail "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration ($detail)"
+                # This runner uses only the synthetic CLI and fixed test input.
+                # Keep failure diagnostics bounded and strip terminal controls.
+                $safeOutput = [regex]::Replace($script:panelistOutput, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '')
+                Write-Host ("runner diagnostic: " + $safeOutput.Substring(0, [Math]::Min(4096, $safeOutput.Length)))
+            }
+            Assert-ProcessObservation -Name "normal $($runner.Name) $iteration" -Completed $true
+        }
+
+        # TEST-004(c2): the timed wait really expires, then that same handle
+        # really exits before HasExited. Debugger coordination removes timing
+        # luck while retaining the runner's deadline, process and output checks.
+        foreach ($case in @(
+            @{ Name = 'success'; ExitCode = 0; Output = 'complete'; Repeats = 5 },
+            @{ Name = 'nonzero'; ExitCode = 7; Output = 'complete'; Repeats = 1 },
+            @{ Name = 'incomplete'; ExitCode = 0; Output = 'incomplete'; Repeats = 1 }
+        )) {
+            for ($iteration = 1; $iteration -le $case.Repeats; $iteration++) {
+                $caseName = "recheck-$($runner.Name)-$($case.Name)-$iteration"
+                $caseRoot = Join-Path $workDir "$caseName/specs"
+                $pidFile = Join-Path $workDir "$caseName.pid"
+                Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue '2' `
+                    -SpecRoot $caseRoot -StubEnvironment @{
+                        STUB_RECHECK_RELEASE_FILE = Join-Path $workDir "$caseName.release"
+                        STUB_PID_FILE = $pidFile
+                        STUB_EXIT_CODE = "$($case.ExitCode)"
+                        STUB_OUTPUT_MODE = $case.Output
+                    }
+                $verdict = Join-Path $caseRoot (Join-Path 'timeout-test/verification' $runner.VerdictName)
+                $rechecks = [regex]::Matches($script:panelistOutput, '(?m)^panelist-recheck: pid=([0-9]+) wait_completed=0 release_at=([0-9]+) child_exit=([0-9]+) observed_exited=1\r?$')
+                $observations = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=([0-9]+) wait_completed=0 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
+                $realExit = $false
+                if ($rechecks.Count -eq 1 -and $observations.Count -eq 1 -and (Test-Path $pidFile)) {
+                    $recheck = $rechecks[0].Groups
+                    $observation = $observations[0].Groups
+                    $realExit = $recheck[1].Value -ceq $observation[1].Value -and
+                        [long]$recheck[2].Value -le [long]$observation[2].Value -and
+                        [int]$recheck[3].Value -eq $case.ExitCode -and
+                        (Test-ProcessExited ([int]$recheck[1].Value)) -and
+                        (Test-ProcessExited ([int](Get-Content -Raw -LiteralPath $pidFile)))
+                    Write-Host "measurement: TEST-004(c2) runner=$($runner.Name) case=$($case.Name) iteration=$iteration $($rechecks[0].Value)"
+                    Write-Host "measurement: TEST-004(c2) $($observations[0].Value)"
+                }
+                $valid = $realExit -and -not $script:panelistOutput.Contains('exceeded SDD_PANELIST_TIMEOUT', [StringComparison]::Ordinal)
+                if ($case.Name -ceq 'success') {
+                    $actualVerdict = if (Test-Path $verdict) {
+                        Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+                    } else { '' }
+                    $valid = $valid -and $script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict
+                } else {
+                    $valid = $valid -and $script:panelistExit -eq 1 -and -not (Test-Path $verdict)
+                }
+                if ($valid) { Ok "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration" }
+                else {
+                    Fail "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration (exit=$script:panelistExit)"
+                    Write-Host "runner diagnostic: $script:panelistOutput"
+                }
+            }
+        }
+    }
+
+    # ============================================================================
+    # TEST-001 / TEST-002: shipped policy taxonomy
+    # ============================================================================
+    Write-Host "=== TEST-001/002: panelist failure taxonomy ==="
+    $policyPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/cross-model-verification-policy.md"
+    $policyText = Get-Content -Raw -Encoding Utf8 -LiteralPath $policyPath
+    $taxonomyMatch = [regex]::Match(
+        $policyText,
+        '(?ms)^## Panelist Failure Taxonomy\s*$(.*?)(?=^##\s)')
+    $taxonomySection = if ($taxonomyMatch.Success) { $taxonomyMatch.Groups[1].Value } else { "" }
+
+    foreach ($mode in @(
+        "CLI absent",
+        "CLI exits non-zero",
+        "CLI rate-limited",
+        "CLI hangs / exceeds the time bound",
+        "CLI returns malformed output"
+    )) {
+        $rowPrefix = "| $mode |"
+        $row = $taxonomySection -split "`r?`n" |
+            Where-Object { $_.StartsWith($rowPrefix, [StringComparison]::Ordinal) } |
+            Select-Object -First 1
+        $cells = if ($row) {
+            @($row.Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+        } else { @() }
+        $validRow = $cells.Count -eq 4 -and
+            $cells[1].StartsWith('`1`', [StringComparison]::Ordinal) -and
+            -not $cells[1].Contains('`2`', [StringComparison]::Ordinal) -and
+            $cells[2].StartsWith("No.", [StringComparison]::Ordinal) -and
+            $cells[3] -match '(?i)diversity' -and
+            $cells[3] -match '(?i)gate' -and
+            $cells[3] -match '(?i)exit 1' -and
+            $cells[3] -match '(?i)exit 2'
+        if ($validRow) {
+            Ok "TEST-001: $mode states exit, no-verdict, and gate propagation"
+        } else {
+            Fail "TEST-001: $mode must state exit 1, no verdict, and diversity/gate propagation"
+        }
+    }
+
+    $normalizedTaxonomy = [regex]::Replace($taxonomySection, '\s+', ' ')
+    if ($normalizedTaxonomy.Contains(
+            'Rate-limiting is **not separately handled**',
+            [StringComparison]::Ordinal) -and
+        $normalizedTaxonomy.Contains(
+            'exit-non-zero or timeout',
+            [StringComparison]::Ordinal)) {
+        Ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
+    } else {
+        Fail "TEST-002: rate limiting must be stated as not separately handled"
+    }
+
+    # ============================================================================
+    # TEST-007 / TEST-008 / TEST-013: threat-model security cross-references
+    # ============================================================================
+    Write-Host "=== TEST-007/008/013: threat-model security cross-references ==="
+    $threatModelText = Get-Content -Raw -Encoding Utf8 -LiteralPath $threatModelPath
+    $owaspMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$(.*?)(?=^##\s|\z)')
+    $owaspRows = @()
+    if ($owaspMatch.Success) {
+        $owaspRows = @($owaspMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|\s*LLM(?:0[1-9]|10)\s*\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) })
+    }
+    $expectedOwaspIds = @(1..10 | ForEach-Object { "LLM{0:D2}" -f $_ })
+    $actualOwaspIds = @($owaspRows | ForEach-Object { $_[0] } | Sort-Object)
+    $owaspRowsValid = $owaspRows.Count -eq 10 -and
+        (($actualOwaspIds -join ',') -ceq (($expectedOwaspIds | Sort-Object) -join ',')) -and
+        @($owaspRows | Where-Object { $_.Count -ne 3 -or -not $_[1] -or -not $_[2] }).Count -eq 0
+    if ($owaspRowsValid) {
+        Ok "TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence"
+    } else {
+        Fail "TEST-007: OWASP table must map LLM01 through LLM10 exactly once"
+    }
+
+    $controlsMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Controls Table\s*$(.*?)(?=^##\s|\z)')
+    $controlNames = @()
+    if ($controlsMatch.Success) {
+        $controlNames = @([regex]::Matches($controlsMatch.Groups[1].Value, '\*\*([^*]+)\*\*') |
+            ForEach-Object { $_.Groups[1].Value })
+    }
+    $naRows = @($owaspRows | Where-Object { $_.Count -eq 3 -and $_[1].StartsWith('N/A — ', [StringComparison]::Ordinal) })
+    $mappedRows = @($owaspRows | Where-Object {
+        $_.Count -eq 3 -and
+        ($_[1].StartsWith('Control — ', [StringComparison]::Ordinal) -or
+         $_[1].StartsWith('Partial control — ', [StringComparison]::Ordinal))
+    })
+    $reasonedNa = @($naRows | Where-Object { $_[1].Substring(6).Trim().Length -ge 12 }).Count -gt 0
+    $namedControlCited = $false
+    foreach ($row in $mappedRows) {
+        foreach ($name in $controlNames) {
+            if ($row[1].Contains($name, [StringComparison]::Ordinal) -or
+                $row[2].Contains($name, [StringComparison]::Ordinal)) {
+                $namedControlCited = $true
+            }
+        }
+    }
+    if ($reasonedNa -and $mappedRows.Count -gt 0 -and $namedControlCited) {
+        Ok "TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows"
+    } else {
+        Fail "TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control"
+    }
+
+    $mcpMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## MCP Security Cross-Reference\s*$(.*?)(?=^##\s|\z)')
+    $mcpRows = @()
+    if ($mcpMatch.Success) {
+        $mcpRows = @($mcpMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|\s*(?:sdd-forge-mcp|local-env-mcp|ci-mcp)\s*\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) })
+    }
+    $expectedMcpNames = @('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp')
+    $actualMcpNames = @($mcpRows | ForEach-Object { $_[0] } | Sort-Object)
+    $mcpRowsValid = $mcpRows.Count -eq 3 -and
+        (($actualMcpNames -join ',') -ceq ($expectedMcpNames -join ',')) -and
+        @($mcpRows | Where-Object {
+            $_.Count -ne 4 -or -not $_[1] -or -not $_[2] -or
+            -not $_[3].Contains('https://modelcontextprotocol.io/', [StringComparison]::Ordinal)
+        }).Count -eq 0
+    if ($mcpRowsValid) {
+        Ok "TEST-013: all three MCP servers state trust posture and cite primary MCP guidance"
+    } else {
+        Fail "TEST-013: MCP cross-reference must cover three servers with posture and primary sources"
+    }
+
+    # ============================================================================
+    # TEST-009 / TEST-010 / TEST-014: runtime trust surfaces and closed risk
+    # ============================================================================
+    Write-Host "=== TEST-009/010/014: runtime trust surfaces and closed risk ==="
+    $runtimeMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Runtime Trust Surfaces\s*$(.*?)(?=^##\s|\z)')
+    $runtimeRows = @()
+    if ($runtimeMatch.Success) {
+        $runtimeRows = @($runtimeMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) } |
+            Where-Object { $_.Count -eq 4 })
+    }
+    $expectedRuntimeSurfaces = @(
+        '--dangerously-bypass-hook-trust',
+        'Claude Code settings/permissions',
+        'claude-hooks.json',
+        'hooks.state',
+        'managed by sdd-forge installer'
+    )
+    $surfaceRows = @($runtimeRows | Where-Object {
+        $expectedRuntimeSurfaces -ccontains $_[0].Trim('`')
+    })
+    $actualRuntimeSurfaces = @($surfaceRows | ForEach-Object { $_[0].Trim('`') } | Sort-Object)
+    $runtimeRowsValid = $surfaceRows.Count -eq 5 -and
+        (($actualRuntimeSurfaces -join ',') -ceq (($expectedRuntimeSurfaces | Sort-Object) -join ',')) -and
+        @($surfaceRows | Where-Object {
+            -not $_[1].StartsWith('Trust assumption — ', [StringComparison]::Ordinal) -or
+            (-not $_[2].StartsWith('Mitigation — ', [StringComparison]::Ordinal) -and
+             -not $_[2].StartsWith('Residual risk — ', [StringComparison]::Ordinal)) -or
+            $_[3] -notmatch '`[^`]+:\d+(?:-\d+)?`'
+        }).Count -eq 0
+    if ($runtimeRowsValid) {
+        Ok "TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence"
+    } else {
+        Fail "TEST-009: runtime trust table must substantively cover all five surfaces"
+    }
+
+    $normalizedRuntime = if ($runtimeMatch.Success) {
+        [regex]::Replace($runtimeMatch.Groups[1].Value, '\s+', ' ')
+    } else { '' }
+    $bypassValid = $normalizedRuntime.Contains(
+            '--dangerously-bypass-hook-trust', [StringComparison]::Ordinal) -and
+        $normalizedRuntime.Contains('first-run trust approval', [StringComparison]::Ordinal) -and
+        $normalizedRuntime -match '(?i)forfeit\w*'
+    if ($bypassValid) {
+        Ok "TEST-010: hook-trust bypass explicitly states the first-run approval forfeited"
+    } else {
+        Fail "TEST-010: bypass flag must name what its operator forfeits"
+    }
+
+    $residualMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Residual Risks\s*$(.*?)(?=^##\s|\z)')
+    $normalizedResidual = if ($residualMatch.Success) {
+        [regex]::Replace($residualMatch.Groups[1].Value, '\s+', ' ')
+    } else { '' }
+    $closedRiskValid = $normalizedResidual -match '(?i)unbounded external panelist' -and
+        $normalizedResidual.Contains('closed by this feature', [StringComparison]::Ordinal) -and
+        $normalizedResidual.Contains('SDD_PANELIST_TIMEOUT', [StringComparison]::Ordinal)
+    if ($closedRiskValid) {
+        Ok "TEST-014: unbounded external panelist risk is recorded as closed with its timeout control"
+    } else {
+        Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
+    }
+
+    # ============================================================================
+    # Summary
+    # ============================================================================
+    Write-Host ""
+    Write-Host "Results: $script:Pass passed, $script:Fail failed"
+    if ($script:Fail -gt 0) { exit 1 }
+    exit 0
+
+} finally {
+    Pop-Location
+    Remove-Item -Recurse -Force $workDir -ErrorAction SilentlyContinue
+}

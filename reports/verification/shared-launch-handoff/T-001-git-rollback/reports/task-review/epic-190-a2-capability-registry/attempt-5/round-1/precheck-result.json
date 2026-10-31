@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 5,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "d646104d6723a4d619c66ded511d2ea017a7997c9e2e2a88b16c632c18b84243",
+  "requirements_sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97",
+  "acceptance_sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b",
+  "design_sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c",
+  "traceability_sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6",
+  "layer_sha256": {"ux-spec.md":"da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5","frontend-spec.md":"84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793","infra-spec.md":"513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96","security-spec.md":"e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+  "input_sha256": "a3eacf0a6a95820d1adc54432c6447db839c2b46263d42c91be614f5e0fec951",
+  "generated_at": "2026-08-09T02:54:17Z"
+}

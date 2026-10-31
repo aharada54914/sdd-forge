@@ -1,0 +1,37 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-rce",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f",
+  "acceptance_sha256": "481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-epic136rce-a1r1-20260710-0001",
+      "host_session_id": "hs-spec-a-epic136rce-0134",
+      "allowed_input_manifest": [
+        {"path":"/c/dev/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+        {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/precheck-result.json","sha256":"b368668cf832c5401a3fe23787e505e57c5890f0fbb88be7ae399f9d6d1a9ecd"},
+        {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/acceptance-tests.md","sha256":"481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c"},
+        {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/requirements.md","sha256":"3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f"}
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-epic136rce-a1r1-20260710-0002",
+      "host_session_id": "hs-spec-b-epic136rce-0135",
+      "allowed_input_manifest": [
+        {"path":"/c/dev/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+        {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/integrated-summary.json","sha256":"ede365d385f2c95a5e69576ef849ee4f4ab5ee3e595f041e386557d48209770b"},
+        {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/precheck-result.json","sha256":"b368668cf832c5401a3fe23787e505e57c5890f0fbb88be7ae399f9d6d1a9ecd"},
+        {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/acceptance-tests.md","sha256":"481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c"},
+        {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/requirements.md","sha256":"3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f"}
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic136rce-a1r1-20260710-0003",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

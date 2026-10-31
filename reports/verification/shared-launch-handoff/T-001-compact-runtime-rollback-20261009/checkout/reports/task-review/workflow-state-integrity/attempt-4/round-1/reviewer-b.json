@@ -1,0 +1,29 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "2F7AE9B1-1967-4D0C-A2A0-BB7964BEEB70",
+  "host_session_id": "7FE351C8-6C3F-4C9A-AF34-E6710BC51558",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"12a9d412fdd8a8d33143a44487d77d154be7bd9223c22eb55e1cfcb6df4d869e"},
+    {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-4/round-1/precheck-result.json","sha256":"4ed49f98867fa49a227226ec720fbead48d2019e58ee3dab014f337e71f95b61"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-4/round-1/integrated-summary.json","sha256":"b5b9795b9ee209a58c7c84835d3d952e861330c158ccd19de9fb66bfe115d18a"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"T-001 through T-005 are appropriately high risk; T-006 is appropriately medium risk. No issues found."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"FAIL","severity":"Critical","finding":"T-001 through T-005 require Red evidence before implementation, but do not require the failing test commit to precede its implementation commit, so mandatory TDD ordering is not provable."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"T-001 through T-006 are coherent focused units and remain within the task-size bounds."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"Each functional task names an associated error path, invalid-state case, or version-skew failure."},
+    {"id":"TEST-TYPE-MATCH","result":"SKIP","severity":"Major","finding":"SKIP: no standalone task declares itself as a unit, integration, end-to-end, or acceptance test task."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"Every high-risk task T-001 through T-005 has an explicit rollback field and exercised rollback evidence."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"Shared files are sequenced by blockers; no uncoordinated parallel overlap was found."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"The blockers reflect real artifact dependencies; no spurious or missing dependency was found."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"PASS","severity":"Major","finding":"T-001 records the symptom, diagnostic path, and regression command."}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397",
+  "acceptance_sha256": "b549ca86e7835704b449a378c6a129ad0eddbc79bc16463aa0dfa5bc640c5a5c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9ccd2b06954a957f2123103d6ae125d92198e572aa8a02aa0ff7e1e5db713f96",
+  "edit_summary": "Attempt 3 round 1 の Major 2 件（reviewer A: GOAL-AC-TRACE / reviewer B: EDGE-CASE-COVERAGE、同一根本原因 — Positive-capability matrix の G1 行が引用証拠より広い能力を主張し、stakeholder_perspectives を populate する正例 AC が存在しなかった）に対応。acceptance-tests.md のみ変更、requirements.md は無変更。(1) AC-003 を『optional フィールドをすべて populate した正例』に格上げし、must_not_own / distinguished_from に加えて stakeholder_perspectives に有効な actor/concern を最低 1 件含めること、通過後に 3 フィールドの値が保持されることを規定した。optional 不在の受理は AC-004 が担うと明記。(2) 正例マトリクスの G1 行を 3 行に分割し（required 7 フィールド / optional 3 種の populate / optional 不在）、各行の能力記述を引用 AC が実際に踏む範囲に一致させた。(3) 正例マトリクス凡例に充足規則を追加 — 行の能力記述は引用 AC が踏む範囲を超えてはならず全称記述は証明列で個別列挙すること、負例 AC は根拠にならないこと、optional フィールドは populate 状態と不在状態がそれぞれ別の能力であり各々に正例 AC を要すること。(4) G3『誤検知しない』行の『全正例 fixture』という非列挙の全称を、引用 5 系統の列挙に置換した。",
+  "reset": false,
+  "generated_at": "2026-08-16T12:12:57Z"
+}

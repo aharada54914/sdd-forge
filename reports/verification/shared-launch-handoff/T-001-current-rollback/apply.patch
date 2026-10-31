@@ -1,0 +1,843 @@
+*** Begin Patch
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/launch-impl-review.py
+@@
+ 
+ spec = importlib.util.spec_from_file_location(
+     'transport', Path(__file__).with_name('validate-nontty-spec-launch.py'))
++if spec is None or spec.loader is None:
++    raise ValueError('transport loader unavailable')
+ transport = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(transport)
+ 
+@@
+     helper_spec = importlib.util.spec_from_file_location(
+         'conditional_inputs', Path(__file__).parents[2] /
+         'sdd-quality-loop/scripts/review-conditional-inputs.py')
++    if helper_spec is None or helper_spec.loader is None:
++        raise ValueError('conditional input loader unavailable')
+     helper = importlib.util.module_from_spec(helper_spec)
+     helper_spec.loader.exec_module(helper)
+     result = helper.resolve(root, data['feature'], data['stage'])
+@@
+     else:
+         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        rounds = [pattern.fullmatch(e['path']) for e in data['allowed_input_manifest']]
+-        rounds = [m for m in rounds if m]
++        matches = [pattern.fullmatch(e['path']) for e in data['allowed_input_manifest']]
++        rounds = [m for m in matches if m is not None]
+         transport.require(len(rounds) == 1, 'one admitted precheck is required')
+         attempt, round_number = rounds[0].groups()
+         admitted = checked_input_paths(root, data)
+@@
+     files.update(root / e['path'] for e in data['allowed_input_manifest'])
+     for name in ('rtk', 'claude', 'node', 'bash', 'jq', 'shasum'):
+         executable = shutil.which(name)
+-        transport.require(executable is not None, 'missing dependency: ' + name)
++        if executable is None:
++            raise ValueError('missing dependency: ' + name)
+         files.add(Path(executable).resolve(strict=True))
+     pins = {str(p): transport.sha(p) for p in files}
+     (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
+@@
+                                                  conditional_state=dependency_presence))
+     wrapper = output / 'wrapper.json'
+     run(root, command, wrapper, prompt.read_text())
+-    matches = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
+-    transport.require(len(matches) == 1, 'native transcript missing or ambiguous')
+-    transcript.write_bytes(matches[0].read_bytes())
++    transcripts = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
++    transport.require(len(transcripts) == 1, 'native transcript missing or ambiguous')
++    transcript.write_bytes(transcripts[0].read_bytes())
+     result = transport.postflight(root, invocation, transcript, prompt, wrapper, receipt,
+                                   strict=True, conditional_state=dependency_presence)
+     (output / 'delivery.json').write_text(json.dumps(result, sort_keys=True))
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/preflight-host-review.py
+@@
+ 
+ def load_module(name, path):
+     spec = importlib.util.spec_from_file_location(name, path)
++    if spec is None or spec.loader is None:
++        raise ValueError('module loader unavailable: ' + str(path))
+     module = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(module)
+     return module
+@@
+     else:
+         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        rounds = [pattern.fullmatch(entry['path']) for entry in data['allowed_input_manifest']]
+-        rounds = [match for match in rounds if match]
++        matches = [pattern.fullmatch(entry['path']) for entry in data['allowed_input_manifest']]
++        rounds = [match for match in matches if match is not None]
+         require(len(rounds) == 1, 'one admitted precheck required')
+         attempt, round_number = map(int, rounds[0].groups())
+         precheck = root / rounds[0].group()
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@
+ import subprocess
+ import sys
+ import uuid
++from typing import Any
+ 
+ 
+ STAGE_ROLES = {
+@@
+                 'admitted input hash mismatch')
+         pattern = re.compile(r'reports/task-review/' + re.escape(feature) +
+                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+-        matches = [(e, pattern.fullmatch(e['path'])) for e in entries]
+-        matches = [(e, m) for e, m in matches if m]
++        matches = [(e, match) for e in entries
++                   if (match := pattern.fullmatch(e['path'])) is not None]
+         require(len(matches) == 1, 'task precheck missing or duplicated')
+         entry, match = matches[0]
+         precheck = load(root / entry['path'])
+@@
+     entries = {'type': 'array', 'items': {'type': 'object', 'properties': {
+         'path': text, 'sha256': text}, 'required': ['path', 'sha256']}}
+     check_fields = {key: text for key in ('id', 'result', 'status', 'severity', 'finding')}
+-    properties = {key: text for key in ('schema', 'stage', 'role', 'run_id',
++    properties: dict[str, Any] = {key: text for key in ('schema', 'stage', 'role', 'run_id',
+                                        'host_session_id', 'verdict')}
+     properties['checks'] = {'type': 'array', 'items': {
+         'type': 'object', 'properties': check_fields}}
+@@
+     identity(session)
+     data, _ = manifest(root, invocation)
+     selected_model = role.get('model')
+-    require((selected_model in ('opus', 'sonnet') if data['stage'] == 'quality'
+-             else selected_model == 'sonnet') and
++    require(selected_model == 'sonnet' and
+             role.get('tools') == agent_tools(data['stage']) and
+             role.get('disallowedTools') == ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit'] and
+             isinstance(selected_model, str), 'unsupported role permission profile')
+@@
+     require((root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs').is_file(),
+             'session guard missing')
+     executable = shutil.which('claude')
+-    require(executable is not None, 'Claude executable missing')
++    if executable is None:
++        raise ValueError('Claude executable missing')
+     command = ['rtk', 'proxy', executable, '-p', '--session-id', session,
+                '--model', selected_model, '--permission-mode', 'dontAsk',
+                '--tools', 'Read,Bash', '--disallowedTools',
+@@
+ BOUNDARY_PATH = 'plugins/sdd-review-loop/references/review-context-boundary.md'
+ 
+ 
++def canonical_read_paths(root, relative_paths):
++    """Render tool targets without changing relative manifest or receipt identities."""
++    return [str((root / relative).resolve()) for relative in relative_paths]
++
++
+ def diagnostic_read_paths(entries, invocation_path):
+     """Native probe samples Read; its separate hash and guard checks cover every input."""
+     require(entries and isinstance(invocation_path, str) and invocation_path,
+@@
+         producers = ["printf '%s' " + shlex.quote(text)
+                      for text in (inputs_text, record_text)]
+     commands = [producer + ' | rtk proxy shasum -a 256' for producer in producers]
+-    control = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
++    control: dict[str, Any] = {'inputs_text': inputs_text, 'inputs_sha256': inputs_hash,
+             'record_text': record_text, 'record_sha256': digest,
+             'hash_commands': commands}
+     if data['stage'] == 'quality':
+@@
+         if strict and data['stage'] in ('spec', 'impl') and conditional_state is not None else '')
+     return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
+             + binding + '\n'
++            + ('Read tool file_path values (canonical absolute paths):\n'
++               + json.dumps(canonical_read_paths(root, [relative, BOUNDARY_PATH] +
++                            [entry['path'] for entry in data['allowed_input_manifest']]),
++                            ensure_ascii=True) + '\n'
++               'Use these exact absolute paths for Read; do not infer a different repository root. '
++               'Keep relative paths unchanged in manifest, hash commands, receipt and output identities.\n'
++               if enforced else '')
+             + task_hash_note
+             + conditional_note
+             + control_prompt(data, receipt_text, sha(root / 'plugins/sdd-review-loop/references/review-context-boundary.md'),
+@@
+             (entry['path'], raw_hashes[entry['path']])
+             for entry in data['allowed_input_manifest']] + [
+             (BOUNDARY_PATH, sha(root / BOUNDARY_PATH))]
+-        required_hashes = {batch_command: None}
++        required_hashes: dict[str, str | None] = {batch_command: None}
+         required_hashes.update(zip(control['hash_commands'],
+                                    (control['inputs_sha256'], control['record_sha256'])))
+         required_order = list(required_hashes)
+         file_hash_order = [batch_command]
+-        proven = set()
+-        pending = {}
++        proven: set[str] = set()
++        pending: dict[str, Any] = {}
+         used_tool_ids = set()
+         issued_file_hashes = 0
+         retries = set()
+@@
+                     continue
+                 if block.get('type') == 'tool_result':
+                     tool_id = block.get('tool_use_id')
+-                    require(tool_id in pending, 'impl tool result lacks matching use')
++                    if not isinstance(tool_id, str) or tool_id not in pending:
++                        raise ValueError('impl tool result lacks matching use')
+                     command = pending.pop(tool_id)
+                     result_text = block.get('content')
+                     if command is output_tool:
+@@
+                             if command == batch_command:
+                                 require_hash_batch_result(result_text, batch_expected)
+                             else:
+-                                require(isinstance(result_text, str) and
+-                                        result_text.rstrip('\n') == required_hashes[command] +
++                                expected_hash = required_hashes[command]
++                                require(isinstance(expected_hash, str) and
++                                        isinstance(result_text, str) and
++                                        result_text.rstrip('\n') == expected_hash +
+                                         '  -' and result_text.count('\n') <= 1,
+                                         'impl control hash tool result differs from pinned digest')
+                             if command not in file_hash_order:
+@@
+                     continue
+                 require(item.get('type') == 'assistant', 'impl tool use outside assistant turn')
+                 name, tool_input = block.get('name'), block.get('input')
+-                require(isinstance(tool_input, dict), 'impl tool input is malformed')
++                if not isinstance(tool_input, dict):
++                    raise ValueError('impl tool input is malformed')
+                 require(not structured_seen, 'tool call after JSON review StructuredOutput')
+                 if must_retry is not None:
+                     require(name == 'Bash' and tool_input.get('command') == must_retry,
+@@
+                     require(all(command is None for command in pending.values()),
+                             'impl Read overlapped pending hash proof')
+                     value = tool_input.get('file_path')
+-                    require(isinstance(value, str) and value,
+-                            'impl Read path missing')
++                    if not isinstance(value, str) or not value:
++                        raise ValueError('impl Read path missing')
+                     target = pathlib.Path(value)
+                     target = (target if target.is_absolute() else root / target).resolve()
+                     require(target in allowed_reads, 'impl Read outside admitted inputs')
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-review-loop/scripts/probe-nontty-review.py
+@@
+ """Unreserved Sonnet probe of the session-local spec/impl Read boundary."""
++from __future__ import annotations
++
+ import hashlib
+ import importlib.util
+ import json
+@@
+ ROOT = Path(__file__).resolve().parents[3]
+ source = ROOT / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+ spec = importlib.util.spec_from_file_location('nontty_transport', source)
++if spec is None or spec.loader is None:
++    raise SystemExit('non-TTY transport module loader missing')
+ transport = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(transport)
+ if len(sys.argv) != 2:
+@@
+ entries.append({'path': source_relative, 'sha256': source_digest})
+ stage, role_name = source_data['stage'], source_data['role']
+ inputs_digest = hashlib.sha256('\n'.join(e['path'] + '\t' + e['sha256'] for e in entries).encode()).hexdigest()
++record_suffix: tuple[str, ...]
+ if stage == 'quality':
+     binding = hashlib.sha256((source_data['feature'] + '\n' +
+                               source_data['scratch_root']).encode()).hexdigest()
+@@
+               + '\n'.join(str(index) + '. Bash ' + command
+                           for index, command in enumerate(hash_commands, 1)) +
+               '\nThen Read each of these files with limit=1, in this order:\n' +
+-              '\n'.join(read_paths) +
+-              '\nThen Bash ' + chained_bash + '\nFinally Read ' + outside +
++              '\n'.join(transport.canonical_read_paths(ROOT, read_paths)) +
++              '\nThen Bash ' + chained_bash + '\nFinally Read ' +
++              transport.canonical_read_paths(ROOT, [outside])[0] +
+               ('\nAfter that final Read, submit one StructuredOutput JSON object and make '
+                'no further tool calls.' if stage in transport.JSON_REVIEW_STAGES else ''))
+     command = transport.claude_command(ROOT, session, role_name, role,
+                                       control['exact_permission_rules'], settings_path,
+                                       invocation, receipt_path, policy_path)
+-    result = subprocess.run(command, input=prompt, text=True, capture_output=True,
++    launch_result = subprocess.run(command, input=prompt, text=True, capture_output=True,
+                             cwd=ROOT, timeout=300)
+-    print(json.dumps({'session': session, 'exit': result.returncode,
+-                      'rate_limited': '429' in result.stdout or '429' in result.stderr}), flush=True)
+-    if result.returncode != 0:
+-        raise SystemExit(result.returncode)
+-    wrapper = json.loads(result.stdout)
++    print(json.dumps({'session': session, 'exit': launch_result.returncode,
++                      'rate_limited': '429' in launch_result.stdout or '429' in launch_result.stderr}), flush=True)
++    if launch_result.returncode != 0:
++        raise SystemExit(launch_result.returncode)
++    wrapper = json.loads(launch_result.stdout)
+     if wrapper.get('session_id') != session or wrapper.get('is_error') is not False:
+         raise SystemExit('native wrapper did not accept proposed session')
+     matches = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
+@@
+     if len(read_calls) != len(read_paths) + 1 or any(result is None for _, result in read_calls):
+         raise SystemExit('native Read calls were not all observed')
+     for (use, result), input_path in zip(read_calls[:-1], read_paths):
+-        if (Path(use['input'].get('file_path', '')).resolve() != (ROOT / input_path).resolve() or
++        if (result is None or
++                Path(use['input'].get('file_path', '')).resolve() != (ROOT / input_path).resolve() or
+                 result.get('is_error') is True):
+             raise SystemExit('admitted Read did not execute')
+     second = read_calls[-1]
++    if second[1] is None:
++        raise SystemExit('native Read calls were not all observed')
+     denied_text = str(second[1].get('content', ''))
+     if (Path(second[0]['input'].get('file_path', '')).resolve() != (ROOT / outside).resolve() or
+             second[1].get('is_error') is not True or
+@@
+         raise SystemExit('out-of-scope Read was not denied by pinned pretool guard')
+     bash_calls = [(use, results.get(tool_id)) for tool_id, use in uses.items()
+                   if use.get('name') == 'Bash']
+-    hash_success = []
++    hash_success: list[tuple[str, str | None]] = []
+     first_bash_retry_due = False
+     first_bash_retry_seen = False
+     for kind, block in events:
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/quality-nontty-transport.tests.py
+@@
+ 
+ 
+ class QualityTransport(unittest.TestCase):
++
++    def test_shared_argv_rejects_model_permission_and_session_mismatches(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            session = str(uuid.uuid4())
++            invocation = root / 'invocation.json'
++            invocation.write_text('{}')
++            receipt = root / 'receipt.txt'
++            receipt.write_text('receipt')
++            policy = root / 'policy.json'
++            policy.write_text('{}')
++            settings = root / 'settings.json'
++            settings.write_text('{}')
++            guard = root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
++            guard.parent.mkdir(parents=True)
++            guard.write_text('// fixture\n')
++            permissions = ['Read(source.md)']
++            flags = ('-p --session-id --model --permission-mode --tools '
++                     '--disallowedTools --allowedTools --settings --plugin-dir '
++                     '--agents --agent --output-format --json-schema')
++            for stage, roles in TRANSPORT.STAGE_ROLES.items():
++                for role_name in roles:
++                    data = {'stage': stage, 'host_session_id': session}
++                    role = {'model': 'sonnet', 'tools': TRANSPORT.agent_tools(stage),
++                            'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
++                    with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})), \
++                            mock.patch.object(TRANSPORT, 'launch_policy', return_value=(b'{}', {})), \
++                            mock.patch.object(TRANSPORT, 'receipt_control', return_value={
++                                'exact_permission_rules': permissions}), \
++                            mock.patch.object(TRANSPORT, 'admitted_raw_hashes', return_value={}), \
++                            mock.patch.object(TRANSPORT.shutil, 'which', return_value='claude'), \
++                            mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
++                                              subprocess.CompletedProcess([], 0, flags, '')):
++                        def command(selected_role=role, selected_permissions=permissions,
++                                    selected_session=session):
++                            return TRANSPORT.claude_command(
++                                root, selected_session, role_name, selected_role,
++                                selected_permissions, settings, invocation, receipt, policy)
++                        self.assertIn('--session-id', command())
++                        for flag in flags.split():
++                            if flag == '--json-schema' and stage == 'quality':
++                                continue
++                            with self.subTest(stage=stage, role=role_name, missing_flag=flag):
++                                missing = ' '.join(item for item in flags.split() if item != flag)
++                                with mock.patch.object(TRANSPORT.subprocess, 'run', return_value=
++                                                       subprocess.CompletedProcess([], 0, missing, '')):
++                                    with self.assertRaisesRegex(ValueError, 'unsupported CLI argument'):
++                                        command()
++                        for model in ('opus', 'haiku', 'Sonnet', '', None):
++                            with self.subTest(stage=stage, role=role_name, model=model):
++                                with self.assertRaisesRegex(ValueError, 'unsupported role permission profile'):
++                                    command(dict(role, model=model))
++                        with self.subTest(stage=stage, mismatch='permissions'):
++                            with self.assertRaisesRegex(ValueError, 'permission rules mismatch'):
++                                command(selected_permissions=permissions + ['Read(outside.md)'])
++                        with self.subTest(stage=stage, mismatch='session'):
++                            with self.assertRaisesRegex(ValueError, 'session differs'):
++                                command(selected_session=str(uuid.uuid4()))
++                        settings.write_text('{"permissions": {"allow": ["Read"]}}')
++                        with self.subTest(stage=stage, mismatch='settings'):
++                            with self.assertRaisesRegex(ValueError, 'settings or policy mismatch'):
++                                command()
++                        settings.write_text('{}')
+     def test_shared_argv_accepts_real_claude_help_aliases_and_rejects_missing_flag(self):
+         executable = shutil.which('claude')
+         if executable is None:
+@@
+                 policy, _ = TRANSPORT.launch_policy(root, invocation, receipt_path,
+                                                     root / 'policy.json')
+             self.assertIn(command, json.loads(policy)['bash_commands'])
++            # Absolute tool targets must match the pinned scope, while identities stay relative.
++            relative_reads = [relative, TRANSPORT.BOUNDARY_PATH, 'source.md']
++            targets = TRANSPORT.canonical_read_paths(root, relative_reads)
++            self.assertEqual(targets, json.loads(policy)['read_paths'])
++            self.assertEqual(relative_reads, [relative, TRANSPORT.BOUNDARY_PATH, 'source.md'])
++            sampled = TRANSPORT.diagnostic_read_paths(data['allowed_input_manifest'], relative)
++            self.assertTrue(set(TRANSPORT.canonical_read_paths(root, sampled)).issubset(targets))
++            with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})):
++                rendered = TRANSPORT.expected_prompt(root, invocation, receipt_path).decode()
++            self.assertIn('Read tool file_path values (canonical absolute paths):\n' +
++                          json.dumps(targets, ensure_ascii=True), rendered)
++            self.assertIn('"invocation": "' + relative + '"', rendered)
++            probe_source = (ROOT / 'plugins/sdd-review-loop/scripts/probe-nontty-review.py').read_text()
++            self.assertIn('transport.canonical_read_paths(ROOT, read_paths)', probe_source)
++            self.assertIn('transport.canonical_read_paths(ROOT, [outside])[0]', probe_source)
+             self.assertEqual(set(control['hash_commands']),
+                              set(json.loads(policy)['bash_commands']) -
+                              {command})
+@@
+                                       'tool_input': {'command': candidate}}),
+                     text=True, capture_output=True, check=True)
+                 self.assertEqual(bool(result.stdout), denied)
++            outside = root / 'outside.md'
++            outside.write_text('not admitted')
++            for requested, denied in ((source, False), (outside, True)):
++                result = subprocess.run(
++                    ['rtk', 'proxy', 'node', str(guard), str(policy_path),
++                     hashlib.sha256(policy).hexdigest()],
++                    input=json.dumps({'tool_name': 'Read',
++                                      'tool_input': {'file_path': str(requested)}}),
++                    text=True, capture_output=True, check=True)
++                self.assertEqual(bool(result.stdout), denied)
+             self.assertEqual(sum(item.startswith('rtk proxy shasum -a 256 ') for item in
+                                  json.loads(policy)['bash_commands']), 1)
+             prompt = TRANSPORT.control_prompt(data, receipt, 'c' * 64,
+*** Update File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py
+@@
+         if version is not None:
+             schema = json.loads(observe('contracts/' + version.replace('/', '.') + '.schema.json'))
+             spec = importlib.util.spec_from_file_location('review_schema', Path(__file__).with_name('validate-facet-manifest.py'))
++            if spec is None or spec.loader is None:
++                raise ValueError('schema validator loader unavailable')
+             module = importlib.util.module_from_spec(spec)
+             spec.loader.exec_module(module)
+             valid = not module.validate_against_schema(document, schema)
+*** Add File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/review-conditional-inputs.tests.py
++#!/usr/bin/env python3
++"""Conditional review dependencies: selection, skip and path boundaries."""
++import importlib.util
++import json
++from pathlib import Path
++import tempfile
++import unittest
++import sys
++import hashlib
++import shutil
++import subprocess
++
++sys.dont_write_bytecode = True
++ROOT = Path(__file__).resolve().parents[1]
++spec = importlib.util.spec_from_file_location('conditional', ROOT / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py')
++module = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(module)
++
++
++class Inputs(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.put('specs/example/requirements.md', 'Bounded-Context: sales\n')
++        self.put('specs/example/design.md', '## Design System Compliance\nImplemented\n')
++        for version in ('v1', 'v2'):
++            self.put('contracts/domain-contract.' + version + '.schema.json',
++                     (ROOT / ('contracts/domain-contract.' + version + '.schema.json')).read_text())
++
++    def put(self, path, text):
++        target = self.root / path
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(text, encoding='utf-8')
++
++    def domain(self, version='v1'):
++        self.put('domain/context-map.md', 'Domain-Model-Status: Approved\n')
++        doc = {'schema': 'domain-contract/' + version,
++               'meta': {'version': '1.0.0', 'status': 'Approved', 'generated_from': ['domain/context-map.md']},
++               'contexts': [{'name': 'sales', 'description': '', 'terms': [], 'aggregates': []}]}
++        if version == 'v2':
++            doc['concepts'] = [{'id': 'CONCEPT-ORDER', 'name': 'Order', 'context': 'sales',
++                                'definition': 'order', 'essence': 'order',
++                                'responsibilities': ['record'], 'evidence': ['story']}]
++        self.put('domain/domain-contract.json', json.dumps(doc))
++        return doc
++
++    def resolve(self, stage='impl'):
++        return module.resolve(self.root, 'example', stage)
++
++    def test_absence_observed(self):
++        result = self.resolve()
++        self.assertEqual(result['inputs'], [])
++        self.assertIsNone(result['observed']['domain/context-map.md'])
++
++    def test_versions(self):
++        for version in ('v1', 'v2'):
++            self.domain(version)
++            self.assertEqual(self.resolve()['domain_status'], 'active')
++            self.assertEqual(len(self.resolve('spec')['inputs']), 2)
++
++    def test_invalid_schema_preserves_skip(self):
++        self.domain()
++        for raw in ('{}', '{', '{"schema":"domain-contract/v1","schema":"domain-contract/v1"}'):
++            self.put('domain/domain-contract.json', raw)
++            self.assertEqual(self.resolve()['domain_status'], 'skipped')
++
++    def test_schema_dependency_missing_blocks(self):
++        self.domain()
++        (self.root / 'contracts/domain-contract.v1.schema.json').unlink()
++        with self.assertRaises(ValueError): self.resolve()
++
++    def test_status_case_skips_and_bytes_bound(self):
++        self.domain()
++        before = self.resolve()
++        self.put('domain/context-map.md', 'Domain-Model-Status: approved\n')
++        after = self.resolve()
++        self.assertEqual(after['domain_status'], 'skipped')
++        self.assertNotEqual(before['observed'], after['observed'])
++
++    def test_aggregate_selection_all_cards_only_selected_context(self):
++        doc = self.domain()
++        doc['contexts'][0]['aggregates'] = [{'name': 'Order', 'root_entity': 'Order', 'invariants': ['valid'], 'transaction_boundary': 'order', 'card': 'domain/aggregates/Order.md'}]
++        other = json.loads(json.dumps(doc['contexts'][0]))
++        other['name'] = 'other'
++        other['aggregates'][0]['card'] = 'domain/aggregates/Absent.md'
++        doc['contexts'].append(other)
++        self.put('domain/domain-contract.json', json.dumps(doc))
++        self.assertEqual(self.resolve('spec')['domain_status'], 'active')
++        with self.assertRaisesRegex(ValueError, 'missing conditional input'): self.resolve()
++        self.put('domain/aggregates/Order.md', 'Not mentioned in the design')
++        selected = self.resolve()['inputs']
++        self.assertEqual([x['path'] for x in selected][2:], ['domain/aggregates/Order.md'])
++        self.assertEqual(selected[2]['sha256'], hashlib.sha256(b'Not mentioned in the design').hexdigest())
++        self.assertEqual(len(self.resolve('spec')['inputs']), 2)
++
++    def test_multiple_contexts_bind_sorted_union_without_relevance_filter(self):
++        doc = self.domain()
++        aggregate = dict(name='Order', root_entity='Order', invariants=['valid'], transaction_boundary='order')
++        doc['contexts'][0]['aggregates'] = [dict(aggregate, card='domain/aggregates/Z.md')]
++        doc['contexts'].append(dict(name='billing', description='', terms=[], aggregates=[
++            dict(aggregate, card='domain/aggregates/Z.md'),
++            dict(aggregate, name='Invoice', card='domain/aggregates/A.md')]))
++        self.put('domain/domain-contract.json', json.dumps(doc))
++        self.put('specs/example/requirements.md', 'Bounded-Context: sales, billing\n')
++        for name in ('A', 'Z'):
++            self.put(f'domain/aggregates/{name}.md', 'Not mentioned in design')
++        self.assertEqual([item['path'] for item in self.resolve()['inputs']][2:],
++                         ['domain/aggregates/A.md', 'domain/aggregates/Z.md'])
++
++    def test_aggregate_rejects_unsafe_and_symlink_cards(self):
++        doc = self.domain()
++        aggregate = dict(name='Order', root_entity='Order', invariants=['valid'], transaction_boundary='order')
++        for card in ('specs/example/design.md', '../outside.md', 'domain/aggregates/../secret.md', 'domain/aggregates/\\secret.md'):
++            doc['contexts'][0]['aggregates'] = [dict(aggregate, card=card)]
++            self.put('domain/domain-contract.json', json.dumps(doc))
++            with self.assertRaises(ValueError): self.resolve()
++        card = 'domain/aggregates/Order.md'
++        doc['contexts'][0]['aggregates'] = [dict(aggregate, card=card)]
++        self.put('domain/domain-contract.json', json.dumps(doc))
++        self.put('domain/aggregates/Other.md', 'data')
++        (self.root / card).symlink_to(self.root / 'domain/aggregates/Other.md')
++        with self.assertRaises(ValueError): self.resolve()
++
++    def test_ds_requires_three_and_spec_excludes(self):
++        self.put('design-system/design-tokens.json', '{}')
++        self.assertEqual(self.resolve('spec')['inputs'], [])
++        with self.assertRaises(ValueError): self.resolve()
++        self.put('design-system/design-system.md', 'rules')
++        self.put('design-system/ui-patterns.md', 'patterns')
++        self.assertEqual(len(self.resolve()['inputs']), 3)
++
++    def test_strict_na_and_skip_hash(self):
++        (self.root / 'design-system').mkdir()
++        self.put('specs/example/design.md', '## Design System Compliance\r\nN/A — ds_profile: none\r\n')
++        result = self.resolve()
++        self.assertEqual(result['design_system_status'], 'skipped')
++        self.assertIn('specs/example/design.md', result['observed'])
++        self.put('specs/example/design.md', '## Design System Compliance\nN/A — ds_profile: none\nextra')
++        with self.assertRaises(ValueError): self.resolve()
++
++    def test_symlink_ancestor_and_broken_ds_rejected(self):
++        (self.root / 'domain').symlink_to(self.root / 'absent', target_is_directory=True)
++        with self.assertRaises(ValueError): self.resolve()
++        (self.root / 'domain').unlink()
++        (self.root / 'design-system').symlink_to(self.root / 'absent', target_is_directory=True)
++        with self.assertRaises(ValueError): self.resolve()
++
++    def test_path_boundaries(self):
++        for value in ('../outside', '/etc/passwd', 'domain/../x', 'domain\\x'):
++            with self.assertRaises(ValueError): module.read_safe(self.root, value)
++
++    def test_canonical_admission_both_runtimes(self):
++        self.domain()
++        digest = lambda data: hashlib.sha256(data).hexdigest()
++        record_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
++        ledger = {'schema': 'review-identity-ledger/v1', 'records': [dict(
++            sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-1',
++            host_session_id='session-1', previous_record_sha256='', record_sha256=record_hash)]}
++        ledger_path = 'reports/review-context/identity-ledger.json'
++        self.put(ledger_path, json.dumps(ledger))
++        manifest = dict(schema='review-context-invocation/v2', input_mode='file-manifest',
++                        fallback_mode='none', read_only=True, stage='spec', role='spec-reviewer-a',
++                        feature='example', run_id='fixture-2', host_session_id='session-2', sequence=2,
++                        identity_ledger_path=ledger_path,
++                        identity_ledger_sha256=digest((self.root / ledger_path).read_bytes()),
++                        previous_record_sha256=record_hash,
++                        allowed_input_manifest=self.resolve('spec')['inputs'])
++        script = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
++        commands = [['bash', str(script) + '.sh', str(self.root / 'manifest.json'), str(self.root)]]
++        if shutil.which('pwsh'):
++            commands.append(['pwsh', '-NoProfile', '-File', str(script) + '.ps1',
++                             '-Manifest', str(self.root / 'manifest.json'), '-RepositoryRoot', str(self.root)])
++        else:
++            self.fail('PowerShell required to verify runtime parity')
++        before = (self.root / ledger_path).read_bytes()
++        for command in commands:
++            for case in ('valid', 'wrong-hash', 'unrelated', 'omit-one', 'omit-all'):
++                trial = json.loads(json.dumps(manifest))
++                if case == 'wrong-hash': trial['allowed_input_manifest'][0]['sha256'] = '0' * 64
++                if case == 'unrelated':
++                    self.put('domain/unrelated.md', 'not a role input')
++                    trial['allowed_input_manifest'].append(dict(path='domain/unrelated.md', sha256=digest(b'not a role input')))
++                if case == 'omit-one': trial['allowed_input_manifest'].pop()
++                if case == 'omit-all':
++                    trial['allowed_input_manifest'] = [dict(
++                        path='specs/example/requirements.md',
++                        sha256=digest((self.root / 'specs/example/requirements.md').read_bytes()))]
++                self.put('manifest.json', json.dumps(trial))
++                modes = (False,) if case == 'valid' else (False, True)
++                for reserve in modes:
++                    self.put(ledger_path, json.dumps(ledger))
++                    invocation = command + (['--reserve'] if command[0] == 'bash' else ['-Reserve']) if reserve else command
++                    result = subprocess.run(invocation, text=True, capture_output=True, timeout=30)
++                    with self.subTest(runtime=command[0], case=case, reserve=reserve):
++                        self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
++                        self.assertEqual((self.root / ledger_path).read_bytes(), before)
++
++    def test_persisted_reservation_keeps_historical_conditional_selection(self):
++        digest = lambda data: hashlib.sha256(data).hexdigest()
++        record_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
++        ledger_path = 'reports/review-context/identity-ledger.json'
++        initial = {'schema': 'review-identity-ledger/v1', 'records': [dict(
++            sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-1',
++            host_session_id='session-1', previous_record_sha256='', record_sha256=record_hash)]}
++        script = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
++        commands = [['bash', str(script) + '.sh', str(self.root / 'manifest.json'), str(self.root)],
++                    ['pwsh', '-NoProfile', '-File', str(script) + '.ps1',
++                     '-Manifest', str(self.root / 'manifest.json'), '-RepositoryRoot', str(self.root)]]
++        self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required to verify runtime parity')
++        for command in commands:
++            with self.subTest(runtime=command[0]):
++                self.put(ledger_path, json.dumps(initial))
++                (self.root / 'domain/context-map.md').unlink(missing_ok=True)
++                (self.root / 'domain/domain-contract.json').unlink(missing_ok=True)
++                manifest = dict(schema='review-context-invocation/v2', input_mode='file-manifest',
++                                fallback_mode='none', read_only=True, stage='spec', role='spec-reviewer-a',
++                                feature='example', run_id='fixture-2', host_session_id='session-2', sequence=2,
++                                identity_ledger_path=ledger_path,
++                                identity_ledger_sha256=digest((self.root / ledger_path).read_bytes()),
++                                previous_record_sha256=record_hash,
++                                allowed_input_manifest=[dict(
++                                    path='specs/example/requirements.md',
++                                    sha256=digest((self.root / 'specs/example/requirements.md').read_bytes()))])
++                self.put('manifest.json', json.dumps(manifest))
++                reserve = command + (['--reserve'] if command[0] == 'bash' else ['-Reserve'])
++                result = subprocess.run(reserve, text=True, capture_output=True, timeout=30)
++                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
++                persisted = (self.root / ledger_path).read_bytes()
++                self.domain()
++                result = subprocess.run(command, text=True, capture_output=True, timeout=30)
++                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertEqual((self.root / ledger_path).read_bytes(), persisted)
++                result = subprocess.run(reserve, text=True, capture_output=True, timeout=30)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertEqual((self.root / ledger_path).read_bytes(), persisted)
++                changed = json.loads(json.dumps(manifest))
++                changed['allowed_input_manifest'][0]['sha256'] = '0' * 64
++                self.put('manifest.json', json.dumps(changed))
++                result = subprocess.run(command, text=True, capture_output=True, timeout=30)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertEqual((self.root / ledger_path).read_bytes(), persisted)
++                self.put('manifest.json', json.dumps(manifest))
++                self.put('specs/example/requirements.md', 'Bounded-Context: changed\n')
++                result = subprocess.run(command, text=True, capture_output=True, timeout=30)
++                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertEqual((self.root / ledger_path).read_bytes(), persisted)
++                self.put('specs/example/requirements.md', 'Bounded-Context: sales\n')
++
++    def test_impl_design_system_completeness_both_runtimes(self):
++        for path in ('design-tokens.json', 'design-system.md', 'ui-patterns.md'):
++            self.put('design-system/' + path, '{}')
++        doc = self.domain()
++        card = 'domain/aggregates/Order.md'
++        doc['contexts'][0]['aggregates'] = [dict(name='Order', root_entity='Order',
++            invariants=['valid'], transaction_boundary='order', card=card)]
++        self.put('domain/domain-contract.json', json.dumps(doc))
++        self.put(card, 'Order aggregate')
++        digest = lambda data: hashlib.sha256(data).hexdigest()
++        record_hash = digest(b'1|impl|impl-reviewer-a|fixture-1|session-1|')
++        ledger_path = 'reports/review-context/identity-ledger.json'
++        ledger = {'schema': 'review-identity-ledger/v1', 'records': [dict(
++            sequence=1, stage='impl', role='impl-reviewer-a', run_id='fixture-1',
++            host_session_id='session-1', previous_record_sha256='', record_sha256=record_hash)]}
++        self.put(ledger_path, json.dumps(ledger))
++        design = dict(path='specs/example/design.md',
++                      sha256=digest((self.root / 'specs/example/design.md').read_bytes()))
++        selected = self.resolve('impl')['inputs']
++        self.assertEqual(len(selected), 6)
++        manifest = dict(schema='review-context-invocation/v2', input_mode='file-manifest',
++                        fallback_mode='none', read_only=True, stage='impl', role='impl-reviewer-a',
++                        feature='example', run_id='fixture-2', host_session_id='session-2', sequence=2,
++                        identity_ledger_path=ledger_path,
++                        identity_ledger_sha256=digest((self.root / ledger_path).read_bytes()),
++                        previous_record_sha256=record_hash, allowed_input_manifest=[design] + selected)
++        script = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
++        commands = [['bash', str(script) + '.sh', str(self.root / 'manifest.json'), str(self.root)],
++                    ['pwsh', '-NoProfile', '-File', str(script) + '.ps1',
++                     '-Manifest', str(self.root / 'manifest.json'), '-RepositoryRoot', str(self.root)]]
++        self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required to verify runtime parity')
++        before = (self.root / ledger_path).read_bytes()
++        for command in commands:
++            for case, entries in (('valid', [design] + selected),
++                                  ('omit-one', [design] + selected[:-1]),
++                                  ('omit-aggregate', [design] + [x for x in selected if x['path'] != card]),
++                                  ('wrong-aggregate-hash', [design] + [dict(x, sha256='0' * 64) if x['path'] == card else x for x in selected]),
++                                  ('omit-all', [design])):
++                trial = dict(manifest, allowed_input_manifest=entries)
++                self.put('manifest.json', json.dumps(trial))
++                for reserve in ((False,) if case == 'valid' else (False, True)):
++                    self.put(ledger_path, json.dumps(ledger))
++                    invocation = command + (['--reserve'] if command[0] == 'bash' else ['-Reserve']) if reserve else command
++                    result = subprocess.run(invocation, text=True, capture_output=True, timeout=30)
++                    with self.subTest(runtime=command[0], case=case, reserve=reserve):
++                        self.assertEqual(result.returncode == 0, case == 'valid', result.stdout + result.stderr)
++                        self.assertEqual((self.root / ledger_path).read_bytes(), before)
++
++    def test_historical_conditional_paths_need_exact_name_and_input_binding(self):
++        self.domain()
++        self.put('domain/unrelated.md', 'unrelated')
++        digest = lambda data: hashlib.sha256(data).hexdigest()
++        first_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
++        ledger_path = 'reports/review-context/identity-ledger.json'
++        first = dict(sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-1',
++                     host_session_id='session-1', previous_record_sha256='', record_sha256=first_hash)
++        script = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
++        commands = [['bash', str(script) + '.sh', str(self.root / 'manifest.json'), str(self.root)],
++                    ['pwsh', '-NoProfile', '-File', str(script) + '.ps1',
++                     '-Manifest', str(self.root / 'manifest.json'), '-RepositoryRoot', str(self.root)]]
++        self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required to verify runtime parity')
++        for bound, path, accepted in ((False, 'specs/example/requirements.md', True),
++                                      (False, 'domain/context-map.md', False),
++                                      (False, 'domain/unrelated.md', False),
++                                      (True, 'domain/context-map.md', True),
++                                      (True, 'domain/unrelated.md', False),
++                                      (True, 'design-system/design-system.md', False)):
++            if path.startswith('design-system/'):
++                self.put(path, 'unrelated')
++            entry = dict(path=path, sha256=digest((self.root / path).read_bytes()))
++            record = dict(sequence=2, stage='spec', role='spec-reviewer-a', run_id='fixture-2',
++                          host_session_id='session-2', previous_record_sha256=first_hash)
++            record_text = '2|spec|spec-reviewer-a|fixture-2|session-2|' + first_hash
++            if bound:
++                binding = digest((path + '\t' + entry['sha256']).encode())
++                record['allowed_inputs_sha256'] = binding
++                record_text += '|allowed-inputs-v1|' + binding
++            record['record_sha256'] = digest(record_text.encode())
++            ledger = {'schema': 'review-identity-ledger/v1', 'records': [first, record]}
++            self.put(ledger_path, json.dumps(ledger))
++            before = (self.root / ledger_path).read_bytes()
++            manifest = dict(schema='review-context-invocation/v2', input_mode='file-manifest',
++                            fallback_mode='none', read_only=True, stage='spec', role='spec-reviewer-a',
++                            feature='example', run_id='fixture-2', host_session_id='session-2', sequence=2,
++                            identity_ledger_path=ledger_path,
++                            identity_ledger_sha256=digest(before),
++                            previous_record_sha256=first_hash, allowed_input_manifest=[entry])
++            self.put('manifest.json', json.dumps(manifest))
++            for command in commands:
++                result = subprocess.run(command, text=True, capture_output=True, timeout=30)
++                with self.subTest(runtime=command[0], bound=bound, path=path):
++                    self.assertEqual(result.returncode == 0, accepted, result.stdout + result.stderr)
++                    self.assertEqual((self.root / ledger_path).read_bytes(), before)
++
++
++if __name__ == '__main__':
++    unittest.main()
+*** Add File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-build.tests.py
++"""Assemble FilesOnly distribution without changing the checkout's index or host."""
++import hashlib
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++
++ROOT = Path(__file__).resolve().parents[1]
++SCRIPTS = [
++    'plugins/sdd-review-loop/scripts/' + name for name in (
++        'validate-nontty-spec-launch.py', 'probe-nontty-review.py',
++        'preflight-host-review.py', 'launch-impl-review.py',
++        'nontty-impl-pretool-guard.mjs')
++] + [
++    'plugins/sdd-quality-loop/scripts/' + name for name in (
++        'preflight-evaluator-delivery.py', 'review-conditional-inputs.py')
++]
++
++
++class DistributionTests(unittest.TestCase):
++    def test_files_only_assembly(self):
++        index = Path(subprocess.check_output(
++            ['git', 'rev-parse', '--git-path', 'index'], cwd=ROOT,
++            text=True).strip())
++        if not index.is_absolute():
++            index = ROOT / index
++        before = index.read_bytes()
++        with tempfile.TemporaryDirectory(prefix='shared-launch-build-') as folder:
++            temp = Path(folder)
++            env = dict(os.environ, GIT_INDEX_FILE=str(temp / 'index'))
++            def run(args):
++                subprocess.run(args, cwd=ROOT, env=env, check=True)
++            try:
++                # Include approved, still-untracked runtime additions without staging the owner.
++                run(['git', 'read-tree', 'HEAD'])
++                run(['git', 'add', '--', *SCRIPTS])
++                installed = temp / 'installed'
++                run(['bash', 'install.sh', '--source-directory', str(ROOT),
++                     '--install-root', str(installed), '--target', 'FilesOnly',
++                     '--plugins', 'sdd-review-loop,sdd-quality-loop',
++                     '--skip-plugin-install', '--skip-agent-install', '--skip-mcp'])
++                for name in SCRIPTS:
++                    with self.subTest(path=name):
++                        self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).digest(),
++                                         hashlib.sha256((installed / name).read_bytes()).digest())
++                for name in SCRIPTS:
++                    if name.endswith('.py') and not name.endswith('probe-nontty-review.py'):
++                        run([sys.executable, '-B', str(installed / name), '--help'])
++                run(['node', '--check', str(installed / SCRIPTS[4])])
++            finally:
++                self.assertEqual(index.read_bytes(), before, 'owner index changed')
++
++
++if __name__ == '__main__':
++    unittest.main()
+*** Add File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-python-requirements.txt
++ruff==0.13.3
++mypy==1.18.2
+*** Add File: /Users/jrmag/.codex/worktrees/shared-review-launch-integration/sdd-forge/reports/verification/shared-launch-handoff/T-001-current-rollback/checkout/tests/shared-launch-python/pyproject.toml
++[tool.ruff.lint]
++select = ["E4", "E7", "E9", "F"]
++
++[tool.mypy]
++check_untyped_defs = true
++follow_imports = "silent"
++files = [
++  "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
++  "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
++  "plugins/sdd-review-loop/scripts/preflight-host-review.py",
++  "plugins/sdd-review-loop/scripts/launch-impl-review.py",
++  "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
++  "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
++]
+*** End Patch

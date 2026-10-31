@@ -1,0 +1,22 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: T-006's 3 new test files (tests/readonly/static-check.test.ts,
+# tests/no-write/input-schema-fields.test.ts,
+# tests/no-write/no-write-behavior.test.ts) were written first, each
+# importing a shared helper module that does not exist yet
+# (tests/readonly/support/source-scan.ts and
+# tests/no-write/support/write-inducing-fields.ts). Since T-006 adds no new
+# src/ code (it is a pure verification task over already-implemented,
+# already-compliant modules), this compile-time module-not-found failure is
+# the genuine failing-first state, mirroring how T-002/T-004's red phases
+# were captured (tsc module-not-found, EXIT:2).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/no-write/input-schema-fields.test.ts(21,44): error TS2307: Cannot find module './support/write-inducing-fields.js' or its corresponding type declarations.
+tests/no-write/no-write-behavior.test.ts(25,44): error TS2307: Cannot find module './support/write-inducing-fields.js' or its corresponding type declarations.
+tests/readonly/static-check.test.ts(36,53): error TS2307: Cannot find module './support/source-scan.js' or its corresponding type declarations.
+tests/readonly/static-check.test.ts(109,36): error TS7006: Parameter 'file' implicitly has an 'any' type.
+
+npm test exit code: 2

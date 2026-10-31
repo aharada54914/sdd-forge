@@ -1,0 +1,41 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-003",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "blind": true,
+  "input_digest": "27f1eaa3207d5c3087e415615f457c361f40658a07e08828eebc086de0bcadb9",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-003.panelist-input.txt header"
+  },
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/verification/T-003.green.log (declared output)",
+      "note": "This declared output and qg/T-003/unit-acceptance-green.log are the 2026-08-25 captures whose TEST-019-static-q anchors (gate line 31, generate line 103) no longer match the ADR-0023-rebased staged SKILL.md in the bundle (gate line 139, generate line 211). The contract explicitly repoints authoritative evidence to the 2026-08-28 captures, which do match the bundled staged content, so this is disclosed staleness of a superseded artifact, not a verification gap."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/verification/T-003.red.log",
+      "note": "The RED evidence predates the current 31-assertion suite: it exercises the original 10-static/3-functional assertions and the old grep-only defense-in-depth companion (which passed in RED). The rewritten executing companion (di-b/di-c) and the newer assertions (static-g2/k-o/p/q, functional-baseline/registry-shape, TEST-021a-c) have no captured RED; their non-vacuity rests on mutation proofs described in the implementation report but not evidenced by logs in the bundle. The core Block-fixture RED (13 genuine failures against the unextended baseline, both runtimes) is intact."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/verification/T-003/placeholder-scan-20260828.log",
+      "note": "The bundled placeholder-scan evidence covers CHANGELOG.md only (5 pre-existing findings with the owner's verbatim acceptance recorded, which the scanner's own contract permits). The clean scans of the two new test files and the staged payload are asserted in the contract comment but their log is not in the bundle, so that half of the check is unverifiable here."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/fixtures/epic-194-lite-spec/scenarios.json",
+      "note": "The synthetic Registry's upgrade_reasons token financial_settlement is outside the twelve-token lite-upgrade-reason-catalog vocabulary the spec seeds, so this fixture Registry could not itself pass A2 validator check (h). Harmless for the caller-side contract under test (the checker validates the reason-token grammar, not catalog membership), but a fixture-realism drift from the documented upstream invariant that fragment tokens are already catalog-validated."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-003.contract.json comment (HUMAN APPLY chain) / regression-20260828-excerpt.log mirror-freshness block",
+      "note": "The HUMAN APPLY Done-When item's in-bundle corroboration is indirect: the mirror-freshness suite's explicit enumeration assertions name four other features' human-copy directories, and epic-194's applied state is inferred from the absence of pending entries plus the aggregate 'every applied mirror is byte-identical to live' line; the cited apply commits and runner exit are recorded owner-authorized dispositions not independently verifiable from the bundle. Respected at recorded disposition, and the task correctly remains Implementation Complete rather than Done."
+    }
+  ]
+}

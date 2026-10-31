@@ -1,0 +1,59 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "quality_report": "reports/quality-gate/epic-195-a7-compatibility/T-002.md",
+  "verification_contract": "specs/epic-195-a7-compatibility/verification/T-002.contract.json",
+  "git_commit": "f77b4080b34f2177278cecfead8a06f1f2238d44",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 9,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-002.contract.json",
+      "sha256": "d7b8224f400e645df1167f63ce7ef0aee9afdcfedcf02ca790315469a816c690"
+    },
+    {
+      "path": "reports/quality-gate/epic-195-a7-compatibility/T-002.md",
+      "sha256": "0d8ecc09f710c9db332033fc65f3117b22ccb088c04f67955865f5cc0fb1e6e9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-002/acceptance.log",
+      "sha256": "6636c6dd6a757e41737fe1ce3ebec04213c0b7606aeaeed05e59bb4a55f5c766"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-002/placeholder.log",
+      "sha256": "278f55486aaca261014d39d54b59fd98ec3dee61f58fe9038c49dca2d6022f71"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/regression.log",
+      "sha256": "d0d03df666e91a56edda4e80278b56e286aeb8b20cd2bdedc1f74e9139f740ef"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/task-state.log",
+      "sha256": "28b57497bdaa1666a087ebfeec21dd69ff000f2bd583e7d2a285b680e2e4a9f1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/traceability.log",
+      "sha256": "b5a2a8e4de8443699b7015ab5712adef64c4faa0efeac597240374ab7bc540bf"
+    }
+  ]
+}

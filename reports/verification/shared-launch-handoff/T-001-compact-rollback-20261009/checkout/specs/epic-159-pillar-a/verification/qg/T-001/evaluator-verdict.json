@@ -1,0 +1,51 @@
+{
+  "schema": "evaluator-verdict/v1",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a",
+  "task_id": "T-001",
+  "run_id": "RUN-epic159pillara-qg-T-001-seq0203",
+  "host_session_id": "SESS-qg-epic159pillara-T-001-0203",
+  "manifest_path": "reports/review-context/pending-epic-159-pillar-a-evaluator-T-001-seq0203-manifest.json",
+  "manifest_sha256": "240df1084b8f5c8f18c9d67525c46ec8445a24c00d215c0621a7aa5e7b3d726f",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "Minor",
+      "surface": "tests/loops/loop-inventory.json:22 (spec-review terminal.state) vs specs/epic-159-pillar-a/design.md:136",
+      "description": "The fixture records spec-review terminal.state=PASS while the design.md canonical example JSON shows BLOCKED for the same condition string. This is a genuine spec-vs-implementation discrepancy that the downstream consumer (T-003 assert_terminal) must reconcile. It does NOT affect any T-001 Done When item (no T-001 test validates terminal.state values; the field is consumed by T-003). The report's Specification Differences section transparently flags it and defers the one-line decision to the T-003 implementer.",
+      "evidence": "design.md:136 example shows terminal.state BLOCKED; loop-inventory.json:22 shows PASS; requirements.md AC-008 wording ('spec round-3 Minor-only merge to PASS') actually supports PASS, so the design example is internally contradictory (state BLOCKED but condition says 'merges to PASS'). Report lines 243-250 record the deferral.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-2",
+      "severity": "Minor",
+      "surface": "tests/loops/loop-inventory.json:31,53 (impl-review/task-review cap_source)",
+      "description": "requirements.md (lines 24, 76-80) models impl-review and task-review among the 'six script-enforced loops' and REQ-001/AC-002 imply cap_source:script+cap_kind:numeric for them, which would yield 5 numeric drift-locked entries. The implementation registered both as cap_source:skill-instruction, reducing the numeric drift-lock coverage to 3 entries (spec/domain/quality). I independently verified this is the HONEST choice, not a dodge: impl-review-precheck.sh:230 and task-review-precheck.sh:243 validate only round positivity ([1-9][0-9]*) with NO '-le 3' ceiling, so a script/numeric encoding would have no grep target and would fabricate a false-green. The deviation is consistent with requirements.md Field Definitions ('script means the cap is enforced by a repository script') and is documented in the report and ADR-0010 Decision 3. Non-blocking; recorded because it reflects an inaccurate assumption in the approved spec/investigation that downstream tasks and reviewers should be aware of.",
+      "evidence": "grep of impl-review-precheck.sh:230 and task-review-precheck.sh:243 both show only positive-integer round validation; the only round comparisons are -gt 1 (the 2d8c6a5 previous-summary check), not a ceiling. ADR-0010 Decision 3 (lines 58-67) records the finding.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-3",
+      "severity": "Minor",
+      "surface": "tests/constant-parity.tests.sh (protected suite)",
+      "description": "Could not independently re-run constant-parity.tests.sh: it is a protected test file (requirements.md Non-goals) and the SDD hook-guard's basename fallback blocks the protected basename on any Bash command line, including read/execute. The report claims it passes (2 passed, 0 failed). This is a verification-tooling limitation, not evidence of a defect; the AC-014/AC-015 twin-parity share is partially covered by the crlf-parity suite which I did run green (8 passed, 0 failed).",
+      "evidence": "PreToolUse hook rejected direct execution with the SDD deterministic-gate message; crlf-parity returned 'Results: 8 passed, 0 failed.'",
+      "requires_human_decision": false
+    }
+  ],
+  "checked": [
+    "Verified manifest self-hash matches the reserved value.",
+    "Verified all 18 allowed-input files hash-match their manifest entries byte-for-byte immediately before reading.",
+    "Launch precondition on identity ledger: reserved identity appears exactly once (ledger seq 203), chains correctly from seq 202, appears in no prior record; seq 204-206 appended after reservation is legitimate append-only divergence.",
+    "Ran the bash suite: 49 passed, 0 failed, exit 0; all TEST-001..004 and TEST-017 checks including the three negative self-checks reported ok on mktemp copies via LOOP_INVENTORY_PATH. The 49-vs-43 delta over the report's green log is the 6 conditional TEST-004 registration checks now firing because T-002..T-004 landed on disk.",
+    "Line-inspected all 8 fixture entries against requirements.md/design.md schema; all conform.",
+    "Independently confirmed the three numeric caps grep to value 3: spec-review-precheck.sh:35, domain-review-precheck.sh:39, check-quality-gate-cycle-limit.sh:54.",
+    "Verified the cap_source deviation is honest, not a drift-lock dodge.",
+    "Confirmed acceptance-first RED evidence is genuine: red-sh.log 2 passed/28 failed (inventory-absent), green-sh.log 43 passed/0 failed.",
+    "Verified secondary Done-When shares: CHANGELOG.md:7 cites Issue #141; crlf-parity 8 passed/0 failed; validate-repository.sh exit 0.",
+    "Confirmed terminal-tier driver check-terminal-tier-resume.sh exists on disk."
+  ],
+  "summary": "T-001 fully satisfies its Done When items: the loop-inventory/v1 registry and registration-forcing suite pass all of TEST-001..004 and TEST-017 on my own read-only re-run (49 passed, 0 failed), with genuine negative self-checks and a real acceptance-first RED->GREEN chain. The one material deviation (impl-review/task-review as cap_source:skill-instruction) is verified honest via independent grep and transparently documented. Findings are Minor/non-blocking. Zero Critical, zero Major: PASS."
+}

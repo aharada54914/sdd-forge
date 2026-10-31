@@ -1,0 +1,78 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-mcp",
+  "task_id": "T-006",
+  "run_id": "qg-eval-cimcp-t006-20260708-e5a",
+  "host_session_id": "hs-qg-eval-cimcp-0109",
+  "sequence": 109,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "1788e1bb565ea571980ed23a4e821f1b3e32bec4c79ecb4a0256965e2679053b",
+  "previous_record_sha256": "60e49453467675dd56500ca33653df135897d56a58f84856b16dda0d943d935a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/ci-mcp/T-006.md",
+      "sha256": "370b38a07e7ae962c89df68b6db2e370f788caa636d6cd4226040df6c7c06587"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "54cd5709161e7817832d9a34453890d6a70a32ca76d92dd4cf299fde93542df5"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.json",
+      "sha256": "6f06c5691978c25ba88e16ee1d2978611e0922fc42925277c7726cb6ec1d7e2b"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/support/write-inducing-fields.ts",
+      "sha256": "8d6f5d6ff4dc5157874927f72db113753e2210218579206ee8be498e389b80ba"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/input-schema-fields.test.ts",
+      "sha256": "7123d90b4331e14ec45ef82070b38590554ee091b963e0f39271ed0828235112"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/no-write-behavior.test.ts",
+      "sha256": "7569f16dff5958bb17869a1e8b2cf0cbec63782e70131a573b63d0d700ea1fa0"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/readonly/support/source-scan.ts",
+      "sha256": "448c723784427445c6e78ace7e296cf921a6f1fb0261e8de8775b1ec9abc2242"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/readonly/static-check.test.ts",
+      "sha256": "08286832843387a26b146838a5985a3dc0c5a08555ad39428df7aa00b1bec763"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-006-red.txt",
+      "sha256": "fe765b93ebcc402c258d0a6408dcef1ec03e3daa229bea2bce5b64abfa94cb77"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-006-green.txt",
+      "sha256": "284075fa4a3094263afbeec891be7feba452f8b3419e3f544f2cc3047659c283"
+    }
+  ]
+}

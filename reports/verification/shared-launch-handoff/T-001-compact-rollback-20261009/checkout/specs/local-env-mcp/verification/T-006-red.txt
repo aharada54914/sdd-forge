@@ -1,0 +1,73 @@
+# T-006 RED evidence
+# Command: bash tests/install.tests.sh
+# Captured before install.sh changes (VALID_MCPS/MCP_LIST still single sdd-forge-mcp).
+# New T-006 test cases MUST fail here.
+# ----------------------------------------------------------------------
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6SUGKoVLK0/installed
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.6SUGKoVLK0/installed
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.M4ya60Xkv7/installed
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.sTdATZgGho/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.UheOW6k73c/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.axx1iVwuIM/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.pA1rxeqdnz/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.MNVq80ibEh/installed
+Plugin registration was skipped because --target=FilesOnly.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.IAMGiBK383/installed
+FAIL: default MCP install (t): local-env-mcp dist/index.js not placed
+FAIL: default MCP install (t): local-env-mcp package.json not placed
+FAIL: default MCP install (t): claude mcp add not invoked for local-env-mcp
+FAIL: default MCP install (t): Codex config.toml missing local-env-mcp entry
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.QG6hizXTYi/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.qp8GBuibKq/installed
+Plugin registration was skipped because --target=FilesOnly.
+FAIL: --mcp local-env-mcp (v-le): installer exited non-zero
+FAIL: --mcp local-env-mcp (v-le): local-env-mcp dist/index.js not placed
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+
+Results: 29 passed, 6 failed.

@@ -1,0 +1,5 @@
+=== SEAM non-bootstrap / fail-closed (ps1) ===
+generate-approval-sidecar: WEAKENING_DETECTOR_UNAVAILABLE: detect-policy-weakening.py (T-005) is not yet present in-process; cannot resolve a weakening verdict for a non-bootstrap transition
+EXIT CODE: 12
+--- staged candidate exists? ---
+confirmed: no staged candidate written

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-a-seq0467",
+  "host_session_id": "SESS-spec-a1r2-a-mcpreadonlypreflight-0467",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/precheck-result.json",
+      "sha256": "89bfba2f6228d2dd33a109b651b6d06697bd84a1f40299a89c8609c45a1f049f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement resolves to a concretely testable AC. requirements.md:58-64 (AC-001) names three separately-assertable elements rather than a heading check; :158-165 (AC-014-016) assert against the tool registry, not prose. REQ-005's non-deferred content (outcome equality, AC-012/AC-013 at :134-138) is fully testable now; the divergence-reporting half is explicitly withheld from being invented into a criterion (:142), and :144 now instructs a downstream reviewer or task author to stop rather than proceed on an untestable placeholder, so no requirement is left silently untestable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Overview's stated goals (requirements.md:9-21) each trace to concrete requirements and ACs: probe to REQ-001/AC-001 and REQ-002/AC-002 (:50-78); runtime-agnostic wording to REQ-003/AC-004-007 (:80-104); fallback to REQ-004/AC-008-011 (:106-128); outcome invariance to REQ-005/AC-012-013 (:130-148); write-capability preservation to REQ-006/AC-014-016 (:150-166); policy documentation to REQ-008/REQ-009/AC-021-024 (:189-215). No stated goal lacks a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable file content, tool-registry state or runtime path execution rather than intent. AC-001 (:58-64) requires three separately-verifiable textual elements and rules out a heading-only pass; AC-014 (:158-159) is asserted against the registered tool set rather than prose; AC-021/AC-022 (:197-203) require an accompanying substantive statement rather than a literal marker alone. AC-017-020 (:175-185) name observable path-execution outcomes even though the verification method is an open question, which spec-review-calibration.md:66-67 treats as acceptable while the acceptance outcome itself stays observable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:232-240) explicitly excludes adding write or approval tools, rewriting existing read-only prose, making the probe authoritative, editing any MCP server implementation, registering or configuring servers, generalising ADR-0006, and adding the probe to the interviewer skill. Each boundary is tied to a concrete reason, for example REQ-005 named as the enforceable form of one of them at :236, so the feature cannot silently expand into an adjacent area."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001 through BL-005 (requirements.md:258-264) state the no-server-edit, flow-preservation, prose-preservation, protected-file human-approval and registry-registration constraints explicitly. The round-2 edit adds a second explicit approval boundary: :144 now states that OQ-005 must be answered by a human before design or task decomposition proceeds, with an explicit stop instruction for a downstream reviewer or task author reaching the requirement with OQ-005 still open. This closes the round-1 gap, where the Overview's characterisation of OQ-005 at :21 had no matching gating instruction at REQ-005 itself. The new block text is at least as explicit as REQ-002's existing parallel block at :42 and :78, so the parity claim holds on inspection rather than being a restatement in more words."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both highest-risk claims carry a named validation surface. The protected-file circumvention risk is covered by AC-002's second half and TEST-003 (requirements.md:74-76; acceptance-tests.md:68-74). The dual-runtime probe and fallback obligation is covered by AC-017-020 with the verification method recorded as an explicit open question rather than silently dropped (:187; acceptance-tests.md:120-129, 163). The one remaining high-risk item without a validation surface, a stale but responsive MCP bundle at Edge Case 4 (:247), is explicitly scoped out as a named limitation rather than a claim the requirements assert coverage for."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the target repository root; glob checks for domain/context-map.md and domain/** both return no matches, so there is no context map recording an Approved domain model and no schema-valid domain contract. Per the check's explicit skip condition this is recorded as skipped."
+    }
+  ]
+}

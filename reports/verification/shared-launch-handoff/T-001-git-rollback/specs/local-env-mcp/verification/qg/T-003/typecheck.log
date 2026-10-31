@@ -1,0 +1,4 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-003, fresh run this session)
+$ npx tsc --noEmit
+
+exit 0

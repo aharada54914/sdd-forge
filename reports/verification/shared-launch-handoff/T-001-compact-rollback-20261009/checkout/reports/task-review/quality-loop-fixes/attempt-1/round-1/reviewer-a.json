@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "quality-loop-fixes",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-quality-loop-fixes-task-task-reviewer-a-seq0330",
+  "host_session_id": "SESS-task-task-reviewer-a-quality-loop-fixes-0330",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/quality-loop-fixes/attempt-1/round-1/dependency-graph.json",
+      "sha256": "41fa37c312f6607ae480969821b4f8e4e6b4635912676b295b2e38e9f7d827ad"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "14bcdaea1701b18934822525716d7ee0b6c62723d7f3d232e2d31ab224028556"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/design.md",
+      "sha256": "4bd6183cd6ba303e9712482963def96e9dc9c7be169d18033da058777f42e1ff"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/frontend-spec.md",
+      "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/infra-spec.md",
+      "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/security-spec.md",
+      "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/tasks.md",
+      "sha256": "034b92dd1fe43d29cb9d2eb2c219bdd97487e6d5e25745ca1efd079d86cef99f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/traceability.md",
+      "sha256": "6da5362782e952139f8373d126a67c90fbaaa6dbeda2f34372fa450d830c5cfa"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/ux-spec.md",
+      "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN identifiers referenced in tasks.md Requirements-field annotations (AC-027, AC-028, AC-029, AC-030 -- cited by T-001..T-004 as their own shared legs) resolve to real criteria in acceptance-tests.md rows 37-40. All AC-NNN cited across Done-When items (AC-001..AC-032) likewise resolve to defined criteria (acceptance-tests.md rows 11-42). No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:399-401), T-002 (:591-593), T-003 (:851-853), T-004 (:1066-1068) each declare 'Blockers: None' -- the literal string, no range notation or prose. Matches precheck-result.json's blockers_format_valid=true. blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 (requirements.md Goals, lines 108-167) all appear in at least one task's Requirements field: REQ-001/006/007 in T-001 (tasks.md:197-198); REQ-002/006/007 in T-002 (:438-439); REQ-003/004/006/007 in T-003 (:641-642); REQ-005/006/007 in T-004 (:895-896). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-032 (acceptance-tests.md) are each traceable to exactly one task's Done-When bullets: AC-001..007->T-001, AC-008..012->T-002, AC-013..021/031/032->T-003, AC-022..026->T-004, and AC-027..030 (cross-cutting REQ-006/007) appear as a shared leg in all four tasks' Done-When bundles. Cross-checked against traceability.md's Acceptance Mapping table (lines 36-69), which lists an identical assignment with no gaps."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 4 tasks declare a non-empty Requirements field citing real REQ-NNN IDs (T-001: tasks.md:197; T-002:438; T-003:641; T-004:895). No orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Only T-003's title ('Verify panelist-input bundle completeness and add pre-panel readiness', tasks.md:600) contains a check-triggering keyword ('Verify'). T-003 is not scoped exclusively to test-file changes (it also edits prepare-panelist-input.{sh,ps1} and cross-model-verify/SKILL.md) and its Requirements field/Done-When items cite AC-013..021, AC-031, AC-032 (tasks.md:786-817) -- not orphaned. No task's scope is exclusively test-file changes."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 1, round 1: all 4 tasks declare 'Approval: Draft' and 'Status: Planned' (T-001 tasks.md:165,167; T-002:412,414; T-003:604,606; T-004:864,866). No invalid or missing status/approval field."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001: Risk medium / Required Workflow acceptance-first (tasks.md:169,191) -- matches matrix. T-002: medium / acceptance-first (:416,432) -- matches. T-003: high / tdd (:608,635) -- matches. T-004: high / tdd (:868,889) -- matches. precheck-result.json workflow_match_precheck='PASS', consistent with this check's own verification."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-027/AC-028/AC-029/AC-030 (cross-cutting REQ-006/REQ-007) are referenced by all 4 tasks, but each task's own Requirements field explicitly differentiates the scope inline ('this task's own #167/#176/#166/#179 leg' -- tasks.md:198,439,642,896), and each Done-When bundle names task-distinct evidence (own Must-Preserve BL subset, own CHANGELOG entry citing its own issue number). This matches the distinct-scope exception; no bare undifferentiated duplicate. All task-specific ACs (AC-001..026, AC-031, AC-032) map to exactly one task each per traceability.md's Acceptance Mapping table (lines 38-69) with no overlap."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 4 tasks declare Blockers: None, so no cross-task ID references exist to validate. dependency-graph.json nodes=[T-001,T-002,T-003,T-004] matches tasks.md's 4 declared task IDs exactly; edges=[] confirms no blocker references. Vacuously satisfied."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT result is PASS, so this check runs. dependency-graph.json edges=[] -- an empty edge set cannot produce a cycle. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001, T-002, T-004 titles/scopes address one coherent concern each with no concern-joining 'and'. T-003's title ('Verify panelist-input bundle completeness and add pre-panel readiness') joins two sub-deliverables (Stream 3a completeness check in prepare-panelist-input.{sh,ps1}, REQ-003; Stream 3b readiness step in cross-model-verify/SKILL.md, REQ-004) that do not literally fit the test-tied or housekeeping carve-outs. However, requirements.md Main Workflows item 3 (line 449-451) and design.md (line 628-629) explicitly authorize combining them ('may land together... Phase 2 task decomposition decides the split, not this spec'), and T-003's own Risk Rationale (tasks.md:626-633) argues both target the SAME retrospective evidence-completeness gap (INV-011) with 'no independent value' if split. Treated as one coherent evidence-completeness-gate concern per spec-level authorization, not a forbidden unrelated-feature bundling -- flagged here for downstream visibility given the closer judgment call."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Grep of tasks.md confirms no forbidden vague phrasing ('ensure', 'consider', 'works correctly', 'verify is correct') appears anywhere in Done-When items. Every 'confirms'/'confirm' instance (e.g. tasks.md:346-364,547-560,788-814,1013-1030) is bound to a named TEST-NNN ID with a concrete expected result (exit code, SHA-256 match, specific text-state assertion). Every 'update' instance names a specific file/section (e.g. 'ship/SKILL.md' Step 4 prose + invocation examples, tasks.md:31,187,263). Every non-documentation-only task (all 4) includes at least one Done-When item naming a concrete verification artifact/command: TEST-NNN IDs throughout, plus 'implementation report' + 'independent quality-gate verdict records PASS' (e.g. tasks.md:377-382,572-577,826-833,1042-1049)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001..T-004 all appear in traceability.md's Task Mapping (lines 29-32) and Deliverables (lines 75-78) tables. REQ-001..REQ-007 in traceability.md all exist in requirements.md Goals. Full-profile layer-spec anchor check: REQ-001 cites infra-spec.md#cicd-sequence (infra-spec.md:41 '## CI/CD Sequence') and security-spec.md#trust-boundaries (security-spec.md:16); REQ-003/REQ-005 cite security-spec.md#trust-boundaries and security-spec.md#stride-analysis (security-spec.md:43 '## STRIDE Analysis'); REQ-002/004/006/007 use reasoned 'N/A -- cross-layer only: <reason>' values (traceability.md lines 9,11,13,14). Layer Coverage table anchors (ux-spec.md#scope-and-user-journeys, frontend-spec.md#technology-stack, security-spec.md#security-tests) all resolve to real headings in the hash-verified layer documents. No dangling reference either direction."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-risk.sh /Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a2/tasks.md T-001
+== start: 2026-07-16T04:16:55Z ==
+Risk check passed for task T-001.
+== end: 2026-07-16T04:16:55Z ==
+EXIT_CODE: 0

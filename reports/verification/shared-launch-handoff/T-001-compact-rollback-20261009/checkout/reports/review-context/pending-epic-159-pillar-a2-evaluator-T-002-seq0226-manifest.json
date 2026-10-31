@@ -1,0 +1,118 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a2",
+  "task_id": "T-002",
+  "run_id": "RUN-epic159pillara2-qg-T-002-seq0226",
+  "host_session_id": "SESS-qg-epic159pillara2-T-002-0226",
+  "sequence": 226,
+  "previous_record_sha256": "b502d6960c950845d1606413851b88dbd7422209cbae3d6fb544a4c7bcc0e099",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ae424f7e7d06016c0b8c9c60e6f490f52ce7115909bc60c40913aa109514342e",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "3b63c5f8c33018919fce66ef3550a0bdb5fcfee33e48f61a731b9684fab8c105"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/tasks.md",
+      "sha256": "4fc479be52c63bcc766604e15dac4897c7c080fc533cf182bb0e4a625a322d5e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/traceability.md",
+      "sha256": "130278dce748abd258f8b865671f5b52a8f3a7fc788eec3d6f54556640e0ea7a"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/traceability.json",
+      "sha256": "7857a034fc461578a7dc0d7eb56acf3a74a47de27223c82085b96f0df4bea18e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-159-pillar-a2/T-002.md",
+      "sha256": "305e6f5d398c8339814f4f1c8c767a767118cc88925c3417382f765c4b074efb"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/base.py",
+      "sha256": "c59bc057c267ed7b0385bc8940e22d33ee1511b1d9c27dd6829b05d29ce856ee"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/legacy_util.py",
+      "sha256": "41929742cd3a183360a9b25dbf84677ecc08fc757e4da404f7189752e1e7db14"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/service.py",
+      "sha256": "71a2839979bd59b989fbf247a892e44c2df98293fcdd9c2ba7e0951c9102871f"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/specs/brownfield-seed-demo/tasks.md",
+      "sha256": "c41f63b7e0de53d52c58e7302c0cbed961b83d089cbe20356500a5ac5d4f762d"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/CHANGED_FILES.txt",
+      "sha256": "c6363885023ed90edd662078870d7bec956cb0086bde97c5afa3bf2e2a5b8de5"
+    },
+    {
+      "path": "tests/check-placeholders-brownfield.tests.sh",
+      "sha256": "d9b134343642a9208d48ccedf65b019ca99accd83d60f8f06e1f3cf6e0a77c58"
+    },
+    {
+      "path": "tests/check-placeholders-brownfield.tests.ps1",
+      "sha256": "b37a60f24143d07ff3a59fe3a5488f09eaf133519343323b9d5c6cd2ee2a3591"
+    },
+    {
+      "path": "tests/loop-consistency.tests.sh",
+      "sha256": "bf10e064b334ef5ea75ae926cdb696d105a00c87002b562f1e66a2524f2c28ea"
+    },
+    {
+      "path": "tests/loop-consistency.tests.ps1",
+      "sha256": "8bf5423b56f014d0211f8c87ad5d355c1879150c85845d221a08592b27580a1e"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "62d96602c2e797385063d1ed01c9f409aeaf664b0f166ae188cb88cdad1c3cd9"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "08b0f5358a3c98b3533d6a351ea128dc14208a4841310bf2934c44d95661c32a"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "f8023a863cd32f9a304b0ea8eeae4a71a56833f5d78089db5043b652d6a09ea6"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-002/red-sh.log",
+      "sha256": "7e3d71e31432289f590c0dc60cc8074a1dfb5a928687d2b669875759902c9eae"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-002/green-sh.log",
+      "sha256": "1cfaae6227db289ac475fc1bc9cf9fb7cfd45a97c9068447bb93ca7335db6d57"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-002/green-ps1.log",
+      "sha256": "a9615e9fa2df7c259ffc3128dcace7741c1c0a112902aa04eb24fc6338a07c03"
+    }
+  ]
+}

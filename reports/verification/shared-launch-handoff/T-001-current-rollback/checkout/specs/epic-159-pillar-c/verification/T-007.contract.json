@@ -1,0 +1,152 @@
+{
+  "task_id": "T-007",
+  "feature": "epic-159-pillar-c",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "created": "2026-07-21T15:00:00Z",
+  "comment": "Default-FAIL verification contract for T-007 (high, tdd -- risk-gate-matrix.md:26 requires tdd at high/critical; tasks.md T-007 Risk Rationale). Flips select-agent-model's --effort-policy default from welded to matrix (one-line change per twin, select-agent-model.sh:18 / select-agent-model.ps1:16). Populated after tests/effort-policy-flip.tests.sh/.ps1 (new, T-007-scoped suite implementing TEST-041..046) ran RED before the flip (specs/epic-159-pillar-c/verification/T-007/red-sh.log) and GREEN after (green-sh.log, green-ps1.log, both twins 13/13 passing + TEST-044 SKIP-with-named-reason), plus the epic-159-pillar-c cross-suite regression set (agent-model-routing, agent-capabilities-v2, render-agent-frontmatter, emit-run-record-feature-scope, run-panelist-effort -- all ten runs across both lanes green; specs/epic-159-pillar-c/verification/T-007/regression.log) and the AC-042 render zero-diff proof (render-check.log). Shell stack waives the three compile-oriented checks (lint/typecheck/build) for shell/PowerShell script files, matching every prior pillar-c contract. TEST-044 (a real Codex-host smoke run) is honestly recorded as SKIPPED in this implementation session -- not fabricated, not silently worked around -- per the implementation report's Unresolved Items: the installed codex CLI is a full autonomous coding-agent tool (its own --help documents workspace-write/danger-full-access sandbox modes), unsafe to invoke unattended from an automated suite run without an explicit human opt-in (SDD_ALLOW_REAL_CODEX_SMOKE=1), which this session did not set. This suite is NOT registered in tests/run-all.sh/.ps1 or staged into .github/workflows/test.yml/human-copy -- T-007's own Planned Files list (tasks.md) omits both, unlike T-001/T-003/T-005/T-006, and design.md Test Strategy point 8 states TEST-041..046 run only at T-007's own implementation/release time, outside the 3-OS CI matrix that is authoritative for TEST-001..TEST-040 (see the implementation report's Specification Differences). This regression pass also found and fixed three pre-existing hardcoded-default-policy assertions in tests/agent-model-routing.tests.sh/.ps1 (schema auto-detection sanity, TEST-007/012's welded JSON shape, TEST-013's omitted-effort fill, TEST-034's v1<->v2 projection) that incidentally relied on welded being the selector's own default -- each fixed minimally by pinning an explicit --effort-policy welded/-EffortPolicy welded, decoupling the assertion from the flip while preserving its original tested claim (see regression.log header and the implementation report's Files Changed).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell script files (stack: shell); bash -n and PowerShell parser validity are exercised implicitly by every green run recorded in green-sh.log/green-ps1.log.",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/green-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-007/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-007/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what the unit/acceptance suite already exercises against the real select-agent-model/render-agent-frontmatter scripts; TEST-044's real Codex-host integration case is honestly SKIPPED this session (see comment and the implementation report's Unresolved Items), not silently omitted.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/green-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-007/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-007/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell script files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/T-007/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's suite fully covers its own CLI/script surface via the RED/GREEN and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task. The change is a documented, deliberate default-value flip (design.md ADR Change Log, ADR-0012); the saved RED/GREEN evidence and cross-suite regression set (including the three pre-existing-assertion fixes) provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are script/doc files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

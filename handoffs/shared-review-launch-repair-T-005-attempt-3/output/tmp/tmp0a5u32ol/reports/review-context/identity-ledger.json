@@ -1,0 +1,1 @@
+{"schema": "review-identity-ledger/v1", "records": [{"sequence": 1, "stage": "spec", "role": "spec-reviewer-a", "run_id": "fixture-1", "host_session_id": "session-1", "previous_record_sha256": "", "record_sha256": "953383fa3e0e3ed795c0085ee9e8f303e1089016a311db033483a0a30d99cf8b"}]}

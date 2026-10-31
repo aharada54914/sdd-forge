@@ -1,0 +1,114 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-second-approval-mask-impl-impl-reviewer-b-seq0177",
+  "host_session_id": "SESS-impl-impl-reviewer-b-second-approval-mask-0177",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/design.md",
+      "sha256": "b5d31a152a2df552d9b63a1287d4fe8c69b274f09453765f74c12b027127eae4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/security-spec.md",
+      "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/infra-spec.md",
+      "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/frontend-spec.md",
+      "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/ux-spec.md",
+      "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "11337cc58358ab8e182d71bdba0d034d5be6f706a92520c2a57e713a00c4c6c8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/second-approval-mask/attempt-1/round-1/integrated-summary.json",
+      "sha256": "85ebdb58677f67fa8487827c10b6915b405faa68333f35717fef5ee73361162c"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "sed rule (design.md L23-26) and ps1 regex (L30-34) each carry explicit 'because'/'so' rationale clauses tying the construction to sh/ps1 byte-identical normal-form semantics; test suite (L36-39) justified by reuse of the existing workflow-state-parity fixture pattern; human-copy staging (L28, L35, L80-83) justified by the R-10 protected-path hook rule. No unjustified decisions found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no ## Open Questions section ([LEGACY COMPAT] Minor advisory, non-blocking, per legacy_design:true). requirements.md ## Open Questions (L183-187) explicitly states 'None' with stated rationale; no unresolved/unowned/blocking item exists."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no ## Assumptions section ([LEGACY COMPAT] Minor advisory). requirements.md ## Assumptions (L176-181) has 2 entries, both grounded in existing codebase precedent (pwsh required by existing parity suites; --registry entry point already used by tests/workflow-state-parity.tests.sh). investigation.md is absent but both entries are self-grounded, not speculative, so the ungrounded-assumption Major trigger does not apply."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No ## Constraint Compliance section; fallback keyword scan of requirements.md found 5 constraint statements (L55, L65, L95, L162-164, L173-174), all addressed in design.md (Test Strategy negative controls, column-0 anchored patterns in both twins, terminator-consumption byte-identical rationale, unchanged hook guard/check-task-state in Security Boundaries)."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md L78-83 states deployment target (human-copy apply to live protected paths), CI pipeline change (tests/run-all.sh registration, corroborated by infra-spec.md's 'no new CI secrets'), and rollback strategy. Feature-flag strategy and migration execution order are correctly omitted (not an incremental rollout; no schema changes, per MIGRATION-PLANNED)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No ## Data Plan section ([LEGACY COMPAT] Minor advisory); correctly so \u2014 Components (L23-39) lists only two CLI scripts and one test file, no data entities/schema; infra-spec.md confirms 'No topology change.'"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## External Integrations (L73-76) explicitly states 'None... self-contained'; no external system referenced in passing elsewhere in the document."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Three Components map 1:1 to REQ-001/AC-001..005 with no extraneous component; Non-goals (requirements.md L62-66) are respected (check-task-state, hook guard unchanged per Security Boundaries L66-68); both User Stories (L73-78) are covered by the deletion rule and the negative-control test strategy."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surface present (protected repo-wide provenance gate script, requirements.md Risks L198-201). Concrete validation paths named: RED-first TEST-001 with red.log evidence, GREEN TEST-002 negative controls, TEST-003/004 sh/ps1 parity + CRLF corpus, full-repo regression naming three existing suites, and AC-005/TEST-005 live==staged SHA-256 gate evidence."
+    }
+  ]
+}

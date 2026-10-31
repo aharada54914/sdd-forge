@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a2r1-seq0663",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a2r1-0663",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "7b6dfba99151b0205288323b914075761a04b5dff747ffa89c1458f51e0f09c5"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-1/precheck-result.json", "sha256": "aaaa2bf23cadc42717dff4e9e80c4141be9898c344d1a4220f0ac63bd9ff2132"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-1/integrated-summary.json", "sha256": "3299ecf5aa173561d16ab28063464934db6df0ad76784cb16f60e777dd8cc39e"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amended passages (Problems' 'Superseded' paragraph, REQ-004 applicability sub-bullet, Non-goals last bullet, Dependencies clauses, REQ-004 registration sub-bullet, AC-035, Risks bullet) define the conditional-activation predicate concretely: check-contract's `_pass4_risk_tier` drops `check-component-coverage` from the high/critical tier minimum exactly while `sdd/project-context.yaml` is absent (a plain file-existence test, not a re-derived state), with an explicit fail-closed fallback for a malformed file and no YAML-parser participation. Every term used (`disabled-legacy`, `passes:true`, `producer.sha256`, `_pass4_risk_tier`) is already defined elsewhere in the same document. Two implementers reading the amended text would build the same predicate."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Security Boundaries (requirements.md ~1392-1396) states unconditionally: 'REQ-004's registration into check-contract's protected required-check-set (INV-017) is the boundary that additionally prevents an unprotected quality-gate/SKILL.md edit from bypassing invocation.' Main Workflows step 4 (~1322-1325) repeats this unconditionally ('deleting the SKILL.md invocation, or substituting an unregistered script, does not bypass it'). Neither passage carries the 2026-08-11 supersession annotation. But the amended REQ-004 registration sub-bullet (~553-556), AC-035 (~1029-1031), and Dependencies (~278-279) now state this same required-check-set membership 'activates only once sdd/project-context.yaml exists' — i.e. in disabled-legacy (the state investigation.md INV-002/INV-021 confirms this entire repository is currently in), check-contract's tier minimum does NOT require a check-component-coverage evidence entry at all, so an unprotected SKILL.md edit in that state would NOT be caught by the mechanism Security Boundaries/Main Workflows describe as an unconditional guarantee. Downstream failure mode: a design/implementation-policy reviewer relying on Security Boundaries (this spec's normative security-guarantee section) would verify against a reachability claim the amended REQ-004 text directly contradicts for the disabled-legacy state. This is an internal contradiction within the same reviewed artifact (requirements.md), not an implementation detail, and it is exactly the kind of direct safety/workflow-boundary contradiction the review classifies as Critical."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The 2026-08-11 amendment introduces new, load-bearing production behavior (check-contract's tier-minimum membership for check-component-coverage activates only once sdd/project-context.yaml exists — Problems ~159-165, REQ-004 registration sub-bullet ~553-556, AC-035 ~1029-1031), but no TEST id in acceptance-tests.md (unchanged from attempt 1) exercises the present/absent boundary directly. TEST-035 (acceptance-tests.md line 46), mapped to AC-035, still asserts unconditionally that 'the high/critical Gate still fails via check-contract's protected required-check-set + producer-digest verification' with no fixture variant for the disabled-legacy (file-absent) case where, per the amended AC-035, that required-check-set membership is inactive. requirements.md's own Edge Cases section (1344-1384) also has no entry for this transition. Downstream failure mode: a Phase-2 task author decomposing T-004 has no acceptance-test anchor for the core mechanism the human ruling introduced to resolve NEW-001, and must invent both the fixture design (present vs. absent sdd/project-context.yaml) and its assertions without a specified test id, risking under-testing of the very predicate this remedy depends on. This belongs to spec review because acceptance-tests.md is a Phase-1 artifact in this gate's scope, and the amendment changed a normative AC without a corresponding test-package update."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amendment's forward-looking claim that Epic A1's landed `contracts/project-context.schema.json` will make `capability_enforcement` a required enum field (Problems ~165-169) is not safety-load-bearing: the predicate is explicitly hedged as 'fail-closed (check still required) for a malformed one' with 'no YAML parser... participat[ing] in the decision' (same paragraph), so even if that forward assumption about Epic A1's schema proves wrong, the tier-minimum still defaults to requiring the check whenever the file is present. This mirrors the already-accepted assumption-handling pattern elsewhere in this document (AC-011's FAIL-closed schema-conformance fixture, Assumptions bullet 1), so no new unresolved, safety-relevant assumption is introduced."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human approval/governance boundaries remain explicit and testable after the amendment: the conditional-activation predicate is carried by the same staged `check-contract.{sh,ps1,py}` human-copy candidate (commit eb427d60) requiring a human `cp` + SHA-256 verification before the registering task can be marked Done (AC-036; Roles and Permissions 'Human maintainer' bullet), unchanged by this amendment; Approval: Draft→Approved remains explicitly out of scope for this spec-phase package (Roles and Permissions)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Apart from the Security Boundaries/Main Workflows contradiction already captured under CONTRADICTION, the amendment's design intent is stated without gaps that would force a downstream design reviewer to invent missing product behavior: the predicate, its scope (only the check-component-coverage id), its measured verification numbers (check-contract 79/94, mutation-proven non-vacuity), and its rationale are all present together in Problems/REQ-004/Dependencies/AC-035."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root (verified via directory listing at the repository root), so the check's applicability precondition (domain/context-map.md with Domain-Model-Status: Approved and a schema-valid domain/domain-contract.json) is unmet; recorded as skipped per the check's own SKIP condition."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+$ npm test
+# (pretest: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs enumerating dist-test/tests/**/*.test.js)
+
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> local-env-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-004: successful probe yields available + normalized first-line version (337.052417ms)
+✔ AC-004: multi-line output is normalized to first line only (165.547625ms)
+✔ AC-004: stderr-stream CLI (java-style) reads version from stderr (154.390667ms)
+✔ AC-004: timeout (>2s) kills the process and reports probeError=timeout (2004.948625ms)
+✔ AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large (192.826ms)
+✔ AC-004: missing CLI reports probeError=not-found (spawn ENOENT) (3.88925ms)
+✔ AC-004: nonzero exit reports probeError=nonzero-exit (131.801584ms)
+✔ AC-004: probeError values are all within the contract enum (2004.787333ms)
+✔ AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response) (4008.70875ms)
+✔ AC-004: TTL cache reuses a prior result within the window (no re-probe) (10.913625ms)
+✔ ok() builds a success envelope (0.547667ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.095208ms)
+✔ ErrorCode union matches the contract error.code enum exactly (0.333208ms)
+✔ allowlist has exactly the 14 required CLIs in order (0.065291ms)
+✔ every allowlist entry has name/command/args/versionStream; java uses -version+stderr (0.085542ms)
+✔ allowlist command names contain no shell metacharacters or path separators (0.0845ms)
+✔ src/ contains no filesystem write API references (1.741958ms)
+✔ src/ uses no child_process.exec / spawn / fork / eval (execFile only) (0.666792ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (0.239167ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9057.199
+
+npm test exit code: 0

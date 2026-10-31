@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-epic136rce-a1r1-20260710-0002",
+  "host_session_id": "hs-spec-b-epic136rce-0135",
+  "allowed_input_manifest": [
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/requirements.md","sha256":"3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f"},
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/acceptance-tests.md","sha256":"481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c"},
+    {"path":"/c/dev/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/precheck-result.json","sha256":"b368668cf832c5401a3fe23787e505e57c5890f0fbb88be7ae399f9d6d1a9ecd"},
+    {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/integrated-summary.json","sha256":"ede365d385f2c95a5e69576ef849ee4f4ab5ee3e595f041e386557d48209770b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"AMBIGUITY","result":"PASS","severity":"Major","finding":"No material ambiguity prevents a task author from identifying the shell HMAC data-boundary fix and its intended fail-closed behavior."},
+    {"id":"CONTRADICTION","result":"PASS","severity":"Critical","finding":"The requirements, non-goals, workflows, and acceptance criteria state a consistent scope and consent rule."},
+    {"id":"EDGE-CASE-COVERAGE","result":"FAIL","severity":"Major","finding":"REQ-002 requires nonce, TTL, and repository binding to be valid before consent, but AC-002 tests only a wholly valid real-HMAC token and AC-003 tests a post-signing field alteration, which is rejected by the invalidated signature. No acceptance test requires denial of a correctly signed token whose nonce, TTL, or repository binding is independently invalid. A verifier therefore cannot determine that these existing fail-closed checks remain effective after the helper change; this is a Phase 1 coverage gap for the stated security boundary, not an implementation-detail request."},
+    {"id":"ASSUMPTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"The stated python3 runtime and existing PowerShell parity assumptions are sufficiently bounded for later design and task decomposition."},
+    {"id":"APPROVAL-BOUNDARY","result":"PASS","severity":"Critical","finding":"The consent boundary is explicit: only a complete valid token may select sudo consent, and all other outcomes follow the denial path before bundle creation."},
+    {"id":"DOWNSTREAM-READINESS","result":"FAIL","severity":"Major","finding":"REQ-005 requires preserving equivalent PowerShell behavior and documenting implementation-specific safety differences, yet AC-005 and TEST-005 provide neither the expected parity outcomes nor a documentation target. A task author and verifier cannot decide what PowerShell evidence or documentation artifact completes REQ-005; this is a missing observable acceptance surface, not a request for implementation design."}
+  ]
+}

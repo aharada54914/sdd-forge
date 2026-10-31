@@ -1,0 +1,9 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "artifact_kinds",
+    "operator": "jsonpath",
+    "value": "$.x"
+  },
+  "properties": {}
+}

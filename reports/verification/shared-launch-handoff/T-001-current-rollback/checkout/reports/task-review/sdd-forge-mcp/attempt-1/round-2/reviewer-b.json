@@ -1,0 +1,98 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-sddforgemcp-a1r2-20260704-c8b3",
+  "host_session_id": "hs-task-b-7ea701ba-0015",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/tasks.md",
+      "sha256": "302ff45cd4da7ad639c7183b382fbd713e1c59638ccb612a17ca17c3ce4f3327"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "4910cd940a51515635a8b7c489c4257e87c137fb04bdc86b3c52c5dbdc2a9def"
+    },
+    {
+      "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "bbf7c42cec0465c9170e0a1d7af041d1aaf7027d84ea8f28cc666cc62da3732f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 9 tasks' Risk tiers match their scope surfaces per risk-classification-policy.md (high for quality-gate-input/security-chokepoint surfaces; medium for recoverable installer/CI config writes; low for docs-only). No under- or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 6 Risk: high tasks carry both Red->Green evidence and independent-review-verdict-recorded Done When items. No critical-tier task exists, so second-approver/signed-bundle does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003 Scope spans 5 distinct parser implementation areas in one task (agents-md, review-ticket, quality-report, evidence, traceability parsers), each parsing a structurally different input format with its own cannot-parse fixture set. This exceeds the more-than-three-implementation-areas threshold, risking a task that cannot be completed and verified in a single focused session. All other 8 tasks stay within 3 areas and at or under 8 Done-When items; no fragmentation pattern found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task maps to an AC with explicit error-path scenarios (AC-003/004/017 for T-001; AC-002 for T-002; cannot-parse fixtures for T-003; AC-017 not-found for T-004; AC-012 cannot-determine for T-009; AC-014 missing/mismatch for T-005). No happy-path-only task found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 17 test-type declarations align with their scope: unit tests target single module boundaries, integration tests involve 2+ components, TEST-005 is correctly e2e over the real stdio transport. No contradiction."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 9 tasks carry an explicit Rollback: field. All high-risk tasks specify commit-revert with no-blast-radius reasoning; T-004/T-009/T-005 additionally reference uninstall.sh for deployed environments; T-006 references uninstall for de-registration recovery; T-007 references workflow-commit revert."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No uncoordinated file-purpose overlap. The T-004 stub / T-009 replace of get_next_sdd_command is the legitimate create-then-replace pattern enforced by T-009's Blockers: T-004. T-001 build config vs T-007 dist commit serve distinct purposes with correct ordering."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers DAG cross-checked against scope dependencies; all 15 edges are genuine (parsers consumed by server tools; stub replacement; packaging after functional completion; docs after flag finalization). No missing blockers identified; T-002/T-003 correctly independent."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 9 tasks are net-new feature implementation tasks."
+    }
+  ]
+}

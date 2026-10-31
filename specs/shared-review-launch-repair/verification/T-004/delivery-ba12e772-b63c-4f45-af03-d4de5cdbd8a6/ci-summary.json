@@ -1,0 +1,230 @@
+{
+  "headSha": "be9c13829581cf5e80ed8abcece74a718eadf14c",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997",
+  "jobs": [
+    {
+      "name": "POSIX unwired shard (0)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:17:35Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239083"
+    },
+    {
+      "name": "test-windows-heavy",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:21:01Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239202"
+    },
+    {
+      "name": "test (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:28:39Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239223"
+    },
+    {
+      "name": "test (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:33:50Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239251"
+    },
+    {
+      "name": "complete POSIX regression inventory",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:19:27Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239270"
+    },
+    {
+      "name": "loops-routing (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:17:47Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239277"
+    },
+    {
+      "name": "test (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:26:51Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239302"
+    },
+    {
+      "name": "POSIX unwired shard (2)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:17:19Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239320"
+    },
+    {
+      "name": "loops-routing (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:15:21Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239327"
+    },
+    {
+      "name": "version-gates (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:26:44Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239340"
+    },
+    {
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:04Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239342"
+    },
+    {
+      "name": "version-gates-windows-lanes (governance)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:16:31Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239343"
+    },
+    {
+      "name": "POSIX unwired shard (3)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:18:51Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239346"
+    },
+    {
+      "name": "version-gates-windows-bump",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:18:14Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239349"
+    },
+    {
+      "name": "cli-hook-enforcement (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:47Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239372"
+    },
+    {
+      "name": "POSIX unwired shard (1)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:25:38Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239373"
+    },
+    {
+      "name": "local-env-mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:52Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239413"
+    },
+    {
+      "name": "mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:14:28Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239418"
+    },
+    {
+      "name": "mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:31Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239419"
+    },
+    {
+      "name": "mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:58Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239422"
+    },
+    {
+      "name": "cli-hook-enforcement (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:21Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239424"
+    },
+    {
+      "name": "version-gates (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:25:09Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239425"
+    },
+    {
+      "name": "local-env-mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:15Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239428"
+    },
+    {
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:13:06Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239440"
+    },
+    {
+      "name": "ci-mcp-tests (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:14:21Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239480"
+    },
+    {
+      "name": "ci-mcp-tests (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:14:36Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239484"
+    },
+    {
+      "name": "installers (ubuntu-latest / all)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:14:50Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239516"
+    },
+    {
+      "name": "installers (macos-latest / all)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:18:57Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239558"
+    },
+    {
+      "name": "version-gates-windows-lanes (capability)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:19:27Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239569"
+    },
+    {
+      "name": "installers (windows-latest / context)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:17:27Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239596"
+    },
+    {
+      "name": "version-gates-windows-lanes (ownership)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:19:52Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239601"
+    },
+    {
+      "name": "version-gates-windows-lanes (lite)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:16:43Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239608"
+    },
+    {
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:12:55Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239622"
+    },
+    {
+      "name": "installers (windows-latest / clients)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:16:10Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239630"
+    },
+    {
+      "name": "installers (windows-latest / mcp)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:17:12Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239632"
+    },
+    {
+      "name": "installers (windows-latest / core)",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:19:36Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114502239673"
+    },
+    {
+      "name": "required-checks",
+      "conclusion": "success",
+      "completedAt": "2026-10-11T15:33:56Z",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/38150318997/job/114506594195"
+    }
+  ]
+}

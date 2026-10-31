@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-b-impl-impl-reviewer-b-seq0240",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-b-0240",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "a0da09b64455cec1eb22ee499a8cdf07ab506759b88ea33398b44dfbb62434c2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/investigation.md",
+      "sha256": "f1a71be18532189bbb2d68b5ca92b52b493eae0bf7e7ebf3ed1cc6358f4a95dc"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-3/precheck-result.json",
+      "sha256": "03c88cb3e653fba0bef871717319701e65e2cc5c5a191155ef9b0baa7c3b5079"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-b/attempt-1/round-3/integrated-summary.json",
+      "sha256": "322143956fc6c220e431834fe985084a8efd9df9aa97035f7be1d2f2ed705727"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Each technology/architecture decision carries an explicit rationale: text-marker technique over YAML-parsing dependency (design.md:23-26, restated in Design Decisions:364-374 with the ownership-boundary reasoning for a new suite vs extending tests/workflow-state-ci-integration.tests.sh); fixture git-init baseline extension is justified by the exact need it serves ('required specifically because AC-002/AC-003's zero-mutation proof is expressed as git status --porcelain being empty', design.md:385-391); stub-driven green path justified for speed/determinism with coverage-elsewhere argument (design.md:375-384); ubuntu-latest-only scope justified by matching release.yml's existing single-OS scope (design.md:267-273, infra-spec.md:49-51); no-.ps1-twin-for-bump-version.sh justified as a CLI vs test-suite distinction (design.md:351-355); no elevated permissions for loop-gate job justified by least-privilege reasoning (design.md:270-273). No inline 'we will use X' decision found without an accompanying because/since clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md ## Open Questions (design.md:473-481) states 'None blocking. All investigation.md OQ-001..OQ-007 are resolved above with design decisions' and explains why the two additional design-level decisions (new release-loop-gate suite; stub-driven green path) are recorded as resolved rather than left open (reversible, low-risk, additive). No entry lacks an owner, a Blocks Implementation statement, or a Resolution Path because no entry remains open; each of the seven investigation.md open questions is individually resolved with a cited design decision (design.md:346-363, cross-referenced to requirements.md's own OQ-001..OQ-007 RESOLVED entries at requirements.md:358-377)."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. investigation.md is present (specs/epic-159-pillar-b/investigation.md, INV-001..INV-017), so the absent-investigation Major-finding rule does not apply. design.md's three Assumptions (design.md:462-471) are each grounded: (1) bump-version.sh's ROOT resolution is cited to the exact source line scripts/bump-version.sh:18 (matches investigation.md's own file:line evidentiary convention); (2) release.yml's single-job/single-OS structure is grounded in INV-006 (release.yml:30-100, investigation.md:26-29); (3) tests/workflow-state-ci-integration.tests.sh's technique remaining a valid precedent is a reasonable technical default for an established, unmodified in-repo pattern, with basis cited (the file itself, referenced design.md:23-26,277-281)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found (Primary/TYPE-D path: design.md has a ## Constraint Compliance section, design.md:443-458). The round-2 Critical gap is resolved: a dedicated row now exists for 'fail-closed pre-mutation ordering + zero mutation on a red run' (design.md:448), citing REQ-001 body ('before any of the script's existing mutation steps run'), Edge Cases 'Red-suite bump-version.sh behavior' (byte-for-byte unchanged / zero mutation), and AC-002/AC-003/AC-005, with TEST-002/TEST-003 (per-suite git status --porcelain empty assertion) and TEST-005 (line-number ordering assertion) as verification, and an explicit note distinguishing it from the no-bypass row (design.md:447). A named-SKIP degradation note was also added to the cross-host row (design.md:451: 'the two new .ps1 twins degrade to a NAMED SKIP (never a silent pass) when bash is absent'). All other requirements.md constraints (no-bypass B2, no protected-file mutation, .sh/.ps1 twin mandate, no false green, doc-following in same PR, version-bump-exclusivity, four CI-resilience items from INV-017) each have a corresponding row (design.md:447-458). My own fallback keyword scan of requirements.md (must not/shall not/within Nms/maximum N/compliant with/compatible with) found no additional constraint outside what the table already covers."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. The only runtime-budget language present (LOOP_SUITE_BUDGET_SECONDS=300, requirements.md Non-goals: 'Harmonizing the two suites' runtime budgets... out of scope; each suite self-manages (OQ-005)') is an explicit non-goal on an existing suite's internal budget, not a numeric SLA/threshold this feature's own new deliverables must meet. design.md nonetheless addresses budget viability defensively (Test Strategy item 3, design.md:329-333; Design Decisions OQ-002, design.md:348-350; infra-spec.md Runtime Budget, infra-spec.md:90-107)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md ## Deployment / CI Plan (design.md:428-441) states the deployment target (no runtime deployment; two new suites join the existing 3-OS test.yml matrix; the release.yml leg's effect is scoped to release:[published]/workflow_dispatch triggers, unchanged trigger surface), describes the CI pipeline changes (new suite registrations, cross-referenced to the full new-job definition in API/Contract Plan design.md:244-274), and states rollback mechanics (reviewed commit revert per leg, no human-copy step since nothing protected is touched). Feature-flag strategy is inapplicable and correctly omitted: this is not an incrementally-flagged rollout. Data Plan states no schema changes (design.md:135-151), so the migration-execution-order sub-requirement does not apply."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (design.md:135-151) states 'Data Entities: none... Existing Data Affected: none... Migration Strategy: none' with an explicit no-migration statement citing the same convention used in specs/epic-159-pillar-a/design.md:118. Per the check's own rule, 'No data changes' triggers PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md ## External Integrations (design.md:420-426) states 'None. No network calls, no new services, no third-party actions beyond what release.yml already performs (checkout, SBOM generation, sigstore attestation, release-asset upload \u2014 all unchanged by this feature).' The existing checkout/SBOM/sigstore/upload actions referenced are explicitly scoped as unmodified by this feature (not introduced, not called differently), and their contract/failure behavior remains release.yml's existing, out-of-scope behavior; this feature adds no new integration requiring a dedicated contract/failure-behaviour table entry."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every design.md component (design.md Components table, design.md:61-78) maps to a requirements.md REQ: scripts/bump-version.sh loop-gate edit and tests/bump-version-gate.tests.sh/.ps1 to REQ-001; .github/workflows/release.yml loop-gate job and tests/release-loop-gate.tests.sh/.ps1 to REQ-002; docs/contributor/release-runbook.md and CHANGELOG.md entry to REQ-003; the bump-version.ps1 non-twin recorded degradation to REQ-004. tests/run-all.sh/.ps1 and .github/workflows/test.yml registration edits are the Global-Constraint shared-file edits requirements.md itself calls for (requirements.md Edge Cases 'Global-Constraint shared files', requirements.md:319-326). No component, endpoint, or data model appears in design.md without a requirements.md anchor, and all four Goals (REQ-001..004) and the User Stories (requirements.md:149-158) are covered by a corresponding design.md section."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surface present: the weakened-gate / bypass threat (security-relevant, security-spec.md STRIDE B2 row, security-spec.md:45-47) and release-path integrity (B4, security-spec.md:38). design.md names concrete validation paths for each: TEST-004 (grep-based no-bypass self-check on the real script, design.md:237-242), TEST-008 (text-marker scan for continue-on-error/if:always across both job slices, design.md:288-292), TEST-009 (negative-branch canary on a mutated release.yml fixture proving TEST-008's check is not vacuous, design.md:295-299), and TEST-002/TEST-003/TEST-005 (fail-closed pre-mutation ordering + zero-mutation proof, design.md:448). All are named, concrete acceptance-test artifacts already cross-referenced in acceptance-tests.md (TEST-004, TEST-008, TEST-009 rows)."
+    }
+  ]
+}

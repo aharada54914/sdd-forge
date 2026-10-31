@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-159-pillar-b",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2",
+  "acceptance_sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5",
+  "design_sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16",
+  "tasks_sha256": "b945f99b108477810b4145d1777adc2ea34440257a7c2a5d71038c68e96b2247",
+  "traceability_sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28",
+  "layer_sha256": {
+    "ux-spec.md": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e",
+    "frontend-spec.md": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a",
+    "infra-spec.md": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5",
+    "security-spec.md": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "",
+  "prior_round_contract_sha256": "",
+  "pass_type": "none",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-a-seq0241",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-b-0241",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-b/requirements.md",
+          "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+          "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/design.md",
+          "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/tasks.md",
+          "sha256": "b945f99b108477810b4145d1777adc2ea34440257a7c2a5d71038c68e96b2247"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/traceability.md",
+          "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/ux-spec.md",
+          "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/frontend-spec.md",
+          "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/infra-spec.md",
+          "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/security-spec.md",
+          "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-1/precheck-result.json",
+          "sha256": "b8a445d1a2602f4cc3339e9a8f6629cacf7a1721ec50a763d30208c281cba241"
+        },
+        {
+          "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-1/dependency-graph.json",
+          "sha256": "ed3ea9947d893a3f002a6a490a5c26217cd13ab9c63a155d0b231115e8e2f51f"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-b-seq0242",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-b-0242",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-b/requirements.md",
+          "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+          "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/design.md",
+          "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/tasks.md",
+          "sha256": "b945f99b108477810b4145d1777adc2ea34440257a7c2a5d71038c68e96b2247"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/traceability.md",
+          "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/ux-spec.md",
+          "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/frontend-spec.md",
+          "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/infra-spec.md",
+          "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+        },
+        {
+          "path": "specs/epic-159-pillar-b/security-spec.md",
+          "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-1/precheck-result.json",
+          "sha256": "b8a445d1a2602f4cc3339e9a8f6629cacf7a1721ec50a763d30208c281cba241"
+        },
+        {
+          "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-1/integrated-summary.json",
+          "sha256": "ba4c955b1b9821909c5ee958ee90ac412f0902483a96313b820d5e9fa97cc9e8"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-epic159pillarb-a1r1",
+  "timestamp": "2026-07-16T09:53:08Z"
+}

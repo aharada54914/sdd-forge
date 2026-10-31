@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a7r1-seq0827",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a7r1-0827",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "2870d38f6cd7560f74e8310a16c0f5a00c5dce03d57f4c2eeee3e88813a7745a"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "de57e5d1ec91229a1fbffe1807e7953a3600bac37a80914cdb2744ee13d50c22"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "9bac10f26a726ce7cd8fc00a2f8e4a4d950f69face4e6241305e58cabbadaeff"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-7/round-1/precheck-result.json", "sha256": "5b0aeac4630d2d09b4cc8edf2502d7a4e8bfa49322a35292826ef0b30d60fdb1"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope goal is observable. REQ-001 fixes a concrete CLI surface (requirements.md:232-238) and a lettered (0)/(a)-(m) processing order; REQ-002 closes its diagnostic taxonomy at sixteen enumerated rows (requirements.md:369-386, counted: disabled-legacy-invocation, publication-journal-recovery, workflow-combination-invalid, project-context-validation-failed, affected-component-resolution-failed, registry-validation-failed, contract-discovery-failed, canonicalizer-invocation-failed, dependency-subprocess-failed, dependency-output-malformed, dsl-warn-on-matched-capability, lite-check-source-undefined, output-schema-validation-failed, snapshot-generation-mismatch, artifact-publication-failed, post-publication-generation-mismatch = 16, matching acceptance-tests.md TEST-010's own sixteen-name list and making the 'never a seventeenth diagnostic-id value' ordinal at requirements.md:385 arithmetically correct); REQ-003's three-state derivation, REQ-004's schema field-by-field shape and closed twelve-value validator enum, REQ-005's byte-identity/metamorphic properties, REQ-006's fixture matrix, REQ-007's file:line-anchored insertion point plus AC-053's recorded sha256/ordinal pair, and REQ-008's grep self-checks are each measurable by a named fixture or one-shot inspection."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight goals carry matching criteria: REQ-001 -> AC-001..AC-009/AC-038/AC-043/AC-052/AC-054; REQ-002 -> AC-010..AC-014/AC-039..AC-041/AC-047..AC-049/AC-055/AC-057/AC-058; REQ-003 -> AC-015/AC-016/AC-042; REQ-004 -> AC-017..AC-021/AC-044/AC-050/AC-051/AC-056; REQ-005 -> AC-022..AC-025/AC-045; REQ-006 -> AC-026..AC-028; REQ-007 -> AC-029..AC-032/AC-046/AC-053; REQ-008 -> AC-033/AC-034. The AC-057/AC-058 propagation gap the investigation records (investigation.md:1436-1450) is closed in the bytes under review: both rows are present in requirements.md's Acceptance Criteria table (:903-904) and in acceptance-tests.md (:103-104), and the counts reconcile in both directions - 58 criteria in requirements.md, 55 test rows in acceptance-tests.md, difference exactly the three Global rows AC-035/036/037 the preamble documents as its one exception class."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Criteria are stated as externally checkable outcomes: exit-code triples (AC-013), path-existence/byte-identity assertions (AC-003, AC-011, AC-016, AC-022, AC-023), schema-validation outcomes against named validators (AC-008, AC-009, AC-021), spy-harness subprocess non-invocation (AC-015, AC-042), and a recomputed sha256 plus heading ordinal (AC-053). The four design-content criteria AC-029..AC-032 and the three Global criteria AC-035..AC-037 are each observable by direct inspection and their evidence is recorded in acceptance-tests.md's 'Spec-Authoring-Time Manual Review Record' (:106-171) rather than left as intent. AC-009's documented-but-not-yet-fixturable 'required-present-empty' state (acceptance-tests.md:58) states its own reason (Epic A2's lite_policy additionalProperties: false admits no such key today) rather than asserting an unobservable claim."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:766-818) explicitly exclude every direction this feature could expand into: building the scripts themselves, editing any Epic A1/A2/A3/A4 contract file, adding the required_lite_checks-sourcing Registry field (assigned instead to Epic A2 with an owner and migration note at requirements.md:140-163), re-specifying check-component-coverage's Fail conditions, owning compare-facet-manifest-staleness's caller, computing decision-document v2 s10's full effective enforcement, editing anything under plugins/** (locked by AC-032/TEST-032), and authoring a new ADR or Phase-2 artifacts. Field Definitions (:906-961) additionally fences the terms 'Block', 'Resolver', and 'Resolver Evidence' against adjacent sibling-epic concepts."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "CONTRADICTION on the unconvergeable-journal recovery boundary. requirements.md:1181-1186 (Edge Cases, crash-between-renames bullet) states that when the journal is unconvergeable the Resolver 'attempts no repair at all and Blocks `publication-journal-recovery`, leaving the interrupted targets exactly as found for manual operator intervention (REQ-002 above; AC-047)'. That object is unscoped, and by REQ-001 step (m)'s own write-set definition (requirements.md:317-321) every publication transaction's target set is {facet-manifest.yaml, generated/project-context.resolved.json, resolver-evidence.yaml} or {capability-summary.yaml, resolver-evidence.yaml} - so resolver-evidence.yaml is by construction one of the interrupted targets of any journal this scan can find. Four other normative sites require that same Block to write resolver-evidence.yaml: REQ-001 step (m)'s Block branch ('On the (0) Block this is not merely sufficient but required', requirements.md:333-347), REQ-004's write-mechanism paragraph (:594-599), AC-012 (:858, whose only two exceptions are disabled-legacy-invocation and the self-referential output-schema-validation-failed), and acceptance-tests.md TEST-047 (:93), which states the obligation PER TARGET - 'every interrupted target other than `resolver-evidence.yaml`' byte-identical to its pre-invocation state 'and ... that `resolver-evidence.yaml` itself carries this invocation's own schema-valid Block record' - and records in the same row that asserting only the first half 'would contradict AC-012'. requirements.md's Edge Cases sentence is exactly that first half alone. Downstream failure mode: the Phase-2 implementer of the (0) Block, and the author of the TEST-047 fixture, cannot decide from requirements.md whether the Block must overwrite the interrupted transaction's resolver-evidence.yaml (satisfying AC-012/REQ-001/REQ-004, violating the Edge Case's state claim, and destroying a target of a state the spec elsewhere calls 'the one state no automatic repair may touch') or leave it untouched (satisfying the Edge Case, violating AC-012 and TEST-047). This is a specification-review issue, not an implementation or quality-gate one: both statements are normative Phase-1 text about the same Block, and only an amendment to requirements.md can reconcile them - no implementation choice can satisfy both. Severity Critical: it is a direct contradiction on a fail-closed, no-automatic-repair boundary that hands control to a human operator, and it is the same clause class the package's own record (investigation.md:1486-1500) documents as having split two independent reviewers and forced ruling D(2). Secondary site with the same unscoped object: Security Boundaries requirements.md:1246-1252 ('A mixed generation across a multi-target batch ... leaves it exactly as found'), which reads coherently only because the Evidence carve-out at :1239-1245 precedes it; the Edge Cases bullet has no such carve-out anywhere in it. Remedy shape (no new decision needed - ruling D(2) already decides it): state the live-state obligation per target in requirements.md Edge Cases in TEST-047's own words."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each high-risk claim carries a planned validation surface. The Lite/required_lite_checks cross-epic gap (Risks :1331-1361) is validated by AC-009's three non-Blocking states and AC-010's required-missing Block fixture, with the synthetic-Registry-extension fixture explicitly refused and the reason given. The two new orchestration rules (multi-component union match, cross-Capability facet-name aggregation, :1362-1373) are locked by AC-006/AC-043/AC-052. The atomicity/TOCTOU/provenance complexity risk (:1395-1410) is locked by AC-038/AC-039/AC-040/AC-047/AC-048/AC-049/AC-050/AC-051/AC-054. The protected-suffix-reservation timing risk (:1411-1415) is bounded by an Assumption requiring re-verification at Phase-2 start, and the anchor-drift risk (:1416-1423) by AC-053's recorded window sha256 plus heading ordinal and its relocation regression fixture."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain-model surface is in scope for this review. The hash-verified allowed-input manifest contains no `domain/context-map.md` and no `domain/domain-contract.json`, so no `Domain-Model-Status: Approved` model can be established as present, and requirements.md carries no `Bounded-Context:` field (grep of requirements.md for 'Bounded-Context', 'domain/', and 'context-map' returns no matches). Per the check's own skip condition, the absent/unapproved-model case is recorded as skipped."
+    }
+  ]
+}

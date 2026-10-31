@@ -1,0 +1,168 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "created": "2026-08-13T12:28:42Z",
+  "comment": "BACKFILL. T-001 reached Status: Done on the independent quality-gate cycle-2 PASS (reports/quality-gate/epic-195-a7-compatibility/T-001.md, ledger seq0662) without this contract or its evidence bundle ever being authored; a git log --all --full-history search confirms neither file existed on any branch. This contract is therefore NOT a record of the seq0662 gate: it is a fresh verification pass, and every passing check points at output produced by specs/epic-195-a7-compatibility/verification/qg-backfill/run-checks.sh at the current HEAD, not at seq0662-era logs. Risk medium and Required Workflow acceptance-first are transcribed from tasks.md#T-001; the medium tier minimum is {lint, typecheck, build, placeholder-scan, task-state-check, unit-tests, acceptance-tests, regression} (references/risk-gate-matrix.md). Full rationale, and why a documented waiver was not viable instead: specs/epic-195-a7-compatibility/verification/qg-backfill/README.md.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-001's entire deliverable is the POSIX-shell/PowerShell sourced library tests/lib/fixture-matrix-builder.{sh,ps1}. This repository configures no shell linter (no shellcheck and no PSScriptAnalyzer invocation in tests/run-all.{sh,ps1} or .github/workflows/test.yml), so there is no lint command whose output could be recorded. risk-gate-matrix.md's Stack descriptor makes the compile-oriented checks waivable on a non-code stack precisely so this is not answered with fabricated evidence.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell and PowerShell are untyped and this repository configures no static type-check command for either runtime. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-001/acceptance.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No service, network, or cross-process integration is in T-001's scope: build_fixture writes a temporary directory tree under mktemp -d and returns its path. Its only integration surface is being sourced by a later task's suite, and design.md forbids registering it as an independent suite, so there is nothing to integrate against at this task's boundary.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-001/acceptance.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/qg-backfill/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no compile or bundle step exists for a sourced shell/PowerShell library; there is no dist/ artifact and design.md's Deployment / CI Plan records 'No CI change in this task'. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-001/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/qg-backfill/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Nothing to start: the deliverable is a sourced library with no entry point, no dev server, no container, and no CLI binary of its own. Its behavior is fully observable through the acceptance harness, which exercises all five parameters, both invalid variants, and all six Context-absent CLI cells.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature, and T-001 is a new additive library rather than a bugfix or refactor of existing behavior, so no differential obligation attaches (references/differential-test-policy.md). The seq0662 evaluator reached the same conclusion independently.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface. traceability.md's Layer Coverage records UX and Frontend as reasoned N/A for the whole feature: 'no GUI, view, dialog, menu item, or human interactive shell surface'.",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none -- this repository carries no design-system/ directory and T-001 touches no UI-layer file, so check-design-system's warn-phase conditional control does not activate (risk-gate-matrix.md footnote 4).",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

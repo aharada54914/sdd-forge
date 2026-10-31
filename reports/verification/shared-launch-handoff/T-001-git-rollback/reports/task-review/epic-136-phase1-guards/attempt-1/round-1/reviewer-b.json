@@ -1,0 +1,147 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "task-b-epic136guards-a1r1-20260712-c7d8",
+  "host_session_id": "hs-task-b-epic136guards-0161",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-136-phase1-guards/requirements.md",
+        "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+        "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/design.md",
+        "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/tasks.md",
+        "sha256": "e08eccadfb8fb8008f90b34dbfeff19eea33b74d702d89ce4351b3c113cff0ff"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/traceability.md",
+        "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/ux-spec.md",
+        "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+        "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/infra-spec.md",
+        "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/security-spec.md",
+        "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+        "sha256": "50d0b77291d6e505504997d896b61fb48ec418b8f2377bb0108a460d162fb1de"
+      },
+      {
+        "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-1/integrated-summary.json",
+        "sha256": "606dbf80e525e5440f216efd1e3d50a8034264c838b114505da3c34f936110e4"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks are high/critical matching their access-control/authorization surfaces (T-001/T-002 critical R-10 guard; T-003 cycle-limit; T-004 cross-model bypass; T-005 CI B2; T-006 Bash matcher B1). No over/under-classification."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every high/critical task's Done When records Red->Green evidence and an independent quality-gate verdict; the two critical tasks (T-001, T-002) also record cross-model consensus and an HMAC-signed evidence bundle with a second distinct approver."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Done When has 9 distinct items (TEST-001/002/003/015, Red->Green, suite pass, quality-gate verdict, cross-model consensus, signed bundle + second approver), exceeding the 8-item oversized threshold, bundling four ACs incl. the orthogonal AC-015 ASCII check; the long heterogeneous checklist risks an implementer/reviewer overlooking one item."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task's mapped ACs include an edge/error-path scenario (T-001 forgery/short-circuit; T-002 bypass RED-first; T-003 prefix-collision/absent-dir; T-004 waiver-without-approval/lite-gate; T-005 no-PR vacuous; T-006 malformed fail-closed)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Project-specific test-type taxonomy matches each row's scope (unit/parity single module; integration 2+ components; cross-runtime parity across runtimes); every row is 1:1 mapped to an AC."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 6 high/critical tasks carry an explicit Rollback field (re-copy prior protected file / revert commit)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003 and T-004 both list plugins/sdd-ship/skills/ship/SKILL.md in Planned Files for different edits (Step 4 cycle-limit vs cross-model/Field-Definitions/lite-gate), but neither Blockers references the other, risking one human-copy version overwriting the other's edits."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001->T-002 blocker is sound. A blocker is missing between T-003 and T-004: both modify ship/SKILL.md but declare Blockers: None with no ordering rule for the two independently staged human-copy edits (same root cause as SCOPE-DISJOINT)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (RED-first bugfix) satisfies reproduction symptom (cd && rm), root-cause diagnostic (substring match) before implementation, and regression evidence (TEST-004 RED->denied, TEST-005 parity)."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001's Done When has 9 distinct items (TEST-001/002/003/015, Red->Green, suite pass, quality-gate verdict, cross-model consensus, signed bundle + second approver), exceeding the 8-item oversized threshold, bundling four ACs incl. the orthogonal AC-015 ASCII check; the long heterogeneous checklist risks an implementer/reviewer overlooking one item."
+    },
+    {
+      "check_id": "SCOPE-DISJOINT",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "T-003 and T-004 both list plugins/sdd-ship/skills/ship/SKILL.md in Planned Files for different edits (Step 4 cycle-limit vs cross-model/Field-Definitions/lite-gate), but neither Blockers references the other, risking one human-copy version overwriting the other's edits."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "T-001->T-002 blocker is sound. A blocker is missing between T-003 and T-004: both modify ship/SKILL.md but declare Blockers: None with no ordering rule for the two independently staged human-copy edits (same root cause as SCOPE-DISJOINT)."
+    }
+  ],
+  "verdict": "NEEDS_WORK"
+}

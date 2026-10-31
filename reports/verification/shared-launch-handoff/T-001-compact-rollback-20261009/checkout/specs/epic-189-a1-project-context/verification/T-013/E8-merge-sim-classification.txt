@@ -1,0 +1,26 @@
+applied-from-main: 923
+kept-from-branch:  462
+CONFLICTS:         21
+
+--- conflicting paths (kept at branch version; a real merge needs a human) ---
+AGENTS.md (branch=1 main=1 commits)
+CHANGELOG.md (branch=15 main=13 commits)
+plugins/sdd-quality-loop/references/guard-invariants.json (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 (branch=2 main=1 commits)
+plugins/sdd-quality-loop/scripts/check-workflow-state.sh (branch=2 main=1 commits)
+plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.js (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 (branch=1 main=1 commits)
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (branch=1 main=1 commits)
+plugins/sdd-review-loop/agents/task-reviewer-a.md (branch=1 main=1 commits)
+plugins/sdd-review-loop/agents/task-reviewer-b.md (branch=1 main=1 commits)
+plugins/sdd-ship/skills/ship/SKILL.md (branch=1 main=1 commits)
+reports/review-context/identity-ledger.json (branch=44 main=47 commits)
+specs/workflow-state-registry.json (branch=1 main=7 commits)
+tests/run-all.ps1 (branch=12 main=1 commits)
+tests/run-all.sh (branch=13 main=8 commits)
+tests/workflow-state.tests.sh (branch=1 main=1 commits)

@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0782",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0782",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/integrated-summary.json", "sha256": "c43318331e2c3e3bca241230f13fc9caaf34e44bb02f77c21318b6834a20be1d"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json", "sha256": "2c81d96583c3af4f8c337d837d61a732dcab9f2111074ca6b08a85fa8bfbd89c"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks' Risk tiers match their scope per risk-classification-policy.md's sentinel-surface list. T-002 (high, check-installed-plugin-drift, Security Boundary B2), T-004 (high, extends the security-relevant tests/cli-hook-enforcement.ps1 regression asset), T-005 (high, Security Boundary B1 core: nonce ledger, Ed25519 signing verification, classification-mismatch guard), and T-008 (high, live-host semantic-cell classification plus the amended HUMAN APPLY STEP seeding the real Trusted-Signer Registry, two-party signing, and running Epic A1's merged handshake script) each touch an access-control/security-boundary-adjacent surface; none is UI-copy/docs/test-only despite the high tier. T-001/T-003/T-006/T-007 (medium) touch no auth/payment/PII/migration/API-contract sentinel surface. T-008's Risk Rationale text is unaffected by the round-2 Done-When/Out-of-Scope amendment and remains accurate. No under- or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The round-2 amendment (commit 19005e77) resolves attempt-2 round-1's Critical: T-008's (Risk: high) Done-When 'HUMAN APPLY STEP' bullet now reads 'confirmed by re-running validate-live-host-proof and observing discharged (not a hard failure) before this task is marked Done... a surviving post-activation SKIP is ERR_STALE_SKIP, a hard failure, per the SKIP Allowlist Activation Gate' (tasks.md T-008 Done When). This matches design.md's amended SKIP Allowlist Activation Gate section (design.md:1298-1319), which fixes that AC-015/AC-016's single-clause predicate already activated on Epic A1's 2026-08-08 merge, so `pending` is no longer a reachable post-activation state and `discharged` is the only state the amended design.md now recognizes as closing the gate. T-008's Out of Scope section is correspondingly corrected to cite the handshake script as 'merged to main on 2026-08-08 and present at the canonical installed path' (no longer 'not yet merged'), and correctly keeps only agent-automated fabrication out of scope while placing the human-run discharge step inside Done When item 5. T-005's cross-reference in its own Out of Scope section carries the identical correction. No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle branch does not apply. All four Risk: high tasks (T-002, T-004, T-005, T-008) carry, in their own Done When lists, a 'TDD evidence' item requiring RED and GREEN evidence plus an independent quality-gate verdict, and a 'Requirement-traceability evidence (high tier)' item. Both required items are present for every high-risk task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When item counts unchanged by this round's amendment (text of items revised, count preserved): T-001=6, T-002=5, T-003=6, T-004=4, T-005=7, T-006=6, T-007=6, T-008=8 (none exceeds 8). No task's Scope section spans more than two-to-three tightly-coupled implementation areas, and no title implies multiple sequential phases. No group of 3+ tasks reduces to a single-function/single-file rename pattern."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-008's TEST-013/014 (both Codex plugin_hooks states, both Copilot subagent/primary states) and TEST-015 (all three SKIP Representation states — missing/valid pre-merge/stale post-merge — across all five semantic cells) are unchanged by the round-2 amendment and remain reachable from requirements.md's own Edge Cases section (Codex-disabled and Copilot-subagent as correctly-detected non-firing states, AC-013/AC-014). T-005/TEST-026-027 continue to exercise every named ERR_* code and the classification-mismatch/replay guard individually. No functional task lacks an associated error-path test task."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column entries for AC-013-016 (integration/live-host proof, classification manual-required with a per-cell upgrade path, direct guard invocation never substituting) and AC-028 (automated aggregate validator) are unchanged (acceptance-tests.md hash identical to attempt-1 round-3's evaluated version) and correctly match each task's declared scope in tasks.md T-005/T-008."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit top-level Rollback field. T-008's Rollback field is unchanged by this round's amendment and still explicitly addresses both pre- and post-human-apply-step revert scenarios: 'a revert after the human apply step must also state whether the now-signed records and the a8-trusted-signers.json entries should be hand-reverted' (tasks.md T-008 Rollback)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every genuinely two-task file share remains Blockers-ordered and unaffected by the round-2 amendment: a8-skip-allowlist.json (T-001 seeds AC-006; T-008 appends AC-015/AC-016 entries, T-008's Blockers include T-001), a8-trusted-signers.json (T-005 seeds empty; T-008's HUMAN APPLY STEP appends real entries, T-008's Blockers include T-005), and tests/validate-live-host-proof.tests.{sh,ps1} (T-005 creates; T-008 extends in place, Blockers include T-005). No uncoordinated parallel overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-008's Depends On (T-001, T-005, both explicitly marked functional) and Blockers (T-001, T-005) are unchanged by this round's amendment and remain correctly justified: T-008 appends to files T-001/T-005 create, and its TEST-013-016 cases exercise T-005's own validator. No spurious or missing blocker introduced by the Done-When/Out-of-Scope text change."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001 through T-008) author net-new test-infrastructure/verification surfaces (fixtures, drivers, a validator, static checks, draft records); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text. Unaffected by the round-2 amendment."
+    }
+  ],
+  "findings": []
+}
