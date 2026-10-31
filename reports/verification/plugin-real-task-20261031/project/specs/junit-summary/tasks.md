@@ -1,7 +1,7 @@
 # Tasks (lite): JUnit summary CLI
 
 ## T-001 Implement and verify the local JUnit summary CLI
-Approval: Draft
+Approval: Approved
 Status: Planned
 
 ### Scope
