@@ -1,0 +1,185 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+index c964e96b..85ce4040 100755
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+@@ -109,6 +109,7 @@ function finish() {
+     bundle_path = tasks_dir "/verification/" task ".evidence.json"
+     # C-07: contract must be non-empty regular file with valid JSON and task_id match
+     contract_path = tasks_dir "/verification/" task ".contract.json"
++    contract_risk = ""
+ 
+     # Check bundle existence and validity
+     cmd = "test -f \"" bundle_path "\" && echo yes || echo no"
+@@ -141,6 +142,19 @@ function finish() {
+         }
+       }
+     }
++    # Contract risk is authoritative for approval-tier enforcement. A present
++    # contract risk must agree with tasks.md Risk; missing either side fails.
++    if (PYTHON_CMD != "") {
++      cmd_risk = PYTHON_CMD " -c \"import json; c=json.load(open(\\\"" contract_path "\\\")); print(str(c.get(\\\"risk\\\", \\\"\\\")).strip())\" 2>/dev/null"
++      cmd_risk | getline contract_risk; close(cmd_risk)
++      contract_risk = tolower(contract_risk)
++    }
++    if (contract_risk != risk) {
++      shown_task_risk = risk; if (shown_task_risk == "") shown_task_risk = "(empty)"
++      shown_contract_risk = contract_risk; if (shown_contract_risk == "") shown_contract_risk = "(empty)"
++      fail(task " tasks.md risk \047" shown_task_risk "\047 != contract risk \047" shown_contract_risk "\047")
++    }
++    canonical_risk = contract_risk
+     # The evidence-bundle gate above validates its declared quality_report,
+     # including repository confinement, task identity, digest, and PASS verdict.
+     # Do not search the shared report directory by task id: task ids are only
+@@ -157,7 +171,7 @@ function finish() {
+     if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
+   }
+   # Two-person approval enforcement for critical Done tasks
+-  if (status == "Done" && risk == "critical") {
++  if (status == "Done" && canonical_risk == "critical") {
+     prim_id = approver_id(approval)
+     sec_id = approver_id(second)
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+index ee7421b4..c4164e67 100644
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@ -126,9 +126,29 @@ foreach ($task in $allTasks) {
+         $failures += "$task is '$s' without Approval: Approved"
+     }
+     if ($s -ceq "Done") {
+-        # Two-person approval enforcement for critical Done tasks
++        # Contract risk is authoritative for approval-tier enforcement. A
++        # present contract risk must agree with tasks.md Risk; missing either
++        # side fails closed.
+         $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
+-        if ($taskRisk -ceq "critical") {
++        $contractRisk = ""
++        $doneContractPath = Join-Path $tasksDir "verification/$task.contract.json"
++        if (Test-Path -LiteralPath $doneContractPath) {
++            try {
++                $doneContract = Get-Content -Raw -Encoding Utf8 $doneContractPath | ConvertFrom-Json
++                $contractRisk = ([string]$doneContract.risk).Trim().ToLowerInvariant()
++            } catch {
++                $contractRisk = ""
++            }
++        }
++        if ($contractRisk -cne $taskRisk) {
++            $shownTaskRisk = if ($taskRisk) { $taskRisk } else { "(empty)" }
++            $shownContractRisk = if ($contractRisk) { $contractRisk } else { "(empty)" }
++            $failures += "$task tasks.md risk '$shownTaskRisk' != contract risk '$shownContractRisk'"
++        }
++
++        # Two-person approval enforcement for critical Done tasks uses the
++        # contract risk, never the mutable tasks.md risk.
++        if ($contractRisk -ceq "critical") {
+             $primId = Get-ApproverId -s $a
+             $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
+             $secId = Get-ApproverId -s $secValue
+diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+index 4e8e23bd..596e8fdf 100644
+--- a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
++++ b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+@@ -332,12 +332,30 @@ bundle_risk = str(bundle.get("risk", "")).strip()
+ contract_risk = ""
+ if isinstance(contract, dict):
+     contract_risk = str(contract.get("risk", "")).strip()
+-if contract_risk and contract_risk != bundle_risk:
+-    fail(f"bundle risk '{bundle_risk or '(empty)'}' != contract risk '{contract_risk}'")
++if contract_risk != bundle_risk:
++    fail(f"bundle risk '{bundle_risk or '(empty)'}' != contract risk '{contract_risk or '(empty)'}'")
+ 
+-# Gate provenance on the trusted contract risk; fall back to the bundle risk only
+-# when the contract carries none (legacy).
+-effective_risk = contract_risk or bundle_risk
++# If the conventional tasks.md exists, its task risk must agree with the
++# hash-validated contract risk. Missing tasks.md remains legacy-compatible.
++if contract_abs is not None:
++    tasks_path = pathlib.Path(contract_abs).parent.parent / "tasks.md"
++    if tasks_path.is_file():
++        task_risk = ""
++        current_task = None
++        for line in tasks_path.read_text(encoding="utf-8").splitlines():
++            match = re.match(r"^##\s+(T-\d+)", line)
++            if match:
++                current_task = match.group(1)
++            elif current_task == task_id:
++                risk_match = re.match(r"^Risk:\s*(.*?)\s*$", line)
++                if risk_match:
++                    task_risk = risk_match.group(1).strip()
++                    break
++        if task_risk != contract_risk:
++            fail(f"tasks.md risk '{task_risk or '(empty)'}' != contract risk '{contract_risk or '(empty)'}'")
++
++# Gate provenance on the hash-validated contract risk only.
++effective_risk = contract_risk
+ 
+ # High/critical tier provenance requirements
+ if effective_risk in {"high", "critical"}:
+@@ -377,8 +395,9 @@ if effective_risk == "critical":
+                 if not hmac.compare_digest(expected, value):
+                     fail("critical bundle signature is invalid (HMAC mismatch)")
+         elif alg == "sigstore":
+-            if not str(os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED", "")).strip():
+-                fail("critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set")
++            verified = str(os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED", "")).strip().lower()
++            if verified not in {"1", "true", "yes", "on"}:
++                fail("critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not a recognized truthy value")
+         else:
+             fail("critical bundle has unsupported signature alg: " + alg)
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+index 5b1d04d6..4ae0e2b6 100644
+--- a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+@@ -384,12 +384,36 @@ $bundleRisk = ([string]$bundle.risk).Trim()
+ # risk must NOT be able to dodge the provenance requirements.
+ $contractRisk = ""
+ if ($contract) { $contractRisk = ([string]$contract.risk).Trim() }
+-if ($contractRisk -and $contractRisk -ne $bundleRisk) {
++if ($contractRisk -cne $bundleRisk) {
+     $shownRisk = if ($bundleRisk) { $bundleRisk } else { "(empty)" }
+-    Add-Failure "bundle risk '$shownRisk' != contract risk '$contractRisk'"
++    $shownContractRisk = if ($contractRisk) { $contractRisk } else { "(empty)" }
++    Add-Failure "bundle risk '$shownRisk' != contract risk '$shownContractRisk'"
+ }
+-# Gate provenance on the trusted contract risk; fall back to bundle risk (legacy).
+-$effectiveRisk = if ($contractRisk) { $contractRisk } else { $bundleRisk }
++
++# If the conventional tasks.md exists, its task risk must agree with the
++# hash-validated contract risk. Missing tasks.md remains legacy-compatible.
++$taskRisk = ""
++if ($contractInfo -and -not [string]::IsNullOrWhiteSpace([string]$contractInfo.Resolved)) {
++    $contractPath = [string]$contractInfo.Resolved
++    $tasksPath = Join-Path (Split-Path -Parent (Split-Path -Parent $contractPath)) "tasks.md"
++    if ($tasksPath -and (Test-Path -LiteralPath $tasksPath)) {
++        $currentTask = ""
++        foreach ($line in (Get-Content -Encoding Utf8 $tasksPath)) {
++            if ($line -cmatch '^##\s+(T-\d+)') {
++                $currentTask = $Matches[1]
++            } elseif ($currentTask -ceq $taskId -and $line -cmatch '^Risk:\s*(.*?)\s*$') {
++                $taskRisk = $Matches[1].Trim()
++                break
++            }
++        }
++        if ($taskRisk -cne $contractRisk) {
++            $shownTaskRisk = if ($taskRisk) { $taskRisk } else { "(empty)" }
++            $shownContractRisk = if ($contractRisk) { $contractRisk } else { "(empty)" }
++            Add-Failure "tasks.md risk '$shownTaskRisk' != contract risk '$shownContractRisk'"
++        }
++    }
++}
++$effectiveRisk = $contractRisk
+ 
+ # High/critical tier provenance requirements
+ if (@("high", "critical") -contains $effectiveRisk) {
+@@ -441,8 +465,8 @@ if ($effectiveRisk -eq "critical") {
+             }
+         } elseif ($alg -eq "sigstore") {
+             $verified = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_SIGSTORE_VERIFIED")
+-            if ([string]::IsNullOrWhiteSpace($verified)) {
+-                Add-Failure "critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set"
++            if ([string]::IsNullOrWhiteSpace($verified) -or @("1", "true", "yes", "on") -notcontains $verified.Trim().ToLowerInvariant()) {
++                Add-Failure "critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not a recognized truthy value"
+             }
+         } else {
+             Add-Failure "critical bundle has unsupported signature alg: $alg"
