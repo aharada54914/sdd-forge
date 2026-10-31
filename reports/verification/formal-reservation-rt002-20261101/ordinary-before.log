@@ -1,0 +1,16 @@
+...F..
+======================================================================
+FAIL: test_source_mapping_current (__main__.Reservation.test_source_mapping_current)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/recover-rt002/tests/project-skill-formal.tests.py", line 41, in test_source_mapping_current
+    self.assertEqual(
+AssertionError: '8d4397f7120d07b6eb0513049c519367de7e9cd1d61ea2814c1b8ffcd28dedcf' != '543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4'
+- 8d4397f7120d07b6eb0513049c519367de7e9cd1d61ea2814c1b8ffcd28dedcf
++ 543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.961s
+
+FAILED (failures=1)
