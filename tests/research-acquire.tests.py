@@ -233,6 +233,14 @@ print(json.dumps(result))
                 a.acquire("https://example.org", ["example.org"])
             launch.assert_not_called()
 
+    def test_pdf_supervisor_on_unsupported_host_fails_before_launch(self):
+        for host in ("darwin", "win32"):
+            with self.subTest(host=host), mock.patch.object(a.sys, "platform", host), mock.patch.object(a.subprocess, "Popen") as launch:
+                with self.assertRaisesRegex(a.Invalid, "pdf-supervisor-unavailable"):
+                    a.supervise([sys.executable, "-c", "pass"], b"", 1, prefix="pdf", output_limit=128)
+                launch.assert_not_called()
+
+    @unittest.skipUnless(sys.platform == "linux", "owned process supervisor is Linux-only")
     def test_total_deadline_kills_and_reaps_blocked_dns_and_transport(self):
         # Actual subprocesses, with no network: block inside each acquisition stage.
         module = str(Path(a.__file__).resolve())
@@ -255,6 +263,7 @@ print(json.dumps(result))
                 # Track the real instance separately: wrapping Popen's return_value is a mock.
                 self.assertEqual(1, launch.call_count)
 
+    @unittest.skipUnless(sys.platform == "linux", "owned process supervisor is Linux-only")
     def test_deadline_reaps_exact_worker_and_closes_pipes(self):
         workers = []
         real_launch = subprocess.Popen
@@ -516,7 +525,7 @@ print(json.dumps(result))
             (
                 b"%PDF-1.5 many bytes but no sandboxed extractor",
                 "application/pdf",
-                "pdf-(extractor-unavailable|sandbox-unavailable|invalid)",
+                "pdf-(extractor-unavailable|sandbox-unavailable|supervisor-unavailable|invalid)",
             ),
         ]:
             with self.assertRaisesRegex(a.Invalid, error):
