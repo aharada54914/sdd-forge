@@ -156,33 +156,40 @@ def check_ship_successors() -> int:
     checks = 0
     with tempfile.TemporaryDirectory() as directory:
         root = ship_root(directory)
-        expect(root, "PENDING", "exact pinned candidate pair"); checks += 1
+        expect(root, "PENDING", "exact pinned candidate pair")
+        checks += 1
         assert set(ship_states(root)) == {"epic-136-phase2-gates", "epic-189-a1-project-context"}
         checks += 1  # both known pairs classified, independently
 
         (root / LIVE).write_text(LIVE_TEXT + "extra\n", encoding="utf-8")
-        expect(root, "STALE", "live mutation after publication"); checks += 1
+        expect(root, "STALE", "live mutation after publication")
+        checks += 1
 
         (root / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
         for epic in EPICS:  # staged predecessor mutated, manifest left alone
             (root / "specs" / epic / "human-copy" / LIVE).write_text(STAGED + "x\n", encoding="utf-8")
-        expect(root, "STALE", "staged mutation after publication"); checks += 1
+        expect(root, "STALE", "staged mutation after publication")
+        checks += 1
 
         # Predecessor tampered to equal live: no mismatch left to classify, still refused.
         for epic in EPICS:
             (root / "specs" / epic / "human-copy" / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
-        expect(root, "STALE", "staged tampered to equal live"); checks += 1
+        expect(root, "STALE", "staged tampered to equal live")
+        checks += 1
         (root / LIVE).write_text("both mutated\n", encoding="utf-8")
         for epic in EPICS:
             (root / "specs" / epic / "human-copy" / LIVE).write_text("both mutated\n", encoding="utf-8")
-        expect(root, "STALE", "equal mutated live and staged"); checks += 1
+        expect(root, "STALE", "equal mutated live and staged")
+        checks += 1
         write_pins(root, "{}")
-        expect(root, "STALE", "equal mutated live and staged with unusable pins"); checks += 1
+        expect(root, "STALE", "equal mutated live and staged with unusable pins")
+        checks += 1
 
     with tempfile.TemporaryDirectory() as directory:
         root = ship_root(directory)
         (root / LIVE).write_text(STAGED, encoding="utf-8")  # sync applied: staged == live == pinned predecessor
-        expect(root, "FRESH", "unmutated equal predecessor stays fresh"); checks += 1
+        expect(root, "FRESH", "unmutated equal predecessor stays fresh")
+        checks += 1
 
     with tempfile.TemporaryDirectory() as directory:
         pins = valid_pins(STAGED, LIVE_TEXT)
@@ -311,22 +318,28 @@ def check_extended_successors() -> int:
                 assert before == after, (label, "classification modified evidence")
 
             install(good)
-            check("PENDING", "exact pinned candidate pair"); checks += 1
+            check("PENDING", "exact pinned candidate pair")
+            checks += 1
             live_bytes, staged_bytes = live.read_bytes(), staged.read_bytes()
             live.write_bytes(live_bytes + b"\n# live drift\n")
-            check("STALE", "live drift"); checks += 1
+            check("STALE", "live drift")
+            checks += 1
             live.write_bytes(live_bytes)
             staged.write_bytes(staged_bytes + b"\n# staged drift\n")
-            check("STALE", "staged drift"); checks += 1
+            check("STALE", "staged drift")
+            checks += 1
             staged.write_bytes(live_bytes)
-            check("STALE", "tampered staging equals live"); checks += 1
+            check("STALE", "tampered staging equals live")
+            checks += 1
             staged.write_bytes(staged_bytes)
             live.write_bytes(staged_bytes)
-            check("FRESH", "both equal pinned predecessor"); checks += 1
+            check("FRESH", "both equal pinned predecessor")
+            checks += 1
             live.write_bytes(live_bytes)
 
             pin_file.unlink()
-            check("STALE", "missing fixture"); checks += 1
+            check("STALE", "missing fixture")
+            checks += 1
             invalid = []
             invalid.append(("missing pair", {**good, "successors": []}))
             invalid.append(("duplicate pair", {**good, "successors": [entry, entry]}))
@@ -338,12 +351,14 @@ def check_extended_successors() -> int:
                 invalid.append((f"forged {field}", {**good, "successors": [{**entry, field: value}]}))
             for label, document in invalid:
                 install(document)
-                check("STALE", label); checks += 1
+                check("STALE", label)
+                checks += 1
             # A valid record in another publication fixture does not authorize this pair.
             pin_file.unlink()
             other_fixture = fixture_names[1] if fixture == fixture_names[0] else fixture_names[0]
             (root / "tests/fixtures" / other_fixture).write_text(json.dumps(good), encoding="utf-8")
-            check("STALE", "misplaced valid pin"); checks += 1
+            check("STALE", "misplaced valid pin")
+            checks += 1
 
             # Pin entries cannot extend the exact allowlist to an unknown bundle.
             unknown = "specs/unreviewed-copy/human-copy/" + entry["live"]
