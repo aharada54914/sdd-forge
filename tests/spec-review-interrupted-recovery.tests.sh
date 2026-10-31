@@ -24,8 +24,10 @@ def put(root,path,data):
 def dump(root,path,value): put(root,path,json.dumps(value,indent=2)+'\n')
 def load(root,path): return json.loads((root/path).read_text())
 def ref(root,path): return {'path':path,'sha256':digest(root/path)}
+# Snapshot keys use one spelling on every OS; file bytes and link targets stay raw.
+def snapshot_path(path,root): return path.relative_to(root).as_posix()
 def snapshot(root):
- return [(str(p.relative_to(root)), 'link:'+os.readlink(p) if p.is_symlink() else digest(p)) for p in sorted(root.rglob('*')) if p.is_file() or p.is_symlink()]
+ return [(snapshot_path(p,root), 'link:'+os.readlink(p) if p.is_symlink() else digest(p)) for p in sorted(root.rglob('*')) if p.is_file() or p.is_symlink()]
 def chain_record(seq,stage,role,run,session,previous,binding=None):
  record=dict(sequence=seq,stage=stage,role=role,run_id=run,host_session_id=session,previous_record_sha256=previous)
  payload=f'{seq}|{stage}|{role}|{run}|{session}|{previous}'
@@ -703,6 +705,22 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
   return run_child(root,cmd)
  with tempfile.TemporaryDirectory(prefix='a9-consume-') as tmp:
   scratch=pathlib.Path(tmp);base=scratch/'base';transition_fixture(base)
+  # The generated PowerShell harness is the only nested driver excluded below.
+  # Exercise Windows spelling even on POSIX, without emulating Windows execution.
+  windows_root=pathlib.PureWindowsPath('C:/fixture')
+  windows_driver=windows_root/'plugins/sdd-review-loop/scripts/consumer.ps1'
+  key=snapshot_path(windows_driver,windows_root)
+  ok=key=='plugins/sdd-review-loop/scripts/consumer.ps1'
+  results.append(ok);print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' CONTROL::snapshot-windows-path',flush=True)
+  oracle=scratch/'snapshot-oracle';put(oracle,'evidence/item.json','original')
+  before=snapshot(oracle);put(oracle,'evidence/item.json','changed')
+  changed=snapshot(oracle);ok=changed!=before
+  results.append(ok);print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' CONTROL::snapshot-detects-byte-change',flush=True)
+  put(oracle,'evidence/added.json','new');added=snapshot(oracle);ok=added!=changed
+  results.append(ok);print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' CONTROL::snapshot-detects-added-file',flush=True)
+  (oracle/'evidence/item.json').unlink();ok=snapshot(oracle)!=added
+  results.append(ok);print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' CONTROL::snapshot-detects-removed-file',flush=True)
+  shutil.rmtree(oracle)
   for rel in ('plugins/sdd-review-loop/scripts','plugins/sdd-review-loop/references'):
    shutil.copytree(ROOT/rel,base/rel,dirs_exist_ok=True)
   run=run_child(base,transition_command(base)[0])

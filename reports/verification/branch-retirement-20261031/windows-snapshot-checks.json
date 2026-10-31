@@ -1,0 +1,23 @@
+{
+  "cause": "snapshot used str(relative Path), yielding backslashes on native Windows; exact POSIX-spelled consumer.ps1 exclusion therefore missed the test-created driver after before-snapshot. All106 impl/task consumption cases report immutable=False, including valid exit0; spec cases without generated drivers pass.",
+  "fix": "Only snapshot path keys use Path.as_posix(); same file bytes/SHA256, raw symlink targets and exact2driver exclusions remain. No product checks or assertion expectations changed.",
+  "red_green": "Actual snapshot_path helper evaluated on PureWindowsPath: old str key mismatches exact exclusion (exit1), new as_posix key matches (exit0). This is a path-model regression, not a claim of native Windows execution.",
+  "controls_added": [
+    "Windows key spelling",
+    "actual file byte modification detected",
+    "added evidence file detected",
+    "removed evidence file detected"
+  ],
+  "local_bash": "consumption163/163PASS exit0",
+  "local_powershell": "consumption163/163PASS exit0",
+  "native_windows": "requires final-head CI rerun",
+  "changed_file": "tests/spec-review-interrupted-recovery.tests.sh",
+  "source_sha256": "1acafbbbd1cc5ab9ccb8f988bfce7d5e6ee8b956b27d5ae1b2393179a377120d",
+  "log_sha256": {
+    "red.log": "0bc6fcc425d06b01cc019bf0f8fdb394ec37ed356a657660bd4b3841274252c2",
+    "green.log": "6a81309e407325c93fa0ca0285ef799de8c950aaf8e7478bd820a8819f91a5f6",
+    "consumption-bash.log": "793a6de4fa76fe313153f8763011cbf424769cfd5b66d0f2aebf5d0afad57097",
+    "consumption-powershell.log": "accb4f781d05825a34b076e248645803dfb1359cfc67c8525787186873302701"
+  },
+  "bash_syntax_and_diff_check": "PASS"
+}

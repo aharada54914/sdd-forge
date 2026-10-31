@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "changed_file": "tests/spec-review-interrupted-recovery.tests.sh",
+  "test_only": true,
+  "old_native_windows_key_exclusion_misses": true,
+  "new_native_windows_path_key_matches_exact_driver_exclusion": true,
+  "independent_real_files": {
+    "raw_CRLF_byte_hash_preserved": true,
+    "byte_mutation_detected": true,
+    "addition_detected": true,
+    "deletion_detected": true,
+    "raw_symlink_target_preserved_and_changed_target_detected": true
+  },
+  "oracle_scope": "Only relative path spelling normalized; digest/links/file enumeration and exact two driver exclusions unchanged",
+  "new_shared_controls": 4,
+  "limitation": "Linux independent probe plus PureWindowsPath; native Windows CI must confirm runtime outcome"
+}

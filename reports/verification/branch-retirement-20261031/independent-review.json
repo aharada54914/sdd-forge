@@ -48,7 +48,7 @@
     "mcp/sdd-forge-mcp/src/parsers/tasks.ts": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1",
     "mcp/sdd-forge-mcp/src/tools/core.ts": "6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb",
     "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351",
-    "tests/spec-review-interrupted-recovery.tests.sh": "5c4713d9118e1d900655a22502db4c70805f6558d083a9b7372d825a319092d8",
+    "tests/spec-review-interrupted-recovery.tests.sh": "1acafbbbd1cc5ab9ccb8f988bfce7d5e6ee8b956b27d5ae1b2393179a377120d",
     "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
     "docs/contributor/interrupted-review-recovery.md": "dd3777f023e1db0d8697baa135a49e7c7f0e580451b824ea5e9221b8af4410e8",
     ".github/workflows/test.yml": "848c8ac2856fa0759e6a9908bac1ff157554235cab7c89149bb35e5ef2affab8",
@@ -139,5 +139,22 @@
       "Whitespace lint is explicitly narrow git diff --check, not ESLint",
       "FinalCI required"
     ]
+  },
+  "windows_snapshot_oracle_review": {
+    "result": "PASS",
+    "changed_file": "tests/spec-review-interrupted-recovery.tests.sh",
+    "test_only": true,
+    "old_native_windows_key_exclusion_misses": true,
+    "new_native_windows_path_key_matches_exact_driver_exclusion": true,
+    "independent_real_files": {
+      "raw_CRLF_byte_hash_preserved": true,
+      "byte_mutation_detected": true,
+      "addition_detected": true,
+      "deletion_detected": true,
+      "raw_symlink_target_preserved_and_changed_target_detected": true
+    },
+    "oracle_scope": "Only relative path spelling normalized; digest/links/file enumeration and exact two driver exclusions unchanged",
+    "new_shared_controls": 4,
+    "limitation": "Linux independent probe plus PureWindowsPath; native Windows CI must confirm runtime outcome"
   }
 }
