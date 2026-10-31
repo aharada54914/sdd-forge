@@ -1,0 +1,6 @@
+{
+  "original_trace_sha256": "068d5fbf440d7498cdd0c7bfd78906cf9ce133f325a01aac8461391353374c16",
+  "selection": "completed command/file_change/agent_message records only, item IDs removed; session and token usage omitted",
+  "sensitive_pattern_classes_matched": 0,
+  "scope": "Actual source/template paths remain; do not interpret as portable execution paths"
+}
