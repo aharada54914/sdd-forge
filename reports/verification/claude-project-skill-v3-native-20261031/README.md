@@ -10,10 +10,18 @@ Observed deviations: first Read resolved the wrapper's relative canonical refere
 
 Wrapper absent before generation, present for invocation, and removed afterward; entire temporary fixture removed. These cleanup checks are filesystem checks only. No post-cleanup native skill discovery was executed. This synthetic procedure is not full application acceptance or a human production evaluation.
 
-Evidence intentionally omits authentication, native initialization/account metadata, thinking blocks, and raw session logs. tool-events.json preserves actual tool requests/results; native-result.json preserves final text, cost, and permission result. protocol.json records source hashes and exact requested command/limits. generated-before contains the canonical procedure, manifest, task input, and native projection; owner-reports retains original observation/log/receipt bytes. offline-checks.json records only hash comparisons, never environment values.
+Evidence intentionally omits authentication, native initialization/account metadata, thinking blocks, and raw session logs. tool-events.json preserves actual tool requests/results; native-result.json preserves final text, cost, and permission result. protocol.json records source hashes and exact requested command/limits. generated-before contains the canonical procedure, manifest, task input, and native projection; owner/ retains original observation/log/receipt bytes. offline-checks.json records only hash comparisons, never environment values.
 
 ## Comparison with the existing host evaluations
 
 Source-comparison.json confirms that the lifecycle canonical fixture, project runner, and validator are byte-identical between requested main b9d3062e and actual evaluated bb2fdaa3. The task uses the same verify-app / smoke / T-001 / run1 / native-v3-owner-check-ok obligations; only native wrapper host and generated temporary absolute paths differ.
 
 The existing Codex README (reports/verification/codex-project-skill-native-20261031/README.md) and Copilot v3 README (reports/verification/copilot-project-skill-v3-native-20261031/README.md) likewise distinguish successful native discovery/invocation/result reading from rejected outside-host validation with variables_sha256 differing. This Claude packet supports the same #602 host-smoke acceptance scope, not #594/#596 validated gate acceptance. The precise differing native environment keys were not captured and are not inferred from the hash.
+
+## Portable publication paths
+
+The four owner artifacts are published under `owner/` to keep Windows disposable
+clone paths below MAX_PATH. `export-path-map.json` maps the original export paths
+to these locations. Artifact bytes and native paths recorded inside observations
+are unchanged. `artifact-hashes.json` indexes the published locations; the original
+independent review describes the pre-relocation packet at commit 12dc5f91.
