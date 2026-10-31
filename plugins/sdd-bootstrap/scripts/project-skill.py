@@ -205,6 +205,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             if not source.is_file():
                 raise ValueError("trial-input-must-be-file")
             admitted[path] = V.digest(source.read_bytes())
+    admitted_modes = V.executable_modes(root, admitted)
     document_only = manifest.get("method") == "document"
     runtime_binding = (
         {"runtime_path": None} if document_only else V.runtime_environment(manifest)
@@ -216,7 +217,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
     if document_only:
         missing = []
     observation = {
-        "schema": "project-verification-observation/v2",
+        "schema": "project-verification-observation/v3",
         "mode": "task" if task else "trial",
         "skill": name,
         "check_id": check,
@@ -283,7 +284,9 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                 target = V.safe(execution, path, "input-unbound")
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(source_bytes)
-                target.chmod(target.stat().st_mode | (source.stat().st_mode & 0o111))
+                target.chmod(target.stat().st_mode | int(admitted_modes[path]))
+            if V.executable_modes(root, admitted) != admitted_modes:
+                raise ValueError("source-mismatch")
             _m, _raw, skill_closure = V.discover(execution, name, task)
             if _raw != raw_manifest or _m != manifest:
                 raise ValueError("manifest-changed-after-admission")
@@ -333,6 +336,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                 "runner-modified-input"
                 if removed
                 or any(after.get(path) != sha for path, sha in admitted.items())
+                or V.executable_modes(execution, admitted) != admitted_modes
                 else None
             )
             if task and any(
@@ -344,14 +348,15 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                 result["reason"] = violation
                 observation.update(outcome="failed", exit_code=126)
             result["observed_outputs"] = changed
-            observation["source"]["tree_sha256"] = V.tree_digest(
-                V.source_records(
-                    root if violation else execution,
-                    manifest,
-                    task,
-                    observation,
-                    skill_closure,
-                )
+            if V.executable_modes(root, admitted) != admitted_modes:
+                raise ValueError("source-mismatch")
+            source_root = root if violation else execution
+            records = V.source_records(
+                source_root, manifest, task, observation, skill_closure
+            )
+            observation["source"]["tree_sha256"] = V.tree_digest(records)
+            observation["source"]["executable_modes_sha256"] = V.tree_digest(
+                V.executable_modes(source_root, records)
             )
             # Publish only owned declared task outputs, and never overwrite caller files.
             if task and not violation:
@@ -364,6 +369,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                     target.parent.mkdir(parents=True, exist_ok=True)
                     with target.open("xb") as output:
                         output.write((execution / path).read_bytes())
+                    target.chmod(target.stat().st_mode | ((execution / path).stat().st_mode & 0o111))
     except (ValueError, OSError) as exc:
         failure = str(exc)
         result["reason"] = failure

@@ -45,7 +45,7 @@ class Contracts(unittest.TestCase):
         }
         self.write_manifest()
         self.obs = {
-            "schema": "project-verification-observation/v2",
+            "schema": "project-verification-observation/v3",
             "mode": "trial",
             "skill": "example",
             "check_id": "smoke",
@@ -54,6 +54,7 @@ class Contracts(unittest.TestCase):
             ),
             "source": {
                 "commit": None,
+                "executable_modes_sha256": V.tree_digest(V.executable_modes(self.root, ["sdd/skills/example/run.py"])),
                 "tree_sha256": V.tree_digest(
                     {"sdd/skills/example/run.py": self.manifest["files"][0]["sha256"]}
                 ),
@@ -124,10 +125,33 @@ class Contracts(unittest.TestCase):
         self.obs["source"]["tree_sha256"] = V.tree_digest(
             {p["path"]: p["sha256"] for p in inputs}
         )
+        self.obs["source"]["executable_modes_sha256"] = V.tree_digest(V.executable_modes(self.root, [p["path"] for p in inputs]))
         self.write_observation()
 
     def test_manifest_only(self):
         self.assertEqual(V.validate(self.root, "example")[2], "manifest-only")
+
+    def test_legacy_v2_cannot_project_unbound_execution_modes(self):
+        self.task()
+        self.obs["schema"] = "project-verification-observation/v2"
+        self.obs["source"].pop("executable_modes_sha256")
+        self.write_observation()
+        validated = self.validate()
+        self.assertEqual(validated[2], "legacy-source-modes-unbound")
+        self.assertNotIn("passes", V.project_execution({"id": "smoke"}, validated))
+
+    @unittest.skipIf(os.name == "nt", "POSIX executable permission semantics")
+    def test_chmod_only_change_invalidates_observation(self):
+        self.task()
+        self.assertEqual(self.validate()[2], "passed")
+        source = self.skill / "run.py"
+        source.chmod(source.stat().st_mode ^ 0o100)
+        self.invalid("source-mismatch")
+
+    def test_v3_requires_execution_modes_binding(self):
+        self.obs["source"].pop("executable_modes_sha256")
+        self.write_observation()
+        self.invalid("observation-invalid")
 
     def test_legacy_record_is_history_not_fresh_execution(self):
         self.obs["schema"] = "project-verification-observation/v1"

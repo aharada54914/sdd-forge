@@ -17,7 +17,8 @@
     "schema": {
       "enum": [
         "project-verification-observation/v1",
-        "project-verification-observation/v2"
+        "project-verification-observation/v2",
+        "project-verification-observation/v3"
       ]
     },
     "mode": {
@@ -66,6 +67,10 @@
           "pattern": "^[0-9a-f]{40}$"
         },
         "tree_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "executable_modes_sha256": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
         }
@@ -173,6 +178,22 @@
     },
     "exit_code": {
       "type": "integer"
+    }
+  },
+  "if": {
+    "properties": {
+      "schema": {
+        "const": "project-verification-observation/v3"
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "source": {
+        "required": [
+          "executable_modes_sha256"
+        ]
+      }
     }
   }
 }

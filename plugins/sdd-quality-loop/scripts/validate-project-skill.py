@@ -192,6 +192,14 @@ def tree_digest(records):
     )
 
 
+def executable_modes(root, paths):
+    """Bind the permission bits copied into the isolated execution tree."""
+    return {
+        path: str(safe(root, path, "source-mismatch", missing=False).stat().st_mode & 0o111)
+        for path in paths
+    }
+
+
 def covers(output, path):
     return path == output or (output.endswith("/") and path.startswith(output))
 
@@ -373,10 +381,15 @@ def _validate(root, skill, observation_path=None, task_input_path=None):
     records = source_records(root, manifest, task, obs, closure)
     if tree_digest(records) != obs["source"]["tree_sha256"]:
         fail("source-mismatch")
+    if obs["schema"] == "project-verification-observation/v3":
+        if obs["source"].get("executable_modes_sha256") != tree_digest(executable_modes(root, records)):
+            fail("source-mismatch")
     if ran:
         # Old records remain inspectable history, but cannot supply fresh execution fields.
         if obs["schema"] == "project-verification-observation/v1":
             return manifest, obs, "legacy-runtime-unbound"
+        if obs["schema"] == "project-verification-observation/v2":
+            return manifest, obs, "legacy-source-modes-unbound"
         current = runtime_environment(manifest)
         if any(env.get(key) != value for key, value in current.items()):
             fail("runtime-changed")

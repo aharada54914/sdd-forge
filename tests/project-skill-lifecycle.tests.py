@@ -245,6 +245,35 @@ class Lifecycle(unittest.TestCase):
         result = self.run_skill()
         self.assertEqual(result["outcome"], "passed")
         self.assertEqual((self.root / result["stdout"]["path"]).read_text(), "helper ran\n")
+        helper.chmod(0o644)
+        with self.assertRaisesRegex(A.V.Invalid, "source-mismatch"):
+            A.V.validate(self.root, "verify-app", self.root / result["observation"])
+        repeated = self.run_skill()
+        self.assertEqual(repeated["outcome"], "failed")
+
+    def test_execution_cannot_change_admitted_modes(self):
+        self.seal('from pathlib import Path\nPath("sdd/skills/verify-app/run.py").chmod(0o755)\n')
+        (self.skill / "run.py").chmod(0o644)
+        result = self.run_skill()
+        self.assertEqual(result["outcome"], "failed")
+        self.assertEqual(result["reason"], "runner-modified-input")
+
+    def test_external_mode_change_during_execution_cannot_publish_success(self):
+        self.seal("print('ok')\n")
+        source = self.skill / "run.py"
+        source.chmod(0o644)
+        original = A.execute
+
+        def changed(*args, **kwargs):
+            result = original(*args, **kwargs)
+            source.chmod(0o755)
+            return result
+
+        with patch.object(A, "execute", side_effect=changed):
+            result = self.run_skill()
+        self.assertEqual(result["outcome"], "failed")
+        self.assertEqual(result["reason"], "source-mismatch")
+        self.assertFalse(result["observation_written"])
 
     def test_manifest_change_after_admission_cannot_pass(self):
         self.seal("import sys\nraise SystemExit(3 if len(sys.argv)>1 else 0)\n")
@@ -432,13 +461,14 @@ class Lifecycle(unittest.TestCase):
 
     def test_task_output_publication(self):
         self.seal(
-            'from pathlib import Path\nPath("output").mkdir()\nPath("output/result.txt").write_text("observed")\n'
+            'from pathlib import Path\nPath("output").mkdir()\nPath("output/result.txt").write_text("observed")\nPath("output/result.txt").chmod(0o751)\n'
         )
         task = self.task_manifest()
         result = self.run_skill(task_path=task)
         self.assertEqual(result["outcome"], "passed")
         self.assertTrue(result["observation_written"])
         self.assertEqual((self.root / "output/result.txt").read_text(), "observed")
+        self.assertEqual((self.root / "output/result.txt").stat().st_mode & 0o111, 0o111)
         validated = A.V.validate(
             self.root, "verify-app", self.root / result["observation"], task
         )

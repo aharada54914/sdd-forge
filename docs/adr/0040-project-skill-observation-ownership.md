@@ -29,7 +29,7 @@ existing result/plan/context schemas reject unknown fields.
    entrypoint and literal args, run from the execution root, pinned by a
    complete file closure.
 4. The runner (#595 trial, #596 task) owns execution, run-time access
-   enforcement and its observation (`project-verification-observation/v2`),
+   enforcement and its observation (`project-verification-observation/v3`),
    bound to run identity, task input digest, skill digest and a content digest
    of the admitted inputs plus produced outputs. The execution root is composed
    by existing orchestration from the immutable snapshot and declared output
@@ -54,7 +54,7 @@ run-time file access.
 
 ## Toolchain freshness (v2)
 
-Actual runners now record v2. Declared runtime and required executables, the
+V2 introduced the following runtime binding, which v3 retains. Declared runtime and required executables, the
 runner Python, runner/supervisor/validator/schema-validator source bytes, and their filesystem
 identities are fingerprinted before and after execution. The validator rechecks
 the same binding before projecting execution fields. A same-path executable
@@ -94,3 +94,21 @@ wrappers remain usable. `run` records not-run without resolving/launching tools;
 cleanup=false means no process cleanup was demonstrated. `maintain` reports
 blocked/procedure-not-executable. Even a forged passed observation is refused.
 Documents can describe useful manual steps without pretending those steps ran.
+
+## Executable source permissions (observation v3)
+
+The runner preserves the executable bits of admitted files when staging them.
+Those bits can change command behavior even when file bytes are unchanged, so
+v3 separately binds a sorted path-to-executable-bits digest in
+`source.executable_modes_sha256`. The manifest's byte hashes retain their existing
+meaning. Runner and validator use the same source-mode function. The runner
+checks admitted permissions before execution and on both the isolated and
+original trees afterward; input mutation cannot become successful evidence.
+Published output files preserve their executable bits so current output binding
+matches the observed tree.
+
+V2 execution records lack this binding and return `legacy-source-modes-unbound`;
+v1 retains `legacy-runtime-unbound`. Both remain historical records and cannot
+supply current execution fields. Re-execute to obtain v3; do not add new hashes
+to historical results. This records the copied executable bits, not an OS-wide
+ACL, ownership, dynamic-library closure or an ABA-proof filesystem snapshot.
