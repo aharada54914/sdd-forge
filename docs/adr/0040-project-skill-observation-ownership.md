@@ -29,7 +29,7 @@ existing result/plan/context schemas reject unknown fields.
    entrypoint and literal args, run from the execution root, pinned by a
    complete file closure.
 4. The runner (#595 trial, #596 task) owns execution, run-time access
-   enforcement and its observation (`project-verification-observation/v1`),
+   enforcement and its observation (`project-verification-observation/v2`),
    bound to run identity, task input digest, skill digest and a content digest
    of the admitted inputs plus produced outputs. The execution root is composed
    by existing orchestration from the immutable snapshot and declared output
@@ -51,3 +51,30 @@ Non-adopting repositories are unaffected. Integration (#596), authoring
 contracts without changing ownership. Observations remain runner claims; the
 contracts add binding, not attestation, and the passive validator cannot prove
 run-time file access.
+
+## Toolchain freshness (v2)
+
+Actual runners now record v2. Declared runtime and required executables, the
+runner Python, runner/supervisor/validator/schema-validator source bytes, and their filesystem
+identities are fingerprinted before and after execution. The validator rechecks
+the same binding before projecting execution fields. A same-path executable
+replacement, helper change, source change, or inherited variable change therefore
+invalidates earlier execution evidence. Filesystem identity includes ctime as
+well as content, so replacing and restoring bytes does not restore the old binding.
+No tool is executed by this passive comparison. Loaded runner/validator/schema
+modules retain their import-time source digest and reject later disk replacements
+instead of recording new bytes for code already loaded into memory.
+
+The runner removes shell bookkeeping variables (`_`, `SHLVL`, `PWD`, `OLDPWD`)
+from the actual child environment and from its environment digest. Other inherited
+variables are hashed without recording their plaintext. Input paths and the
+execution cwd remain owned by the existing task-input/temporary-root rules.
+This is a binding to declared toolchain files, not arbitrary dynamically loaded
+libraries, undeclared subprocesses, host attestation, or a sandbox guarantee.
+Such dependencies must remain in the declared input/tool closure; this change
+does not establish a general reusable cache.
+
+Historical v1 records remain syntactically readable and their original bytes
+are retained. Ran v1 records return `legacy-runtime-unbound` and supply no fresh
+execution fields; regenerate evidence with the actual runner instead of adding
+fingerprints to old records. Non-adopting legacy contracts are unaffected.

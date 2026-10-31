@@ -15,7 +15,10 @@
   ],
   "properties": {
     "schema": {
-      "const": "project-verification-observation/v1"
+      "enum": [
+        "project-verification-observation/v1",
+        "project-verification-observation/v2"
+      ]
     },
     "mode": {
       "enum": [
@@ -104,6 +107,51 @@
           },
           "minItems": 0,
           "uniqueItems": true
+        },
+        "variables_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "toolchain": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "path",
+              "sha256",
+              "identity_sha256"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "identity_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
         }
       }
     },

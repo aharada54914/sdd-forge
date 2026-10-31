@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import stat
 import sys
 
@@ -18,6 +19,8 @@ _spec = importlib.util.spec_from_file_location(
 )
 _schema = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_schema)
+LOADED_SOURCES = {str(Path(path).resolve()): hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                  for path in (__file__, _schema.__file__)}
 EVIDENCE = "reports/project-skill-observations/"
 MAX_JSON_BYTES = 8 * 1024 * 1024
 EXECUTION = ("command", "started_at", "finished_at", "exit_code", "passes", "evidence")
@@ -33,6 +36,51 @@ def fail(code):
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def execution_environment():
+    # These are shell bookkeeping, not caller inputs; also remove them at execution.
+    return {key: value for key, value in os.environ.items()
+            if key not in ("_", "SHLVL", "PWD", "OLDPWD")}
+
+
+def runtime_environment(manifest):
+    """Fingerprint declared executables and inherited variables without executing tools."""
+    tools = []
+    declared = [(name, shutil.which(name)) for name in [manifest["runtime"], *manifest["requires"]]]
+    bootstrap = HERE.parents[1] / "sdd-bootstrap/scripts"
+    declared.extend((name, str(path)) for name, path in (
+        ("@runner-python", sys.executable), ("@validator", Path(__file__)),
+        ("@schema-validator", Path(_schema.__file__)),
+        ("@runner", bootstrap / "project-skill.py"),
+        ("@supervisor", bootstrap / "project-skill-process.py")))
+    for name, path in declared:
+        item = {"name": name, "path": path, "sha256": None, "identity_sha256": None}
+        if path:
+            try:
+                with Path(path).open("rb") as stream:
+                    before = os.fstat(stream.fileno())
+                    if not stat.S_ISREG(before.st_mode):
+                        fail("runtime-changed")
+                    hasher = hashlib.sha256()
+                    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                        hasher.update(chunk)
+                    sha = hasher.hexdigest()
+                    after = os.fstat(stream.fileno())
+                def identity(info):
+                    return (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+                            info.st_mtime_ns, info.st_ctime_ns)
+                if identity(before) != identity(after) or identity(after) != identity(Path(path).stat()):
+                    fail("runtime-changed")
+                item.update(sha256=sha, identity_sha256=digest(json.dumps(identity(after)).encode()))
+                loaded = LOADED_SOURCES.get(str(Path(path).resolve()))
+                if loaded is not None and loaded != sha:
+                    fail("runtime-changed")
+            except OSError:
+                fail("runtime-changed")
+        tools.append(item)
+    return {"runtime_path": tools[0]["path"], "toolchain": tools,
+            "variables_sha256": digest(json.dumps(execution_environment(), sort_keys=True).encode())}
 
 
 def _pairs(pairs):
@@ -316,6 +364,13 @@ def _validate(root, skill, observation_path=None, task_input_path=None):
     records = source_records(root, manifest, task, obs, closure)
     if tree_digest(records) != obs["source"]["tree_sha256"]:
         fail("source-mismatch")
+    if ran:
+        # Old records remain inspectable history, but cannot supply fresh execution fields.
+        if obs["schema"] == "project-verification-observation/v1":
+            return manifest, obs, "legacy-runtime-unbound"
+        current = runtime_environment(manifest)
+        if any(env.get(key) != value for key, value in current.items()):
+            fail("runtime-changed")
     return manifest, obs, ("trial-" if obs["mode"] == "trial" else "") + obs["outcome"]
 
 

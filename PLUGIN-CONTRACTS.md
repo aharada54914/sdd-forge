@@ -11,7 +11,7 @@ procedure or recommendation cannot approve a task or set Done.
 
 | Interface | Producer / consumer | Binding and authority |
 |---|---|---|
-| `project-skill-manifest/v1` and project verification observations | `project-skill.py` / `validate-project-skill.py` | Closed skill-file closure, runtime/check identity, task inputs and outputs. Trial observations cannot satisfy task gates; owner-side execution remains necessary. |
+| `project-skill-manifest/v1` and `project-verification-observation/v2` | `project-skill.py` / `validate-project-skill.py` | Closed skill-file closure, runtime/check identity, task inputs and outputs. Trial and historical v1 observations cannot satisfy task gates; v2 binds toolchain/runtime identity and environment. Owner-side execution remains necessary. |
 | Existing verification contract/report/bundle | `collect-project-evidence.py` / existing gates | Actual runner observations only; prospective TDD binds both phases in the existing evidence artifact. Critical `--prepare` leaves review, clean commit, signing and task authority with existing owners. See [collection procedure](docs/contributor/project-evidence-collection.md). |
 | `sdd-run-measurement/v1` | Existing verification/Lite owners / `run_measurement.py` | Monotonic clock domains, immutable spans, exact artifact hashes, attempt lineage, explicit missing metrics. Measurement I/O failure after execution does not change the owner's result. |
 | `research-watch-state/v2` (opt-in) | Existing source watcher / research owner | Actual check time and separate metadata/cache/feed fingerprints; v1 remains default. Missing comparisons remain unknown; no original bodies, scheduler or approval changes. |
