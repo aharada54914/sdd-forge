@@ -93,5 +93,12 @@ else
     fail "release.yml lost the ci-green gating shape (RT-20260821-004)"
 fi
 
+# The CI signer must reject absent/weak environment controls before using a key.
+if python3 "$ROOT/tests/context-signing-environment.tests.py"; then
+    ok "Context signing environment rejects unsafe dispatch/configuration"
+else
+    fail "Context signing environment prerequisite tests failed"
+fi
+
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

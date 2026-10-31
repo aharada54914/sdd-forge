@@ -240,6 +240,7 @@
     {"path": "tests/registry-discovery.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
     {"path": "tests/registry-discovery.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/registry-migration-cli.tests.sh", "runtime": "bash"},
+    {"path": "tests/context-signing-environment.tests.py", "runtime": "python", "delegated_to": "tests/release-config-lock.tests.sh"},
     {"path": "tests/release-config-lock.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
     {"path": "tests/release-host-smoke.sh", "runtime": "bash", "excluded": "Manual release host smoke requiring an opt-in host/environment; CI performs syntax validation only."},
     {"path": "tests/release-loop-gate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},

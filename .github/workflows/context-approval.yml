@@ -1,0 +1,72 @@
+name: Issue 678 Context bootstrap signature
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: issue-678-context-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  prerequisites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify protected signing environment before requesting approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/check-context-signing-environment.py
+
+  sign:
+    needs: prerequisites
+    runs-on: ubuntu-latest
+    environment: context-approval
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Recheck protection and bootstrap immediately before signing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/check-context-signing-environment.py
+      - name: Check out only the reviewed immutable issuer and candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 555bfb5f15265f622a353a946e3fd6b04ab575de
+          path: reviewed
+          persist-credentials: false
+      - name: Sign and verify the exact approved Phase-1 candidate
+        env:
+          SDD_CONTEXT_KEY: ${{ secrets.SDD_CONTEXT_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SDD_CONTEXT_KEY}" || { echo 'Independent environment key is missing' >&2; exit 1; }
+          cd reviewed
+          packet=reports/verification/a9-operational-preparation-20261031/ready
+          echo "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a  ${packet}/candidate.yaml" | sha256sum --check --strict
+          test ! -e sdd/project-context.approval.json
+          python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
+            --schema sdd-project-context-approval/v1 \
+            --content "${packet}/candidate.yaml" \
+            --live-sidecar sdd/project-context.approval.json \
+            --approver aharada54914 --status Approved \
+            --stage-dir "${RUNNER_TEMP}/context-678-public"
+          python3 plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py \
+            --content "${packet}/candidate.yaml" \
+            --sidecar "${RUNNER_TEMP}/context-678-public/sdd/project-context.approval.json" \
+            --approver-registry "${packet}/registry.yaml"
+      - name: Retain only public signature and approved snapshot
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: context-678-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/context-678-public/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
