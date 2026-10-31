@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Persisted conditional manifests exercise both real workflow validators."""
 import hashlib
+import importlib.util
+import sys
 import json
 import os
 from pathlib import Path
@@ -13,6 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 class WorkflowFixture:
     feature = 'conditional-workflow-fixture'
     parent_directory = 'fixtures'
+    impl_verdict = 'PASS'
+    impl_severity = 'none'
+    requirements_extra = ''
 
     @classmethod
     def setUpClass(cls):
@@ -40,6 +45,10 @@ _loop_set_status_field "$LOOP_FIXTURE_ROOT/specs/$LOOP_FIXTURE_FEATURE/design.md
 _loop_task_fixture_prepare "$LOOP_FIXTURE_FEATURE"
 printf '\nFIXTURE_ROOT=%s\n' "$LOOP_FIXTURE_ROOT"
 '''
+        script = script.replace('drive_review_round impl 1 1 PASS none',
+                                f'drive_review_round impl 1 1 {cls.impl_verdict} {cls.impl_severity}')
+        script = script.replace('drive_review_round spec 1 1 PASS none',
+                                cls.requirements_extra + '\ndrive_review_round spec 1 1 PASS none')
         result = subprocess.run(['bash', '-c', script, 'fixture', str(ROOT), cls.feature],
                                 env=dict(os.environ, TMPDIR=str(fixture_parent)),
                                 text=True, capture_output=True)
@@ -182,6 +191,15 @@ class WorkflowInputs(WorkflowFixture, unittest.TestCase):
         self.manifests(self.domain, self.impl, relocated=True)
         self.check(True)
 
+    def test_later_research_does_not_change_historical_domain_contract(self):
+        self.manifests(self.domain, self.impl)
+        packet = f'specs/{self.feature}/research/review-input.json'
+        self.put(packet, '{invalid later packet')
+        try:
+            self.check(True)
+        finally:
+            (self.root / packet).unlink()
+
     def test_spec_cannot_admit_design_system(self):
         self.manifests(self.domain + ['design-system/design-system.md'], self.impl)
         self.check(False)
@@ -202,6 +220,269 @@ class WorkflowInputs(WorkflowFixture, unittest.TestCase):
             self.precheck('task', False)
         finally:
             path.write_bytes(original)
+
+
+class ResearchInputs(WorkflowFixture, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Research alone must activate the resolver; domain inputs would mask it.
+        shutil.rmtree(cls.root / 'domain')
+        shutil.rmtree(cls.root / 'design-system')
+        scripts = Path('plugins/sdd-quality-loop/scripts')
+        for name in ('research_evidence.py', 'research_consumers.py',
+                     'research_extraction.py', 'canonicalize-sdd-yaml.py'):
+            shutil.copy2(ROOT / scripts / name, cls.root / scripts / name)
+        schema = Path('plugins/sdd-quality-loop/contracts/research-evidence.schema.json')
+        (cls.root / schema).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / schema, cls.root / schema)
+        base = f'specs/{cls.feature}/research/'
+        cls.research_inputs = [base + name for name in (
+            'records/research-evidence.json', 'relations.json', 'review-input.json')]
+        cls.put(cls.research_inputs[0], json.dumps(dict(
+            schema='research-evidence/v1', feature=cls.feature, sources=[], claims=[])))
+        cls.put(cls.research_inputs[1], json.dumps(dict(
+            schema='research-relations/v1', feature=cls.feature, edges=[])))
+        cls.put('snapshots.json', json.dumps(dict(
+            schema='research-snapshots/v1', feature=cls.feature, snapshots=[])))
+        result = subprocess.run(['python3', str(ROOT / scripts / 'research-evidence-tools.py'),
+                                 'bind', '--file', str(cls.root / cls.research_inputs[0]),
+                                 '--relations', str(cls.root / cls.research_inputs[1]),
+                                 '--repo-root', str(cls.root), '--snapshots', str(cls.root / 'snapshots.json'),
+                                 '--snapshot-root', str(cls.root),
+                                 '--output', str(cls.root / cls.research_inputs[2])],
+                                text=True, capture_output=True)
+        if result.returncode:
+            raise RuntimeError(result.stdout + result.stderr)
+
+    def test_research_only_manifest(self):
+        self.manifests(self.research_inputs, self.research_inputs)
+        self.check(True)
+        self.precheck('impl', True)
+        self.precheck('task', True)
+
+    def test_relocated_research_manifest(self):
+        self.manifests(self.research_inputs, self.research_inputs, relocated=True)
+        self.check(True)
+
+    def test_research_adr_outside_design_binding(self):
+        scripts = ROOT / 'plugins/sdd-quality-loop/scripts'
+        sys.path.insert(0, str(scripts))
+        from research_evidence import record_digest
+        spec = importlib.util.spec_from_file_location('research_fixture', ROOT / 'tests/research-evidence.tests.py')
+        fixture = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixture)
+        claim = fixture.claim()
+        claim.update(evidence_status='not-searched', citations=[])
+        record, relations, packet = [self.root / p for p in self.research_inputs]
+        originals = {p: p.read_bytes() for p in (record, relations, packet)}
+        adr = 'docs/adr/0002-research.md'
+        self.put(adr, '# Research context only\n')
+        try:
+            document = json.loads(record.read_bytes())
+            document['claims'] = [claim]
+            record.write_text(json.dumps(document))
+            relations.write_text(json.dumps(dict(schema='research-relations/v1', feature=self.feature, edges=[dict(
+                relation='justifies',
+                **{'from': dict(kind='CLM', feature=self.feature, id=claim['claim_id'], record_revision=1,
+                               record_sha256=record_digest(claim)),
+                   'to': dict(kind='ADR', id='ADR-0002', path=adr,
+                              document_sha256=hashlib.sha256((self.root / adr).read_bytes()).hexdigest())})])))
+            result = subprocess.run(['python3', str(scripts / 'research-evidence-tools.py'), 'bind',
+                                     '--file', str(record), '--relations', str(relations),
+                                     '--repo-root', str(self.root), '--snapshots', str(self.root / 'snapshots.json'),
+                                     '--snapshot-root', str(self.root), '--output', str(packet)],
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for relocated in (False, True):
+                self.manifests(self.research_inputs + [adr], self.research_inputs + [adr], relocated=relocated)
+                self.check(True)
+                self.precheck('impl', True)
+                self.precheck('task', True)
+            # Legacy records without design ADR extension still bind research separately.
+            precheck = self.root / f'reports/impl-review/{self.feature}/attempt-1/round-1/precheck-result.json'
+            saved = {p: p.read_bytes() for p in self.documents}
+            saved[precheck] = precheck.read_bytes()
+            try:
+                for relocated in (False, True):
+                    self.manifests(self.research_inputs + [adr], self.research_inputs + [adr], relocated=relocated)
+                    pc = json.loads(saved[precheck])
+                    pc.pop('adr_inputs')
+                    precheck.write_text(json.dumps(pc))
+                    for path in self.documents:
+                        if '/impl-review/' not in str(path):
+                            continue
+                        value = json.loads(path.read_bytes())
+                        value.pop('adr_inputs', None)
+                        for reviewer in value.get('reviewers', [value]):
+                            manifest = reviewer['allowed_input_manifest']
+                            manifest[:] = [e for e in manifest if e['path'] != 'docs/adr/0001-fixture.md']
+                            for entry in manifest:
+                                if entry['path'].endswith('/precheck-result.json'):
+                                    entry['sha256'] = hashlib.sha256(precheck.read_bytes()).hexdigest()
+                        path.write_text(json.dumps(value))
+                    self.check(True)
+                    self.precheck('task', True)
+            finally:
+                for path, raw in saved.items():
+                    path.write_bytes(raw)
+            (self.root / adr).write_text('# Changed research ADR\n')
+            self.check(False)
+        finally:
+            for path, raw in originals.items():
+                path.write_bytes(raw)
+            (self.root / adr).unlink()
+
+    def test_undeclared_research_adr_is_rejected(self):
+        adr = 'docs/adr/0002-undeclared.md'
+        self.put(adr, '# Not in research closure\n')
+        try:
+            self.manifests(self.research_inputs + [adr], self.research_inputs + [adr])
+            self.check(False)
+        finally:
+            (self.root / adr).unlink()
+
+    def test_partial_research_closure_is_rejected(self):
+        for missing in self.research_inputs:
+            with self.subTest(missing=missing):
+                partial = [p for p in self.research_inputs if p != missing]
+                self.manifests(partial, partial)
+                self.check(False)
+                self.precheck('impl', False)
+                self.precheck('task', False)
+
+    def test_reviewer_output_cannot_omit_research_closure(self):
+        self.manifests(self.research_inputs, self.research_inputs)
+        for path in self.documents:
+            if path.name == 'reviewer-a.json':
+                value = json.loads(path.read_bytes())
+                value['allowed_input_manifest'][:] = [e for e in value['allowed_input_manifest']
+                                                     if e['path'] != self.research_inputs[1]]
+                path.write_text(json.dumps(value))
+        self.check(False)
+        self.precheck('impl', False)
+        self.precheck('task', False)
+
+    def test_removed_research_packet_is_rejected(self):
+        self.manifests(self.research_inputs, self.research_inputs)
+        packet = self.root / self.research_inputs[2]
+        original = packet.read_bytes()
+        try:
+            packet.unlink()
+            self.check(False)
+        finally:
+            packet.write_bytes(original)
+
+    def test_research_metadata_tamper(self):
+        self.manifests(self.research_inputs, self.research_inputs)
+        path = self.root / self.research_inputs[0]
+        original = path.read_bytes()
+        try:
+            path.write_bytes(original + b' ')
+            self.check(False)
+        finally:
+            path.write_bytes(original)
+
+
+class ResearchLifecycle(unittest.TestCase):
+    def fixture(self, failed=False):
+        owner = type('ResearchLifecycleFixture', (ResearchInputs,), dict(
+            impl_verdict='NEEDS_WORK' if failed else 'PASS',
+            impl_severity='Major' if failed else 'none',
+            requirements_extra='printf "\\n## REQ-001 Requirement\\n" >> "$LOOP_FIXTURE_ROOT/specs/$LOOP_FIXTURE_FEATURE/requirements.md"'))
+        owner.setUpClass()
+        self.addCleanup(owner.doClassCleanups)
+        return owner('test_research_only_manifest')
+
+    def next_round(self, case, accepted):
+        for runtime, suffix in case.runtimes:
+            with self.subTest(runtime=runtime):
+                directory = case.root / f'reports/impl-review/{case.feature}/attempt-1/round-2'
+                command = [runtime] + (['-NoProfile', '-File'] if runtime == 'pwsh' else []) + [
+                    str(case.root / f'plugins/sdd-review-loop/scripts/impl-review-precheck{suffix}'),
+                    case.feature, '1', '2']
+                try:
+                    result = subprocess.run(command, cwd=case.root, text=True, capture_output=True)
+                    if accepted:
+                        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+                        self.assertTrue((directory / 'precheck-result.json').is_file())
+                    else:
+                        self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
+                finally:
+                    if directory.exists():
+                        shutil.rmtree(directory)
+
+    def test_failed_history_reopens_after_packet_repair(self):
+        case = self.fixture(failed=True)
+        case.manifests([], case.research_inputs)
+        design = case.root / f'specs/{case.feature}/design.md'
+        design.write_bytes(design.read_bytes().replace(b'Impl-Review-Status: Passed', b'Impl-Review-Status: Pending')
+                           + b'\nClarified failed design finding.\n')
+        (case.root / f'specs/{case.feature}/tasks.md').unlink()
+        self.next_round(case, True)
+        packet = case.root / case.research_inputs[2]
+        packet.write_bytes(packet.read_bytes() + b' ')
+        self.next_round(case, True)
+        # Pending is a valid unfinished state; changing its header cannot turn
+        # the saved failed review into a current PASS.
+        pending_design = design.read_bytes()
+        design.write_bytes(pending_design.replace(b'Impl-Review-Status: Pending', b'Impl-Review-Status: Passed'))
+        case.check(False)
+        design.write_bytes(pending_design)
+        actual = case.root / f'reports/impl-review/{case.feature}/attempt-1/round-1/reviewer-a.json'
+        saved = actual.read_bytes()
+        for change in ('identity', 'omitted-packet', 'changed-pin'):
+            with self.subTest(change=change):
+                value = json.loads(saved)
+                if change == 'identity':
+                    value['host_session_id'] = 'different-session'
+                elif change == 'omitted-packet':
+                    value['allowed_input_manifest'][:] = [e for e in value['allowed_input_manifest']
+                                                         if e['path'] != case.research_inputs[2]]
+                else:
+                    next(e for e in value['allowed_input_manifest']
+                         if e['path'] == case.research_inputs[2])['sha256'] = '0' * 64
+                actual.write_text(json.dumps(value))
+                self.next_round(case, False)
+        actual.write_bytes(saved)
+
+    def test_requirement_status_transition_retains_research_binding(self):
+        case = self.fixture()
+        scripts = ROOT / 'plugins/sdd-quality-loop/scripts'
+        sys.path.insert(0, str(scripts))
+        from research_evidence import record_digest
+        spec = importlib.util.spec_from_file_location('lifecycle_claim_fixture', ROOT / 'tests/research-evidence.tests.py')
+        sample = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sample)
+        claim = sample.claim()
+        claim.update(evidence_status='not-searched', citations=[])
+        requirements = case.root / f'specs/{case.feature}/requirements.md'
+        passed = requirements.read_bytes()
+        pending = passed.replace(b'Spec-Review-Status: Passed', b'Spec-Review-Status: Pending')
+        self.assertNotEqual(passed, pending)
+        requirements.write_bytes(pending)
+        records, relations, packet = [case.root / name for name in case.research_inputs]
+        records.write_text(json.dumps(dict(schema='research-evidence/v1', feature=case.feature, sources=[], claims=[claim])))
+        relations.write_text(json.dumps(dict(schema='research-relations/v1', feature=case.feature, edges=[dict(
+            relation='justifies', **{
+                'from': dict(kind='CLM', feature=case.feature, id='CLM-001', record_revision=1, record_sha256=record_digest(claim)),
+                'to': dict(kind='REQ', feature=case.feature, id='REQ-001', document_sha256=hashlib.sha256(pending).hexdigest())})])))
+        result = subprocess.run(['python3', str(scripts / 'research-evidence-tools.py'), 'bind',
+                                 '--file', str(records), '--relations', str(relations), '--repo-root', str(case.root),
+                                 '--snapshots', str(case.root / 'snapshots.json'), '--snapshot-root', str(case.root),
+                                 '--output', str(packet)], text=True, capture_output=True)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        original_packet = packet.read_bytes()
+        requirements.write_bytes(passed)
+        case.manifests(case.research_inputs, case.research_inputs)
+        case.check(True)
+        case.precheck('impl', True)
+        case.precheck('task', True)
+        self.assertEqual(original_packet, packet.read_bytes())
+        requirements.write_bytes(passed + b'\nChanged requirement content.\n')
+        case.check(False)
+        case.precheck('impl', False)
+        case.precheck('task', False)
 
 
 class LegacyLocationFixture(WorkflowFixture):

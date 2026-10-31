@@ -1,0 +1,35 @@
+{
+  "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+  "inputs": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+      "mode": "100644"
+    },
+    {
+      "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+      "mode": "100644"
+    },
+    {
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+      "mode": "100644"
+    },
+    {
+      "path": "specs/workflow-state-integrity/design.md",
+      "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+      "mode": "100644"
+    },
+    {
+      "path": "specs/workflow-state-integrity/investigation.md",
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+      "mode": "100644"
+    },
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+      "mode": "100644"
+    }
+  ]
+}

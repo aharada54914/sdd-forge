@@ -1,0 +1,6 @@
+{
+  "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": "8ddf68a6dea4adc4193007db61e4a024d3ea4b7cf50a9e75cc97885757b042be",
+  "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1": "c02d45ba955758f10c9cf6a58cfdf7ac96cf0241c163aee749a2ed33f28ba397",
+  "plugins/sdd-quality-loop/scripts/workflow-state-session.py": "0bd8fd0571d21787e736cd5860504bee7bdb4971feac788e64d79dbec75b4746",
+  "tests/workflow-conditional-inputs.tests.py": "8a85cea570b499c2b09b435cb99862c101af82e3061b8199faef7e5e75b2564b"
+}

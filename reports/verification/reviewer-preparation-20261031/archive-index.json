@@ -1,0 +1,160 @@
+{
+  "schema": "scratch-evidence-index/v1",
+  "files": [
+    {
+      "path": "0-baseline.json",
+      "bytes": 1112,
+      "sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40"
+    },
+    {
+      "path": "0-index.json",
+      "bytes": 2603,
+      "sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced"
+    },
+    {
+      "path": "1-baseline.json",
+      "bytes": 1112,
+      "sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40"
+    },
+    {
+      "path": "1-index.json",
+      "bytes": 2603,
+      "sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced"
+    },
+    {
+      "path": "2-baseline.json",
+      "bytes": 1112,
+      "sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40"
+    },
+    {
+      "path": "2-index.json",
+      "bytes": 2603,
+      "sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced"
+    },
+    {
+      "path": "3-baseline.json",
+      "bytes": 1112,
+      "sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40"
+    },
+    {
+      "path": "3-index.json",
+      "bytes": 2603,
+      "sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced"
+    },
+    {
+      "path": "4-baseline.json",
+      "bytes": 1112,
+      "sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40"
+    },
+    {
+      "path": "4-index.json",
+      "bytes": 2603,
+      "sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4952,
+      "sha256": "589c3a637c627839d9f32e00386b8d360c21e498052e777f0e0b4dee95fffe1d"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 63524,
+      "sha256": "c67a83fc32bc693c66e4914e98ee94286e16ed3ba810aa505a3a82926e2be669"
+    },
+    {
+      "path": "compare.py",
+      "bytes": 6829,
+      "sha256": "83e46b540372e5c138e1674643ddf28d1c358107684e313b0144909739fa4554"
+    },
+    {
+      "path": "fixture/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "bytes": 10560,
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "fixture/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "bytes": 521,
+      "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"
+    },
+    {
+      "path": "fixture/specs/workflow-state-integrity/acceptance-tests.md",
+      "bytes": 3005,
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"
+    },
+    {
+      "path": "fixture/specs/workflow-state-integrity/design.md",
+      "bytes": 12686,
+      "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add"
+    },
+    {
+      "path": "fixture/specs/workflow-state-integrity/investigation.md",
+      "bytes": 3366,
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"
+    },
+    {
+      "path": "fixture/specs/workflow-state-integrity/requirements.md",
+      "bytes": 4900,
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 1229,
+      "sha256": "8fad82b11ef5d64abbad5134f9a22f6251a23ee1ea97929d06d3d39101913f94"
+    },
+    {
+      "path": "snapshot/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "bytes": 10560,
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "snapshot/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "bytes": 521,
+      "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"
+    },
+    {
+      "path": "snapshot/specs/workflow-state-integrity/acceptance-tests.md",
+      "bytes": 3005,
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"
+    },
+    {
+      "path": "snapshot/specs/workflow-state-integrity/design.md",
+      "bytes": 12686,
+      "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add"
+    },
+    {
+      "path": "snapshot/specs/workflow-state-integrity/investigation.md",
+      "bytes": 3366,
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"
+    },
+    {
+      "path": "snapshot/specs/workflow-state-integrity/requirements.md",
+      "bytes": 4900,
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
+    },
+    {
+      "path": "sources/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "bytes": 16003,
+      "sha256": "54dda8da53ccebc605cc0afa414b104886724929e46d48157ba02f89e3db6fc0"
+    },
+    {
+      "path": "sources/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+      "bytes": 18276,
+      "sha256": "db0a571e2ea0ed5254345fdb4a8e525430d36ed0949516833d958d5f7d05a9bb"
+    },
+    {
+      "path": "sources/plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "bytes": 39632,
+      "sha256": "f53a44f08249bdcc29b4a2d61065c610e3e4c998539502a30aa80a5da378a1dc"
+    },
+    {
+      "path": "sources/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "bytes": 169959,
+      "sha256": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 34766,
+      "sha256": "0160e89948b53fad8adac8c699ff3d3f0c285ddf6a39e86ee7a86c3d3dbde3e8"
+    }
+  ]
+}
