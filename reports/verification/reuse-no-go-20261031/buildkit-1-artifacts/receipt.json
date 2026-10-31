@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": null,
+  "clean_before": null,
+  "reusable": false,
+  "catalog_sha256": "707948e472bec5bf374f2082c307fdbb0913058bf7c535d12f973a943a442ee4",
+  "selected": [
+    "tests/bootstrap-cross-layer-index.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/bootstrap-cross-layer-index.tests.sh",
+      "source_sha256": "4b7ee150057258c73c10a5e83d787454710a92b827f2c0d7f847864bd2e6bff5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.215198
+    }
+  ],
+  "revision_after": null,
+  "clean_after": null
+}

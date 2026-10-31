@@ -1,0 +1,57 @@
+[
+  {
+    "label": "args-changed",
+    "exit_code": 0,
+    "seconds": 14.883746943000006,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/args-changed-image.txt",
+      "--build-arg",
+      "OWNER_ARGS=--timings tests/verification-timings.json",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ],
+    "image_id": "sha256:358f9d5847f6c8ebda585fcda749b2ccd5d3dbcd4e54512b0bc5da6cdc7e18d9",
+    "original_run_id": "1fd01958b3d7468a8fb779b52c0192db",
+    "same_run_as_baseline": false
+  },
+  {
+    "label": "env-changed",
+    "exit_code": 0,
+    "seconds": 14.545026776000668,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/env-changed-image.txt",
+      "--build-arg",
+      "RUN_LANG=C",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ],
+    "image_id": "sha256:93a59e5227e92d369215edd5fef393a378a4091d7c87a07e6a69d322ce5496df",
+    "original_run_id": "b919a691d9c04c379bd9bb7d5798a0f2",
+    "same_run_as_baseline": false
+  },
+  {
+    "label": "source-changed",
+    "exit_code": 1,
+    "seconds": 18.228027312999984,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/source-changed-image.txt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ]
+  }
+]

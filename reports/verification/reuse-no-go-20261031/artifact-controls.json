@@ -1,0 +1,5 @@
+{
+  "tampered_accepted": false,
+  "missing_accepted": false,
+  "limitation": "Tests retained exported evidence against known cold reference; Docker internal cache storage corruption not simulated"
+}

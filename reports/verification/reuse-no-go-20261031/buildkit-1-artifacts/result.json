@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "tests/verification.py",
+    "--suite",
+    "tests/bootstrap-cross-layer-index.tests.sh",
+    "--run",
+    "--measure-dir",
+    "/evidence/measurement",
+    "--receipt",
+    "/evidence/receipt.json"
+  ],
+  "exit_code": 0,
+  "seconds": 8.33533443000124,
+  "environment": {
+    "PATH": "/workspace/.tools/sdd-forge-dev/bin:/usr/bin:/bin",
+    "HOME": "/tmp/home",
+    "TMPDIR": "/tmp",
+    "LC_ALL": "C.UTF-8",
+    "LANG": "C.UTF-8",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "POWERSHELL_TELEMETRY_OPTOUT": "1",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "OWNER_ARGS": ""
+  }
+}
