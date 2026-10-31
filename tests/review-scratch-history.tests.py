@@ -25,10 +25,17 @@ def exercise(source, runtime, case):
                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
         records = [first]
+        implementation_manifest = root / "handoffs/fixture/manifest.json"
+        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
+                                                 run_id="worker-run", session_id="worker-session"))
+        implementation_hash = digest(implementation_manifest.read_bytes())
         report = root / "reports/implementation/f/T-001.md"
         report.parent.mkdir(parents=True)
         report.write_text("# Implementation Report: T-001\n- Task ID: T-001\n"
-                          "- **Scratch Root**: /tmp/impl-one\n")
+                          "Run ID: worker-run\n- **Run ID**: worker-run\n"
+                          "- **Session ID**: worker-session\n"
+                          "- **Scratch Root**: /tmp/impl-one\n"
+                          f"Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `{implementation_hash}`\n")
         scratch = "/tmp/clean-evaluator"
         expected = 0
         if case.startswith("other-"):
@@ -64,8 +71,12 @@ def exercise(source, runtime, case):
                           sequence=len(records) + 1, previous_record_sha256=records[-1]["record_sha256"],
                           identity_ledger_path="reports/review-context/identity-ledger.json",
                           identity_ledger_sha256=digest(ledger.read_bytes()), scratch_root=scratch,
+                          implementation_manifest=dict(path="handoffs/fixture/manifest.json",
+                                                       sha256=implementation_hash),
                           allowed_input_manifest=[dict(path="reports/implementation/f/T-001.md",
-                                                       sha256=digest(report.read_bytes()))])
+                                                       sha256=digest(report.read_bytes())),
+                                                  dict(path="handoffs/fixture/manifest.json",
+                                                       sha256=implementation_hash)])
         manifest = root / "invocation.json"
         write_json(manifest, invocation)
         scripts = source / "plugins/sdd-quality-loop/scripts"

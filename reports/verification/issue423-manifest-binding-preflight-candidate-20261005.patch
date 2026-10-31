@@ -1,0 +1,55 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -986,10 +986,14 @@
+-if $reserve && [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+-  verify_implementation_binding
+-  if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
++if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++  if [[ -n "$implementation_manifest_path" ]] || $reserve; then
++    verify_implementation_binding
++  fi
++  if $reserve; then
++    if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
+     any(.records[]; .run_id == $run or .host_session_id == $session)
+-  ' "$ledger" >/dev/null; then
+-    fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
++    ' "$ledger" >/dev/null; then
++      fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
++    fi
++    [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
++      fail IDENTITY 'evaluator reuses implementation run/session'
+   fi
+-  [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
+-    fail IDENTITY 'evaluator reuses implementation run/session'
+ fi
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -1060,12 +1060,16 @@
+-    if ($Reserve -and "$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
+-        $implementation = Get-ImplementationBinding
+-        if (@($records | Where-Object {
+-            $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
+-        }).Count -gt 0) {
+-            Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
+-        }
+-        if ($document.run_id -ceq $implementation.run_id -or
+-            $document.host_session_id -ceq $implementation.session_id) {
+-            Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
++    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
++        if ($document.ContainsKey('implementation_manifest') -or $Reserve) {
++            $implementation = Get-ImplementationBinding
++        }
++        if ($Reserve) {
++            if (@($records | Where-Object {
++                $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
++            }).Count -gt 0) {
++                Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
++            }
++            if ($document.run_id -ceq $implementation.run_id -or
++                $document.host_session_id -ceq $implementation.session_id) {
++                Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
++            }
+         }
+     }

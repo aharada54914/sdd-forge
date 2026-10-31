@@ -1,0 +1,10 @@
+正式ゲートは **BLOCKED**。T-002 は **Implementation Complete** を維持しました。
+
+- 独立 evaluator の正確な判定：`VERDICT: NEEDS_WORK`。実装評価は未完了です。
+- preflight／予約は成功（sequence 1197、予約1回）。77入力のハッシュ一致を確認。
+- 境界テスト29件成功。契約チェックは acceptance/regression が false のため失敗。
+- 停止理由：未宣言のテスト依存と、read-only evaluator の隔離コピー作成制約。実際の書込み拒否は未発生です。
+- 入力・過去判定・RT-20261006-002 を保持。Done 化していません。
+
+[正式レポート](/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/quality-gate/20261006T113433Z-sdd-domain-multitarget-T-002.md) ／ [判定原文](/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-formal-caller-20261006T113433Z/evaluator-result.txt) ／ [完了状態・コマンド証跡](/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-formal-caller-20261006T113433Z/completion.json)
+

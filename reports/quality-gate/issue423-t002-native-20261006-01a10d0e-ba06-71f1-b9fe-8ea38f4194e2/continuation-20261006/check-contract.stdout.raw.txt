@@ -1,0 +1,13 @@
+Verification contract FAILED for task T-002:
+ - check 'lint' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'lint' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - required check 'build' has passes=false
+ - check 'placeholder-scan' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'placeholder-scan' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'workflow-state-check' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'workflow-state-check' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - required check 'check-component-coverage' has passes=false

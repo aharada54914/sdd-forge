@@ -110,6 +110,81 @@ function Get-TasksNormalizedHash([string]$Path) {
     finally { $sha.Dispose() }
 }
 
+function Get-ImplementationBinding {
+        if ($implementationManifestPath -ceq '') {
+            Fail-ReviewContext 'IDENTITY' 'new evaluator requires a pinned implementation manifest'
+        }
+        $declaration = $document.implementation_manifest
+        $pinned = @($inputs | Where-Object {
+            $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
+        })
+        if ($pinned.Count -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest is not a hash-pinned evaluator input'
+        }
+        try {
+            $implementationText = Get-Content -LiteralPath (Join-Path $root $implementationManifestPath) -Raw -Encoding UTF8
+            Assert-ImplJsonObject $implementationText
+            $implementation = $implementationText | ConvertFrom-Json -AsHashtable
+        } catch {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest is invalid JSON'
+        }
+        if ($implementation.schema -cne 'task-input-manifest/v1' -or
+            $implementation.task_id -cne $document.task_id -or
+            $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
+            $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
+        }
+        if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_.StartsWith('- **Session ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "Run ID: $($implementation.run_id)" }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "- **Run ID**: $($implementation.run_id)" }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "- **Session ID**: $($implementation.session_id)" }).Count -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'implementation report run/session does not match its manifest'
+        }
+        $manifestCitation = 'Input manifest: `' + $declaration.path + '`, SHA-256 `' + $declaration.sha256 + '`'
+        $citationLines = @($implementationReportLines | Where-Object { $_.StartsWith('Input manifest:', [StringComparison]::Ordinal) })
+        if ($citationLines.Count -ne 1 -or
+            -not ($citationLines[0] -ceq $manifestCitation -or $citationLines[0] -ceq ($manifestCitation + '.') -or
+                $citationLines[0].StartsWith($manifestCitation + '. ', [StringComparison]::Ordinal))) {
+            Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
+        }
+        return $implementation
+}
+
+function Test-ImplementationInput {
+    param($Document, [string]$Root, [string]$Path, [string]$Hash)
+    if ($Document.stage -cne 'quality' -or $Document.role -cne 'sdd-evaluator' -or
+        -not $Document.ContainsKey('implementation_manifest')) { return $false }
+    $declaration = $Document.implementation_manifest
+    if (@($Document.allowed_input_manifest | Where-Object {
+        $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
+    }).Count -ne 1 -or -not (Test-CanonicalPath $declaration.path)) { return $false }
+    $current = $Root
+    foreach ($component in $declaration.path.Split('/')) {
+        $current = Join-Path $current $component
+        if (-not (Test-Path -LiteralPath $current) -or
+            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            return $false
+        }
+    }
+    if (-not (Test-Path -LiteralPath $current -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $current -Algorithm SHA256).Hash.ToLowerInvariant() -cne $declaration.sha256) {
+        return $false
+    }
+    $data = Get-ImplementationBinding
+    if ($data.allowed_inputs -isnot [array] -or $data.allowed_inputs.Count -eq 0) { return $false }
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $found = $false
+    foreach ($entry in $data.allowed_inputs) {
+        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
+            -not (Test-CanonicalPath $entry.path) -or -not $seen.Add($entry.path) -or
+            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') { return $false }
+        if ($entry.path -ceq $Path -and $entry.sha256 -ceq $Hash) { $found = $true }
+    }
+    return $found
+}
+
 function Test-AuthorizedPath {
     param(
         [string]$Stage,
@@ -382,6 +457,9 @@ try {
     $topKeys = @($baseTopKeys)
     if ($document.stage -ceq 'quality') {
         $topKeys = @($baseTopKeys) + @('task_id')
+        if ($document.ContainsKey('implementation_manifest')) {
+            $topKeys = @($topKeys) + @('implementation_manifest')
+        }
         if ($document.ContainsKey('gate_report_declaration')) {
             $topKeys = @($topKeys) + @('gate_report_declaration')
         }
@@ -407,6 +485,19 @@ try {
     if ($document.stage -ceq 'quality' -and
         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+    }
+    $implementationManifestPath = ''
+    if ($document.ContainsKey('implementation_manifest')) {
+        $implementationDeclaration = $document.implementation_manifest
+        if ($implementationDeclaration -isnot [hashtable] -or
+            -not (Test-ExactKeys $implementationDeclaration @('path','sha256')) -or
+            $implementationDeclaration.path -isnot [string] -or
+            $implementationDeclaration.path -cnotmatch '^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$' -or
+            $implementationDeclaration.sha256 -isnot [string] -or
+            $implementationDeclaration.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+            Fail-ReviewContext 'CONTRACT' 'implementation_manifest requires a canonical path and SHA-256'
+        }
+        $implementationManifestPath = $implementationDeclaration.path
     }
     if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
         Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
@@ -804,6 +895,22 @@ try {
     $implDesignBytes = $null
     $implPrechecks = [Collections.Generic.List[object]]::new()
     $verifiedAdrInputs = $null
+    $conditionalInputs = $null
+    if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl')) {
+        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'conditional review dependencies could not be resolved' }
+        $conditionalInputs = @((($resolved -join "`n") | ConvertFrom-Json -AsHashtable).inputs)
+        foreach ($required in $conditionalInputs) {
+            $requiredPath = $required.path
+            $requiredHash = $required.sha256
+            if (@($inputs | Where-Object { $_.path -ceq $requiredPath -and $_.sha256 -ceq $requiredHash }).Count -ne 1) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits selected conditional review dependencies"
+            }
+        }
+    }
     $orderedInputs = $inputs
     if ($document.stage -ceq 'impl') {
         $orderedInputs = @($inputs | Sort-Object -Stable -Property {
@@ -819,6 +926,8 @@ try {
         if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
             Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
         }
+        $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$' -and
+            $input.path -cmatch '^(domain|design-system)/'
         $isAdrInput = $document.stage -ceq 'impl' -and
             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
         if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
@@ -828,8 +937,28 @@ try {
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
             $verifiedAdrInputs.ContainsKey($input.path) -and
             $verifiedAdrInputs[$input.path] -ceq $input.sha256
+        } elseif ($isConditionalInput) {
+            $allowedConditionalPaths = if ($document.stage -ceq 'spec') {
+                @('domain/context-map.md', 'domain/domain-contract.json')
+            } else {
+                @('domain/context-map.md', 'domain/domain-contract.json',
+                  'design-system/design-tokens.json', 'design-system/design-system.md',
+                  'design-system/ui-patterns.md')
+            }
+            if ($allowedConditionalPaths -cnotcontains $input.path -and
+                -not ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$')) {
+                $false
+            } elseif ($null -ne $persistedMatch) {
+                $persistedMatch.ContainsKey('allowed_inputs_sha256')
+            } else {
+                $conditionalPath = $input.path
+                $conditionalHash = $input.sha256
+                @($conditionalInputs | Where-Object { $_.path -ceq $conditionalPath -and $_.sha256 -ceq $conditionalHash }).Count -eq 1
+            }
         } else {
-            Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
+            ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
+                $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
+                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
         }
         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
@@ -961,6 +1090,22 @@ try {
             }
             if (-not $wfi025Applies) {
                 Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+            }
+        }
+    }
+    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
+        if ($document.ContainsKey('implementation_manifest') -or $Reserve) {
+            $implementation = Get-ImplementationBinding
+        }
+        if ($Reserve) {
+            if (@($records | Where-Object {
+                $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
+            }).Count -gt 0) {
+                Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
+            }
+            if ($document.run_id -ceq $implementation.run_id -or
+                $document.host_session_id -ceq $implementation.session_id) {
+                Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
             }
         }
     }
@@ -1103,6 +1248,62 @@ def binding(document):
     return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
 
 
+def recover_legacy_root(report, raw, receipt_path, admitted, canonical, safe_path, expected_owner):
+    """Caller must formally admit the receipt; hashes are not signatures."""
+    if admitted.get(str(receipt_path)) != hashlib.sha256(receipt_path.read_bytes()).hexdigest():
+        raise ValueError("unbound recovery receipt")
+    import json
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate receipt key")
+            result[key] = value
+        return result
+    item = json.loads(receipt_path.read_text(), object_pairs_hook=unique)
+    if set(item) != {"report", "report_sha256", "raw_root", "run", "session", "attempt", "owner", "owner_observation", "owner_observation_sha256"}:
+        raise ValueError("invalid receipt fields")
+    if any(not isinstance(item[k], str) or not item[k] for k in item if k != "attempt") or type(item["attempt"]) is not int or item["attempt"] < 1:
+        raise ValueError("invalid receipt types")
+    owner = Path(item["owner"])
+    if str(owner) != str(expected_owner):
+        raise ValueError("historical owner differs from admitted checkout")
+    canonical(str(owner))
+    if not owner.is_dir() or str(owner.resolve(strict=True)) != item["owner"]:
+        raise ValueError("noncanonical owner")
+    safe_path(owner, report)
+    if not report.is_file() or str(report) != item["report"] or hashlib.sha256(report.read_bytes()).hexdigest() != item["report_sha256"]:
+        raise ValueError("changed report")
+    if admitted.get(str(report)) != item["report_sha256"]:
+        raise ValueError("unbound historical report")
+    text = report.read_text()
+    expected = {r"^Run ID: (.+)$": item["run"], r"^Task Attempt Count: (.+)$": str(item["attempt"]), r"^- \*\*Session ID\*\*: (.+)$": item["session"], r"^- \*\*Scratch Root\*\*: (.+)$": raw}
+    if any(re.findall(pattern, text, re.M) != [value] for pattern, value in expected.items()) or raw != item["raw_root"]:
+        raise ValueError("identity or declaration mismatch")
+    observation = Path(item["owner_observation"])
+    safe_path(owner, observation)
+    if not observation.is_file() or admitted.get(str(observation)) != item["owner_observation_sha256"] or hashlib.sha256(observation.read_bytes()).hexdigest() != item["owner_observation_sha256"]:
+        raise ValueError("unbound owner observation")
+    # Observation authenticity is an admission responsibility, not inferred from JSON.
+    evidence = json.loads(observation.read_text(), object_pairs_hook=unique)
+    if evidence != {"owner": item["owner"], "run": item["run"], "report_sha256": item["report_sha256"]}:
+        raise ValueError("conflicting owner observation")
+    relative = raw[:-1] if raw.endswith("/") else raw
+    if not relative or relative.startswith("/") or any(p in ("", ".", "..") for p in relative.split("/")) or re.search(r"[\\\r\n:]", relative):
+        raise ValueError("unsafe relative declaration")
+    target = safe_path(owner, owner / relative)
+    return canonical(str(target))
+
+
+def historical_root(root, report, raw, invocation):
+    if raw.startswith("/") or re.match(r"^[A-Za-z]:", raw):
+        return canonical(raw)
+    admitted = {str(safe_path(root, root / entry["path"])): entry["sha256"]
+                for entry in invocation["allowed_input_manifest"]}
+    receipt = safe_path(root, report.with_suffix(".scratch-owner.json"))
+    return recover_legacy_root(report, raw, receipt, admitted, canonical, safe_path, root)
+
+
 def check(root, invocation, ledger):
     scratch = invocation["scratch_root"]
     feature = invocation["feature"]
@@ -1118,6 +1319,7 @@ def check(root, invocation, ledger):
         if len(roots) > 1:
             raise ValueError("implementation report has duplicate scratch declarations")
         for other in roots:
+            other = historical_root(root, report, other, invocation)
             if overlap(scratch, other):
                 raise ValueError("evaluator scratch root overlaps a feature implementation root")
 

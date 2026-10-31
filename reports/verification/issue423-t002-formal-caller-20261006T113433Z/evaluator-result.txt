@@ -1,0 +1,10 @@
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] evaluator-invocation.json — 評価実行は BLOCKED／未評価。隔離コピーの作成には書込みが必要ですが、この evaluator の上位指示は「never modify anything」です。書込み・権限迂回は未実施。
+- [Major] specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py:34 — 再実行に必要な registry-registration-candidate.json が許可マニフェストにありません。54行の generate-gate-capabilities.py、85行の validate-capability-registry.sh も未許可です。依存不足時の停止指示に従い、テストは未実行。実装の不合格を示す所見ではありません。
+CHECKED:
+- 明示された owner cwd、login:false、rtk proxy python3 で読取りコマンド3件を実行。すべて exit 0。
+- 起動マニフェスト SHA-256 は 379304027defe81ba0c000c9b53995eeb970b1f346d5d6820b05253c69073231 と一致。
+- receipt を指定式で再計算し ed271d74dbcde6834f72fdaca176b914025a756f3eb901239ec0f879d2806631 と一致。ledger は未読取り。
+- allowed_input_manifest 77件、implementation_manifest、gate_report_declaration のハッシュ照合結果は hash_mismatches=[]。
+- 許可されたテスト2本の依存参照を行番号付きで確認。仕様適合・修正コード・テスト結果の評価は未完了。

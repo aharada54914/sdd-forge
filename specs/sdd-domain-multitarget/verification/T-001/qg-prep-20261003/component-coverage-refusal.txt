@@ -1,0 +1,5 @@
+NOT EXECUTED: PreToolUse refused the command; no program exit code exists.
+Command: rtk proxy python3 plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root .
+Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: rtk proxy python3 plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root .
+No alternative executor or wrapper was used. Parent coordinates the exact human execution; this record is not a component coverage verdict.

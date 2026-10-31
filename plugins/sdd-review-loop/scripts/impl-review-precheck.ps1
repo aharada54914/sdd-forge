@@ -7,6 +7,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
     if ($Relative -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$' -or
@@ -326,17 +327,6 @@ function Get-AdrPreviousRoundJson {
 function Fail([string]$Message) { throw "impl-review-precheck: $Message" }
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
   return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
-}
-function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$ReviewedStatus) {
-  $content = [IO.File]::ReadAllText($Path)
-  $normalized = [Text.RegularExpressions.Regex]::Replace(
-    $content,
-    "(?m)^$([Text.RegularExpressions.Regex]::Escape($StatusField)):[^\r\n]*(\r?)$",
-    "${StatusField}: $ReviewedStatus`$1"
-  )
-  return [Convert]::ToHexString(
-    [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
-  ).ToLower()
 }
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')

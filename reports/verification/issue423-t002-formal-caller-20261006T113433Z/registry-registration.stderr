@@ -1,0 +1,10 @@
+test_applied_canonical_registry_validates (__main__.RegistryRegistrationTests.test_applied_canonical_registry_validates) ... ok
+test_candidate_is_exact_hash_bound_additive_repair (__main__.RegistryRegistrationTests.test_candidate_is_exact_hash_bound_additive_repair) ... skipped 'candidate-only check; canonical RED remains separate'
+test_candidate_vendor_projection_and_manifests_are_consistent (__main__.RegistryRegistrationTests.test_candidate_vendor_projection_and_manifests_are_consistent) ... skipped 'candidate-only check; canonical RED remains separate'
+test_dispatch_keeps_missing_implementation_fail_closed (__main__.RegistryRegistrationTests.test_dispatch_keeps_missing_implementation_fail_closed) ... ok
+test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.115s
+
+OK (skipped=2)

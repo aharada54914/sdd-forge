@@ -1,0 +1,28 @@
+ticket_id: RT-20261003-001
+status: resolved
+type: test-gap
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-001
+  files:
+    - specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json
+    - specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py
+    - reports/implementation/sdd-domain-multitarget/T-001.md
+summary: Host consumer inventory omits required host surfaces
+problem: |
+  REQ-001 requires host launch syntax, manifest shape, hook invocation and
+  capability detection; design includes Codex, Claude Code and Copilot.
+  The inventory host-adapters entry only cites the interviewer's Codex/Claude
+  skill invocation section. TEST-001h accepts the incomplete mapping.
+expected_fix:
+  - Map all required host surfaces to current source evidence, retaining KEEP and existing workflow semantics.
+  - Add an omission regression that fails on the current incomplete mapping and passes on the completed inventory.
+  - Preserve previous evidence; record fresh execution and obtain independent review before Done.
+references:
+  - specs/sdd-domain-multitarget/requirements.md
+  - specs/sdd-domain-multitarget/design.md
+  - reports/quality-gate/20261003T011343Z-sdd-domain-multitarget-T-001.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

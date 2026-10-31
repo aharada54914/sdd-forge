@@ -1,0 +1,91 @@
+ok: bash clean: exit=0, expected=0
+ok: bash clean: snapshot, unchanged verification, changed-root refusal
+ok: bash clean: omitted bound root refused
+ok: bash new-missing: exit=1, expected=1
+ok: bash other-equal: exit=1, expected=1
+ok: bash other-child: exit=1, expected=1
+ok: bash other-parent: exit=1, expected=1
+ok: bash other-prefix: exit=0, expected=0
+ok: bash other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: bash other-prefix: omitted bound root refused
+ok: bash prior-equal: exit=1, expected=1
+ok: bash prior-child: exit=1, expected=1
+ok: bash prior-parent: exit=1, expected=1
+ok: bash prior-prefix: exit=0, expected=0
+ok: bash prior-prefix: snapshot, unchanged verification, changed-root refusal
+ok: bash prior-prefix: omitted bound root refused
+ok: bash prior-missing: exit=1, expected=1
+ok: bash legacy-missing: exit=0, expected=0
+ok: bash legacy-missing: snapshot, unchanged verification, changed-root refusal
+ok: bash legacy-missing: omitted bound root refused
+ok: bash snapshot-tampered: exit=0, expected=0
+ok: bash snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: bash snapshot-tampered: omitted bound root refused
+ok: bash snapshot-tampered: later reuse exit=1, expected=1
+ok: bash snapshot-deleted: exit=0, expected=0
+ok: bash snapshot-deleted: snapshot, unchanged verification, changed-root refusal
+ok: bash snapshot-deleted: omitted bound root refused
+ok: bash snapshot-deleted: later reuse exit=1, expected=1
+ok: bash dependency-valid: exit=0, expected=0
+ok: bash dependency-valid: snapshot, unchanged verification, changed-root refusal
+ok: bash dependency-valid: omitted bound root refused
+ok: bash dependency-absent: exit=1, expected=1
+ok: bash dependency-wrong-hash: exit=1, expected=1
+ok: bash dependency-other-task: exit=1, expected=1
+ok: bash dependency-other-run: exit=1, expected=1
+ok: bash dependency-duplicate: exit=1, expected=1
+ok: bash dependency-case: exit=1, expected=1
+ok: bash dependency-hash-case: exit=1, expected=1
+ok: bash dependency-peer: exit=1, expected=1
+ok: bash dependency-symlink: exit=1, expected=1
+ok: bash dependency-json-duplicate: exit=1, expected=1
+ok: bash dependency-missing-pin: exit=1, expected=1
+ok: bash dependency-manifest-tamper: exit=1, expected=1
+ok: bash dependency-source-tamper: exit=1, expected=1
+ok: bash dependency-role: exit=1, expected=1
+ok: pwsh clean: exit=0, expected=0
+ok: pwsh clean: snapshot, unchanged verification, changed-root refusal
+ok: pwsh clean: omitted bound root refused
+ok: pwsh new-missing: exit=1, expected=1
+ok: pwsh other-equal: exit=1, expected=1
+ok: pwsh other-child: exit=1, expected=1
+ok: pwsh other-parent: exit=1, expected=1
+ok: pwsh other-prefix: exit=0, expected=0
+ok: pwsh other-prefix: snapshot, unchanged verification, changed-root refusal
+ok: pwsh other-prefix: omitted bound root refused
+ok: pwsh prior-equal: exit=1, expected=1
+ok: pwsh prior-child: exit=1, expected=1
+ok: pwsh prior-parent: exit=1, expected=1
+ok: pwsh prior-prefix: exit=0, expected=0
+ok: pwsh prior-prefix: snapshot, unchanged verification, changed-root refusal
+ok: pwsh prior-prefix: omitted bound root refused
+ok: pwsh prior-missing: exit=1, expected=1
+ok: pwsh legacy-missing: exit=0, expected=0
+ok: pwsh legacy-missing: snapshot, unchanged verification, changed-root refusal
+ok: pwsh legacy-missing: omitted bound root refused
+ok: pwsh snapshot-tampered: exit=0, expected=0
+ok: pwsh snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: pwsh snapshot-tampered: omitted bound root refused
+ok: pwsh snapshot-tampered: later reuse exit=1, expected=1
+ok: pwsh snapshot-deleted: exit=0, expected=0
+ok: pwsh snapshot-deleted: snapshot, unchanged verification, changed-root refusal
+ok: pwsh snapshot-deleted: omitted bound root refused
+ok: pwsh snapshot-deleted: later reuse exit=1, expected=1
+ok: pwsh dependency-valid: exit=0, expected=0
+ok: pwsh dependency-valid: snapshot, unchanged verification, changed-root refusal
+ok: pwsh dependency-valid: omitted bound root refused
+ok: pwsh dependency-absent: exit=1, expected=1
+ok: pwsh dependency-wrong-hash: exit=1, expected=1
+ok: pwsh dependency-other-task: exit=1, expected=1
+ok: pwsh dependency-other-run: exit=1, expected=1
+ok: pwsh dependency-duplicate: exit=1, expected=1
+ok: pwsh dependency-case: exit=1, expected=1
+ok: pwsh dependency-hash-case: exit=1, expected=1
+ok: pwsh dependency-peer: exit=1, expected=1
+ok: pwsh dependency-symlink: exit=1, expected=1
+ok: pwsh dependency-json-duplicate: exit=1, expected=1
+ok: pwsh dependency-missing-pin: exit=1, expected=1
+ok: pwsh dependency-manifest-tamper: exit=1, expected=1
+ok: pwsh dependency-source-tamper: exit=1, expected=1
+ok: pwsh dependency-role: exit=1, expected=1
+PASS: 58; FAIL: 0

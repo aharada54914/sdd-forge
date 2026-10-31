@@ -1,0 +1,3 @@
+Script error:
+Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: rtk proxy python3 -c 'from pathlib import Path; s=Path("specs/sdd-domain-multitarget/verification/T-003/snapshot-c43e18b9f2a7"); ps=["contracts/capability-registry.schema.json","contracts/capability-registry.json","plugins/sdd-quality-loop/templates/verification-contract.template.json","plugins/sdd-quality-loop/scripts/check-contract.py"]; [(print("\nFILE "+p+"\n"),print((s/p).read_text())) for p in ps]' 

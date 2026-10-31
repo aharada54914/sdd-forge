@@ -1,0 +1,11 @@
+{
+  "report": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/implementation/sdd-domain-multitarget/T-003-attempt2.md",
+  "report_sha256": "a204e954986c2207f9719174f11c5fca2cf9fcbb877828d78f06f5fea7a6d462",
+  "raw_root": "specs/sdd-domain-multitarget/verification/T-003/run-30ca86925cd6/",
+  "run": "t003-20261004-30ca86925cd6",
+  "session": "logical-30ca86925cd6-session",
+  "attempt": 2,
+  "owner": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "owner_observation": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-scratch-recovery-candidate-20261006/T-003-attempt2.owner-observation.candidate.json",
+  "owner_observation_sha256": "4114ddada34bdf7d76d158f5321c4f8b3772517372980a86be726e0b8a04d679"
+}

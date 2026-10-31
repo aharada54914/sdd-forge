@@ -1,0 +1,8 @@
+{
+  "quality_report": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/quality-gate/20261006T100647Z-sdd-domain-multitarget-T-002.md",
+  "ticket": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/docs/review-tickets/RT-20261006-002.yml",
+  "evaluator_result": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-result.txt",
+  "reproduction_command": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-negative-reproduction.sh",
+  "verdict": "NEEDS_WORK",
+  "task_state": "Implementation Complete"
+}

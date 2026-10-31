@@ -1,0 +1,6 @@
+{
+  "contracts/selected-verification-plan.schema.json": "specs/sdd-domain-multitarget/verification/T-003/attempt6-20261016/baseline/contracts/selected-verification-plan.schema.json",
+  "tests/run-all.sh": "specs/sdd-domain-multitarget/verification/T-003/attempt6-20261016/baseline/tests/run-all.sh",
+  "tests/run-all.ps1": "specs/sdd-domain-multitarget/verification/T-003/attempt6-20261016/baseline/tests/run-all.ps1",
+  "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "specs/sdd-domain-multitarget/verification/T-003/attempt6-20261016/baseline/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+}

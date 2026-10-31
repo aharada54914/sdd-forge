@@ -1,0 +1,178 @@
+test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success) ... FAIL
+test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate) ... FAIL
+test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape) ... FAIL
+test_five_target_candidate_selection (__main__.SelectedPlanTests.test_five_target_candidate_selection) ... ok
+test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages) ... FAIL
+test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed) ... FAIL
+test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings) ... FAIL
+test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch) ... FAIL
+test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch) ... FAIL
+test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... 
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code') ... FAIL
+
+======================================================================
+FAIL: test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 90, in test_design_selection_is_not_gate_success
+    result, plan, _ = self.evaluate(*fixture('design-only'))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 143, in test_duplicate_gate
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 149, in test_evidence_escape
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 122, in test_implementation_only_keeps_foundation_stages
+    _, plan, _ = self.evaluate(*args)
+                 ~~~~~~~~~~~~~^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 111, in test_legacy_required_not_removed
+    _, plan, _ = self.evaluate(*fixture('design-only'))
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 105, in test_output_identity_and_bindings
+    _, plan, hashes = self.evaluate(*fixture('cli-library'))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 131, in test_registry_digest_mismatch
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 137, in test_registry_projection_mismatch
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 98, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 98, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 98, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 98, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 98, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 60, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+----------------------------------------------------------------------
+Ran 10 tests in 2.167s
+
+FAILED (failures=13)
+
+EXIT_CODE=1

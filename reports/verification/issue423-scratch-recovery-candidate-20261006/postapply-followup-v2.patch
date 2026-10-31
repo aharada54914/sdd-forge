@@ -1,0 +1,50 @@
+diff --git a/plugins/sdd-review-loop/references/review-context-boundary.md b/plugins/sdd-review-loop/references/review-context-boundary.md
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -24,2 +24,2 @@
+-   reservation lock at `:1221`).
+-2. Append the reserved record to the ledger (`:1231-1243`).
++   reservation lock at `:1282`).
++2. Append the reserved record to the ledger (`:1292-1304`).
+@@ -51 +51 @@
+-| `identity_ledger_sha256` | hex-format (`:448`); equality against the ledger **before** the append (`:679`, `:1221`) | **NO — see below** |
++| `identity_ledger_sha256` | hex-format (`:448`); equality against the ledger **before** the append (`:679`, `:1282`) | **NO — see below** |
+@@ -100 +100 @@
+-   uses at `:573` and `:1209`. (evidence: caller-quoted line + manifest)
++   uses at `:573` and `:1270`. (evidence: caller-quoted line + manifest)
+diff --git a/tests/review-context-boundary.tests.sh b/tests/review-context-boundary.tests.sh
+--- a/tests/review-context-boundary.tests.sh
++++ b/tests/review-context-boundary.tests.sh
+@@ -124 +124 @@
+-:1221 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
++:1282 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+@@ -133 +133 @@
+-:1209 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
++:1270 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+@@ -150 +150 @@
+-:1231-1243 validator '.records += [{
++:1292-1304 validator '.records += [{
+diff --git a/tests/review-agent-isolation.tests.sh b/tests/review-agent-isolation.tests.sh
+--- a/tests/review-agent-isolation.tests.sh
++++ b/tests/review-agent-isolation.tests.sh
+@@ -396,0 +397 @@
++annot_implementation_hash="$(sha256 "$annot_repository/handoffs/fixture/manifest.json")"
+@@ -400,0 +402,2 @@
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$annot_implementation_hash"
+@@ -918,0 +922 @@
++legacy_implementation_hash="$(sha256 "$legacy_repository/handoffs/fixture/manifest.json")"
+@@ -926,0 +931,2 @@
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
+@@ -972,0 +979,2 @@
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
+@@ -1004,0 +1013 @@
++parity_implementation_hash="$(sha256 "$parity_repository/handoffs/fixture/manifest.json")"
+@@ -1013,0 +1023,2 @@
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"
+@@ -1065,0 +1077,2 @@
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"

@@ -1,0 +1,13 @@
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-quality-loop/scripts/validate-capability-registry.py:153 — Provider 名を辞書キーに置くと境界検査を通過する。`trigger` と `conditional_facets[].when` の両方で、predicate value を `{"azure":true}` または `{"metadata":{"aws":false}}` に変更した実験は、schema errors `[]`、`check_g_accepted=true`、diagnostics `[]`。文字列値 `"azure"` は拒否された。キーでは credentials/state_authority しか検査せず、schema:156 の value も無制約。REQ-002（requirements.md:135–138）の Provider 名禁止、および T-002 Done When（tasks.md:50）の境界違反検出を満たさない。
+
+CHECKED:
+- Owner: `/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge`。`rtk proxy git -C <owner> rev-parse HEAD` は Exit 0、HEAD `3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9`。
+- Invocation: owner 配下 `reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-invocation.json`。実測 SHA256 `f8b426977c765176d86f3af178cb6dc3fce4c5888947ca315ac7e949f8571085`。76 allowed-input hashes、implementation manifest、gate declaration の全 hash 一致。
+- Receipt preimage 再計算値 `cb126f0453dc4b4cbf791d1378dc49c7e30326f6a9dc4e19a108b36bbd35dc1d`、scratch hash `6cb410af36b79db5a6611b55cebb2ec55c2642a8adc8947b3b09d89a648837e0` が一致。sequence `1196 = 1195 + 1`。ledger 再読・追加予約なし。
+- 実測 run/thread `01a110a1-5589-7501-b440-8926b897e0a2`、native session `01a1109f-c67e-75f1-8682-b4b4ba72ffc6`。実装側 run/thread/native と別。自己記録 `/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T18-52-51-01a110a1-5589-7501-b440-8926b897e0a2.jsonl`:1,8 から role `sdd-evaluator`、model `gpt-6-astra`、effort `medium`、sandbox `danger-full-access`、approval `never` を確認。設定変更なし、読取専用で実施。
+- `rtk proxy python3 -B -X pycache_prefix=<declared scratch>/pycache <owner>/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root <owner> -v` を実行。Exit 0、28 tests、全成功、SKIP なし。
+- 同じ許可済みテストモジュールを使うメモリ内 negative 実験を `rtk proxy python3 -B -X pycache_prefix=<declared scratch>/pycache` で実行。Exit 0。上記4ケースの検出漏れと、比較対象2ケースの拒否を直接観測。ファイル作成・変更なし。
+- tasks.md:33–50、requirements.md:130–147、contract-boundaries.tests.py:293–342、capability-registry.schema.json:153–163、validate-capability-registry.py:144–170,251–273 を行単位で照合。
+- 入場済み ci-readonly ログ:13–57 の34件成功は過去実行記録として確認。今回の独立再実行結果には計上していない。Done 判定・task state 変更は実施していない。

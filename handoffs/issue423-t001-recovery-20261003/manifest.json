@@ -1,0 +1,137 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-001",
+  "run_id": "issue423-t001-recovery-01a0fce9-a790-7512-8afe-5da0561c3dbd",
+  "session_id": "01a0fce9-a790-7512-8afe-5da0561c3dbd",
+  "agent_instance_id": "01a0fce9-a790-7512-8afe-5da0561c3dbd",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "1.20",
+  "cost_estimate_source": "Invocation-supplied forecast for this limited revalidation: 4 calls x (20000 uncached input tokens x USD 10/1000000 + 2000 output tokens x USD 50/1000000) = USD 1.20; no cache discounts. Parent verified standard rates at https://developers.openai.com/api/docs/models/gpt-6-astra . Forecast only, not billed cost or evidence of pre-existing launch metadata.",
+  "cost_estimate_timestamp": "2026-10-02T14:13:17Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8da12bb2769988d0f5313a74acfffda9a1638ef61a6a8090e7524533ddeb1b73"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "51fd7aad974641a6dfdfc61c4997a9f68345b82cbca324c1571a6c5571363eda"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "fdc5bda8b7865ad30d5c71a81a01bfc92ba67874d4d23543097f1f3275ea38e7"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+      "sha256": "748f31b0136a2eae7ad8978ffb461ca749247408afd19217b73e93377bd95798"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md",
+      "sha256": "fff699c1d03fa41f016b3abdb543e3df0f4c85691e0211e1d01b60093f75c20e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "f869e1c0a1025ed9b4e779673ad88ddde31b6db0891fddcbb9d9a1130e64b7fc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0017-gate-stage-model.md",
+      "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json",
+      "sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py",
+      "sha256": "73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/sdd-domain-multitarget/T-001.md",
+    "specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/revalidation-test.log",
+    "specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/consumer-inventory-test.log",
+    "specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/consumer-inventory-evidence.json",
+    "specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/T-001.original.md"
+  ]
+}

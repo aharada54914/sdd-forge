@@ -1,0 +1,1 @@
+Initial caller-authored candidate had incorrect provider prefix and lacked required cost; schema error retained. Corrected candidate uses exact registry name. Cost 0 is a single-candidate selection placeholder, not measured price. No review-context precheck or reservation was attempted during this correction.

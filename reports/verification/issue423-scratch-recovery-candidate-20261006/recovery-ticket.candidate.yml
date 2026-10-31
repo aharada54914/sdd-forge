@@ -1,0 +1,47 @@
+# Proposed ticket content only; not an active docs/review-tickets entry.
+# ID must be checked again at adoption. No task or review state is changed.
+ticket_id: RT-20261006-001
+status: open
+type: contract-mismatch
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+    - plugins/sdd-review-loop/references/review-context-boundary.md
+summary: "Restore T-002 evaluation admission without rewriting the historical relative scratch declaration"
+problem: |
+  Feature-wide history contains T-003-attempt2.md with a relative Scratch Root.
+  Both current validators require canonical historical roots, so T-002 cannot
+  reserve an evaluator. Current source inspection supports one owning checkout,
+  not historical execution/isolation or the report's original content digest.
+  Candidate receipt hashes prove byte consistency, not source authenticity.
+expected_fix:
+  - "Review the pinned three-target recovery candidate under the existing user-authorized limited recovery scope; retain the historical report, ledger and failed launch records unchanged."
+  - "Require an independent management-recovery inspector to verify only the native owner/run/report-creation events identified by the source-inspection candidate. Do not admit a full private transcript to the T-002 evaluator or silently extend its input allowlist."
+  - "Adopt only the reviewed same-owner declaration-location recovery contract and matching Bash/PowerShell implementation through sanctioned protected application; retain canonical current roots, exact admission, under-lock checks, overlap rejection and identity independence."
+  - "Run both actual validator candidate paths and existing scratch-history regressions, including missing/modified/duplicate/type/escape/owner-mismatch/unadmitted recovery evidence. Candidate and production results remain distinct."
+  - "After genuine independent recovery review, bind its exact record plus historical report, adjacent receipt and minimal observation in an authorized new current-cycle Post-Fix Artifacts table. No draft declaration supplies this authority."
+  - "Recheck all normal T-002 launch prerequisites and run a fresh independent quality gate; this ticket neither proves activation nor grants Done."
+references:
+  - specs/sdd-domain-multitarget/tasks.md
+  - specs/sdd-domain-multitarget/requirements.md
+  - specs/sdd-domain-multitarget/design.md
+  - specs/sdd-domain-multitarget/acceptance-tests.md
+  - reports/implementation/sdd-domain-multitarget/T-002.md
+  - reports/implementation/sdd-domain-multitarget/T-003-attempt2.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/contract-addendum.candidate.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/T-003-attempt2.source-inspection.candidate.md
+  # Independent management inspection, not a formal quality-gate verdict.
+  # SHA-256: 8fd0a2a3b5f438174362813ca00babb60fe9d67dd8f969b9f8fe694a8a28a6bd
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/independent-source-inspection-20261006.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/integration-verification.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/review-launch-readiness.md
+auto_fix_allowed: false
+# No new product choice is proposed: the user authorized limited recovery
+# contract repair with old evidence retained. This is not ticket adoption,
+# reviewer-input admission, protected application, or a completed review.
+requires_human_decision: false
+review_cycles: 0

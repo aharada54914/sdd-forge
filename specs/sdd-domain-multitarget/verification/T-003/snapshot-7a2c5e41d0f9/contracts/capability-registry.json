@@ -1,0 +1,54 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-installed-plugin-drift",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+    },
+    {
+      "id": "check-a8-classification-table",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py"
+    },
+    {
+      "id": "check-a8-scope-boundary",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
+    },
+    {
+      "id": "check-a8-citation-compliance",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+    },
+    {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    }
+  ],
+  "capabilities": []
+}

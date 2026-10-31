@@ -1,0 +1,309 @@
+test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success) ... FAIL
+test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate) ... ok
+test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape) ... ok
+test_five_target_candidate_selection (__main__.SelectedPlanTests.test_five_target_candidate_selection) ... ok
+test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages) ... ERROR
+test_legacy_fixture_control (__main__.SelectedPlanTests.test_legacy_fixture_control) ... ok
+test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed) ... ERROR
+test_manifest_cannot_drop_selected_registry_gate (__main__.SelectedPlanTests.test_manifest_cannot_drop_selected_registry_gate) ... ok
+test_nonimplementation_observation_cannot_be_relabelled (__main__.SelectedPlanTests.test_nonimplementation_observation_cannot_be_relabelled) ... FAIL
+test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) ... 
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='cli-library') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='ui') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='design-only') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='iac-cloud') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='low-code') ... FAIL
+test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings) ... ERROR
+test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected) ... ERROR
+test_quality_gate_and_both_runners_invoke_evaluator (__main__.SelectedPlanTests.test_quality_gate_and_both_runners_invoke_evaluator) ... ok
+test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch) ... ok
+test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch) ... ok
+test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear) ... ERROR
+test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) ... 
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'exit_code': None}) ... ERROR
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'command': None}) ... ERROR
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 1}) ... ERROR
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': True, 'exit_code': 1}) ... ERROR
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 0}) ... ERROR
+test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... 
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library') ... ERROR
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui') ... ERROR
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only') ... ERROR
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud') ... ERROR
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code') ... ERROR
+test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) ... 
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='cli-library') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='ui') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='design-only') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='iac-cloud') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='low-code') ... FAIL
+test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable) ... ERROR
+
+======================================================================
+ERROR: test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 155, in test_implementation_only_keeps_foundation_stages
+    self.assertEqual({c['stage'] for c in plan['checks']}, {'implementation'})
+                                          ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 142, in test_legacy_required_not_removed
+    checks = {c['id']: c for c in plan['checks']}
+                                  ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 136, in test_output_identity_and_bindings
+    self.assertEqual(plan['schema'], 'selected-verification-plan/v1')
+                     ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 262, in test_persisted_field_mismatches_rejected
+    mutations += [(['bindings', key], '0' * 64) for key in expected['bindings']]
+                                                           ~~~~~~~~^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 236, in test_required_cannot_be_downgraded_or_disappear
+    row = next(c for c in plan['checks'] if c['id'] == 'unit-tests')
+                          ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'exit_code': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 216, in test_required_execution_states
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'command': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 216, in test_required_execution_states
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 216, in test_required_execution_states
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': True, 'exit_code': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 216, in test_required_execution_states
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 216, in test_required_execution_states
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 130, in test_required_missing_observation
+    selected = next(c for c in plan['checks'] if c['id'] == target)
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 130, in test_required_missing_observation
+    selected = next(c for c in plan['checks'] if c['id'] == target)
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 130, in test_required_missing_observation
+    selected = next(c for c in plan['checks'] if c['id'] == target)
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 130, in test_required_missing_observation
+    selected = next(c for c in plan['checks'] if c['id'] == target)
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 130, in test_required_missing_observation
+    selected = next(c for c in plan['checks'] if c['id'] == target)
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 223, in test_verifier_unavailable
+    selected = next(c for c in plan['checks'] if c['id'] == 'ui')
+                               ~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 114, in test_design_selection_is_not_gate_success
+    self.assertIsNotNone(plan)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_nonimplementation_observation_cannot_be_relabelled (__main__.SelectedPlanTests.test_nonimplementation_observation_cannot_be_relabelled)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 249, in test_nonimplementation_observation_cannot_be_relabelled
+    self.assertIn('nonimplementation-observation', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'nonimplementation-observation' not found in "selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'\n"
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 189, in test_optional_unselected_na_and_selected_not_run
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 189, in test_optional_unselected_na_and_selected_not_run
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 189, in test_optional_unselected_na_and_selected_not_run
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 189, in test_optional_unselected_na_and_selected_not_run
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 189, in test_optional_unselected_na_and_selected_not_run
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 121, in test_required_success_is_pass
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 121, in test_required_success_is_pass
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 121, in test_required_success_is_pass
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 121, in test_required_success_is_pass
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 121, in test_required_success_is_pass
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: [Errno 2] No such file or directory: '/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json'
+
+
+----------------------------------------------------------------------
+Ran 20 tests in 7.307s
+
+FAILED (failures=12, errors=16)
+
+Exit code: 1

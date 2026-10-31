@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "reports/quality-gate/issue423-t002-native-20261006-01a10d0e-ba06-71f1-b9fe-8ea38f4194e2/continuation-20261006/evaluator-invocation.json",
+    "."
+  ],
+  "exit_code": 1,
+  "reserved": false
+}

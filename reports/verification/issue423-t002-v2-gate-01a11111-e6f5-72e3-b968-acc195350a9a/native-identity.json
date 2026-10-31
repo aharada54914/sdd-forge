@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-55-48-01a11111-e6f5-72e3-b968-acc195350a9a.jsonl",
+    "type": "session_meta",
+    "id": "01a11111-e6f5-72e3-b968-acc195350a9a",
+    "parent_thread_id": null,
+    "source": "exec",
+    "agent_role": null,
+    "agent_path": null,
+    "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"
+  },
+  {
+    "type": "turn_context",
+    "id": "01a11111-e6f5-72e3-b968-acc195350a9a",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "sandbox_policy": {
+      "type": "danger-full-access"
+    },
+    "approval_policy": "never"
+  },
+  {
+    "path": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-57-34-01a11113-863b-7b11-891b-79dc43884e55.jsonl",
+    "type": "session_meta",
+    "id": "01a11113-863b-7b11-891b-79dc43884e55",
+    "parent_thread_id": "01a11111-e6f5-72e3-b968-acc195350a9a",
+    "source": {
+      "subagent": {
+        "thread_spawn": {
+          "parent_thread_id": "01a11111-e6f5-72e3-b968-acc195350a9a",
+          "depth": 1,
+          "agent_path": "/root/issue423_t002_evaluator",
+          "agent_nickname": "Banach",
+          "agent_role": "sdd-evaluator"
+        }
+      }
+    },
+    "agent_role": "sdd-evaluator",
+    "agent_path": "/root/issue423_t002_evaluator",
+    "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"
+  },
+  {
+    "type": "turn_context",
+    "id": "01a11113-863b-7b11-891b-79dc43884e55",
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "sandbox_policy": {
+      "type": "danger-full-access"
+    },
+    "approval_policy": "never"
+  }
+]

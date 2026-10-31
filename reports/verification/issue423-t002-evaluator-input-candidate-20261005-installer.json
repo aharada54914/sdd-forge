@@ -1,0 +1,192 @@
+{
+  "preparation_only": true,
+  "not_an_invocation": true,
+  "feature": "sdd-domain-multitarget",
+  "task_id": "T-002",
+  "implementation_manifest": {
+    "path": "handoffs/issue423-t002-recovery-20261003/manifest-archive-input.json",
+    "sha256": "7c6fef1602a1fa5608b7b78a4dd6a57d1838ffcc1f1ff8e58a98a79d51d70163"
+  },
+  "gate_report_declaration": {
+    "path": "reports/quality-gate/issue423-t002-post-fix-declaration-20261005-installer.md",
+    "sha256": "9024239c2ac56f15cdf4f64812eb5191a0449291cf313b0048ebb6d40e4b48fc"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md",
+      "sha256": "5bc3d169918ab875e36f138e3e9ed2083045dc5ccf95a4b500b4755d39e02b05"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log",
+      "sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+      "sha256": "6c4ea9c9ec0fe43657f47b15c7724de3ef94ef55492f9b2b02b858359b884399"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "sha256": "cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5"
+    },
+    {
+      "path": "contracts/context-projection.schema.json",
+      "sha256": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "sha256": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+      "sha256": "ac635f41d70213d8e3efc7d364fea0d6f7d36954ddfb4d0c8b1349c75d5c3a22"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-build-and-checks.md",
+      "sha256": "7ffa0e76bbc8d171b96e11e7357922238e8797f2c9ee3986552b88efb7a4de7c"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/python-toolchain-evidence.md",
+      "sha256": "f375addaa09fce5a8805c84a9eaa23bee76d66976c09fdbdeb3e9094bb9fde81"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py",
+      "sha256": "77882cfbf36adca2668e32b580557d1fb13aa67b1feff22c369a955fd7857852"
+    },
+    {
+      "path": "contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "sha256": "3a2ddfa6ad3fde7cce3b6b23399ff5772311380d6d2fdde885df69889b8ccef7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "b7311b30a9b4224a60a251facbcf0d4ca71db563df06f62a301a7e698b88cf13"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "38b870f89b8b95cd4e9de7074cd77f610d53aca19715d4bff6df05381c11383e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "ae27deb32d5af3d31dcbfd505812fd737603a9d682476451a855d48fb36ed511"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/provider-terms.json",
+      "sha256": "2355adabd24e3d01b18f3eb99e986073791fb3f85b4d9d27a91fd6a0f0a0ae7d"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/fixture/capability-registry.fixture.json",
+      "sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md",
+      "sha256": "129f25f6588bb60b69b435e98de95aeae1e759c812f0f302734247d1dd0fb149"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0017-gate-stage-model.md",
+      "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-002.md",
+      "sha256": "3f2ae5bf8d85e7a28b87165f9f699068801562ca77b88ab4d8877c38e5a1d2b4"
+    },
+    {
+      "path": "handoffs/issue423-t002-recovery-20261003/manifest-archive-input.json",
+      "sha256": "7c6fef1602a1fa5608b7b78a4dd6a57d1838ffcc1f1ff8e58a98a79d51d70163"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "8039b4ec86bb6efe9069c3813eadcd1ad708a17355c95d1f70d7b897c157b2eb"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50"
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "648d093acbda64a1c3dff445fb2a97f537688a6f6426a64bd2701e36ff444bf4"
+    },
+    {
+      "path": "reports/verification/issue423-installer-evidence-scope-20261005.md",
+      "sha256": "94720da087497bb8f06a871f4ebc7a926d7c66ab036e831cc92b181ece3790a7"
+    },
+    {
+      "path": "reports/verification/issue423-t002-installer-impact-20261004.md",
+      "sha256": "5e82b93b82cf50b045d13c0e363d00eb793ee59476a197f8735b5b63107275f7"
+    },
+    {
+      "path": "reports/verification/issue423-current-installer-recheck-20261004.md",
+      "sha256": "570adf467f7f7eee9c8e245942b33fff102446305be8548113e48a295111ad36"
+    }
+  ]
+}

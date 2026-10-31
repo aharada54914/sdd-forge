@@ -1,0 +1,13 @@
+{
+  "host_thread_id": "01a1037a-fff0-77b2-b861-47b33cf62501",
+  "host_session_id": "01a1037a-fff0-77b2-b861-47b33cf62501",
+  "role": "task-reviewer-a",
+  "manifest_path": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/review-context/sdd-domain-multitarget-task-a5r1-a-01a1037a-fff0-77b2-b861-47b33cf62501-invocation.json",
+  "validator_receipt": {
+    "record_sha256": "353c604ffe3fbec9103cf64ce5797e3ac4baa2d0de1bbdfe14a40aec32d41705",
+    "sequence": 1194,
+    "previous_record_sha256": "eff4dcae0dbf3c2f1b009b9d560ae2ae303a6284558ac2ba48dee6e1ba368bda",
+    "identity_unique": true
+  },
+  "turn_started": false
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "check": "risk",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/sdd-domain-multitarget/tasks.md T-002",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/risk.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/risk.stderr.txt"
+  },
+  {
+    "check": "placeholder",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-placeholders.sh contracts/project-context.schema.json contracts/context-projection.schema.json plugins/sdd-quality-loop/contracts/context-projection.schema.json plugins/sdd-quality-loop/scripts/validate-capability-registry.py plugins/sdd-quality-loop/scripts/registry_discovery.py",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stderr.txt"
+  },
+  {
+    "check": "workflow-state",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/workflow-state.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/workflow-state.stderr.txt"
+  },
+  {
+    "check": "task-state",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain-multitarget/tasks.md reports/quality-gate reports/implementation .",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stderr.txt"
+  },
+  {
+    "check": "contract",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/sdd-domain-multitarget/verification/T-002.contract.json .",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/contract.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/contract.stderr.txt"
+  },
+  {
+    "check": "component-coverage",
+    "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-component-coverage.sh --repo-root .",
+    "exit": 0,
+    "stdout": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/component-coverage.stdout.txt",
+    "stderr": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/component-coverage.stderr.txt"
+  }
+]

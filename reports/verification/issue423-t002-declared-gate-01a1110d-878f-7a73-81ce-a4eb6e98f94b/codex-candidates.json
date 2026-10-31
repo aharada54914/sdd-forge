@@ -1,0 +1,10 @@
+[
+  {
+    "name": "gpt-6-astra",
+    "available": true,
+    "effort": "medium",
+    "cost": "48.22",
+    "availability_source": "current collaboration tool advertisement",
+    "cost_source": "historical conditional planning estimate; not billing proof"
+  }
+]

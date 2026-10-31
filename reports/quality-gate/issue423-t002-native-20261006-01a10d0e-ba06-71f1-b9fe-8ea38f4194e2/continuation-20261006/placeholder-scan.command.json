@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+    "contracts/project-context.schema.json",
+    "contracts/context-projection.schema.json",
+    "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+    "plugins/sdd-quality-loop/scripts/registry_discovery.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:54:38.772215+00:00",
+  "finished_at": "2026-10-05T17:54:38.792553+00:00"
+}

@@ -1,8 +1,55 @@
 # AGENTS.md
 
-This project follows a three-stage Spec-Anchored AI Development workflow.
+sdd-forge's product workflow and its own repository development workflow are
+separate. Installing or developing an SDD plugin does not require every repository
+change to bootstrap a new full SDD feature. This development policy was authorized
+by the user on 2026-10-05; it changes development governance only, not runtime guards,
+product contracts, existing approvals, verdicts or task states.
 
-## Required Workflow
+## Repository Development Workflow
+
+Before editing, record the issue/task, owning checkout, current HEAD and dirty
+changes, risk classification, affected contracts and required validation. Preserve
+other contributors' work. Apply the criteria below by changed behavior, not by
+patch size, file extension, issue label or a desire to pass a gate.
+
+- **Routine correction:** restores already-approved behavior without changing
+  approval/authorization, evidence or identity semantics, reviewer independence,
+  required checks/SKIP policy, protected enforcement files, security/egress,
+  externally consumed contracts or architecture. Use reproduction -> focused fix
+  -> affected regression tests -> independent diff review -> applicable CI for the
+  exact final head. Do not create new full specification/review loops merely
+  because the product is an SDD framework. Record executed evidence and limitations.
+- **High-risk or protected change:** changes any boundary above, or is already
+  classified high/critical by its approved task. Retain the formal management
+  workflow below, contract/preflight requirements, independent verification and
+  the sanctioned protected-application path. A small guard/read-allowance or
+  recovery/manifest change is still high-risk; routine classification cannot
+  authorize it. If classification is uncertain, resolve scope before editing.
+- **Existing SDD tasks:** preserve their approved contracts, lifecycle and frozen
+  evidence. The routine path is not retroactive permission to bypass an existing
+  gate or relabel a task Done. Use the per-task transition procedure in
+  [Development policy and evidence handoff](docs/development-policy.md).
+
+Manage development with a separately verified, version/hash-pinned control
+baseline; test the development candidate in disposable fixtures and isolated host
+sessions. Never assume a version is verified because it is called stable. Do not
+silently replace the installed baseline with the working tree. Baseline selection,
+installation/trust changes and promotion use explicit scoped human authority;
+this document does not select or install a baseline or grant new access.
+
+Assign one owner to each shared enforcement/contract repair and combine its
+reproduction, negative cases, runtime parity and independent review into one
+bounded repair. Serialize overlapping writes, protected application and reservations
+on the same ledger. Unrelated work in separate checkouts may continue in parallel.
+Keep rejected operations and old history; do not disable hooks, change executors to
+route around a refusal, invent identity/approval, or count a diagnostic as a verdict.
+
+The product's full workflow remains available for product use and is mandatory
+for the high-risk/protected development scope above. Detailed validation, existing
+A7/A8/A9/#423 handoff and baseline-promotion conditions are in the linked policy.
+
+## Full SDD Workflow (High-risk and Protected Development)
 
 1. Use `sdd-bootstrap-interviewer` Phase 1 to create requirements, design, and acceptance tests.
 2. Run `spec-review-loop` with its independent reviewers; resolve findings until `Spec-Review-Status: Passed`.
@@ -35,6 +82,11 @@ open; once the fix lands, the automated precheck path is again mandatory.
 
 ## Sources Of Truth
 
+For existing SDD tasks and full-track work, the following records remain
+authoritative. Routine work records its scope, risk, independent review and exact
+validation evidence in a non-frozen issue/PR or development record; it must not
+forge a full-track report or mutate existing task state.
+
 - `tasks.md`: task approval, execution order, and work status
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
@@ -55,8 +107,16 @@ the task gate re-binds `design.md`. A spec-stage freeze is not released by a
 later gate: `requirements.md` and `acceptance-tests.md` are re-checked at
 every later passed stage. The status/approval carve-out covers only the
 document each gate normalizes (`requirements.md`, `design.md`, the task
-plan); `acceptance-tests.md`, `traceability.md` and the layer specifications
-are bound by raw content hash, so any byte change to them breaks the gate.
+plan). The WFI-030 exception for persisted task-stage evidence also accepts
+`traceability.md` with only a REQ row's final status cell normalized to `Planned`,
+from exactly `Planned`, `In Progress`, `Implementation Complete`, `Done`, or
+`Blocked` (case-sensitive). Every other byte, including Evidence cells, remains
+bound; unknown or annotated statuses are not normalized. This does not validate
+lifecycle transitions or reopen historical verdicts. New review input snapshots
+and their launch verification still bind the current raw bytes; this exception
+does not permit changing an input after precheck or reservation.
+`acceptance-tests.md` and the layer specifications remain bound by raw content
+hash, so any byte change to them breaks the gate.
 Sanctioned later updates — open-question resolutions, verification-status
 finalization — are recorded in non-frozen addenda (implementation reports,
 `specs/<feature>/verification/`, user documentation) instead of the frozen
@@ -160,7 +220,8 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - Do not implement Draft tasks.
 - Do not guess ambiguous requirements or design decisions.
 - Preserve unrelated user changes.
-- Implement one task at a time.
+- Implement one approved SDD task at a time per implementation context; independent
+  work may proceed in separate contexts/checkouts without overlapping writes.
 - API changes require contract updates; architecture changes require ADRs.
 - Only `quality-gate` may set a task to Done.
 - Do not commit, push, or create PRs/MRs unless explicitly requested.

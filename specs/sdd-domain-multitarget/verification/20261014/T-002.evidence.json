@@ -1,0 +1,223 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-domain-multitarget",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "a35dabfd5299dca7696ca20bf95a9c97cf04dabd2e0469765509b88ec2eaa84a",
+  "quality_report": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+  "verification_contract": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+  "git_commit": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy uvx --from ruff==0.13.3 ruff check plugins/sdd-quality-loop/scripts/validate-capability-registry.py plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/lint.stdout.txt",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy uvx --from mypy==1.18.2 mypy --strict --cache-dir /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/mypy-cache plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/typecheck.stdout.txt",
+      "evidence_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root . -v",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "evidence_sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-build-human.log.SYnVYKXU",
+      "evidence_sha256": "2af432e4dcf7f61048f9168ec3ad971fa0a4a1187702343438681fccc7076a5f"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-placeholders.sh contracts/project-context.schema.json contracts/context-projection.schema.json plugins/sdd-quality-loop/contracts/context-projection.schema.json plugins/sdd-quality-loop/scripts/validate-capability-registry.py plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain-multitarget/tasks.md reports/quality-gate reports/implementation .",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+      "evidence_sha256": "5167b82fa998683b6137e47954c61dfa14e36a39759ffce3850590ccf6eb4a35"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root . -v",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "evidence_sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root . -v",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "evidence_sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c"
+    },
+    {
+      "id": "registry-validation",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/validate-capability-registry.sh --registry contracts/capability-registry.json",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/registry.stdout.txt",
+      "evidence_sha256": "94c7743c4c51abdf221ee7c8bad93f29e4032aa6f9ccff0dc8adccb8aea9f808"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+      "sha256": "7935c20fd18cc34b0b3c0f756ca56eb5e41928cc81c5c98e6fbb29ee4ab5e281"
+    },
+    {
+      "path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+      "sha256": "56460f6e9e23a748c2a16fb7546c570cbc3f4e4ef813815f90e015d103482432"
+    },
+    {
+      "path": "reports/verification/issue423-t002-build-human.log.SYnVYKXU",
+      "sha256": "2af432e4dcf7f61048f9168ec3ad971fa0a4a1187702343438681fccc7076a5f"
+    },
+    {
+      "path": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c"
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/lint.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/registry.stdout.txt",
+      "sha256": "94c7743c4c51abdf221ee7c8bad93f29e4032aa6f9ccff0dc8adccb8aea9f808"
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+      "sha256": "5167b82fa998683b6137e47954c61dfa14e36a39759ffce3850590ccf6eb4a35"
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/typecheck.stdout.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    }
+  ]
+}

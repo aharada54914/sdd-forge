@@ -15,7 +15,7 @@ Source: Issue #423 (Multi-target Foundation Phase 1)
 ## T-001 Consumer inventory and boundary fixtures
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: The inventory drives later routing decisions; a stale or incomplete mapping can silently bypass an existing consumer.
 Required Workflow: acceptance-first
@@ -33,7 +33,7 @@ Done When:
 ## T-002 Ownership and contract boundary fixtures
 
 Approval: Approved
-Status: Blocked
+Status: Done
 Risk: medium
 Risk Rationale: Ownership and provider-neutral contract rules protect shared Core policy from provider leakage.
 Required Workflow: acceptance-first
@@ -52,7 +52,7 @@ Done When:
 ## T-003 Target capability resolution and verification obligations
 
 Approval: Approved
-Status: Planned
+Status: In Progress
 Risk: high
 Risk Rationale: Resolver output controls required checks and fail-closed behavior at a trust boundary; an incorrect obligation can permit an unverified target.
 Required Workflow: tdd
@@ -70,6 +70,12 @@ Done When:
 - [ ] The selected plan emits implementation-stage checks only and never claims deployment or promotion success.
 - [ ] High-risk evidence records each persisted resolver field, its sibling contract, and a mismatch test.
 - [ ] Red tests fail before the resolver change and green tests pass after it; the implementation report records both runs and an independent reviewer verdict.
+
+### Blockers
+
+T-002
+
+T-002 remains a prerequisite and is not Done. In T-003 implementation attempt 4, PreToolUse rejected the read-only command for required hash-pinned Registry, schema, verification-template, and existing checker inputs before execution. The high-risk preflight therefore remains incomplete; RED, GREEN, implementation, and independent review were not run. Preserve this Blocked state until the normal protected-read boundary is restored and a fresh validated handoff permits the preflight to finish. See `reports/implementation/sdd-domain-multitarget/T-003-attempt4.md` and `specs/sdd-domain-multitarget/verification/T-003/run-c43e18b9f2a7/protection-refusal.txt`.
 
 ## T-004 Compatibility and hybrid fallback
 

@@ -1,0 +1,42 @@
+✔ AC-006: no tool input schema declares a write-inducing field (0.528958ms)
+✔ AC-006: every declared input field is a read-scoped allowlisted name (0.07275ms)
+✔ AC-006: all 5 tools are present and each schema has at least one field (0.080458ms)
+✔ AC-006: the probe field list is drawn from the shared write-inducing-field denylist (0.402083ms)
+✔ AC-006: list_workflow_runs rejects a "action" field with invalid-input and never calls GitHub (1.155042ms)
+✔ AC-006: list_workflow_runs rejects a "method" field with invalid-input and never calls GitHub (0.116334ms)
+✔ AC-006: list_workflow_runs rejects a "body" field with invalid-input and never calls GitHub (0.068667ms)
+✔ AC-006: list_workflow_runs rejects a "command" field with invalid-input and never calls GitHub (0.058625ms)
+✔ AC-006: get_workflow_run rejects a "action" field with invalid-input and never calls GitHub (0.351542ms)
+✔ AC-006: get_workflow_run rejects a "method" field with invalid-input and never calls GitHub (0.048542ms)
+✔ AC-006: get_workflow_run rejects a "body" field with invalid-input and never calls GitHub (0.04525ms)
+✔ AC-006: get_workflow_run rejects a "command" field with invalid-input and never calls GitHub (0.053ms)
+✔ AC-006: list_run_jobs rejects a "action" field with invalid-input and never calls GitHub (0.349334ms)
+✔ AC-006: list_run_jobs rejects a "method" field with invalid-input and never calls GitHub (0.07875ms)
+✔ AC-006: list_run_jobs rejects a "body" field with invalid-input and never calls GitHub (0.054834ms)
+✔ AC-006: list_run_jobs rejects a "command" field with invalid-input and never calls GitHub (0.051459ms)
+✔ AC-006: list_run_artifacts rejects a "action" field with invalid-input and never calls GitHub (0.161958ms)
+✔ AC-006: list_run_artifacts rejects a "method" field with invalid-input and never calls GitHub (0.0365ms)
+✔ AC-006: list_run_artifacts rejects a "body" field with invalid-input and never calls GitHub (0.038334ms)
+✔ AC-006: list_run_artifacts rejects a "command" field with invalid-input and never calls GitHub (0.030375ms)
+✔ AC-006: get_job_log rejects a "action" field with invalid-input and never calls GitHub (0.236167ms)
+✔ AC-006: get_job_log rejects a "method" field with invalid-input and never calls GitHub (0.04325ms)
+✔ AC-006: get_job_log rejects a "body" field with invalid-input and never calls GitHub (0.027416ms)
+✔ AC-006: get_job_log rejects a "command" field with invalid-input and never calls GitHub (0.024334ms)
+✔ src/ contains no filesystem write API references (6.089416ms)
+✔ src/ contains no child_process usage in any form (no execFile exception) (3.805125ms)
+✔ src/ contains no eval usage (1.585875ms)
+✔ src/ contains no write-method HTTP literals (POST/PUT/PATCH/DELETE) (1.997666ms)
+✔ the only fetch(...) call sites in src/ are in github-client.ts (1.562083ms)
+✔ github-client.ts fixes every HTTP method literal to GET (0.889666ms)
+✔ the only scheme://host literal anywhere in src/ is the fixed GitHub API base URL (0.844584ms)
+✔ Cycle 2: a rogue host literal embedded in a string is preserved (not truncated at its own //) and is caught by the host-literal scan (0.072542ms)
+✔ Cycle 2: same-line code after a string containing // is not swallowed as a false comment (0.068959ms)
+✔ Cycle 2: genuine // and /* */ comments are still stripped (no false positive from real comments) (0.094ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 88.550708

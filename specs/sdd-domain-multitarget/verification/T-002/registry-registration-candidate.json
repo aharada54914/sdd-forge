@@ -1,0 +1,52 @@
+{
+  "schema": "issue423-registry-recovery-candidate/v1",
+  "run_id": "sdd423-registry-registration-recovery-20260929",
+  "task": "T-002 prerequisite recovery",
+  "base_head": "06bc32cc26f2d67adb02e827610b5230e1658f72",
+  "applied": false,
+  "authorization": "bounded root-cause repair approved; actual protected refusal is not bypassed",
+  "canonical": "contracts/capability-registry.json",
+  "expected_canonical_sha256": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278",
+  "add_gates": [
+    {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    }
+  ],
+  "preserve": [
+    "all existing gate definitions",
+    "all existing capability definitions",
+    "schema capability-registry/v1",
+    "validator checks a-i",
+    "required missing-implementation failure"
+  ],
+  "regenerate_after_human_apply": [
+    "plugins/sdd-quality-loop/contracts/capability-registry.json",
+    "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json"
+  ],
+  "unresolved": {
+    "id": "check-update-migration",
+    "missing": "plugins/sdd-quality-loop/scripts/check-update-migration.py",
+    "treatment": "Do not invent a passing implementation, remove the requirement, or change its stage. An unavailable required check remains blocking."
+  }
+}

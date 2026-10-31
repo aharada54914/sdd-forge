@@ -3,7 +3,7 @@ name: sdd-evaluator
 description: Independent skeptical evaluator for SDD quality gates. Reviews one Implementation Complete task against the approved specification in a fresh context. Read-only; returns PASS or NEEDS_WORK with classified findings.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
-model: opus
+model: sonnet
 ---
 <!-- x-sdd-effort: high -->
 

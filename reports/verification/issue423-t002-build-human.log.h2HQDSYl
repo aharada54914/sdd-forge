@@ -1,0 +1,12 @@
+SHA-256 verified: 4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788 plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+SHA-256 verified: ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea plugins/sdd-quality-loop/scripts/registry_discovery.py
+SHA-256 verified: 9b43d5eaf93a9cefffc562a3108f43ab2bc2a64c675a710ec5c59250f7abe719 install.sh
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-t002-build.ZbC2HtdP/installed
+Plugin registration was skipped because --target=FilesOnly.
+Note: registration failed, but the install root at '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-t002-build.ZbC2HtdP/installed' was left at the newly installed version. Re-run the installer to retry registration.
+SHA-256 verified: 4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788 /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//sdd-t002-build.ZbC2HtdP/installed/plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+SHA-256 verified: ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//sdd-t002-build.ZbC2HtdP/installed/plugins/sdd-quality-loop/scripts/registry_discovery.py
+validate-capability-registry: all 9 checks passed.
+T-002 installed payload assembly, byte parity, and validator execution: PASS

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.sh",
+    "--registry",
+    "contracts/capability-registry.json"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:54:38.682114+00:00",
+  "finished_at": "2026-10-05T17:54:38.751813+00:00"
+}

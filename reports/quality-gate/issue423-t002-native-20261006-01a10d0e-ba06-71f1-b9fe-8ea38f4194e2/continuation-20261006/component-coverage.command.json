@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
+    "--repo-root",
+    "."
+  ],
+  "exit_code": 0
+}

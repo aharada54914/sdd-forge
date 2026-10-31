@@ -1,0 +1,15 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+    "--repo-root",
+    ".",
+    "-q"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:33:41.847908+00:00",
+  "finished_at": "2026-10-05T17:33:41.923490+00:00"
+}

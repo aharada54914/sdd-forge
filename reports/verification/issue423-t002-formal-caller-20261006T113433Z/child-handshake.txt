@@ -1,0 +1,6 @@
+native run/session ID: unknown
+agent task identity: /root/issue423_t002_evaluator_fresh
+effective role: sdd-evaluator
+effective model: unknown
+effective effort: unknown
+状態: admission 待機。入力の読取り・評価・書込み・予約は未実施。

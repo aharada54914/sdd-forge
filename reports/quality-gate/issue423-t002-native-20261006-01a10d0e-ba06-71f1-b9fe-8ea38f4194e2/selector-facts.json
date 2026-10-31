@@ -1,0 +1,49 @@
+{
+  "observed_at": "2026-10-05T17:32:39.138585+00:00",
+  "cache_fetched_at": "2026-10-05T17:31:33.260225Z",
+  "local_model": {
+    "slug": "gpt-6-astra",
+    "visibility": "list",
+    "supported_in_api": true,
+    "default_reasoning_level": "medium",
+    "supported_reasoning_levels": [
+      {
+        "effort": "low",
+        "description": "Fast responses with lighter reasoning"
+      },
+      {
+        "effort": "medium",
+        "description": "Balances speed and reasoning depth for everyday tasks"
+      },
+      {
+        "effort": "high",
+        "description": "Greater reasoning depth for complex problems"
+      },
+      {
+        "effort": "xhigh",
+        "description": "Extra high reasoning depth for complex problems"
+      },
+      {
+        "effort": "max",
+        "description": "Maximum reasoning depth for the hardest problems"
+      },
+      {
+        "effort": "ultra",
+        "description": "Maximum reasoning with automatic task delegation"
+      }
+    ],
+    "service_tiers": [
+      {
+        "id": "priority",
+        "name": "Fast",
+        "description": "2x speed, increased usage"
+      }
+    ]
+  },
+  "cost_source": "reports/verification/issue137-model-registration-candidate-20260928/report.md",
+  "cost_source_sha256": "a06dac3c52e07e56d728ab887c2a321bc59c59ddeb01ea5bc5c8089b1fe06ae3",
+  "conditional_forecast_usd": "48.22",
+  "formula": "(2359194*20 + 13741*75)/1000000 = 48.214455; rounded upward",
+  "role_path": ".codex/agents/sdd-evaluator.toml",
+  "role_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a"
+}

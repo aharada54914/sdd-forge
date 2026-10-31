@@ -1,0 +1,31 @@
+ticket_id: RT-20261006-003
+status: open
+type: verification-boundary
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - reports/verification/issue423-t002-formal-caller-20261006T113433Z/evaluator-invocation.json
+    - specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py
+summary: "Fresh reserved evaluator stopped before implementation evaluation"
+problem: |
+  The native shipped evaluator returned exact VERDICT: NEEDS_WORK with two
+  Major operational findings. Evaluation is BLOCKED/unevaluated, not a
+  demonstrated implementation defect. Its read-only instructions prohibit
+  creating the isolated copy; no write was attempted or rejected by a tool.
+  The admitted test also references unlisted registry-registration-candidate.json
+  at line 34, generate-gate-capabilities.py at line 54 and
+  validate-capability-registry.sh at line 85. No dependency read or execution
+  outside the 77-input manifest was authorized. Reservation 1197 is retained.
+expected_fix:
+  - "Prepare a complete authorized execution dependency closure through the existing declaration channel before a future fresh admission; never widen the reserved manifest by prose."
+  - "Resolve isolated snapshot preparation compatibly with the unchanged shipped read-only evaluator; do not override its sandbox or route around a refusal."
+  - "Run remaining CI-equivalent checks and a fresh independent evaluation before any Done decision; preserve this run and RT-20261006-002."
+references:
+  - reports/verification/issue423-t002-formal-caller-20261006T113433Z/evaluator-result.txt
+  - reports/verification/issue423-t002-formal-caller-20261006T113433Z/evaluator-native-command-evidence.json
+  - reports/quality-gate/20261006T113433Z-sdd-domain-multitarget-T-002.md
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

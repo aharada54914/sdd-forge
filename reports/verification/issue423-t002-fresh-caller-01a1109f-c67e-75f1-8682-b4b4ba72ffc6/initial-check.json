@@ -1,0 +1,18 @@
+{
+  "issue": 423,
+  "task_id": "T-002",
+  "owner": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "head": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "risk": "medium approved T-002; protected launch boundaries preserved",
+  "scope": "independent evaluation only; no implementation edits",
+  "required_validation": "exact hashes, native identity, normal non-reservation preflight then one atomic reservation and shipped evaluator",
+  "caller_native_session": "01a1109f-c67e-75f1-8682-b4b4ba72ffc6",
+  "caller_thread": "01a1109f-c67e-75f1-8682-b4b4ba72ffc6",
+  "source": "vscode",
+  "implementation_native_session": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "input_count": 76,
+  "hash_errors": [],
+  "ledger_collisions": [],
+  "ledger_sha256": "46927fa5bb5dcca8885e8fe18634018871e4a56f96e82b489fb0969ae8a08ff6",
+  "ledger_count": 1195
+}

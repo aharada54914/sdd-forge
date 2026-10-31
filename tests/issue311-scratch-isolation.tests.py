@@ -25,10 +25,20 @@ def exercise(source, runtime, case):
                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
         records = [first]
+        implementation_path = "handoffs/fixture/manifest.json"
+        if case.startswith("manifest-"):
+            implementation_path = "handoffs/fixture/manifest-archive-input.json"
+        implementation_manifest = root / implementation_path
+        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
+                                                 run_id="worker-run", session_id="worker-session"))
+        implementation_hash = digest(implementation_manifest.read_bytes())
         report = root / "reports/implementation/f/T-001.md"
         report.parent.mkdir(parents=True)
         report.write_text("# Implementation Report: T-001\n- Task ID: T-001\n"
-                          "- **Scratch Root**: /tmp/impl-one\n")
+                          "Run ID: worker-run\n- **Run ID**: worker-run\n"
+                          "- **Session ID**: worker-session\n"
+                          "- **Scratch Root**: /tmp/impl-one\n"
+                          f"Input manifest: `{implementation_path}`, SHA-256 `{implementation_hash}`\n")
         scratch = "/tmp/clean-evaluator"
         expected = 0
         if case.startswith("other-"):
@@ -64,8 +74,83 @@ def exercise(source, runtime, case):
                           sequence=len(records) + 1, previous_record_sha256=records[-1]["record_sha256"],
                           identity_ledger_path="reports/review-context/identity-ledger.json",
                           identity_ledger_sha256=digest(ledger.read_bytes()), scratch_root=scratch,
+                          implementation_manifest=dict(path=implementation_path,
+                                                       sha256=implementation_hash),
                           allowed_input_manifest=[dict(path="reports/implementation/f/T-001.md",
-                                                       sha256=digest(report.read_bytes()))])
+                                                       sha256=digest(report.read_bytes())),
+                                                  dict(path=implementation_path,
+                                                       sha256=implementation_hash)])
+        if case.startswith("manifest-") and case != "manifest-versioned":
+            expected = 1
+            if case == "manifest-citation-mismatch":
+                report.write_text(report.read_text().replace(implementation_path, "handoffs/fixture/manifest.json"))
+                invocation["allowed_input_manifest"][0]["sha256"] = digest(report.read_bytes())
+            elif case == "manifest-hash-mismatch":
+                invocation["implementation_manifest"]["sha256"] = "0" * 64
+            else:
+                invocation["implementation_manifest"]["path"] = {
+                    "manifest-empty-suffix": "handoffs/fixture/manifest-.json",
+                    "manifest-traversal": "handoffs/fixture/../manifest-archive-input.json",
+                    "manifest-case": "handoffs/fixture/Manifest-archive-input.json",
+                    "manifest-nested": "handoffs/fixture/manifest-archive/input.json",
+                }[case]
+        if case.startswith("dependency-"):
+            source_path = "private/consumer.txt" if case == "dependency-undeclared" else "src/consumer.txt"
+            source_file = root / source_path
+            source_file.parent.mkdir()
+            source_file.write_text("current consumer\n")
+            source_hash = digest(source_file.read_bytes())
+            dependency = dict(path=source_path, sha256=source_hash)
+            task_inputs = json.loads(implementation_manifest.read_text())
+            task_inputs["allowed_inputs"] = [dependency.copy()]
+            expected = 0 if case == "dependency-output-declared" else 1
+            if case == "dependency-absent":
+                task_inputs["allowed_inputs"] = []
+            elif case == "dependency-wrong-hash":
+                task_inputs["allowed_inputs"][0]["sha256"] = "0" * 64
+            elif case == "dependency-other-task":
+                task_inputs["task_id"] = "T-002"
+            elif case == "dependency-other-run":
+                task_inputs["run_id"] = "another-feature-worker"
+            elif case == "dependency-duplicate":
+                task_inputs["allowed_inputs"].append(dependency.copy())
+            elif case == "dependency-case":
+                task_inputs["allowed_inputs"][0]["path"] = "SRC/consumer.txt"
+            elif case == "dependency-hash-case":
+                task_inputs["allowed_inputs"][0]["sha256"] = source_hash.upper()
+            elif case == "dependency-peer":
+                source_path = "reports/spec-review/f/reviewer-a.json"
+                peer = root / source_path
+                peer.parent.mkdir(parents=True)
+                peer.write_text("peer output\n")
+                dependency = dict(path=source_path, sha256=digest(peer.read_bytes()))
+                task_inputs["allowed_inputs"] = [dependency.copy()]
+            elif case == "dependency-symlink":
+                target = root / "src/target.txt"
+                target.write_bytes(source_file.read_bytes())
+                source_file.unlink()
+                source_file.symlink_to(target)
+            write_json(implementation_manifest, task_inputs)
+            if case == "dependency-json-duplicate":
+                raw = implementation_manifest.read_text()
+                implementation_manifest.write_text(raw.replace('"task_id":', '"task_id":"T-001","task_id":', 1))
+            if case == "dependency-output-declared":
+                report.write_text(report.read_text() + f"\n## Outputs\n| Path | SHA-256 |\n"
+                                  f"| --- | --- |\n| `{source_path}` | `{source_hash}` |\n")
+            updated_hash = digest(implementation_manifest.read_bytes())
+            report.write_text(report.read_text().replace(implementation_hash, updated_hash))
+            invocation["implementation_manifest"]["sha256"] = updated_hash
+            invocation["allowed_input_manifest"][0]["sha256"] = digest(report.read_bytes())
+            invocation["allowed_input_manifest"][1]["sha256"] = updated_hash
+            invocation["allowed_input_manifest"].append(dependency)
+            if case == "dependency-missing-pin":
+                invocation["allowed_input_manifest"].pop(1)
+            elif case == "dependency-manifest-tamper":
+                implementation_manifest.write_text(implementation_manifest.read_text() + " ")
+            elif case == "dependency-source-tamper":
+                source_file.write_text("changed\n")
+            elif case == "dependency-role":
+                invocation["role"] = "spec-reviewer-a"
         if case == "new-missing":
             invocation.pop("scratch_root")
             expected = 1
@@ -82,9 +167,17 @@ def exercise(source, runtime, case):
                    ["pwsh", "-NoProfile", "-File", str(validator_ps1),
                     "-Manifest", str(manifest), "-RepositoryRoot", str(root), "-Reserve"])
         before = ledger.read_bytes()
+        if case.startswith(("dependency-", "manifest-")):
+            preflight = subprocess.run(command[:-1], capture_output=True, text=True, timeout=40)
+            if preflight.returncode != expected or ledger.read_bytes() != before:
+                print(f"not ok: {runtime} {case}: preflight={preflight.returncode}, expected={expected}")
+                print(preflight.stdout, preflight.stderr)
+                return False
         result = subprocess.run(command, capture_output=True, text=True, timeout=40)
         passed = (result.returncode == expected and
-                  (expected == 0 or (ledger.read_bytes() == before and "REVIEW_CONTEXT_PATH" in result.stderr)))
+                  (expected == 0 or (ledger.read_bytes() == before and
+                   ("REVIEW_CONTEXT_PATH" in result.stderr or
+                    (case.startswith(("dependency-", "manifest-")) and "REVIEW_CONTEXT_" in result.stderr)))))
         print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: exit={result.returncode}, expected={expected}")
         if not passed:
             print(result.stdout, result.stderr)
@@ -125,13 +218,22 @@ def exercise(source, runtime, case):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=pathlib.Path, required=True)
+    parser.add_argument("--manifest-only", action="store_true")
     args = parser.parse_args()
     for runtime in ("bash", "pwsh"):
         if not shutil.which(runtime):
             raise SystemExit(f"Missing required runtime: {runtime}")
     cases = ["clean", "new-missing", "other-equal", "other-child", "other-parent", "other-prefix",
              "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
-             "legacy-missing", "snapshot-tampered", "snapshot-deleted"]
+             "legacy-missing", "snapshot-tampered", "snapshot-deleted",
+             "dependency-undeclared", "dependency-output-declared", "dependency-absent", "dependency-wrong-hash",
+             "dependency-other-task", "dependency-other-run", "dependency-duplicate",
+             "dependency-case", "dependency-hash-case", "dependency-peer",
+             "dependency-symlink", "dependency-json-duplicate", "dependency-missing-pin",
+             "dependency-manifest-tamper", "dependency-source-tamper", "dependency-role"]
+    manifest_cases = ["manifest-versioned", "manifest-citation-mismatch", "manifest-hash-mismatch",
+                      "manifest-empty-suffix", "manifest-traversal", "manifest-case", "manifest-nested"]
+    cases = manifest_cases if args.manifest_only else cases + manifest_cases
     results = [exercise(args.repo, runtime, case) for runtime in ("bash", "pwsh") for case in cases]
     print(f"PASS: {sum(results)}; FAIL: {len(results) - sum(results)}")
     raise SystemExit(0 if all(results) else 1)

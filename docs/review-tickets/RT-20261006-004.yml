@@ -1,0 +1,27 @@
+ticket_id: RT-20261006-004
+status: open
+type: verification-boundary
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - reports/verification/issue423-t002-evaluator-input-candidate-20261006-dependency-closure.json
+    - reports/quality-gate/issue423-t002-post-provider-key-declaration-20261006.md
+summary: "93-input candidate rejected before reservation: dependency lacks declaration admission"
+problem: |
+  Normal non-reserving preflight exited 1 with REVIEW_CONTEXT_PATH for
+  specs/sdd-domain-multitarget/verification/T-002/registry-registration-candidate.json.
+  Its path/hash exists in the candidate but its path is absent from the pinned
+  implementation Outputs and gate Post-Fix Artifacts declaration.
+  This is BLOCKED/unevaluated, not a semantic implementation FAIL.
+  Sequence 1198 was proposed only; no reservation was attempted.
+expected_fix:
+  - "Prepare a new declaration through the sanctioned channel covering the complete dependency closure, retain the old pinned declaration and this refusal."
+  - "Reverify all pairs and normal admission before a future independent evaluation; do not bypass the validator."
+references:
+  - reports/verification/issue423-t002-dependency-gate-01a11108-f1b1-7632-8a65-c905eeb63e5d/boundary-result.md
+  - reports/verification/issue423-t002-dependency-gate-01a11108-f1b1-7632-8a65-c905eeb63e5d/preflight-command.json
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 0

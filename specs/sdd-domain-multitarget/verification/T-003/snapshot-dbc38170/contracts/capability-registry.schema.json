@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/capability-registry.schema.json",
+  "title": "SDD Forge Capability Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "gates", "capabilities"],
+  "properties": {
+    "schema": { "const": "capability-registry/v1" },
+    "gates": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/definitions/gate" }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/definitions/capability" }
+    }
+  },
+  "definitions": {
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "stage", "blocking"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "stage": { "enum": ["implementation", "artifact", "promotion"] },
+        "blocking": { "type": "boolean" },
+        "implementation_ref": { "type": "string", "minLength": 1 }
+      },
+      "if": {
+        "properties": { "stage": { "const": "implementation" } },
+        "required": ["stage"]
+      },
+      "then": {
+        "required": ["implementation_ref"]
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "trigger",
+        "required_facets",
+        "conditional_facets",
+        "review_check_ids",
+        "gate_ids",
+        "delivery_strategy"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "trigger": { "$ref": "#/definitions/predicate" },
+        "required_facets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "conditional_facets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/conditionalFacet" }
+        },
+        "review_check_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "gate_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "lite_policy": { "$ref": "#/definitions/litePolicy" },
+        "minimum_enforcement": { "const": "required" },
+        "delivery_strategy": { "$ref": "#/definitions/deliveryStrategy" }
+      }
+    },
+    "conditionalFacet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["facet", "when"],
+      "properties": {
+        "facet": { "type": "string" },
+        "when": { "$ref": "#/definitions/predicate" }
+      }
+    },
+    "litePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible"],
+      "properties": {
+        "eligible": { "type": "boolean" },
+        "upgrade_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": []
+        }
+      }
+    },
+    "deliveryStrategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 }
+      }
+    },
+    "predicate": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["all"],
+          "properties": {
+            "all": { "type": "array", "items": { "$ref": "#/definitions/predicate" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["any"],
+          "properties": {
+            "any": { "type": "array", "items": { "$ref": "#/definitions/predicate" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["not"],
+          "properties": {
+            "not": { "$ref": "#/definitions/predicate" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scope", "field", "operator"],
+          "properties": {
+            "scope": { "const": "affected_component" },
+            "field": {
+              "enum": [
+                "artifact_kinds",
+                "runtime_classes",
+                "characteristics.pii",
+                "characteristics.ui",
+                "characteristics.auto_update",
+                "characteristics.local_persistence",
+                "distribution_channels",
+                "data_classification"
+              ]
+            },
+            "operator": {
+              "enum": ["equals", "not_equals", "contains", "in", "exists"]
+            },
+            "value": {}
+          },
+          "if": {
+            "properties": { "operator": { "const": "exists" } },
+            "required": ["operator"]
+          },
+          "else": {
+            "required": ["value"]
+          }
+        }
+      ]
+    }
+  }
+}

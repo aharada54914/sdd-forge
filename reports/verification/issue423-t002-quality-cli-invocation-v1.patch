@@ -1,0 +1,18 @@
+diff --git a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+--- a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
++++ b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+@@ -149,10 +149,13 @@
+    message, and no `codex` invocation attempted (AC-052;
+    `run-panelist-gpt.sh`/`.ps1` implement this same rejection for their own
+    `--model`/`--effort` arguments — `tests/run-panelist-effort.tests.sh`/
+    `.ps1` TEST-052). Launch `codex` with the resolved, validated flags:
++   these flags configure a fresh Codex CLI caller, which must then spawn the
++   shipped project `sdd-evaluator` TOML agent for independent evaluation.
++   The CLI root is not a substitute for that agent.
+ 
+    ```sh
+-   codex --model <live-model> --effort <live-effort> ...
++   codex exec --model <live-model> -c model_reasoning_effort=<live-effort> ...
+    ```
+ 
+    Elsewhere, perform the review in a fresh session or a clearly separated

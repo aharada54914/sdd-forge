@@ -1,0 +1,7 @@
+{
+  "nonce": "80c2d05e372b131f4c345e572e6b3047",
+  "reason": "WRITE_EXECUTED",
+  "runtime": "codex-cli",
+  "schema": "sdd-hook-verify-result/v1",
+  "status": "CAPABILITY_RUNTIME_UNAVAILABLE"
+}

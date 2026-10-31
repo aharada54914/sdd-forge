@@ -1,0 +1,1 @@
+{"argv": ["rtk", "proxy", "bash", "plugins/sdd-quality-loop/scripts/validate-capability-registry.sh", "--registry", "contracts/capability-registry.json"], "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"}

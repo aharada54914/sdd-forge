@@ -1,0 +1,7 @@
+737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  contracts/capability-registry.json
+737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  plugins/sdd-quality-loop/contracts/capability-registry.json
+aa0a6b18cdd561b08ad95c89db8fd08138d2eef0e36aac3d4f7fa15af152e575  plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json
+d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd  plugins/sdd-quality-loop/scripts/check-component-coverage.py
+2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3  plugins/sdd-quality-loop/scripts/check-contract.py
+99816d7ed8c767f5a19670e582e1df764fe39a36ae2d979595d72e6761a05c90  plugins/sdd-quality-loop/scripts/check-criterion-freeze.py
+d9277ca516fa79b6ef459e0d0505375624a0a9279c32390758a96650985d0064  plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py

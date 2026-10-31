@@ -1,0 +1,16 @@
+{
+  "task": "specs/sdd-domain-multitarget/tasks.md#T-002",
+  "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "caller": "01a10d0e-ba06-71f1-b9fe-8ea38f4194e2",
+  "head": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "risk": "medium existing approved task",
+  "write_scope": "fresh gate evidence only; preserve pinned canonical contract and all old records",
+  "contracts": [
+    "ownership",
+    "provider neutrality",
+    "same-task implementation binding",
+    "manifest input admission",
+    "review independence"
+  ],
+  "required_validation": "quality-gate skill steps and original atomic launch validator; no diagnostics promoted to verdict"
+}

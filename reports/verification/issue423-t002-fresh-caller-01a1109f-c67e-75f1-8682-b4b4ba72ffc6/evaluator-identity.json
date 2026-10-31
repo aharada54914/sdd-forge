@@ -1,0 +1,31 @@
+{
+  "source": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T18-52-51-01a110a1-5589-7501-b440-8926b897e0a2.jsonl",
+  "session_meta_line": 1,
+  "turn_context_line": 8,
+  "session_meta": {
+    "id": "01a110a1-5589-7501-b440-8926b897e0a2",
+    "session_id": "01a1109f-c67e-75f1-8682-b4b4ba72ffc6",
+    "source": {
+      "subagent": {
+        "thread_spawn": {
+          "parent_thread_id": "01a1109f-c67e-75f1-8682-b4b4ba72ffc6",
+          "depth": 1,
+          "agent_path": "/root/issue423_t002_evaluator",
+          "agent_nickname": "Tesla",
+          "agent_role": "sdd-evaluator"
+        }
+      }
+    },
+    "agent_path": "/root/issue423_t002_evaluator",
+    "agent_role": "sdd-evaluator",
+    "cwd": "/Users/jrmag/sdd-forge"
+  },
+  "turn_context": {
+    "model": "gpt-6-astra",
+    "effort": "medium",
+    "sandbox_policy": {
+      "type": "danger-full-access"
+    },
+    "approval_policy": "never"
+  }
+}

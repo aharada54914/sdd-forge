@@ -1,0 +1,6 @@
+{
+  "capability_status": "CAPABILITY_RUNTIME_UNAVAILABLE",
+  "cleanup_status": "SENTINEL_CLEANUP_CONFIRMED",
+  "nonce": "0e20e8ea51a3999ff33fac0aa5804631",
+  "schema": "sdd-hook-cleanup-result/v1"
+}

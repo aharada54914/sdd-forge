@@ -1,0 +1,27 @@
+{
+  "status": "BLOCKED before reservation; implementation unevaluated",
+  "preflight_exit_code": 1,
+  "exact_stderr": "REVIEW_CONTEXT_PATH: sdd-evaluator contains a real but role-unlisted path: specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py\n",
+  "reservation_calls": 0,
+  "evaluator_admitted": false,
+  "independent_verdict": null,
+  "deterministic_checks": "NOT RUN after launch refusal",
+  "focused_regressions": "NOT RUN after launch refusal",
+  "candidate_only_tests": "NOT RUN; no SKIP promoted to pass",
+  "historical_acceptance_regression": "unchanged; no promotion",
+  "task_state_lines": [
+    "Approval: Approved",
+    "Status: Implementation Complete",
+    "Risk: medium"
+  ],
+  "ledger_unchanged": true,
+  "ledger_records": 1197,
+  "all_95_pairs_unchanged": true,
+  "scratch_empty": true,
+  "retrospective": "NOT RUN",
+  "native_effective_sandbox": "danger-full-access",
+  "read_only_enforcement_observed": false,
+  "child_run_id": "01a1110e-aab8-7ff0-b6e8-65952700c276",
+  "caller_host_session_id": "01a1110d-878f-7a73-81ce-a4eb6e98f94b",
+  "time": "2026-10-06T11:54:38.572440+00:00"
+}

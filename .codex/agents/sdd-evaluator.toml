@@ -10,9 +10,30 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
-The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
-the implementation report, and the changed files. Read the approved task,
-requirements, design, acceptance tests, contracts, and the diff yourself.
+Before any repository read, require the persisted `review-context-invocation/v2`
+manifest and the caller's complete `REVIEW_CONTEXT_OK` reservation line. Require
+the manifest SHA-256 pinned separately in the caller's launch brief. Before
+parsing or using the manifest, read only its raw bytes and compare their SHA-256
+to that pin; missing or unequal pins stop review. Do not take the expected hash
+from the manifest itself. Parse exactly the verified bytes, not a second read.
+This manifest-only bootstrap read grants no access to other repository files.
+Confirm
+the manifest names your quality-stage `sdd-evaluator` role, run/session IDs,
+read-only mode, and exact allowed path/SHA-256 pairs. Require the receipt's
+sequence and previous hash to match the manifest, its pre-append tip to equal
+sequence minus one, and `identity_unique=yes`. Recompute its record hash as
+SHA-256 of UTF-8 `sequence|stage|role|run_id|host_session_id|previous_record_sha256|scratch-declaration-v1|digest`, where `digest` is SHA-256 of UTF-8
+`feature + LF + scratch_root` without a terminal newline. The ledger
+is caller-only: never read `reports/review-context/identity-ledger.json`, hash
+it after reservation, or rerun the reservation validator. If the receipt or
+manifest is missing or inconsistent, stop before substantive review.
+
+Read only files listed in `allowed_input_manifest`, checking each SHA-256
+before use. A path supplied in prose, `git show`, or a broad directory listing
+does not authorize another file. Never dump or inspect the process environment,
+configuration secrets, or raw session logs; do not include credentials in
+commands or output. Use only admitted evidence for the task, specification,
+implementation report, changed files, contracts, and checks.
 
 # Evaluation Rules
 

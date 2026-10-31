@@ -34,6 +34,21 @@ jobs:
       - name: Test evaluator scratch isolation (Bash and PowerShell)
         shell: bash
         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test shared quality non-TTY transport contracts
+        shell: bash
+        run: python3 -B tests/quality-nontty-transport.tests.py
+      - name: Test traceability freeze normalization
+        shell: bash
+        run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Test shared review launch and conditional input contracts
+        shell: bash
+        run: |
+          python3 -B tests/review-conditional-inputs.tests.py
+          python3 -B tests/spec-review-verify-inputs.tests.py
+          python3 -B tests/host-review-preflight.tests.py
+          python3 -B tests/unified-launch-order.tests.py
+          python3 -B tests/unified-task-launch.tests.py
+          python3 -B tests/task-structured-output.tests.py
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -229,6 +244,9 @@ jobs:
       - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
         shell: pwsh
         run: ./tests/scenario.tests.ps1
+      - name: "[deterministic] Test review hash normalization (pwsh)"
+        shell: pwsh
+        run: ./tests/review-hash-normalization.tests.ps1
 
       # Epic A7's PowerShell compatibility suites are already part of the
       # runner inventory, but must also execute on the native Windows leg.
@@ -1482,6 +1500,7 @@ jobs:
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
+          ./tests/review-hash-normalization.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1

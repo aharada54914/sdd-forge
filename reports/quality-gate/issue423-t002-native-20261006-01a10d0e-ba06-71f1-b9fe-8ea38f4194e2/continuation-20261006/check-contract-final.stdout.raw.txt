@@ -1,0 +1,2 @@
+Verification contract FAILED for task T-002:
+ - required check 'build' has passes=false

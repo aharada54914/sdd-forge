@@ -1,0 +1,1 @@
+{"argv": ["rtk", "proxy", "python3", "-B", "specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py", "-v"], "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"}

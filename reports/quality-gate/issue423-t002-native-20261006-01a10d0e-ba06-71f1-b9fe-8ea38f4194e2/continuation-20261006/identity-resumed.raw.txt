@@ -1,0 +1,3 @@
+pwd=/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge
+CODEX_THREAD_ID='01a10d20-5c8c-7940-9d81-bd54e116f6bf'
+CODEX_SESSION_ID='01a10d0e-ba06-71f1-b9fe-8ea38f4194e2'

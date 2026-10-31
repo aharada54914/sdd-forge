@@ -1,0 +1,69 @@
+{
+  "_generated": {
+    "source": "contracts/capability-registry.json",
+    "schema_version": 1,
+    "sha256": "b09dc7759542e9cbfe8cc81c38e4f7a1d7630d0c1be77ec13d6d981785c00d67",
+    "notice": "This file is generated. Do not edit."
+  },
+  "gates": [
+    {
+      "id": "check-a8-citation-compliance",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+    },
+    {
+      "id": "check-a8-classification-table",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py"
+    },
+    {
+      "id": "check-a8-scope-boundary",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
+    },
+    {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    },
+    {
+      "id": "check-installed-plugin-drift",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+    },
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
+    }
+  ],
+  "capability_gate_map": {
+    "durable-workflow": [
+      "check-update-migration"
+    ]
+  }
+}

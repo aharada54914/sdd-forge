@@ -596,6 +596,26 @@ else
 fi
 
 # ===========================================================================
+if grep -qx 'model: sonnet' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md"; then
+  ok "Claude evaluator retains Sonnet after rendering"
+else
+  bad "Claude evaluator was not rendered as Sonnet"
+fi
+for variant in missing case wrong; do
+  jq --arg variant "$variant" '
+    .models += (if $variant == "missing" then [] else
+      [{name: (if $variant == "wrong" then "anthropic/haiku" else "anthropic/sonnet" end),
+        canonical_tier: (if $variant == "case" then "Standard" else "standard" end)}] end)
+  ' "$MISCASED_ROLE_REGISTRY" | jq '.role_defaults = {"sdd-evaluator": {minimum_tier: "strong", default_effort: "high"}}' > "$TMP/sonnet-$variant.json"
+  if "$RENDER_SH" --check --root "$TMP" --targets-file "$MISCASED_TARGETS" --registry "$TMP/sonnet-$variant.json" > "$TMP/sonnet-$variant.log" 2>&1; then
+    bad "Claude evaluator accepted invalid Sonnet registry: $variant"
+  elif grep -Eq "no claude model found for tier 'standard'|requires the registered Sonnet model" "$TMP/sonnet-$variant.log"; then
+    ok "Claude evaluator rejects invalid Sonnet registry: $variant"
+  else
+    bad "unexpected Sonnet rejection: $(cat "$TMP/sonnet-$variant.log")"
+  fi
+done
+
 # Self-registration (design.md Test Strategy #7; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================

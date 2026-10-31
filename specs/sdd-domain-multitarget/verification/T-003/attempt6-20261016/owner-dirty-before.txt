@@ -1,0 +1,245 @@
+ M .codex/agents/sdd-evaluator.toml
+ M .github/workflows/test.yml
+ M AGENTS.md
+ M install.sh
+ M plugins/sdd-quality-loop/agents/evaluator.md
+ M plugins/sdd-quality-loop/references/guard-invariants.json
+ M plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+ M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+ M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+ M plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+ M plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+ M plugins/sdd-quality-loop/scripts/registry_discovery.py
+ M plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+ M plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+ M plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ M plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+ M plugins/sdd-review-loop/references/review-context-boundary.md
+ M plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+ M plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ M plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+ M plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+ M plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+ M plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+ M plugins/sdd-review-loop/skills/task-review-loop/SKILL.md
+ M render-agent-frontmatter.ps1
+ M render-agent-frontmatter.sh
+ M reports/implementation/sdd-domain-multitarget/T-001.md
+ M reports/implementation/sdd-domain-multitarget/T-002.md
+ M reports/review-context/identity-ledger.json
+ M reports/verification/issue423-owner-regression-20261001.md
+ M specs/sdd-domain-multitarget/tasks.md
+ M specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json
+ M specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py
+ M specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py
+ M tests/install.tests.sh
+ M tests/issue311-scratch-isolation.tests.py
+ M tests/render-agent-frontmatter.tests.ps1
+ M tests/render-agent-frontmatter.tests.sh
+ M tests/review-agent-isolation.tests.sh
+ M tests/review-context-boundary.tests.sh
+ M tests/review-scratch-history.tests.py
+ M tests/run-all.ps1
+ M tests/run-all.sh
+?? contracts/selected-verification-plan.schema.json
+?? docs/development-policy.md
+?? docs/review-tickets/RT-20260930-001.yml
+?? docs/review-tickets/RT-20261003-001.yml
+?? docs/review-tickets/RT-20261006-001.yml
+?? docs/review-tickets/RT-20261006-002.yml
+?? docs/review-tickets/RT-20261006-003.yml
+?? docs/review-tickets/RT-20261006-004.yml
+?? handoffs/issue423-t001-20260928/candidates.json
+?? handoffs/issue423-t001-recovery-20261003/
+?? handoffs/issue423-t002-20260928/candidates.json
+?? handoffs/issue423-t002-recovery-20261003/
+?? plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py
+?? plugins/sdd-quality-loop/scripts/review-conditional-inputs.py
+?? plugins/sdd-review-loop/scripts/launch-impl-review.py
+?? plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs
+?? plugins/sdd-review-loop/scripts/preflight-host-review.py
+?? plugins/sdd-review-loop/scripts/probe-nontty-review.py
+?? plugins/sdd-review-loop/scripts/review-hash-normalization.ps1
+?? plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+?? reports/implementation/sdd-domain-multitarget/T-003-attempt2.md
+?? reports/implementation/sdd-domain-multitarget/T-003-attempt2.scratch-owner.json
+?? reports/implementation/sdd-domain-multitarget/T-003-attempt3.md
+?? reports/implementation/sdd-domain-multitarget/T-003-attempt4.md
+?? reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261014-fresh.md
+?? reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261014.md
+?? reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261016-fresh.md
+?? reports/implementation/sdd-domain-multitarget/T-003.md
+?? reports/quality-gate/20261003-issue423-t001-post-fix-independent-review.md
+?? reports/quality-gate/20261003T011343Z-sdd-domain-multitarget-T-001.md
+?? reports/quality-gate/20261003T025724Z-sdd-domain-multitarget-T-001.md
+?? reports/quality-gate/20261006T100647Z-sdd-domain-multitarget-T-002.md
+?? reports/quality-gate/20261006T113433Z-sdd-domain-multitarget-T-002.md
+?? reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md
+?? reports/quality-gate/issue423-t001-post-fix-declaration-20261003.md
+?? reports/quality-gate/issue423-t002-current-cycle-declaration-20261006.md
+?? reports/quality-gate/issue423-t002-dependency-closure-declaration-20261006.md
+?? reports/quality-gate/issue423-t002-dependency-closure-declaration-v2-20261006.md
+?? reports/quality-gate/issue423-t002-dependency-closure-declaration-v3-20261006.md
+?? reports/quality-gate/issue423-t002-dependency-closure-declaration-v4-20261006.md
+?? reports/quality-gate/issue423-t002-native-20261006-01a10d0e-ba06-71f1-b9fe-8ea38f4194e2/
+?? reports/quality-gate/issue423-t002-post-fix-declaration-20261003.md
+?? reports/quality-gate/issue423-t002-post-fix-declaration-20261005-final.md
+?? reports/quality-gate/issue423-t002-post-fix-declaration-20261005-installer.md
+?? reports/quality-gate/issue423-t002-post-fix-declaration-20261007.md
+?? reports/quality-gate/issue423-t002-post-provider-key-declaration-20261006.md
+?? reports/quality-gate/launch-4e434839-9c1a-4bd9-b63a-e2392111afd3/
+?? reports/review-context/issue423-t001-post-fix-quality-20261003-invocation.json
+?? reports/review-context/issue423-t001-post-fix-quality-invocation.draft.json
+?? reports/review-context/issue423-t001-quality-20261003-invocation.json
+?? reports/review-context/scratch-reservations/1e6e84cb42858e9ebc8e2a324c330b11ee31dc5ec4372bbb867321747f99b2db.json
+?? reports/review-context/scratch-reservations/22d233985711b6ccc41e5439d197074658573ac25ce6b6958e77c8e57a3d0a4e.json
+?? reports/review-context/scratch-reservations/3359ec9a80245aa8b6c9408568668e6c24bf7e80d145534604f5c2ea02179e3e.json
+?? reports/review-context/scratch-reservations/7b3027a5859f8af0b126ae62b1d6ee54dcab294d62afd3e36a61b68327c62e55.json
+?? reports/review-context/scratch-reservations/b66f2eacbe2f06032e2a3503d2bba44c9340ccf6ec51d3c384063e0ddede2006.json
+?? reports/review-context/scratch-reservations/cb126f0453dc4b4cbf791d1378dc49c7e30326f6a9dc4e19a108b36bbd35dc1d.json
+?? reports/review-context/scratch-reservations/ed271d74dbcde6834f72fdaca176b914025a756f3eb901239ec0f879d2806631.json
+?? reports/review-context/scratch-reservations/eff4dcae0dbf3c2f1b009b9d560ae2ae303a6284558ac2ba48dee6e1ba368bda.json
+?? reports/review-context/sdd-domain-multitarget-task-a5r1-a-01a1037a-fff0-77b2-b861-47b33cf62501-invocation.json
+?? reports/review-context/sdd-domain-multitarget-task-a5r1-b-01a1037f-6301-7123-be91-d856facc2326-invocation.json
+?? reports/task-review/sdd-domain-multitarget/attempt-5/
+?? reports/verification/issue423-auth-boundary-readback-20261003.md
+?? reports/verification/issue423-batch-hash-native-diagnostic-20261007.md
+?? reports/verification/issue423-caller-canary-20261006.json
+?? reports/verification/issue423-claude-investigation-20261001.md
+?? reports/verification/issue423-current-installer-recheck-20261004.md
+?? reports/verification/issue423-distribution-cross-runtime-20261004.md
+?? reports/verification/issue423-filesonly-exit-message-20261003.patch
+?? reports/verification/issue423-filesonly-exit-message-candidate-20261003.md
+?? reports/verification/issue423-filesonly-root-review-20261003.md
+?? reports/verification/issue423-followup-original-path-20261006.md
+?? reports/verification/issue423-fresh-host-20260927.md
+?? reports/verification/issue423-installer-evidence-scope-20261005.md
+?? reports/verification/issue423-invocation-rawhash-repair-20261007.md
+?? reports/verification/issue423-launch-repair-human.py
+?? reports/verification/issue423-launch-repair-status-20261002.md
+?? reports/verification/issue423-manifest-binding-backup-1_l1uzsl/
+?? reports/verification/issue423-manifest-binding-human-apply.py
+?? reports/verification/issue423-manifest-binding-human-batch-20261004.md
+?? reports/verification/issue423-manifest-binding-postapply-regression-20261005.md
+?? reports/verification/issue423-manifest-binding-preflight-candidate-20261005.patch
+?? reports/verification/issue423-manifest-filename-binding-candidate-20261004.md
+?? reports/verification/issue423-manifest-preflight-backup-9ddyb_1a/
+?? reports/verification/issue423-manifest-preflight-human-apply.py
+?? reports/verification/issue423-native-handshake-20260927.md
+?? reports/verification/issue423-next-admission-readback-20261005.md
+?? reports/verification/issue423-owner-regression-addendum-20261004.md
+?? reports/verification/issue423-paired-regression-20261001.md
+?? reports/verification/issue423-provider-key-repair-20261006.md
+?? reports/verification/issue423-quality-auth-boundary-candidate.patch
+?? reports/verification/issue423-quality-auth-boundary-human-apply.sh
+?? reports/verification/issue423-quality-launch-candidate.patch
+?? reports/verification/issue423-quality-launch-contract-20261002.md
+?? reports/verification/issue423-quality-launch-human-apply.sh
+?? reports/verification/issue423-quality-launch-reserve-fixture.sh
+?? reports/verification/issue423-recovery-independent-inspection-20261014.md
+?? reports/verification/issue423-role-read-classification-20261003.md
+?? reports/verification/issue423-role-read-recheck-20261006.md
+?? reports/verification/issue423-safe-verification-20261006.md
+?? reports/verification/issue423-scratch-recovery-candidate-20261006/
+?? reports/verification/issue423-scratch-recovery-postapply-20261006.md
+?? reports/verification/issue423-shared-registration-candidate-20261007.patch
+?? reports/verification/issue423-shared-registration-candidate.tests.py
+?? reports/verification/issue423-shared-registration-preflight-20261007.md
+?? reports/verification/issue423-sonnet-shared-launch-connection-20261007.md
+?? reports/verification/issue423-t001-recovery-adoption-20261002.md
+?? reports/verification/issue423-t002-active-caller-handoff-20261006.md
+?? reports/verification/issue423-t002-build-human-run.sh
+?? reports/verification/issue423-t002-build-human.log.SYnVYKXU
+?? reports/verification/issue423-t002-build-human.log.h2HQDSYl
+?? reports/verification/issue423-t002-completion-20261014.md
+?? reports/verification/issue423-t002-current-byte-implementation-addendum-20261007.md
+?? reports/verification/issue423-t002-current-cycle-contract-followup-20261007.md
+?? reports/verification/issue423-t002-current-cycle-preparation-20261006.md
+?? reports/verification/issue423-t002-current-validation-20261014.md
+?? reports/verification/issue423-t002-declared-gate-01a1110d-878f-7a73-81ce-a4eb6e98f94b/
+?? reports/verification/issue423-t002-dependency-closure-and-scratch-20261006.md
+?? reports/verification/issue423-t002-dependency-gate-01a11108-f1b1-7632-8a65-c905eeb63e5d/
+?? reports/verification/issue423-t002-donewhen-evidence-audit-20261005.md
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261004.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261005-final.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261005-installer.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-current-cycle.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-declared-dependencies-v2.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-declared-dependencies-v3.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-declared-dependencies-v4.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-declared-dependencies.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-dependency-closure.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-20261006-post-provider-key.json
+?? reports/verification/issue423-t002-evaluator-input-candidate-check-20261005-installer.json
+?? reports/verification/issue423-t002-evaluator-input-final-check-20261005.json
+?? reports/verification/issue423-t002-evaluator-launch-preflight-20261004.md
+?? reports/verification/issue423-t002-evaluator-launch-repair-20261006.md
+?? reports/verification/issue423-t002-evaluator-resume-20261006.md
+?? reports/verification/issue423-t002-final-input-path-safety-20261005.md
+?? reports/verification/issue423-t002-final-launch-preparation-20261005.md
+?? reports/verification/issue423-t002-focused-diff-20261006.md
+?? reports/verification/issue423-t002-focused-diff-20261007.md
+?? reports/verification/issue423-t002-formal-caller-20261006T113433Z/
+?? reports/verification/issue423-t002-formal-invocation-4e434839-9c1a-4bd9-b63a-e2392111afd3.json
+?? reports/verification/issue423-t002-formal-invocation-7b5dca6d-8f48-4d22-9cfe-94543ba4b34f.json
+?? reports/verification/issue423-t002-formal-major-followup-20261007.md
+?? reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/
+?? reports/verification/issue423-t002-fresh-caller-canary-20261006.json
+?? reports/verification/issue423-t002-fresh-launch-preparation-20261007.md
+?? reports/verification/issue423-t002-independent-codex-20261014.md
+?? reports/verification/issue423-t002-installer-impact-20261004.md
+?? reports/verification/issue423-t002-native-preflight-01a10d0e-ba06-71f1-b9fe-8ea38f4194e2/
+?? reports/verification/issue423-t002-post-provider-key-input-preparation-20261006.md
+?? reports/verification/issue423-t002-probe-source-b42022b0-1b06-4e7a-8d67-45d2a649875f.json
+?? reports/verification/issue423-t002-probe-source-b49f1662-d455-4cd7-b5a8-0fab0199bce3.json
+?? reports/verification/issue423-t002-quality-cli-agent-application-20261006.md
+?? reports/verification/issue423-t002-quality-cli-human-apply.sh
+?? reports/verification/issue423-t002-quality-cli-invocation-candidate-20261006.md
+?? reports/verification/issue423-t002-quality-cli-invocation-v1.patch
+?? reports/verification/issue423-t002-quality-cli-invocation-v2.patch
+?? reports/verification/issue423-t002-readiness-20261004.md
+?? reports/verification/issue423-t002-readonly-gate-20261006/
+?? reports/verification/issue423-t002-readonly-gate-fresh-20261006/
+?? reports/verification/issue423-t002-readonly-gate-v4b-20261006/
+?? reports/verification/issue423-t002-sandbox-scratch-diagnosis-20261006.md
+?? reports/verification/issue423-t002-ship-hook-canary-20261007.json
+?? reports/verification/issue423-t002-ship-hook-canary-cleanup-20261007.json
+?? reports/verification/issue423-t002-v2-gate-01a11111-e6f5-72e3-b968-acc195350a9a/
+?? reports/verification/issue423-t003-attempt6-scope.md
+?? reports/verification/issue423-t003-branch-audit-20261002.md
+?? reports/verification/issue423-task-provenance-launch.mjs
+?? reports/verification/prepare-t003-attempt6.py
+?? specs/sdd-domain-multitarget/human-copy/
+?? specs/sdd-domain-multitarget/verification/20261014/
+?? specs/sdd-domain-multitarget/verification/T-001.contract.json
+?? specs/sdd-domain-multitarget/verification/T-001.evidence.json
+?? specs/sdd-domain-multitarget/verification/T-001/RT-20261003-001-repair.md
+?? specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/
+?? specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/
+?? specs/sdd-domain-multitarget/verification/T-002-20261014.evidence.json
+?? specs/sdd-domain-multitarget/verification/T-002.contract.json
+?? specs/sdd-domain-multitarget/verification/T-002/qg-20260930-command-evidence.md
+?? specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/
+?? specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/
+?? specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/candidate-report.md
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/candidate/
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/fixture/plugins/
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/handoff.md
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/human-stage-isolated-clone.py
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/migration-note.md
+?? specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/registry-migration.tests.py
+?? specs/sdd-domain-multitarget/verification/T-002/registry-registration-candidate.json
+?? specs/sdd-domain-multitarget/verification/T-002/registry-registration-evidence.json
+?? specs/sdd-domain-multitarget/verification/T-002/registry-registration-recovery.md
+?? specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py
+?? specs/sdd-domain-multitarget/verification/T-003/
+?? tests/host-review-preflight.tests.py
+?? tests/quality-nontty-transport.tests.py
+?? tests/review-conditional-inputs.tests.py
+?? tests/review-hash-normalization.tests.ps1
+?? tests/spec-review-verify-inputs.tests.py
+?? tests/task-structured-output.tests.py
+?? tests/traceability-freeze-contract.tests.py
+?? tests/unified-launch-order.tests.py
+?? tests/unified-task-launch.tests.py

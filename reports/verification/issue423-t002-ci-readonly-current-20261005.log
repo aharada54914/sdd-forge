@@ -1,0 +1,77 @@
+Preparation-only local regression; not formal evaluation.
+Cwd: owner/mcp/ci-mcp
+login=false
+
+$ rtk proxy npm run test:compile
+
+> ci-mcp@0.1.0 test:compile
+> tsc -p tsconfig.test.json
+
+
+Exit: 0
+
+$ rtk proxy node --test dist-test/tests/no-write/no-write-behavior.test.js dist-test/tests/no-write/input-schema-fields.test.js dist-test/tests/readonly/static-check.test.js
+✔ AC-006: no tool input schema declares a write-inducing field (0.512333ms)
+✔ AC-006: every declared input field is a read-scoped allowlisted name (0.068042ms)
+✔ AC-006: all 5 tools are present and each schema has at least one field (0.078416ms)
+✔ AC-006: the probe field list is drawn from the shared write-inducing-field denylist (0.367625ms)
+✔ AC-006: list_workflow_runs rejects a "action" field with invalid-input and never calls GitHub (0.799875ms)
+✔ AC-006: list_workflow_runs rejects a "method" field with invalid-input and never calls GitHub (0.062333ms)
+✔ AC-006: list_workflow_runs rejects a "body" field with invalid-input and never calls GitHub (0.056334ms)
+✔ AC-006: list_workflow_runs rejects a "command" field with invalid-input and never calls GitHub (0.052708ms)
+✔ AC-006: get_workflow_run rejects a "action" field with invalid-input and never calls GitHub (0.315ms)
+✔ AC-006: get_workflow_run rejects a "method" field with invalid-input and never calls GitHub (0.045417ms)
+✔ AC-006: get_workflow_run rejects a "body" field with invalid-input and never calls GitHub (0.043625ms)
+✔ AC-006: get_workflow_run rejects a "command" field with invalid-input and never calls GitHub (0.051041ms)
+✔ AC-006: list_run_jobs rejects a "action" field with invalid-input and never calls GitHub (0.228917ms)
+✔ AC-006: list_run_jobs rejects a "method" field with invalid-input and never calls GitHub (0.055917ms)
+✔ AC-006: list_run_jobs rejects a "body" field with invalid-input and never calls GitHub (0.040375ms)
+✔ AC-006: list_run_jobs rejects a "command" field with invalid-input and never calls GitHub (0.03925ms)
+✔ AC-006: list_run_artifacts rejects a "action" field with invalid-input and never calls GitHub (0.118875ms)
+✔ AC-006: list_run_artifacts rejects a "method" field with invalid-input and never calls GitHub (0.037833ms)
+✔ AC-006: list_run_artifacts rejects a "body" field with invalid-input and never calls GitHub (0.0305ms)
+✔ AC-006: list_run_artifacts rejects a "command" field with invalid-input and never calls GitHub (0.025958ms)
+✔ AC-006: get_job_log rejects a "action" field with invalid-input and never calls GitHub (0.163875ms)
+✔ AC-006: get_job_log rejects a "method" field with invalid-input and never calls GitHub (0.029958ms)
+✔ AC-006: get_job_log rejects a "body" field with invalid-input and never calls GitHub (0.019083ms)
+✔ AC-006: get_job_log rejects a "command" field with invalid-input and never calls GitHub (0.019458ms)
+✔ src/ contains no filesystem write API references (5.686833ms)
+✔ src/ contains no child_process usage in any form (no execFile exception) (3.26625ms)
+✔ src/ contains no eval usage (1.497916ms)
+✔ src/ contains no write-method HTTP literals (POST/PUT/PATCH/DELETE) (1.665875ms)
+✔ the only fetch(...) call sites in src/ are in github-client.ts (1.684584ms)
+✔ github-client.ts fixes every HTTP method literal to GET (0.826625ms)
+✔ the only scheme://host literal anywhere in src/ is the fixed GitHub API base URL (0.787375ms)
+✔ Cycle 2: a rogue host literal embedded in a string is preserved (not truncated at its own //) and is caught by the host-literal scan (0.070917ms)
+✔ Cycle 2: same-line code after a string containing // is not swallowed as a false comment (0.066916ms)
+✔ Cycle 2: genuine // and /* */ comments are still stripped (no false positive from real comments) (0.090834ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73.446167
+
+Exit: 0
+
+Post-run source/config/candidate SHA-256:
+d9c98796282df43b78b500a77233ec4135c8ab89b33d81463b9b98aa339f301d  mcp/ci-mcp/src/auth.ts
+ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5  mcp/ci-mcp/src/server.ts
+22873cbab38617dbdb94818e0a53840ba6cd2f7da63640891722d97e2a1e07b2  mcp/ci-mcp/src/index.ts
+2bc46044a2525d6b507c9dcdbff1eb7b9d5d71e924e3023538953f31c10bca96  mcp/ci-mcp/src/diagnostics.ts
+147d8306a00b01649450b3ff90659d861df2aaec2f5fb2f103fb6c2573add143  mcp/ci-mcp/src/repo-resolve.ts
+b1b15448efe52d4f22a8de2d73ea670370f086162da7d499f5f97e1d2e8a0e97  mcp/ci-mcp/src/error-normalizer.ts
+6f2a30a4b8a64c14bc0a6b58eeb2dc4ebebeb04985b4cc3e130b1186a4f07328  mcp/ci-mcp/src/tools/actions.ts
+af1160812b48e6bfdfbde71096c1768f5f05e3e9872286f7019eff2127d5c176  mcp/ci-mcp/src/envelope.ts
+2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e  mcp/ci-mcp/src/github-client.ts
+7569f16dff5958bb17869a1e8b2cf0cbec63782e70131a573b63d0d700ea1fa0  mcp/ci-mcp/tests/no-write/no-write-behavior.test.ts
+7123d90b4331e14ec45ef82070b38590554ee091b963e0f39271ed0828235112  mcp/ci-mcp/tests/no-write/input-schema-fields.test.ts
+8d6f5d6ff4dc5157874927f72db113753e2210218579206ee8be498e389b80ba  mcp/ci-mcp/tests/no-write/support/write-inducing-fields.ts
+3753edc9756e41c3876427e91eb20fea50507ce680edb3631075adbd6e45e342  mcp/ci-mcp/tests/readonly/static-check.test.ts
+cde664a264487d43ca96674a7d67a66db2e805d6e0265462f416be1b3a88e4fc  mcp/ci-mcp/tests/readonly/support/source-scan.ts
+787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713  mcp/ci-mcp/package.json
+cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f  mcp/ci-mcp/package-lock.json
+1b0a03e8923981d7bbce5fd5d98aea907ea3215630de18deb7f906667c0b1201  mcp/ci-mcp/tsconfig.test.json
+374901a0b6b282c2d232fa98da96c365cbce400cdb2b46d9e542c31db3069598  reports/verification/issue423-t002-evaluator-input-candidate-20261005-installer.json

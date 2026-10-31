@@ -428,6 +428,23 @@ Body text unaffected.
     }
 
     # =======================================================================
+    if ((Get-Content (Join-Path $tmp 'plugins/sdd-quality-loop/agents/evaluator.md')) -ccontains 'model: sonnet') {
+        Test-Ok 'Claude evaluator retains Sonnet after rendering'
+    } else { Test-Bad 'Claude evaluator was not rendered as Sonnet' }
+    foreach ($variant in @('missing', 'case', 'wrong')) {
+        $fixture = Get-Content $miscasedRoleRegistry -Raw | ConvertFrom-Json -AsHashtable
+        $fixture.role_defaults = @{ 'sdd-evaluator' = @{ minimum_tier = 'strong'; default_effort = 'high' } }
+        if ($variant -cne 'missing') {
+            $fixture.models += @{ name = $(if ($variant -ceq 'wrong') { 'anthropic/haiku' } else { 'anthropic/sonnet' }); canonical_tier = $(if ($variant -ceq 'case') { 'Standard' } else { 'standard' }) }
+        }
+        $fixturePath = Join-Path $tmp "sonnet-$variant.json"
+        $fixture | ConvertTo-Json -Depth 20 | Set-Content $fixturePath
+        $result = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $tmp, '-TargetsFile', $miscasedTargets, '-Registry', $fixturePath)
+        if ($result.ExitCode -ne 0 -and $result.Combined -cmatch "no claude model found for tier 'standard'|requires the registered Sonnet model") {
+            Test-Ok "Claude evaluator rejects invalid Sonnet registry: $variant"
+        } else { Test-Bad "unexpected Sonnet registry result: $variant $($result.Combined)" }
+    }
+
     # Self-registration.
     # =======================================================================
     # The runner loads an external inventory; inspect its public list, not its source.

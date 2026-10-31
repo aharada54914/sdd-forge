@@ -1,0 +1,13 @@
+{
+  "expected": {
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py": "4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788",
+    "plugins/sdd-quality-loop/scripts/registry_discovery.py": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea",
+    "reports/verification/issue423-t002-build-human.log.h2HQDSYl": "450aba84af3339e078ec3f9f6e69d57928b1177fa24705edc294ddaf964a2fe8"
+  },
+  "observed": {
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py": "4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788",
+    "plugins/sdd-quality-loop/scripts/registry_discovery.py": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea",
+    "reports/verification/issue423-t002-build-human.log.h2HQDSYl": "450aba84af3339e078ec3f9f6e69d57928b1177fa24705edc294ddaf964a2fe8"
+  },
+  "scope": "Unchanged validator/helper installed-payload assembly only; current installer and native host registration are not proved."
+}

@@ -1,0 +1,3 @@
+Command: rtk proxy bash plugins/sdd-quality-loop/scripts/validate-review-context-set.sh reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-invocation.json /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge --reserve
+Exit: 0
+REVIEW_CONTEXT_OK cb126f0453dc4b4cbf791d1378dc49c7e30326f6a9dc4e19a108b36bbd35dc1d sequence=1196 previous_record_sha256=518f8e2150aace36c470ea659ca931535bb83eaa59e14d834322d79c3f1c9539 pre_append_tip_sequence=1195 identity_unique=yes

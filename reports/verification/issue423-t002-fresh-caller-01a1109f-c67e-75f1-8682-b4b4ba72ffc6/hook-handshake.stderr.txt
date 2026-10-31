@@ -1,0 +1,1 @@
+check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: WRITE_EXECUTED: recorded evidence shows the canary write EXECUTED (executed: true) -- no denial was observed

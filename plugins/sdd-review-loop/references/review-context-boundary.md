@@ -20,9 +20,9 @@ wins and this document is the defect.
 `--reserve` runs in this order:
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
-   ledger **as it stands before the reservation** (`:601`, and again under the
-   reservation lock at `:1129`).
-2. Append the reserved record to the ledger (`:1139-1148`).
+   ledger **as it stands before the reservation** (`:697`, and again under the
+   reservation lock at `:1309`).
+2. Append the reserved record to the ledger (`:1319-1331`).
 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
    chain facts the validator proved before printing (WFI-037):
    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
@@ -39,20 +39,20 @@ and the appended record is the *extension*.
 
 | Field | Validator checks | Reviewer re-verifies? |
 |---|---|---|
-| `schema` | must equal `review-context-invocation/v2` (`:367`) | **yes** — cheap, and a wrong schema means a wrong contract |
-| `input_mode` | must equal `file-manifest` (`:368`) | **yes** |
-| `fallback_mode` | must equal `none` (`:369`) | **yes** |
-| `read_only` | must equal `true` (`:370`) | **yes** |
-| `stage`, `role` | must be an authorized pair (`:414-416`) | **yes** — confirm they match the role you actually are |
-| `feature` | charset only (`:371`) | **yes** — confirm it is the feature you were asked to review |
-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:372`, `:603`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:603`) | **yes** — via the caller-quoted line; this is the chain |
-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:373`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:374`); equality against the ledger **before** the append (`:601`, `:1129`) | **NO — see below** |
-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:796-811`) | **yes** — and read nothing outside it |
-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:872-876`) | **yes** — this is the substantive integrity check |
-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:350`, `:622-636`) | **yes** |
-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:351-356`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:654-670`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+| `schema` | must equal `review-context-invocation/v2` (`:459`) | **yes** — cheap, and a wrong schema means a wrong contract |
+| `input_mode` | must equal `file-manifest` (`:460`) | **yes** |
+| `fallback_mode` | must equal `none` (`:461`) | **yes** |
+| `read_only` | must equal `true` (`:462`) | **yes** |
+| `stage`, `role` | must be an authorized pair (`:510-512`) | **yes** — confirm they match the role you actually are |
+| `feature` | charset only (`:463`) | **yes** — confirm it is the feature you were asked to review |
+| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:464`, `:699`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+| `previous_record_sha256` | must equal the last record's `record_sha256` (`:699`) | **yes** — via the caller-quoted line; this is the chain |
+| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:465`) | **yes** — it is a constant |
+| `identity_ledger_sha256` | hex-format (`:466`); equality against the ledger **before** the append (`:697`, `:1309`) | **NO — see below** |
+| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:902-915`) | **yes** — and read nothing outside it |
+| `allowed_input_manifest[].sha256` | equality against the file on disk (`:978-981`) | **yes** — this is the substantive integrity check |
+| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:436`, `:728-741`) | **yes** |
+| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:443-448`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:759-775`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
 
 ## `identity_ledger_sha256`: do not re-verify
 
@@ -97,7 +97,7 @@ quoted line and its own manifest — with no file read outside the manifest:
 3. `<record_sha256>` recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
    from your manifest's own fields — the same construction the validator
-   uses at `:495` and `:1117`. (evidence: caller-quoted line + manifest)
+   uses at `:591` and `:1297`. (evidence: caller-quoted line + manifest)
    For new scratch-bound quality reservations, compute the declaration digest as
    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
    `|scratch-declaration-v1|<declaration digest>` to the original chain text before
@@ -331,3 +331,78 @@ quality roots are bound into their ledger record hash through the optional
 unchanged. Legacy records without that extension may lack history and provide no
 proof of past scratch isolation; known legacy roots still prevent overlap. These are declared-location checks, not proof
 of operating-system isolation or of live host activation.
+
+### Same-checkout historical scratch declaration recovery
+
+A historical implementation report containing a relative Scratch Root may be
+resolved only against its independently established, canonical owning checkout,
+and only when that checkout equals the current invocation owner. This recovers
+a declared location, not evidence of historical execution or isolation. The old
+report and ledger remain byte-for-byte unchanged. Current invocation scratch
+roots and ordinary absolute historical roots retain their existing rules.
+
+Before admission, the recovery reviewer must inspect the contemporaneous native
+owner/run observation and confirm its association with the exact report. A
+transcription or its SHA-256 does not authenticate that observation. Missing or
+ambiguous source evidence blocks recovery. Do not export full private session
+transcripts as review artifacts. A minimal locally retained observation may be
+admitted only after this source inspection, with the inspection recorded in the
+existing recovery declaration; it is not a signature or new approval authority.
+
+The inspector is the independent reviewer of this authorized limited recovery,
+not merely the receipt author. Inspect the native session's recorded working
+directory and its tool request/result associating that owner with creation of
+the exact historical report and run. Record the source session identifier and
+event timestamps, the historical report digest, the three recovery-artifact
+digests, the observed owner, and the review outcome in the existing recovery
+review evidence. Do not claim that an observed tool result is a cryptographic
+signature. The current cycle's `gate_report_declaration` must cite that completed
+independent recovery review and pin its exact artifact bytes through the existing
+`## Post-Fix Artifacts` mechanism alongside the report, receipt and observation.
+The normal launch caller verifies that this is the authorized current-cycle
+declaration before constructing admitted inputs. Missing review, an unrelated
+cycle, or a review that did not inspect the native source blocks this procedure.
+The deterministic validators verify byte/identity/path consistency only; they
+cannot establish source authenticity from a self-authored JSON document. These
+are additional admission duties, not a new review verdict or signature schema.
+
+Use existing exact path-plus-SHA admission, including the quality declaration's
+Post-Fix Artifacts channel where applicable; do not broaden role path allowlists.
+Admit all three artifacts: the unchanged historical report, its deterministic
+adjacent `<report-stem>.scratch-owner.json` receipt, and the minimal owner
+observation. The invocation's allowed_input_manifest must bind every artifact.
+
+The receipt has exactly these fields: report, report_sha256, raw_root, run,
+session, attempt, owner, owner_observation, owner_observation_sha256. Strings
+must be nonempty; attempt is a positive integer, not boolean. Duplicate JSON
+keys and extra fields are rejected. The observation contains exactly owner,
+run, report_sha256 and must match the receipt. Every declared digest must match
+both the admitted digest and current bytes. The report has exactly one matching
+Run ID, Task Attempt Count, Session ID and Scratch Root. The owner is an existing
+canonical directory equal to the current owning checkout; report, receipt and
+observation use existing safe-path containment checks.
+
+The relative root permits one trailing slash, but no absolute prefix, empty,
+dot or parent component, backslash, colon, CR or LF. Resolve it under the bound
+owner through existing path-safety checks before existing canonical overlap
+validation. Equal, ancestor and descendant roots still reject; prefix siblings
+remain distinct. The historical scratch directory itself may be absent because
+this check preserves the declared location, not proof that the directory ran.
+Never create the old directory to manufacture evidence. All existing snapshot,
+under-lock recheck, ledger identity, missing-history and altered-root rejection
+rules remain unchanged. No receipt grants permission to reserve an otherwise
+inadmissible reviewer.
+
+## Same-task evaluator implementation binding
+
+The pinned implementation manifest binds task/run/session identity to the
+implementation report; its allowed_inputs do not authorize evaluator inputs.
+Its path is `handoffs/<directory>/manifest.json` or
+`handoffs/<directory>/manifest-<version>.json`, where `<version>` starts with
+an ASCII alphanumeric character and otherwise contains only ASCII alphanumeric
+characters, `_`, or `-`. Versioned names preserve historical manifests during
+approved recovery; they do not relax exact path/hash pins, report citation,
+task/run/session binding, or input authorization. Never substitute an older
+manifest merely because its basename is `manifest.json`.
+A changed source or test must be declared by exact path and hash in the report's
+## Outputs, or by the existing post-fix artifact declaration for that cycle.

@@ -1,0 +1,260 @@
+{
+  "task_id": "T-001",
+  "feature": "sdd-domain-multitarget",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "a35dabfd5299dca7696ca20bf95a9c97cf04dabd2e0469765509b88ec2eaa84a",
+  "quality_report": "reports/quality-gate/20261003T025724Z-sdd-domain-multitarget-T-001.md",
+  "verification_contract": "specs/sdd-domain-multitarget/verification/T-001.contract.json",
+  "git_commit": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root . -v",
+      "exit_code": 0,
+      "started_at": "2026-10-03T02:53:42.984Z",
+      "finished_at": "2026-10-03T02:53:43.196Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/post-fix-inventory.log",
+      "evidence_sha256": "97d796b34229c0cba96626c696b56cb1ee8c8998231d6c4779b6e1dddff11339"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root . -v",
+      "exit_code": 0,
+      "started_at": "2026-10-03T02:53:42.984Z",
+      "finished_at": "2026-10-03T02:53:43.196Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/post-fix-inventory.log",
+      "evidence_sha256": "97d796b34229c0cba96626c696b56cb1ee8c8998231d6c4779b6e1dddff11339"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 tests/issue311-scratch-isolation.tests.py --repo /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:20:39.430Z",
+      "finished_at": "2026-10-02T23:23:02.251Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-scratch.log",
+      "evidence_sha256": "ebe3e01ba6d6ebf4a3d43f185a2225d85c60af7060d7592ee10e8e657974f057"
+    },
+    {
+      "id": "review-context-boundary-regression",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash tests/review-context-boundary.tests.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:20:40.629Z",
+      "finished_at": "2026-10-02T23:23:02.254Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-boundary.log",
+      "evidence_sha256": "f59ef1e1c066475aeb592777c326c6e19906caa2598c6e5d07e385c74dd572e3"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:19:48.084Z",
+      "finished_at": "2026-10-02T23:19:48.172Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-placeholders.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain-multitarget/tasks.md reports/quality-gate reports/implementation .",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:20:04.778Z",
+      "finished_at": "2026-10-02T23:20:04.958Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-task-state.log",
+      "evidence_sha256": "a2b9c4c1076d3d997ee2319d42e16a5627a5072cdf5b4452f9d99a1eff4d937c"
+    },
+    {
+      "id": "risk-check",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/sdd-domain-multitarget/tasks.md T-001",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:19:47.971Z",
+      "finished_at": "2026-10-02T23:19:48.084Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-risk.log",
+      "evidence_sha256": "0eda7d79ba20116673a4644a5b3ddd237d0fbc1595209612ab56f431c86be834"
+    },
+    {
+      "id": "workflow-state-check",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-02T23:19:48.172Z",
+      "finished_at": "2026-10-02T23:20:52.690Z",
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-workflow.log",
+      "evidence_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "rtk proxy python3 plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root .",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/component-coverage-human.json",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001.contract.json",
+      "sha256": "29530436f4f18dfcab2e499c4f1f706a169ffa970ff4c07429b0c6d760e505d6"
+    },
+    {
+      "path": "reports/quality-gate/20261003T025724Z-sdd-domain-multitarget-T-001.md",
+      "sha256": "4d4cb4f394ba8b68a7e52938d8c8eda2eaf52e69e984b0cd92c693d41a6ca9e7"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/component-coverage-human.json",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-placeholders.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-boundary.log",
+      "sha256": "f59ef1e1c066475aeb592777c326c6e19906caa2598c6e5d07e385c74dd572e3"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-scratch.log",
+      "sha256": "ebe3e01ba6d6ebf4a3d43f185a2225d85c60af7060d7592ee10e8e657974f057"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-risk.log",
+      "sha256": "0eda7d79ba20116673a4644a5b3ddd237d0fbc1595209612ab56f431c86be834"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-task-state.log",
+      "sha256": "a2b9c4c1076d3d997ee2319d42e16a5627a5072cdf5b4452f9d99a1eff4d937c"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-workflow.log",
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/post-fix-inventory.log",
+      "sha256": "97d796b34229c0cba96626c696b56cb1ee8c8998231d6c4779b6e1dddff11339"
+    }
+  ]
+}

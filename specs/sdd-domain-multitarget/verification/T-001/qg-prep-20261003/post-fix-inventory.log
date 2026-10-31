@@ -1,0 +1,27 @@
+Command: rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root . -v
+Started: 2026-10-03T02:53:42.984Z
+Finished: 2026-10-03T02:53:43.196Z
+Exit: 0
+test_TEST_001a_interviewer_questions_and_layer_output (__main__.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (__main__.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (__main__.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (__main__.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (__main__.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (__main__.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (__main__.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (__main__.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (__main__.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (__main__.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (__main__.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_host_surface_omission_is_rejected (__main__.ConsumerInventoryTests.test_host_surface_omission_is_rejected) ... ok
+test_invalid_disposition_is_rejected (__main__.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (__main__.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (__main__.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (__main__.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (__main__.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (__main__.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.069s
+
+OK

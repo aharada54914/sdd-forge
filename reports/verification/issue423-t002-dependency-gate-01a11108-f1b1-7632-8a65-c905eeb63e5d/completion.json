@@ -1,0 +1,22 @@
+{
+  "status": "BLOCKED",
+  "evaluation": "unevaluated",
+  "task_status": "Implementation Complete",
+  "caller_native_id": "01a11108-f1b1-7632-8a65-c905eeb63e5d",
+  "child_native_id": "01a1110a-3725-7413-8617-bea91e30f2f1",
+  "spawn_count": 1,
+  "reservation_count": 0,
+  "proposed_sequence": 1198,
+  "ledger_sequence": 1197,
+  "ledger_unchanged": true,
+  "input_hash_mismatches": [],
+  "head": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "scratch_empty": true,
+  "semantic_review": "NOT RUN",
+  "deterministic_checks_after_preflight": "NOT RUN",
+  "focused_regression": "NOT RUN",
+  "ticket": "docs/review-tickets/RT-20261006-004.yml",
+  "boundary_result": "reports/verification/issue423-t002-dependency-gate-01a11108-f1b1-7632-8a65-c905eeb63e5d/boundary-result.md",
+  "preflight_exit_code": 1,
+  "formal_gate_report": null
+}

@@ -1,0 +1,5 @@
+sentinel_lexists=False
+ledger_sha256=46927fa5bb5dcca8885e8fe18634018871e4a56f96e82b489fb0969ae8a08ff6
+ledger_tip=1195
+cwd=/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge
+native_thread=01a10d0e-ba06-71f1-b9fe-8ea38f4194e2

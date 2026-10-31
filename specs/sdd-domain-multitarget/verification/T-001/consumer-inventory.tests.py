@@ -45,6 +45,9 @@ REQUIRED_ENTRIES = {
     "facet-native-migration": ("TEST-001h", "DEFER"),
     "compile-checks-noncode": ("TEST-001i", "PARAMETERIZE"),
 }
+HOSTS = {"codex-cli", "claude-code", "copilot-cli"}
+HOST_SURFACES = {"launch", "manifest", "hooks", "capability-detection"}
+REQUIRED_HOST_SOURCES = {(host, surface) for host in HOSTS for surface in HOST_SURFACES}
 
 
 def load_inventory(path):
@@ -182,6 +185,13 @@ def validate_inventory(inventory, repo_root):
                 f"!= expected {expected_disposition!r} (missing or duplicate classification)"
             )
 
+    host_entry = seen_ids.get("host-adapters")
+    if host_entry is not None:
+        mapped = [(src.get("host"), src.get("surface")) for src in (host_entry.get("source") or []) if isinstance(src, dict)]
+        for host, surface in sorted(REQUIRED_HOST_SOURCES):
+            if mapped.count((host, surface)) != 1:
+                failures.append(f"entry 'host-adapters' requires exactly one {host}/{surface} source")
+
     return failures
 
 
@@ -228,6 +238,17 @@ class ConsumerInventoryTests(unittest.TestCase):
     def test_TEST_001h_host_adapters_and_artifact_layout_migration(self):
         relevant = self._relevant_failures(["host-adapters", "facet-native-migration"])
         self.assertEqual(relevant, [], f"TEST-001h failures: {relevant}")
+
+    def test_host_surface_omission_is_rejected(self):
+        for host, surface in sorted(REQUIRED_HOST_SOURCES):
+            with self.subTest(host=host, surface=surface):
+                mutated = copy.deepcopy(self.inventory)
+                entry = next(e for e in mutated["entries"] if e.get("id") == "host-adapters")
+                entry["source"] = [s for s in entry["source"] if (s.get("host"), s.get("surface")) != (host, surface)]
+                self.assertIn(
+                    f"entry 'host-adapters' requires exactly one {host}/{surface} source",
+                    validate_inventory(mutated, self.repo_root),
+                )
 
     def test_TEST_001i_compile_build_lint_checks_on_noncode_targets(self):
         relevant = self._relevant_failures(["compile-checks-noncode"])

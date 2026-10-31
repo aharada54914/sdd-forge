@@ -1,0 +1,18 @@
+{
+  "quality_report": {
+    "path": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/quality-gate/20261006T100647Z-sdd-domain-multitarget-T-002.md",
+    "sha256": "bbab245c7f3ec4cea63d8cd4b8d63ec61205ce4ee34ff65fb0a90097a77d2645"
+  },
+  "ticket": {
+    "path": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/docs/review-tickets/RT-20261006-002.yml",
+    "sha256": "79e6652a4673c20b4a29b6ff3a77b234fc5bad11ee97bf752866a5d8e27728b8"
+  },
+  "evaluator_result": {
+    "path": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-result.txt",
+    "sha256": "e8ddf1cd415ea051d225f85795ec814142cd7d5306c174e15662ce1296aaf203"
+  },
+  "reproduction_command": {
+    "path": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-negative-reproduction.sh",
+    "sha256": "52a4f9bf35e6dfa55042a1d2c90300b51be343ce853b796b0af343dea9e915c4"
+  }
+}

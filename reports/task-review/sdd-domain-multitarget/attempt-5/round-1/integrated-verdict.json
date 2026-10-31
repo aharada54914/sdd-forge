@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-domain-multitarget",
+  "run_id": "RUN-sdd-domain-multitarget-task-a5r1-integrated-3afc2b21-9641-47f0-910e-5c561826129b",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 5,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

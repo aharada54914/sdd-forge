@@ -1,0 +1,437 @@
+test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success) ... FAIL
+test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate) ... FAIL
+test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape) ... FAIL
+test_five_target_candidate_selection (__main__.SelectedPlanTests.test_five_target_candidate_selection) ... ok
+test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages) ... FAIL
+test_legacy_fixture_control (__main__.SelectedPlanTests.test_legacy_fixture_control) ... ok
+test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed) ... FAIL
+test_manifest_cannot_drop_selected_registry_gate (__main__.SelectedPlanTests.test_manifest_cannot_drop_selected_registry_gate) ... FAIL
+test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) ... 
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='cli-library') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='ui') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='design-only') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='iac-cloud') ... FAIL
+  test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='low-code') ... FAIL
+test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings) ... FAIL
+test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected) ... FAIL
+test_quality_gate_and_both_runners_invoke_evaluator (__main__.SelectedPlanTests.test_quality_gate_and_both_runners_invoke_evaluator) ... FAIL
+test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch) ... FAIL
+test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch) ... FAIL
+test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear) ... FAIL
+test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) ... 
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'exit_code': None}) ... FAIL
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'command': None}) ... FAIL
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 1}) ... FAIL
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': True, 'exit_code': 1}) ... FAIL
+  test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 0}) ... FAIL
+test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... 
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud') ... FAIL
+  test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code') ... FAIL
+test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) ... 
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='cli-library') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='ui') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='design-only') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='iac-cloud') ... FAIL
+  test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='low-code') ... FAIL
+test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable) ... FAIL
+
+======================================================================
+FAIL: test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 112, in test_design_selection_is_not_gate_success
+    result, plan, _ = self.evaluate(*fixture('design-only'))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 173, in test_duplicate_gate
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 179, in test_evidence_escape
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 152, in test_implementation_only_keeps_foundation_stages
+    _, plan, _ = self.evaluate(*args)
+                 ~~~~~~~~~~~~~^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 141, in test_legacy_required_not_removed
+    _, plan, _ = self.evaluate(*fixture('design-only'))
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_manifest_cannot_drop_selected_registry_gate (__main__.SelectedPlanTests.test_manifest_cannot_drop_selected_registry_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 240, in test_manifest_cannot_drop_selected_registry_gate
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 188, in test_optional_unselected_na_and_selected_not_run
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 188, in test_optional_unselected_na_and_selected_not_run
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 188, in test_optional_unselected_na_and_selected_not_run
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 188, in test_optional_unselected_na_and_selected_not_run
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 188, in test_optional_unselected_na_and_selected_not_run
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 135, in test_output_identity_and_bindings
+    _, plan, hashes = self.evaluate(*fixture('cli-library'))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 244, in test_persisted_field_mismatches_rejected
+    _, expected, _ = self.evaluate(*passing_fixture('ui'))
+                     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_quality_gate_and_both_runners_invoke_evaluator (__main__.SelectedPlanTests.test_quality_gate_and_both_runners_invoke_evaluator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 266, in test_quality_gate_and_both_runners_invoke_evaluator
+    self.assertIn('evaluate-selected-plan.py', skill)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'evaluate-selected-plan.py' not found in '---\nname: quality-gate\ndescription: Independently verify an Implementation Complete task with a Default-FAIL verification contract, deterministic checks, and an isolated critical reviewer, then decide whether it is Done.\ndisable-model-invocation: false\nuser-invocable: false\n---\n\n> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.\n> Results are returned to the caller; no downstream skill is auto-invoked.\n\n# Quality Gate\n\nUse after `implement-task` has set a task to `Implementation Complete`.\n\n## Preconditions\n\nIf `AGENTS.md` is absent at the repository root, stop immediately and direct\nthe user to run `/sdd-bootstrap:sdd-adopt`; do not proceed without it.\nMissing `reports/quality-gate/` or `docs/review-tickets/` directories may be\ncreated on the fly before continuing.\n\n## Required Reading\n\nRead the task, implementation report, requirements, design, acceptance tests,\ntraceability, contracts, ADRs, Git diff, and all bundled references, including\n`deterministic-check-policy.md`, `evaluation-rubric.md`, `risk-gate-matrix.md`,\n`risk-classification-policy.md`, and\n`plugins/sdd-quality-loop/references/quality-gate-calibration.md`.\n\n## Process\n\n1. Reject any target not in `Implementation Complete`.\n2. Create the Default-FAIL verification contract for the task from\n   `templates/verification-contract.template.json` following\n   `deterministic-check-policy.md`. Treat the implementation report as a\n   claim, not as evidence.\n3. Compare the implementation and report with the approved task and source artifacts.\n4. Detect and run all available CI-equivalent checks using `verification-policy.md`.\n   Save real command output as evidence and update the contract.\n5. Verify tests using `test-policy.md`.\n6. Run the scripted gates with `scripts/*.sh` or `scripts/*.ps1`, in this order:\n   - `check-risk` on the task: confirms a valid `Risk:` tier, a non-empty\n     `Risk Rationale:`, and — for `high`/`critical` — `Required Workflow: tdd`.\n     The tier selects the required-check set per `risk-gate-matrix.md`.\n   - `check-placeholders` on the changed production files only.\n   - `check-design-system` on the changed files when the project carries a\n     `design-system/` directory and the task touches UI-layer files: validates\n     the design-tokens.json contract envelope, scans changed files for raw\n     style values, and confirms design.md\'s `## Design System Compliance`\n     section. Warn-phase: findings are recorded in the report and in the\n     contract\'s `design-system` check but do not block until the error\n     promotion (`SDD_DESIGN_SYSTEM_ENFORCE=error`); when `design-system/` is\n     absent the script skips with a note.\n   - `check-domain-conformance` on the task\'s `requirements.md`/`design.md`\n     when the project carries a `domain/` directory: validates the\n     `Bounded-Context:` field\'s context name(s) against\n     `domain/domain-contract.json`, structured-field canonical-term usage,\n     and `design.md` aggregate references against `domain/aggregates/`; for\n     a two-context `Bounded-Context:`, passes only when the context map\n     declares a relation between them. Warn-phase: findings are recorded in\n     the report but do not block until the error promotion\n     (`SDD_DOMAIN_ENFORCE=error`); when `domain/` is absent the script skips\n     with a note.\n   - `check-workflow-state` without `--feature`: validates the canonical\n     persisted-state invariant for every registered specification.\n   - `check-task-state` on tasks.md.\n   - `check-contract` on the task contract: enforces the tier-minimum required\n     set (superset rule) and, when `required_workflow` is `tdd`, non-empty\n     `red_evidence` + `green_evidence` for every test-type check.\n   - `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):\n     the Reverse Coverage Gate. Always runs to completion and always emits\n     a `check-component-coverage-verdict/v1` evidence record. Derives one\n     of three states from the project\'s `workflow.capability_enforcement`\n     (never from Facet Manifest file presence, ADR-0016): `disabled-legacy`\n     (zero evaluation, a real N/A record, exit 0 — this repository\'s own\n     current state, since no `project-context.yaml` exists yet),\n     `advisory` (full six-Fail-condition evaluation and recording, always\n     exit 0), `required` (identical evaluation, exit non-zero iff a Fail\n     condition triggers). This documented invocation is defense-in-depth,\n     not the reachability guarantee — `check-component-coverage` is\n     registered in `check-contract`\'s own protected tier-minimum required-\n     check-set (INV-017), which is what actually closes the gap were this\n     line to be deleted or the check renamed.\n   - `check-traceability` on `specs/<feature>/traceability.json`: every\n     REQ → AC → TEST → evidence chain is intact (required for `high`/`critical`).\n   For `Done` tasks, validate\n   `specs/<feature>/verification/<task-id>.evidence.json` with\n   `check-evidence-bundle.(sh|ps1)` so the report, contract, and passing\n   evidence artifacts are all bound together. For `high`/`critical` the bundle\n   must carry `spec_revision`, `build_env`, and `review_verdict.verdict == PASS`;\n   for `critical` it must additionally carry a verifiable HMAC `signature` and a\n   clean tree (`git_generated_dirty == true` is a hard fail). Always produce the\n   bundle with `generate-evidence-bundle.(sh|ps1)` — never hand-author sha256\n   fields or the `git_commit` field. The runner binds the bundle to the current\n   git commit and computes digests automatically.\n7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply\n   `differential-test-policy.md` and classify every BL diff.\n8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.\n   The evaluator must also apply `quality-gate-calibration.md`: deterministic\n   command output, bundled scripted gates, line-level inspection, and manual\n   artifacts outrank implementation-report claims; the implementation report\n   never supports PASS by itself.\n   When the change touches the relevant surface, the evaluator also applies the\n   on-demand domain checklists — `security-checklist.md` (user input, auth,\n   secrets, external systems, AI/LLM), `performance-checklist.md` (data access,\n   hot paths, rendering), `accessibility-checklist.md` (user-facing UI), and\n   `design-system-checklist.md` (user-facing UI in projects carrying a\n   `design-system/` contract).\n   Load a checklist only when its domain is in scope, to keep review context lean.\n   On Claude Code use the `sdd-evaluator` subagent. Claude Code has no\n   per-invocation effort control (REQ-008, INV-013): the evaluator\'s effort\n   stays whatever `render-agent-frontmatter` last recorded in\n   `evaluator.md`\'s `x-sdd-effort:` comment (record-only,\n   `effort_applied=null`); any `emit-run-record` call for this run passes\n   `--effort-control-main frontmatter` (no `--effort-applied-main`) so the\n   resulting run record shows the degradation explicitly, keyed on the\n   resolved `effort_control` value, never as a silent drop (AC-039, sharing\n   the AC-024/AC-051 field-population rule).\n\n   On Codex use the shipped `sdd-evaluator` (or `sdd-investigator`) TOML\n   agent; do not create new agent role files under `~/.codex/agents/`.\n   Codex-host startup wiring (REQ-006, T-006): before launching `codex`,\n   resolve `--model`/`--effort` from the live registry — never from\n   unsanitized task or spec text (security-spec.md B3) — via:\n\n   ```sh\n   plugins/sdd-implementation/scripts/select-agent-model.sh \\\n     --risk <risk> --registry contracts/agent-model-capabilities.v2.json \\\n     --candidates-file <codex-candidates.json> \\\n     --role sdd-evaluator --host codex-cli --json\n   ```\n\n   (substitute `--role sdd-investigator` for the investigator; `--host\n   codex-cli` resolves each candidate\'s `effort_control.codex-cli`, and\n   `--role` seeds the role\'s `minimum_tier`/fallback effort from\n   `role_defaults`). Cross-check the resolved `model`/`effort` against the\n   `# x-sdd-model:`/`# x-sdd-effort:` reference comments T-003\'s renderer\n   wrote into `.codex/agents/sdd-evaluator.toml` (or\n   `sdd-investigator.toml`): when they diverge, report the divergence\n   (`DRIFT: <toml-path> toml=<model>/<effort> live=<model>/<effort>`)\n   rather than silently preferring either value — the live selector output\n   is always what launches `codex`, the stale reference comment is never\n   silently substituted in either direction (AC-038). Reject any resolved\n   `--model`/`--effort` value that is not a member of the registry\'s own\n   enumerated vocabulary: a whitespace-containing value, a value with a\n   leading `-`/`--` (flag-injection shape), a value containing `;`\n   (command-separator shape), or an effort string outside the set\n   `{low, medium, high, xhigh}`. On rejection: non-zero exit, a diagnostic\n   message, and no `codex` invocation attempted (AC-052;\n   `run-panelist-gpt.sh`/`.ps1` implement this same rejection for their own\n   `--model`/`--effort` arguments — `tests/run-panelist-effort.tests.sh`/\n   `.ps1` TEST-052). Launch `codex` with the resolved, validated flags:\n   these flags configure a fresh Codex CLI caller, which must then spawn the\n   shipped project `sdd-evaluator` TOML agent for independent evaluation.\n   The CLI root is not a substitute for that agent. Before accepting the\n   evaluator\'s verdict, verify the spawned agent\'s effective model and\n   reasoning effort against the live selector from its native child session\n   metadata; caller flags and TOML reference comments alone are not proof.\n   If either effective value is unavailable or differs, retain the task state\n   and do not accept a verdict.\n\n   ```sh\n   codex exec --model <live-model> -c model_reasoning_effort=<live-effort> ...\n   ```\n\n   Elsewhere, perform the review in a fresh session or a clearly separated\n   critical-review pass.\n   Before launch, persist a canonical allowed-input manifest containing exactly\n   one `reports/implementation/<feature>/T-NNN.md`, the task\'s required\n   specification and calibration files, and only those changed, test, contract,\n   ADR, or deterministic-evidence files whose exact canonical path and lowercase\n   SHA-256 pair appears in that implementation report\'s `## Outputs` table, or\n   in the `## Post-Fix Artifacts` table of a gate report the manifest names in\n   `gate_report_declaration` and pins by SHA-256 (WFI-036). The implementation\n   report is frozen, so it can never describe bytes produced by a fix this gate\n   itself raised; a cycle that follows a review-ticket or in-gate fix therefore\n   records the post-fix path/hash rows in its own report, and the next cycle\n   names that report. The second channel is checked exactly as the first: the\n   named report\'s own hash is verified before a single row is read from it, a\n   path in neither document is still unlisted, and a row carrying the wrong\n   hash still fails. Do not add the rows to an earlier cycle\'s report -- that\n   report recorded a verdict at a point in time and must not later declare\n   bytes that did not exist then.\n   An implementation report with missing pre-reservation provenance must not\n   be repaired by adding historical facts to that frozen report. For an\n   explicitly human-approved recovery, retain the old canonical report\'s\n   original bytes in a task-scoped archive and record its former path and\n   verified SHA-256 in the new report\'s supersession note. The archive is\n   historical evidence, not a substitute for a new implementation run. In a\n   fresh isolated implementation context, recheck the current code against\n   hash-pinned inputs, then write a new report and task-input manifest with\n   their actually observed run/session IDs and canonical absolute scratch\n   root. Only after both reports and their hashes have been independently\n   checked may the new report take the canonical\n   `reports/implementation/<feature>/T-NNN.md` path. Do not edit the archive\n   or rewrite a historical handoff. Declare the archive\'s exact path/hash in\n   the new report\'s `## Outputs` if the evaluator needs to read it; neither\n   supersession nor archival automatically authorizes it as an input. The\n   normal manifest hash, report identity, scratch isolation, reservation,\n   independent evaluation, and Done checks still apply without exception.\n   Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never\n   authorizes an evaluator input.\n   Reverify every hash immediately before launch and bind the manifest path/hash,\n   a fresh run ID, and a distinct host-session ID into the evaluator result.\n   Persist a one-role `review-context-invocation/v2` manifest for the evaluator.\n   Set its `task_id` to the current T-NNN and require the sole implementation\n   report path, report heading, and `Task ID` field to match that exact task.\n   Bind it to the current SHA-256 and final record hash of the canonical\n   `reports/review-context/identity-ledger.json`. The ledger must already carry\n   every earlier reviewer/evaluator reservation as a valid hash chain. For a\n   new reservation, include the existing hash-pinned `task-input-manifest/v1`\n   as an evaluator input and name its path and SHA-256 in\n   `implementation_manifest`. Require its task/run/session to agree with the\n   implementation report and reject their reuse in the canonical ledger.\n   Never fabricate an implementation ledger reservation or accept reserved-ID\n   arrays as a substitute.\n   Before reservation, the caller must prepare any dependency fixture needed\n   by read-only checks in a fresh evaluator-only scratch directory, preserving\n   admitted relative paths. Include every test dependency in the manifest;\n   missing dependencies block launch rather than being created by the evaluator.\n   The scratch copy is only a byte-identical projection of admitted files, not\n   an additional source of authority. Record its canonical `scratch_root` in\n   the invocation and independently read back every copied file against its\n   admitted SHA-256. The evaluator remains read-only inside scratch as well.\n   Freeze the manifest and pin its SHA-256 separately in the launch brief.\n   For the explicitly authorized Claude Code non-TTY Sonnet route, use the\n   shared caller (repository-root-relative paths):\n   `rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py\n   <repository-root> <invocation> <reports/quality-gate/launch-SESSION>\n   --manifest-sha256 <caller-pin>`.\n   The canonical Claude evaluator and its generator must both select Sonnet;\n   this does not change the Codex evaluator tier or authorize a host switch to\n   bypass a refusal. This route requires a fresh declared scratch projection.\n   It checks the external raw pin, common required-input/path admission, and\n   this plugin\'s `preflight-evaluator-delivery.py` scratch readback before\n   creating launch output. It then pins dependencies, checks live CLI argv,\n   and runs the shared native permission probe before reservation. Missing or\n   failed `preflight-host-review.py` `HOST_REVIEW_PREFLIGHT_OK` proof, or\n   failed admitted-read, outside-read denial, compound-Bash denial, session\n   collision, or ordered-hash proof stops without reserving. Input preflight\n   alone explicitly leaves permission proof unestablished. Immediately before\n   reservation it rechecks dependency bytes, admission, argv, and the same\n   delivery helper\'s pin/scratch readback; only that helper delegates the\n   canonical atomic reservation. Do not separately reserve this route.\n   The complete receipt and invocation pin reach the child through the shared\n   prompt, and native delivery is validated independently of its verdict.\n   Exact Read/hash permissions do not permit writable tests: list tests not\n   rerun, and never treat delivery or a receipt as quality PASS. A candidate\n   launcher or fixture success does not establish an installed verified\n   baseline or authorize formal execution.\n   For other already-supported host routes, retain the delivery sequence below:\n     run `python3 -B scripts/preflight-evaluator-delivery.py --manifest <manifest>\n   --manifest-sha256 <caller-pin> --repository-root <repository-root>` (paths\n   relative to this plugin); append `--scratch-root <scratch>` when a fixture\n   is needed. Require `EVALUATOR_DELIVERY_OK` before calling the reservation\n   validator. Failure leaves the ledger untouched. This delivery check does\n   not replace the existing required-input, path, identity or reservation checks.\n   Do not change these bytes between delivery and launch; the evaluator must\n   independently compare the manifest\'s raw bytes with the caller\'s pin before\n   parsing, then verify admitted inputs before use. A scratch fixture does not\n   authorize write-requiring tests; those remain caller-owned evidence.\n   Immediately before launch on those other host routes, run the same delivery command with `--reserve`.\n   It rechecks the pin and fixture before delegating the atomic reservation to\n   `scripts/validate-review-context-set.sh`; do not reserve directly and then\n   prepare a fixture. Require `EVALUATOR_DELIVERY_OK` and `REVIEW_CONTEXT_OK`,\n   then pass the complete validator receipt and the persisted invocation\n   manifest path/hash in the launch brief to the shipped evaluator. Tell the\n   evaluator to verify identity from that receipt and manifest alone; the\n   ledger is caller-only. Do not ask it to read/hash the ledger, rerun the\n   validator, inspect the process environment, or open raw session logs.\n   Launch exactly the reserved evaluator run/session. A missing canonical\n   ledger, stale chain tip, deterministic runtime, or any non-zero result\n   retains `Implementation Complete` and blocks evaluator launch. This boundary\n   validates only the evaluator being launched; it does not require fabricated\n   future or replayed reviewer contexts.\n   Reject a missing manifest, unlisted path, hash mismatch, chat-only input, or\n   any implementation/review/evaluation session reuse.\n   Never direct an evaluator to reach an artifact the manifest does not\n   authorize -- not through `git show`, not through the live tree, and not by\n   reproducing its contents in the launch prompt. Authorization comes from the\n   persisted, validator-checked manifest, never from the launching agent\'s\n   prose; a launcher that can widen the evaluator\'s reachable set by asking has\n   removed the boundary this machinery exists to enforce. When a needed\n   artifact is undeclared, declare it and relaunch rather than instructing\n   around it (WFI-036).\n   No same-session fallback is permitted for the evaluator.\n   Use the caller-prepared evaluator scratch directory and name it in the\n   launch brief and the invocation record\'s optional `scratch_root` field: a\n   canonical absolute path used by no implementation context for this feature and\n   by no earlier evaluator run. Tell the evaluator to write nothing, including\n   inside scratch; fixture preparation and writable tests belong to the caller.\n   When `scratch_root` is present, the deterministic reservation boundary\n   compares it with the current implementation report\'s `Scratch Root` and\n   rejects equal or ancestor/descendant paths before launch.\n   This is not housekeeping (WFI-034). Sharing one scratch root across roles\n   puts the implementing agent\'s intermediates -- a `.bak` of the suite under\n   review, per-task append scripts, raw red/green logs -- inside reach of the\n   agent grading that work, through a channel the manifest does not describe\n   and the hash checks never see. Observed in `sdd-domain-concept-contract`:\n   the evaluator found exactly those files and disclosed that it had declined\n   to read them. What held there was the reviewer\'s judgement, not a mechanism,\n   and a boundary that depends on the reviewed party declining an available\n   capability is not a boundary.\n   For `high`/`critical` tasks, record\n   the evaluator\'s verdict as `review_verdict` in the evidence bundle;\n   `check-evidence-bundle` requires `review_verdict.verdict == PASS`.\n9. Classify findings as `Accepted`, `Rejected`, or `Deferred`. When a finding\n   is that the implementation report\'s narrative (counts, statuses, or\n   paths) diverges from the gate-time measured reality -- e.g. a later\n   same-feature task\'s edit, or a gate-phase artifact move, superseded what\n   the report described -- record the current values directly in this\n   quality-gate report and classify the finding `Accepted`; do not edit the\n   frozen implementation report to reconcile it.\n10. Apply only safe fixes allowed by `auto-fix-policy.md`.\n11. Repeat critical review for a maximum of 3 cycles.\n    Stop earlier when the remaining issue requires human decision, missing\n    evidence cannot be produced, or the fix belongs to `fix-by-review-ticket` or\n    an upstream review loop. Do not downgrade a finding merely to end the loop.\n12. For UI changes, use available browser or Playwright tooling to verify the\n    rendered screen, DOM, and console, and when feasible perform the smoke\n    run described in `deterministic-check-policy.md`.\n13. Create review-ticket YAML for unresolved or non-auto-fixable findings.\n14. Update traceability and detect drift using `integrity-policy.md`.\n15. Create `reports/quality-gate/<timestamp>.md` from\n    `plugins/sdd-quality-loop/templates/quality-report.template.md` — the\n    template exists and is parity-tested\n    (`tests/template-validator-parity.tests.{sh,ps1}`); do not author the\n    report freeform. Its identity header block (`Task ID:` / `Feature:` /\n    `Run ID:` / `VERDICT:` / `Critical:` / `Major:` / `Minor:`) is parsed\n    by deterministic consumers (check-evidence-bundle, emit-run-record,\n    generate-evidence-bundle, the retrospective\'s artifact rules): keep\n    each as a bare line before any prose, and never start a later body\n    line with `Feature: ` or `Task ID: ` — two consumers require exactly\n    one match each. Record the same `- Model:` / `- Effort:` two-line\n    requirement the implementation report carries\n    (`implementation-report.template.md`,\n    `validate-implementation-report.sh` present-and-format-only check):\n    name the model and effort the gate\'s own critical-review pass ran\n    under. (WFI-020)\n\n### Sudo Mode\n\nIf a valid `SDD_SUDO` flag file exists at the project root (see\n`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), routine **approval**\ncheckpoints auto-pass: record `Approval: Approved (sudo <ISO8601 UTC>)` in\ntasks.md and continue. A `refactor`/`bugfix` BL diff classified `accepted` also\nauto-passes (mark `(sudo <ISO8601 UTC>)` and update `baseline-behavior.md`).\n\nSudo never auto-passes genuine **judgment**: `requires_human_decision: true`\nfindings, architecture/auth/authz/breaking-API/security decisions, and a\n`fix-required` baseline diff still stop the gate and require a human. All\ndeterministic gates apply; every check runs as normal.\n\n## Done Decision\n\nSet the task to `Done` only when:\n\n- `check-risk` passes: valid tier + rationale, and `high`/`critical` declares\n  `Required Workflow: tdd`\n- `check-contract` passes: every required contract check (the tier-minimum\n  superset) is true with existing evidence files; for `tdd`, test checks carry\n  `red_evidence` + `green_evidence`\n- `check-traceability` passes for `high`/`critical` (REQ → AC → TEST → evidence)\n- `check-evidence-bundle` passes: the bundle names the report, contract, and\n  contract-passing artifacts, with matching hashes and task id; for\n  `high`/`critical` it carries `spec_revision`, `build_env`, and\n  `review_verdict.verdict == PASS`; for `critical` it carries a verified HMAC\n  `signature` over a clean tree\n- for `critical`, a second distinct named approver recorded\n  `Second Approval: Approved` (enforced by `check-task-state`; never sudo-bypassed)\n- acceptance criteria have tests\n- no unresolved Critical or Major finding remains\n- required UI verification succeeds\n- contracts and ADRs agree with the implementation\n- traceability is current\n- every in-scope "cannot verify" item has been resolved by evidence or recorded\n  as a blocking review ticket\n\nOtherwise set the task to `Blocked` or retain `Implementation Complete`, and\ncreate review tickets. Do not commit, push, or create a PR/MR unless explicitly\nrequested.\n\n## Post-Done: Automatic Retrospective\n\nWhen the task transitions to `Done` (all conditions in the Done Decision section\nare met), automatically invoke the retrospective flow:\n\n1. Confirm `reports/quality-gate/<timestamp>.md` has been written (step 15 must\n   complete first so the new report is included in retrospective metrics).\n2. Determine the feature path from the task\'s spec directory (e.g. `specs/<feature>`).\n3. Check `tasks.md` for the feature: if any task with `Approval: Approved` is not\n   yet `Status: Done`, append\n   `[INFO] retrospective deferred: N approved task(s) still pending Done`\n   to the quality-gate report and stop here. Invoke retrospective only when\n   every approved task in the feature is `Done`.\n4. Invoke `workflow-retrospective` for that feature path:\n   - Claude Code: `/sdd-quality-loop:workflow-retrospective specs/<feature>`\n   - Codex: `Use the workflow-retrospective skill for specs/<feature>`\n5. The retrospective runs in read-only mode and does not affect `Done` status or\n   any other task field.\n6. If the feature path cannot be determined, skip the retrospective and append a\n   `[WARN] retrospective skipped: feature path unknown` line to the quality-gate\n   report.\n\nDo **not** invoke this flow when the gate exits with `Blocked` or retains\n`Implementation Complete`.\n\n## Common Rationalizations\n\nThe gate exists because generators grade their own work generously. Reject\nthese excuses — each one launders a claim into a `Done`.\n\n- "The report says all tests pass, so they pass" — the report is a claim; rerun\n  the checks and read the output yourself (`evaluation-rubric.md`).\n- "The checks are green, the review can be light" — green checks do not cover\n  spec compliance, untested acceptance criteria, or completion-faking.\n- "This finding is probably fine, downgrade it to Minor" — never weaken a\n  severity without recording why in the report.\n- "A check doesn\'t apply, I\'ll just delete it from the contract" — mark it\n  `required: false` with a non-empty `waiver_reason`; never remove a check to pass.\n- "The evidence file is missing but the result is obviously right" — Default-FAIL:\n  no saved evidence means the check stays false.\n- "I cannot verify this, but no failure is visible" — cannot-verify is not PASS;\n  keep the check false or create a review ticket.\n- "sudo is on, so I can wave this through" — sudo auto-passes routine *approval*\n  only; judgment findings and architecture/auth/security decisions still stop\n  the gate.\n\n## Red Flags\n\n- Flipping a contract check to `passes: true` without a saved evidence path.\n- A handler returning data shaped like the test fixture (completion-faking —\n  `Critical`).\n- Skipped/`todo`/`xit` tests covering in-scope behavior left unaddressed.\n- An acceptance criterion with no test traced to it.\n- Setting `Done` while a Critical or Major finding is unresolved.\n- Running the critical review in the same context as the implementation.\n'
+
+======================================================================
+FAIL: test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 161, in test_registry_digest_mismatch
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 167, in test_registry_projection_mismatch
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 234, in test_required_cannot_be_downgraded_or_disappear
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'exit_code': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 214, in test_required_execution_states
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'command': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 214, in test_required_execution_states
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 214, in test_required_execution_states
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': True, 'exit_code': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 214, in test_required_execution_states
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) (mutation={'passes': False, 'exit_code': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 214, in test_required_execution_states
+    result, plan, _ = self.evaluate(registry, manifest, contract)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 128, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 128, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 128, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 128, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 128, in test_required_missing_observation
+    result, plan, _ = self.evaluate(*fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='cli-library')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 120, in test_required_success_is_pass
+    result, plan, _ = self.evaluate(*passing_fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='ui')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 120, in test_required_success_is_pass
+    result, plan, _ = self.evaluate(*passing_fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='design-only')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 120, in test_required_success_is_pass
+    result, plan, _ = self.evaluate(*passing_fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='iac-cloud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 120, in test_required_success_is_pass
+    result, plan, _ = self.evaluate(*passing_fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) (target='low-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 120, in test_required_success_is_pass
+    result, plan, _ = self.evaluate(*passing_fixture(target))
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+======================================================================
+FAIL: test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 221, in test_verifier_unavailable
+    result, plan, _ = self.evaluate(*passing_fixture('ui'), verifier=False)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 70, in evaluate
+    self.assertTrue(EVALUATOR.is_file(), 'T-003 selected-plan evaluator is not implemented')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : T-003 selected-plan evaluator is not implemented
+
+----------------------------------------------------------------------
+Ran 19 tests in 4.613s
+
+FAILED (failures=33)

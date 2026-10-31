@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "mcp/ci-mcp/dist-test/tests/no-write/no-write-behavior.test.js",
+    "mcp/ci-mcp/dist-test/tests/no-write/input-schema-fields.test.js",
+    "mcp/ci-mcp/dist-test/tests/readonly/static-check.test.js"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:33:41.923772+00:00",
+  "finished_at": "2026-10-05T17:33:42.043021+00:00"
+}

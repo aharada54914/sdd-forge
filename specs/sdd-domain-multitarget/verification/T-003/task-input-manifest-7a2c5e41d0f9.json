@@ -1,0 +1,178 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-003",
+  "run_id": "t003-20261004-7a2c5e41d0f9",
+  "session_id": "logical-7a2c5e41d0f9-session",
+  "agent_instance_id": "logical-7a2c5e41d0f9-agent",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.1-sol",
+  "estimated_cost_per_attempt_usd": "1",
+  "cost_estimate_source": "orchestrator rough planning estimate; select-agent-model.sh legacy candidate",
+  "cost_estimate_timestamp": "2026-10-03T19:05:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8da12bb2769988d0f5313a74acfffda9a1638ef61a6a8090e7524533ddeb1b73"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "bc157feb2a240c3dabd1baef0b8884364f133c53ef636c89e460ae88bc070d56"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0017-gate-stage-model.md",
+      "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "sha256": "cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "sha256": "3a2ddfa6ad3fde7cce3b6b23399ff5772311380d6d2fdde885df69889b8ccef7"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+      "sha256": "d803be2741e21ea71ba7aaac691aeea314f63f477ee5bab27f37a8e7a553dbe5"
+    },
+    {
+      "path": "tests/resolve-project-context-cli.tests.sh",
+      "sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b"
+    },
+    {
+      "path": "tests/resolve-project-context-match.tests.sh",
+      "sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527"
+    },
+    {
+      "path": "tests/resolve-project-context-block.tests.sh",
+      "sha256": "a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/handoff-baseline-20261004.md",
+      "sha256": "85a9bbbb775153bb3ad93bf5d139702da515b4e8402cadf3cde58a2e91055bea"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/design-boundary-addendum-20261004.md",
+      "sha256": "94b3060c805d9128c078093273d0d70fc7308e14b976ecae3a60f62941cdbc11"
+    },
+    {
+      "path": "contracts/selected-verification-plan.schema.json",
+      "sha256": "8485a0f3435589c1fd25c7d17d18e94ac0779f33b2ae714f5f832129773201b5"
+    },
+    {
+      "path": "contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+      "sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff"
+    },
+    {
+      "path": "scripts/check-sdd-structure.sh",
+      "sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/fixtures/sdd-domain-multitarget/T-003/",
+    "reports/implementation/sdd-domain-multitarget/T-003-attempt3.md",
+    "specs/sdd-domain-multitarget/verification/T-003/run-7a2c5e41d0f9/"
+  ]
+}

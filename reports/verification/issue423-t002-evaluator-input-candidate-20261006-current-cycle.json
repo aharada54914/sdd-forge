@@ -1,0 +1,320 @@
+{
+  "preparation_only": true,
+  "not_an_invocation": true,
+  "feature": "sdd-domain-multitarget",
+  "task_id": "T-002",
+  "implementation_manifest": {
+    "path": "handoffs/issue423-t002-recovery-20261003/manifest-archive-input.json",
+    "sha256": "7c6fef1602a1fa5608b7b78a4dd6a57d1838ffcc1f1ff8e58a98a79d51d70163"
+  },
+  "gate_report_declaration": {
+    "path": "reports/quality-gate/issue423-t002-current-cycle-declaration-20261006.md",
+    "sha256": "54f96e639a384a874751e8f7aa2d261b209a97a7b6923317154b499e94425887"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md",
+      "sha256": "5bc3d169918ab875e36f138e3e9ed2083045dc5ccf95a4b500b4755d39e02b05"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log",
+      "sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+      "sha256": "6c4ea9c9ec0fe43657f47b15c7724de3ef94ef55492f9b2b02b858359b884399"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "sha256": "cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5"
+    },
+    {
+      "path": "contracts/context-projection.schema.json",
+      "sha256": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "sha256": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4794ef81888e83a4d45f37a680ab65436cd1ca97e1d01c59acf8a22dae898788"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+      "sha256": "ac635f41d70213d8e3efc7d364fea0d6f7d36954ddfb4d0c8b1349c75d5c3a22"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-build-and-checks.md",
+      "sha256": "7ffa0e76bbc8d171b96e11e7357922238e8797f2c9ee3986552b88efb7a4de7c"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/python-toolchain-evidence.md",
+      "sha256": "f375addaa09fce5a8805c84a9eaa23bee76d66976c09fdbdeb3e9094bb9fde81"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py",
+      "sha256": "77882cfbf36adca2668e32b580557d1fb13aa67b1feff22c369a955fd7857852"
+    },
+    {
+      "path": "contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "sha256": "3a2ddfa6ad3fde7cce3b6b23399ff5772311380d6d2fdde885df69889b8ccef7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "b7311b30a9b4224a60a251facbcf0d4ca71db563df06f62a301a7e698b88cf13"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "38b870f89b8b95cd4e9de7074cd77f610d53aca19715d4bff6df05381c11383e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "ae27deb32d5af3d31dcbfd505812fd737603a9d682476451a855d48fb36ed511"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/provider-terms.json",
+      "sha256": "2355adabd24e3d01b18f3eb99e986073791fb3f85b4d9d27a91fd6a0f0a0ae7d"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/fixture/capability-registry.fixture.json",
+      "sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md",
+      "sha256": "129f25f6588bb60b69b435e98de95aeae1e759c812f0f302734247d1dd0fb149"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0017-gate-stage-model.md",
+      "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-002.md",
+      "sha256": "3f2ae5bf8d85e7a28b87165f9f699068801562ca77b88ab4d8877c38e5a1d2b4"
+    },
+    {
+      "path": "handoffs/issue423-t002-recovery-20261003/manifest-archive-input.json",
+      "sha256": "7c6fef1602a1fa5608b7b78a4dd6a57d1838ffcc1f1ff8e58a98a79d51d70163"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "8039b4ec86bb6efe9069c3813eadcd1ad708a17355c95d1f70d7b897c157b2eb"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50"
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "648d093acbda64a1c3dff445fb2a97f537688a6f6426a64bd2701e36ff444bf4"
+    },
+    {
+      "path": "reports/verification/issue423-installer-evidence-scope-20261005.md",
+      "sha256": "94720da087497bb8f06a871f4ebc7a926d7c66ab036e831cc92b181ece3790a7"
+    },
+    {
+      "path": "reports/verification/issue423-t002-installer-impact-20261004.md",
+      "sha256": "5e82b93b82cf50b045d13c0e363d00eb793ee59476a197f8735b5b63107275f7"
+    },
+    {
+      "path": "reports/verification/issue423-current-installer-recheck-20261004.md",
+      "sha256": "570adf467f7f7eee9c8e245942b33fff102446305be8548113e48a295111ad36"
+    },
+    {
+      "path": "mcp/ci-mcp/src/auth.ts",
+      "sha256": "d9c98796282df43b78b500a77233ec4135c8ab89b33d81463b9b98aa339f301d"
+    },
+    {
+      "path": "mcp/ci-mcp/src/index.ts",
+      "sha256": "22873cbab38617dbdb94818e0a53840ba6cd2f7da63640891722d97e2a1e07b2"
+    },
+    {
+      "path": "mcp/ci-mcp/src/diagnostics.ts",
+      "sha256": "2bc46044a2525d6b507c9dcdbff1eb7b9d5d71e924e3023538953f31c10bca96"
+    },
+    {
+      "path": "mcp/ci-mcp/src/repo-resolve.ts",
+      "sha256": "147d8306a00b01649450b3ff90659d861df2aaec2f5fb2f103fb6c2573add143"
+    },
+    {
+      "path": "mcp/ci-mcp/src/error-normalizer.ts",
+      "sha256": "b1b15448efe52d4f22a8de2d73ea670370f086162da7d499f5f97e1d2e8a0e97"
+    },
+    {
+      "path": "mcp/ci-mcp/src/tools/actions.ts",
+      "sha256": "6f2a30a4b8a64c14bc0a6b58eeb2dc4ebebeb04985b4cc3e130b1186a4f07328"
+    },
+    {
+      "path": "mcp/ci-mcp/src/envelope.ts",
+      "sha256": "af1160812b48e6bfdfbde71096c1768f5f05e3e9872286f7019eff2127d5c176"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/no-write-behavior.test.ts",
+      "sha256": "7569f16dff5958bb17869a1e8b2cf0cbec63782e70131a573b63d0d700ea1fa0"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/input-schema-fields.test.ts",
+      "sha256": "7123d90b4331e14ec45ef82070b38590554ee091b963e0f39271ed0828235112"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/no-write/support/write-inducing-fields.ts",
+      "sha256": "8d6f5d6ff4dc5157874927f72db113753e2210218579206ee8be498e389b80ba"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/readonly/static-check.test.ts",
+      "sha256": "3753edc9756e41c3876427e91eb20fea50507ce680edb3631075adbd6e45e342"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/readonly/support/source-scan.ts",
+      "sha256": "cde664a264487d43ca96674a7d67a66db2e805d6e0265462f416be1b3a88e4fc"
+    },
+    {
+      "path": "mcp/ci-mcp/package.json",
+      "sha256": "787b7a6639b674256da91747835693b7f960f333130e50bafec359d8b1b47713"
+    },
+    {
+      "path": "mcp/ci-mcp/package-lock.json",
+      "sha256": "cb97c37946a9f3d7b0e5ce17b25da9396eec4f1123ffc50781a9089d41b10b6f"
+    },
+    {
+      "path": "mcp/ci-mcp/tsconfig.test.json",
+      "sha256": "1b0a03e8923981d7bbce5fd5d98aea907ea3215630de18deb7f906667c0b1201"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/auth.js",
+      "sha256": "2f407385151b1f480f30a65c0ad8e6299c20901ec566f09a1950bc3a08f1d86d"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/envelope.js",
+      "sha256": "66c3b015eb63b73d717e9a4a01fe4bd22ce5485e722445d33124b0d0ff6b6769"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/repo-resolve.js",
+      "sha256": "424feec30cc13e13af91ccc99612c3be7f2066d7e4d0700f6c49a33a9944bef7"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/github-client.js",
+      "sha256": "272bd6203a486cb1749b646f25d0a24c22c4a5e137571a5988717da567cbc42a"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/error-normalizer.js",
+      "sha256": "f50ef2a0e99e2811a995230e307bdab1f20cb1393631e87aa3f5bb3cb02012fc"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/src/tools/actions.js",
+      "sha256": "24044a6b586c7065a3fed167acf6f11e4121cc616bafd2dc151675d23491da16"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/tests/no-write/no-write-behavior.test.js",
+      "sha256": "63b28864750fb226d72d262c8fbd860936975bac97de1c4d42c3986ada3ad626"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/tests/no-write/input-schema-fields.test.js",
+      "sha256": "92e47174e67513ae2b84118a19d18fd01f4698a5b0f5d15660c1bb7944365598"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/tests/no-write/support/write-inducing-fields.js",
+      "sha256": "288ee31e2e64310e7ed89d8d0999235909d4229cbc4a89c846901fe6c5c3e0f8"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/tests/readonly/static-check.test.js",
+      "sha256": "df0fa0e6473970b50894912d9c3f82087cf6d930a7b618e71c5b7a4db644f6fe"
+    },
+    {
+      "path": "mcp/ci-mcp/dist-test/tests/readonly/support/source-scan.js",
+      "sha256": "7b75368d8404cc4ed8776bea141f7e700bf8d8ebd40d24987d4b43809b71dc84"
+    },
+    {
+      "path": "reports/verification/issue423-t002-donewhen-evidence-audit-20261005.md",
+      "sha256": "ab93e09d1a673602ff5465549428f434820702e33f0dc6e0e0a8e8b3d887c670"
+    },
+    {
+      "path": "reports/verification/issue423-t002-ci-readonly-current-20261005.log",
+      "sha256": "5e3e1a68560659a236ff3de10173f45107b05d7f3186db13e90b8caacd314778"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.md",
+      "sha256": "a204e954986c2207f9719174f11c5fca2cf9fcbb877828d78f06f5fea7a6d462"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.scratch-owner.json",
+      "sha256": "1a2a624f1b6ef291384172914f851cc90a150a60bfdde045bd8403b939ae34d0"
+    },
+    {
+      "path": "reports/verification/issue423-scratch-recovery-candidate-20261006/T-003-attempt2.owner-observation.candidate.json",
+      "sha256": "4114ddada34bdf7d76d158f5321c4f8b3772517372980a86be726e0b8a04d679"
+    },
+    {
+      "path": "reports/verification/issue423-scratch-recovery-candidate-20261006/independent-recovery-review-completed-20261006.md",
+      "sha256": "bc3c60c14eafbf263d3774fe0a22b7df0a178c4906d88fc71b34dcfbb8ee561e"
+    }
+  ]
+}

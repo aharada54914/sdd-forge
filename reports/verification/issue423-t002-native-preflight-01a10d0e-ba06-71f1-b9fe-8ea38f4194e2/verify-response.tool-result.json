@@ -1,0 +1,7 @@
+{
+  "chunk_id": "f25e30",
+  "wall_time_seconds": 0.000002125,
+  "exit_code": 63,
+  "original_token_count": 92,
+  "output": "check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: WRITE_EXECUTED: recorded evidence shows the canary write EXECUTED (executed: true) -- no denial was observed\n{\n  \"nonce\": \"0e20e8ea51a3999ff33fac0aa5804631\",\n  \"reason\": \"WRITE_EXECUTED\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"CAPABILITY_RUNTIME_UNAVAILABLE\"\n}\n"
+}

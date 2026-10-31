@@ -1,0 +1,10 @@
+Command: rtk proxy sh specs/sdd-domain-multitarget/verification/T-003/snapshot-c43e18b9f2a7/scripts/check-sdd-structure.sh /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge sdd-domain-multitarget
+advisory: CLAUDE.md
+host: github
+check-sdd-structure: OK
+Exit code: 0
+
+Independent current output baseline hash verification:
+plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+d0326f3617f0bf6de6ba7f99d7edc2388c79a6731866328133cff7bb1815b722
+Matches admitted design-boundary addendum.

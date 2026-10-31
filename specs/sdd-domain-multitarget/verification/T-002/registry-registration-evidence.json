@@ -1,0 +1,72 @@
+{
+  "run_id": "sdd423-registry-registration-recovery-20260929",
+  "base_head": "06bc32cc26f2d67adb02e827610b5230e1658f72",
+  "red": {
+    "exit_code": 1,
+    "output": "test_dispatch_keeps_missing_implementation_fail_closed (__main__.RegistryRegistrationTests.test_dispatch_keeps_missing_implementation_fail_closed) ... FAIL\ntest_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) ... \n  test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-component-coverage') ... FAIL\n  test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-contract') ... FAIL\n  test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-criterion-freeze') ... FAIL\n  test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-hook-activation-handshake') ... FAIL\n\n======================================================================\nFAIL: test_dispatch_keeps_missing_implementation_fail_closed (__main__.RegistryRegistrationTests.test_dispatch_keeps_missing_implementation_fail_closed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<repo>/specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py\", line 46, in test_dispatch_keeps_missing_implementation_fail_closed\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        result.stdout.splitlines(),\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        ],\n        ^^\n    )\n    ^\nAssertionError: Lists differ: ['reg[135 chars].py)', 'registry: unregistered-script: plugins[330 chars].py'] != ['reg[135 chars].py)']\n\nFirst list contains 4 additional elements.\nFirst extra element 1:\n'registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-component-coverage.py'\n\nDiff is 787 characters long. Set self.maxDiff to None to see it.\n\n======================================================================\nFAIL: test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-component-coverage')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<repo>/specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py\", line 35, in test_existing_gate_masters_have_one_blocking_implementation_registration\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        [gate for gate in registry[\"gates\"] if gate.get(\"id\") == gate_id],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        [expected],\n        ^^^^^^^^^^^\n    )\n    ^\nAssertionError: Lists differ: [] != [{'id': 'check-component-coverage', 'stage[120 chars]py'}]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n{'id': 'check-component-coverage', 'stage': 'implementation', 'blocking': True, 'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-component-coverage.py'}\n\n- []\n+ [{'blocking': True,\n+   'id': 'check-component-coverage',\n+   'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-component-coverage.py',\n+   'stage': 'implementation'}]\n\n======================================================================\nFAIL: test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-contract')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<repo>/specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py\", line 35, in test_existing_gate_masters_have_one_blocking_implementation_registration\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        [gate for gate in registry[\"gates\"] if gate.get(\"id\") == gate_id],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        [expected],\n        ^^^^^^^^^^^\n    )\n    ^\nAssertionError: Lists differ: [] != [{'id': 'check-contract', 'stage': 'implem[100 chars]py'}]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n{'id': 'check-contract', 'stage': 'implementation', 'blocking': True, 'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-contract.py'}\n\n- []\n+ [{'blocking': True,\n+   'id': 'check-contract',\n+   'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-contract.py',\n+   'stage': 'implementation'}]\n\n======================================================================\nFAIL: test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-criterion-freeze')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<repo>/specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py\", line 35, in test_existing_gate_masters_have_one_blocking_implementation_registration\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        [gate for gate in registry[\"gates\"] if gate.get(\"id\") == gate_id],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        [expected],\n        ^^^^^^^^^^^\n    )\n    ^\nAssertionError: Lists differ: [] != [{'id': 'check-criterion-freeze', 'stage':[116 chars]py'}]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n{'id': 'check-criterion-freeze', 'stage': 'implementation', 'blocking': True, 'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-criterion-freeze.py'}\n\n- []\n+ [{'blocking': True,\n+   'id': 'check-criterion-freeze',\n+   'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-criterion-freeze.py',\n+   'stage': 'implementation'}]\n\n======================================================================\nFAIL: test_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) (gate='check-hook-activation-handshake')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<repo>/specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py\", line 35, in test_existing_gate_masters_have_one_blocking_implementation_registration\n    self.assertEqual(\n    ~~~~~~~~~~~~~~~~^\n        [gate for gate in registry[\"gates\"] if gate.get(\"id\") == gate_id],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        [expected],\n        ^^^^^^^^^^^\n    )\n    ^\nAssertionError: Lists differ: [] != [{'id': 'check-hook-activation-handshake',[134 chars]py'}]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n{'id': 'check-hook-activation-handshake', 'stage': 'implementation', 'blocking': True, 'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py'}\n\n- []\n+ [{'blocking': True,\n+   'id': 'check-hook-activation-handshake',\n+   'implementation_ref': 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py',\n+   'stage': 'implementation'}]\n\n----------------------------------------------------------------------\nRan 2 tests in 0.055s\n\nFAILED (failures=5)\n"
+  },
+  "protected_refusal": {
+    "attempted_operation": "apply_patch: add four implementation gate registrations to contracts/capability-registry.json",
+    "executed": false,
+    "diagnostic": "Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.",
+    "alternate_path_attempted": false
+  },
+  "hashes": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  contracts/capability-registry.json\n737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  plugins/sdd-quality-loop/contracts/capability-registry.json\naa0a6b18cdd561b08ad95c89db8fd08138d2eef0e36aac3d4f7fa15af152e575  plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json\n",
+  "diff_check": {
+    "exit_code": 0,
+    "output": ""
+  },
+  "implementation_changed": false,
+  "green": null,
+  "formal_quality_gate": null,
+  "candidate_validation": {
+    "scope": "candidate-only four-registration repair; not full Registry PASS or protected source application",
+    "command": "rtk proxy python3 specs/sdd-domain-multitarget/verification/T-002/registry-registration.tests.py --candidate",
+    "exit_code": 0,
+    "output": "test_candidate_is_exact_hash_bound_additive_repair (__main__.RegistryRegistrationTests.test_candidate_is_exact_hash_bound_additive_repair) ... ok\ntest_candidate_vendor_projection_and_manifests_are_consistent (__main__.RegistryRegistrationTests.test_candidate_vendor_projection_and_manifests_are_consistent) ... ok\ntest_dispatch_keeps_missing_implementation_fail_closed (__main__.RegistryRegistrationTests.test_dispatch_keeps_missing_implementation_fail_closed) ... ok\ntest_existing_gate_masters_have_one_blocking_implementation_registration (__main__.RegistryRegistrationTests.test_existing_gate_masters_have_one_blocking_implementation_registration) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.074s\n\nOK\n",
+    "canonical_dispatch": {
+      "exit_code": 1,
+      "output": "registry: implementation-ref-missing: check-update-migration (path does not exist: plugins/sdd-quality-loop/scripts/check-update-migration.py)\nregistry: unregistered-script: plugins/sdd-quality-loop/scripts/check-component-coverage.py\nregistry: unregistered-script: plugins/sdd-quality-loop/scripts/check-contract.py\nregistry: unregistered-script: plugins/sdd-quality-loop/scripts/check-criterion-freeze.py\nregistry: unregistered-script: plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py\n"
+    },
+    "source_hashes_after": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  contracts/capability-registry.json\n737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278  plugins/sdd-quality-loop/contracts/capability-registry.json\naa0a6b18cdd561b08ad95c89db8fd08138d2eef0e36aac3d4f7fa15af152e575  plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json\n",
+    "staging": "specs/sdd-domain-multitarget/human-copy/T-002-registry",
+    "candidate_registry_sha256": "b09dc7759542e9cbfe8cc81c38e4f7a1d7630d0c1be77ec13d6d981785c00d67",
+    "candidate_projection_sha256": "e74ecd4c9b9ed7e79238f85d69e689f1c76aacda9d886deaacb6f81a4d58682b",
+    "checks": [
+      "exact HEAD and source hashes",
+      "exact additive data delta",
+      "all four blocking implementation registrations",
+      "real POSIX validator retains only missing required migration implementation",
+      "vendor byte equality",
+      "existing projection functions byte equality",
+      "existing publisher manifest hashes"
+    ],
+    "privacy_scan": {
+      "exit_code": 1,
+      "output": "",
+      "meaning": "no host absolute paths or scanned personal identifiers found"
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "output": ""
+    },
+    "source_applied": false,
+    "windows_executed": false,
+    "formal_quality_gate": null
+  },
+  "read_only_validation_refusal": {
+    "operation": "read-only Python import/load/build/render of existing projection helper for staged Registry",
+    "executed": false,
+    "retried": false,
+    "diagnostic": "Command blocked by PreToolUse hook: SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.",
+    "followup": "Authorized task-owned candidate test mode reused existing projection functions without applying source."
+  },
+  "root_cause": {
+    "registration": "Four real gate masters absent from canonical Registry.",
+    "fixture_production": "A2 illustrative-only Registry example was shipped as canonical content and the known missing migration implementation was deferred to synthetic fixtures.",
+    "migration_contract": "unresolved; no executable input/invariant/output/exit/evidence contract found",
+    "silent_deletion_safe": false,
+    "required_missing_gate_retained": true,
+    "report": "specs/sdd-domain-multitarget/verification/T-002/registry-registration-recovery.md"
+  }
+}

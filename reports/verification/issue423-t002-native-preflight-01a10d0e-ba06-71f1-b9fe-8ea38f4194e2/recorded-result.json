@@ -1,0 +1,9 @@
+{
+  "nonce": "0e20e8ea51a3999ff33fac0aa5804631",
+  "executed": true,
+  "runtime": "codex-cli",
+  "native_session_id": "01a10d0e-ba06-71f1-b9fe-8ea38f4194e2",
+  "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "raw_tool_result": {},
+  "executed_basis": "Before attempt lexists=False; after native apply_patch lexists=True, regular file, symlink=False, size=1, bytes=0a. Raw tool result object was empty; no denial signature was observed."
+}

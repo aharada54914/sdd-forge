@@ -1,0 +1,14 @@
+[
+  {
+    "name": "gpt-6-astra",
+    "available": true,
+    "effort": "medium",
+    "cost": "48.22",
+    "availability_source": "Current local models_cache.json advertisement and native registered collaboration model; not a completed evaluator call",
+    "availability_cache_fetched_at": "2026-10-05T17:31:33.260225Z",
+    "observed_at": "2026-10-05T17:32:39.138585+00:00",
+    "cost_estimate_source": "reports/verification/issue137-model-registration-candidate-20260928/report.md",
+    "cost_estimate_timestamp": "2026-09-28T05:01:53Z",
+    "cost_estimate_limits": "Conditional Standard API-equivalent planning forecast using historical Sol workload, all input uncached and long context, excludes tool charges; not current prices, billed subscription usage, a workload ceiling, or evaluator proof"
+  }
+]

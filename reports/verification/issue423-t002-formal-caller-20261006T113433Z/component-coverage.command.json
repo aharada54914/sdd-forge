@@ -1,0 +1,1 @@
+{"argv": ["rtk", "proxy", "bash", "plugins/sdd-quality-loop/scripts/check-component-coverage.sh", "--repo-root", "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"], "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"}

@@ -1,0 +1,5 @@
+Verification contract FAILED for task T-002:
+ - check 'unit-tests' evidence file is empty: reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/boundary-tests.stdout.txt
+ - required check 'acceptance-tests' has passes=false
+ - required check 'regression' has passes=false
+Exit: 1

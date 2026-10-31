@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SOURCE_GIT_ROOT="${T005_SOURCE_GIT_ROOT:-$ROOT}"
 AGENTS="$ROOT/plugins/sdd-review-loop/agents"
 EVALUATOR="$ROOT/plugins/sdd-quality-loop/agents/evaluator.md"
+CODEX_EVALUATOR="$ROOT/.codex/agents/sdd-evaluator.toml"
 QUALITY_GATE="$ROOT/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
 VALIDATOR_SH="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 VALIDATOR_PS1="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
@@ -34,6 +35,15 @@ for stage in spec impl task; do
 done
 
 [[ -f "$EVALUATOR" && -f "$QUALITY_GATE" ]] || fail "evaluator isolation artifacts are missing"
+[[ -f "$CODEX_EVALUATOR" ]] || fail 'Codex evaluator role is missing'
+grep -Fq 'Before any repository read, require the persisted' "$CODEX_EVALUATOR" ||
+  fail 'Codex evaluator must require the invocation and receipt before reading'
+grep -Fq 'never read `reports/review-context/identity-ledger.json`' "$CODEX_EVALUATOR" ||
+  fail 'Codex evaluator must not read the caller-only ledger'
+grep -Fq 'Never dump or inspect the process environment' "$CODEX_EVALUATOR" ||
+  fail 'Codex evaluator must not dump the environment'
+grep -Fq 'pass the complete validator receipt' "$QUALITY_GATE" ||
+  fail 'quality gate must pass the receipt to the Codex evaluator'
 grep -Fq 'review-context-invocation/v2' "$EVALUATOR" ||
   fail 'evaluator must require the sequential invocation contract'
 grep -Fq 'canonical identity ledger' "$EVALUATOR" ||
@@ -63,6 +73,7 @@ make_repository() {
     "$repository/reports/task-review/f/attempt-1/round-1" \
     "$repository/reports/implementation/f" \
     "$repository/reports/review-context" \
+    "$repository/handoffs/fixture" \
     "$repository/plugins/internal" \
     "$repository/plugins/task" \
     "$repository/private"
@@ -79,12 +90,18 @@ make_repository() {
   printf '{}\n' > "$repository/reports/task-review/f/attempt-1/round-1/precheck-result.json"
   printf 'authorized output\n' > "$repository/plugins/task/authorized-output.txt"
   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
+  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",run_id:"worker-run",session_id:"worker-session"}' \
+    > "$repository/handoffs/fixture/manifest.json"
   local authorized_output_hash
   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
+  local implementation_hash
+  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
   {
     printf '# Implementation Report: T-001\n\n'
     printf '## Task\n\n'
     printf '%s\n\n' '- Task ID: T-001'
+    printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+    printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$implementation_hash"
     printf '## Outputs\n\n'
     printf '| Path | SHA-256 |\n'
     printf '|---|---|\n'
@@ -132,7 +149,7 @@ stage_for_role() {
 make_manifest() {
   local repository=$1 role=$2 output=$3
   local ledger="$repository/reports/review-context/identity-ledger.json"
-  local path stage ledger_hash previous sequence input_hash
+  local path stage ledger_hash previous sequence input_hash implementation_hash
   path="$(input_for_role "$role")"
   stage="$(stage_for_role "$role")"
   if [[ "$role" == "sdd-evaluator" ]]; then
@@ -145,10 +162,11 @@ make_manifest() {
   previous="$(jq -r '.records[-1].record_sha256' "$ledger")"
   sequence="$(jq '.records[-1].sequence + 1' "$ledger")"
   input_hash="$(sha256 "$repository/$path")"
+  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
   jq -n \
     --arg stage "$stage" --arg role "$role" --arg path "$path" \
     --arg ledger_hash "$ledger_hash" --arg previous "$previous" \
-    --arg input_hash "$input_hash" --argjson sequence "$sequence" '({
+    --arg input_hash "$input_hash" --arg implementation_hash "$implementation_hash" --argjson sequence "$sequence" '({
       schema:"review-context-invocation/v2",
       stage:$stage,
       role:$role,
@@ -162,8 +180,10 @@ make_manifest() {
       identity_ledger_sha256:$ledger_hash,
       previous_record_sha256:$previous,
       sequence:$sequence,
-      allowed_input_manifest:[{path:$path,sha256:$input_hash}]
-    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))' > "$output"
+      allowed_input_manifest:([{path:$path,sha256:$input_hash}] +
+        (if $role == "sdd-evaluator" then [{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}] else [] end))
+    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f",
+         implementation_manifest:{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}} else {} end))' > "$output"
 }
 
 run_bash() {
@@ -384,10 +404,13 @@ annot_similar_bak_hash="$(sha256 "$annot_repository/$annot_similar_path.bak")"
 
 annot_wrong_hash="$(printf '%064d' 0 | tr '0' 'd')"
 
+annot_implementation_hash="$(sha256 "$annot_repository/handoffs/fixture/manifest.json")"
 {
   printf '# Implementation Report: T-001\n\n'
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
+  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$annot_implementation_hash"
   printf '## Outputs\n\n'
   printf '| Path | SHA-256 |\n'
   printf '|---|---|\n'
@@ -906,6 +929,7 @@ make_repository "$legacy_repository"
 legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
 legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
 legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+legacy_implementation_hash="$(sha256 "$legacy_repository/handoffs/fixture/manifest.json")"
 
 # Rewrite the fixture's report so the artifact is declared ONLY in the legacy
 # section -- no `## Outputs` table at all, which is the shape of the historical
@@ -914,6 +938,8 @@ legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
   printf '# Implementation Report: T-001\n\n'
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
+  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
   printf '## Output Paths And Hashes\n\n'
   printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
     "$legacy_output_hash"
@@ -960,6 +986,8 @@ assert_rejected_both wfi017-legacy-row-hash-mismatch \
   printf '# Implementation Report: T-001\n\n'
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
+  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
   printf '## Output Paths And Hashes\n\n'
   printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
 } > "$legacy_repository/reports/implementation/f/T-001.md"
@@ -992,6 +1020,7 @@ ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$rep
 parity_repository="$tmp/grammar-parity-repository"
 make_repository "$parity_repository"
 parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
+parity_implementation_hash="$(sha256 "$parity_repository/handoffs/fixture/manifest.json")"
 
 # Emit the declaration row shape for one ratified section name. A section this
 # does not know how to write is an unteachable grammar -- fail rather than
@@ -1001,6 +1030,8 @@ write_declaration() {
   printf '# Implementation Report: T-001\n\n'
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
+  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"
   printf '## %s\n\n' "$section"
   case "$section" in
     'Outputs')
@@ -1053,6 +1084,8 @@ done
   printf '# Implementation Report: T-001\n\n'
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
+  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"
   printf '## Declared Artifacts\n\n'
   printf '| Path | SHA-256 |\n'
   printf '|---|---|\n'
@@ -1064,6 +1097,41 @@ jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
   "$tmp/parity-base.json" > "$tmp/parity-unratified.json"
 assert_rejected_both wfi038-unratified-section-name \
   "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
+
+delivery_repository="$tmp/delivery-repository"
+make_repository "$delivery_repository"
+make_manifest "$delivery_repository" sdd-evaluator "$tmp/delivery-base.json"
+mkdir "$tmp/delivery-scratch"
+delivery_scratch="$(cd "$tmp/delivery-scratch" && pwd -P)"
+jq --arg scratch "$delivery_scratch" '.scratch_root=$scratch' "$tmp/delivery-base.json" > "$tmp/delivery.json"
+while IFS= read -r input; do
+  mkdir -p "$delivery_scratch/$(dirname "$input")"
+  cp "$delivery_repository/$input" "$delivery_scratch/$input"
+done < <(jq -r '.allowed_input_manifest[].path' "$tmp/delivery.json")
+delivery_pin="$(sha256 "$tmp/delivery.json")"
+ledger_before="$(sha256 "$delivery_repository/reports/review-context/identity-ledger.json")"
+delivery_check() {
+  python3 "$ROOT/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py" \
+    --repository-root "$delivery_repository" --manifest "$tmp/delivery.json" \
+    --manifest-sha256 "$1" --scratch-root "$delivery_scratch" "${@:2}"
+}
+delivery_check "$delivery_pin" || fail 'caller delivery with byte-identical prepared fixture'
+if delivery_check "$(printf '%064d' 0)"; then fail 'delivery admitted incorrect caller pin'; fi
+printf 'changed fixture\n' >> "$delivery_scratch/reports/implementation/f/T-001.md"
+if delivery_check "$delivery_pin"; then fail 'delivery admitted substituted fixture'; fi
+cp "$delivery_repository/reports/implementation/f/T-001.md" "$delivery_scratch/reports/implementation/f/T-001.md"
+mv "$delivery_scratch/handoffs/fixture/manifest.json" "$tmp/delivery-saved-input.json"
+if delivery_check "$delivery_pin" --reserve; then fail 'delivery reserved before fixture preparation'; fi
+[[ "$(sha256 "$delivery_repository/reports/review-context/identity-ledger.json")" == "$ledger_before" ]] || fail 'missing fixture consumed reservation'
+mv "$tmp/delivery-saved-input.json" "$delivery_scratch/handoffs/fixture/manifest.json"
+printf 'changed source\n' >> "$delivery_repository/reports/implementation/f/T-001.md"
+if delivery_check "$delivery_pin"; then fail 'delivery bypassed canonical input verification'; fi
+[[ "$(sha256 "$delivery_repository/reports/review-context/identity-ledger.json")" == "$ledger_before" ]] || fail 'delivery mutated identity ledger'
+printf 'ok: evaluator caller delivery rejects stale pins, missing/substituted fixtures and source drift without reservation\n'
+cp "$delivery_scratch/reports/implementation/f/T-001.md" "$delivery_repository/reports/implementation/f/T-001.md"
+delivery_check "$delivery_pin" --reserve || fail 'prepared delivery could not reserve synthetic evaluator'
+[[ "$(jq '.records | length' "$delivery_repository/reports/review-context/identity-ledger.json")" == 2 ]] || fail 'delivery did not delegate exactly one reservation'
+printf 'ok: prepared delivery delegates exactly one canonical fixture reservation after readback\n'
 
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'
 

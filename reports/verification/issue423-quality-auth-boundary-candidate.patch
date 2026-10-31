@@ -1,0 +1,78 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -249,3 +249,3 @@
+ 
+-# Explicit evaluator dependencies remain a subset of the same-task input manifest.
++# Bind the pinned implementation task manifest to its same-task report.
+ verify_implementation_binding() {
+@@ -357,6 +357,5 @@ path_is_authorized() {
+         implementation_report_legacy_declares \
+           "$path" "$expected_hash" \
+           "$repository_root/$implementation_report_path" ||
+-        gate_report_output_is_declared "$path" "$expected_hash" ||
+-        implementation_input_is_declared "$path" "$expected_hash"
++        gate_report_output_is_declared "$path" "$expected_hash"
+       ;;
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -922,5 +922,4 @@
+             ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
+                 $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
+-                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs) -or
+-                (Test-ImplementationInput $document $root $input.path $input.sha256)
++                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
+         }
+diff --git a/tests/issue311-scratch-isolation.tests.py b/tests/issue311-scratch-isolation.tests.py
+--- a/tests/issue311-scratch-isolation.tests.py
++++ b/tests/issue311-scratch-isolation.tests.py
+@@ -80,4 +80,4 @@ def exercise(source, runtime, case):
+         if case.startswith("dependency-"):
+-            source_path = "src/consumer.txt"
++            source_path = "private/consumer.txt" if case == "dependency-undeclared" else "src/consumer.txt"
+             source_file = root / source_path
+             source_file.parent.mkdir()
+@@ -85,5 +85,5 @@ def exercise(source, runtime, case):
+             task_inputs = json.loads(implementation_manifest.read_text())
+             task_inputs["allowed_inputs"] = [dependency.copy()]
+-            expected = 0 if case == "dependency-valid" else 1
++            expected = 0 if case == "dependency-output-declared" else 1
+             if case == "dependency-absent":
+                 task_inputs["allowed_inputs"] = []
+@@ -120,1 +120,4 @@ def exercise(source, runtime, case):
++            if case == "dependency-output-declared":
++                report.write_text(report.read_text() + f"\n## Outputs\n| Path | SHA-256 |\n"
++                                  f"| --- | --- |\n| `{source_path}` | `{source_hash}` |\n")
+             updated_hash = digest(implementation_manifest.read_bytes())
+@@ -206,5 +209,5 @@ def main():
+     cases = ["clean", "new-missing", "other-equal", "other-child", "other-parent", "other-prefix",
+              "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
+              "legacy-missing", "snapshot-tampered", "snapshot-deleted",
+-             "dependency-valid", "dependency-absent", "dependency-wrong-hash",
++             "dependency-undeclared", "dependency-output-declared", "dependency-absent", "dependency-wrong-hash",
+              "dependency-other-task", "dependency-other-run", "dependency-duplicate",
+diff --git a/plugins/sdd-review-loop/references/review-context-boundary.md b/plugins/sdd-review-loop/references/review-context-boundary.md
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -335,15 +335,6 @@
+-## Same-task evaluator source dependencies
++## Same-task evaluator implementation binding
+ 
+-Only quality:sdd-evaluator may explicitly include necessary source dependencies
+-by exact path/SHA-256 membership in the pinned implementation manifest's
+-allowed_inputs. The manifest must itself be an explicitly hash-pinned evaluator
+-input; its live hash, canonical path and symlink-free regular file are checked
+-before membership is consulted. The shared implementation binding checks run
+-also during dependency preflight: task-input-manifest/v1, matching task ID,
+-run/session, and the feature-specific implementation report's exact citation.
+-This binds the source declaration to the report for this feature, not merely to
+-a task ID reused in another feature. No recursive or automatic input expansion
+-occurs. Each explicit dependency still passes normal path/hash, symlink and
+-forbidden-peer-output checks. Other roles and stages gain no access; existing
+-identity/ledger reservation checks remain unchanged. Unmodified sources are not
+-Outputs, and this authorization is not a QG verdict or retrospective launch.
++The pinned implementation manifest binds task/run/session identity to the
++implementation report; its allowed_inputs do not authorize evaluator inputs.
++A changed source or test must be declared by exact path and hash in the report's
++## Outputs, or by the existing post-fix artifact declaration for that cycle.

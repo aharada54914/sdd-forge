@@ -1,0 +1,10 @@
+{
+  "path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.md",
+  "line_number": 55,
+  "raw_line": "- **Scratch Root**: specs/sdd-domain-multitarget/verification/T-003/run-30ca86925cd6/",
+  "file_sha256": "a204e954986c2207f9719174f11c5fca2cf9fcbb877828d78f06f5fea7a6d462",
+  "observed_relative_root": true,
+  "observed_trailing_slash": true,
+  "diagnostic_only": true,
+  "original_validator_authority": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:1076-1081,1116-1126,1211"
+}

@@ -1,0 +1,1 @@
+{"argv": ["rtk", "proxy", "bash", "plugins/sdd-quality-loop/scripts/check-task-state.sh", "specs/sdd-domain-multitarget/tasks.md", "reports/quality-gate", "reports/implementation", "."], "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"}

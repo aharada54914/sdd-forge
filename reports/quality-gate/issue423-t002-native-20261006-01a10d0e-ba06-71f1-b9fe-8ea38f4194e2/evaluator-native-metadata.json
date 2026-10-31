@@ -1,0 +1,26 @@
+{
+  "id": "01a10d20-5c8c-7940-9d81-bd54e116f6bf",
+  "session_id": "01a10d0e-ba06-71f1-b9fe-8ea38f4194e2",
+  "parent_thread_id": "01a10d0e-ba06-71f1-b9fe-8ea38f4194e2",
+  "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "originator": "Codex Desktop",
+  "cli_version": "0.160.0",
+  "source": {
+    "subagent": {
+      "thread_spawn": {
+        "parent_thread_id": "01a10d0e-ba06-71f1-b9fe-8ea38f4194e2",
+        "depth": 1,
+        "agent_path": "/root/issue423_t002_evaluator",
+        "agent_nickname": "Kierkegaard",
+        "agent_role": "sdd-evaluator"
+      }
+    }
+  },
+  "thread_source": "subagent",
+  "agent_role": "sdd-evaluator",
+  "agent_path": "/root/issue423_t002_evaluator",
+  "model_provider": "openai",
+  "source_path": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T02-33-07-01a10d20-5c8c-7940-9d81-bd54e116f6bf.jsonl",
+  "session_meta_raw_line_sha256": "fb2b7ffc588eafd884c5364c37fd73671b2424710797833ac7c556bf39f69ebe",
+  "model": "gpt-6-astra"
+}

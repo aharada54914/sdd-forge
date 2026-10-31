@@ -1,0 +1,9 @@
+{
+  "issue": 423,
+  "task": "T-002",
+  "owner": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "head": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "risk": "medium task; formal protected admission unchanged",
+  "scope": "normal fresh quality-gate caller and shipped independent child; no production repair planned",
+  "validation": "all 77 hashes; ledger chain; normal preflight; atomic reservation; actual native child model/effort; independent verdict; prescribed Done gates"
+}

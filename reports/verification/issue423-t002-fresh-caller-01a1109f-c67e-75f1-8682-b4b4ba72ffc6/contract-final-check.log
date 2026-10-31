@@ -1,0 +1,4 @@
+Verification contract FAILED for task T-002:
+ - required check 'acceptance-tests' has passes=false
+ - required check 'regression' has passes=false
+Exit: 1

@@ -1,0 +1,2 @@
+DRIFT: .codex/agents/sdd-evaluator.toml toml=openai/gpt-5.2-codex/high live=gpt-6-astra/medium
+Cost estimate is historical conditional forecast, not billing/current price. Native hook activation NOT VERIFIED.

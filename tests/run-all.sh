@@ -71,6 +71,22 @@ printf '==> %s\n' 'tests/sdd-domain-multitarget-T-003.tests.py'
 if ! python3 -B tests/sdd-domain-multitarget-T-003.tests.py; then
   failed+=('tests/sdd-domain-multitarget-T-003.tests.py')
 fi
+printf '==> %s\n' 'tests/quality-nontty-transport.tests.py'
+if ! python3 -B tests/quality-nontty-transport.tests.py; then
+  failed+=('tests/quality-nontty-transport.tests.py')
+fi
+printf '==> %s\n' 'tests/traceability-freeze-contract.tests.py'
+if ! python3 -B tests/traceability-freeze-contract.tests.py; then
+  failed+=('tests/traceability-freeze-contract.tests.py')
+fi
+for test_name in review-conditional-inputs spec-review-verify-inputs host-review-preflight unified-launch-order unified-task-launch task-structured-output; do
+  test_file="tests/${test_name}.tests.py"
+  printf '==> %s\n' "$test_file"
+  if ! python3 -B "$test_file"; then
+    failed+=("$test_file")
+  fi
+done
+
 if [[ ${#failed[@]} -gt 0 ]]; then
   printf '\n%d failing suite(s):\n' "${#failed[@]}"
   printf '  %s\n' "${failed[@]}"

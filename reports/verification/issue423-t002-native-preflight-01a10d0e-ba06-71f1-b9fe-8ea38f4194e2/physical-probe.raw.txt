@@ -1,0 +1,25 @@
+cwd=/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge
+[
+  {
+    "path": "sdd/project-context.yaml",
+    "lexists": false,
+    "is_file": false,
+    "is_symlink": false,
+    "size": null
+  },
+  {
+    "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+    "lexists": true,
+    "is_file": true,
+    "is_symlink": false,
+    "size": 12030
+  },
+  {
+    "path": "specs/sdd-domain-multitarget/traceability.md",
+    "lexists": true,
+    "is_file": true,
+    "is_symlink": false,
+    "size": 5649
+  }
+]
+lite_profile_lines=[]

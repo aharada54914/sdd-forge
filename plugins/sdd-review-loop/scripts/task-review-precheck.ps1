@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Fail([string]$Message) { throw "task-review-precheck: $Message" }
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
@@ -305,17 +306,6 @@ function Get-PersistedAdrPassPaths {
 }
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
   return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
-}
-function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$ReviewedStatus) {
-  $content = [IO.File]::ReadAllText($Path)
-  $normalized = [Text.RegularExpressions.Regex]::Replace(
-    $content,
-    "(?m)^$([Text.RegularExpressions.Regex]::Escape($StatusField)):[^\r\n]*(\r?)$",
-    "${StatusField}: $ReviewedStatus`$1"
-  )
-  return [Convert]::ToHexString(
-    [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
-  ).ToLower()
 }
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- the same recipe as
 # check-workflow-state.ps1 Get-NormalizedHash for the task stage (canonical

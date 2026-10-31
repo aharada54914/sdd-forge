@@ -168,19 +168,109 @@
     {
       "id": "host-adapters",
       "test_ids": ["TEST-001h"],
-      "consumer": "Host-specific launch syntax and invocation adapters (sdd-bootstrap-interviewer Invocation section)",
+      "consumer": "Host-specific launch syntax, manifest shape, hook invocation, and capability detection",
       "disposition": "KEEP",
-      "scope": "The Codex text-invocation block versus the Claude Code slash-command entry point for the same skill.",
+      "scope": "Codex CLI, Claude Code, and Copilot CLI packaging and launch, manifest, hook, and runtime capability surfaces; host-specific transport retains shared workflow semantics.",
       "rationale": "requirements.md REQ-001 row 10: continue using host-specific packaging/adapters; common workflow meanings and approval rules remain shared.",
       "source": [
         {
+          "host": "codex-cli",
+          "surface": "launch",
           "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
           "line_start": 13,
-          "line_end": 28,
-          "keyword": "Claude Code — internal skill"
+          "line_end": 22,
+          "keyword": "Codex:"
+        },
+        {
+          "host": "claude-code",
+          "surface": "launch",
+          "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+          "line_start": 14,
+          "line_end": 25,
+          "keyword": "/sdd-bootstrap:bootstrap"
+        },
+        {
+          "host": "copilot-cli",
+          "surface": "launch",
+          "path": "tests/cross-runtime-handoff.tests.sh",
+          "line_start": 210,
+          "line_end": 213,
+          "keyword": "copilot -p"
+        },
+        {
+          "host": "codex-cli",
+          "surface": "manifest",
+          "path": "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+          "line_start": 1,
+          "line_end": 9,
+          "keyword": "./hooks/hooks.json"
+        },
+        {
+          "host": "claude-code",
+          "surface": "manifest",
+          "path": "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+          "line_start": 1,
+          "line_end": 10,
+          "keyword": "./hooks/claude-hooks.json"
+        },
+        {
+          "host": "copilot-cli",
+          "surface": "manifest",
+          "path": "plugins/sdd-quality-loop/.plugin/plugin.json",
+          "line_start": 1,
+          "line_end": 10,
+          "keyword": "hooks/copilot-hooks.json"
+        },
+        {
+          "host": "codex-cli",
+          "surface": "hooks",
+          "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+          "line_start": 3,
+          "line_end": 22,
+          "keyword": "command_windows"
+        },
+        {
+          "host": "claude-code",
+          "surface": "hooks",
+          "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+          "line_start": 3,
+          "line_end": 23,
+          "keyword": "PreToolUse"
+        },
+        {
+          "host": "copilot-cli",
+          "surface": "hooks",
+          "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+          "line_start": 1,
+          "line_end": 10,
+          "keyword": "preToolUse"
+        },
+        {
+          "host": "codex-cli",
+          "surface": "capability-detection",
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "line_start": 338,
+          "line_end": 353,
+          "keyword": "plugin_hooks_enabled"
+        },
+        {
+          "host": "claude-code",
+          "surface": "capability-detection",
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "line_start": 298,
+          "line_end": 310,
+          "keyword": "emit_mode != \"exit\""
+        },
+        {
+          "host": "copilot-cli",
+          "surface": "capability-detection",
+          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+          "line_start": 318,
+          "line_end": 330,
+          "keyword": "decision != \"deny\""
         }
       ],
-      "reverify_command": "sed -n '13,28p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+      "reverify_command": "sed -n '13,22p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md; sed -n '14,25p' plugins/sdd-bootstrap/skills/bootstrap/SKILL.md; sed -n '210,213p' tests/cross-runtime-handoff.tests.sh; sed -n '1,10p' plugins/sdd-quality-loop/.codex-plugin/plugin.json plugins/sdd-quality-loop/.claude-plugin/plugin.json plugins/sdd-quality-loop/.plugin/plugin.json; sed -n '1,23p' plugins/sdd-quality-loop/hooks/hooks.json plugins/sdd-quality-loop/hooks/claude-hooks.json plugins/sdd-quality-loop/hooks/copilot-hooks.json; sed -n '298,310p;318,330p;338,353p' plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
     },
     {
       "id": "facet-native-migration",

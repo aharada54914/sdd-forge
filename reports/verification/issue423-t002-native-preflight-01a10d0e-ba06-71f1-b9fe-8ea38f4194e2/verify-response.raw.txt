@@ -1,0 +1,8 @@
+check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: WRITE_EXECUTED: recorded evidence shows the canary write EXECUTED (executed: true) -- no denial was observed
+{
+  "nonce": "0e20e8ea51a3999ff33fac0aa5804631",
+  "reason": "WRITE_EXECUTED",
+  "runtime": "codex-cli",
+  "schema": "sdd-hook-verify-result/v1",
+  "status": "CAPABILITY_RUNTIME_UNAVAILABLE"
+}

@@ -319,6 +319,20 @@ class CapabilityRegistryProviderNeutralityTests(unittest.TestCase):
                         self.assertTrue(any("provider-name-detected" in d and
                                             f".{field}" in d for d in diagnostics), diagnostics)
 
+    def test_provider_keys_in_predicates_are_rejected(self):
+        for boundary in ("trigger", "conditional"):
+            for term in self.provider_terms:
+                for key in (term, f"prefix-{term.upper()}-suffix"):
+                    for value in ({key: True}, {"metadata": {key: False}},
+                                  {"items": [{key: None}]}):
+                        with self.subTest(boundary=boundary, key=key, value=value):
+                            diagnostics = []
+                            self.assertFalse(self.registry_mod.check_g_provider_name_contamination(
+                                self._predicate_registry(value, boundary),
+                                self.provider_terms, diagnostics), diagnostics)
+                            self.assertTrue(any("provider-name-detected" in d and
+                                                f".{key}" in d for d in diagnostics), diagnostics)
+
     def test_provider_neutral_nested_predicate_values_are_accepted(self):
         value = {"metadata": {"name": "durable_workflow", "items": [
             {"replayable": True}, {"credentials_hint": False},

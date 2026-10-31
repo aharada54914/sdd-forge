@@ -11,6 +11,7 @@ $tests = @(
     'tests/wfi-058-outputs-anchor.tests.ps1',
     'tests/wfi-059-evidence-path-base.tests.ps1',
     'tests/review-contract-foundation.tests.ps1',
+    'tests/review-hash-normalization.tests.ps1',
     'tests/task-context-isolation.tests.ps1',
     'tests/rollback-1.5.0.tests.ps1',
     'tests/downstream-review-precheck.tests.ps1',
@@ -132,6 +133,12 @@ try {
         }
     }
     $testFile = 'tests/sdd-domain-multitarget-T-003.tests.py'
+    Write-Host "==> $testFile"
+    & python -B (Join-Path $root $testFile)
+    if ($LASTEXITCODE -ne 0) {
+        $failed += $testFile
+    }
+    $testFile = 'tests/quality-nontty-transport.tests.py'
     Write-Host "==> $testFile"
     & python -B (Join-Path $root $testFile)
     if ($LASTEXITCODE -ne 0) {

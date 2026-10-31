@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "reports/verification/issue423-t002-declared-gate-01a1110d-878f-7a73-81ce-a4eb6e98f94b/evaluator-invocation.json",
+    "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge"
+  ],
+  "login": false,
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "REVIEW_CONTEXT_PATH: sdd-evaluator contains a real but role-unlisted path: specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py\n"
+}

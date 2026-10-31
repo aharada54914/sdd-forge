@@ -1,0 +1,18 @@
+test_standalone_package_schema_and_evaluation (__main__.SelectedPlanTests.test_standalone_package_schema_and_evaluation) ... FAIL
+
+======================================================================
+FAIL: test_standalone_package_schema_and_evaluation (__main__.SelectedPlanTests.test_standalone_package_schema_and_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/tests/sdd-domain-multitarget-T-003.tests.py", line 134, in test_standalone_package_schema_and_evaluation
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : selected-verification-plan: BLOCKED: schema-discovery-failed: selected-verification-plan.schema.json
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.232s
+
+FAILED (failures=1)
+
+Exit code: 1

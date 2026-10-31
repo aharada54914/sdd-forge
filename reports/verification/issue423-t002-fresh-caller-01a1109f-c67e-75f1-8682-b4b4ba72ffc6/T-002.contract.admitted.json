@@ -1,0 +1,26 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-domain-multitarget",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "code",
+  "spec_revision": "06bc32cc",
+  "created": "2026-09-30T03:57:14Z",
+  "comment": "Current-byte owner-side deterministic checks are recorded in qg-prep-20261003/current-build-and-checks.md. The human FilesOnly isolated assembly log proves installed byte parity and validator execution, not host registration. Independent quality evaluation, CI and Done remain unverified.",
+  "checks": [
+    {"id":"lint","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-build-and-checks.md","waiver_reason":""},
+    {"id":"typecheck","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-build-and-checks.md","waiver_reason":""},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"integration-tests","required":false,"passes":false,"evidence":"","waiver_reason":"Not completed in this stopped cycle."},
+    {"id":"build","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-build-and-checks.md","waiver_reason":""},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"registry-validation","required":true,"passes":true,"evidence":"specs/sdd-domain-multitarget/verification/T-002/qg-prep-20261003/current-validation.md","waiver_reason":""},
+    {"id":"smoke-run","required":false,"passes":false,"evidence":"","waiver_reason":"No UI or runnable application changed in T-002."},
+    {"id":"differential-baseline","required":false,"passes":false,"evidence":"","waiver_reason":"No baseline-behavior.md or differential task requirement for T-002."},
+    {"id":"ui-verification","required":false,"passes":false,"evidence":"","waiver_reason":"No UI-layer change in T-002."},
+    {"id":"design-system","required":false,"passes":false,"evidence":"","waiver_reason":"No UI-layer change in T-002."}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "uvx",
+    "--from",
+    "ruff==0.13.3",
+    "ruff",
+    "check",
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+    "plugins/sdd-quality-loop/scripts/registry_discovery.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:54:35.800060+00:00",
+  "finished_at": "2026-10-05T17:54:37.026762+00:00"
+}

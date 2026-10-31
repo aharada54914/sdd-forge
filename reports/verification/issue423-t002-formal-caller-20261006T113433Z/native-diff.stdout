@@ -1,0 +1,2138 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index e98f0695..adc9c7a6 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,8 +1,55 @@
+ # AGENTS.md
+ 
+-This project follows a three-stage Spec-Anchored AI Development workflow.
+-
+-## Required Workflow
++sdd-forge's product workflow and its own repository development workflow are
++separate. Installing or developing an SDD plugin does not require every repository
++change to bootstrap a new full SDD feature. This development policy was authorized
++by the user on 2026-10-05; it changes development governance only, not runtime guards,
++product contracts, existing approvals, verdicts or task states.
++
++## Repository Development Workflow
++
++Before editing, record the issue/task, owning checkout, current HEAD and dirty
++changes, risk classification, affected contracts and required validation. Preserve
++other contributors' work. Apply the criteria below by changed behavior, not by
++patch size, file extension, issue label or a desire to pass a gate.
++
++- **Routine correction:** restores already-approved behavior without changing
++  approval/authorization, evidence or identity semantics, reviewer independence,
++  required checks/SKIP policy, protected enforcement files, security/egress,
++  externally consumed contracts or architecture. Use reproduction -> focused fix
++  -> affected regression tests -> independent diff review -> applicable CI for the
++  exact final head. Do not create new full specification/review loops merely
++  because the product is an SDD framework. Record executed evidence and limitations.
++- **High-risk or protected change:** changes any boundary above, or is already
++  classified high/critical by its approved task. Retain the formal management
++  workflow below, contract/preflight requirements, independent verification and
++  the sanctioned protected-application path. A small guard/read-allowance or
++  recovery/manifest change is still high-risk; routine classification cannot
++  authorize it. If classification is uncertain, resolve scope before editing.
++- **Existing SDD tasks:** preserve their approved contracts, lifecycle and frozen
++  evidence. The routine path is not retroactive permission to bypass an existing
++  gate or relabel a task Done. Use the per-task transition procedure in
++  [Development policy and evidence handoff](docs/development-policy.md).
++
++Manage development with a separately verified, version/hash-pinned control
++baseline; test the development candidate in disposable fixtures and isolated host
++sessions. Never assume a version is verified because it is called stable. Do not
++silently replace the installed baseline with the working tree. Baseline selection,
++installation/trust changes and promotion use explicit scoped human authority;
++this document does not select or install a baseline or grant new access.
++
++Assign one owner to each shared enforcement/contract repair and combine its
++reproduction, negative cases, runtime parity and independent review into one
++bounded repair. Serialize overlapping writes, protected application and reservations
++on the same ledger. Unrelated work in separate checkouts may continue in parallel.
++Keep rejected operations and old history; do not disable hooks, change executors to
++route around a refusal, invent identity/approval, or count a diagnostic as a verdict.
++
++The product's full workflow remains available for product use and is mandatory
++for the high-risk/protected development scope above. Detailed validation, existing
++A7/A8/A9/#423 handoff and baseline-promotion conditions are in the linked policy.
++
++## Full SDD Workflow (High-risk and Protected Development)
+ 
+ 1. Use `sdd-bootstrap-interviewer` Phase 1 to create requirements, design, and acceptance tests.
+ 2. Run `spec-review-loop` with its independent reviewers; resolve findings until `Spec-Review-Status: Passed`.
+@@ -35,6 +82,11 @@ open; once the fix lands, the automated precheck path is again mandatory.
+ 
+ ## Sources Of Truth
+ 
++For existing SDD tasks and full-track work, the following records remain
++authoritative. Routine work records its scope, risk, independent review and exact
++validation evidence in a non-frozen issue/PR or development record; it must not
++forge a full-track report or mutate existing task state.
++
+ - `tasks.md`: task approval, execution order, and work status
+ - `traceability.md`: requirements, design, contracts, code, tests, and final status
+ - `docs/review-tickets/*.yml`: unresolved quality findings
+@@ -160,7 +212,8 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
+ - Do not implement Draft tasks.
+ - Do not guess ambiguous requirements or design decisions.
+ - Preserve unrelated user changes.
+-- Implement one task at a time.
++- Implement one approved SDD task at a time per implementation context; independent
++  work may proceed in separate contexts/checkouts without overlapping writes.
+ - API changes require contract updates; architecture changes require ADRs.
+ - Only `quality-gate` may set a task to Done.
+ - Do not commit, push, or create PRs/MRs unless explicitly requested.
+diff --git a/install.sh b/install.sh
+index de98b494..819dc762 100755
+--- a/install.sh
++++ b/install.sh
+@@ -707,7 +707,7 @@ rollback() {
+     fi
+ }
+ 
+-trap 'rc=$?; rollback; cleanup; exit $rc' EXIT
++trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
+ 
+ # ---------------------------------------------------------------------------
+ # Resolve source
+diff --git a/plugins/sdd-quality-loop/scripts/registry_discovery.py b/plugins/sdd-quality-loop/scripts/registry_discovery.py
+index 4d9fce5a..d14cda76 100755
+--- a/plugins/sdd-quality-loop/scripts/registry_discovery.py
++++ b/plugins/sdd-quality-loop/scripts/registry_discovery.py
+@@ -25,11 +25,11 @@ stale/absent fallback):
+      merely because the first one it found had a bad version, since doing
+      so would itself be a silent, undocumented second resolution path.
+ """
+-import hashlib
+ import json
+ import subprocess
+ import sys
+ from pathlib import Path
++from typing import Any, List, Optional, Tuple
+ 
+ # The exact $id this Epic's own capability-registry.schema.json declares
+ # (T-001). The per-artifact version check for the schema file confirms the
+@@ -89,16 +89,16 @@ def _git_root_path(filename: str) -> "Path | None":
+     return root / "contracts" / filename
+ 
+ 
+-def _load_json(path: Path):
++def _load_json(path: Path) -> Any:
+     with open(path, "r", encoding="utf-8") as fh:
+         return json.load(fh)
+ 
+ 
+-def check_capability_registry(doc) -> bool:
++def check_capability_registry(doc: Any) -> bool:
+     return isinstance(doc, dict) and doc.get("schema") == "capability-registry/v1"
+ 
+ 
+-def check_capability_registry_schema(doc) -> bool:
++def check_capability_registry_schema(doc: Any) -> bool:
+     return (
+         isinstance(doc, dict)
+         and "$schema" in doc
+@@ -106,7 +106,7 @@ def check_capability_registry_schema(doc) -> bool:
+     )
+ 
+ 
+-def check_lite_upgrade_reason_catalog(doc) -> bool:
++def check_lite_upgrade_reason_catalog(doc: Any) -> bool:
+     return isinstance(doc, dict) and doc.get("schema") == "lite-upgrade-reason-catalog/v1"
+ 
+ 
+@@ -117,7 +117,7 @@ VERSION_CHECKS = {
+ }
+ 
+ 
+-def _verify(path: Path, filename: str):
++def _verify(path: Path, filename: str) -> Tuple[bool, str]:
+     """Returns (ok: bool, detail: str)."""
+     check = VERSION_CHECKS.get(filename)
+     if check is None:
+@@ -171,7 +171,7 @@ def discover_artifact(filename: str) -> Path:
+     )
+ 
+ 
+-def main(argv=None) -> int:
++def main(argv: Optional[List[str]] = None) -> int:
+     """CLI mode for this task's own test suite: `registry_discovery.py
+     <filename>` resolves and prints the resolved path on success (exit 0),
+     or prints the fail-closed diagnostic on stderr (exit 1)."""
+diff --git a/plugins/sdd-quality-loop/scripts/validate-capability-registry.py b/plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+index a0c09c11..a4ca68d6 100755
+--- a/plugins/sdd-quality-loop/scripts/validate-capability-registry.py
++++ b/plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+@@ -23,12 +23,13 @@ import argparse
+ import json
+ import sys
+ from pathlib import Path
++from typing import Any, Dict, List, Optional, Tuple
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ from registry_discovery import discover_artifact, resolve_git_root, DiscoveryError  # noqa: E402
+ 
+ 
+-def _emit_stdout(line):
++def _emit_stdout(line: str) -> None:
+     """Write one stdout line byte-deterministically (LF on every platform).
+ 
+     Windows text-mode stdout translates \n to \r\n, which breaks the
+@@ -47,12 +48,12 @@ def _script_dir() -> Path:
+     return Path(__file__).resolve().parent
+ 
+ 
+-def _load_json(path: Path):
++def _load_json(path: Path) -> Any:
+     with open(path, "r", encoding="utf-8") as fh:
+         return json.load(fh)
+ 
+ 
+-def check_a_gate_id_uniqueness(registry, diagnostics):
++def check_a_gate_id_uniqueness(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+     ids = [g.get("id") for g in registry.get("gates", []) if isinstance(g, dict)]
+     seen, dups = set(), set()
+     for i in ids:
+@@ -64,7 +65,7 @@ def check_a_gate_id_uniqueness(registry, diagnostics):
+     return not dups
+ 
+ 
+-def check_i_capability_id_uniqueness(registry, diagnostics):
++def check_i_capability_id_uniqueness(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+     ids = [c.get("id") for c in registry.get("capabilities", []) if isinstance(c, dict)]
+     seen, dups = set(), set()
+     for i in ids:
+@@ -76,7 +77,9 @@ def check_i_capability_id_uniqueness(registry, diagnostics):
+     return not dups
+ 
+ 
+-def check_b_stage_completeness(registry, repo_root, diagnostics):
++def check_b_stage_completeness(
++    registry: Dict[str, Any], repo_root: Path, diagnostics: List[str]
++) -> bool:
+     ok = True
+     for g in registry.get("gates", []):
+         if not isinstance(g, dict) or g.get("stage") != "implementation":
+@@ -93,7 +96,7 @@ def check_b_stage_completeness(registry, repo_root, diagnostics):
+     return ok
+ 
+ 
+-def check_e_stage_missing(registry, diagnostics):
++def check_e_stage_missing(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+     """Defense-in-depth: independently re-assert no gates[] entry lacks
+     `stage`, exercised against a fixture that bypasses schema validation
+     (this validator never invokes the JSON Schema itself, so this
+@@ -109,14 +112,14 @@ def check_e_stage_missing(registry, diagnostics):
+     return ok
+ 
+ 
+-def check_d_no_pack_owned_gates(repo_root, diagnostics):
++def check_d_no_pack_owned_gates(repo_root: Path, diagnostics: List[str]) -> bool:
+     matches = sorted(repo_root.glob("capability-packs/*/gates.yaml"))
+     for m in matches:
+         diagnostics.append(f"registry: pack-owns-gate-definition: {m.relative_to(repo_root).as_posix()}")
+     return not matches
+ 
+ 
+-def check_f_referential_integrity(registry, diagnostics):
++def check_f_referential_integrity(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+     gate_ids = {g.get("id") for g in registry.get("gates", []) if isinstance(g, dict)}
+     ok = True
+     for c in registry.get("capabilities", []):
+@@ -129,25 +132,28 @@ def check_f_referential_integrity(registry, diagnostics):
+     return ok
+ 
+ 
+-def _load_provider_terms(repo_root):
++def _load_provider_terms(repo_root: Path) -> List[str]:
+     path = repo_root / PROVIDER_TERMS_REL
+     doc = _load_json(path)
+-    terms = []
++    terms: List[str] = []
+     for category_terms in (doc.get("categories") or {}).values():
+         terms.extend(category_terms)
+     return terms
+ 
+ 
+-def check_g_provider_name_contamination(registry, provider_terms, diagnostics):
++def check_g_provider_name_contamination(
++    registry: Dict[str, Any], provider_terms: List[str], diagnostics: List[str]
++) -> bool:
+     ok = True
+     terms_lower = [t.lower() for t in provider_terms]
+-    findings = []
++    findings: List[Tuple[str, str]] = []
+ 
+-    def walk(obj, path):
++    def walk(obj: object, path: str) -> None:
+         if isinstance(obj, dict):
+             for k, v in obj.items():
+                 if k in ("credentials", "state_authority"):
+                     findings.append((f"{path}.{k}", k))
++                walk(k, f"{path}.{k}")
+                 walk(v, f"{path}.{k}")
+         elif isinstance(obj, list):
+             for idx, v in enumerate(obj):
+@@ -165,7 +171,7 @@ def check_g_provider_name_contamination(registry, provider_terms, diagnostics):
+     return ok
+ 
+ 
+-def check_h_catalog_conformance(registry, diagnostics):
++def check_h_catalog_conformance(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+     try:
+         catalog_path = discover_artifact("lite-upgrade-reason-catalog.json")
+     except DiscoveryError as exc:
+@@ -191,7 +197,9 @@ def check_h_catalog_conformance(registry, diagnostics):
+     return ok
+ 
+ 
+-def check_c_unregistered_script(registry, repo_root, diagnostics):
++def check_c_unregistered_script(
++    registry: Dict[str, Any], repo_root: Path, diagnostics: List[str]
++) -> bool:
+     """Gate implementation identity (AC-016/AC-017): every check-*.py
+     master directly under the sole scan root is referenced by exactly one
+     gates[].implementation_ref (symlink-resolved before comparison). A
+@@ -208,13 +216,13 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
+     scan_root = repo_root / SCAN_ROOT_REL
+     ok = True
+ 
+-    masters = {}  # real-path str -> original Path (for reporting)
++    masters: Dict[str, Path] = {}  # real-path str -> original Path (for reporting)
+     if scan_root.is_dir():
+         for entry in sorted(scan_root.iterdir()):
+             if entry.is_file() and entry.name.startswith("check-") and entry.suffix == ".py":
+                 masters[str(entry.resolve())] = entry
+ 
+-    registered_by_real = {}  # real-path str -> [gate id, ...] referencing it
++    registered_by_real: Dict[str, List[str]] = {}  # real-path str -> [gate id, ...] referencing it
+     for g in registry.get("gates", []):
+         if not isinstance(g, dict):
+             continue
+@@ -241,8 +249,8 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
+     return ok
+ 
+ 
+-def run(registry_path: str, repo_root: Path):
+-    diagnostics = []
++def run(registry_path: str, repo_root: Path) -> List[str]:
++    diagnostics: List[str] = []
+     try:
+         registry = _load_json(Path(registry_path))
+     except (OSError, json.JSONDecodeError) as exc:
+@@ -268,7 +276,7 @@ def run(registry_path: str, repo_root: Path):
+     return diagnostics
+ 
+ 
+-def main(argv=None):
++def main(argv: Optional[List[str]] = None) -> int:
+     argv = sys.argv[1:] if argv is None else list(argv)
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--registry", required=True, help="path to the capability-registry.json instance to validate")
+@@ -288,7 +296,7 @@ def main(argv=None):
+     args = parser.parse_args(argv)
+ 
+     if args.repo_root is not None:
+-        repo_root = Path(args.repo_root).resolve()
++        repo_root: Optional[Path] = Path(args.repo_root).resolve()
+     else:
+         repo_root = resolve_git_root()
+     if repo_root is None:
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+index 342a5b19..fa5e2f66 100644
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -110,6 +110,81 @@ function Get-TasksNormalizedHash([string]$Path) {
+     finally { $sha.Dispose() }
+ }
+ 
++function Get-ImplementationBinding {
++        if ($implementationManifestPath -ceq '') {
++            Fail-ReviewContext 'IDENTITY' 'new evaluator requires a pinned implementation manifest'
++        }
++        $declaration = $document.implementation_manifest
++        $pinned = @($inputs | Where-Object {
++            $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
++        })
++        if ($pinned.Count -ne 1) {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest is not a hash-pinned evaluator input'
++        }
++        try {
++            $implementationText = Get-Content -LiteralPath (Join-Path $root $implementationManifestPath) -Raw -Encoding UTF8
++            Assert-ImplJsonObject $implementationText
++            $implementation = $implementationText | ConvertFrom-Json -AsHashtable
++        } catch {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest is invalid JSON'
++        }
++        if ($implementation.schema -cne 'task-input-manifest/v1' -or
++            $implementation.task_id -cne $document.task_id -or
++            $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
++            $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
++        }
++        if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_.StartsWith('- **Session ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "Run ID: $($implementation.run_id)" }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "- **Run ID**: $($implementation.run_id)" }).Count -ne 1 -or
++            @($implementationReportLines | Where-Object { $_ -ceq "- **Session ID**: $($implementation.session_id)" }).Count -ne 1) {
++            Fail-ReviewContext 'IDENTITY' 'implementation report run/session does not match its manifest'
++        }
++        $manifestCitation = 'Input manifest: `' + $declaration.path + '`, SHA-256 `' + $declaration.sha256 + '`'
++        $citationLines = @($implementationReportLines | Where-Object { $_.StartsWith('Input manifest:', [StringComparison]::Ordinal) })
++        if ($citationLines.Count -ne 1 -or
++            -not ($citationLines[0] -ceq $manifestCitation -or $citationLines[0] -ceq ($manifestCitation + '.') -or
++                $citationLines[0].StartsWith($manifestCitation + '. ', [StringComparison]::Ordinal))) {
++            Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
++        }
++        return $implementation
++}
++
++function Test-ImplementationInput {
++    param($Document, [string]$Root, [string]$Path, [string]$Hash)
++    if ($Document.stage -cne 'quality' -or $Document.role -cne 'sdd-evaluator' -or
++        -not $Document.ContainsKey('implementation_manifest')) { return $false }
++    $declaration = $Document.implementation_manifest
++    if (@($Document.allowed_input_manifest | Where-Object {
++        $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
++    }).Count -ne 1 -or -not (Test-CanonicalPath $declaration.path)) { return $false }
++    $current = $Root
++    foreach ($component in $declaration.path.Split('/')) {
++        $current = Join-Path $current $component
++        if (-not (Test-Path -LiteralPath $current) -or
++            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
++            return $false
++        }
++    }
++    if (-not (Test-Path -LiteralPath $current -PathType Leaf) -or
++        (Get-FileHash -LiteralPath $current -Algorithm SHA256).Hash.ToLowerInvariant() -cne $declaration.sha256) {
++        return $false
++    }
++    $data = Get-ImplementationBinding
++    if ($data.allowed_inputs -isnot [array] -or $data.allowed_inputs.Count -eq 0) { return $false }
++    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    $found = $false
++    foreach ($entry in $data.allowed_inputs) {
++        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
++            -not (Test-CanonicalPath $entry.path) -or -not $seen.Add($entry.path) -or
++            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') { return $false }
++        if ($entry.path -ceq $Path -and $entry.sha256 -ceq $Hash) { $found = $true }
++    }
++    return $found
++}
++
+ function Test-AuthorizedPath {
+     param(
+         [string]$Stage,
+@@ -382,6 +457,9 @@ try {
+     $topKeys = @($baseTopKeys)
+     if ($document.stage -ceq 'quality') {
+         $topKeys = @($baseTopKeys) + @('task_id')
++        if ($document.ContainsKey('implementation_manifest')) {
++            $topKeys = @($topKeys) + @('implementation_manifest')
++        }
+         if ($document.ContainsKey('gate_report_declaration')) {
+             $topKeys = @($topKeys) + @('gate_report_declaration')
+         }
+@@ -408,6 +486,19 @@ try {
+         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
+         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+     }
++    $implementationManifestPath = ''
++    if ($document.ContainsKey('implementation_manifest')) {
++        $implementationDeclaration = $document.implementation_manifest
++        if ($implementationDeclaration -isnot [hashtable] -or
++            -not (Test-ExactKeys $implementationDeclaration @('path','sha256')) -or
++            $implementationDeclaration.path -isnot [string] -or
++            $implementationDeclaration.path -cnotmatch '^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$' -or
++            $implementationDeclaration.sha256 -isnot [string] -or
++            $implementationDeclaration.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++            Fail-ReviewContext 'CONTRACT' 'implementation_manifest requires a canonical path and SHA-256'
++        }
++        $implementationManifestPath = $implementationDeclaration.path
++    }
+     if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
+         Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
+     }
+@@ -829,7 +920,9 @@ try {
+             $verifiedAdrInputs.ContainsKey($input.path) -and
+             $verifiedAdrInputs[$input.path] -ceq $input.sha256
+         } else {
+-            Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
++            ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
++                $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
++                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
+         }
+         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
+             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
+@@ -964,6 +1057,22 @@ try {
+             }
+         }
+     }
++    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
++        if ($document.ContainsKey('implementation_manifest') -or $Reserve) {
++            $implementation = Get-ImplementationBinding
++        }
++        if ($Reserve) {
++            if (@($records | Where-Object {
++                $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
++            }).Count -gt 0) {
++                Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
++            }
++            if ($document.run_id -ceq $implementation.run_id -or
++                $document.host_session_id -ceq $implementation.session_id) {
++                Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
++            }
++        }
++    }
+ 
+     if ($document.stage -ceq 'impl' -and $null -eq $verifiedAdrInputs) {
+         # Validate explicit binding even when the caller omitted every ADR.
+@@ -1103,6 +1212,62 @@ def binding(document):
+     return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+ 
+ 
++def recover_legacy_root(report, raw, receipt_path, admitted, canonical, safe_path, expected_owner):
++    """Caller must formally admit the receipt; hashes are not signatures."""
++    if admitted.get(str(receipt_path)) != hashlib.sha256(receipt_path.read_bytes()).hexdigest():
++        raise ValueError("unbound recovery receipt")
++    import json
++    def unique(pairs):
++        result = {}
++        for key, value in pairs:
++            if key in result:
++                raise ValueError("duplicate receipt key")
++            result[key] = value
++        return result
++    item = json.loads(receipt_path.read_text(), object_pairs_hook=unique)
++    if set(item) != {"report", "report_sha256", "raw_root", "run", "session", "attempt", "owner", "owner_observation", "owner_observation_sha256"}:
++        raise ValueError("invalid receipt fields")
++    if any(not isinstance(item[k], str) or not item[k] for k in item if k != "attempt") or type(item["attempt"]) is not int or item["attempt"] < 1:
++        raise ValueError("invalid receipt types")
++    owner = Path(item["owner"])
++    if str(owner) != str(expected_owner):
++        raise ValueError("historical owner differs from admitted checkout")
++    canonical(str(owner))
++    if not owner.is_dir() or str(owner.resolve(strict=True)) != item["owner"]:
++        raise ValueError("noncanonical owner")
++    safe_path(owner, report)
++    if not report.is_file() or str(report) != item["report"] or hashlib.sha256(report.read_bytes()).hexdigest() != item["report_sha256"]:
++        raise ValueError("changed report")
++    if admitted.get(str(report)) != item["report_sha256"]:
++        raise ValueError("unbound historical report")
++    text = report.read_text()
++    expected = {r"^Run ID: (.+)$": item["run"], r"^Task Attempt Count: (.+)$": str(item["attempt"]), r"^- \*\*Session ID\*\*: (.+)$": item["session"], r"^- \*\*Scratch Root\*\*: (.+)$": raw}
++    if any(re.findall(pattern, text, re.M) != [value] for pattern, value in expected.items()) or raw != item["raw_root"]:
++        raise ValueError("identity or declaration mismatch")
++    observation = Path(item["owner_observation"])
++    safe_path(owner, observation)
++    if not observation.is_file() or admitted.get(str(observation)) != item["owner_observation_sha256"] or hashlib.sha256(observation.read_bytes()).hexdigest() != item["owner_observation_sha256"]:
++        raise ValueError("unbound owner observation")
++    # Observation authenticity is an admission responsibility, not inferred from JSON.
++    evidence = json.loads(observation.read_text(), object_pairs_hook=unique)
++    if evidence != {"owner": item["owner"], "run": item["run"], "report_sha256": item["report_sha256"]}:
++        raise ValueError("conflicting owner observation")
++    relative = raw[:-1] if raw.endswith("/") else raw
++    if not relative or relative.startswith("/") or any(p in ("", ".", "..") for p in relative.split("/")) or re.search(r"[\\\r\n:]", relative):
++        raise ValueError("unsafe relative declaration")
++    target = safe_path(owner, owner / relative)
++    return canonical(str(target))
++
++
++def historical_root(root, report, raw, invocation):
++    if raw.startswith("/") or re.match(r"^[A-Za-z]:", raw):
++        return canonical(raw)
++    admitted = {str(safe_path(root, root / entry["path"])): entry["sha256"]
++                for entry in invocation["allowed_input_manifest"]}
++    receipt = safe_path(root, report.with_suffix(".scratch-owner.json"))
++    return recover_legacy_root(report, raw, receipt, admitted, canonical, safe_path, root)
++
++
+ def check(root, invocation, ledger):
+     scratch = invocation["scratch_root"]
+     feature = invocation["feature"]
+@@ -1118,6 +1283,7 @@ def check(root, invocation, ledger):
+         if len(roots) > 1:
+             raise ValueError("implementation report has duplicate scratch declarations")
+         for other in roots:
++            other = historical_root(root, report, other, invocation)
+             if overlap(scratch, other):
+                 raise ValueError("evaluator scratch root overlaps a feature implementation root")
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+index b33613ed..37676abc 100755
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -247,6 +247,72 @@ gate_report_output_is_declared() {
+     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
+ }
+ 
++# Bind the pinned implementation task manifest to its same-task report.
++verify_implementation_binding() {
++  [[ -n "$implementation_manifest_path" ]] ||
++    fail IDENTITY 'new evaluator requires a pinned implementation manifest'
++  implementation_manifest_hash=$(jq -r '.implementation_manifest.sha256' "$manifest")
++  jq -e --arg p "$implementation_manifest_path" --arg h "$implementation_manifest_hash" \
++    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null ||
++    fail IDENTITY 'implementation manifest is not a hash-pinned evaluator input'
++  implementation_manifest="$repository_root/$implementation_manifest_path"
++  admission_json_members "$implementation_manifest" >/dev/null 2>&1 ||
++    fail IDENTITY 'implementation manifest contains ambiguous JSON members'
++  jq -e --arg task "$task_id" '
++    .schema == "task-input-manifest/v1" and .task_id == $task and
++    (.run_id | type == "string" and length > 0) and
++    (.session_id | type == "string" and length > 0)
++  ' "$implementation_manifest" >/dev/null 2>&1 ||
++    fail IDENTITY 'implementation manifest task/run/session is invalid'
++  implementation_run=$(jq -r '.run_id' "$implementation_manifest")
++  implementation_session=$(jq -r '.session_id' "$implementation_manifest")
++  implementation_report="$repository_root/$implementation_report_path"
++  [[ "$(grep -c '^Run ID: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -c '^- \*\*Run ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -c '^- \*\*Session ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "Run ID: $implementation_run" "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "- **Run ID**: $implementation_run" "$implementation_report" || true)" -eq 1 &&
++     "$(grep -Fxc -- "- **Session ID**: $implementation_session" "$implementation_report" || true)" -eq 1 ]] ||
++    fail IDENTITY 'implementation report run/session does not match its manifest'
++  manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
++  citation_line=$(grep '^Input manifest:' "$implementation_report" || true)
++  [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
++     ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
++       "$citation_line" == "$manifest_citation. "* ) ]] ||
++    fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
++}
++
++implementation_input_is_declared() {
++  local path=$1 expected_hash=$2 declaration absolute component current pinned
++  [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
++  declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
++  jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
++    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null || return 1
++  is_canonical_path "$implementation_manifest_path" || return 1
++  absolute="$repository_root/$implementation_manifest_path"
++  current="$repository_root"
++  local -a components
++  IFS='/' read -r -a components <<< "$implementation_manifest_path"
++  for component in "${components[@]}"; do
++    current="$current/$component"
++    [[ ! -L "$current" ]] || return 1
++  done
++  [[ -f "$absolute" && ! -L "$absolute" ]] || return 1
++  [[ "$(sha256_file "$absolute")" == "$declaration" ]] || return 1
++  verify_implementation_binding
++  jq -e --arg task "$task_id" --arg p "$path" --arg h "$expected_hash" '
++    (.allowed_inputs | type == "array" and length > 0) and
++    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
++      (.path | type == "string" and (test("[\\r\\n]") | not)) and
++      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
++    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
++    any(.allowed_inputs[]; .path == $p and .sha256 == $h)
++  ' "$absolute" >/dev/null 2>&1 || return 1
++  while IFS= read -r pinned; do
++    is_canonical_path "$pinned" || return 1
++  done < <(jq -r '.allowed_inputs[].path' "$absolute")
++}
++
+ path_is_authorized() {
+   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
+   case "$stage:$role" in
+@@ -285,6 +351,7 @@ path_is_authorized() {
+       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|tasks|traceability|baseline-behavior|ux-spec|frontend-spec|infra-spec|security-spec)\.(md|json)$ ]] ||
+         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
+         [[ "$path" == "$implementation_report_path" ]] ||
++        [[ -n "$implementation_manifest_path" && "$path" == "$implementation_manifest_path" ]] ||
+         evaluator_output_is_declared \
+           "$path" "$expected_hash" \
+           "$repository_root/$implementation_report_path" '## Outputs' ||
+@@ -345,9 +412,16 @@ jq -e '
+     (.stage == "quality" and
+       ((keys | sort) ==
+         ((base_keys + ["task_id"] +
++          (if has("implementation_manifest") then ["implementation_manifest"] else [] end) +
+           (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
+           (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
+       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
++      (if has("implementation_manifest") then
++        (.implementation_manifest |
++          type == "object" and ((keys | sort) == ["path", "sha256"]) and
++          (.path | type == "string" and test("^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$")) and
++          (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
++      else true end) and
+       (if has("gate_report_declaration") then
+         (.gate_report_declaration |
+           type == "object" and
+@@ -396,6 +470,10 @@ bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
+ task_id=''
+ [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
+ scratch_binding=''
++implementation_manifest_path=''
++if [[ "$stage" == quality ]] && jq -e 'has("implementation_manifest")' "$manifest" >/dev/null 2>&1; then
++  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest" | tr -d '\r')
++fi
+ scratch_root=''
+ if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
+   scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
+@@ -902,6 +980,24 @@ if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
+   verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+ fi
+ 
++# New evaluator reservations use the implementation task manifest, not a
++# fabricated implementation record in the reviewer/evaluator ledger. All
++# referenced files have passed the ordinary path and hash loop above.
++if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++  if [[ -n "$implementation_manifest_path" ]] || $reserve; then
++    verify_implementation_binding
++  fi
++  if $reserve; then
++    if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
++    any(.records[]; .run_id == $run or .host_session_id == $session)
++    ' "$ledger" >/dev/null; then
++      fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
++    fi
++    [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
++      fail IDENTITY 'evaluator reuses implementation run/session'
++  fi
++fi
++
+ # Round consistency. A manifest freezes hashes at reservation time; the round's
+ # precheck-result.json froze them when the round opened. If the two disagree, a
+ # reviewed document changed between the precheck and this reservation, so the two
+@@ -1011,6 +1107,62 @@ def binding(document):
+     return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+ 
+ 
++def recover_legacy_root(report, raw, receipt_path, admitted, canonical, safe_path, expected_owner):
++    """Caller must formally admit the receipt; hashes are not signatures."""
++    if admitted.get(str(receipt_path)) != hashlib.sha256(receipt_path.read_bytes()).hexdigest():
++        raise ValueError("unbound recovery receipt")
++    import json
++    def unique(pairs):
++        result = {}
++        for key, value in pairs:
++            if key in result:
++                raise ValueError("duplicate receipt key")
++            result[key] = value
++        return result
++    item = json.loads(receipt_path.read_text(), object_pairs_hook=unique)
++    if set(item) != {"report", "report_sha256", "raw_root", "run", "session", "attempt", "owner", "owner_observation", "owner_observation_sha256"}:
++        raise ValueError("invalid receipt fields")
++    if any(not isinstance(item[k], str) or not item[k] for k in item if k != "attempt") or type(item["attempt"]) is not int or item["attempt"] < 1:
++        raise ValueError("invalid receipt types")
++    owner = Path(item["owner"])
++    if str(owner) != str(expected_owner):
++        raise ValueError("historical owner differs from admitted checkout")
++    canonical(str(owner))
++    if not owner.is_dir() or str(owner.resolve(strict=True)) != item["owner"]:
++        raise ValueError("noncanonical owner")
++    safe_path(owner, report)
++    if not report.is_file() or str(report) != item["report"] or hashlib.sha256(report.read_bytes()).hexdigest() != item["report_sha256"]:
++        raise ValueError("changed report")
++    if admitted.get(str(report)) != item["report_sha256"]:
++        raise ValueError("unbound historical report")
++    text = report.read_text()
++    expected = {r"^Run ID: (.+)$": item["run"], r"^Task Attempt Count: (.+)$": str(item["attempt"]), r"^- \*\*Session ID\*\*: (.+)$": item["session"], r"^- \*\*Scratch Root\*\*: (.+)$": raw}
++    if any(re.findall(pattern, text, re.M) != [value] for pattern, value in expected.items()) or raw != item["raw_root"]:
++        raise ValueError("identity or declaration mismatch")
++    observation = Path(item["owner_observation"])
++    safe_path(owner, observation)
++    if not observation.is_file() or admitted.get(str(observation)) != item["owner_observation_sha256"] or hashlib.sha256(observation.read_bytes()).hexdigest() != item["owner_observation_sha256"]:
++        raise ValueError("unbound owner observation")
++    # Observation authenticity is an admission responsibility, not inferred from JSON.
++    evidence = json.loads(observation.read_text(), object_pairs_hook=unique)
++    if evidence != {"owner": item["owner"], "run": item["run"], "report_sha256": item["report_sha256"]}:
++        raise ValueError("conflicting owner observation")
++    relative = raw[:-1] if raw.endswith("/") else raw
++    if not relative or relative.startswith("/") or any(p in ("", ".", "..") for p in relative.split("/")) or re.search(r"[\\\r\n:]", relative):
++        raise ValueError("unsafe relative declaration")
++    target = safe_path(owner, owner / relative)
++    return canonical(str(target))
++
++
++def historical_root(root, report, raw, invocation):
++    if raw.startswith("/") or re.match(r"^[A-Za-z]:", raw):
++        return canonical(raw)
++    admitted = {str(safe_path(root, root / entry["path"])): entry["sha256"]
++                for entry in invocation["allowed_input_manifest"]}
++    receipt = safe_path(root, report.with_suffix(".scratch-owner.json"))
++    return recover_legacy_root(report, raw, receipt, admitted, canonical, safe_path, root)
++
++
+ def check(root, invocation, ledger):
+     scratch = invocation["scratch_root"]
+     feature = invocation["feature"]
+@@ -1026,6 +1178,7 @@ def check(root, invocation, ledger):
+         if len(roots) > 1:
+             raise ValueError("implementation report has duplicate scratch declarations")
+         for other in roots:
++            other = historical_root(root, report, other, invocation)
+             if overlap(scratch, other):
+                 raise ValueError("evaluator scratch root overlaps a feature implementation root")
+ 
+diff --git a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+index 8191d5bd..69163950 100644
+--- a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
++++ b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+@@ -150,9 +150,17 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
+    `run-panelist-gpt.sh`/`.ps1` implement this same rejection for their own
+    `--model`/`--effort` arguments — `tests/run-panelist-effort.tests.sh`/
+    `.ps1` TEST-052). Launch `codex` with the resolved, validated flags:
++   these flags configure a fresh Codex CLI caller, which must then spawn the
++   shipped project `sdd-evaluator` TOML agent for independent evaluation.
++   The CLI root is not a substitute for that agent. Before accepting the
++   evaluator's verdict, verify the spawned agent's effective model and
++   reasoning effort against the live selector from its native child session
++   metadata; caller flags and TOML reference comments alone are not proof.
++   If either effective value is unavailable or differs, retain the task state
++   and do not accept a verdict.
+ 
+    ```sh
+-   codex --model <live-model> --effort <live-effort> ...
++   codex exec --model <live-model> -c model_reasoning_effort=<live-effort> ...
+    ```
+ 
+    Elsewhere, perform the review in a fresh session or a clearly separated
+@@ -173,6 +181,23 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
+    hash still fails. Do not add the rows to an earlier cycle's report -- that
+    report recorded a verdict at a point in time and must not later declare
+    bytes that did not exist then.
++   An implementation report with missing pre-reservation provenance must not
++   be repaired by adding historical facts to that frozen report. For an
++   explicitly human-approved recovery, retain the old canonical report's
++   original bytes in a task-scoped archive and record its former path and
++   verified SHA-256 in the new report's supersession note. The archive is
++   historical evidence, not a substitute for a new implementation run. In a
++   fresh isolated implementation context, recheck the current code against
++   hash-pinned inputs, then write a new report and task-input manifest with
++   their actually observed run/session IDs and canonical absolute scratch
++   root. Only after both reports and their hashes have been independently
++   checked may the new report take the canonical
++   `reports/implementation/<feature>/T-NNN.md` path. Do not edit the archive
++   or rewrite a historical handoff. Declare the archive's exact path/hash in
++   the new report's `## Outputs` if the evaluator needs to read it; neither
++   supersession nor archival automatically authorizes it as an input. The
++   normal manifest hash, report identity, scratch isolation, reservation,
++   independent evaluation, and Done checks still apply without exception.
+    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
+    authorizes an evaluator input.
+    Reverify every hash immediately before launch and bind the manifest path/hash,
+@@ -182,8 +207,12 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
+    report path, report heading, and `Task ID` field to match that exact task.
+    Bind it to the current SHA-256 and final record hash of the canonical
+    `reports/review-context/identity-ledger.json`. The ledger must already carry
+-   the invoking implementation identity and every earlier reviewer/evaluator
+-   reservation as a valid hash chain; never accept caller-supplied reserved-ID
++   every earlier reviewer/evaluator reservation as a valid hash chain. For a
++   new reservation, include the existing hash-pinned `task-input-manifest/v1`
++   as an evaluator input and name its path and SHA-256 in
++   `implementation_manifest`. Require its task/run/session to agree with the
++   implementation report and reject their reuse in the canonical ledger.
++   Never fabricate an implementation ledger reservation or accept reserved-ID
+    arrays as a substitute. Immediately before launch, atomically reserve the
+    evaluator identity by running
+    `scripts/validate-review-context-set.sh <manifest> <repository-root>
+diff --git a/plugins/sdd-review-loop/references/review-context-boundary.md b/plugins/sdd-review-loop/references/review-context-boundary.md
+index 324d4cb0..d09f5adf 100644
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -20,9 +20,9 @@ wins and this document is the defect.
+ `--reserve` runs in this order:
+ 
+ 1. Validate every manifest field, including `identity_ledger_sha256`, against the
+-   ledger **as it stands before the reservation** (`:601`, and again under the
+-   reservation lock at `:1129`).
+-2. Append the reserved record to the ledger (`:1139-1148`).
++   ledger **as it stands before the reservation** (`:679`, and again under the
++   reservation lock at `:1282`).
++2. Append the reserved record to the ledger (`:1292-1304`).
+ 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
+    chain facts the validator proved before printing (WFI-037):
+    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
+@@ -39,20 +39,20 @@ and the appended record is the *extension*.
+ 
+ | Field | Validator checks | Reviewer re-verifies? |
+ |---|---|---|
+-| `schema` | must equal `review-context-invocation/v2` (`:367`) | **yes** — cheap, and a wrong schema means a wrong contract |
+-| `input_mode` | must equal `file-manifest` (`:368`) | **yes** |
+-| `fallback_mode` | must equal `none` (`:369`) | **yes** |
+-| `read_only` | must equal `true` (`:370`) | **yes** |
+-| `stage`, `role` | must be an authorized pair (`:414-416`) | **yes** — confirm they match the role you actually are |
+-| `feature` | charset only (`:371`) | **yes** — confirm it is the feature you were asked to review |
+-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:372`, `:603`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:603`) | **yes** — via the caller-quoted line; this is the chain |
+-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:373`) | **yes** — it is a constant |
+-| `identity_ledger_sha256` | hex-format (`:374`); equality against the ledger **before** the append (`:601`, `:1129`) | **NO — see below** |
+-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:796-811`) | **yes** — and read nothing outside it |
+-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:872-876`) | **yes** — this is the substantive integrity check |
+-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:350`, `:622-636`) | **yes** |
+-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:351-356`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:654-670`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
++| `schema` | must equal `review-context-invocation/v2` (`:441`) | **yes** — cheap, and a wrong schema means a wrong contract |
++| `input_mode` | must equal `file-manifest` (`:442`) | **yes** |
++| `fallback_mode` | must equal `none` (`:443`) | **yes** |
++| `read_only` | must equal `true` (`:444`) | **yes** |
++| `stage`, `role` | must be an authorized pair (`:492-494`) | **yes** — confirm they match the role you actually are |
++| `feature` | charset only (`:445`) | **yes** — confirm it is the feature you were asked to review |
++| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:446`, `:681`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
++| `previous_record_sha256` | must equal the last record's `record_sha256` (`:681`) | **yes** — via the caller-quoted line; this is the chain |
++| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:447`) | **yes** — it is a constant |
++| `identity_ledger_sha256` | hex-format (`:448`); equality against the ledger **before** the append (`:679`, `:1282`) | **NO — see below** |
++| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:875-889`) | **yes** — and read nothing outside it |
++| `allowed_input_manifest[].sha256` | equality against the file on disk (`:951-954`) | **yes** — this is the substantive integrity check |
++| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:418`, `:701-714`) | **yes** |
++| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:425-430`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:733-748`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+ 
+ ## `identity_ledger_sha256`: do not re-verify
+ 
+@@ -97,7 +97,7 @@ quoted line and its own manifest — with no file read outside the manifest:
+ 3. `<record_sha256>` recomputes as
+    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
+    from your manifest's own fields — the same construction the validator
+-   uses at `:495` and `:1117`. (evidence: caller-quoted line + manifest)
++   uses at `:573` and `:1270`. (evidence: caller-quoted line + manifest)
+    For new scratch-bound quality reservations, compute the declaration digest as
+    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
+    `|scratch-declaration-v1|<declaration digest>` to the original chain text before
+@@ -331,3 +331,78 @@ quality roots are bound into their ledger record hash through the optional
+ unchanged. Legacy records without that extension may lack history and provide no
+ proof of past scratch isolation; known legacy roots still prevent overlap. These are declared-location checks, not proof
+ of operating-system isolation or of live host activation.
++
++### Same-checkout historical scratch declaration recovery
++
++A historical implementation report containing a relative Scratch Root may be
++resolved only against its independently established, canonical owning checkout,
++and only when that checkout equals the current invocation owner. This recovers
++a declared location, not evidence of historical execution or isolation. The old
++report and ledger remain byte-for-byte unchanged. Current invocation scratch
++roots and ordinary absolute historical roots retain their existing rules.
++
++Before admission, the recovery reviewer must inspect the contemporaneous native
++owner/run observation and confirm its association with the exact report. A
++transcription or its SHA-256 does not authenticate that observation. Missing or
++ambiguous source evidence blocks recovery. Do not export full private session
++transcripts as review artifacts. A minimal locally retained observation may be
++admitted only after this source inspection, with the inspection recorded in the
++existing recovery declaration; it is not a signature or new approval authority.
++
++The inspector is the independent reviewer of this authorized limited recovery,
++not merely the receipt author. Inspect the native session's recorded working
++directory and its tool request/result associating that owner with creation of
++the exact historical report and run. Record the source session identifier and
++event timestamps, the historical report digest, the three recovery-artifact
++digests, the observed owner, and the review outcome in the existing recovery
++review evidence. Do not claim that an observed tool result is a cryptographic
++signature. The current cycle's `gate_report_declaration` must cite that completed
++independent recovery review and pin its exact artifact bytes through the existing
++`## Post-Fix Artifacts` mechanism alongside the report, receipt and observation.
++The normal launch caller verifies that this is the authorized current-cycle
++declaration before constructing admitted inputs. Missing review, an unrelated
++cycle, or a review that did not inspect the native source blocks this procedure.
++The deterministic validators verify byte/identity/path consistency only; they
++cannot establish source authenticity from a self-authored JSON document. These
++are additional admission duties, not a new review verdict or signature schema.
++
++Use existing exact path-plus-SHA admission, including the quality declaration's
++Post-Fix Artifacts channel where applicable; do not broaden role path allowlists.
++Admit all three artifacts: the unchanged historical report, its deterministic
++adjacent `<report-stem>.scratch-owner.json` receipt, and the minimal owner
++observation. The invocation's allowed_input_manifest must bind every artifact.
++
++The receipt has exactly these fields: report, report_sha256, raw_root, run,
++session, attempt, owner, owner_observation, owner_observation_sha256. Strings
++must be nonempty; attempt is a positive integer, not boolean. Duplicate JSON
++keys and extra fields are rejected. The observation contains exactly owner,
++run, report_sha256 and must match the receipt. Every declared digest must match
++both the admitted digest and current bytes. The report has exactly one matching
++Run ID, Task Attempt Count, Session ID and Scratch Root. The owner is an existing
++canonical directory equal to the current owning checkout; report, receipt and
++observation use existing safe-path containment checks.
++
++The relative root permits one trailing slash, but no absolute prefix, empty,
++dot or parent component, backslash, colon, CR or LF. Resolve it under the bound
++owner through existing path-safety checks before existing canonical overlap
++validation. Equal, ancestor and descendant roots still reject; prefix siblings
++remain distinct. The historical scratch directory itself may be absent because
++this check preserves the declared location, not proof that the directory ran.
++Never create the old directory to manufacture evidence. All existing snapshot,
++under-lock recheck, ledger identity, missing-history and altered-root rejection
++rules remain unchanged. No receipt grants permission to reserve an otherwise
++inadmissible reviewer.
++
++## Same-task evaluator implementation binding
++
++The pinned implementation manifest binds task/run/session identity to the
++implementation report; its allowed_inputs do not authorize evaluator inputs.
++Its path is `handoffs/<directory>/manifest.json` or
++`handoffs/<directory>/manifest-<version>.json`, where `<version>` starts with
++an ASCII alphanumeric character and otherwise contains only ASCII alphanumeric
++characters, `_`, or `-`. Versioned names preserve historical manifests during
++approved recovery; they do not relax exact path/hash pins, report citation,
++task/run/session binding, or input authorization. Never substitute an older
++manifest merely because its basename is `manifest.json`.
++A changed source or test must be declared by exact path and hash in the report's
++## Outputs, or by the existing post-fix artifact declaration for that cycle.
+diff --git a/reports/implementation/sdd-domain-multitarget/T-001.md b/reports/implementation/sdd-domain-multitarget/T-001.md
+index d8347d01..3cc0e8f0 100644
+--- a/reports/implementation/sdd-domain-multitarget/T-001.md
++++ b/reports/implementation/sdd-domain-multitarget/T-001.md
+@@ -1,36 +1,59 @@
+ # Implementation Report: T-001
+ 
+ - Task ID: T-001
+-- Model: sonnet
++- Model: gpt-6-astra
+ - Effort: medium
+ 
+ Report Schema: implementation-report/v2
+-Run ID: sdd423-t001-20260928-737dfb49
++Run ID: issue423-t001-recovery-01a0fce9-a790-7512-8afe-5da0561c3dbd
+ Task Attempt Count: 1
+ 
++**Snapshot Notice**: This candidate records the current recovery verification only. It is not a canonical implementation report, a validated implementation launch, or a quality-gate verdict.
++
++## Current Adoption Status — 2026-10-03
++
++The parent subsequently adopted this recovery evidence into the canonical owner checkout after independent comparison, as recorded in `reports/verification/issue423-t001-recovery-adoption-20261002.md`. This section supersedes the author-time statements below that call this report non-canonical, say outputs exist only in scratch, or say adoption/comparison is pending. All six declared Outputs now exist at their repository-relative owner paths; the former canonical report is preserved byte-for-byte in the declared archive. The original recovery candidate remains preserved in its Scratch Root. The later citation-only correction places the same manifest bytes at `handoffs/issue423-t001-recovery-20261003/manifest.json`; no historical handoff was changed.
++
++The next action is independent evaluator input admission and formal quality verification, not initial canonical adoption. No new review verdict, retrospective valid launch, task status change, or Done decision is asserted. Historical execution and metadata-omission statements below remain historical. The adoption note's recorded handshake denial remains true, but does not itself establish a launch requirement: ship Step 2 G4 permits DISABLED_LEGACY when Project Context is absent and HOOK_ACTIVE is not established; `sdd/project-context.yaml` is absent in this checkout. The rejected command has not been rerun or routed through another executor.
++
+ ## Target
+ 
+-Issue #423, REQ-001 / AC-001: classify the existing consumers before changing target routing.
++Issue #423, sdd-domain-multitarget T-001, REQ-001 / AC-001 / TEST-001a through TEST-001i: reverify existing consumer inventory against current hash-pinned inputs in an isolated physical snapshot.
+ 
+ ## Summary
+ 
+-The inventory records 12 consumers with one disposition, rationale, current source excerpt, and re-verification command. Nine acceptance rows are exercised. Missing entries, duplicate IDs, stale evidence, and different-ID duplicate consumer classifications are rejected. No production consumer changed.
++All 17 existing tests passed against 28 read-only snapshot files. The old 26-input manifest has 24 unchanged inputs; tasks.md is now SHA-256 51fd7aad974641a6dfdfc61c4997a9f68345b82cbca324c1571a6c5571363eda, and contracts/agent-model-capabilities.v2.json is e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b. The inventory and test suite are the two additional pinned execution inputs. All 28 hashes matched both the current owner checkout and snapshot after execution.
++
++## Files Changed
++
++Only new files under the absolute Scratch Root below. No owner-checkout files, task approval/status, ledger, historical handoff, production consumer, or test source was edited.
++
++## Tests Added Or Updated
++
++None. Reused the existing stdlib suite and prepare-task-snapshot.sh helper.
+ 
+ ## Outputs
+ 
++Paths below name intended repository-relative destinations. New recovery outputs currently exist only under Scratch Root; existing inventory and suite remain in the owner checkout and snapshot. Canonical adoption is pending the parent's independent comparison.
++
+ | Path | SHA-256 |
+ |---|---|
+ | `specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json` | `9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2` |
+ | `specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py` | `73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44` |
+-| `specs/sdd-domain-multitarget/verification/T-001/consumer-inventory-evidence.json` | `230f9ed3f589b3fe2a75d33bbdecc21859ae200f6904185fc1560cc7deca8089` |
++| `specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/consumer-inventory-test.log` | `c03957786a77890e9d780174b26b14aa044a592a134ab8b43df882395efe8ddb` |
++| `specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/revalidation-test.log` | `f2fe51830441615b779bdf116131ba1085fa1144fda44df2d5ee7d14ed33b88e` |
++| `specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/consumer-inventory-evidence.json` | `9304d371f5b8069e49ba0e253d5a8c7f392caee10ea1ec23756a419ecf73795f` |
++| `specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/T-001.original.md` | `c0c126c812a308baed537e9f734522d02642346e2e08f6a5adc456c6e11993d8` |
+ 
+ ## Test Evidence
+ 
+-- **Test Command**: `rtk proxy python3 specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root . -v`
++- **Test Command**: `rtk proxy python3 /private/tmp/issue423-t001-recovery-current.4ee02t/snapshot/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root /private/tmp/issue423-t001-recovery-current.4ee02t/snapshot -v`
+ - **Test Result**: PASS
+-- **Test Evidence Path**: specs/sdd-domain-multitarget/verification/T-001/consumer-inventory-evidence.json
++- **Test Evidence Path**: specs/sdd-domain-multitarget/verification/T-001/recovery-20261002/consumer-inventory-evidence.json
+ 
+-Before the uniqueness fix, the added negative test failed in 36 subtests: 12 consumers × three alternate dispositions. After the fix, all 17 tests passed against the current checkout and the immutable task-input snapshot. Missing-entry and duplicate-ID mutations each cover all 12 consumers. `git diff --check` exited 0. These are local tests, not CI or native hook proof.
++Subsequent revalidation: 17 tests, exit 0, unittest elapsed 0.038s. Full manifest validation completed before this execution.
++
++The suite covers nine acceptance rows, complete inventory validation, and negative checks for missing consumers, duplicate IDs, invalid dispositions, duplicate consumer classification under another ID, stale source keywords, out-of-range lines, and missing source files. It checks 12 inventory entries and their source mappings; it does not establish native host activation or CI.
+ 
+ ## Iteration And Escalation
+ 
+@@ -41,32 +64,56 @@ Before the uniqueness fix, the added negative test failed in 36 subtests: 12 con
+ - **Escalation Attempt Number**: None
+ - **Escalation Reason**: None
+ 
+-Two scoped corrections: expand missing/duplicate mutations to every consumer; reject the independent review's different-ID duplicate classification. No model escalation.
++One recovery task attempt with two verification executions, no implementation changes. Initial execution: 17 PASS, 0.052s, missing cost metadata. Subsequent execution: 17 PASS, 0.038s after complete manifest validation. No historical attempt count or successful historical execution is reattributed to this session.
+ 
+ ## Isolation Evidence
+ 
+-- **Scratch Root**: specs/sdd-domain-multitarget/verification/T-001
+-- **Run ID**: sdd423-t001-20260928-737dfb49
+-- **Session ID**: 737dfb49-7428-4f44-b231-571cffc25181
+-- **Agent Instance ID**: claude-native-737dfb49
++- **Scratch Root**: /private/tmp/issue423-t001-recovery-current.4ee02t
++- **Run ID**: issue423-t001-recovery-01a0fce9-a790-7512-8afe-5da0561c3dbd
++- **Session ID**: 01a0fce9-a790-7512-8afe-5da0561c3dbd
++- **Agent Instance ID**: 01a0fce9-a790-7512-8afe-5da0561c3dbd
+ - **Isolation Mode**: fresh-agent
+ - **Fallback Reason**: None
+ - **Handoff Reload Evidence Hash**: None
+ 
+-Input manifest: `handoffs/issue423-t001-20260928/manifest.json`, SHA-256 `5a7b2d9e42be7ecc91f05aa68efe5f55d7347a8fa20939312f08a586cd642fae`. Snapshot preparation, single-manifest validation, and batch validation exited 0 before launch. The fresh Sonnet worker authored the two candidates with Read/Glob/Grep only; the parent applied them, made the scoped corrections, and executed the tests. Reported list-equivalent worker cost: USD 0.8505748; this is not a subscription charge.
++Input manifest: `handoffs/issue423-t001-recovery-20261003/manifest.json`, SHA-256 `bbcfbf1f824da0f2969d83ff0b5a52b78764ca1fd4c43fc9cd6d32509314ba2d`.
++This pre-review recovery correction changes only the canonical citation location for the same manifest bytes. The former candidate/report hash f5c8d034a55f68baf34329139e4c25b76a359934bbf0221cf530ab434bb74ebf remains preserved in the original recovery scratch. No historical launch metadata or verdict is amended.
++Physical snapshot: `/private/tmp/issue423-t001-recovery-current.4ee02t/snapshot`.
++Session ID was observed from CODEX_THREAD_ID in this agent's environment. Collaboration lists this agent's actual canonical name as /root/issue423_t001_recovery_current. The parent independently reported its different thread ID 01a06d01-11b5-7bd3-83a3-7e29bb3c96cd. The run ID names this current recovery execution and is not a ledger reservation.
+ 
+-## Working Notes
++Snapshot preparation returned TASK_INPUT_OK for content copying/hash enforcement. Initially the separate manifest validator exited 1: `TASK_INPUT_COST: missing field: estimated_cost_per_attempt_usd`. After invocation-supplied cost metadata was added, the full validator exited 0: `TASK_INPUT_OK`, before the subsequent test execution. Command: `rtk proxy bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest /private/tmp/issue423-t001-recovery-current.4ee02t/manifest.json --snapshot-root /private/tmp/issue423-t001-recovery-current.4ee02t/snapshot --expected-task T-001`. Post-execution comparison at 2026-10-02T14:16:40Z confirmed all 28 owner and snapshot hashes still match.
+ 
+-Ordinary independent diff reviewer `/root/issue423_t001_diff_review` examined the inventory and test, matched source excerpts and classifications to REQ-001 / AC-001, reproduced the duplicate-classification defect, then confirmed the fix and independently reran 17 successful tests. No other concrete defect was found in that scope. This is not a formal quality-gate verdict.
++## Regression Tests Run
+ 
+-The approved specification, traceability, layer specifications, task-plan body, and Approval fields were not edited. Later source drift must be re-verified when the inventory is consumed.
++Existing T-001 suite: 17/17 PASS. check-sdd-structure.sh: OK, no missing items. No repository-wide quality gate or CI was run.
++
++## Specification Differences
++
++No specification edited. Current tasks.md records T-001 as Approved / Implementation Complete. The frozen traceability.md retains its historical final Draft/Pending sentence; it is not the live task approval source.
++
++## Supersession Candidate
++
++The former canonical report path is `reports/implementation/sdd-domain-multitarget/T-001.md`; its verified SHA-256 is `c0c126c812a308baed537e9f734522d02642346e2e08f6a5adc456c6e11993d8`.
++Its original bytes were copied to the archive path listed in Outputs, currently under Scratch Root, and the archive hash was verified equal. The old canonical report and historical handoff were not edited. This archive records history only; current proof comes from this run's fresh test output. This candidate has not yet superseded the canonical report.
+ 
+ ## Unresolved Items
+ 
+-Formal quality verification, the remaining five tasks, CI, main integration, and live host activation remain pending. The native worker's successful read-only execution does not establish HOOK_ACTIVE.
++Cost metadata is now complete for the subsequent limited revalidation: invocation-supplied forecast USD 1.20 at 2026-10-02T14:13:17Z, calculated as 4 calls x (20000 uncached input tokens x USD 10/M + 2000 output tokens x USD 50/M), no cache discounts. Parent verified standard rates at https://developers.openai.com/api/docs/models/gpt-6-astra . This is a forecast only, not billed cost or evidence of pre-existing launch metadata. Runtime turn_context independently confirms gpt-6-astra / medium, and the pinned current registry confirms strong tier. The manifest's agent instance identity uses the actual unique session UUID; the collaboration path remains separately recorded here.
++
++The validator forbids an extra scratch_root field, so the absolute Scratch Root is bound in this report and the execution evidence instead. The candidate manifest's 28 path/hash pairs pass full validation. Initial candidate manifest/report/evidence are preserved under `/private/tmp/issue423-t001-recovery-current.4ee02t/pre-cost-history/` with respective hashes `9ef2e11616f44893f9e3a0692558f78d3da3c9eb8c448116d645cd040f6f2e1b`, `70c395dd01e2dff86161139c59ec63b40629f37d6e7a1ec66ee39c00096b476b`, and `8c833ab0e3e7cafa9c09ed0901cc6a504e16840fc6f85fd6b16108cd4d9bf698`. Their initial metadata omission and test execution remain historical; this completion does not retroactively make the initial launch valid.
++
++Independent old/new report verification, canonical promotion, evaluator reservation, formal QG, remaining tasks, CI for any future changes, and Done remain pending.
++
++## Quality Gate Focus
++
++Independently compare the current manifest, report and output hashes before canonical adoption or evaluator reservation. Full manifest validation and fresh local test success do not retroactively repair the initial launch or grant QG/Done.
++
++## Working Notes
++
++No additional agents were delegated. Model and effort were independently read from this session's turn_context in /Users/jrmag/.codex/sessions/2026/10/02/rollout-2026-10-02T22-59-26-01a0fce9-a790-7512-8afe-5da0561c3dbd.jsonl (model=gpt-6-astra, effort=medium). Recovery follows the current owner quality-gate skill's recovery paragraph; routine implement-task status mutations were excluded by the explicit recovery scope.
+ 
+ ## Session Handoff
+ 
+ - **Current Status**: Implementation Complete
+-- **Next Action**: Implement approved T-002 ownership and contract boundary fixtures; run the independent quality gates after the approved implementation batch.
+-- **Unresolved Items**: Formal QG, remaining tasks, CI, main integration, and native host activation are not complete.
++- **Next Action**: Parent independently compare old/new report, manifest and output hashes before considering canonical promotion.
++- **Unresolved Items**: Independent adoption comparison and all formal QG/Done work above; current task status was not modified.
+diff --git a/reports/implementation/sdd-domain-multitarget/T-002.md b/reports/implementation/sdd-domain-multitarget/T-002.md
+index 48c95ef8..50e7f05d 100644
+--- a/reports/implementation/sdd-domain-multitarget/T-002.md
++++ b/reports/implementation/sdd-domain-multitarget/T-002.md
+@@ -1,48 +1,50 @@
+ # Implementation Report: T-002
+ 
+ - Task ID: T-002
+-- Model: sonnet
++- Model: gpt-6-sol
+ - Effort: medium
+ 
+ Report Schema: implementation-report/v2
+-Run ID: sdd423-t002-20260928-b2e4033f
++Run ID: issue423-t002-recovery-01a0ff2c-b71f-7711-b416-fab7df62c952
+ Task Attempt Count: 1
+ 
+-## Target
++**Revised candidate only.** This report supersedes the earlier candidate in `recovery-20261003/` and records a fresh, limited revalidation of the current T-002 boundary implementation. It has not replaced the canonical implementation report, established a historical launch, or received an independent quality-gate verdict.
+ 
+-Issue #423, REQ-001 / REQ-002, AC-002 / AC-012: ownership, provider-neutral Core contracts and the read-only ci-mcp boundary.
++## Current Adoption Status — 2026-10-03
+ 
+-## Result
++The parent independently verified the candidate and manifest hashes, all 32 owner and snapshot input pairs (64 comparisons), all seven declared Outputs, and byte equality of the old canonical report and its archive before adopting this report. Candidate SHA-256: `02efe6ccafae0cc182e1a92d02fe09a6353c1e8557a19dd1d46501f4c3cf3885`; comparison command completed with exit 0 (chunk `9a6545`). The candidate remains unchanged at its verification path.
+ 
+-BLOCKED. The local boundary suite passes 26 methods, but the independent ordinary diff review found one unresolved Major: a Capability predicate's arbitrary `value` may carry nested provider-owned credentials or state. The current validator inspects string values, not dictionary keys (`validate-capability-registry.py:141-163`). Passing fixtures are not proof of this missing boundary.
++This section supersedes the author-time statements below that adoption is pending or this report is non-canonical. The archive remains historical evidence; fresh revalidation does not prove the original worker launch. Independent evaluator admission, quality verification, CI, and Done remain pending. No task status, approval, identity reservation, or verdict is changed by this adoption.
+ 
+-Three corrections are used. A limited fourth repair and one additional review have been requested. No required test is waived; T-003 is not started.
++## Target and current result
+ 
+-## Change and cause
++Issue #423, sdd-domain-multitarget T-002, REQ-001/REQ-002, AC-002/AC-012, TEST-002/TEST-012. The existing ownership boundary suite passed 28/28 tests against a read-only physical snapshot of 32 hash-pinned inputs, including the historical report archive. This verifies those tested boundaries on this macOS checkout at the recorded hashes; it does not prove native Windows, CI, full Registry readiness, or independent review.
+ 
+-The canonical Project Context and ContextProjection schemas left `shared_paths[]` open to unknown fields despite the existing bounded/cross-cutting XOR. Each now declares only pattern/components/classification and rejects additional properties (`contracts/project-context.schema.json:67-83`; `contracts/context-projection.schema.json:29-45`). The distributed projection schema is byte-identical to its canonical source.
++The current task source remains `Approval: Approved`, `Status: Implementation Complete`. No implementation, specification, task approval/status, verdict, identity ledger, historical handoff, or normal review rule was changed by this recovery.
+ 
+-No field, discriminator, legal XOR shape or vocabulary changed. This is a stricter enforcement of the already-defined ownership boundary, not a claim that every previously accepted malformed configuration remains accepted. Schema v1 stays unchanged; T-004's complete compatibility/migration proof remains pending.
++## Outputs
+ 
+-## Consumers and producer paths checked
++The first row is the byte-identical archived historical report, now a pinned input; the second is a new test log in the separate refresh output directory. The remaining rows are current tested inputs and production files, included so an evaluator can verify the current boundary claim by exact bytes. Their presence here does not give an evaluator access without its own admitted input manifest.
+ 
+-- Project Context readers: `validate-approval-sidecar.py:536`, `resolve-component-paths.py:740,800`, `resolve-project-context.py:882,915`. The focused suite uses the actual three validation engines and exercises the actual resolver/path schema-contract reader.
+-- Project Context starter: `contracts/project-context.template.yaml:17-30` declares both the component list and the six cross-cutting shared paths. No new writer or template bytes are introduced; this list does not claim every external editor is enumerated.
+-- Projection producer: `resolve-project-context.py:2470` copies shared_paths into its existing projection. Producer output is checked by the real standalone `validate-context-projection.py:346`.
+-- Projection consumers/distribution: `validate-context-projection.py:63` discovers the canonical or installed schema; the resolver's schema validation path is `resolve-project-context.py:2777`; `vendor-capability-registry.py:52` includes the distributed projection schema.
+-- Registry validator callers: POSIX and PowerShell dispatchers call the Python master (`validate-capability-registry.sh:19`; `validate-capability-registry.ps1:15`), and the shared resolver runs that validator before resolution (`resolve-project-context.py:508-523,3285-3297`). The remaining defect must be fixed in that shared validator, not in individual callers.
++| Path | SHA-256 |
++|---|---|
++| `specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md` | `5bc3d169918ab875e36f138e3e9ed2083045dc5ccf95a4b500b4755d39e02b05` |
++| `specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log` | `360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377` |
++| `specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py` | `6c4ea9c9ec0fe43657f47b15c7724de3ef94ef55492f9b2b02b858359b884399` |
++| `contracts/project-context.schema.json` | `cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5` |
++| `contracts/context-projection.schema.json` | `800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc` |
++| `plugins/sdd-quality-loop/contracts/context-projection.schema.json` | `800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc` |
++| `plugins/sdd-quality-loop/scripts/validate-capability-registry.py` | `68fd8421489cd549d8dcf51c48236a4dde9bc1d057f941d4fa3ecd9f93753b72` |
+ 
+ ## Test Evidence
+ 
+-- **Test Command**: `rtk proxy python3 specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root . -v`
+-- **Test Result**: BLOCKED
+-- **Test Evidence Path**: specs/sdd-domain-multitarget/verification/T-002/contract-boundaries-evidence.json
++- **Test Command**: `rtk proxy python3 /private/tmp/issue423-t002-recovery-archive-input.cRFzAF/snapshot/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root /private/tmp/issue423-t002-recovery-archive-input.cRFzAF/snapshot -v`
++- **Test Result**: PASS
++- **Test Evidence Path**: `specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log`
+ 
+-Observed Red: eight Project Context shared-path mutations failed before the fix; replay against the original schema again failed eight subtests. Eight projection mutations failed before the corresponding schema fix. Observed Green: 26 boundary methods; Bash Project Context 44, component paths 73, resolver CLI 13 and projection 40; PowerShell Project Context 44 and projection 40. ci-mcp TypeScript typecheck exited 0 and its real runtime suite passed 148 tests with zero failures/skips. These runs used macOS, including its installed PowerShell, not native Windows or GitHub CI.
++28 tests, exit 0, 0.036s; captured chunk `6e670c`.
+ 
+-Captured command outputs, chunk identities, final exit codes and hashes are in the evidence JSON. Multi-chunk runs are retained as separate captures; no earlier partial output is used as a final result. `git diff --check` exited 0 after the mirror synchronization.
+-
+-The whole vendor `--check` and the parent's read-only Capability mutation reproduction were refused before execution by PreToolUse. Hash equality proves only the synchronized projection pair, not a successful whole-vendor check. The Capability mutation finding is independently observed by the ordinary reviewer, not reproduced by the parent.
++The suite exercised five ownership rows, Project Context and ContextProjection provider-field rejection and legal shapes, Capability predicate nested `credentials`/`state_authority` rejection and neutral positives, and ci-mcp tool/dependency source checks. The ci-mcp source check is static; this recovery did not rerun the 148-test TypeScript runtime suite or a native host. `scripts/check-sdd-structure.sh` returned `check-sdd-structure: OK` (exit 0) on the owner checkout. The new manifest validated with `TASK_INPUT_OK` against the owner before and after the suite, and against the snapshot before and after the suite.
+ 
+ ## Iteration And Escalation
+ 
+@@ -53,40 +55,40 @@ The whole vendor `--check` and the parent's read-only Capability mutation reprod
+ - **Escalation Attempt Number**: None
+ - **Escalation Reason**: None
+ 
+-Corrections: narrow the ci-mcp source assertions; close Project Context shared paths; close the sibling ContextProjection boundary and synchronize its distributed copy. No model escalation or fourth correction performed.
++One fresh recovery verification attempt; no implementation change or escalation.
+ 
+ ## Isolation Evidence
+ 
+-- **Scratch Root**: specs/sdd-domain-multitarget/verification/T-002
+-- **Run ID**: sdd423-t002-20260928-b2e4033f
+-- **Session ID**: b2e4033f-ccc9-41b5-9048-9ce1f5d43685
+-- **Agent Instance ID**: claude-native-b2e4033f
++- **Scratch Root**: /private/tmp/issue423-t002-recovery-archive-input.cRFzAF
++- **Run ID**: issue423-t002-recovery-01a0ff2c-b71f-7711-b416-fab7df62c952
++- **Session ID**: 01a0ff2c-b71f-7711-b416-fab7df62c952
++- **Agent Instance ID**: 01a0ff2c-b71f-7711-b416-fab7df62c952
+ - **Isolation Mode**: fresh-agent
+ - **Fallback Reason**: None
+ - **Handoff Reload Evidence Hash**: None
+ 
+-Original input manifest SHA-256: `de0ee63808fec9bcafaea2363c3ffba7a95f1c16f1ef1b78033b2c4c112205c4`. Snapshot preparation, single and batch input checks exited 0. The fresh read-only Sonnet worker authored candidate fixtures; the parent applied the candidates and corrections. Parent schema/reader investigation expanded the original worker inputs without rewriting its immutable manifest or attributing those changes to it. Reported worker list-equivalent cost: USD 1.4053764, not a Pro subscription charge.
++The actual collaboration agent path is `/root/issue423_t002_recovery`. Session ID was observed from this agent's `CODEX_THREAD_ID`; the separate parent session ID is not reused. This recovery run ID is not an identity-ledger reservation. The model and medium effort were read from this agent's current `turn_context`; the current repository model registry has no `gpt-6-sol` entry, so the manifest's `standard` tier is a stated planning classification rather than registry proof. Its USD 1.20 cost field is a planning allowance, not billed usage or a verified model price.
+ 
+-## Outputs
++Input manifest: `handoffs/issue423-t002-recovery-20261003/manifest-archive-input.json`, SHA-256 `7c6fef1602a1fa5608b7b78a4dd6a57d1838ffcc1f1ff8e58a98a79d51d70163`. It names 32 exact path/hash inputs, including the archived report rather than the mutable canonical report, and only the separate T-002 recovery refresh output directory. `validate-task-input-manifest.sh --expected-task T-002` returned `TASK_INPUT_OK` before snapshot preparation. `prepare-task-snapshot.sh` published `/private/tmp/issue423-t002-recovery-archive-input.cRFzAF/snapshot` with `TASK_INPUT_OK`; the validator against that snapshot returned `TASK_INPUT_OK` before and after testing. No evaluator was launched from this manifest.
+ 
+-| Path | SHA-256 |
+-|---|---|
+-| `contracts/project-context.schema.json` | `cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5` |
+-| `contracts/context-projection.schema.json` | `800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc` |
+-| `plugins/sdd-quality-loop/contracts/context-projection.schema.json` | `800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc` |
+-| `specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py` | `21377656ddfa722092fee0cc7a4f85114ebad4caaffe913f1859bd1febbdb6d5` |
+-| `specs/sdd-domain-multitarget/verification/T-002/contract-boundaries-evidence.json` | `5d6acfb1f183ad86565abefdc13a49780a826ff7c97f66de59097cd20dcde18e` |
++## Supersession candidate
++
++The old canonical report is still `reports/implementation/sdd-domain-multitarget/T-002.md`, SHA-256 `5bc3d169918ab875e36f138e3e9ed2083045dc5ccf95a4b500b4755d39e02b05`. Its byte-identical, hash-checked historical archive is `specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md`. Its relative Scratch Root line records historical evidence and has not been rewritten into a claim about where the original worker ran. This candidate's absolute Scratch Root and observed IDs refer only to this fresh revalidation.
++
++The parent must independently compare old/archive/new report bytes and hashes, the manifest, and the declared outputs before any canonical adoption. Adoption requires a separately recorded decision. It cannot retroactively validate the original worker's launch or replace independent evaluator reservation and review.
++
++## Known limits and next action
+ 
+-## Independent Review
++The owner-applied canonical Registry and resolver are included at their current pinned hashes (`42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1` and `ae27deb32d5af3d31dcbfd505812fd737603a9d682476451a855d48fb36ed511`). The focused suite checked the actual Registry's provider neutrality and used an isolated fixture for nested predicate mutations. This recovery did not perform full Registry or native-host validation, so broader Registry readiness remains unverified; the older migration failure is historical, not asserted as the current owner state. Whole-vendor validation previously refused by PreToolUse was not retried or routed through another executor.
+ 
+-Ordinary diff reviewer `/root/issue423_t002_diff_review` reran 26 successful methods but demonstrated the missing Capability value-key boundary. Its verdict is NEEDS_WORK with one Major, not a formal quality-gate verdict.
++No formal QG, CI, native Windows execution, task Done decision, or merge occurred. Next: independent parent comparison and, only if adopted, normal hash-checked evaluator input admission and independent quality verification. Historical reports and handoffs remain unchanged.
+ 
+ ## Unresolved Items
+ 
+-Frozen approved specification/design/layers/traceability and task Approval fields are unchanged. Formal quality verification, later tasks, native activation, latest-head CI and main integration remain pending. No issue is closed.
++Independent quality verification, full Registry and native-host validation, CI, and Done remain pending. Fresh evidence does not establish the historical worker launch.
+ 
+ ## Session Handoff
+ 
+-- **Current Status**: Blocked
+-- **Next Action**: After the limited additional correction is authorized, reject provider-owned keys recursively in the existing shared registry validation and add positive/negative predicate regressions, then obtain the one additional independent review.
+-- **Unresolved Items**: Nested Capability provider fields; refused whole-vendor check; formal QG, remaining tasks, native Windows/activation, CI and main integration.
++- **Current Status**: Implementation Complete
++- **Next Action**: Validate evaluator input admission and run independent quality verification against the adopted report.
++- **Unresolved Items**: Quality gate, broader verification, CI, and Done; no task status was changed.
+diff --git a/reports/review-context/identity-ledger.json b/reports/review-context/identity-ledger.json
+index 98c8dac8..a891a0b2 100644
+--- a/reports/review-context/identity-ledger.json
++++ b/reports/review-context/identity-ledger.json
+@@ -10742,6 +10742,54 @@
+       "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+       "previous_record_sha256": "7cc39fd3922f3a476407b05ae3deeea3d94fa50a3cb11d3a3fb788167d2b606a",
+       "record_sha256": "d8b1ef162f38018f043b522b9ef13996ffaabaaee96a09abf73a4d567d28b0ce"
++    },
++    {
++      "sequence": 1192,
++      "stage": "quality",
++      "role": "sdd-evaluator",
++      "run_id": "issue423-t001-qg-01a0ff20-25ba-7292-b6ce-29743e086b8c",
++      "host_session_id": "01a0ff20-25ba-7292-b6ce-29743e086b8c",
++      "previous_record_sha256": "d8b1ef162f38018f043b522b9ef13996ffaabaaee96a09abf73a4d567d28b0ce",
++      "record_sha256": "22d233985711b6ccc41e5439d197074658573ac25ce6b6958e77c8e57a3d0a4e",
++      "scratch_declaration_sha256": "f85c59f3a4f058918e60b2e57d60345ab0f18e39494be2dc47abf0eb905f2030"
++    },
++    {
++      "sequence": 1193,
++      "stage": "quality",
++      "role": "sdd-evaluator",
++      "run_id": "issue423-t001-qg-01a0ffa1-2395-7513-8634-72d13902d275",
++      "host_session_id": "01a0ffa1-2395-7513-8634-72d13902d275",
++      "previous_record_sha256": "22d233985711b6ccc41e5439d197074658573ac25ce6b6958e77c8e57a3d0a4e",
++      "record_sha256": "eff4dcae0dbf3c2f1b009b9d560ae2ae303a6284558ac2ba48dee6e1ba368bda",
++      "scratch_declaration_sha256": "83b9fe6691d0008da6a2b73ae3059f8f3d1198fcf301b5a1f62537bc9bcf4129"
++    },
++    {
++      "sequence": 1194,
++      "stage": "task",
++      "role": "task-reviewer-a",
++      "run_id": "01a1037a-fff0-77b2-b861-47b33cf62501",
++      "host_session_id": "01a1037a-fff0-77b2-b861-47b33cf62501",
++      "previous_record_sha256": "eff4dcae0dbf3c2f1b009b9d560ae2ae303a6284558ac2ba48dee6e1ba368bda",
++      "record_sha256": "353c604ffe3fbec9103cf64ce5797e3ac4baa2d0de1bbdfe14a40aec32d41705"
++    },
++    {
++      "sequence": 1195,
++      "stage": "task",
++      "role": "task-reviewer-b",
++      "run_id": "01a1037f-6301-7123-be91-d856facc2326",
++      "host_session_id": "01a1037f-6301-7123-be91-d856facc2326",
++      "previous_record_sha256": "353c604ffe3fbec9103cf64ce5797e3ac4baa2d0de1bbdfe14a40aec32d41705",
++      "record_sha256": "518f8e2150aace36c470ea659ca931535bb83eaa59e14d834322d79c3f1c9539"
++    },
++    {
++      "sequence": 1196,
++      "stage": "quality",
++      "role": "sdd-evaluator",
++      "run_id": "01a110a1-5589-7501-b440-8926b897e0a2",
++      "host_session_id": "01a1109f-c67e-75f1-8682-b4b4ba72ffc6",
++      "previous_record_sha256": "518f8e2150aace36c470ea659ca931535bb83eaa59e14d834322d79c3f1c9539",
++      "record_sha256": "cb126f0453dc4b4cbf791d1378dc49c7e30326f6a9dc4e19a108b36bbd35dc1d",
++      "scratch_declaration_sha256": "6cb410af36b79db5a6611b55cebb2ec55c2642a8adc8947b3b09d89a648837e0"
+     }
+   ]
+ }
+diff --git a/reports/verification/issue423-owner-regression-20261001.md b/reports/verification/issue423-owner-regression-20261001.md
+index 4bf83c83..357e95b2 100644
+--- a/reports/verification/issue423-owner-regression-20261001.md
++++ b/reports/verification/issue423-owner-regression-20261001.md
+@@ -79,3 +79,115 @@ post-fix hashes, then reserve a fresh isolated evaluator and run the formal
+ gate. Keep RT-20260930-001 open until that gate is complete. T-003 must not
+ start by assuming T-002 is Done. Current-head CI, native Windows checks,
+ merge, and post-merge confirmation remain unperformed for this checkpoint.
++
++## Follow-up audit: CI coverage boundary
++
++At head `fc36148a1f60bbcfe9cd0c2499851c3d969e2c27`, GitHub Actions run
++`36874536793` remained in progress with 29 successful jobs and seven unfinished
++jobs. No completed job had failed at observation time; this is not a final CI
++result.
++
++The six-method migration CLI driver above has no execution reference in
++`.github/workflows/test.yml` or `tests/` (checked with
++`rg -n 'registry-migration|registry-registration' .github/workflows/test.yml tests`).
++The POSIX fallback runner consumes `tests/suite-inventory.posix`, not arbitrary
++drivers under `specs/`. Therefore this CI run must not be cited as execution of
++the new migration cases. Register the regression through an existing test
++entrypoint before treating future CI as protection for this repair.
++
++The identity audit also found that implementation instructions create run and
++session identities without registering them, while the quality gate requires
++prior registration. A fresh implementation-identity registration/recovery
++contract is needed; reconstructing a historical reservation is not evidence.
++No ledger or historical verdict was changed by this audit.
++
++The existing fallback runner executes only the shell suites enumerated in
++`tests/suite-inventory.posix` (`tests/run-ci-unwired.sh:48-52,142-147`).
++The bounded registration repair is a thin shell entrypoint for the committed
++Python migration driver plus its inventory entry; changing workflow jobs or
++duplicating the full Resolver suite is unnecessary. This would add POSIX CI
++coverage only, not native Windows evidence. At that audit point, the entrypoint
++had not yet been applied.
++
++## Terminal CI observation — 2026-10-01
++
++Run `36874536793` for exact head
++`fc36148a1f60bbcfe9cd0c2499851c3d969e2c27` completed as `cancelled` at
++14:51:24 UTC. The Ubuntu job stopped while the Bash cross-model gate step
++was unfinished. GitHub's check annotation explicitly states:
++`The job has exceeded the maximum execution time of 30m0s`.
++The same step took approximately 116 seconds in four recent successful runs,
++but remained unfinished for over 24 minutes in this run. Its individual log
++was unavailable and the run had no uploaded artifacts. The timeout is proven;
++the underlying stall is not yet diagnosed. No retry, cancellation request, or
++merge was performed here.
++
++## Bounded timeout diagnosis
++
++At the same head, one local execution of `bash tests/cross-model.tests.sh`
++completed in 118.3 seconds with `76 passed, 0 failed` (exit 0). The suite's
++test doubles were used; this was not a live Gemini or Codex panelist run.
++The owner checkout's tracked and untracked status was unchanged by the test.
++This narrows the problem to the CI execution or environment, but does not
++establish the root cause of the timed-out job.
++
++The GitHub job-log endpoint returned `BlobNotFound` (HTTP 404), so the
++unfinished step's output could not be inspected. To obtain one fresh CI
++observation without changing the head, tests, or 30-minute job limit, the
++owner requested a single diagnostic rerun of only the timed-out job with
++`gh run rerun 36874536793 --job 110410939301 --debug`. GitHub accepted the
++request as attempt 2. Its new Ubuntu job is `110431934739`; its final result
++was not available at this report update. No further retry is authorized by
++this observation. A passing rerun would not supply the missing formal quality
++gate, run registration, or native Windows evidence.
++
++## Migration CLI regression CI wiring (local, not in attempt 2)
++
++The approved T-002 boundary regression now has a thin POSIX entrypoint at
++`tests/registry-migration-cli.tests.sh` and one canonical inventory entry in
++`tests/suite-inventory.posix`. The existing `tests/run-ci-unwired.sh` fallback
++selects it without a workflow or runner change. Locally, the entrypoint
++passed all six Python test methods (8.488 seconds),
++`tests/ci-suite-wiring.tests.sh` passed its wiring and 21 behavioral controls,
++and `tests/run-ci-unwired.sh --list` included the new entrypoint. The scoped
++`git diff --check` found no whitespace errors.
++
++The newly reachable branch is the POSIX fallback shard's execution of this
++entrypoint on a future CI run. That first real CI execution remains pending;
++run `36874536793` attempt 2 uses the earlier committed head and cannot prove
++this uncommitted wiring. This does not add native Windows evidence, change a
++formal quality-gate verdict, or satisfy the missing identity registration.
++
++## Current-head CI verification — 2026-10-02
++
++PR #535 head `3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9` has 37
++completed successful check runs, including `required-checks`. Run
++`36882890633` executed `tests/registry-migration-cli.tests.sh` in POSIX
++unwired shard (2); its log records six tests in 7.157 seconds. This replaces
++the earlier pending-first-CI statement for that POSIX entrypoint only.
++
++The PR remains draft and formal quality verification remains blocked on the
++implementation-identity registration contract. These CI results do not prove
++native Windows execution of the new migration driver or repair historical
++identity evidence. No merge or quality-gate verdict was changed.
++
++## Registration-path diagnosis — 2026-10-02
++
++The missing identities cannot be repaired by invoking the existing reservation
++command with an implementation role: its admission list accepts only spec,
++implementation-policy, task, quality and domain reviewer roles
++(`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:415`).
++This is distinct from the ledger record schema, whose stage/role fields accept
++identifier strings (lines 477–478). A syntactically valid hand-added record
++would therefore not establish an authentic prior reservation and was not added.
++
++The smallest legitimate repair needs a prospective implementation-registration
++path and an explicit historical-recovery contract; it must not reuse a reviewer
++role to impersonate an implementer, backdate registration, or remove identity
++separation. This diagnosis does not approve or implement that contract change.
++Post-fix artifact declarations must also use a new gate report rather than
++rewriting the frozen implementation report (quality-gate SKILL.md:161–176).
++
++The GitHub API reconfirmed run `36882890633` completed successfully for exact
++head `3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9`. This does not resolve the
++registration boundary or complete T-003 through T-006.
+diff --git a/specs/sdd-domain-multitarget/tasks.md b/specs/sdd-domain-multitarget/tasks.md
+index cb6a9833..d6eafcd8 100644
+--- a/specs/sdd-domain-multitarget/tasks.md
++++ b/specs/sdd-domain-multitarget/tasks.md
+@@ -15,7 +15,7 @@ Source: Issue #423 (Multi-target Foundation Phase 1)
+ ## T-001 Consumer inventory and boundary fixtures
+ 
+ Approval: Approved
+-Status: Implementation Complete
++Status: Done
+ Risk: medium
+ Risk Rationale: The inventory drives later routing decisions; a stale or incomplete mapping can silently bypass an existing consumer.
+ Required Workflow: acceptance-first
+@@ -33,7 +33,7 @@ Done When:
+ ## T-002 Ownership and contract boundary fixtures
+ 
+ Approval: Approved
+-Status: Blocked
++Status: Implementation Complete
+ Risk: medium
+ Risk Rationale: Ownership and provider-neutral contract rules protect shared Core policy from provider leakage.
+ Required Workflow: acceptance-first
+@@ -52,7 +52,7 @@ Done When:
+ ## T-003 Target capability resolution and verification obligations
+ 
+ Approval: Approved
+-Status: Planned
++Status: Blocked
+ Risk: high
+ Risk Rationale: Resolver output controls required checks and fail-closed behavior at a trust boundary; an incorrect obligation can permit an unverified target.
+ Required Workflow: tdd
+@@ -71,6 +71,12 @@ Done When:
+ - [ ] High-risk evidence records each persisted resolver field, its sibling contract, and a mismatch test.
+ - [ ] Red tests fail before the resolver change and green tests pass after it; the implementation report records both runs and an independent reviewer verdict.
+ 
++### Blockers
++
++T-002
++
++T-002 remains a prerequisite and is not Done. In T-003 implementation attempt 4, PreToolUse rejected the read-only command for required hash-pinned Registry, schema, verification-template, and existing checker inputs before execution. The high-risk preflight therefore remains incomplete; RED, GREEN, implementation, and independent review were not run. Preserve this Blocked state until the normal protected-read boundary is restored and a fresh validated handoff permits the preflight to finish. See `reports/implementation/sdd-domain-multitarget/T-003-attempt4.md` and `specs/sdd-domain-multitarget/verification/T-003/run-c43e18b9f2a7/protection-refusal.txt`.
++
+ ## T-004 Compatibility and hybrid fallback
+ 
+ Approval: Approved
+diff --git a/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json b/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json
+index 6d36c5cb..f3e7fa25 100644
+--- a/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json
++++ b/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json
+@@ -168,19 +168,109 @@
+     {
+       "id": "host-adapters",
+       "test_ids": ["TEST-001h"],
+-      "consumer": "Host-specific launch syntax and invocation adapters (sdd-bootstrap-interviewer Invocation section)",
++      "consumer": "Host-specific launch syntax, manifest shape, hook invocation, and capability detection",
+       "disposition": "KEEP",
+-      "scope": "The Codex text-invocation block versus the Claude Code slash-command entry point for the same skill.",
++      "scope": "Codex CLI, Claude Code, and Copilot CLI packaging and launch, manifest, hook, and runtime capability surfaces; host-specific transport retains shared workflow semantics.",
+       "rationale": "requirements.md REQ-001 row 10: continue using host-specific packaging/adapters; common workflow meanings and approval rules remain shared.",
+       "source": [
+         {
++          "host": "codex-cli",
++          "surface": "launch",
+           "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+           "line_start": 13,
+-          "line_end": 28,
+-          "keyword": "Claude Code — internal skill"
++          "line_end": 22,
++          "keyword": "Codex:"
++        },
++        {
++          "host": "claude-code",
++          "surface": "launch",
++          "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
++          "line_start": 14,
++          "line_end": 25,
++          "keyword": "/sdd-bootstrap:bootstrap"
++        },
++        {
++          "host": "copilot-cli",
++          "surface": "launch",
++          "path": "tests/cross-runtime-handoff.tests.sh",
++          "line_start": 210,
++          "line_end": 213,
++          "keyword": "copilot -p"
++        },
++        {
++          "host": "codex-cli",
++          "surface": "manifest",
++          "path": "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
++          "line_start": 1,
++          "line_end": 9,
++          "keyword": "./hooks/hooks.json"
++        },
++        {
++          "host": "claude-code",
++          "surface": "manifest",
++          "path": "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
++          "line_start": 1,
++          "line_end": 10,
++          "keyword": "./hooks/claude-hooks.json"
++        },
++        {
++          "host": "copilot-cli",
++          "surface": "manifest",
++          "path": "plugins/sdd-quality-loop/.plugin/plugin.json",
++          "line_start": 1,
++          "line_end": 10,
++          "keyword": "hooks/copilot-hooks.json"
++        },
++        {
++          "host": "codex-cli",
++          "surface": "hooks",
++          "path": "plugins/sdd-quality-loop/hooks/hooks.json",
++          "line_start": 3,
++          "line_end": 22,
++          "keyword": "command_windows"
++        },
++        {
++          "host": "claude-code",
++          "surface": "hooks",
++          "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
++          "line_start": 3,
++          "line_end": 23,
++          "keyword": "PreToolUse"
++        },
++        {
++          "host": "copilot-cli",
++          "surface": "hooks",
++          "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
++          "line_start": 1,
++          "line_end": 10,
++          "keyword": "preToolUse"
++        },
++        {
++          "host": "codex-cli",
++          "surface": "capability-detection",
++          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
++          "line_start": 338,
++          "line_end": 353,
++          "keyword": "plugin_hooks_enabled"
++        },
++        {
++          "host": "claude-code",
++          "surface": "capability-detection",
++          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
++          "line_start": 298,
++          "line_end": 310,
++          "keyword": "emit_mode != \"exit\""
++        },
++        {
++          "host": "copilot-cli",
++          "surface": "capability-detection",
++          "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
++          "line_start": 318,
++          "line_end": 330,
++          "keyword": "decision != \"deny\""
+         }
+       ],
+-      "reverify_command": "sed -n '13,28p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
++      "reverify_command": "sed -n '13,22p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md; sed -n '14,25p' plugins/sdd-bootstrap/skills/bootstrap/SKILL.md; sed -n '210,213p' tests/cross-runtime-handoff.tests.sh; sed -n '1,10p' plugins/sdd-quality-loop/.codex-plugin/plugin.json plugins/sdd-quality-loop/.claude-plugin/plugin.json plugins/sdd-quality-loop/.plugin/plugin.json; sed -n '1,23p' plugins/sdd-quality-loop/hooks/hooks.json plugins/sdd-quality-loop/hooks/claude-hooks.json plugins/sdd-quality-loop/hooks/copilot-hooks.json; sed -n '298,310p;318,330p;338,353p' plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+     },
+     {
+       "id": "facet-native-migration",
+diff --git a/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py b/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py
+index fd37e8d5..a320c319 100644
+--- a/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py
++++ b/specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py
+@@ -45,6 +45,9 @@ REQUIRED_ENTRIES = {
+     "facet-native-migration": ("TEST-001h", "DEFER"),
+     "compile-checks-noncode": ("TEST-001i", "PARAMETERIZE"),
+ }
++HOSTS = {"codex-cli", "claude-code", "copilot-cli"}
++HOST_SURFACES = {"launch", "manifest", "hooks", "capability-detection"}
++REQUIRED_HOST_SOURCES = {(host, surface) for host in HOSTS for surface in HOST_SURFACES}
+ 
+ 
+ def load_inventory(path):
+@@ -182,6 +185,13 @@ def validate_inventory(inventory, repo_root):
+                 f"!= expected {expected_disposition!r} (missing or duplicate classification)"
+             )
+ 
++    host_entry = seen_ids.get("host-adapters")
++    if host_entry is not None:
++        mapped = [(src.get("host"), src.get("surface")) for src in (host_entry.get("source") or []) if isinstance(src, dict)]
++        for host, surface in sorted(REQUIRED_HOST_SOURCES):
++            if mapped.count((host, surface)) != 1:
++                failures.append(f"entry 'host-adapters' requires exactly one {host}/{surface} source")
++
+     return failures
+ 
+ 
+@@ -229,6 +239,17 @@ class ConsumerInventoryTests(unittest.TestCase):
+         relevant = self._relevant_failures(["host-adapters", "facet-native-migration"])
+         self.assertEqual(relevant, [], f"TEST-001h failures: {relevant}")
+ 
++    def test_host_surface_omission_is_rejected(self):
++        for host, surface in sorted(REQUIRED_HOST_SOURCES):
++            with self.subTest(host=host, surface=surface):
++                mutated = copy.deepcopy(self.inventory)
++                entry = next(e for e in mutated["entries"] if e.get("id") == "host-adapters")
++                entry["source"] = [s for s in entry["source"] if (s.get("host"), s.get("surface")) != (host, surface)]
++                self.assertIn(
++                    f"entry 'host-adapters' requires exactly one {host}/{surface} source",
++                    validate_inventory(mutated, self.repo_root),
++                )
++
+     def test_TEST_001i_compile_build_lint_checks_on_noncode_targets(self):
+         relevant = self._relevant_failures(["compile-checks-noncode"])
+         self.assertEqual(relevant, [], f"TEST-001i failures: {relevant}")
+diff --git a/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py b/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py
+index 2c31d1d1..064d801e 100644
+--- a/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py
++++ b/specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py
+@@ -319,6 +319,20 @@ class CapabilityRegistryProviderNeutralityTests(unittest.TestCase):
+                         self.assertTrue(any("provider-name-detected" in d and
+                                             f".{field}" in d for d in diagnostics), diagnostics)
+ 
++    def test_provider_keys_in_predicates_are_rejected(self):
++        for boundary in ("trigger", "conditional"):
++            for term in self.provider_terms:
++                for key in (term, f"prefix-{term.upper()}-suffix"):
++                    for value in ({key: True}, {"metadata": {key: False}},
++                                  {"items": [{key: None}]}):
++                        with self.subTest(boundary=boundary, key=key, value=value):
++                            diagnostics = []
++                            self.assertFalse(self.registry_mod.check_g_provider_name_contamination(
++                                self._predicate_registry(value, boundary),
++                                self.provider_terms, diagnostics), diagnostics)
++                            self.assertTrue(any("provider-name-detected" in d and
++                                                f".{key}" in d for d in diagnostics), diagnostics)
++
+     def test_provider_neutral_nested_predicate_values_are_accepted(self):
+         value = {"metadata": {"name": "durable_workflow", "items": [
+             {"replayable": True}, {"credentials_hint": False},
+diff --git a/tests/install.tests.sh b/tests/install.tests.sh
+index 491a30df..0344cbff 100755
+--- a/tests/install.tests.sh
++++ b/tests/install.tests.sh
+@@ -377,6 +377,9 @@ invoke_installer_scenario() {
+         if [[ $installer_failed -eq 0 ]]; then
+             fail "installer should have failed for pattern '${fail_pattern}'"
+         fi
++        if [[ "$out" != *"Note: registration failed"* ]]; then
++            fail "real registration failure did not report the retained install"
++        fi
+         if [[ ! -f "${install_root}/plugins/sdd-bootstrap/.codex-plugin/plugin.json" ]]; then
+             fail "registration failure did not leave the newly placed tree in the install root (pattern '${fail_pattern}')"
+         fi
+@@ -934,6 +937,8 @@ _m_log="${_m_root}/commands.log"
+ _m_lock_dir="${_m_install}.sdd-install.lock"
+ _m_orig_path="$PATH"
+ _m_orig_codex_home="${SDD_CODEX_HOME:-}"
++_m_stdout="${_m_root}/stdout.log"
++_m_stderr="${_m_root}/stderr.log"
+ make_fake_commands "$_m_bin" "$_m_log"
+ export PATH="${_m_bin}:${_m_orig_path}"
+ export SDD_CODEX_HOME="${_m_root}/codex-home"
+@@ -944,7 +949,7 @@ bash "$INSTALLER" \
+     --target FilesOnly \
+     --skip-plugin-install \
+     --skip-agent-install \
+-    2>/dev/null || _m_failed=1
++    >"$_m_stdout" 2>"$_m_stderr" || _m_failed=1
+ export PATH="$_m_orig_path"
+ if [[ -z "$_m_orig_codex_home" ]]; then
+     unset SDD_CODEX_HOME
+@@ -956,6 +961,14 @@ if [[ $_m_failed -ne 0 ]]; then
+     fail "lock scenario (m): successful install failed unexpectedly"
+     _m_ok=0
+ fi
++if ! grep -Fq 'Plugin registration was skipped because --target=FilesOnly.' "$_m_stdout"; then
++    fail "lock scenario (m): FilesOnly skip message missing"
++    _m_ok=0
++fi
++if grep -Fq 'registration failed' "$_m_stderr"; then
++    fail "lock scenario (m): successful FilesOnly install reported registration failure"
++    _m_ok=0
++fi
+ if [[ -d "$_m_lock_dir" ]]; then
+     fail "lock scenario (m): lock dir was not cleaned up after successful install"
+     _m_ok=0
+diff --git a/tests/issue311-scratch-isolation.tests.py b/tests/issue311-scratch-isolation.tests.py
+index 8fa271a8..3c41d456 100644
+--- a/tests/issue311-scratch-isolation.tests.py
++++ b/tests/issue311-scratch-isolation.tests.py
+@@ -25,10 +25,20 @@ def exercise(source, runtime, case):
+                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
+         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
+         records = [first]
++        implementation_path = "handoffs/fixture/manifest.json"
++        if case.startswith("manifest-"):
++            implementation_path = "handoffs/fixture/manifest-archive-input.json"
++        implementation_manifest = root / implementation_path
++        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
++                                                 run_id="worker-run", session_id="worker-session"))
++        implementation_hash = digest(implementation_manifest.read_bytes())
+         report = root / "reports/implementation/f/T-001.md"
+         report.parent.mkdir(parents=True)
+         report.write_text("# Implementation Report: T-001\n- Task ID: T-001\n"
+-                          "- **Scratch Root**: /tmp/impl-one\n")
++                          "Run ID: worker-run\n- **Run ID**: worker-run\n"
++                          "- **Session ID**: worker-session\n"
++                          "- **Scratch Root**: /tmp/impl-one\n"
++                          f"Input manifest: `{implementation_path}`, SHA-256 `{implementation_hash}`\n")
+         scratch = "/tmp/clean-evaluator"
+         expected = 0
+         if case.startswith("other-"):
+@@ -64,8 +74,83 @@ def exercise(source, runtime, case):
+                           sequence=len(records) + 1, previous_record_sha256=records[-1]["record_sha256"],
+                           identity_ledger_path="reports/review-context/identity-ledger.json",
+                           identity_ledger_sha256=digest(ledger.read_bytes()), scratch_root=scratch,
++                          implementation_manifest=dict(path=implementation_path,
++                                                       sha256=implementation_hash),
+                           allowed_input_manifest=[dict(path="reports/implementation/f/T-001.md",
+-                                                       sha256=digest(report.read_bytes()))])
++                                                       sha256=digest(report.read_bytes())),
++                                                  dict(path=implementation_path,
++                                                       sha256=implementation_hash)])
++        if case.startswith("manifest-") and case != "manifest-versioned":
++            expected = 1
++            if case == "manifest-citation-mismatch":
++                report.write_text(report.read_text().replace(implementation_path, "handoffs/fixture/manifest.json"))
++                invocation["allowed_input_manifest"][0]["sha256"] = digest(report.read_bytes())
++            elif case == "manifest-hash-mismatch":
++                invocation["implementation_manifest"]["sha256"] = "0" * 64
++            else:
++                invocation["implementation_manifest"]["path"] = {
++                    "manifest-empty-suffix": "handoffs/fixture/manifest-.json",
++                    "manifest-traversal": "handoffs/fixture/../manifest-archive-input.json",
++                    "manifest-case": "handoffs/fixture/Manifest-archive-input.json",
++                    "manifest-nested": "handoffs/fixture/manifest-archive/input.json",
++                }[case]
++        if case.startswith("dependency-"):
++            source_path = "private/consumer.txt" if case == "dependency-undeclared" else "src/consumer.txt"
++            source_file = root / source_path
++            source_file.parent.mkdir()
++            source_file.write_text("current consumer\n")
++            source_hash = digest(source_file.read_bytes())
++            dependency = dict(path=source_path, sha256=source_hash)
++            task_inputs = json.loads(implementation_manifest.read_text())
++            task_inputs["allowed_inputs"] = [dependency.copy()]
++            expected = 0 if case == "dependency-output-declared" else 1
++            if case == "dependency-absent":
++                task_inputs["allowed_inputs"] = []
++            elif case == "dependency-wrong-hash":
++                task_inputs["allowed_inputs"][0]["sha256"] = "0" * 64
++            elif case == "dependency-other-task":
++                task_inputs["task_id"] = "T-002"
++            elif case == "dependency-other-run":
++                task_inputs["run_id"] = "another-feature-worker"
++            elif case == "dependency-duplicate":
++                task_inputs["allowed_inputs"].append(dependency.copy())
++            elif case == "dependency-case":
++                task_inputs["allowed_inputs"][0]["path"] = "SRC/consumer.txt"
++            elif case == "dependency-hash-case":
++                task_inputs["allowed_inputs"][0]["sha256"] = source_hash.upper()
++            elif case == "dependency-peer":
++                source_path = "reports/spec-review/f/reviewer-a.json"
++                peer = root / source_path
++                peer.parent.mkdir(parents=True)
++                peer.write_text("peer output\n")
++                dependency = dict(path=source_path, sha256=digest(peer.read_bytes()))
++                task_inputs["allowed_inputs"] = [dependency.copy()]
++            elif case == "dependency-symlink":
++                target = root / "src/target.txt"
++                target.write_bytes(source_file.read_bytes())
++                source_file.unlink()
++                source_file.symlink_to(target)
++            write_json(implementation_manifest, task_inputs)
++            if case == "dependency-json-duplicate":
++                raw = implementation_manifest.read_text()
++                implementation_manifest.write_text(raw.replace('"task_id":', '"task_id":"T-001","task_id":', 1))
++            if case == "dependency-output-declared":
++                report.write_text(report.read_text() + f"\n## Outputs\n| Path | SHA-256 |\n"
++                                  f"| --- | --- |\n| `{source_path}` | `{source_hash}` |\n")
++            updated_hash = digest(implementation_manifest.read_bytes())
++            report.write_text(report.read_text().replace(implementation_hash, updated_hash))
++            invocation["implementation_manifest"]["sha256"] = updated_hash
++            invocation["allowed_input_manifest"][0]["sha256"] = digest(report.read_bytes())
++            invocation["allowed_input_manifest"][1]["sha256"] = updated_hash
++            invocation["allowed_input_manifest"].append(dependency)
++            if case == "dependency-missing-pin":
++                invocation["allowed_input_manifest"].pop(1)
++            elif case == "dependency-manifest-tamper":
++                implementation_manifest.write_text(implementation_manifest.read_text() + " ")
++            elif case == "dependency-source-tamper":
++                source_file.write_text("changed\n")
++            elif case == "dependency-role":
++                invocation["role"] = "spec-reviewer-a"
+         if case == "new-missing":
+             invocation.pop("scratch_root")
+             expected = 1
+@@ -82,9 +167,17 @@ def exercise(source, runtime, case):
+                    ["pwsh", "-NoProfile", "-File", str(validator_ps1),
+                     "-Manifest", str(manifest), "-RepositoryRoot", str(root), "-Reserve"])
+         before = ledger.read_bytes()
++        if case.startswith(("dependency-", "manifest-")):
++            preflight = subprocess.run(command[:-1], capture_output=True, text=True, timeout=40)
++            if preflight.returncode != expected or ledger.read_bytes() != before:
++                print(f"not ok: {runtime} {case}: preflight={preflight.returncode}, expected={expected}")
++                print(preflight.stdout, preflight.stderr)
++                return False
+         result = subprocess.run(command, capture_output=True, text=True, timeout=40)
+         passed = (result.returncode == expected and
+-                  (expected == 0 or (ledger.read_bytes() == before and "REVIEW_CONTEXT_PATH" in result.stderr)))
++                  (expected == 0 or (ledger.read_bytes() == before and
++                   ("REVIEW_CONTEXT_PATH" in result.stderr or
++                    (case.startswith(("dependency-", "manifest-")) and "REVIEW_CONTEXT_" in result.stderr)))))
+         print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: exit={result.returncode}, expected={expected}")
+         if not passed:
+             print(result.stdout, result.stderr)
+@@ -125,13 +218,22 @@ def exercise(source, runtime, case):
+ def main():
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--repo", type=pathlib.Path, required=True)
++    parser.add_argument("--manifest-only", action="store_true")
+     args = parser.parse_args()
+     for runtime in ("bash", "pwsh"):
+         if not shutil.which(runtime):
+             raise SystemExit(f"Missing required runtime: {runtime}")
+     cases = ["clean", "new-missing", "other-equal", "other-child", "other-parent", "other-prefix",
+              "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
+-             "legacy-missing", "snapshot-tampered", "snapshot-deleted"]
++             "legacy-missing", "snapshot-tampered", "snapshot-deleted",
++             "dependency-undeclared", "dependency-output-declared", "dependency-absent", "dependency-wrong-hash",
++             "dependency-other-task", "dependency-other-run", "dependency-duplicate",
++             "dependency-case", "dependency-hash-case", "dependency-peer",
++             "dependency-symlink", "dependency-json-duplicate", "dependency-missing-pin",
++             "dependency-manifest-tamper", "dependency-source-tamper", "dependency-role"]
++    manifest_cases = ["manifest-versioned", "manifest-citation-mismatch", "manifest-hash-mismatch",
++                      "manifest-empty-suffix", "manifest-traversal", "manifest-case", "manifest-nested"]
++    cases = manifest_cases if args.manifest_only else cases + manifest_cases
+     results = [exercise(args.repo, runtime, case) for runtime in ("bash", "pwsh") for case in cases]
+     print(f"PASS: {sum(results)}; FAIL: {len(results) - sum(results)}")
+     raise SystemExit(0 if all(results) else 1)
+diff --git a/tests/review-agent-isolation.tests.sh b/tests/review-agent-isolation.tests.sh
+index c5b46a56..038cebe7 100755
+--- a/tests/review-agent-isolation.tests.sh
++++ b/tests/review-agent-isolation.tests.sh
+@@ -63,6 +63,7 @@ make_repository() {
+     "$repository/reports/task-review/f/attempt-1/round-1" \
+     "$repository/reports/implementation/f" \
+     "$repository/reports/review-context" \
++    "$repository/handoffs/fixture" \
+     "$repository/plugins/internal" \
+     "$repository/plugins/task" \
+     "$repository/private"
+@@ -79,12 +80,18 @@ make_repository() {
+   printf '{}\n' > "$repository/reports/task-review/f/attempt-1/round-1/precheck-result.json"
+   printf 'authorized output\n' > "$repository/plugins/task/authorized-output.txt"
+   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
++  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",run_id:"worker-run",session_id:"worker-session"}' \
++    > "$repository/handoffs/fixture/manifest.json"
+   local authorized_output_hash
+   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
++  local implementation_hash
++  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
+   {
+     printf '# Implementation Report: T-001\n\n'
+     printf '## Task\n\n'
+     printf '%s\n\n' '- Task ID: T-001'
++    printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++    printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$implementation_hash"
+     printf '## Outputs\n\n'
+     printf '| Path | SHA-256 |\n'
+     printf '|---|---|\n'
+@@ -132,7 +139,7 @@ stage_for_role() {
+ make_manifest() {
+   local repository=$1 role=$2 output=$3
+   local ledger="$repository/reports/review-context/identity-ledger.json"
+-  local path stage ledger_hash previous sequence input_hash
++  local path stage ledger_hash previous sequence input_hash implementation_hash
+   path="$(input_for_role "$role")"
+   stage="$(stage_for_role "$role")"
+   if [[ "$role" == "sdd-evaluator" ]]; then
+@@ -145,10 +152,11 @@ make_manifest() {
+   previous="$(jq -r '.records[-1].record_sha256' "$ledger")"
+   sequence="$(jq '.records[-1].sequence + 1' "$ledger")"
+   input_hash="$(sha256 "$repository/$path")"
++  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
+   jq -n \
+     --arg stage "$stage" --arg role "$role" --arg path "$path" \
+     --arg ledger_hash "$ledger_hash" --arg previous "$previous" \
+-    --arg input_hash "$input_hash" --argjson sequence "$sequence" '({
++    --arg input_hash "$input_hash" --arg implementation_hash "$implementation_hash" --argjson sequence "$sequence" '({
+       schema:"review-context-invocation/v2",
+       stage:$stage,
+       role:$role,
+@@ -162,8 +170,10 @@ make_manifest() {
+       identity_ledger_sha256:$ledger_hash,
+       previous_record_sha256:$previous,
+       sequence:$sequence,
+-      allowed_input_manifest:[{path:$path,sha256:$input_hash}]
+-    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))' > "$output"
++      allowed_input_manifest:([{path:$path,sha256:$input_hash}] +
++        (if $role == "sdd-evaluator" then [{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}] else [] end))
++    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f",
++         implementation_manifest:{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}} else {} end))' > "$output"
+ }
+ 
+ run_bash() {
+@@ -384,10 +394,13 @@ annot_similar_bak_hash="$(sha256 "$annot_repository/$annot_similar_path.bak")"
+ 
+ annot_wrong_hash="$(printf '%064d' 0 | tr '0' 'd')"
+ 
++annot_implementation_hash="$(sha256 "$annot_repository/handoffs/fixture/manifest.json")"
+ {
+   printf '# Implementation Report: T-001\n\n'
+   printf '## Task\n\n'
+   printf '%s\n\n' '- Task ID: T-001'
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$annot_implementation_hash"
+   printf '## Outputs\n\n'
+   printf '| Path | SHA-256 |\n'
+   printf '|---|---|\n'
+@@ -906,6 +919,7 @@ make_repository "$legacy_repository"
+ legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
+ legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
+ legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
++legacy_implementation_hash="$(sha256 "$legacy_repository/handoffs/fixture/manifest.json")"
+ 
+ # Rewrite the fixture's report so the artifact is declared ONLY in the legacy
+ # section -- no `## Outputs` table at all, which is the shape of the historical
+@@ -914,6 +928,8 @@ legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+   printf '# Implementation Report: T-001\n\n'
+   printf '## Task\n\n'
+   printf '%s\n\n' '- Task ID: T-001'
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
+   printf '## Output Paths And Hashes\n\n'
+   printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
+     "$legacy_output_hash"
+@@ -960,6 +976,8 @@ assert_rejected_both wfi017-legacy-row-hash-mismatch \
+   printf '# Implementation Report: T-001\n\n'
+   printf '## Task\n\n'
+   printf '%s\n\n' '- Task ID: T-001'
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$legacy_implementation_hash"
+   printf '## Output Paths And Hashes\n\n'
+   printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
+ } > "$legacy_repository/reports/implementation/f/T-001.md"
+@@ -992,6 +1010,7 @@ ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$rep
+ parity_repository="$tmp/grammar-parity-repository"
+ make_repository "$parity_repository"
+ parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
++parity_implementation_hash="$(sha256 "$parity_repository/handoffs/fixture/manifest.json")"
+ 
+ # Emit the declaration row shape for one ratified section name. A section this
+ # does not know how to write is an unteachable grammar -- fail rather than
+@@ -1001,6 +1020,8 @@ write_declaration() {
+   printf '# Implementation Report: T-001\n\n'
+   printf '## Task\n\n'
+   printf '%s\n\n' '- Task ID: T-001'
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"
+   printf '## %s\n\n' "$section"
+   case "$section" in
+     'Outputs')
+@@ -1053,6 +1074,8 @@ done
+   printf '# Implementation Report: T-001\n\n'
+   printf '## Task\n\n'
+   printf '%s\n\n' '- Task ID: T-001'
++  printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
++  printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$parity_implementation_hash"
+   printf '## Declared Artifacts\n\n'
+   printf '| Path | SHA-256 |\n'
+   printf '|---|---|\n'
+diff --git a/tests/review-context-boundary.tests.sh b/tests/review-context-boundary.tests.sh
+index 4197af68..d84b8ec1 100755
+--- a/tests/review-context-boundary.tests.sh
++++ b/tests/review-context-boundary.tests.sh
+@@ -81,25 +81,25 @@ grep -Fq 'persisted impl reviewer-a manifest is missing previous-round summary'
+ anchors() {
+   cat <<'ANCHORS'
+ # The flat contract predicates in the manifest jq filter.
+-:367 validator .schema == "review-context-invocation/v2"
+-:368 validator .input_mode == "file-manifest"
+-:369 validator .fallback_mode == "none"
+-:370 validator .read_only == true
+-:371 validator .feature | type == "string" and test(
+-:372 validator .sequence | type == "number" and floor == . and . >= 2
+-:373 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+-:374 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+-:350 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
++:441 validator .schema == "review-context-invocation/v2"
++:442 validator .input_mode == "file-manifest"
++:443 validator .fallback_mode == "none"
++:444 validator .read_only == true
++:445 validator .feature | type == "string" and test(
++:446 validator .sequence | type == "number" and floor == . and . >= 2
++:447 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
++:448 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
++:418 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+ 
+ # The optional quality-stage gate-report declaration: presence gate and shape.
+-:351-356 validator if has("gate_report_declaration") then
+-:351-356 validator (keys | sort) == ["path", "sha256"]
++:425-430 validator if has("gate_report_declaration") then
++:425-430 validator (keys | sort) == ["path", "sha256"]
+ 
+ # The declared gate report must be canonical, symlink-free, a regular file
+ # under reports/quality-gate/, and hash to the pinned value before any row is
+ # read from it.
+-:654-670 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+-:654-670 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
++:733-748 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
++:733-748 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+ 
+ # Its `## Post-Fix Artifacts` rows are the second authorization source.
+ :242-247 validator gate_report_output_is_declared() {
+@@ -107,8 +107,8 @@ anchors() {
+ 
+ # stage/role must be an authorized pair. The identically-shaped `case` inside
+ # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
+-:414-416 validator case "$stage:$role" in
+-:414-416 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
++:492-494 validator case "$stage:$role" in
++:492-494 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+ 
+ # No rows for the ledger's global-uniqueness check or for the line that prints
+ # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
+@@ -120,34 +120,34 @@ anchors() {
+ 
+ # identity_ledger_sha256 equality: before the reservation, and again under the
+ # reservation lock.
+-:601 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+-:1129 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
++:679 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
++:1282 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+ 
+ # The chain position this invocation must occupy.
+-:603 validator [[ "$sequence" -eq "$expected_sequence"
++:681 validator [[ "$sequence" -eq "$expected_sequence"
+ 
+ # The record-hash construction a reviewer is told to recompute: the chain-walk
+ # copy the validator verifies existing records with, and the reservation copy it
+ # builds the new record with. The document cites both as "the same construction".
+-:495 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+-:1117 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
++:573 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
++:1270 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+ 
+ # task_id shape, and the implementation report that must carry it.
+-:622-636 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+-:622-636 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
++:701-714 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++:701-714 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+ 
+ # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
+ # no symlink component. One row per clause the field table claims.
+-:796-811 validator is_canonical_path "$path"
+-:796-811 validator is_forbidden_review_output "$path"
+-:796-811 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
++:875-889 validator is_canonical_path "$path"
++:875-889 validator is_forbidden_review_output "$path"
++:875-889 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+ 
+ # Manifest hash equality against the file on disk.
+-:872-876 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
+-:872-876 validator actual_hash=$(sha256_file "$candidate")
++:951-954 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
++:951-954 validator actual_hash=$(sha256_file "$candidate")
+ 
+ # The append.
+-:1139-1148 validator '.records += [{
++:1292-1304 validator '.records += [{
+ 
+ # The two impl-review-precheck claims. The previous-round-summary requirement
+ # lives in the shared lib since the #325 consolidation; the mode admission is
+diff --git a/tests/review-scratch-history.tests.py b/tests/review-scratch-history.tests.py
+index 9003a120..8da01c39 100644
+--- a/tests/review-scratch-history.tests.py
++++ b/tests/review-scratch-history.tests.py
+@@ -25,10 +25,17 @@ def exercise(source, runtime, case):
+                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
+         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
+         records = [first]
++        implementation_manifest = root / "handoffs/fixture/manifest.json"
++        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
++                                                 run_id="worker-run", session_id="worker-session"))
++        implementation_hash = digest(implementation_manifest.read_bytes())
+         report = root / "reports/implementation/f/T-001.md"
+         report.parent.mkdir(parents=True)
+         report.write_text("# Implementation Report: T-001\n- Task ID: T-001\n"
+-                          "- **Scratch Root**: /tmp/impl-one\n")
++                          "Run ID: worker-run\n- **Run ID**: worker-run\n"
++                          "- **Session ID**: worker-session\n"
++                          "- **Scratch Root**: /tmp/impl-one\n"
++                          f"Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `{implementation_hash}`\n")
+         scratch = "/tmp/clean-evaluator"
+         expected = 0
+         if case.startswith("other-"):
+@@ -64,8 +71,12 @@ def exercise(source, runtime, case):
+                           sequence=len(records) + 1, previous_record_sha256=records[-1]["record_sha256"],
+                           identity_ledger_path="reports/review-context/identity-ledger.json",
+                           identity_ledger_sha256=digest(ledger.read_bytes()), scratch_root=scratch,
++                          implementation_manifest=dict(path="handoffs/fixture/manifest.json",
++                                                       sha256=implementation_hash),
+                           allowed_input_manifest=[dict(path="reports/implementation/f/T-001.md",
+-                                                       sha256=digest(report.read_bytes()))])
++                                                       sha256=digest(report.read_bytes())),
++                                                  dict(path="handoffs/fixture/manifest.json",
++                                                       sha256=implementation_hash)])
+         manifest = root / "invocation.json"
+         write_json(manifest, invocation)
+         scripts = source / "plugins/sdd-quality-loop/scripts"

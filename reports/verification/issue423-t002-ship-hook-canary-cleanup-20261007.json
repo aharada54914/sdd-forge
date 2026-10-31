@@ -1,0 +1,7 @@
+{
+  "nonce": "d6edc4cf48bebca98481ac9581cdda04",
+  "executed": true,
+  "raw_tool_result": {},
+  "observed_target": "sdd/.hook-canary-sentinel",
+  "operation": "apply_patch delete"
+}

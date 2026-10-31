@@ -1,0 +1,63 @@
+{
+  "scope": "T-001 preparation only; no independent verdict or reservation",
+  "owner": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+  "session_id": "01a0fce9-a790-7512-8afe-5da0561c3dbd",
+  "executions": [
+    {
+      "id": "gate-risk",
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/sdd-domain-multitarget/tasks.md T-001",
+      "started_at": "2026-10-02T23:19:47.971Z",
+      "finished_at": "2026-10-02T23:19:48.084Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-risk.log"
+    },
+    {
+      "id": "gate-placeholders",
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py",
+      "started_at": "2026-10-02T23:19:48.084Z",
+      "finished_at": "2026-10-02T23:19:48.172Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-placeholders.log"
+    },
+    {
+      "id": "gate-task-state",
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain-multitarget/tasks.md reports/quality-gate reports/implementation .",
+      "started_at": "2026-10-02T23:20:04.778Z",
+      "finished_at": "2026-10-02T23:20:04.958Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-task-state.log"
+    },
+    {
+      "id": "gate-workflow",
+      "command": "rtk proxy bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "started_at": "2026-10-02T23:19:48.172Z",
+      "finished_at": "2026-10-02T23:20:52.690Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-workflow.log"
+    },
+    {
+      "id": "gate-inventory",
+      "command": "rtk proxy python3 specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py --repo-root . -v",
+      "started_at": "2026-10-02T23:20:39.256Z",
+      "finished_at": "2026-10-02T23:20:39.430Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-inventory.log"
+    },
+    {
+      "id": "gate-regression-scratch",
+      "command": "rtk proxy python3 tests/issue311-scratch-isolation.tests.py --repo /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "started_at": "2026-10-02T23:20:39.430Z",
+      "finished_at": "2026-10-02T23:23:02.251Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-scratch.log"
+    },
+    {
+      "id": "gate-regression-boundary",
+      "command": "rtk proxy bash tests/review-context-boundary.tests.sh",
+      "started_at": "2026-10-02T23:20:40.629Z",
+      "finished_at": "2026-10-02T23:23:02.254Z",
+      "exit_code": 0,
+      "evidence": "specs/sdd-domain-multitarget/verification/T-001/qg-prep-20261003/gate-regression-boundary.log"
+    }
+  ]
+}

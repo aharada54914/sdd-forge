@@ -1,0 +1,2 @@
+REVIEW_CONTEXT_PATH: scratch history contains a non-canonical root
+REVIEW_CONTEXT_PATH: feature scratch-history check failed

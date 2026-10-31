@@ -1,0 +1,57 @@
+[
+  {
+    "file": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-46-01-01a11108-f1b1-7632-8a65-c905eeb63e5d.jsonl",
+    "type": "session_meta",
+    "observed": {
+      "id": "01a11108-f1b1-7632-8a65-c905eeb63e5d",
+      "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "originator": "Codex Desktop",
+      "source": "exec"
+    }
+  },
+  {
+    "file": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-46-01-01a11108-f1b1-7632-8a65-c905eeb63e5d.jsonl",
+    "type": "turn_context",
+    "observed": {
+      "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "sandbox_policy": {
+        "type": "danger-full-access"
+      }
+    }
+  },
+  {
+    "file": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-47-24-01a1110a-3725-7413-8617-bea91e30f2f1.jsonl",
+    "type": "session_meta",
+    "observed": {
+      "id": "01a1110a-3725-7413-8617-bea91e30f2f1",
+      "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "originator": "Codex Desktop",
+      "source": {
+        "subagent": {
+          "thread_spawn": {
+            "parent_thread_id": "01a11108-f1b1-7632-8a65-c905eeb63e5d",
+            "depth": 1,
+            "agent_path": "/root/issue423_t002_evaluator",
+            "agent_nickname": "Copernicus",
+            "agent_role": "sdd-evaluator"
+          }
+        }
+      },
+      "agent_role": "sdd-evaluator"
+    }
+  },
+  {
+    "file": "/Users/jrmag/.codex/sessions/2026/10/06/rollout-2026-10-06T20-47-24-01a1110a-3725-7413-8617-bea91e30f2f1.jsonl",
+    "type": "turn_context",
+    "observed": {
+      "cwd": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge",
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "sandbox_policy": {
+        "type": "danger-full-access"
+      }
+    }
+  }
+]

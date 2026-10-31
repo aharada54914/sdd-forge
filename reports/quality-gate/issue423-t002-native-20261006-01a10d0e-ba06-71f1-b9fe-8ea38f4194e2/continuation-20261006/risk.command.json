@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-risk.sh",
+    "specs/sdd-domain-multitarget/tasks.md",
+    "T-002"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:54:38.752029+00:00",
+  "finished_at": "2026-10-05T17:54:38.772079+00:00"
+}

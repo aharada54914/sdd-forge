@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "uvx",
+    "--from",
+    "mypy==1.18.2",
+    "mypy",
+    "--strict",
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-05T17:54:37.026919+00:00",
+  "finished_at": "2026-10-05T17:54:38.681986+00:00"
+}

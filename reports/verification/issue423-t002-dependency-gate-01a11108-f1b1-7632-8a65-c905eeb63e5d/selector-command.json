@@ -1,0 +1,22 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh",
+    "--risk",
+    "medium",
+    "--registry",
+    "contracts/agent-model-capabilities.v2.json",
+    "--candidates-file",
+    "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/reports/verification/issue423-t002-dependency-gate-01a11108-f1b1-7632-8a65-c905eeb63e5d/codex-candidates.json",
+    "--role",
+    "sdd-evaluator",
+    "--host",
+    "codex-cli",
+    "--json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"available_candidates\":[\"gpt-6-astra\"],\"canonical_tier\":\"strong\",\"effort\":\"medium\",\"effort_control\":\"flag\",\"effort_source\":\"risk-matrix\",\"escalation\":null,\"estimated_cost_per_attempt_usd\":\"48.22\",\"model\":\"gpt-6-astra\",\"xhigh_reason\":null}\n",
+  "stderr": ""
+}

@@ -1,0 +1,2 @@
+DRIFT: .codex/agents/sdd-evaluator.toml toml=openai/gpt-5.2-codex/high live=gpt-6-astra/medium
+Native effective sandbox: danger-full-access; no read-only OS enforcement claimed. Evaluator commanded to perform read-only operations only.

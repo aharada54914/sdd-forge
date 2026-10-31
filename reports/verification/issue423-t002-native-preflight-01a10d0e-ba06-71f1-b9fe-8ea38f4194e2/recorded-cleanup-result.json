@@ -1,0 +1,6 @@
+{
+  "nonce": "0e20e8ea51a3999ff33fac0aa5804631",
+  "executed": true,
+  "raw_tool_result": {},
+  "executed_basis": "Native apply_patch delete followed by lexists=False."
+}

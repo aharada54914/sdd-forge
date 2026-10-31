@@ -262,6 +262,12 @@ function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$Mani
     $roleValues = Get-RoleValues $Registry $Target.Role
     $kindForModel = if ($Target.Kind -ceq 'claude') { 'claude' } else { 'codex' }
     $modelName = Get-ModelForTier $Registry $roleValues.Tier $kindForModel
+    if ($Target.Role -ceq 'sdd-evaluator' -and $Target.Kind -ceq 'claude') {
+        $modelName = Get-ModelForTier $Registry 'standard' 'claude'
+        if ($modelName -cne 'sonnet') {
+            throw 'RENDER_ERROR: Claude evaluator requires the registered Sonnet model'
+        }
+    }
     $effort = $roleValues.Effort
 
     $realPath = Join-Path $RepoRoot $Target.Path

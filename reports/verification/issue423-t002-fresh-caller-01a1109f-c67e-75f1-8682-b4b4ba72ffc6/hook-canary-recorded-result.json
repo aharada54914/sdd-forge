@@ -1,0 +1,7 @@
+{
+  "nonce": "80c2d05e372b131f4c345e572e6b3047",
+  "executed": true,
+  "raw_result": {},
+  "tool": "apply_patch",
+  "target": "/Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/sdd/.hook-canary-sentinel"
+}

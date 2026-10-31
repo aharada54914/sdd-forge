@@ -16,7 +16,8 @@ param(
   [Parameter(Mandatory = $true, Position = 1)][string]$Attempt,
   [Parameter(Mandatory = $true, Position = 2)][string]$Round,
   [Parameter(Position = 3)][string]$EditSummary = '',
-  [switch]$Reset
+  [switch]$Reset,
+  [switch]$VerifyInputs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -115,12 +116,55 @@ function Test-ManifestArrayValid([object]$Manifest) {
 }
 
 function Test-ManifestArraysEqual([array]$Actual, [array]$Expected) {
+  $Expected = @($Expected | ForEach-Object {
+    [pscustomobject]@{ path = (Get-ManifestLocalPath $_.path ''); sha256 = $_.sha256 }
+  } | Sort-Object path)
   if ($Actual.Count -ne $Expected.Count) { return $false }
   for ($i = 0; $i -lt $Actual.Count; $i++) {
     if (-not (Test-OrdinalEqual $Actual[$i].path $Expected[$i].path)) { return $false }
     if (-not (Test-OrdinalEqual $Actual[$i].sha256 $Expected[$i].sha256)) { return $false }
   }
   return $true
+}
+
+function Get-ManifestLocalPath([string]$Path, [string]$RecordedRoot) {
+  $pathValue = $Path.Replace('\', '/')
+  $localRoot = $root.Replace('\', '/').TrimEnd('/')
+  $aliasRoot = $localRoot -creplace '^/private/var/', '/var/'
+  if ($localRoot.StartsWith('/var/', [StringComparison]::Ordinal)) { $aliasRoot = '/private' + $localRoot }
+  foreach ($prefix in @($localRoot, $aliasRoot, $RecordedRoot)) {
+    if ($prefix -and $pathValue.StartsWith($prefix + '/', [StringComparison]::Ordinal)) {
+      return ($localRoot + '/' + $pathValue.Substring($prefix.Length + 1))
+    }
+  }
+  if ($pathValue -cmatch '^(/|[A-Za-z]:/)') { return '' }
+  return ($localRoot + '/' + $pathValue)
+}
+
+function Get-ManifestRecordedRoot([object]$Contract) {
+  $roots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+  foreach ($reviewer in @($Contract.reviewers)) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if ($entry.path -isnot [string]) { return '__INVALID__' }
+      $pathValue = $entry.path.Replace('\', '/')
+      if ($pathValue -cnotmatch '^(/|[A-Za-z]:/)' -or (Get-ManifestLocalPath $pathValue '') -cne '') { continue }
+      $candidates = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+      foreach ($match in [regex]::Matches($pathValue, '(?=/(?:specs|reports|plugins|domain)/)')) {
+        $suffix = $pathValue.Substring($match.Index + 1)
+        if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+            $suffix -ceq 'domain/context-map.md' -or $suffix -ceq 'domain/domain-contract.json' -or
+            $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
+            $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+          [void]$candidates.Add($pathValue.Substring(0, $match.Index))
+        }
+      }
+      if ($candidates.Count -ne 1) { return '__INVALID__' }
+      foreach ($candidate in $candidates) { [void]$roots.Add($candidate) }
+    }
+  }
+  if ($roots.Count -gt 1) { return '__INVALID__' }
+  foreach ($recorded in $roots) { return $recorded }
+  return ''
 }
 
 function Test-ChecksArrayValid([object]$Checks) {
@@ -150,10 +194,13 @@ $attemptInt = [int64]$Attempt
 $roundInt = [int64]$Round
 if ($roundInt -gt 3) { Fail 'round must be between 1 and 3' }
 if (-not ([string]::IsNullOrEmpty($EditSummary)) -and $roundInt -le 1) { Fail '--edit-summary is valid only after round 1' }
-if ($roundInt -gt 1) {
+if ($VerifyInputs -and ($EditSummary -or $Reset)) { Fail '-VerifyInputs cannot be combined with transition options' }
+if (-not $VerifyInputs -and $roundInt -gt 1) {
   if ([string]::IsNullOrEmpty(($EditSummary -replace '\s', ''))) { Fail 'rounds 2 and 3 require a non-empty --edit-summary' }
 }
-if ($Reset) {
+if ($VerifyInputs) {
+  # Verify a persisted round without changing its inputs or evidence.
+} elseif ($Reset) {
   if (-not ($attemptInt -gt 1 -and $roundInt -eq 1)) { Fail '--reset starts only attempt N+1 round 1' }
 } else {
   if (-not ($attemptInt -eq 1 -or $roundInt -gt 1)) { Fail 'a new attempt requires --reset' }
@@ -190,13 +237,15 @@ if (Test-Path -LiteralPath $reportsBase) {
 
 $statusMatch = Select-String -LiteralPath $requirements -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1
 $status = if ($statusMatch) { ($statusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
-if ($Reset) {
+if ($VerifyInputs) {
+  # Saved status is checked against the precheck below.
+} elseif ($Reset) {
   if (-not (Test-OrdinalEqual $status 'Pending') -and -not (Test-OrdinalEqual $status 'Passed')) { Fail 'requirements.md must declare a resettable Spec-Review-Status' }
 } else {
   if (-not (Test-OrdinalEqual $status 'Pending')) { Fail 'requirements.md must declare Spec-Review-Status: Pending' }
 }
 if (Test-IsSymlink $reportRoot) { Fail 'report root must not be a symlink' }
-if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists (replay is forbidden)' }
+if (-not $VerifyInputs -and (Test-Path -LiteralPath $reportDir)) { Fail 'round destination already exists (replay is forbidden)' }
 
 $requirementsSha = Get-Sha256File $requirements
 $acceptanceSha = Get-Sha256File $acceptance
@@ -204,13 +253,44 @@ $calibrationSha = Get-Sha256File $calibration
 $investigationSha = if (Test-Path -LiteralPath $investigation -PathType Leaf) { Get-Sha256File $investigation } else { '' }
 $inputSha = if ([string]::IsNullOrEmpty($investigationSha)) { Get-Sha256Text "${requirementsSha}:${acceptanceSha}" } else { Get-Sha256Text "${requirementsSha}:${acceptanceSha}:${investigationSha}" }
 
+if ($VerifyInputs) {
+  $attemptDir = Join-Path $reportRoot "attempt-$attemptInt"
+  $precheckPath = Join-Path $reportDir 'precheck-result.json'
+  if (-not (Test-RealDirectory $reportRoot) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportRoot) $reportRoot)) { Fail 'report root is missing or substituted' }
+  if (-not (Test-RealDirectory $attemptDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $attemptDir) $attemptDir)) { Fail 'attempt directory is missing or substituted' }
+  if (-not (Test-RealDirectory $reportDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportDir) $reportDir)) { Fail 'round directory is missing or substituted' }
+  if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Test-IsSymlink $precheckPath)) { Fail 'precheck evidence is missing or substituted' }
+  try { $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json } catch { Fail 'precheck evidence is not valid JSON' }
+  $baseKeys = @('acceptance_sha256','attempt','calibration_sha256','edit_summary','feature','generated_at','input_sha256','investigation_sha256','requirements_sha256','reset','round','schema','spec_review_status_field','stage')
+  if (-not (Test-KeysExact $precheck $baseKeys)) { Fail 'precheck evidence has invalid fields' }
+  $investigationMatches = if ($investigationSha) { Test-OrdinalEqual $precheck.investigation_sha256 $investigationSha } else { $null -eq $precheck.investigation_sha256 }
+  if (-not (Test-OrdinalEqual $precheck.schema 'spec-review-precheck/v1') -or
+      -not (Test-OrdinalEqual $precheck.stage 'spec') -or
+      -not (Test-OrdinalEqual $precheck.feature $Feature) -or
+      -not (Test-JsonIntegerEquals $precheck.attempt $attemptInt) -or
+      -not (Test-JsonIntegerEquals $precheck.round $roundInt) -or
+      -not (Test-OrdinalEqual $precheck.spec_review_status_field $status) -or
+      -not (Test-OrdinalEqual $precheck.requirements_sha256 $requirementsSha) -or
+      -not (Test-OrdinalEqual $precheck.acceptance_sha256 $acceptanceSha) -or
+      -not (Test-OrdinalEqual $precheck.calibration_sha256 $calibrationSha) -or
+      -not $investigationMatches -or
+      -not (Test-OrdinalEqual $precheck.input_sha256 $inputSha) -or
+      $precheck.edit_summary -isnot [string] -or $precheck.reset -isnot [bool] -or
+      -not (Test-IsStringLike $precheck.generated_at)) {
+    Fail 'review inputs or precheck identity changed after precheck'
+  }
+  Write-Output 'spec-review-precheck: inputs verified for reviewer invocation.'
+  exit 0
+}
+
 # --- validate_reviewer_output translation ----------------------------------
 function Test-ValidateReviewerOutput(
   [string]$OutputPath,
   [string]$Role,
   [array]$ExpectedManifestSorted,
   [string]$RunId,
-  [string]$HostSessionId
+  [string]$HostSessionId,
+  [string]$RecordedRoot
 ) {
   if (-not (Test-Path -LiteralPath $OutputPath -PathType Leaf) -or (Test-IsSymlink $OutputPath)) { return $false }
   $data = $null
@@ -225,7 +305,9 @@ function Test-ValidateReviewerOutput(
   if (-not (Test-ChecksArrayValid $data.checks)) { return $false }
   if (@('PASS', 'NEEDS_WORK', 'BLOCKED') -cnotcontains $data.verdict) { return $false }
 
-  $actualManifest = @($data.allowed_input_manifest | Sort-Object path)
+  $actualManifest = @($data.allowed_input_manifest | ForEach-Object {
+    [pscustomobject]@{ path = (Get-ManifestLocalPath $_.path $RecordedRoot); sha256 = $_.sha256 }
+  } | Sort-Object path)
   if (-not (Test-ManifestArraysEqual $actualManifest $ExpectedManifestSorted)) { return $false }
 
   $expectedIds = $null
@@ -278,9 +360,17 @@ function Test-ValidateContract(
 
   $contract = $null
   try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json } catch { return $false }
+  $recordedRoot = Get-ManifestRecordedRoot $contract
+  if ($recordedRoot -ceq '__INVALID__') { return $false }
+  foreach ($reviewer in @($contract.reviewers)) {
+    if (-not (Test-ManifestArrayValid $reviewer.allowed_input_manifest)) { return $false }
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      $entry.path = Get-ManifestLocalPath $entry.path $recordedRoot
+    }
+  }
   $precheck = $null
   try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
-  $investigationPath = Join-Path $specDir 'investigation.md'
+  $investigationPath = Get-ManifestLocalPath (Join-Path $specDir 'investigation.md') ''
   $contractManifestInvestigationHashes = @()
   foreach ($reviewer in @($contract.reviewers)) {
     foreach ($entry in @($reviewer.allowed_input_manifest)) {
@@ -367,7 +457,7 @@ function Test-ValidateContract(
   $calibrationHashes = @()
   foreach ($reviewer in $reviewers) {
     foreach ($entry in @($reviewer.allowed_input_manifest)) {
-      if (Test-OrdinalEqual $entry.path $calibration) { $calibrationHashes += [string]$entry.sha256 }
+      if (Test-OrdinalEqual $entry.path (Get-ManifestLocalPath $calibration '')) { $calibrationHashes += [string]$entry.sha256 }
     }
   }
   $uniqueCalibrationHashes = @($calibrationHashes | Select-Object -Unique)
@@ -423,6 +513,17 @@ function Test-ValidateContract(
     if (-not [string]::IsNullOrEmpty($contractInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $investigationHash)) { return $false }
     $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationHash })
   }
+  foreach ($relative in @('domain/context-map.md', 'domain/domain-contract.json')) {
+    $conditionalPath = Get-ManifestLocalPath $relative ''
+    $entries = @($reviewers | Where-Object { Test-OrdinalEqual $_.role 'spec-reviewer-a' } |
+      ForEach-Object { $_.allowed_input_manifest } |
+      Where-Object { Test-OrdinalEqual $_.path $conditionalPath })
+    if ($entries.Count -gt 1) { return $false }
+    if ($entries.Count -eq 1) {
+      if (-not (Test-IsSha256 $entries[0].sha256)) { return $false }
+      $expectedAList.Add([pscustomobject]@{ path = $conditionalPath; sha256 = $entries[0].sha256 })
+    }
+  }
   $expectedA = @($expectedAList | Sort-Object path)
   $expectedBList = [Collections.Generic.List[object]]::new()
   foreach ($e in $expectedA) { $expectedBList.Add($e) }
@@ -447,8 +548,8 @@ function Test-ValidateContract(
   $bRun = [string]$reviewerB.run_id
   $bSession = [string]$reviewerB.host_session_id
 
-  if (-not (Test-ValidateReviewerOutput $reviewerAPath 'spec-reviewer-a' $expectedA $aRun $aSession)) { return $false }
-  if (-not (Test-ValidateReviewerOutput $reviewerBPath 'spec-reviewer-b' $expectedB $bRun $bSession)) { return $false }
+  if (-not (Test-ValidateReviewerOutput $reviewerAPath 'spec-reviewer-a' $expectedA $aRun $aSession $recordedRoot)) { return $false }
+  if (-not (Test-ValidateReviewerOutput $reviewerBPath 'spec-reviewer-b' $expectedB $bRun $bSession $recordedRoot)) { return $false }
 
   $reviewerAData = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
   $reviewerAChecks = @($reviewerAData.checks)
@@ -521,10 +622,11 @@ if ($roundInt -gt 1) {
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
   $priorInvestigationSha = if ($null -eq $priorData.investigation_sha256) { '' } else { [string]$priorData.investigation_sha256 }
   if ([string]::IsNullOrEmpty($priorInvestigationSha)) {
+    $priorRecordedRoot = Get-ManifestRecordedRoot $priorData
     $manifestInvestigationHashes = @()
     foreach ($reviewer in @($priorData.reviewers)) {
       foreach ($entry in @($reviewer.allowed_input_manifest)) {
-        if (Test-OrdinalEqual $entry.path $investigation) { $manifestInvestigationHashes += [string]$entry.sha256 }
+        if (Test-OrdinalEqual (Get-ManifestLocalPath $entry.path $priorRecordedRoot) (Get-ManifestLocalPath $investigation '')) { $manifestInvestigationHashes += [string]$entry.sha256 }
       }
     }
     $uniqueManifestInvestigationHashes = @($manifestInvestigationHashes | Select-Object -Unique)
