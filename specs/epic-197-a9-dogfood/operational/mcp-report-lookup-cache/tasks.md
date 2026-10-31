@@ -1,6 +1,6 @@
 # MCP report lookup cache operational acceptance
 
-## T-001 Review and accept the recovered MCP report cache under advisory operation
+## T-678 Review and accept the recovered MCP report cache under advisory operation
 Approval: Approved
 Status: Planned
 Risk: medium

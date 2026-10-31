@@ -15,7 +15,7 @@ Implementation recovery source: 451fa4c9; inspected final source: 75b169fe.
 The final dependency lock fullsuite passed 309 tests, zero skips, including ten
 report-reuse cases. The same fullsuite execution is referenced as unit, acceptance
 and regression evidence; it is one run. Actual typecheck, build and production
-audit also passed. Raw records are retained under verification/T-001/.
+audit also passed. Raw records are retained under verification/T-678/.
 
 ## Not yet established
 The owner authorized this prospective task and registry/Context candidate in the

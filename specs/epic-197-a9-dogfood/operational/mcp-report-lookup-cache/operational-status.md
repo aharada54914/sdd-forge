@@ -2,7 +2,7 @@
 
 The owner has approved the prospective task, single-owner registry proposal and
 exact Phase-1 candidate, and authorized completing the remaining operational
-work. See [approval provenance](approval-provenance.json). T-001 is Approved /
+work. See [approval provenance](approval-provenance.json). T-678 is Approved /
 Planned, not Done. The original exported draft is retained unchanged.
 
 The request and technical contract now occupy their real repository paths.
@@ -20,7 +20,7 @@ agent-accessible, so it does not satisfy ADR-0019 / A1 B3 external-key custody.
 The current GitHub integration returned HTTP 403 (Resource not accessible by
 integration) for the repository Actions secrets metadata endpoint. The managed
 runtime has no configured independent signing service. These are infrastructure
-and access limitations, not a pending request to approve T-001 again.
+and access limitations, not a pending request to approve T-678 again.
 
 No live project-context.yaml, approval sidecar, approved anchor, or registry is
 activated by this change. The committed request alone cannot activate advisory
@@ -70,3 +70,16 @@ Promotion is deferred pending actual advisory/release results. This is a current
 status, not a completed evidence-based final promotion decision. If the eventual
 decision is to retain advisory, record its measured basis; do not claim Phase-2
 or post-promotion feature acceptance occurred.
+
+## Placement and task identity
+
+The original preparation used packet-local T-001 under an unregistered new
+specification directory. Repository workflow-state CI rejected that placement.
+This work is operational acceptance of existing A9, not a newly completed
+full development workflow, so the packet now resides below the existing A9
+operational directory. Its unused task identifier is T-678, with the contract
+in A9 verification/T-678/contract.json. The owner's approved scope is unchanged.
+Historical execution bytes retain their original T-001 and source paths; the
+relocation map and current contract provide the explicit correspondence. No
+Passed spec/implementation/task review history was fabricated to register a new
+full-profile feature.
