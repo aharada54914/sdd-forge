@@ -25,4 +25,3 @@ source, rather than claiming historical observations cover later source changes.
 Copilot device authentication has not completed; Claude remains unauthenticated.
 The current Codex native verification provider reports unavailable. No host or
 human-presence acceptance is inferred from fixture success.
-
