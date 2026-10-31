@@ -203,5 +203,19 @@
     "exit_code": 0,
     "result": "Repository validation passed",
     "earlier_invocations": "Incorrect scripts/ path and then missing pwsh on PATH failed before checks; corrected invocation passed."
+  },
+  "current_publication_binding": {
+    "helper_and_mutations": "PASS",
+    "component_coverage_bash": {
+      "passed": 46,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "component_coverage_powershell": {
+      "passed": 47,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "historical_staged_files": "unchanged"
   }
 }

@@ -1,3 +1,5 @@
+> Latest concrete review packet: [ready/README.md](ready/README.md). It includes the Draft operational task and actual technical evidence. The initial pre-integration preparation below is retained as history; use the ready packet for current owner review.
+
 # Issue 678 operational readiness — 2026-10-31
 
 Read-only source: main `5328aee7efa85dfe9b1b475799b63251200d29a6`.

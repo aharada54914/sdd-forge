@@ -1,0 +1,17 @@
+{
+  "label": "build",
+  "argv": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+  "started_at": "2026-10-31T14:30:40.868489+00:00",
+  "completed_at": "2026-10-31T14:30:41.337951+00:00",
+  "exit_code": 0,
+  "stdout_path": "build.stdout",
+  "stderr_path": "build.stderr",
+  "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "stdout_sha256": "a56895355b2526ada6a8d51836a6ede03f11e71040d39b826b5bec87892ff090",
+  "stderr_sha256": "aee7cfc434d57ab7cd0e818d5933a6792bc6a71986b1809662c164553b3bcc3d"
+}

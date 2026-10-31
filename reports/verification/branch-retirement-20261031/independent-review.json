@@ -52,7 +52,10 @@
     "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
     "docs/contributor/interrupted-review-recovery.md": "dd3777f023e1db0d8697baa135a49e7c7f0e580451b824ea5e9221b8af4410e8",
     ".github/workflows/test.yml": "848c8ac2856fa0759e6a9908bac1ff157554235cab7c89149bb35e5ef2affab8",
-    "tests/verification-catalog.json": "e0811617275c1e99633363c8f44cc05fa5a324bf8aea56a8ef800e8498496fa8"
+    "tests/verification-catalog.json": "e0811617275c1e99633363c8f44cc05fa5a324bf8aea56a8ef800e8498496fa8",
+    "tests/fixtures/research-consumer-current-publication.json": "6784aa03e24ef2aeefebf10ecd273667335cb5d52137bbae6d987560f7ebd0bf",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate": "db5c00286d420eaf2633c6806999b7d33bc1d54fddc3432105af37f10db0b792",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate": "6089c17a887fcd5990b791e54ed764e7461029ad2ca52cbe0c0045389be8c74e"
   },
   "reviewed_committed_head": "451fa4c9798645d61e50323073cb8354bcf5cec7",
   "ci_matrix_review": {
@@ -91,5 +94,50 @@
     },
     "timeout_minutes": 45,
     "test_contracts_weakened": false
+  },
+  "current_publication_pin_review": {
+    "result": "PASS",
+    "fixture": "tests/fixtures/research-consumer-current-publication.json",
+    "changed_fields": [
+      "live_sha256",
+      "intentional_changes"
+    ],
+    "changed_successors": [
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+    ],
+    "all_four_live_and_staged_hashes_match": true,
+    "staged_files_and_manifest_byte_identical_to_5328aee7": true,
+    "authorization_effect": "None; fixture binds exact current successor and frozen predecessor and classifies current distinct bytes PENDING, not signed or Approved.",
+    "validation": [
+      "Exact helper and mutation self-check passed",
+      "Mirror classification6+26+10 and candidate mutation133 passed"
+    ],
+    "fixture_sha256": "6784aa03e24ef2aeefebf10ecd273667335cb5d52137bbae6d987560f7ebd0bf"
+  },
+  "final_fix_set_review": {
+    "result": "PASS",
+    "candidate_sync": {
+      "only_new_recovery_job_and_required_aggregation_changed": true,
+      "same_as_live_jobs": true,
+      "only_candidate_workflow_manifest_hash_changed": true,
+      "frozen_human_copy_unchanged": true
+    },
+    "unsigned_packet": {
+      "indexed_files": 44,
+      "byte_preserving_mapped_files": 42,
+      "hashes_verified": true,
+      "execution_stdout_stderr_hashes_verified": true,
+      "independent_restored_contract_validation_exit": 0,
+      "draft_planned_retained": true,
+      "no_real_signature_or_live_activation_claimed": true,
+      "source_and_chronology_limits_explicit": true,
+      "bounded_secret_pattern_scan": "no matches"
+    },
+    "limits": [
+      "Technical8checkPASS is not owner task approval, actualadvisory, realrelease or promotion",
+      "Whitespace lint is explicitly narrow git diff --check, not ESLint",
+      "FinalCI required"
+    ]
   }
 }

@@ -1,0 +1,19 @@
+{
+  "label": "placeholder-scan",
+  "argv": [
+    "sh",
+    "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+    "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+    "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+    "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+    "mcp/sdd-forge-mcp/src/tools/core.ts"
+  ],
+  "cwd": "/workspace/scratch/sdd-forge-main-integration",
+  "started_at": "2026-10-31T14:42:02.779448+00:00",
+  "completed_at": "2026-10-31T14:42:02.785830+00:00",
+  "exit_code": 0,
+  "stdout_path": "placeholder-scan.stdout",
+  "stderr_path": "placeholder-scan.stderr",
+  "stdout_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
