@@ -1,0 +1,86 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -659,0 +660,82 @@ jobs:
++
++      # epic-193-a5-capability-resolver: resolver-only CI registration.
++      - name: Test resolver evidence schema (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolver-evidence-schema.tests.sh
++
++      - name: Test resolver evidence schema (pwsh)
++        shell: pwsh
++        run: ./tests/resolver-evidence-schema.tests.ps1
++
++      - name: Test project-context block resolver (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-block.tests.sh
++
++      - name: Test project-context block resolver (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-block.tests.ps1
++
++      - name: Test project-context match resolver (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-match.tests.sh
++
++      - name: Test project-context match resolver (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-match.tests.ps1
++
++      - name: Test project-context CLI resolver (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-cli.tests.sh
++
++      - name: Test project-context CLI resolver (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-cli.tests.ps1
++
++      - name: Test project-context discovery resolver (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-discovery.tests.sh
++
++      - name: Test project-context discovery resolver (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-discovery.tests.ps1
++
++      - name: Test project-context lite resolver (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-lite.tests.sh
++
++      - name: Test project-context lite resolver (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-lite.tests.ps1
++
++      - name: Test validate-resolver-evidence (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/validate-resolver-evidence.tests.sh
++
++      - name: Test validate-resolver-evidence (pwsh)
++        shell: pwsh
++        run: ./tests/validate-resolver-evidence.tests.ps1
++
++      - name: Test resolve-project-context parity (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-parity.tests.sh
++
++      - name: Test resolve-project-context parity (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-parity.tests.ps1
++
++      - name: Test resolve-project-context metamorphic (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/resolve-project-context-metamorphic.tests.sh
++
++      - name: Test resolve-project-context metamorphic (pwsh)
++        shell: pwsh
++        run: ./tests/resolve-project-context-metamorphic.tests.ps1
