@@ -76,29 +76,16 @@ guard-invariants surface is filling in content at a reservation an
 upstream epic already made.
 
 **Hard boundary carried into Phase 2 (requirements.md Non-goals,
-design.md Constraint Compliance): no task below edits any EXISTING file
-under `plugins/**` — and in particular none edits the protected
-`resolve-project-context.{py,sh,ps1}` family or
-`sdd-bootstrap-interviewer/SKILL.md`.** (Scoped 2026-08-27,
-human-approved, ruling D(2): the unqualified form forbade exactly the
-files T-008 is planned to create — the new, unprotected
-`plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
-family, which T-008's own Scope, traceability.md's T-008 row and
-security-spec.md's authorization table all name as a direct agent write,
-per-PR reviewed — so an implementer had to violate either this boundary
-or the task's own planned-file contract.) REQ-007 documents `sdd-bootstrap-interviewer/SKILL.md`'s
-target capability-interview insertion point (design.md Design Decisions,
-"caller insertion point"/"anchor fingerprint") as a citation only; the
-actual edit — and the `tests/resolve-project-context-caller-contract.
-tests.sh`/`.ps1` suite that exercises it (design.md Test Strategy item
-10) — is explicitly deferred to that future, not-yet-scheduled
-implementation task, not scheduled by this `tasks.md`. AC-029 through
-AC-032 (REQ-007's design-content criteria) are already satisfied by
-`design.md`/`requirements.md`'s own text, recorded in
-`acceptance-tests.md`'s own "Spec-Authoring-Time Manual Review Record" —
-no task reproduces that record. AC-042/AC-046/AC-053 (TEST-042/046/053,
-the deferred suite's own criteria) are correspondingly out of this
-`tasks.md`'s own scope; see "Deferred, Not Scheduled" below.
+design.md Constraint Compliance): the protected resolver trio and live
+workflow are never edited directly by an agent.** T-011 is the sole
+reviewed caller exception: it edits the unprotected
+`sdd-bootstrap-interviewer/SKILL.md` insertion point and its caller
+contract tests. The resolver trio and workflow remain under `human-copy/`
+with manifest-checked human application. The unprotected
+`validate-resolver-evidence.{py,sh,ps1}` family remains directly
+agent-editable as specified by T-008. AC-029 through AC-032 retain their
+design-content and protected-boundary meaning; AC-042/AC-046/AC-053 are
+owned by T-011 and are in this task plan.
 
 ## Global Constraints
 
@@ -106,7 +93,7 @@ the deferred suite's own criteria) are correspondingly out of this
   tests + fixtures + registration + human-copy staging, commit B =
   docs), matching `specs/epic-159-pillar-c/tasks.md`'s and Epic
   A3/A4's own convention: commit A must land before commit B within the
-  same task. Each of T-001..T-010 lands its OWN new `## Unreleased`
+  same task. Each of T-001..T-011 lands its OWN new `## Unreleased`
   block in `CHANGELOG.md` citing issue #193 — never an append to another
   task's own entry (REQ-008/AC-033).
 - **Task-decomposition note (four task-review remedy passes across two
@@ -179,10 +166,10 @@ the deferred suite's own criteria) are correspondingly out of this
   `reports/task-review/epic-193-a5-capability-resolver/attempt-2/
   round-1/tasks-round-1-proposed-changes.md` for this round's own full
   finding and remedy record.
-- **Test-suite/CI-registration serialization.** Ten tasks author this
-  feature's nine test suites (one task, T-005, owns the `match` suite
-  alone; the remaining eight suites are one-per-task except the shared
-  `block` suite, below); each NEW suite is registered directly
+- **Test-suite/CI-registration serialization.** Eleven tasks author this
+  feature's ten test suites (one task, T-005, owns the `match` suite
+  alone; T-011 owns the live caller suite; the remaining suites are
+  one-per-task except the shared `block` suite, below); each NEW suite is registered directly
   (unprotected) in `tests/run-all.sh`/`.ps1` (AC-026) and its own CI
   steps are staged into the shared candidate under `specs/epic-193-a5-
   capability-resolver/human-copy/.github/workflows/test.yml` (R-10
@@ -196,7 +183,7 @@ the deferred suite's own criteria) are correspondingly out of this
   (mirroring `specs/epic-191-a3-path-ownership/tasks.md`'s identical
   convention for a shared protected CI file, and making every
   consecutive pair a direct edge, never only a transitive one):
-  **T-001 → T-002 → T-005 → T-006 → T-008 → T-009 → T-010.** A task that
+  **T-001 → T-002 → T-005 → T-006 → T-008 → T-009 → T-010 → T-011.** A task that
   stages after another whose candidate is not yet human-applied appends
   its own suite's steps to that pending staged file rather than starting
   from the unmodified real `test.yml`.
@@ -261,24 +248,14 @@ the deferred suite's own criteria) are correspondingly out of this
   each only adds tests/fixtures exercising the engine T-002/T-003/T-004
   already authored, exactly as the two former "test-only" tasks
   (`cli`/`discovery`/`lite` and `block`) never edited it either.
-- **Deferred, not scheduled** (design.md Test Strategy item 10, REQ-007
-  Non-goals): `tests/resolve-project-context-caller-contract.tests.sh`/
-  `.ps1` is fixed at contract level by `design.md` (Design Decisions,
-  "caller insertion point"/"anchor fingerprint" — the recorded sha256
-  window fingerprint and section-order index this suite's own future
-  fixture will assert against) but is **not** authored by any task
-  below — design.md states it "is itself authored once the capability
-  interview phase is actually implemented (a future task, Non-goals)."
-  **AC-026 is accordingly scoped to the nine suites this `tasks.md`
-  schedules** (narrowed 2026-08-27, human-approved, ruling D(2): the
-  criterion previously read "all ten new pairs are registered" and is now
-  worded for the nine, with the tenth deferred, so this bullet no longer
-  quotes a superseded criterion as if it still stood) — the nine being
-  those T-001..T-010 build (`resolve-project-context-cli`, `-block`, `-match`, `-lite`,
-  `-discovery`, `resolver-evidence-schema`, `validate-resolver-
-  evidence`, `-parity`, `-metamorphic`); the tenth (`-caller-contract`)
-  registers alongside that future `SKILL.md`-editing task, not here. No
-  task below is scoped to close this gap.
+- **Caller integration is scheduled in T-011.** The
+  `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` pair
+  recomputes the semantic adjacent-heading anchor, checks the normalized
+  digest and heading ordinal, proves the no-Context/disabled-legacy
+  no-spawn path, and exercises single-dispatch fail-closed behavior. T-011
+  edits the caller skill and registers the tenth suite; protected resolver
+  and workflow inputs remain human-copy/manifest-checked. AC-026/027 and
+  AC-042/046/053 therefore cover all ten suites scheduled here.
 - **No task authors a new ADR** — ADR-0016/0017/0019/0020/0021/0023/0025
   already normatively cover this feature's entire scope (design.md ADR
   Change Log); this feature's own six new orchestration decisions are
@@ -742,10 +719,9 @@ Commit B (documentation):
 - `contracts/resolver-evidence.schema.json` itself (T-001's own
   deliverable — this task does not yet consume it; consumption begins at
   T-004's own step 12).
-- Any edit to `plugins/**`, including `sdd-bootstrap-interviewer/
-  SKILL.md` — REQ-007's target integration contract remains
-  design-only (Non-goals; see "Deferred, Not Scheduled", Global
-  Constraints).
+- The T-011 caller integration itself; T-002 only owns the resolver
+  input-validation stage and leaves the reviewed interviewer edit to
+  T-011.
 
 ### Blockers
 T-001
@@ -1294,10 +1270,9 @@ Commit B (documentation):
   (T-009), and the metamorphic completeness suite (T-010).
 - `contracts/resolver-evidence.schema.json` itself (T-001's own
   deliverable — this task only consumes it at step 12).
-- Any edit to `plugins/**`, including `sdd-bootstrap-interviewer/
-  SKILL.md` — REQ-007's target integration contract remains
-  design-only (Non-goals; see "Deferred, Not Scheduled", Global
-  Constraints).
+- The T-011 caller integration itself; T-004 only owns the resolver
+  track/evidence stage and leaves the reviewed interviewer edit to
+  T-011.
 
 ### Blockers
 
@@ -2472,10 +2447,8 @@ Commit B (documentation):
   D(2)).
 - [ ] **Feature-wide fixture-matrix completeness** — a final check
   confirms every REQ-006 fixture-matrix item (a-h) and every one of the
-  nine suites T-001..T-010 build is present and independently invocable
-  under `tests/fixtures/capability-resolver/` (AC-026 [nine of ten
-  suites, per Global Constraints' own "Deferred, Not Scheduled" note],
-  AC-027).
+  ten suites T-001..T-011 build is present and independently invocable
+  under `tests/fixtures/capability-resolver/` (AC-026/AC-027).
 - [ ] **Acceptance evidence** — every metamorphic fixture written before
   the behavior it exercises, failing against a deliberately incomplete or
   order-sensitive pipeline and passing against the correct one
@@ -2484,13 +2457,61 @@ Commit B (documentation):
 
 ### Out of Scope
 
-- Any change to `resolve-project-context.{py,sh,ps1}` or
-  `validate-resolver-evidence.{py,sh,ps1}` themselves.
-- The `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1`
-  suite (design.md Test Strategy item 10) — deferred to a future,
-  not-yet-scheduled task that also edits `sdd-bootstrap-interviewer/
-  SKILL.md` (Global Constraints, "Deferred, Not Scheduled").
+- Any change to the protected `resolve-project-context.{py,sh,ps1}`
+  implementation or the live `.github/workflows/test.yml`; both remain
+  human-copy/manifest-checked inputs.
+- The reviewed T-011 caller integration is not out of scope; it owns the
+  interviewer `SKILL.md` edit and the caller-contract suite.
 
 ### Blockers
 
 T-004, T-007, T-008, T-009
+
+## T-011 Integrate the capability interview caller and anchor-drift contract
+
+### Status
+
+In Progress
+
+### Scope
+
+Commit A (implementation — caller integration + suite + fixture + test
+registration):
+
+- Insert the capability interview phase immediately before
+  `### Full-Profile Layer Interview` in
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`.
+- Enforce one dispatcher invocation for normal enforcement modes, no
+  invocation for the Context-absent/`disabled-legacy` path, canonical
+  Block surfacing without fallback, and a maximum of fifteen capability
+  questions with resumable Open Questions state.
+- Author the bash and PowerShell caller-contract suites plus the
+  semantic adjacent-heading baseline fixture. Register both suites in
+  `tests/suite-inventory.posix`, `tests/run-all.ps1`, and the
+  `tests/run-all.sh` registration comments.
+- Append the caller steps to the staged workflow candidate under
+  `human-copy/` and update its manifest. Do not edit the live workflow or
+  protected resolver trio directly.
+
+Commit B (documentation):
+
+- Add the `CHANGELOG.md` `## Unreleased` entry citing #193.
+- Keep requirements/design/layer/traceability/task wording consistent
+  with the implemented caller and the semantic AC-053 anchor.
+
+### Done When
+
+- [ ] TEST-042/046/053 pass in both runtimes, including relocation and
+  digest/ordinal drift failures.
+- [ ] The caller invokes the dispatcher exactly once on the normal path,
+  never on the no-Context/`disabled-legacy` path, and surfaces Block
+  diagnostics without legacy fallback.
+- [ ] Both suites are registered and the staged workflow candidate has
+  manifest-consistent caller steps; live protected files are unchanged.
+- [ ] Documentation and traceability name T-011 as the owner of AC-042,
+  AC-046, and AC-053, and an independent quality-gate verdict records
+  PASS before the task can become Done.
+
+### Blockers
+
+T-010

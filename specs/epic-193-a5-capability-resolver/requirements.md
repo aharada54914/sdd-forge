@@ -38,9 +38,9 @@ document v2 §7/§18.4).
 - **Epic A5's own future implementation-task author**: the direct consumer
   of this package's `design.md` API / Contract Plan when authoring
   `resolve-project-context.{py,sh,ps1}` and its companion scripts.
-- **`sdd-bootstrap-interviewer` maintainers (future Epic A5/A6
-  implementation task)**: the direct consumer of REQ-007's caller-side
-  integration contract when wiring the capability interview phase.
+- **`sdd-bootstrap-interviewer` maintainers**: the direct consumer of
+  REQ-007's caller-side integration contract; T-011 wires the capability
+  interview phase and its dispatcher contract into the interviewer skill.
 - **A future Gate-chain or CI caller** that decides when to re-invoke the
   Resolver and when to call A4's `compare-facet-manifest-staleness`
   against two of its outputs (investigation.md OQ-002) — this feature's
@@ -744,15 +744,12 @@ document v2 §7/§18.4).
 
 - **REQ-006** (Tests — decision v2 §19's own "同一 fixture での sh/ps1
   出力 byte-identical テスト" and "曖昧ケースの Block 動作テスト" Done
-  conditions): Design `tests/*.tests.sh`/`.tests.ps1` pairs and fixture
-  data under `tests/fixtures/capability-resolver/`, covering, at minimum,
-  the ten items design.md's own Test Strategy fixes at contract level —
-  all ten are DESIGNED here; the **nine** this package's `tasks.md`
-  schedules are also authored and registered by it, while item 10's
-  `resolve-project-context-caller-contract` pair is deferred with its
-  authoring, registration and fixtures (AC-026, AC-027, and AC-042/AC-046/
-  AC-053's own deferral notes; `tasks.md` "Deferred, not scheduled";
-  scoped 2026-08-27, human-approved, ruling D(2)) —
+  conditions): Design and register `tests/*.tests.sh`/`.tests.ps1` pairs
+  and fixture data under `tests/fixtures/capability-resolver/`, covering
+  all ten Test Strategy items. The caller-contract pair is now authored and
+  registered by T-011, so AC-026/027 and AC-042/046/053 cover the complete
+  set; the protected resolver trio and workflow remain staged for human-copy
+  application.
   (adversarial review-expanded from an earlier revision's eight — new
   items 9/10 add the metamorphic-completeness and live-caller-contract
   suites below; item 2's own Block matrix and item 3's own match/WARN
@@ -803,9 +800,8 @@ document v2 §7/§18.4).
 - **REQ-007** (Caller-side integration contract — decision v2 §7/§18.4,
   issue #193's own "sdd-bootstrap-interviewer への統合" scope line and its
   Done condition "interviewer 統合後も既存 bootstrap フロー（Context 不在
-  時）が event-identical であるテスト"): Document (design-only; this
-  package does not edit `plugins/**`, this task's own hard boundary,
-  investigation.md INV-017/OQ-003) the target integration contract for
+  時）が event-identical であるテスト"): Implement and verify the
+  integration contract for
   `sdd-bootstrap-interviewer`'s capability interview phase: (a) runs only
   when a Project Context is present and its derived state is not
   `disabled-legacy` (REQ-003) — when absent, the existing bootstrap flow
@@ -813,14 +809,13 @@ document v2 §7/§18.4).
   condition, decision document v2 §4.3's Orchestration Compatibility
   Test); (b) invokes `resolve-project-context` (REQ-001) once, after track
   detection and before any Facet-dependent layer is generated — **the
-  concrete insertion point is the live `plugins/sdd-bootstrap/skills/
-  sdd-bootstrap-interviewer/SKILL.md`'s own `### Full-Profile Layer
-  Interview` heading (`SKILL.md:60` at this package's own design-
-  authoring time), immediately after `## Intake And Investigation`'s own
-  step 8 (`SKILL.md:58`) and before that heading's own Facet-dependent
-  layer generation begins** (design.md Design Decisions "caller insertion
-  point" gives the full file:line citation and rationale, resolving
-  investigation.md OQ-003, adversarial review "M6 caller integration");
+  concrete insertion point is the unique `### Capability Interview Phase`
+  heading immediately followed by the unique `### Full-Profile Layer
+  Interview` heading in the live file; the caller-contract baseline binds
+  that adjacent window by normalized UTF-8/LF hash and heading ordinal,
+  rather than a brittle line number** (design.md Design Decisions "caller
+  insertion point" and "anchor fingerprint", resolving investigation.md
+  OQ-003, adversarial review "M6 caller integration");
   (c) asks
   the interviewer's own questions only for Capability-relevant unknowns
   the Resolver's output could not itself determine (decision document v2
@@ -885,12 +880,11 @@ document v2 §7/§18.4).
   this feature's output with `workflow.capability_enforcement` and any
   runtime override, is a Gate-execution-time computation, out of this
   feature's scope.
-- Editing `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/
-  SKILL.md`, or any other file under `plugins/**` — REQ-007 documents the
-  target integration contract only; the actual edit is a future
-  implementation task's own responsibility (investigation.md INV-017/
-  OQ-003), applied as a staged, reviewed change regardless of the target
-  file's then-current guard-protection status.
+- Editing the protected resolver trio or the protected workflow directly —
+  their content and workflow registration remain staged under `human-copy/`
+  for a manifest-checked human application. The live
+  `sdd-bootstrap-interviewer/SKILL.md` caller integration and its unprotected
+  contract suites are in T-011 and are covered by AC-042/046/053.
 - Authoring a new ADR — ADR-0016/0017/0019/0020/0021/0023/0025 already
   normatively cover this feature's entire DSL-reuse, staleness-binding,
   discovery, and Resolver-protection surface; this feature transcribes
@@ -977,13 +971,13 @@ by it.
 | AC-023 | REQ-005 | `.py`/`.sh`/`.ps1` invocations of the identical input produce byte-identical output across this invocation's own track-exclusive output set, and identical stdout/stderr/exit code, restricted to this feature's own emitted content (M8 — never comparing a dependency subprocess's own raw stderr, which is out of this feature's own control and out of this comparison's own scope) |
 | AC-024 | REQ-005 | `capability_evaluations[]` is stable-sorted by `capability_id`; `diagnostics[]` is stable-sorted by `(id, detail)`; every Epic-A4-mandated Facet Manifest array (Dependencies, above) is stable-sorted per Epic A4's own rule |
 | AC-025 | REQ-005 | A repository-wide grep confirms no Resolver-owned script reads `datetime.now()`/`time.time()`/any network call/any provider-API call anywhere in its own orchestration logic (the DSL evaluator itself, Epic A2's own scope, is out of this check) |
-| AC-026 | REQ-006 | Each new `tests/*.tests.sh`/`.tests.ps1` pair this feature's future task phase authors is registered directly (unprotected) in `tests/run-all.sh`/`.ps1`, matching Epic A2/A4's own precedent |
-| AC-027 | REQ-006 | The full fixture matrix (REQ-006's own items a-h, design.md Test Strategy items 1-10) is present under `tests/fixtures/capability-resolver/`, each fixture independently invocable — **scoped to the nine suites this package's `tasks.md` schedules**; Test Strategy item 10's own fixtures (`resolve-project-context-caller-contract`, carrying AC-042, AC-046 and AC-053) arrive with that deferred suite and are outside this criterion, exactly as AC-026 is scoped (narrowed 2026-08-27, human-approved, ruling D(2): the unscoped "items 1-10" required fixtures for a suite `tasks.md` explicitly declares "Deferred, not scheduled", making the criterion unsatisfiable by the frozen task package) |
+| AC-026 | REQ-006 | All ten `tests/*.tests.sh`/`.tests.ps1` pairs are registered directly (unprotected) in `tests/run-all.sh`/`.ps1`, including the caller-contract pair; protected workflow wiring remains a manifest-checked human-copy input |
+| AC-027 | REQ-006 | The full fixture matrix (REQ-006's own items a-h, design.md Test Strategy items 1-10) is present under `tests/fixtures/capability-resolver/`, each fixture independently invocable, including the caller-contract baseline and relocation fixture |
 | AC-028 | REQ-006 | Three discovery-contract fixtures total — the direct product of one installed-standalone-plugin layout case × three runtimes (Minor "discovery fixture count" correction) — confirm that layout (only the packaged `plugins/sdd-quality-loop/contracts/*` copy present, no monorepo `contracts/`, no reachable `.git`) resolves and validates correctly for every artifact this feature's scripts locate, one fixture per runtime, each exercising every such artifact within that runtime's own invocation |
 | AC-029 | REQ-007 | This package's `design.md` documents the capability interview phase's exact insertion point relative to `sdd-bootstrap-interviewer`'s existing steps, its question-budget rule (≤15 per pass), its Open-Questions-persistence rule, and its resumability rule, each citing decision document v2 §18.4 directly |
 | AC-030 | REQ-007 | This package's `design.md` documents the Context-absent case as producing the identical bootstrap flow existing today (event-identical, no capability-phase step reachable) |
 | AC-031 | REQ-007 | This package's `design.md` documents the on-Block behavior (surface the diagnostic, never silently degrade to a non-Capability-aware flow) with an explicit citation to decision document v2 §7's own "legacy mode へ黙ってフォールバックしてはならない" principle |
-| AC-032 | REQ-007 | No file under `plugins/**` is modified by this package's own commits |
+| AC-032 | REQ-007 | Protected resolver trio and workflow are not directly edited by an agent; they are human-copy/manifest-checked inputs. T-011's reviewed caller integration is limited to `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` and is covered by AC-042/AC-046/AC-053 |
 | AC-033 | REQ-008 | A future implementation task's diff carries its own `CHANGELOG.md` `## Unreleased` entry citing #193 |
 | AC-034 | REQ-008 | A repository-wide grep-based self-check confirms no version string is mutated anywhere in this feature's diff outside a `scripts/bump-version.sh` invocation |
 | AC-035 (Global) | — | `check-workflow-state.sh --feature epic-193-a5-capability-resolver` exits 0 after this package's registration commit lands, with no `tasks.md`/`traceability.md` present and `requirements.md`'s `Spec-Review-Status: Pending`/`design.md`'s `Impl-Review-Status: Pending` headers intact |
@@ -993,24 +987,26 @@ by it.
 | AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3, revised): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename **of a publication artifact** in the same commit sub-sequence confirms that target is rolled back to its own PRE-transaction live bytes via the transaction's own journal — **never** a bare `unlink` with no restore path (B1, closing the "existing bytes destroyed" gap) — while `resolver-evidence.yaml` is not rolled back and instead carries this Block's own record (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) — and the rollback attempt is itself recorded in this diagnostic's own `detail` — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-040 | REQ-002 | `snapshot-generation-mismatch` lock (B8 TOCTOU, revised): a fixture that mutates the Project Context, ownership-source declarations, or Registry between this invocation's own invocation-start snapshot and its pre-publication recheck Blocks with this diagnostic id, and no **publication artifact** — `facet-manifest.yaml`, `capability-summary.yaml`, or `generated/project-context.resolved.json` — reaches a live path, while `resolver-evidence.yaml` itself **is** written recording this diagnostic (scoped 2026-08-27, human-approved, ruling D(2): the earlier unscoped "no artifact" wording contradicted AC-012's own always-emitted rule, which excepts two ids and not this one; AC-011 already used this scoped form); a **second** fixture leaves every digest (including `ownership_digest`) byte-identical but mutates only the worktree/index/untracked state so the re-derived `affected_components` set itself differs, confirming the Block fires on the set difference alone (B8 correction — `ownership_digest` parity is not by itself sufficient) |
 | AC-041 | REQ-002 | `workflow-combination-invalid` lock (M3): one independently-triggerable fixture per decision document v2 §6's own two explicitly-invalid combination rows (`lite` × non-`lite-three-file`, `full` × `lite-three-file`), each Blocking before any Registry/ownership/projection work begins |
-| AC-042 | REQ-003/REQ-007 | CLI-misuse framing lock (M4): a spy-harness fixture on `sdd-bootstrap-interviewer`'s own capability interview phase (REQ-007) confirms it never invokes `resolve-project-context`'s own subprocess at all while a Project Context is absent or derives `disabled-legacy` — distinct from, and in addition to, AC-015's own narrower "the Resolver itself invokes no further subprocess in this branch" check. **Discharged by the deferred suite** `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` (design.md Test Strategy item 10), which this package specifies at contract level but does not schedule (`tasks.md` "Deferred, not scheduled"), so this criterion is not closed by this package's own tasks — noted 2026-08-27, human-approved, ruling D(2), matching AC-026/AC-027's scoping. AC-042's entire content is that deferred spy harness, so this row has no separately closable half here; AC-015 is a distinct, non-deferred row that this deferral does not touch (corrected 2026-08-28 under the same ruling D(2), closing the attempt-8 round-3 `SCOPE-BOUNDARY` finding — the removed clause asserted a closable half that AC-042 does not have) |
+| AC-042 | REQ-003/REQ-007 | Caller non-invocation lock (M4): the caller-contract helper proves the Context-absent/`disabled-legacy` path has no resolver subprocess token and remains event-identical, while the normal path uses the dispatcher once (T-011) |
 | AC-043 | REQ-001 | Cross-Capability facet-name aggregation lock (B7): a fixture where two *different*, matched Capabilities each declare a `conditional_facets[]` entry under the identical `facet` name confirms `applied` is the OR of both predicate instances' own per-component evaluations, `evidence` is the concatenation of every contributing `(capability_id, declaration_index, component_id)` triple's own evaluation nodes in `capability_id`-then-`declaration_index`-then-`component_id` ascending order, and (on `applied: false`) `reason` names every contributing predicate instance |
 | AC-044 | REQ-004 | Provenance canonicalization lock (B9): a fixture confirms `dependency_pointers[]` is exactly `/workflow` plus one RFC-6901-escaped `/components/<id>` pointer per affected component, stable-sorted and de-duplicated (including a component `id` containing `/`/`~` to exercise escaping); `resolver.version`/`resolver.rule_set_revision` are identical across repeated invocations and across `.py`/`.sh`/`.ps1` of the same Resolver revision, and change only when that revision's own `RESOLVER_VERSION`/rule-set constant is bumped (`scripts/bump-version.sh`) |
 | AC-045 | REQ-005/REQ-006 | Metamorphic completeness lock (M10): all four true/false combinations of a 2-affected-component `trigger` result; output invariance under affected-component input-order permutation; a >1-true-component fixture recording the matched Capability exactly once; and a nested-array-completeness fixture confirming every level of Resolver Evidence's own nesting carries exactly its governing set's cardinality (design.md Test Strategy item 9) |
-| AC-046 | REQ-007 | Live-caller-contract lock (M6, revised): a contract-test suite against the live `sdd-bootstrap-interviewer/SKILL.md` confirms (a) no `resolve-project-context` invocation while Context-absent, (b) exactly one invocation per capability interview phase run, (c) a REQ-002 Block surfaces to the interview session rather than silently degrading, and (d) an **anchor-fingerprint** drift check (AC-053, below, gives the fingerprint mechanism) fails loudly if this package's own cited anchor no longer matches the live file, superseding an earlier revision's bare heading-text-existence check. **Discharged by the deferred suite** `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` (design.md Test Strategy item 10), specified here at contract level but not scheduled by this package's `tasks.md` ("Deferred, not scheduled"), so this criterion is not closed by this package's own tasks (noted 2026-08-27, human-approved, ruling D(2), matching AC-026/AC-027's scoping) |
+| AC-046 | REQ-007 | Live-caller-contract lock (M6): the caller-contract suite checks ordering before Full-Profile, one dispatcher invocation, fail-closed Block surfacing, and the anchor drift check against the live SKILL (T-011) |
 | AC-047 | REQ-002 | Journal-based crash recovery lock (B1, NEW): a fixture simulates a hard crash between two renames of a multi-target publication transaction (test-harness-only kill hook) and confirms the **next** invocation's own mandatory crash-recovery scan converges every target back to its own PRE-transaction bytes before proceeding with its own, separate resolve; a companion fixture corrupts the journal's own recorded pre-image backup (an unrecoverable state) and confirms the next invocation Blocks, `publication-journal-recovery`, before any Registry/ownership/Context-Projection work begins — **asserting both halves of that Block's live-state obligation** (mirrored here 2026-08-27, human-approved, ruling D(2), from TEST-047's own amended row, which the earlier scoping had reached while this row still stated the Block id and timing alone): every interrupted target other than `resolver-evidence.yaml` byte-identical to its pre-invocation state, no partial rollback and no repair attempted once the journal is declared unconvergeable, **and** `resolver-evidence.yaml` itself carrying this invocation's own schema-valid Block record for that diagnostic. Asserting only the first would contradict AC-012; asserting only the second would lose the no-partial-rollback guarantee — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-048 | REQ-002 | Pre-publication `affected_components` re-derivation lock (B8, NEW): a fixture mutates only the worktree/index/untracked state (no ownership-config edit) between this invocation's own step-4 snapshot and its step-13 recheck, confirming `snapshot-generation-mismatch` fires on the `affected_components` set difference even though `ownership_digest` itself stays byte-identical |
 | AC-049 | REQ-002 | Post-publication verification / race lock (B8, NEW): a fixture injects the identical class of source mutation *after* the pre-publication recheck has already passed but *before* the publication transaction's own last rename completes, confirming (a) `post-publication-generation-mismatch` fires only after every rename in the transaction has already, briefly, succeeded, (b) every one of those renames **of a publication artifact** is rolled back to its own PRE-transaction state via the journal before this invocation exits, while `resolver-evidence.yaml` is **not** rolled back and instead carries this Block's own record at exit — both halves are required of this one fixture, exactly as AC-047's own row requires of its own: asserting only the first would contradict AC-012, which excepts two diagnostic ids and not this one, and asserting only the second would lose the rollback guarantee (REQ-001 step (m)'s rollback-and-no-write scope rule; scoped 2026-08-27, human-approved, ruling D(2)) — and (c) the rollback is journal-based, never a bare `unlink` — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-050 | REQ-004 | `validate-resolver-evidence` Registry provenance-binding lock (B6, NEW): a fixture supplies a `--registry` override whose own `generate-registry-digest --whole` value does not equal the Evidence instance's own `context_binding.registry_digest`, confirming `registry-digest-unbound` fires before any `capability-set-mismatch` check runs; a companion fixture confirms the default (no `--registry`) self-discovery path performs the identical binding check against the ADR-0025-discovered Registry, never trusting an unverified caller-supplied path |
 | AC-051 | REQ-004 | `validate-resolver-evidence` affected-component provenance-binding lock (B6, NEW): a fixture pairs an Evidence instance with a co-located Facet Manifest whose own `dependency_pointers[]` names a different affected-component set than the Evidence instance's own, confirming `affected-component-provenance-mismatch` fires without needing any `--affected-components` CLI argument at all; a companion fixture supplies an explicit `--affected-components` override that contradicts both sibling artifacts' own `dependency_pointers[]`, confirming the identical check-id fires for the override case too |
 | AC-052 | REQ-001 | Same-Capability duplicate-facet predicate-instance lock (B7, NEW): a fixture where a single Registry Capability declares the identical `facet` name at two different `conditional_facets[]` array positions with two different `when` predicates confirms Resolver Evidence records two independent `conditional_facet_evaluations[]` entries (one per `declaration_index`, never collapsed by `facet` name), and the Facet Manifest's own single, facet-name-unique output entry aggregates both declaration indices' own contributions by the identical `(capability_id, declaration_index, component_id)`-keyed rule the cross-Capability case (AC-043) uses |
-| AC-053 | REQ-007 | Anchor-fingerprint lock (M6, NEW): a fixture confirms the recomputed sha256 of the fixed `SKILL.md:54-64` window and the `### Full-Profile Layer Interview` heading's own 1-based ordinal position among every `##`/`###` heading in the live file both match this package's own recorded values (`sha256:d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64` and `3` respectively); a regression fixture that relocates the identical heading text to a different position in the file, while its own immediate neighboring lines stay unchanged, confirms the drift check fails loudly — the exact case an earlier revision's bare "heading text still exists" check could not detect. **Discharged by the deferred suite** `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` (design.md Test Strategy item 10), specified here at contract level but not scheduled by this package's `tasks.md` ("Deferred, not scheduled"), so this criterion is not closed by this package's own tasks (noted 2026-08-27, human-approved, ruling D(2)). The Risks section's anchor-drift mitigation is correspondingly the recorded sha256/ordinal pair in this row plus the deferred fixture that will exercise it, not an active check this package ships |
+| AC-053 | REQ-007 | Anchor-fingerprint lock (M6): the caller-contract suite recomputes the UTF-8/LF-normalized window from the unique adjacent `### Capability Interview Phase` and `### Full-Profile Layer Interview` headings, compares digest `sha256:d6ae89cb5f9a0be3d2dcc5789c49ede31ace3f4af2e12b14ae9ef7dc84a2f4ba` and ordinal `4`, and rejects a relocation fixture (T-011) |
 | AC-054 | REQ-001/REQ-004 | Resolver publication transaction reader-side lock (B1, NEW): a fixture confirms `validate-resolver-evidence` fails closed (never a silent read of possibly-torn cross-file state) when a live transaction journal names the `resolver-evidence.yaml` path it is about to read |
 | AC-055 | REQ-002 | `output-schema-validation-failed` dual-artifact-scope lock (spec-review round-1 remedy, closing an EDGE-CASE-COVERAGE finding): two independently-triggerable fixtures — one where Resolver Evidence itself fails its own defensive schema self-validation (writes nothing to any live path, B3), and one where a non-Evidence staged artifact (Facet Manifest, Capability Summary, or Context Projection) fails the identical check while Resolver Evidence itself remains schema-valid (Resolver Evidence is still written recording this diagnostic, per AC-012's own general rule, and the failing non-Evidence artifact itself is not written, AC-011) |
 | AC-056 | REQ-004 | `diagnostics[]` warn/block cardinality lock (spec-review round-1 remedy, closing an AMBIGUITY finding): a fixture confirms `diagnostics[]` carries exactly one `severity: "warn"` entry per individual `outcome: "warn"` DSL-evaluation node encountered anywhere in that invocation (each with a distinct `detail` naming that node's own `capability_id`/`component_id`/`declaration_index` location) plus exactly one additional `severity: "block"` entry sharing the identical `dsl-warn-on-matched-capability` id; a companion multi-node fixture confirms the entry count scales 1:1 with node count plus exactly one summary entry, never fewer, never a second summary entry, and that no `(id, detail)` pair repeats (AC-024). Exception (amended 2026-08-24, human-approved, mirroring REQ-004's amended sentence): `severity: "warn"` entries already collected before an evaluation abort — a REQ-002 Block raised from within this invocation's own single steps (f)–(g) evaluation sweep before step (h), the identical sweep that produced the warns ("jointly caused") — lawfully appear alongside that abort's own **different-id** `severity: "block"` summary entry with no same-id summary entry; an abort-exception fixture (`tests/resolve-project-context-block.tests.sh`/`.ps1`, `evaluate-predicate-failure-after-warn`) locks exactly that shape |
 | AC-057 | REQ-002 | `snapshot-generation-mismatch` step-(e)-recheck site lock (ruling C(1), human-approved 2026-08-26; the ruling's own amendment added this row to `acceptance-tests.md` and `traceability.md` but not to this table, while amending the REQ-002 row above to cite it — that omission is corrected 2026-08-27, completing the same ruling's propagation and changing no other text): a dedicated fixture (`registry-swapped-during-validation`) whose `generate-registry-digest` stub overwrites the discovered Registry file in place as a side effect of step (e)'s own digest invocation isolates REQ-002's amended **second** trigger site for this id — detection-only, mid-pipeline, Registry bytes alone, immediately after step (e)'s two dependency invocations — from the row's pre-existing pre-publication-recheck trigger (AC-040/AC-048's own steps (l)/(m) window); the fixture asserts exit `1`, the canonical detail sentence naming the discovery-read-to-recheck window, an empty `capability_evaluations` array — read from the `resolver-evidence.yaml` this Block **does** write, per AC-012 — and no **publication artifact** (`facet-manifest.yaml`, `capability-summary.yaml`, `generated/project-context.resolved.json`) on any live path (scoped 2026-08-27, human-approved, ruling D(2): this row inherited an unscoped "no live artifact" clause that both contradicted AC-012 and was self-defeating, since `capability_evaluations` is a field of the very artifact that clause declared unwritten; sibling AC-058 never carried the clause) (approval evidence: investigation.md `## Amendment Re-Review Context` › `### Rulings C(1)/C(2)`) |
 | AC-058 | REQ-002 | `dependency-output-malformed` absent-component fail-closed lock (ruling C(2), human-approved 2026-08-26; same un-propagated-row correction as AC-057, made 2026-08-27): a dedicated fixture (`affected-component-absent-from-context`) whose `resolve-component-paths` stub returns an `affected_components[]` entry naming a component id absent from that fixture's own Context Projection alongside one present-and-valid id isolates REQ-002's amended sub-trigger from the row's pre-existing malformed-stdout triggers; the fixture asserts the Block fires **before** any predicate evaluation of any entry (exit `1`, the canonical absent-component detail sentence, an empty `capability_evaluations` array), never a defaulted-empty-properties evaluation of the absent id (approval evidence: investigation.md `## Amendment Re-Review Context` › `### Rulings C(1)/C(2)`) |
 | AC-059 | REQ-001 | Approval-surface write-scope lock (**NEW 2026-08-28, human-approved, ruling E**): a repository-wide grep-based self-check confirms that **the Resolver** — `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}`, and, per this document's own Field Definitions, never any other script — performs no write, of any kind, to a `*.approval.json` sidecar, to any path under `sdd/.approved-context/`, or to `guard-invariants.json`. This is the deny-list counterpart to AC-025's own repository-wide grep, and it locks the Security Boundaries bullet that states the Resolver "never writes to any `*.approval.json` sidecar, any `sdd/.approved-context/` anchor, or `guard-invariants.json` itself" — the boundary `security-spec.md` carries as **B6**, whose Acceptance Criteria column previously named only AC-015 and AC-032, neither of which locks a write scope (AC-015 locks premature subprocess invocation; AC-032 locks the `git diff` path scope). The gap dates from this package's original 2026-07-22 revision rather than from any later amendment, and no allow-list criterion covered it either: before this row, no AC in this table constrained the Resolver's write set in either direction. Like AC-025, and unlike every `tests/*.tests.sh` row, this is a registration-time and CI-gated grep self-check rather than a suite file, so it introduces **no new suite**: `design.md`'s ten-suite Test Strategy and the nine suites `tasks.md` schedules are both unchanged by this row. **Scope of the scanned set (corrected 2026-08-28 under the same ruling, closing an attempt-11 `DEPENDENCY-OVERLAP` finding and an attempt-6 `VERIFICATION-PATH-CONCRETE` finding).** As first written this row also scanned `validate-resolver-evidence.*`, which was wrong on two independent grounds. It contradicted this document's own Field Definitions, where **Resolver** is defined as `resolve-project-context.{py,sh,ps1}` and "never refers to a different script anywhere in this package" — so the validator is not the Resolver, and the Security Boundaries bullet this row locks has the Resolver alone as its subject. It was also unverifiable by the owning task: `tasks.md` sequences the validator's authoring to T-008, *after* T-007, so T-007 could not scan it at its own gate, and every mechanism proposed to bridge that gap depended on CI wiring this Phase 1 package explicitly does not perform. The scanned set is therefore the Resolver alone, which T-007 itself authors — giving this row the same structural property that makes AC-025 sound, namely that its owner can verify the whole scanned set by direct execution at its own gate, with no dependency on a later task or a later human CI action. AC-025 legitimately scans both script families because REQ-005's determinism guarantee names both; this row's subject is narrower. The validator's own write scope remains governed by Epic A1's `guard-invariants.json` suffix enforcement at write time and by the Security Boundaries prose, and is left to a future criterion rather than asserted unverifiably here (approval evidence: investigation.md `## Amendment Re-Review Context` › `### Ruling E`) |
+
+The AC-059 sentence above is read with the current ten-suite inventory: T-011 adds the caller-contract suite, so any earlier historical wording that named nine suites is superseded by the ten-suite count used by the current design and task plan.
 
 ## Field Definitions
 
@@ -1113,12 +1109,10 @@ by it.
   feature's own contract states these are agent-writable-only-via-the-
   Resolver artifacts (matching Epic A4's own Roles and Permissions
   statement, Dependencies, above), never hand-edited.
-- **A future implementation task touching `sdd-bootstrap-interviewer`'s
-  `SKILL.md`**: re-verifies that file's then-current protection status
-  before choosing a direct edit or a human-copy application
-  (investigation.md INV-017); design.md Design Decisions, "caller
-  insertion point" (M6), already fixes *where* in that file the edit
-  belongs — this role's own remaining decision is only *how* to apply it.
+- **Caller integration application boundary**: T-011 owns the reviewed edit
+  to `sdd-bootstrap-interviewer/SKILL.md` and its caller-contract suite;
+  the protected resolver trio and workflow remain human-copy/manifest-checked
+  inputs and are not silently treated as live until their hashes are applied.
 
 ## Main Workflows
 
@@ -1451,11 +1445,10 @@ by it.
   precedent for its 24 concrete-but-not-yet-existing entries,
   investigation.md INV-003) instead of the content-population-only
   human-copy this package assumes.
-- The `sdd-bootstrap-interviewer` `SKILL.md`'s current unprotected status
-  (investigation.md INV-017) is a live-repository snapshot, re-verified at
-  the future implementation task's own start time, not a permanent
-  guarantee (mirroring Epic A3's own identical disclaimer for a different
-  file set).
+- The `sdd-bootstrap-interviewer` `SKILL.md` caller edit is owned by T-011;
+  its protection status remains a live-repository fact and must be
+  re-verified before any later intentional edit. The resolver trio and
+  workflow remain protected human-copy inputs.
 
 ## Open Questions
 
@@ -1465,19 +1458,16 @@ by it.
 - OQ-002 (investigation.md): which future epic/caller invokes
   `compare-facet-manifest-staleness` against two of this feature's own
   outputs, and on what trigger.
-- **OQ-003 is resolved by this revision** (design.md Design Decisions
+- **OQ-003 is resolved by T-011** (design.md Design Decisions
   "caller insertion point"/"anchor fingerprint", adversarial review
-  "M6"): the capability interview phase's insertion point is fixed to a
-  concrete, file:line-cited anchor in the live `sdd-bootstrap-interviewer/
-  SKILL.md` (`SKILL.md:60`'s `### Full-Profile Layer Interview` heading,
-  at this package's own design-authoring time), with a **position-
-  sensitive anchor-fingerprint drift check** (design.md Test Strategy
-  item 10, AC-053) — a recorded window sha256 plus heading-ordinal-index
-  pair, revised from an earlier revision's bare "heading text still
-  exists" check, which could not detect the heading relocating within
-  the file — guarding that citation. What remains for the future
-  implementation task is only the direct-edit-vs.-human-copy mechanical
-  choice (Roles and Permissions, above), not the insertion point itself.
+  "M6"): the capability interview phase's insertion point is the unique
+  adjacent `### Capability Interview Phase` / `### Full-Profile Layer
+  Interview` window in the live `sdd-bootstrap-interviewer/SKILL.md`, with
+  a **position-sensitive anchor-fingerprint drift check** (design.md Test
+  Strategy item 10, AC-053). The recorded normalized-window sha256 plus
+  heading-ordinal pair replaces the earlier brittle line-number citation;
+  T-011 owns both the caller edit and the direct-edit-vs.-human-copy
+  boundary for the protected resolver inputs.
 
 ## Risks
 
@@ -1567,16 +1557,13 @@ by it.
   above) — the future implementation task must re-verify this before
   choosing its own staging sequencing.
 - **The anchor-fingerprint drift check (M6, requirements.md REQ-007,
-  design.md Design Decisions "anchor fingerprint") requires its own
-  recorded citation to be updated in the same commit as any future,
-  intentional `SKILL.md` edit that moves this package's own insertion
-  point** — a future implementer who forgets is caught by
+  design.md Design Decisions "anchor fingerprint") requires its recorded
+  citation to be updated in the same commit as any subsequent intentional
+  `SKILL.md` edit that moves this package's insertion point** — a
+  maintainer who forgets is caught by
   AC-053's own drift-check fixture failing, not silently, **once that
-  fixture's suite is authored**: AC-053 is discharged by the deferred
-  `resolve-project-context-caller-contract` pair, so until that suite
-  lands the live mitigation is the recorded sha256 and heading-ordinal
-  pair this package fixes, and the drift check is a specified obligation
-  rather than a running guard (scoped 2026-08-27, human-approved, ruling
-  D(2), matching AC-026/AC-027/AC-053's own deferral notes); this is the
-  intended, low-cost trade-off of a position-sensitive check over the
-  earlier revision's weaker, position-blind one.
+  fixture's suite is authored**: AC-053 is discharged by the registered
+  `resolve-project-context-caller-contract` pair in T-011; the recorded
+  sha256 and heading-ordinal pair is recomputed against the live SKILL at
+  every caller-contract run, preserving the position-sensitive check over
+  the earlier revision's weaker, position-blind one.

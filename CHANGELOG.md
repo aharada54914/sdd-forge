@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Integrate Epic A5 capability-interview caller contract and semantic
+  AC-053 anchor-drift checks (#193).
+
 ## v1.17.0 (2026-08-27)
 
 ### Security

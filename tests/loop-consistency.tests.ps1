@@ -456,7 +456,7 @@ try {
     # specs/epic-193-a5-capability-resolver/design.md:1886-1915). See the
     # bash twin's own TEST-018.5 header comment for the full mechanism and
     # activation-condition rationale; identical algorithm here (sha256 of a
-    # fixed inclusive line-range window, LF-joined, no trailing newline,
+    # semantic adjacent-heading window, CR/CRLF-normalized, terminal LF,
     # plus the target heading's own 1-based ordinal position among every
     # ##/### heading in document order).
     #
@@ -464,13 +464,10 @@ try {
     # deliberately-constructed positive/negative fixtures (Scope: "a
     # deliberately drifted anchor window ... before the implementation"),
     # unconditionally live and gating pass/fail normally. TEST-019.5c then
-    # runs the SAME checker against the live SKILL.md, reported for
-    # provenance only -- AC-036's own Test Type (acceptance-tests.md) fixes
-    # this as a named SKIP until Epic A5 merges, matching design.md Test
-    # Strategy item 6 ("once Epic A5's caller insertion point is
-    # implemented," never merely once the digest happens to still match).
+    # delegates the live SKILL.md check to the caller-contract suite; AC-036
+    # is live because Epic A5's caller insertion point is implemented.
     # -------------------------------------------------------------------
-    Write-Host "=== TEST-019.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+    Write-Host "=== TEST-019.5 (AC-036): anchor-fingerprint drift check ==="
 
     function Test-A5AnchorFingerprint {
         param(
@@ -549,19 +546,21 @@ Body text unrelated to any check.
     }
 
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 54 -End 64 -ExpectedSha "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 3
+    $a5CallerSuite = Join-Path $repoRoot "tests/resolve-project-context-caller-contract.tests.ps1"
+    $a5LiveResult = & pwsh -NoProfile -File $a5CallerSuite 2>&1 | Out-String
+    $a5LiveExit = $LASTEXITCODE
     # The live check activates only after A5's interviewer caller exists. The
     # spec directory may be staged before that insertion point is wired.
     $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and
         [bool](Select-String -LiteralPath $a5SkillMd -SimpleMatch "resolve-project-context" -Quiet)
     if ($a5CallerPresent) {
-        if ($a5LiveResult.Match) {
+        if ($a5LiveExit -eq 0) {
             Test-Ok "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
         } else {
             Test-Fail "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
         }
     } else {
-        Write-Host "SKIP: TEST-019.5c: AC-036 anchor-fingerprint drift check is inactive until the live interviewer caller references resolve-project-context (the spec directory alone is not activation evidence); current informational recomputation: $($a5LiveResult.Detail)"
+        Write-Host "SKIP: TEST-019.5c: AC-036 caller-contract check is inactive until the live interviewer caller references resolve-project-context (the spec directory alone is not activation evidence); current informational result: $($a5LiveResult.Trim())"
     }
 
     # -------------------------------------------------------------------

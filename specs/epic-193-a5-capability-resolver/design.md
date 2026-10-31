@@ -4,9 +4,9 @@ Impl-Review-Status: Passed
 Feature Type: one new deterministic script family (`resolve-project-
 context.{py,sh,ps1}`, at a path Epic A1 already reserved as protected)
 plus companion validator scripts (`validate-resolver-evidence.{py,sh,
-ps1}`), one new `contracts/resolver-evidence.schema.json` contract, and a
-documented (not implemented) caller-side integration contract for
-`sdd-bootstrap-interviewer`'s future capability interview phase. No new
+ps1}`), one new `contracts/resolver-evidence.schema.json` contract, and the
+implemented caller-side integration contract for
+`sdd-bootstrap-interviewer`'s capability interview phase. No new
 plugin (reuses `plugins/sdd-quality-loop/`, matching Epic A2/A4's own
 rejected-new-plugin precedent). No live Resolver implementation, and no
 live Facet Manifest/Capability Summary/Context Projection/Resolver
@@ -198,7 +198,7 @@ below).
 | `specs/<feature>/facet-manifest.yaml` | per-Feature Facet Manifest instance, schema `sdd-facet-manifest/v1` (Epic A4) | YAML | new instances only (schema is Epic A4's) | no (agent-writable only via the Resolver, matching Epic A4's own convention) |
 | `specs/<feature>/capability-summary.yaml` | per-Feature Capability Summary instance, Lite track only (written **instead of**, never alongside, `facet-manifest.yaml`/`project-context.resolved.json` on that track — Design Decisions, "track-exclusive publication set", B4), schema `sdd-capability-summary/v1` (Epic A4) | YAML | new instances only | no |
 | `specs/<feature>/resolver-evidence.yaml` (Data Plan, below) | per-Feature Resolver Evidence instance, schema `sdd-resolver-evidence/v1` (this feature) | YAML | new (schema is this feature's own) | no |
-| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` | future capability interview phase integration (REQ-007) — **documented, not edited, by this package** | Markdown (skill) | existing, unmodified by this package | no (per Epic A1's own investigation; re-verified at future implementation time, investigation.md INV-017) |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` | T-011 capability-interview caller integration at the reviewed insertion point (REQ-007) | Markdown (skill) | existing, edited by T-011; adjacent-heading anchor is drift-checked | no (re-verify protection status at task start; protected resolver trio/workflow remain human-copy inputs) |
 
 ## Protected-File Statement
 
@@ -296,20 +296,22 @@ convention `tasks.md` establishes for a different generated-then-reviewed
 artifact class) — protection would be meaningless for a per-Feature
 artifact only the Resolver itself is ever expected to write.
 
-No file this feature's future implementation touches, beyond the two
-already-reserved paths above, is added to `PROTECTED_GATE_SUFFIXES` — this
-feature does not introduce a new protection category the way Epic A3's
-own `check-component-coverage.*` did (Epic A3 `design.md` situation 3);
-its only interaction with the guard-invariants surface is filling in
-content at a reservation an upstream epic already made.
+No file this feature touches, beyond the two already-reserved resolver
+paths and the protected workflow candidate, is added to
+`PROTECTED_GATE_SUFFIXES` — this feature does not introduce a new
+protection category the way Epic A3's own `check-component-coverage.*`
+did (Epic A3 `design.md` situation 3). T-011 is the reviewed, unprotected
+caller integration exception: it edits only the interviewer skill and
+its contract tests; the resolver trio and workflow remain staged under
+`human-copy/` with manifest-checked human application.
 
 ## Layer Specifications
 
 | Layer | Summary | Canonical Detail | Owner | Status |
 |---|---|---|---|---|
-| UX | N/A — no user-facing surface; deterministic CLI script family + validator + schema + documented (not implemented) caller-integration contract only | ux-spec.md (N/A content — no UI to specify) | — | N/A |
+| UX | N/A — no user-facing surface; deterministic CLI script family + validator + schema + implemented caller-integration contract | ux-spec.md (N/A content — no UI to specify) | — | N/A |
 | Frontend | N/A — no browser/client UI, no new runtime service; new stdlib-only Python scripts + `sh`/`ps1` wrappers recorded for completeness | frontend-spec.md (N/A content — no browser/frontend surface) | — | N/A |
-| Infrastructure | No new runtime deployment; ten new CI test-suite pairs specified at contract level, of which the **nine** this package's `tasks.md` schedules are registered in `tests/run-all.sh`/`.ps1` and the tenth (`resolve-project-context-caller-contract`) is deferred with its authoring and registration (scoped 2026-08-27, human-approved, ruling D(2), matching AC-026's own narrowing and `tasks.md`'s "Deferred, not scheduled"), a staged `test.yml` human-copy candidate, and one new vendored-copy `--check` drift entry (`resolver-evidence.schema.json`) | infra-spec.md (expands this document's Deployment / CI Plan) | Implementation task owner | Planned |
+| Infrastructure | No new runtime deployment; ten CI test-suite pairs are registered in `tests/run-all.sh`/`.ps1`, including the T-011 caller-contract suite, with a staged `test.yml` human-copy candidate and one new vendored-copy `--check` drift entry (`resolver-evidence.schema.json`) | infra-spec.md (expands this document's Deployment / CI Plan) | Implementation task owner | Planned |
 | Security | No new trust boundary beyond this feature's own transactional-publication/snapshot-recheck/provenance-binding rules (Security Boundaries, below); two already-reserved protected paths inherited from Epic A1 (Protected-File Statement, above) | security-spec.md (expands this document's Security Boundaries / Protected-File Statement) | Implementation task owner | Planned |
 
 Added at impl-review-prep time (investigation.md INV-015 already
@@ -346,9 +348,9 @@ Not applicable — no UI surface.
   this is the one artifact this feature is free to shape itself
   (investigation.md INV-018), subject only to the repository-wide
   `contracts/*.schema.json` conventions (investigation.md INV-011).
-- **REQ-007 → a future implementation task, not this package** — this
-  package documents the target contract; the actual `SKILL.md` edit is
-  out of this package's own scope (requirements.md Non-goals).
+- **REQ-007 → T-011 caller integration** — this package now owns the
+  reviewed `SKILL.md` edit and caller-contract suite. The protected Resolver
+  trio and workflow remain human-copy/manifest-checked inputs.
 - **Downstream (anticipated future consumer)**: Epic A6 (Lite統合) is the
   anticipated consumer of this feature's Capability Summary output — see
   Risks, below, for why `required`-enforcement consumption specifically
@@ -2136,7 +2138,7 @@ independently invocable (AC-027):
    fan-out), and that a forced non-zero exit injected at each position in
    turn Blocks with that position's own correct diagnostic id and invokes
    no later-ordered subprocess at all.
-10. `resolve-project-context-caller-contract` (new, M6) — a contract test
+10. `resolve-project-context-caller-contract` (new, M6; T-011) — a contract test
     against the **live** `plugins/sdd-bootstrap/skills/sdd-bootstrap-
     interviewer/SKILL.md` (Design Decisions, "caller insertion point",
     below, fixes the exact anchor): (a) an **anchor-fingerprint** drift
@@ -2144,14 +2146,16 @@ independently invocable (AC-027):
     bare "heading text still exists verbatim" check, which could not
     detect the heading moving to a different position in the file while
     its own text stayed unchanged) recomputes, against the live file,
-    (i) the sha256 of the fixed 11-line window `SKILL.md:54-64` (LF-
-    normalized, this package's own recorded fingerprint is `sha256:
-    d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64`,
+    (i) the UTF-8/LF-normalized sha256 of the unique adjacent-heading
+    window bounded by `### Capability Interview Phase` and
+    `### Full-Profile Layer Interview` (this package's own recorded
+    fingerprint is `sha256:
+    d6ae89cb5f9a0be3d2dcc5789c49ede31ace3f4af2e12b14ae9ef7dc84a2f4ba`,
     Design Decisions "caller insertion point" gives the exact window
     bounds and recomputation procedure) and (ii) the `### Full-Profile
     Layer Interview` heading's own 1-based ordinal position among every
     `##`/`###`-level heading in the live file in document order (this
-    package's own recorded value: `3`), failing loudly if either value no
+    package's own recorded value: `4`), failing loudly if either value no
     longer matches this package's own recorded citation — a heading-text-
     only regression fixture (moving the identical heading text to a
     different position in the file without changing its own immediate
@@ -2582,7 +2586,7 @@ anchor).** The live `plugins/sdd-bootstrap/skills/sdd-bootstrap-
 interviewer/SKILL.md` (read directly, this worktree, at this package's own
 design-authoring time) has no "track detection" step named as such, but
 its own existing flow already branches on track by the point its `###
-Full-Profile Layer Interview` heading (`SKILL.md:60`) is reached — that
+Full-Profile Layer Interview` heading is reached — that
 section's own first sentence ("For non-LITE work, use `references/
 interview-question-bank.md`...") and its own closing line ("LITE excludes
 this section and produces no layer documents", `SKILL.md:92`) both
@@ -2590,27 +2594,24 @@ presuppose the track is already known by that point, sourced today from
 `AGENTS.md`'s `spec_profile` marker (the same source the file's own
 Specification/Implementation Policy Review Gates already read,
 `SKILL.md:147,159`). The capability interview phase's own insertion point
-is therefore **immediately before `SKILL.md:60`'s `### Full-Profile Layer
-Interview` heading** — after `## Intake And Investigation`'s own step 8
-(`SKILL.md:58`, the last numbered step before that heading) and before any
+is therefore **immediately before the `### Full-Profile Layer Interview`
+heading** — after `## Intake And Investigation`'s own step 8 (the last
+numbered step before that heading) and before any
 Facet-dependent layer generation the following section performs (REQ-007's
 own "after track detection, before any Facet-dependent layer is
 generated" ordering, requirements.md). A new `### Capability Interview
-Phase` subsection, inserted at that exact point, is where a future
-implementation task's own Resolver invocation (REQ-001, once) and
-Capability-relevant-unknowns-only interviewing (REQ-007(c)) belong. This
-insertion point is a **design-time citation**, not an edit — this
-package's own commits never touch `plugins/**` (this task's own hard
-boundary, Non-goals) — and Test Strategy item 10, above, fixes a drift
-check against this exact anchor text so a future, unrelated edit to
-`SKILL.md` cannot silently invalidate this citation without that check
-failing first.
+Phase` subsection is now implemented at that exact point by T-011. T-011
+owns the reviewed `SKILL.md` edit and its caller-contract suite; the
+protected Resolver trio and workflow remain human-copy/manifest-checked
+inputs. Test Strategy item 10 fixes a drift check against this semantic
+anchor so an unrelated edit to `SKILL.md` cannot silently invalidate the
+caller contract without that check failing first.
 
 **The capability interview phase's own interviewing rules, Context-absent
 behaviour, and on-Block behaviour (REQ-007(a)/(c)/(d)).** The insertion
 point above fixes *where* the phase goes; the three rules below fix *how
-it behaves* once inserted. All three are documented here only — this
-package edits no file under `plugins/**` (Constraint Compliance, below).
+it behaves* once inserted. T-011 implements these caller rules while the
+protected Resolver inputs continue through human-copy/manifest checks.
 
 - **Question budget, Open-Questions persistence, resumability
   (AC-029).** The phase asks the interviewer's own questions only for
@@ -2651,63 +2652,30 @@ package edits no file under `plugins/**` (Constraint Compliance, below).
   the caller-side counterpart of this design's own Resolver-side
   fail-closed posture (Security Boundaries, below).
 
-**Anchor fingerprint (M6, revised — AC-053, replacing the earlier
-revision's "heading text still exists verbatim" check with a
-position-sensitive one).** A bare "does this heading text still exist
-somewhere in the file" check cannot detect the heading *moving* — a
-future, unrelated `SKILL.md` edit could relocate `### Full-Profile Layer
-Interview` to a different position in the document (e.g. reordering
-sections) while leaving its own literal text untouched, and the earlier
-check would report no drift even though this package's own "immediately
-before this heading" insertion-point citation would now be wrong. This
-revision instead defines and records two independent, recomputable
-signals, both taken against the live `SKILL.md` at this package's own
-design-authoring time (this worktree, commit `c682f09587432e566dba652a
-243cda893c3ff5b1`):
+**Anchor fingerprint (M6, revised — AC-053).** A bare "does this heading
+text still exist somewhere in the file" check cannot detect the heading
+*moving*. The implemented caller contract therefore defines and records two
+independent, recomputable signals against the live `SKILL.md`:
 
-- **Anchor window fingerprint**: the sha256 of `SKILL.md`'s own literal
-  lines 54-64 (inclusive) — the six lines immediately preceding the `###
-  Full-Profile Layer Interview` heading, including its own preceding
-  blank line (`## Intake And Investigation`'s own step 8, `SKILL.md:
-  54-58`, plus the blank line at `SKILL.md:59`), through the four lines
-  immediately following it, including its own following blank line
-  (`SKILL.md:60-64`) — joined by a single `\n` between lines (LF-
-  normalized; no other content transformation, so this is a literal
-  transcription check, not a canonicalization), UTF-8 encoded. This
-  package's own recorded value: `sha256:d969fa163169ee5a9b5941600382b86b
-  75929d6cd90d223dbe991e1dc234fb64`. A future, unrelated edit to any line
-  within this window — including the heading's own text, or either
-  neighboring paragraph's own wording — changes this fingerprint,
-  detecting drift a bare "the heading text still exists" check would
-  miss (a content change *inside* the window that leaves the heading
-  string itself untouched).
+- **Anchor window fingerprint**: the sha256 of the unique adjacent-heading
+  window from `### Capability Interview Phase` through
+  `### Full-Profile Layer Interview`, after CRLF/CR-to-LF normalization,
+  UTF-8 encoding, and one terminal LF. The recorded value is
+  `sha256:d6ae89cb5f9a0be3d2dcc5789c49ede31ace3f4af2e12b14ae9ef7dc84a2f4ba`.
+  The contract rejects a missing or non-adjacent heading even when the
+  literal Full-Profile heading remains present.
 - **Section order index**: the 1-based ordinal position of the `###
   Full-Profile Layer Interview` heading among every `##`/`###`-level
-  Markdown heading in `SKILL.md`, in document order. This package's own
-  recorded value: `3` (1. `## Invocation`, `SKILL.md:13`; 2. `##
-  Intake And Investigation`, `SKILL.md:29`; 3. `### Full-Profile Layer
-  Interview`, `SKILL.md:60`). A future, unrelated edit that *relocates*
-  the heading — even one that, by coincidence, leaves this package's own
-  11-line window fingerprint unchanged (e.g. an edit far enough away that
-  the immediate neighbors are undisturbed but an intervening heading is
-  inserted or removed elsewhere in the document) — changes this index,
-  the second, independent drift signal.
+  Markdown heading in `SKILL.md`, in document order. The recorded value is
+  `4`. A relocation or inserted heading changes this independent signal.
 
 Test Strategy item 10's own drift check (above) recomputes both signals
 against the live file and fails loudly if either no longer matches this
-package's own recorded value, superseding the earlier revision's
-existence-only check. **Update procedure (for a future, *intentional*
-`SKILL.md` revision — e.g. the future implementation task that actually
-inserts the `### Capability Interview Phase` subsection this insertion
-point names):** that same commit's own diff is required to update this
-package's own recorded fingerprint/index citation, in this same
-paragraph, in the identical commit — never a follow-up commit — mirroring
-Epic A4's own `compare-facet-manifest-staleness` discipline that a digest
-and the content it describes must move together (Epic A4 `design.md`,
-Test Strategy). The drift-check fixture (AC-053) is itself the
-implementer's own signal to do so: it fails the moment `SKILL.md` changes
-without this citation changing with it, converting a silent staleness
-risk into a build-time (or spec-review-time) failure.
+package's own recorded value. **Update procedure:** any intentional
+`SKILL.md` revision must update the recorded fingerprint/index and the
+caller-contract baseline in the same commit. The AC-053 relocation fixture
+is the implementer's signal: it fails when the semantic insertion point
+changes without its citation changing.
 
 **`resolved_gates[]` includes every matched Capability's referenced
 Gates verbatim, at any `stage` value — this feature does not filter to
@@ -2787,7 +2755,7 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   AC-025's grep, over the identical script set and at the identical
   cadence (registration-time and CI-gated), so it introduces no suite
   file and leaves this document's own ten-item Test Strategy — and the
-  nine items `tasks.md` schedules — unchanged. The gap dates from this
+  ten suites now scheduled by `tasks.md` — unchanged. The gap dates from this
   package's original 2026-07-22 revision rather than from any later
   amendment; it was found by spec review at attempt 8 round 3
   (`APPROVAL-BOUNDARY`), which is also why it is stated here rather than
@@ -2970,18 +2938,13 @@ None — every input and output this feature touches is repository-local
   decision (ADR Change Log, above; its six genuinely new decisions are
   narrow, mechanical DSL-invocation-orchestration/publication rules, not a
   new axis).
-- This task's own hard boundary (no edit to `plugins/**`/`scripts/**`/
-  `.github/**`/`tests/**`/`contracts/**`/`docs/**`) is honored throughout
-  this design — every concrete file this design names under those trees
-  is described as a **future** artifact this Phase 1 package does not
-  itself create; this package's own commits touch only
-  `specs/epic-193-a5-capability-resolver/` and (in the registration
-  commit) `AGENTS.md`'s Active Spec Directories list and `specs/
-  workflow-state-registry.json`. In particular, **no file under
-  `plugins/**` is modified by any commit this package makes** (AC-032) —
-  including `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/
-  SKILL.md`, which this package cites at design time and never edits
-  (Design Decisions, "caller insertion point", above).
+- This task's own hard boundary (no edit to the protected resolver trio
+  or live workflow; T-011 is the sole reviewed caller exception) is
+  honored throughout this design. T-011 may edit only
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` and
+  its unprotected contract tests. The resolver trio and live workflow
+  remain staged under `human-copy/` for manifest-checked human
+  application; no other existing plugin file is modified (AC-032).
 - **Security constraints** (impl-review round-1 remedy, closing a
   NO-REQ-CONTRADICTION Major finding on this section's own narrow scope):
   requirements.md's Security Boundaries bullet 1 ("never invokes a
@@ -3014,17 +2977,11 @@ re-verified at that future task's own start time.
 Restated from investigation.md: OQ-001 (Context Projection regeneration
 cadence beyond "once per invocation"), OQ-002 (which future caller invokes
 `compare-facet-manifest-staleness` against two of this feature's outputs,
-and when). **OQ-003 is resolved by this revision** (M6, Design Decisions
-"caller insertion point", above) to a concrete, file:line-cited anchor —
-immediately before `SKILL.md:60`'s `### Full-Profile Layer Interview`
-heading, in the live `sdd-bootstrap-interviewer/SKILL.md` at this
-package's own design-authoring time — with Test Strategy item 10's own
-drift check guarding against that anchor silently moving before the
-future implementation task applies it; what remains genuinely open for
-that future task is only the mechanical choice of direct-edit-vs.-human-
-copy, gated on that file's then-current protection status
-(investigation.md INV-017, requirements.md Assumptions), not the
-insertion point itself.
+and when). **OQ-003 is resolved by T-011** (M6, Design Decisions "caller
+insertion point", above) to the semantic adjacent-heading window in the
+live `sdd-bootstrap-interviewer/SKILL.md`, with Test Strategy item 10's
+drift check. The protected Resolver trio and workflow remain
+human-copy/manifest-checked inputs; no caller insertion point remains open.
 
 Template fields for the two restated-open entries (added 2026-09-03,
 human-approved, ruling (G); no behavioral change):
@@ -3105,10 +3062,10 @@ Restated and design-elaborated from requirements.md's own Risks section:
   first, rather than developing the journal/recovery mechanism from
   scratch (Epic A1 `design.md:927-1016`).
 - **The anchor-fingerprint drift check (M6, Design Decisions, "anchor
-  fingerprint", above) requires its own recorded citation to be updated
-  in the same commit as any future, intentional `SKILL.md` edit that
-  moves this package's own insertion point** — a future implementer who
-  forgets this update is caught immediately by the drift-check fixture
-  (AC-053) failing, not silently; this is the intended, low-cost
-  trade-off of a position-sensitive check over the earlier revision's
-  weaker, position-blind one.
+  fingerprint", above) requires its recorded citation to be updated in
+  the same commit as any intentional `SKILL.md` edit that moves this
+  package's insertion point** — a maintainer who forgets this update is
+  caught immediately by the drift-check fixture (AC-053) failing, not
+  silently; this is the intended, low-cost trade-off of a
+  position-sensitive check over the earlier revision's weaker,
+  position-blind one.

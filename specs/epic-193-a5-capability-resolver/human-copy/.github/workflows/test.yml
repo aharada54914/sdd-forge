@@ -778,12 +778,10 @@ jobs:
       # fixture, the exact seven-subprocess call order plus a per-position
       # forced-failure sub-fixture at each. Plus the feature-wide
       # completeness lock this task's own Done When bullet requires: every
-      # REQ-006 fixture-matrix item (a)-(h) and every one of the nine
-      # suites T-001..T-010 build is present and independently invocable
-      # under tests/fixtures/capability-resolver/ (AC-026 "nine of ten"
-      # per Global Constraints' own "Deferred, Not Scheduled" note --
-      # item 10's own live-caller-contract suite is a future, not-yet-
-      # scheduled task -- AC-027). Ordered directly after T-009's own
+      # REQ-006 fixture-matrix item (a)-(h) and every one of the ten
+      # suites T-001..T-011 build is present and independently invocable
+      # under tests/fixtures/capability-resolver/ (AC-026/AC-027).
+      # Ordered directly after T-009's own
       # suite, the immediately preceding suite-registering task in the
       # fixed CI-registration order (this task's own Depends On text) --
       # the final entry of this feature's own staged CI candidate.
@@ -797,6 +795,19 @@ jobs:
       - name: Test resolve-project-context metamorphic (pwsh)
         shell: pwsh
         run: ./tests/resolve-project-context-metamorphic.tests.ps1
+
+      # epic-193-a5-capability-resolver T-011 (REQ-003/REQ-007,
+      # TEST-042/046/053): live caller contract and semantic anchor drift
+      # checks. The caller skill is unprotected; resolver scripts and this
+      # workflow remain manifest-checked human-copy inputs.
+      - name: Test resolve-project-context caller contract (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/resolve-project-context-caller-contract.tests.sh
+
+      - name: Test resolve-project-context caller contract (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-caller-contract.tests.ps1
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow

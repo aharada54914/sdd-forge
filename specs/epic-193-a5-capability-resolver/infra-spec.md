@@ -21,7 +21,7 @@ flowchart LR
   Scripts -->|"stage in memory (steps 3/10/11) -> schema-validate (step 12) -> transactional commit (step 14)"| STAGING["specs/<feature>/.resolver-staging/<batch-nonce>/ (transient journal + PRE-image, NOT git-tracked)"]
   STAGING -->|"Commit phase: temp+fsync+rename per target, journal order"| LIVE["specs/<feature>/{facet-manifest.yaml,capability-summary.yaml,resolver-evidence.yaml} + generated/project-context.resolved.json"]
   CI["GitHub Actions (test.yml)"] --> RunAll["tests/run-all.sh/.ps1 (unprotected, direct-registered)"]
-  RunAll --> Suites["9 scheduled tests/*.tests.sh/.ps1 pairs (10th deferred) + tests/fixtures/capability-resolver/"]
+  RunAll --> Suites["10 registered tests/*.tests.sh/.ps1 pairs + tests/fixtures/capability-resolver/"]
   CI -->|"vendored-copy --check (reused Epic A2/A4 mode, +1 filename)"| DRIFT["contracts/resolver-evidence.schema.json sha256 == vendored copy sha256"]
 ```
 
@@ -58,12 +58,12 @@ sequenceDiagram
   CI->>CI: resolver-evidence-schema.tests.sh/.ps1 (AC-017 contract existence + $id convention)
   CI->>CI: validate-resolver-evidence.tests.sh/.ps1 (AC-021, AC-050, AC-051, AC-054: 12-value check-id matrix + provenance binding)
   CI->>CI: resolve-project-context-metamorphic.tests.sh/.ps1 (AC-045 completeness/invariance suite)
-  CI->>CI: resolve-project-context-caller-contract.tests.sh/.ps1 (AC-042, AC-046, AC-053: caller-contract + anchor-fingerprint drift) [DEFERRED - not scheduled by this package, tasks.md; not part of AC-026's nine]
+  CI->>CI: resolve-project-context-caller-contract.tests.sh/.ps1 (AC-042, AC-046, AC-053: caller-contract + anchor-fingerprint drift) [T-011]
   CI->>CI: vendored-copy --check (reused Epic A2/A4 mode, +1 filename: resolver-evidence.schema.json)
   CI-->>D: PASS / FAIL
 ```
 
-The **nine scheduled** new `.sh`/`.ps1` suite pairs register in `tests/run-all.sh`/`.ps1` — the tenth, `resolve-project-context-caller-contract`, is specified at contract level but deferred, and neither authored nor registered by this package (scoped 2026-08-27, human-approved, ruling D(2), matching AC-026 and `tasks.md`'s "Deferred, not scheduled")
+All **ten** new `.sh`/`.ps1` suite pairs register in `tests/run-all.sh`/`.ps1`, including the T-011 caller-contract pair. Protected workflow wiring and the resolver trio remain manifest-checked human-copy inputs.
 (direct edit, unprotected, AC-026) and stage their CI step additions into
 `.github/workflows/test.yml` via human-copy (protected, matching Epic
 A1/A2/A4's own precedent for CI-registration edits) alongside the
@@ -163,7 +163,7 @@ artifact with no prior version to migrate from").
 
 | Logs | Traces | Metrics | Alert | Owner | Runbook |
 |---|---|---|---|---|---|
-| Each script's `capability-resolver: <check-id>: <detail>` / `resolver-evidence: <check-id>: <detail>` diagnostic lines to stderr, exit codes 0/1/2, and the persisted `diagnostics[]` array inside every Resolver Evidence instance (durable, git-tracked observability record, design.md API / Contract Plan; security-spec.md B5) are the observability signal for this feature | N/A — no distributed request, single-process CLI invocation per resolve; the closest analog is the dependency-invocation-order spy fixture (Test Strategy item 9(g)) that asserts subprocess call order at test time, not at runtime | N/A — no running service to emit a metric; CI pass/fail on `tests/run-all.sh`/`.ps1` and the nine scheduled new suites is the closest observable signal | CI failure on any `test.yml` step (design.md Deployment / CI Plan); at runtime, a live `specs/<feature>/.resolver-staging/*/TRANSACTION.json` naming a target another script is about to read is itself an operational signal a reader must check (`RESOLVER_PUBLICATION_IN_PROGRESS`, "Reader-side generation-consistency check") | Implementation task owner | design.md describes no logging/tracing/runbook infrastructure beyond the diagnostic lines, the Resolver-Evidence `diagnostics[]` record, and the Journal Recovery procedure below; none is invented here |
+| Each script's `capability-resolver: <check-id>: <detail>` / `resolver-evidence: <check-id>: <detail>` diagnostic lines to stderr, exit codes 0/1/2, and the persisted `diagnostics[]` array inside every Resolver Evidence instance (durable, git-tracked observability record, design.md API / Contract Plan; security-spec.md B5) are the observability signal for this feature | N/A — no distributed request, single-process CLI invocation per resolve; the closest analog is the dependency-invocation-order spy fixture (Test Strategy item 9(g)) that asserts subprocess call order at test time, not at runtime | N/A — no running service to emit a metric; CI pass/fail on `tests/run-all.sh`/`.ps1` and the ten registered suites is the closest observable signal | CI failure on any `test.yml` step (design.md Deployment / CI Plan); at runtime, a live `specs/<feature>/.resolver-staging/*/TRANSACTION.json` naming a target another script is about to read is itself an operational signal a reader must check (`RESOLVER_PUBLICATION_IN_PROGRESS`, "Reader-side generation-consistency check") | Implementation task owner | design.md describes no logging/tracing/runbook infrastructure beyond the diagnostic lines, the Resolver-Evidence `diagnostics[]` record, and the Journal Recovery procedure below; none is invented here |
 
 ## Cost Estimate
 
@@ -253,7 +253,7 @@ shape isomorphically):
 
 ## Rollback
 
-- **Trigger.** A CI failure in any of the nine scheduled new suites, a vendored-copy
+- **Trigger.** A CI failure in any of the ten registered new suites, a vendored-copy
   drift-check failure, a regression discovered post-merge, or — at
   runtime — a crash mid-transaction or an injected write/rename failure.
 - **Unprotected-file changes** (the one schema file, its vendored copy,

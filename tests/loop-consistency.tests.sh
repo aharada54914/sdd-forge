@@ -492,10 +492,10 @@ fi
 # sdd-bootstrap-interviewer/SKILL.md, adopting Epic A5's own design.md item
 # 10(a) fixture directly (FP-A5-CALLER-CONTRACT-10:
 # specs/epic-193-a5-capability-resolver/design.md:1886-1915). Recomputes,
-# against a given file, (i) the sha256 of a fixed inclusive line-range
-# window (LF-normalized, joined by a single \n, no trailing newline -- this
-# package's own Cross-epic fingerprint algorithm, design.md Design
-# Decisions) and (ii) a given heading's own 1-based ordinal position among
+# against a given file, (i) the sha256 of the semantic adjacent-heading
+# anchor window (CR/CRLF normalized to LF, terminal LF required), using the
+# semantic contract, and (ii) a given heading's own 1-based ordinal position
+# among
 # every ##/### heading in that file, in document order -- item 10(a)'s own
 # two-part check ("replacing an earlier revision's bare heading-text-still-
 # exists check, which could not detect the heading moving to a different
@@ -510,19 +510,18 @@ fi
 # are unconditionally live (they test only this suite's own checker, never
 # Epic A5's own unmerged code) and gate pass/fail normally.
 #
-# TEST-018.5c then runs the SAME checker against the live SKILL.md,
+# TEST-018.5c then delegates the live SKILL.md check to the caller-contract
+# suite,
 # comparing to A5's own recorded citation (sha256:
-# d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64, ordinal
-# 3). AC-036's own Test Type (acceptance-tests.md) fixes this as a named
-# SKIP until Epic A5 merges -- design.md Test Strategy item 6 places
-# activation at "once Epic A5's caller insertion point is implemented," not
-# merely once the digest happens to still match (the window legitimately
-# changes once A5's own caller-integration lands there), so this comparison
-# is reported for provenance only and never gates pass/fail. AC-036 is not
+# d6ae89cb5f9a0be3d2dcc5789c49ede31ace3f4af2e12b14ae9ef7dc84a2f4ba, ordinal
+# 4). AC-036's own Test Type (acceptance-tests.md) is now live because the
+# caller insertion point is implemented; drift is a failure rather than a
+# The semantic anchor is the current contract, and this check gates pass/fail
+# once A5's own caller-integration is present. AC-036 is not
 # one of T-010's five fixed manifest entries, so its T-008-local probe remains
 # outside the shared allowlist contract (tasks.md T-008 Scope).
 # ---------------------------------------------------------------------------
-echo "=== TEST-018.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+echo "=== TEST-018.5 (AC-036): anchor-fingerprint drift check ==="
 
 _a5_anchor_fingerprint_check() {
   # $1=file $2=start-line $3=end-line $4=expected-sha256 $5=expected-heading-line $6=expected-ordinal
@@ -587,16 +586,13 @@ else
 fi
 
 A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
-  "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
-  "### Full-Profile Layer Interview" 3 2>&1)" || true
+A5_CALLER_SUITE="${REPO_ROOT}/tests/resolve-project-context-caller-contract.tests.sh"
+A5_LIVE_RESULT="$(bash "$A5_CALLER_SUITE" 2>&1)" || true
 # The live check activates only after A5's interviewer caller exists.  The
 # spec directory and resolver scripts may be staged before that insertion
 # point, so directory presence is not evidence that the live contract is wired.
 if [[ -f "$A5_SKILL_MD" ]] && grep -Fq 'resolve-project-context' "$A5_SKILL_MD"; then
-  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
-      "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
-      "### Full-Profile Layer Interview" 3 >/dev/null; then
+  if bash "$A5_CALLER_SUITE" >/dev/null 2>&1; then
     ok "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
   else
     fail "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"

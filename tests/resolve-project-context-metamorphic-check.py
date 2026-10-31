@@ -82,10 +82,9 @@ subprocess launches are ever logged, never a grandchild call a dependency
 makes on its own behalf.
 
 Plus the feature-wide completeness lock the Done When bullet requires:
-`run_feature_wide_completeness_check` confirms every one of the nine
-`tests/*.tests.{sh,ps1}` suite pairs T-001..T-010 build (AC-026, "nine of
-ten" -- item 10's own live-caller-contract suite is explicitly deferred,
-Global Constraints "Deferred, Not Scheduled") is present and registered in
+`run_feature_wide_completeness_check` confirms every one of the ten
+`tests/*.tests.{sh,ps1}` suite pairs T-001..T-011 build (AC-026/AC-027,
+including the live-caller-contract suite) is present and registered in
 `tests/run-all.{sh,ps1}`, and that at least one independently-invocable
 fixture anchor exists under `tests/fixtures/capability-resolver/` for each
 of REQ-006's own fixture-matrix items (a)-(h) (AC-027).
@@ -908,12 +907,11 @@ def run_dependency_order_spy_case(kind, counts):
 
 
 # ---------------------------------------------------------------------------
-# Feature-wide fixture-matrix completeness (Done When bullet; AC-026 "nine
-# of ten" per Global Constraints' own "Deferred, Not Scheduled" note;
-# AC-027).
+# Feature-wide fixture-matrix completeness (Done When bullet; AC-026/AC-027,
+# including the T-011 caller-contract suite).
 # ---------------------------------------------------------------------------
 
-NINE_SUITES = (
+SUITES = (
     "resolve-project-context-cli",
     "resolve-project-context-block",
     "resolve-project-context-match",
@@ -923,6 +921,7 @@ NINE_SUITES = (
     "resolver-evidence-schema",
     "validate-resolver-evidence",
     "resolve-project-context-metamorphic",
+    "resolve-project-context-caller-contract",
 )
 
 # One independently-invocable fixture anchor per REQ-006 fixture-matrix
@@ -960,13 +959,13 @@ REQ006_ANCHOR_FIXTURES = {
 def run_feature_wide_completeness_check(counts):
     run_all_sh = (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     run_all_ps1 = (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
-    for suite in NINE_SUITES:
+    for suite in SUITES:
         sh_launcher = ROOT / f"tests/{suite}.tests.sh"
         ps1_launcher = ROOT / f"tests/{suite}.tests.ps1"
         counts.check(
             sh_launcher.is_file() and ps1_launcher.is_file(),
             f"feature-wide completeness: {suite} sh/ps1 launcher pair exists "
-            f"(nine of ten suites T-001..T-010 build, AC-026)",
+            f"(ten suites T-001..T-011 build, AC-026/AC-027)",
             f"sh={sh_launcher.is_file()} ps1={ps1_launcher.is_file()}",
         )
         counts.check(
