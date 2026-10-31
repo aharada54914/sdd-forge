@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "current phase",
+    "actual next command",
+    "pending requirements and design",
+    "absent tasks",
+    "no inferred approval or completion",
+    "raw response not primary display",
+    "402px mobile viewport without horizontal overflow",
+    "refresh reads changed local project",
+    "no browser script errors"
+  ],
+  "passed": true,
+  "viewport": {
+    "width": 402,
+    "height": 714
+  },
+  "source": "4b6a6d63; MCP source identical to main e105d955",
+  "mode": "actual loopback HTTP status view, copied original project fixture; no API replay",
+  "human_evaluation": false
+}
