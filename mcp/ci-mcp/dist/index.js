@@ -36817,10 +36817,9 @@ function buildGithubUrl(pathSegments, searchParams) {
   return url2.toString();
 }
 var REQUEST_TIMEOUT_MS = 3e4;
-var defaultFetch = (url2, init) => fetch(url2, init);
-async function githubGet(request, fetchImpl = defaultFetch) {
+async function requestGithub(request, accept, fetchImpl) {
   const url2 = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers = { accept: "application/vnd.github+json" };
+  const headers = { accept };
   if (request.token !== void 0 && request.token.length > 0) {
     headers.authorization = `Bearer ${request.token}`;
   }
@@ -36839,6 +36838,13 @@ async function githubGet(request, fetchImpl = defaultFetch) {
   if (normalized !== void 0) {
     return normalized;
   }
+  return { ok: true, data: response };
+}
+var defaultFetch = (url2, init) => fetch(url2, init);
+async function githubGet(request, fetchImpl = defaultFetch) {
+  const result = await requestGithub(request, "application/vnd.github+json", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
   try {
     const data = await response.json();
     return { ok: true, data };
@@ -36901,26 +36907,9 @@ async function readBoundedTail(stream, capBytes, marginBytes) {
 }
 var defaultTextFetch = (url2, init) => fetch(url2, init);
 async function githubGetText(request, fetchImpl = defaultTextFetch) {
-  const url2 = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers = { accept: "text/plain" };
-  if (request.token !== void 0 && request.token.length > 0) {
-    headers.authorization = `Bearer ${request.token}`;
-  }
-  let response;
-  try {
-    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
-    const signal = request.signal === void 0 ? deadline : AbortSignal.any([request.signal, deadline]);
-    response = await fetchImpl(url2, { method: "GET", headers, signal });
-  } catch (error62) {
-    return normalizeNetworkError(error62);
-  }
-  const normalized = normalizeUpstreamResponse({
-    status: response.status,
-    getHeader: (name) => response.headers.get(name)
-  });
-  if (normalized !== void 0) {
-    return normalized;
-  }
+  const result = await requestGithub(request, "text/plain", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
   try {
     if (response.body != null) {
       const { bytes, totalBytesRead } = await readBoundedTail(
@@ -37314,11 +37303,10 @@ function buildServer() {
   return server;
 }
 
-// src/diagnostics.ts
+// src/diagnostics-core.ts
 import os from "node:os";
 var REDACTED = "[redacted]";
 var MIN_SECRET_LEN = 4;
-var BEARER_PATTERN = /Bearer\s+[^\s"']+/gi;
 function defaultSink(chunk) {
   process.stderr.write(chunk);
 }
@@ -37346,15 +37334,19 @@ function collectSecrets() {
 function escapeRegExp(literal2) {
   return literal2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function scrubMessage(message) {
+function scrubKnownSecrets(message) {
   let scrubbed = message;
   for (const secret of collectSecrets()) {
     if (scrubbed.includes(secret)) {
       scrubbed = scrubbed.replace(new RegExp(escapeRegExp(secret), "g"), REDACTED);
     }
   }
-  scrubbed = scrubbed.replace(BEARER_PATTERN, `Bearer ${REDACTED}`);
   return scrubbed;
+}
+
+// src/diagnostics.ts
+function scrubMessage(message) {
+  return scrubKnownSecrets(message).replace(/Bearer\s+[^\s"']+/gi, "Bearer [redacted]");
 }
 function logStartup(info, sink = defaultSink) {
   const line = {
