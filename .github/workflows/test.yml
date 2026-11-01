@@ -642,6 +642,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install template YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Test template-validator parity (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
