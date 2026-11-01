@@ -25,7 +25,15 @@
         "transcript.jsonl": "7cefea2b7bd03ed30fe3a903071b753796acadb596c04ab686d7b1542f7ec16f",
         "smoke.json": "008e81a9fe12509accf568b132712077f325033d6ebf6a3fea76a40ed19ed70f"
       },
-      "cost_tokens": "unknown; not aggregated"
+      "reported_usage": {
+        "input_tokens": 69856,
+        "cached_input_tokens": 57728,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 317,
+        "reasoning_output_tokens": 0
+      },
+      "reported_total_cost_usd": "unknown; not emitted",
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
     },
     {
       "host": "copilot",
@@ -50,7 +58,8 @@
         "native.stdout.txt": "9cec2bb642e8530884bf13b5fddef052cdbae7652c9a3ef6a427d315edd4c060",
         "smoke.json": "9c2632976c71ca3c71da1e805bf71ce18dfa72227b0f36f75a4c1c0ab2bb2ba4"
       },
-      "cost_tokens": "unknown; not aggregated"
+      "reported_usage": "unknown; not emitted by CLI",
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
     },
     {
       "host": "claude",
@@ -75,7 +84,14 @@
         "native.stdout.txt": "d311ed07b804252ce5d8440055b3cbb32f60f08e09b5e6d35964c193f06704b5",
         "smoke.json": "851332be65b450f6fa7ae6166769194603092639111cb5b9742aa340d36d8537"
       },
-      "cost_tokens": "unknown; not aggregated"
+      "reported_usage": {
+        "input_tokens": 12,
+        "cache_creation_input_tokens": 16943,
+        "cache_read_input_tokens": 70229,
+        "output_tokens": 810
+      },
+      "reported_total_cost_usd": 0.0829189,
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
     }
   ],
   "codex_harness_exit": 1,
