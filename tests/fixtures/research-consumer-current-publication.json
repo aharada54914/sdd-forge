@@ -6,8 +6,8 @@
       "live": "plugins/sdd-quality-loop/scripts/check-contract.py",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.py",
       "staged_sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3",
-      "live_sha256": "3a28d582133a2256cdfee060fadf8898a0d1eb9fe226e58c632739d2b3d785c9",
-      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+      "live_sha256": "a98c6b573cbcaff070b850771718e3333b34976d56157a8144529d8ac8fdff22",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Coding-standards boundary validation and native variable fixes; frozen predecessor unchanged."
     },
     {
       "live": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
@@ -27,8 +27,8 @@
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
-      "live_sha256": "b0aa1540f3d82a62b7b7ecf8554d6c24100b7cfc566f91f8e3d55c7a20df5d13",
-      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading."
+      "live_sha256": "3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading. Coding-standards boundary validation and native variable fixes; frozen predecessor unchanged."
     }
   ]
 }
