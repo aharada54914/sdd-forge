@@ -1,0 +1,7 @@
+PASS raw simultaneous 1MiB stdout/stderr, NUL/non-UTF8 bytes, exit19
+PASS 8 hostile/empty/Unicode argument atoms preserved without shell interpretation
+PASS start failure excludes secret-shaped argument data
+PASS 250ms deadline and separately observed direct-child termination
+PASS real Git repository success/nonzero wrapper contracts
+PASS two-hop relative directory links and bracket components, hardlink preservation, missing-method fallback (Linux simulation only)
+PASS key-file BOM/trailing ASCII normalization, interior binary bytes, env priority/exact bytes
