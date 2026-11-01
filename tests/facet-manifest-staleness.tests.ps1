@@ -302,19 +302,19 @@ Expect-Verdict 'base-old.json' 'lite-eligibility-change-new.json' 'stale' 'seman
   "Major-2 lock: 'lite_eligibility' is a compared semantic-output field" `
   @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
 
-$schemaFieldCheckScript = @"
-import importlib.util, json, copy
-spec = importlib.util.spec_from_file_location('cfms', r'$Comparator')
+$schemaFieldCheckScript = @'
+import importlib.util, json, copy, sys
+spec = importlib.util.spec_from_file_location('cfms', sys.argv[1])
 cfms = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cfms)
-base = json.load(open(r'$(Join-Path $Fixtures 'base-old.json')'))
+base = json.load(open(sys.argv[2]))
 new = copy.deepcopy(base)
 new['schema'] = 'sdd-facet-manifest/v2'
 weakening = {'projection': 'not-weakened', 'registry': 'not-weakened', 'ownership': 'not-weakened'}
 status, reason = cfms.classify(base, new, weakening, 'minor')
 print('OK' if (status, reason) == ('stale', 'semantic-output-changed') else 'FAIL status=%r reason=%r' % (status, reason))
-"@
-$schemaFieldRaw = ($schemaFieldCheckScript | & $Python - 2>&1 | Out-String)
+'@
+$schemaFieldRaw = ($schemaFieldCheckScript | & $Python - $Comparator (Join-Path $Fixtures 'base-old.json') 2>&1 | Out-String)
 if ($null -eq $schemaFieldRaw) { $schemaFieldRaw = '' }
 $schemaFieldResult = $schemaFieldRaw.Trim()
 if ($schemaFieldResult -eq 'OK') {

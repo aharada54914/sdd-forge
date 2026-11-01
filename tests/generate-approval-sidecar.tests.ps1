@@ -359,7 +359,7 @@ if ($manifestText -match [regex]::Escape("$sidecarHash  $(Get-StagedRelSidecar $
 }
 
 $expectedContentSha256 = (Get-PyText @($CanonPy, $Content, '--hash-only')).Trim()
-$actualContextSha256 = Get-PyText @('-c', "import json; print(json.load(open(r'$SidecarOut'))['context_sha256'])")
+$actualContextSha256 = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['context_sha256'])", $SidecarOut)
 if ($expectedContentSha256 -eq $actualContextSha256) {
   Test-Pass "TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256"
 } else {
@@ -370,17 +370,17 @@ $T011Reverify = Join-Path $Work 't011_reverify.json'
 Invoke-Py @($mutator, $SidecarOut, $T011Reverify, 'hmac', '""') | Out-Null
 # hmac key doesn't exist as a dotted single-level removal via mutate.py (it
 # sets, not deletes); strip it explicitly instead.
-Set-Content -LiteralPath $T011Reverify -NoNewline -Encoding utf8 -Value (Get-PyText @('-c', "import json; d=json.load(open(r'$SidecarOut')); d.pop('hmac', None); print(json.dumps(d))"))
+Set-Content -LiteralPath $T011Reverify -NoNewline -Encoding utf8 -Value (Get-PyText @('-c', "import json, sys; d=json.load(open(sys.argv[1])); d.pop('hmac', None); print(json.dumps(d))", $SidecarOut))
 $reverifyPreimage = Join-Path $Work 't011_reverify.preimage'
 $r = Invoke-Py @($GenPy, '--dump-preimage', $T011Reverify)
 [System.IO.File]::WriteAllBytes($reverifyPreimage, [System.IO.File]::ReadAllBytes($r.StdoutPath))
-$recomputedHmac = Get-PyText @('-c', @"
-import hmac, hashlib
-key = open(r'$KeyFile','rb').read()
-data = open(r'$reverifyPreimage','rb').read()
+$recomputedHmac = Get-PyText @('-c', @'
+import hmac, hashlib, sys
+key = open(sys.argv[1],'rb').read()
+data = open(sys.argv[2],'rb').read()
 print(hmac.new(key, data, hashlib.sha256).hexdigest())
-"@)
-$stagedHmac = Get-PyText @('-c', "import json; print(json.load(open(r'$SidecarOut'))['hmac'])")
+'@, $KeyFile, $reverifyPreimage)
+$stagedHmac = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['hmac'])", $SidecarOut)
 if ($recomputedHmac -eq $stagedHmac) {
   Test-Pass "TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation"
 } else {
@@ -671,12 +671,12 @@ function Get-HmacOf([string]$JsonPath) {
   $r = Invoke-Py @($GenPy, '--dump-preimage', $JsonPath)
   $preimagePath = Join-Path $Work ([Guid]::NewGuid().ToString('N') + '.preimage')
   [System.IO.File]::WriteAllBytes($preimagePath, [System.IO.File]::ReadAllBytes($r.StdoutPath))
-  return Get-PyText @('-c', @"
-import hmac, hashlib
-key = open(r'$GoldenKey','rb').read()
-data = open(r'$preimagePath','rb').read()
+  return Get-PyText @('-c', @'
+import hmac, hashlib, sys
+key = open(sys.argv[1],'rb').read()
+data = open(sys.argv[2],'rb').read()
 print(hmac.new(key, data, hashlib.sha256).hexdigest())
-"@)
+'@, $GoldenKey, $preimagePath)
 }
 
 $goldenHmacActual = Get-HmacOf $T036Golden
@@ -740,9 +740,9 @@ if ($r.ExitCode -eq 0) {
   Test-Fail 'SEAM bootstrap (no live sidecar): signing succeeds' "exit $($r.ExitCode)"
 }
 $bootSidecar = Get-StagedSidecarPath $StageBoot
-$predecessor = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['predecessor_context_sha256'])")
-$verdict = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['weakening_verdict'])")
-$epoch = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['approval_epoch'])")
+$predecessor = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['predecessor_context_sha256'])", $bootSidecar)
+$verdict = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['weakening_verdict'])", $bootSidecar)
+$epoch = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['approval_epoch'])", $bootSidecar)
 if ($predecessor -eq 'None' -and $verdict -eq 'None' -and $epoch -eq '1') {
   Test-Pass 'SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1'
 } else {
@@ -791,7 +791,7 @@ if (Test-Path -LiteralPath $nonbootSidecar) {
 } else {
   Test-Fail 'SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves'
 }
-$nonbootVerdict = Get-PyText @('-c', "import json; print(json.load(open(r'$nonbootSidecar'))['weakening_verdict'] is not None)")
+$nonbootVerdict = Get-PyText @('-c', "import json, sys; print(json.load(open(sys.argv[1]))['weakening_verdict'] is not None)", $nonbootSidecar)
 if ($nonbootVerdict -eq 'True') {
   Test-Pass 'SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005''s in-process seam)'
 } else {

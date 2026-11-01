@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # install.tests.sh — bash port of install.tests.ps1
 # Run from any directory. Uses --source-directory so no network is needed.
 set -euo pipefail
@@ -190,7 +191,7 @@ make_fake_commands() {
         if [[ "$cmd" == "gh" ]]; then
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "gh \$*" >> "${log_path}"
+echo "gh \$*" >> $(shell_literal "$log_path")
 if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
     printf '%s\n' "fake-gh-token"
     exit 0
@@ -200,14 +201,14 @@ SHIM
         elif [[ -n "$fail_pattern" ]]; then
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "${cmd} \$*" >> "${log_path}"
-echo "\$*" | grep -qF "${fail_pattern}" && exit 9
+echo "${cmd} \$*" >> $(shell_literal "$log_path")
+echo "\$*" | grep -qF $(shell_literal "$fail_pattern") && exit 9
 exit 0
 SHIM
         else
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "${cmd} \$*" >> "${log_path}"
+echo "${cmd} \$*" >> $(shell_literal "$log_path")
 exit 0
 SHIM
         fi
@@ -268,7 +269,7 @@ make_fake_remote_fetcher() {
 
     cat > "${bin_dir}/gh" <<SHIM
 #!/bin/sh
-echo "gh \$*" >> "${log_path}"
+echo "gh \$*" >> $(shell_literal "$log_path")
 if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
     printf '%s\n' "fake-gh-token"
     exit 0
@@ -279,7 +280,7 @@ SHIM
 
     cat > "${bin_dir}/curl" <<SHIM
 #!/bin/sh
-echo "curl \$*" >> "${log_path}"
+echo "curl \$*" >> $(shell_literal "$log_path")
 config=""
 case "\$*" in
     *"--config -"*) config="\$(cat)" ;;
@@ -313,7 +314,7 @@ output=""
             ;;
     esac
 done
-cp "${archive_path}" "\$output"
+cp $(shell_literal "$archive_path") "\$output"
 exit 0
 SHIM
     chmod +x "${bin_dir}/curl"

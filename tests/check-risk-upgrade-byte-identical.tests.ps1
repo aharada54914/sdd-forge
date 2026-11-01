@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 # check-risk-upgrade-byte-identical.tests.ps1 (epic-194-a6-lite-integration,
 # T-002, design.md Test Strategy item 4, TEST-007/AC-007). PowerShell twin of
 # check-risk-upgrade-byte-identical.tests.sh -- see that file's header for
@@ -53,7 +54,7 @@ $Work = (Resolve-Path -LiteralPath $Work).Path
 function Invoke-Script([string]$ScriptPath, [string]$InputPath) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = $PowerShell
-    $psi.Arguments = "-NoProfile -File `"$ScriptPath`" -Path `"$InputPath`""
+    $psi.Arguments = ConvertTo-SddNativeArgumentString @('-NoProfile', '-File', $ScriptPath, '-Path', $InputPath)
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false

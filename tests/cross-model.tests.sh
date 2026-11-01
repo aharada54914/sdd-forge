@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # cross-model.tests.sh — tests for check-cross-model.sh (AC-002..004)
 # Style: mirrors gates.tests.sh (ok/fail counters, mktemp fixtures, exits 1 on failure)
 set -euo pipefail
@@ -417,7 +418,7 @@ printf '# sanitized test bundle\n' > "$PANELIST_INPUT"
 # supplies _bw_deadline; later calls record when the expiry check is reached.
 cat > "${PANELIST_STUBS}/date" <<EOF
 #!/bin/sh
-_clock_now=\$("$PANELIST_REAL_DATE" "\$@")
+_clock_now=\$($(shell_literal "$PANELIST_REAL_DATE") "\$@")
 if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
     if [ ! -f "\$STUB_DEADLINE_FILE" ]; then
         printf '%s\n' "\$(( (_clock_now + SDD_PANELIST_TIMEOUT + 1) * 1000 ))" > "\$STUB_DEADLINE_FILE"
@@ -435,7 +436,7 @@ if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
                         break
                     fi
                 fi
-                if [ "\$("$PANELIST_REAL_DATE" +%s)" -ge "\$_receipt_limit" ]; then
+                if [ "\$($(shell_literal "$PANELIST_REAL_DATE") +%s)" -ge "\$_receipt_limit" ]; then
                     printf 'test observer: no real supervisor status within bound\n' >&2
                     # Return the observed clock so production enforces expiry;
                     # missing recheck-status still makes the fixture fail.
@@ -459,7 +460,7 @@ case "\${3:-}" in
         fi
         sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
 esac
-exec "$PANELIST_REAL_PYTHON" "\$@"
+exec $(shell_literal "$PANELIST_REAL_PYTHON") "\$@"
 EOF
 chmod +x "${PANELIST_STUBS}/date" "${PANELIST_STUBS}/python3"
 
