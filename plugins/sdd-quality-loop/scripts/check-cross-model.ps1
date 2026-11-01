@@ -100,12 +100,16 @@ if ($verdictFiles.Count -eq 0) {
 
 # ── Step 1: parse + schema-validate each verdict ───────────────────────────
 
-$HEX64 = '^[0-9a-f]{64}$'
+$HEX64 = '\A[0-9a-f]{64}\z'
 $verdicts = @()
 
 foreach ($vfile in $verdictFiles) {
     try {
-        $v = Get-Content -Raw -Encoding Utf8 -LiteralPath $vfile.FullName | ConvertFrom-Json
+        $json = Get-Content -Raw -Encoding Utf8 -LiteralPath $vfile.FullName
+        $v = $json | ConvertFrom-Json
+        if ($json.TrimStart() -notmatch '^\{' -or $v -isnot [PSCustomObject]) {
+            throw 'verdict must be a JSON object'
+        }
     } catch {
         [Console]::Error.WriteLine("check-cross-model: failed to parse $($vfile.Name): $_")
         exit 2
@@ -118,8 +122,8 @@ foreach ($vfile in $verdictFiles) {
     }
 
     # input_digest must be 64-hex
-    $digest = [string]($v.input_digest)
-    if (-not ($digest -cmatch $HEX64)) {
+    $digest = $v.input_digest
+    if ($digest -isnot [string] -or -not ($digest -cmatch $HEX64)) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): input_digest must be 64-hex (got '$digest')")
         exit 2
     }
@@ -133,11 +137,17 @@ foreach ($vfile in $verdictFiles) {
 
     # consent.kind must be present
     $consent = $v.consent
-    if ($null -eq $consent -or -not $consent.PSObject.Properties['kind'] -or -not $consent.kind) {
+    if ($consent -isnot [PSCustomObject] -or $consent.kind -isnot [string] -or -not $consent.kind) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): consent.kind is required")
         exit 2
     }
 
+    if ($v.PSObject.Properties['findings']) {
+        if ($v.findings -isnot [array] -or @($v.findings | Where-Object { $null -eq $_ -or $_.GetType() -ne [System.Management.Automation.PSCustomObject] }).Count -gt 0) {
+            [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): findings must be an array of objects")
+            exit 2
+        }
+    }
     $verdicts += $v
 }
 
@@ -186,7 +196,7 @@ if ($ExpectDigest) {
 
 # ── Step 6: consensus check ─────────────────────────────────────────────────
 
-$allPass = ($verdicts | Where-Object { [string]$_.verdict -cne "PASS" }).Count -eq 0
+$allPass = ($verdicts | Where-Object { $_.verdict -isnot [string] -or $_.verdict -cne "PASS" }).Count -eq 0
 $anyCritical = ($verdicts | ForEach-Object {
     $v = $_
     if ($v.findings) {

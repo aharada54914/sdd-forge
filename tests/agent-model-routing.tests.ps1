@@ -738,6 +738,30 @@ Required Workflow: test-after
         Fail 'TEST-053 -RequestedEffort under welded did not apply the requested value'
     }
 
+    foreach ($shape in @('registry-root','schema','model-name','default-effort','control','candidate-name','candidate-effort')) {
+        $shapeRegistry = Get-Content -Raw -LiteralPath $v2RegistryPath | ConvertFrom-Json
+        $shapeCandidates = Get-Content -Raw -LiteralPath $v2GoldenCandidatesPath | ConvertFrom-Json -NoEnumerate
+        switch ($shape) {
+            'schema' { $shapeRegistry.schema = @($shapeRegistry.schema) }
+            'model-name' { $shapeRegistry.models[0].name = @($shapeRegistry.models[0].name) }
+            'default-effort' { $shapeRegistry.models[0].default_effort = @($shapeRegistry.models[0].default_effort) }
+            'control' { $shapeRegistry.models[0].effort_control.'claude-code' = @($shapeRegistry.models[0].effort_control.'claude-code') }
+            'candidate-name' { $shapeCandidates[0].name = @($shapeCandidates[0].name) }
+            'candidate-effort' { $shapeCandidates[0].effort = @($shapeCandidates[0].effort) }
+        }
+        $shapeRegistryJson = $shapeRegistry | ConvertTo-Json -Depth 12
+        if ($shape -ceq 'registry-root') { $shapeRegistryJson = "[$shapeRegistryJson]" }
+        $shapeRegistryPath = Join-Path $tmp 'shape-registry.json'
+        $shapeCandidatesPath = Join-Path $tmp 'shape-candidates.json'
+        [IO.File]::WriteAllText($shapeRegistryPath, $shapeRegistryJson)
+        [IO.File]::WriteAllText($shapeCandidatesPath, (ConvertTo-Json -InputObject $shapeCandidates -Depth 12))
+        $shapeRejected = $false
+        try { & $SelectorPs -Risk low -Registry $shapeRegistryPath -CandidatesFile $shapeCandidatesPath -Json | Out-Null }
+        catch { $shapeRejected = $_.Exception.Message -cmatch '^MODEL_SELECTION_ERROR:' }
+        if (-not $shapeRejected) { Fail "selector accepted non-scalar $shape" }
+        Write-Host "ok: selector rejects non-scalar $shape"
+    }
+
     # TEST-054 (AC-054): each malformed v2 field category is rejected
     # fail-closed with a MODEL_SELECTION_ERROR-class diagnostic and no
     # candidate selected.
