@@ -11,6 +11,9 @@ param(
     [string]$OutputPath = ""
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
+. (Join-Path $PSScriptRoot 'lib/evidence-key.ps1')
+. (Join-Path $PSScriptRoot 'lib/evidence-path.ps1')
 
 if (-not (Test-Path -LiteralPath $ContractPath)) {
     Write-Error "generate-evidence-bundle: contract file not found: $ContractPath"
@@ -36,7 +39,7 @@ function Get-NormalizedRelPath {
         [Parameter(Mandatory)][string]$AbsRoot
     )
     $rootSep = $AbsRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
-    $resolved = [System.IO.Path]::GetFullPath($AbsPath)
+    $resolved = Resolve-SddEvidenceFilesystemPath $AbsPath
     $sep = [System.IO.Path]::DirectorySeparatorChar
     if (-not ($resolved.StartsWith($rootSep + $sep) -or $resolved -eq $rootSep)) {
         throw "Path '$AbsPath' is outside repo root '$AbsRoot'"
@@ -44,7 +47,7 @@ function Get-NormalizedRelPath {
     $rel = $resolved.Substring($rootSep.Length).TrimStart($sep, '/')
     # Normalize to forward slashes
     $rel = $rel.Replace('\', '/')
-    if ([string]::IsNullOrWhiteSpace($rel) -or $rel -match '\.\.') {
+    if ([string]::IsNullOrWhiteSpace($rel) -or $rel -match '(^|/)\.\.(/|$)') {
         throw "Unsafe relative path: $rel"
     }
     return $rel
@@ -55,7 +58,13 @@ function Get-NormalizedRelPath {
 # ------------------------------------------------------------------
 
 try {
-    $contract = Get-Content -Raw -Encoding Utf8 $ContractPath | ConvertFrom-Json
+    $contractJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $ContractPath
+    $contract = $contractJson | ConvertFrom-Json
+    if ($contractJson.TrimStart() -notmatch '^\{' -or $contract -isnot [System.Management.Automation.PSCustomObject]) { throw 'contract must be an object' }
+    if ($contract.task_id -isnot [string] -or $contract.checks -isnot [array]) { throw 'invalid task_id or checks type' }
+    foreach ($check in $contract.checks) {
+        if ($check -isnot [System.Management.Automation.PSCustomObject]) { throw 'check entries must be objects' }
+    }
 } catch {
     Write-Error "generate-evidence-bundle: cannot parse contract: $_"
     exit 1
@@ -69,7 +78,7 @@ if ($taskId -notmatch '^T-\d+$') {
 
 $feature = ([string]$contract.feature).Trim()
 
-$absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+$absRoot = (Resolve-SddEvidenceFilesystemPath (Resolve-Path -LiteralPath $RepoRoot).Path).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
 # Extract risk and required_workflow from contract (may be absent for legacy bundles)
 $contractRisk = ([string]$contract.risk).Trim()
@@ -80,7 +89,7 @@ $contractRequiredWorkflow = ([string]$contract.required_workflow).Trim()
 # ------------------------------------------------------------------
 
 if ([string]::IsNullOrWhiteSpace($OutputPath)) {
-    $contractDir = Split-Path -Parent (Resolve-Path $ContractPath).Path
+    $contractDir = Split-Path -Parent (Resolve-Path -LiteralPath $ContractPath).Path
     $resolvedOutputPath = Join-Path $contractDir "$taskId.evidence.json"
 } else {
     $resolvedOutputPath = $OutputPath
@@ -90,14 +99,14 @@ if ([string]::IsNullOrWhiteSpace($OutputPath)) {
 # Build artifact list (deduplicated, relative paths)
 # ------------------------------------------------------------------
 
-$seenPaths = [ordered]@{}  # normalized rel-path -> abs path
+$seenPaths = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)  # normalized rel-path -> abs path
 
 function Add-Artifact {
     param(
         [Parameter(Mandatory)][string]$AbsPath,
         [Parameter(Mandatory)][string]$Label
     )
-    $p = [System.IO.Path]::GetFullPath($AbsPath)
+    $p = Resolve-SddEvidenceFilesystemPath $AbsPath
     if (-not (Test-Path -LiteralPath $p)) {
         Write-Error "generate-evidence-bundle: $Label not found: $AbsPath"
         exit 1
@@ -117,8 +126,8 @@ function Add-Artifact {
     }
 }
 
-Add-Artifact -AbsPath (Resolve-Path $ContractPath).Path -Label "verification_contract"
-Add-Artifact -AbsPath (Resolve-Path $QualityReport).Path -Label "quality_report"
+Add-Artifact -AbsPath (Resolve-Path -LiteralPath $ContractPath).Path -Label "verification_contract"
+Add-Artifact -AbsPath (Resolve-Path -LiteralPath $QualityReport).Path -Label "quality_report"
 
 foreach ($check in @($contract.checks)) {
     if ([bool]$check.passes) {
@@ -131,8 +140,8 @@ foreach ($check in @($contract.checks)) {
 }
 
 # Build artifacts array: contract first, report second, rest sorted
-$contractRel = Get-NormalizedRelPath -AbsPath (Resolve-Path $ContractPath).Path -AbsRoot $absRoot
-$reportRel   = Get-NormalizedRelPath -AbsPath (Resolve-Path $QualityReport).Path -AbsRoot $absRoot
+$contractRel = Get-NormalizedRelPath -AbsPath (Resolve-Path -LiteralPath $ContractPath).Path -AbsRoot $absRoot
+$reportRel   = Get-NormalizedRelPath -AbsPath (Resolve-Path -LiteralPath $QualityReport).Path -AbsRoot $absRoot
 
 $orderedRels = [System.Collections.Generic.List[string]]::new()
 if ($seenPaths.Contains($contractRel)) { $orderedRels.Add($contractRel) }
@@ -159,8 +168,9 @@ if (-not $gitExe) {
 }
 
 try {
-    $revResult = & git -C $absRoot rev-parse HEAD 2>&1
-    $revExit = $LASTEXITCODE
+    $revProbe = Invoke-SddGitRaw -RepoRoot $absRoot -GitArgs @('rev-parse', 'HEAD')
+    $revResult = [Text.Encoding]::UTF8.GetString($revProbe.Stdout)
+    $revExit = $revProbe.ExitCode
 } catch {
     Write-Error "generate-evidence-bundle: git rev-parse failed: $_"
     exit 1
@@ -178,8 +188,9 @@ if ($gitCommit -cnotmatch '^[0-9a-f]{40}$') {
 }
 
 try {
-    $statusResult = & git -C $absRoot status --porcelain 2>&1
-    $statusExit = $LASTEXITCODE
+    $statusProbe = Invoke-SddGitRaw -RepoRoot $absRoot -GitArgs @('status', '--porcelain')
+    $statusResult = [Text.Encoding]::UTF8.GetString($statusProbe.Stdout)
+    $statusExit = $statusProbe.ExitCode
 } catch {
     Write-Error "generate-evidence-bundle: git status failed: $_"
     exit 1
@@ -251,7 +262,7 @@ function Get-ReviewVerdict {
     }
 }
 
-$reviewVerdict = Get-ReviewVerdict -ReportPath (Resolve-Path $QualityReport).Path
+$reviewVerdict = Get-ReviewVerdict -ReportPath (Resolve-Path -LiteralPath $QualityReport).Path
 
 # ------------------------------------------------------------------
 # Build build_env
@@ -270,13 +281,21 @@ $pythonVersion = ""
 $pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
 if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
 if ($pythonCmd) {
-    $pythonVersion = [regex]::Match(((& $pythonCmd.Source --version 2>&1) | Out-String), '\d+\.\d+').Value
+    try {
+        $versionProbe = Invoke-SddNativeRaw -FileName $pythonCmd.Source -Arguments @('--version') -TimeoutMilliseconds 5000
+        if ($versionProbe.ExitCode -eq 0) {
+            $pythonVersion = [regex]::Match([Text.Encoding]::UTF8.GetString($versionProbe.Stdout + $versionProbe.Stderr), '\d+\.\d+').Value
+        }
+    } catch { $pythonVersion = '' } # Optional provenance metadata, not evidence validity.
 }
 
 $gitVersion = ""
 $gitCmd = Get-Command git -ErrorAction SilentlyContinue
 if ($gitCmd) {
-    $gitVersion = (& git --version) -join " "
+    try {
+        $versionProbe = Invoke-SddGitRaw -RepoRoot $absRoot -GitArgs @('--version')
+        if ($versionProbe.ExitCode -eq 0) { $gitVersion = [Text.Encoding]::UTF8.GetString($versionProbe.Stdout).Trim() }
+    } catch { $gitVersion = '' } # Optional provenance metadata.
 }
 
 $buildEnv = [ordered]@{
@@ -307,65 +326,6 @@ $builder = [ordered]@{
 # ------------------------------------------------------------------
 # Signing helpers (T-007a)
 # ------------------------------------------------------------------
-
-function Resolve-EvidenceKey {
-    $envKey = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY")
-    if (-not [string]::IsNullOrWhiteSpace($envKey)) {
-        return @{ key = [System.Text.Encoding]::UTF8.GetBytes($envKey); ref = "env:SDD_EVIDENCE_KEY" }
-    }
-    $envKeyFile = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY_FILE")
-    if (-not [string]::IsNullOrWhiteSpace($envKeyFile)) {
-        try {
-            $raw = [System.IO.File]::ReadAllBytes($envKeyFile)
-            # Strip BOM (0xEF 0xBB 0xBF)
-            if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
-                $raw = $raw[3..($raw.Length-1)]
-            }
-            # Strip trailing whitespace
-            $raw = [System.Linq.Enumerable]::Reverse(
-                [System.Linq.Enumerable]::SkipWhile(
-                    [System.Linq.Enumerable]::Reverse($raw),
-                    { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
-                )
-            ).ToArray()
-            if ($raw.Length -gt 0) {
-                return @{ key = $raw; ref = "file:$envKeyFile" }
-            }
-        } catch {
-            return $null
-        }
-    }
-    # NB: do not name this $home — $HOME is a read-only automatic variable in
-    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
-    $userHome = $env:HOME
-    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
-    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
-        # Windows PowerShell 5.1 accepts only Path and ChildPath for Join-Path.
-        $keyPath = Join-Path (Join-Path $userHome ".sdd") "evidence-key"
-        if (Test-Path -LiteralPath $keyPath) {
-            try {
-                $raw = [System.IO.File]::ReadAllBytes($keyPath)
-                # Strip BOM
-                if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
-                    $raw = $raw[3..($raw.Length-1)]
-                }
-                # Strip trailing whitespace
-                $raw = [System.Linq.Enumerable]::Reverse(
-                    [System.Linq.Enumerable]::SkipWhile(
-                        [System.Linq.Enumerable]::Reverse($raw),
-                        { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
-                    )
-                ).ToArray()
-                if ($raw.Length -gt 0) {
-                    return @{ key = $raw; ref = "file:~/.sdd/evidence-key" }
-                }
-            } catch {
-                return $null
-            }
-        }
-    }
-    return $null
-}
 
 function Get-EvidenceCanonical {
     param([Parameter(Mandatory)]$Bundle)
@@ -475,13 +435,13 @@ if ($contractRisk -eq "critical") {
 }
 
 $outputDir = Split-Path -Parent $resolvedOutputPath
-if (-not (Test-Path $outputDir)) {
+if (-not (Test-Path -LiteralPath $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
-$bundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $resolvedOutputPath
+$bundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 -LiteralPath $resolvedOutputPath
 # Ensure trailing newline
-Add-Content -Value "" -Encoding Utf8 $resolvedOutputPath
+Add-Content -Value "" -Encoding Utf8 -LiteralPath $resolvedOutputPath
 
 $artifactCount = $artifacts.Count
 $shortCommit = $gitCommit.Substring(0, 12)

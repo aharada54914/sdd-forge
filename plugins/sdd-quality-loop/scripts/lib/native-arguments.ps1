@@ -10,15 +10,18 @@ function ConvertTo-SddNativeArgumentString {
     $quoted -join ' '
 }
 
-# Raw-byte Git inspection with an owned 30-second process and stream deadline.
-function Invoke-SddGitRaw {
-    # Runs git as a real subprocess and returns raw bytes for stdout/stderr
+# Raw-byte native invocation with an owned process and stream deadline.
+function Invoke-SddNativeRaw {
+    # Runs a native executable as a real subprocess and returns raw bytes for stdout/stderr
     # (never PowerShell's own text/console decoding), reading both streams
     # concurrently via CopyToAsync to avoid a classic redirect deadlock.
-    param([string]$RepoRoot, [string[]]$GitArgs)
+    param(
+        [string]$FileName,
+        [string[]]$Arguments,
+        [ValidateRange(1, 2147483647)][int]$TimeoutMilliseconds = 30000
+    )
     $psi = [System.Diagnostics.ProcessStartInfo]::new()
-    $psi.FileName = "git"
-    $arguments = @('-C', $RepoRoot) + $GitArgs
+    $psi.FileName = $FileName
     if ($null -ne $psi.PSObject.Properties['ArgumentList']) {
         foreach ($argument in $arguments) { [void]$psi.ArgumentList.Add($argument) }
     } else {
@@ -38,16 +41,16 @@ function Invoke-SddGitRaw {
         $started = $proc.Start()
         $outTask = $proc.StandardOutput.BaseStream.CopyToAsync($stdoutMs, 81920, $cancel.Token)
         $errTask = $proc.StandardError.BaseStream.CopyToAsync($stderrMs, 81920, $cancel.Token)
-        if (-not $proc.WaitForExit(30000)) {
-            throw [System.InvalidOperationException]::new("git inspection exceeded its 30-second deadline")
+        if (-not $proc.WaitForExit($TimeoutMilliseconds)) {
+            throw [System.InvalidOperationException]::new("$FileName inspection exceeded its $($TimeoutMilliseconds / 1000)-second deadline")
         }
-        $remaining = [Math]::Max(0, 30000 - [int]$clock.ElapsedMilliseconds)
+        $remaining = [Math]::Max(0, $TimeoutMilliseconds - [int]$clock.ElapsedMilliseconds)
         if (-not [System.Threading.Tasks.Task]::WaitAll([System.Threading.Tasks.Task[]]@($outTask, $errTask), $remaining)) {
-            throw [System.InvalidOperationException]::new("git output exceeded its 30-second deadline")
+            throw [System.InvalidOperationException]::new("$FileName output exceeded its $($TimeoutMilliseconds / 1000)-second deadline")
         }
         return @{ ExitCode = $proc.ExitCode; Stdout = $stdoutMs.ToArray(); Stderr = $stderrMs.ToArray() }
     } catch {
-        throw [System.InvalidOperationException]::new("git invocation failed: $($_.Exception.Message)")
+        throw [System.InvalidOperationException]::new("$FileName invocation failed: $($_.Exception.Message)")
     } finally {
         $cancel.Cancel()
         try {
@@ -66,4 +69,10 @@ function Invoke-SddGitRaw {
             $cancel.Dispose()
         }
     }
+}
+
+# Preserve the existing Git adapter contract for resolver/precheck consumers.
+function Invoke-SddGitRaw {
+    param([string]$RepoRoot, [string[]]$GitArgs)
+    Invoke-SddNativeRaw -FileName 'git' -Arguments (@('-C', $RepoRoot) + $GitArgs)
 }
