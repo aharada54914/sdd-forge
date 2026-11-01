@@ -23,7 +23,9 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $reportsRoot = Join-Path $repoRoot 'reports'
 $parent = Split-Path -Parent $ReportRoot
 if (-not (Test-Path -LiteralPath $parent -PathType Container)) { Fail 'report root parent does not exist' }
-$canonicalRoot = Join-Path (Resolve-Path -LiteralPath $parent).Path (Split-Path -Leaf $ReportRoot)
+$leaf = [IO.Path]::GetFileName($ReportRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar))
+if ($leaf -in @('.', '..')) { Fail 'report root must name a child directory' }
+$canonicalRoot = Join-Path (Resolve-Path -LiteralPath $parent).Path $leaf
 if (-not $canonicalRoot.StartsWith($reportsRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { Fail 'report root escapes reports directory' }
 if (Test-Path -LiteralPath $ReportRoot) {
   if (-not (Test-Path -LiteralPath $ReportRoot -PathType Container)) { Fail 'report root must be a directory when it exists' }

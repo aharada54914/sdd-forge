@@ -32,6 +32,12 @@ expect_failure "${VALIDATOR}" --feature utf8-feature --attempt +1 --round 2 --st
 expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1.5 --round 2 --stage spec --report-root "${REPORT_ROOT}" --contract "${FIXTURE}"
 expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 0 --stage spec --report-root "${REPORT_ROOT}" --contract "${FIXTURE}"
 expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "${REPO_ROOT}/../unsafe" --contract "${FIXTURE}"
+for unsafe_root in "${REPO_ROOT}/reports/.." "${REPO_ROOT}/reports/."; do
+  expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "$unsafe_root" --contract "${FIXTURE}"
+  if command -v pwsh >/dev/null 2>&1; then
+    expect_failure pwsh -NoProfile -File "${VALIDATOR%.sh}.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$unsafe_root" -Contract "${FIXTURE}"
+  fi
+done
 jq '.feature = "different-feature"' "${FIXTURE}" > "${TEMP_CONTRACT}"
 expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "${REPORT_ROOT}" --contract "${TEMP_CONTRACT}"
 jq '.attempt = "1"' "${FIXTURE}" > "${TEMP_CONTRACT}"
