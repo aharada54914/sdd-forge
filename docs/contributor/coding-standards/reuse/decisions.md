@@ -183,3 +183,31 @@ authentication. Disposable real-command tests cover version success, nonzero exi
 a TERM-resistant hanging child, elapsed time and child termination. The local
 Bash suite passed 53/53 and PowerShell suite passed 60/60; native Windows/macOS
 execution remains separately recorded by CI.
+
+
+### Evidence byte acquisition and filesystem resolution
+
+R-015 (technical infrastructure): `lib/evidence-key.ps1` shares key-source
+priority and byte normalization between bundle generation and validation. The
+critical-risk requirement and signature admission remain in each caller. A
+non-whitespace environment value is encoded exactly; file keys strip only a
+leading UTF-8 BOM and trailing ASCII space/tab/CR/LF. The shared implementation
+also repairs the prior LINQ overload failure for valid key files. Key bytes are
+never included in diagnostics. No cache, package or CLI option is added.
+
+`lib/evidence-path.ps1` shares existing filesystem resolution, while callers
+retain containment and regular-file policy. Generator collection of an in-root
+link and the consumer's stricter contract reparse-point rejection remain distinct.
+Hardlinks preserve their path; symbolic links resolve component-wise. The public
+PowerShell 5.1+ policy requires a bounded `Target` fallback when `ResolveLinkTarget`
+is unavailable, so the helper does not silently require .NET 6.
+
+Independent heldout execution at `f6767ae3` passed raw 1 MiB streams, eight argv
+atoms, nonzero status, start-error redaction, deadline/direct-child cleanup, real
+Git wrapper calls, binary key handling, two-hop relative directory links and
+hardlinks. See `shared-helpers-independent-review.json` for exact source hashes
+and `evidence/shared-helpers-heldout.txt` for output. The missing-method fallback
+was simulated on Linux; this does not establish native Windows PowerShell 5.1
+behavior. Full raw output buffers remain uncapped, and descendant cleanup after
+an already-exited parent is not promised. Newly extracted helper stability rests
+on preserved caller contracts and these controls, not longevity.

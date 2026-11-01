@@ -1,0 +1,79 @@
+param([Parameter(Mandatory=$true)][string]$Repository)
+$ErrorActionPreference = 'Stop'
+. (Join-Path $Repository 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
+. (Join-Path $Repository 'plugins/sdd-quality-loop/scripts/lib/evidence-key.ps1')
+. (Join-Path $Repository 'plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1')
+function Require([bool]$Value, [string]$Reason) { if (-not $Value) { throw $Reason } }
+$python = (Get-Command python3 -CommandType Application | Select-Object -First 1).Source
+$work = Join-Path ([IO.Path]::GetTempPath()) ('reuse-heldout-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $work | Out-Null
+try {
+    $program = Join-Path $work 'binary child.py'
+    [IO.File]::WriteAllText($program, "import os,sys`nos.write(1, bytes(range(256))*4096)`nos.write(2, bytes(reversed(range(256)))*4096)`nsys.exit(19)`n")
+    $raw = Invoke-SddNativeRaw -FileName $python -Arguments @($program) -TimeoutMilliseconds 5000
+    Require ($raw.ExitCode -eq 19 -and $raw.Stdout.Length -eq 1048576 -and $raw.Stderr.Length -eq 1048576) 'raw streams/status differ'
+    for ($i=0; $i -lt 256; $i++) {
+        Require ($raw.Stdout[$i] -eq $i -and $raw.Stderr[$i] -eq 255-$i -and $raw.Stdout[1048320+$i] -eq $i -and $raw.Stderr[1048320+$i] -eq 255-$i) 'binary boundary bytes differ'
+    }
+    Write-Output 'PASS raw simultaneous 1MiB stdout/stderr, NUL/non-UTF8 bytes, exit19'
+    $atoms = @('', 'space name', '"quoted"', 'trailing\', 'brackets[ab]', "line`nbreak", ('unicode-' + [char]0x03BB), '$() ; & literal')
+    $argProgram = 'import json,sys;print(json.dumps(sys.argv[1:],ensure_ascii=True))'
+    $raw = Invoke-SddNativeRaw -FileName $python -Arguments (@('-c',$argProgram) + $atoms) -TimeoutMilliseconds 5000
+    $observed = ConvertFrom-Json -InputObject ([Text.Encoding]::UTF8.GetString($raw.Stdout)) -NoEnumerate
+    Require ($observed.Count -eq $atoms.Count -and $raw.Stderr.Length -eq 0) 'argument count changed'
+    for ($i=0; $i -lt $atoms.Count; $i++) { Require ([string]::Equals($atoms[$i],$observed[$i],[StringComparison]::Ordinal)) 'argument atom changed' }
+    Write-Output 'PASS 8 hostile/empty/Unicode argument atoms preserved without shell interpretation'
+    $marker = 'DO_NOT_LOG_ARGUMENT_4ac51e9b'
+    try { Invoke-SddNativeRaw -FileName (Join-Path $work 'missing-executable') -Arguments @($marker) | Out-Null; throw 'unexpected start success' }
+    catch { Require ($_.Exception.Message.Contains('invocation failed:')) 'missing executable did not produce invocation failure'; Require (-not $_.Exception.Message.Contains($marker)) 'argument leaked into start diagnostic' }
+    Write-Output 'PASS start failure excludes secret-shaped argument data'
+    $pidFile = Join-Path $work 'child.pid'
+    $sleepCode = 'import os,sys,time;open(sys.argv[1],"w").write(str(os.getpid()));time.sleep(20)'
+    $clock = [Diagnostics.Stopwatch]::StartNew()
+    $failed = $false
+    try { Invoke-SddNativeRaw -FileName $python -Arguments @('-c',$sleepCode,$pidFile) -TimeoutMilliseconds 250 | Out-Null }
+    catch { $failed = $true; Require ($_.Exception.Message.Contains('deadline')) 'deadline lost diagnostic' }
+    Require ($failed -and $clock.ElapsedMilliseconds -lt 7000) 'deadline did not bound call'
+    $childId = [int][IO.File]::ReadAllText($pidFile)
+    $child = Get-Process -Id $childId -ErrorAction SilentlyContinue
+    Require ($null -eq $child -or $child.HasExited) 'owned child remains alive'
+    Write-Output 'PASS 250ms deadline and separately observed direct-child termination'
+    & git -C $work init -q
+    Require ($LASTEXITCODE -eq 0) 'fixture git init failed'
+    $gitResult = Invoke-SddGitRaw -RepoRoot $work -GitArgs @('rev-parse','--is-inside-work-tree')
+    Require ($gitResult.ExitCode -eq 0 -and [Text.Encoding]::UTF8.GetString($gitResult.Stdout).Trim() -ceq 'true') 'Git wrapper compatibility failed'
+    $gitError = Invoke-SddGitRaw -RepoRoot $work -GitArgs @('not-a-command-4ac51e9b')
+    Require ($gitError.ExitCode -ne 0 -and $gitError.Stderr.Length -gt 0) 'Git nonzero status became exception/success'
+    Write-Output 'PASS real Git repository success/nonzero wrapper contracts'
+    $realDir = New-Item -ItemType Directory -Path (Join-Path $work 'real[ab]')
+    $target = Join-Path $realDir.FullName 'bytes.bin'
+    [IO.File]::WriteAllBytes($target, [byte[]]@(0,255))
+    New-Item -ItemType SymbolicLink -Path (Join-Path $work 'first') -Target 'real[ab]' | Out-Null
+    New-Item -ItemType SymbolicLink -Path (Join-Path $work 'second') -Target 'first' | Out-Null
+    $nested = Join-Path $work 'second/bytes.bin'
+    Require ((Resolve-SddEvidenceFilesystemPath $nested) -ceq $target) 'relative directory link chain changed target'
+    New-Item -ItemType HardLink -Path (Join-Path $work 'hard.bin') -Target $target | Out-Null
+    Require ((Resolve-SddEvidenceFilesystemPath (Join-Path $work 'hard.bin')) -ceq (Join-Path $work 'hard.bin')) 'hardlink path changed'
+    function Get-Item {
+        [CmdletBinding()] param([string]$LiteralPath,[switch]$Force)
+        $item = Microsoft.PowerShell.Management\Get-Item -LiteralPath $LiteralPath -Force:$Force -ErrorAction Stop
+        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { return [pscustomobject]@{Attributes=$item.Attributes;Target=$item.Target;FullName=$item.FullName} }
+        return $item
+    }
+    try { Require ((Resolve-SddEvidenceFilesystemPath $nested) -ceq $target) 'fallback relative directory chain changed target' }
+    finally { Remove-Item Function:\Get-Item }
+    Write-Output 'PASS two-hop relative directory links and bracket components, hardlink preservation, missing-method fallback (Linux simulation only)'
+    $oldKey = $env:SDD_EVIDENCE_KEY; $oldFile = $env:SDD_EVIDENCE_KEY_FILE
+    try {
+        $env:SDD_EVIDENCE_KEY = ''
+        $env:SDD_EVIDENCE_KEY_FILE = Join-Path $work 'key[ab].bin'
+        [IO.File]::WriteAllBytes($env:SDD_EVIDENCE_KEY_FILE, [byte[]]@(239,187,191,0,255,9,32,13,10))
+        $key = Resolve-EvidenceKey
+        Require ($key.key -is [byte[]] -and $key.key.Length -eq 2 -and $key.key[0] -eq 0 -and $key.key[1] -eq 255) 'key byte normalization altered interior bytes'
+        $env:SDD_EVIDENCE_KEY = ' env-value-with-space '
+        $key = Resolve-EvidenceKey
+        Require ([Text.Encoding]::UTF8.GetString($key.key) -ceq ' env-value-with-space ') 'environment key was trimmed or priority lost'
+        Require ($key.ref -ceq 'env:SDD_EVIDENCE_KEY') 'environment key reference changed'
+        Write-Output 'PASS key-file BOM/trailing ASCII normalization, interior binary bytes, env priority/exact bytes'
+    } finally { $env:SDD_EVIDENCE_KEY=$oldKey; $env:SDD_EVIDENCE_KEY_FILE=$oldFile }
+} finally { Remove-Item -LiteralPath $work -Recurse -Force }

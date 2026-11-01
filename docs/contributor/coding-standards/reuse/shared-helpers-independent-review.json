@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent-final-review",
+  "source_commit": "f6767ae3b7580b5191750efb630eff3e868e456e",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
+      "source_sha256": "159ee19a35ffac03ddfcf77575f8e5b5f3e91059d8fb7b0b81b0cad934ccd62a",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Whole helper read; common native mechanics preserve Git wrapper argv/status/raw-byte/deadline contract. Optional Python version caller owns five-second degraded metadata policy. Stream draining is concurrent; per-call process, buffers and cancellation disposed. No shell or new package. Actual heldout process tests verify direct child only; full raw buffers are not byte-capped and no descendant guarantee after parent exit is claimed."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-key.ps1",
+      "source_sha256": "c70407538d394a40a5b73e9b4f117f509a7661077a57c7e9203193b6b9321eb6",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Whole helper read and both prior Resolve-EvidenceKey implementations compared. Shared priority env > explicit file > home and byte normalization are technical signing-key acquisition, while critical-risk admission and HMAC remain callers. ASCII-tail/BOM handling fixes prior LINQ failure. Environment bytes remain exact; file interior binary bytes retained; ref contains source path but no key bytes. Explicit unreadable file still returns null rather than silently changing source."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "source_sha256": "52f75373d614efa6a3c1664b4551f1817b8d8ebf74ae6f812969676d37230317",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "judgment": "Whole helper read and producer/consumer containment boundaries inspected. Canonical existing filesystem resolution only: caller retains containment, regular-file and reparse policy. ReparsePoint excludes hardlinks. .NET API path and bounded legacy Target fallback resolve relative components; fallback strips Windows device prefixes. Missing-method simulation covers relative two-hop directory links, not native Windows junction execution. Existing PS5.1+ public support requires native validation separately."
+    }
+  ],
+  "actual_execution": {
+    "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File /tmp/reuse-native-heldout.ps1 -Repository /workspace/scratch/standards-685/shell",
+    "runtime": "PowerShell 7.6.7 / Linux",
+    "exit_code": 0,
+    "harness": "reuse/evidence/shared-helpers-heldout.ps1.txt",
+    "harness_sha256": "311e3c424c97c1ba31c5f58a40353cd52b6800d81366f524a03f47e8d2b4f1b5",
+    "output": "reuse/evidence/shared-helpers-heldout.txt"
+  },
+  "scope_limits": [
+    "Independent heldout component tests, not fixture-copy of owner public generator/validator tests.",
+    "No native Windows PowerShell 5.1, installed distribution, live remote provider or full product guarantee from these controls.",
+    "No identical before invocation for new Invoke-SddNativeRaw entry point; previous Git wrapper comparison is source-level plus actual current Git subprocess controls.",
+    "NativeRaw retains full output bytes and direct-child cleanup scope; it does not claim bounded total allocation or guaranteed descendants cleanup after parent exit."
+  ],
+  "findings_resolved_before_checkpoint": [
+    "Hardlinks must not enter symbolic-link API path: owner changed LinkType to ReparsePoint and added actual control.",
+    "Public PowerShell5.1+ support disallows unguarded ResolveLinkTarget: owner added capability fallback; Linux simulated missing capability passes, native Windows remains CI responsibility."
+  ]
+}
