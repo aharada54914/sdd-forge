@@ -46,3 +46,8 @@ required checks and review requirements still apply.
 The root integration owns final CI, source changes after this snapshot, final
 census/mirrors and actual OS/host coverage. #687/#692 acceptance must still account
 for those results and the explicitly unverified behavior above.
+
+Follow-up: [two bounded Codex probes](guidance-eval/README.md) exercised actual
+conditional guidance reads. The source case read all common rules; broad model
+adherence is still not established. [Linux child-timeout observation](timeout-child.json)
+found an exited zombie, not a running descendant; other OS transports remain untested.
