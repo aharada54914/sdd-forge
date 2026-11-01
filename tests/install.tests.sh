@@ -1186,25 +1186,27 @@ rm -rf "$_o_root"
 # ---------------------------------------------------------------------------
 _p_ok=1
 if ! python3 -c "
+import sys
 import json
-with open('${REPO_ROOT}/.claude-plugin/marketplace.json') as f:
+with open(sys.argv[1]) as f:
     m = json.load(f)
 names = [p['name'] for p in m['plugins']]
 assert 'sdd-ship' in names, 'sdd-ship not found in marketplace plugins'
 assert 'sdd-bootstrap' in names, 'sdd-bootstrap not found in marketplace plugins'
 assert 'sdd-review-loop' in names, 'sdd-review-loop not found in marketplace plugins'
-" 2>/dev/null; then
+" "${REPO_ROOT}/.claude-plugin/marketplace.json" 2>/dev/null; then
     fail "marketplace (p): sdd-ship not present in .claude-plugin/marketplace.json"
     _p_ok=0
 fi
 if ! python3 -c "
+import sys
 import json
-with open('${REPO_ROOT}/.agents/plugins/marketplace.json') as f:
+with open(sys.argv[1]) as f:
     m = json.load(f)
 names = [p['name'] for p in m['plugins']]
 assert 'sdd-ship' in names, 'sdd-ship not found in agents marketplace plugins'
 assert 'sdd-review-loop' in names, 'sdd-review-loop not found in agents marketplace plugins'
-" 2>/dev/null; then
+" "${REPO_ROOT}/.agents/plugins/marketplace.json" 2>/dev/null; then
     fail "marketplace (p): sdd-ship not present in .agents/plugins/marketplace.json"
     _p_ok=0
 fi
