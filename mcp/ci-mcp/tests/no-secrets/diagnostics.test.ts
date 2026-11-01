@@ -93,3 +93,7 @@ test("logFatal scrubs a Bearer token pattern carried in the error message", () =
   const raw = sink.raw();
   assert.ok(!raw.includes("ghp_live_canary_abcdef123456"), `stderr output must not contain the token: ${raw}`);
 });
+
+test("shared mechanism preserves CI scrubbing of credentials absent from the environment", () => {
+  assert.equal(scrubMessage("Bearer rotated-credential-R691"), "Bearer [redacted]");
+});

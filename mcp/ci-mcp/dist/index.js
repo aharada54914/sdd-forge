@@ -37261,11 +37261,10 @@ function buildServer() {
   return server;
 }
 
-// src/diagnostics.ts
+// src/diagnostics-core.ts
 import os from "node:os";
 var REDACTED = "[redacted]";
 var MIN_SECRET_LEN = 4;
-var BEARER_PATTERN = /Bearer\s+[^\s"']+/gi;
 function defaultSink(chunk) {
   process.stderr.write(chunk);
 }
@@ -37293,15 +37292,19 @@ function collectSecrets() {
 function escapeRegExp(literal2) {
   return literal2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function scrubMessage(message) {
+function scrubKnownSecrets(message) {
   let scrubbed = message;
   for (const secret of collectSecrets()) {
     if (scrubbed.includes(secret)) {
       scrubbed = scrubbed.replace(new RegExp(escapeRegExp(secret), "g"), REDACTED);
     }
   }
-  scrubbed = scrubbed.replace(BEARER_PATTERN, `Bearer ${REDACTED}`);
   return scrubbed;
+}
+
+// src/diagnostics.ts
+function scrubMessage(message) {
+  return scrubKnownSecrets(message).replace(/Bearer\s+[^\s"']+/gi, "Bearer [redacted]");
 }
 function logStartup(info, sink = defaultSink) {
   const line = {

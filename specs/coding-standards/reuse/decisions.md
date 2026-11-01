@@ -19,7 +19,7 @@ that future consumers can never diverge.
 
 | ID / layer | Producer → actual consumers and intent | Public contract / owner | History and consumer impact | Divergence counterexample / decision | Verification and current state |
 | --- | --- | --- | --- | --- | --- |
-| R-001 technical logging | `mcp/{local-env-mcp,ci-mcp}/src/diagnostics.ts` → each `src/index.ts`, no-secrets tests; secret-safe startup/fatal stderr | `logStartup(info,sink?)`, `logFatal(error,sink?)`, `scrubMessage(message)`; package REQ-005 owners. Single JSON line, allowlisted fields, longest exact secrets first, env/OS read at call time, no stdout | Local logger introduced `136d3051` (2026-07-05), CI logger `08a49e3c` (2026-07-08). CI adds Bearer scrub; otherwise collection/serialization mechanisms agree. Existing public functions have no later path changes through baseline; only a four-month observed interval | Same `Bearer token` input legitimately differs between providers when token is absent from environment. Share lower-level collection/literal scrub/sink only; retain CI Bearer policy and event allowlist wrappers. Direct cross-package TS imports violate standalone test rootDir/deployment; generated package-local copies permit build-time sharing without runtime dependency | Adoption pending. Both packages' no-secrets and build tests required; freshness positive/stale-negative required. New core API stability has no historical evidence |
+| R-001 technical logging | `mcp/{local-env-mcp,ci-mcp}/src/diagnostics.ts` → each `src/index.ts`, no-secrets tests; secret-safe startup/fatal stderr | `logStartup(info,sink?)`, `logFatal(error,sink?)`, `scrubMessage(message)`; package REQ-005 owners. Single JSON line, allowlisted fields, longest exact secrets first, env/OS read at call time, no stdout | Local logger introduced `136d3051` (2026-07-05), CI logger `08a49e3c` (2026-07-08). CI adds Bearer scrub; otherwise collection/serialization mechanisms agree. Existing public functions have no later path changes through baseline; only a four-month observed interval | Same `Bearer token` input legitimately differs between providers when token is absent from environment. Share lower-level collection/literal scrub/sink only; retain CI Bearer policy and event allowlist wrappers. Direct cross-package TS imports violate standalone test rootDir/deployment; generated package-local copies permit build-time sharing without runtime dependency | Adopted lower-level core; both packages build/typecheck and tests pass (54 local, 149 CI); freshness positive/stale-negative pass (2). New core API stability has no historical evidence |
 | R-002 technical GitHub client | `mcp/ci-mcp/src/github-client.ts` → five `tools/actions.ts` endpoints; auth gate `auth.ts` shared by handlers | GET-only fixed GitHub host, segment encoding, normalized errors without upstream body/token; JSON `githubGet` vs bounded text `githubGetText` | `2685d421` introduces client 2026-07-08; `12b62a5a` adds text, `a994adc7` bounds reads, `58c459e4` fixes oversized chunks. Semantic evolution in same day disproves blanket stability from signature. Actions consumer requires total bytes to derive truncation | JSON payload validation and UTF-8 tail retention are distinct correct responses, so retain public APIs. Private common GET request/auth/status mechanics are candidate for sharing after #690 fixes; no retry/business workflow extraction | Pending #690 handoff and transport/timeout/cancellation regressions. Current baseline lacks explicit abort timeout; #690 owns fix |
 | R-003 technical mirror classification | `scripts/human_copy_mirrors.py` → sync tool and Bash/PS freshness wrappers | `enumerate_mirrors`, classification and TSV CLI; repository mirror owner. Fresh/stale/pending distinguish already-applied vs reviewed pending bytes using main | `9800296d` 2026-08-21 introduction; `73d56299` 09-20 pending fix; `e72e72b9`, `a8e13fe6`, `a0822a96` 10-27/28 frozen successor pin semantics. Contract changes affect sync safety, not just formatting | Unequal bytes alone cannot authorize rewrite. Retain shared classifier; do not duplicate in a new source generator or collapse pending to stale. Frozen successor/publication policy stays here | Existing `tests/human-copy-mirrors-classification.tests.py`, freshness wrappers. No new classifier adoption needed; execution pending final language tree |
 | R-004 feature report interpretation | `plugins/sdd-implementation/scripts/validate-implementation-report.sh` vs `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts` → admission vs read-only evidence/tasks | Strict current report contract vs tolerant historical mentions and directory read diagnostics; implementation gate and read-only MCP own different questions | Strict parser changes `6b40b6e1` (08-02 outputs heading), `ea015527`, `5bb6aee7`, `150f8bc7`, `ff5fe65a` (08-24/26 heading/authorization validity), `fd3da681` (10-17 scratch display). MCP `bb31d9ac` 07-29 preserves failed-scan unknown; `451fa4c9` 10-31 introduces per-operation lookup cache | An old report can establish that a task was mentioned while failing today's admission. Merge would wrongly reject historical evidence or weaken admission. Intentional separation; no common parser asserted | `tests/implementation-report-corpus.tests.sh`, MCP report lookup/error tests. Historical fixture bytes stay unchanged; final regression pending |
@@ -41,3 +41,34 @@ Existing APIs to choose: GitHub Actions reads use `withToken` plus `githubGet` /
 `githubGetText`; startup/fatal diagnostics use their package logger; protected
 mirror state uses `human_copy_mirrors.py`; pinned review execution uses the
 existing launcher. Feature response interpretation remains at the call site.
+
+## R-001 implementation and reuse example
+
+Canonical mechanism: `mcp/shared/diagnostics-core.ts`; update package copies with
+`python3 scripts/sync-mcp-diagnostics.py`, verify without writes with `--check`.
+The generated header identifies the owner. This is build-time copying into two
+independently compilable packages; no deployed repository-relative import or new
+runtime dependency is introduced. Existing human-copy classifier cannot perform
+this job: its job is to classify protected reviewed snapshots, not manufacture
+build inputs. Its implementation and frozen/pending bytes remain untouched.
+
+The core exports known-secret scrubbing and the stderr sink; wrapper public
+functions and caller signatures are unchanged. `logFatal(error)` remains the
+feature-facing entry point, not a raw `stderr.write(error)` call. CI's Bearer
+scrub stays in its wrapper. The same absent-from-environment Bearer string is
+unchanged by the local logger and redacted by CI, with a regression in each
+consumer. The shared core has no caller-name/mode switches. Collection still
+reads environment/OS state per call; replacement order, UTF-8 string behavior,
+error propagation and sink ownership are unchanged. This refactor does not
+claim transformed/partial-secret detection beyond the existing documented
+contract.
+
+Verification on Linux at the baseline plus R-001 changes: `npm run build`,
+`npm run typecheck`, `npm test` passed in both packages (54/54 and 149/149).
+`python3 -B tests/mcp-diagnostics-sharing.tests.py` passed 2/2, covering missing
+and stale copies, nonmutating checks, byte-exact UTF-8 generation and untouched
+provider policy. Each generated bundle was copied alone into a temporary
+folder and executed with Node and empty stdin: exit 0, exactly one startup JSON
+line on stderr, no stdout, proving no repository runtime dependency. Native
+Windows/macOS and hosted CI remain unexecuted here. CI registration is being
+integrated by #687; until that commit lands this local test is not claimed wired.
