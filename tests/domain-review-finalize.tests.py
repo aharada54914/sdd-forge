@@ -192,7 +192,9 @@ class DomainFinalizerTests(unittest.TestCase):
                               capture_output=True, text=True, timeout=30)
 
     def test_precheck_rejects_malformed_prior_hash_and_reset_verdict(self):
-        for runtime in ('bash', 'powershell'):
+        # Native Windows bash.exe may be the WSL launcher without a distribution.
+        # Match the existing native-host matrix; POSIX jobs exercise the Bash twin.
+        for runtime in (('powershell',) if os.name == 'nt' else ('bash', 'powershell')):
             if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
                 continue
             for value in (None, ['0' * 64], 'not-a-digest'):
@@ -214,7 +216,7 @@ class DomainFinalizerTests(unittest.TestCase):
                     self.assertFalse((f.round.parent.parent / 'attempt-2').exists())
 
     def test_precheck_argument_integer_range_and_spelling(self):
-        for runtime in ('bash', 'powershell'):
+        for runtime in (('powershell',) if os.name == 'nt' else ('bash', 'powershell')):
             if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
                 continue
             for value in ('1\n', '1.0', '18446744073709551617'):
@@ -227,7 +229,7 @@ class DomainFinalizerTests(unittest.TestCase):
     @unittest.skipIf(os.name == 'nt' or (hasattr(os, 'geteuid') and os.geteuid() == 0),
                      'real POSIX permission denial requires non-root')
     def test_precheck_releases_lock_after_actual_output_failure(self):
-        for runtime in ('bash', 'powershell'):
+        for runtime in (('powershell',) if os.name == 'nt' else ('bash', 'powershell')):
             if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
                 continue
             with self.subTest(runtime=runtime):
@@ -244,7 +246,7 @@ class DomainFinalizerTests(unittest.TestCase):
     @unittest.skipIf(os.name == 'nt', 'fixture filenames are POSIX-only')
     def test_precheck_approved_fingerprint_serializes_literal_filenames(self):
         names = ('quoted " card.md', 'line\ncard.md')
-        for runtime in ('bash', 'powershell'):
+        for runtime in (('powershell',) if os.name == 'nt' else ('bash', 'powershell')):
             if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
                 continue
             with self.subTest(runtime=runtime):
