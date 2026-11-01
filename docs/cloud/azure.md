@@ -43,6 +43,22 @@ flowchart TD
 
 出典を確認していない製品や機能（実行環境の選定、監視基盤など）は、ここには載せていません。対象システムの設計で決めてください。
 
+## ベンダー公式ツールキット
+
+Microsoft は、コーディングエージェント向けに [Azure Skills](https://github.com/microsoft/azure-skills) を公式のエージェントプラグインとして提供しています。SDD Forge に同梱されるものではなく、併用する外部ツールです。以下は公開されている README と報道記事で確認した内容で、実際に動かして確認したものではありません。
+
+| 項目 | 内容 |
+|---|---|
+| 構成 | Azure 向けの skills（`azure-prepare`、`azure-validate`、`azure-deploy`、`azure-cost`、`azure-rbac` など）と、Azure MCP サーバーの設定を同梱します。 |
+| 対応ホスト | GitHub Copilot CLI、VS Code、Claude Code、Codex CLI、Cursor、Gemini CLI などの導入手順が README にあります。 |
+| 認証 | `az login`、任意で `azd auth login`、サービスプリンシパルの環境変数、Azure 内で動かす場合はマネージド ID。 |
+| デプロイ | デプロイのワークフローの前提として azd が必要です。README に Bicep と Terraform の言及はなく、`azure-validate` が何を検査するかも README からは分かりません。 |
+| 注意 | README によれば、このリポジトリは `microsoft/GitHub-Copilot-for-Azure` から自動で同期されています。リリース履歴も確認できませんでした。 |
+
+出典: [microsoft/azure-skills](https://github.com/microsoft/azure-skills)、[Microsoft Launches Azure Skills Plugin（Visual Studio Magazine）](https://visualstudiomagazine.com/articles/2026/03/13/microsoft-launches-azure-skills-plugin-to-give-ai-coding-agents-real-azure-expertise.aspx)
+
+SDD Forge との役割分担と、フックが効かない範囲は [README の併用の節](README.md#ベンダー公式ツールキットとの併用)にまとめています。
+
 ## 運用上の注意
 
 - Azure の認証情報はリポジトリに置かず、OIDC などの短命な仕組みを使います。`SDD_SUDO` や署名鍵の扱いは [THREAT-MODEL.md](../THREAT-MODEL.md) に従います。
