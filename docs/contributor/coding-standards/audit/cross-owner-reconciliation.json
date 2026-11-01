@@ -58,6 +58,12 @@
       "source_sha256": "2df02f958e84bbeb6b6a05e2e238c309c6ba4ae17ca546f7697b038ae5297b11",
       "state": "out-of-scope",
       "reason": "Publication predecessor/successor fixture metadata, not executable implementation. Parsed and checked all declared live/staged SHA bindings against current bytes; 8/8 match. Any mismatch remains producer/provenance obligation and does not become source coverage. Its note preserves independent review status; code bodies retain separate contextual reviews."
+    },
+    {
+      "path": "docs/contributor/coding-standards/reuse/shared-helpers-independent-review.json",
+      "source_sha256": "6dccefba014c3322050e079f77df164d8be8e557d61d6334842e709723097240",
+      "state": "out-of-scope",
+      "reason": "Independent helper review evidence JSON, parsed as metadata. Actual source entries and heldout controls remain producer/source/runtime scoped; this record is not an additional executable or a blanket full-rule replacement for shell owner coverage."
     }
   ]
 }
