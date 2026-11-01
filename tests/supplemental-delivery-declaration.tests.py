@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -76,6 +77,23 @@ class AdmissionTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual((self.root / self.ledger).read_bytes(), before)
                 self.assertEqual((self.root / self.report).read_bytes(), report_before)
+
+    def test_direct_cli_rejects_nonarray_manifest_inputs_without_traceback(self):
+        self.write(self.declaration, json.dumps(self.body))
+        pointer = self.entry(self.declaration)
+        self.manifest['supplemental_delivery_declaration'] = pointer
+        entries = [self.entry(self.report), self.entry(self.product), pointer]
+        for value in (entries, {}, None, 42):
+            with self.subTest(value=value):
+                self.manifest['allowed_input_manifest'] = value
+                self.write('manifest.json', json.dumps(self.manifest))
+                result = subprocess.run([sys.executable, str(SCRIPTS / 'supplemental-delivery-inputs.py'),
+                                         '--root', str(self.root), '--manifest', str(self.root / 'manifest.json')],
+                                        capture_output=True, text=True, encoding='utf-8', timeout=10)
+                self.assertEqual(result.returncode, 0 if value is entries else 1)
+                self.assertNotIn('Traceback', result.stderr)
+                if value is not entries:
+                    self.assertIn('supplemental-delivery:', result.stderr)
 
     def test_valid(self):
         self.run_pair(True)

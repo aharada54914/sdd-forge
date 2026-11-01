@@ -31,7 +31,7 @@ def sha(raw):
 def git(root, *args):
     result = subprocess.run(
         ["git", "-C", str(root), *args], capture_output=True, check=False
-    )
+    , timeout=30)
     if result.returncode:
         raise ValueError("git input unavailable")
     return result.stdout
@@ -253,6 +253,7 @@ def materialize_case(harness_root, work, case, destination):
         ],
         capture_output=True,
         check=False,
+        timeout=300,
     )
     if result.returncode or not destination.is_dir():
         raise ValueError("case builder failed")
@@ -669,7 +670,7 @@ def main(argv=None):
             if not args.compare or all(x["equal"] for x in result["scenarios"].values())
             else 1
         )
-    except (ValueError, KeyError, TypeError, OSError, M.MeasurementError):
+    except (ValueError, KeyError, TypeError, OSError, subprocess.TimeoutExpired, M.MeasurementError):
         print(
             "gate-benchmark: invalid or incomplete benchmark input/execution",
             file=sys.stderr,
