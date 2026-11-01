@@ -43,6 +43,23 @@ flowchart TD
 
 出典を確認していない製品や機能（実行環境の選定、監視基盤など）は、ここには載せていません。対象システムの設計で決めてください。
 
+## ベンダー公式ツールキット
+
+AWS は、コーディングエージェント向けに [Agent Toolkit for AWS](https://github.com/aws/agent-toolkit-for-aws) を提供しています。SDD Forge に同梱されるものではなく、併用する外部ツールです。以下は公開されている README と発表ページで確認した内容で、実際に動かして確認したものではありません。
+
+| 項目 | 内容 |
+|---|---|
+| 位置づけ | 従来の AWS Labs の MCP サーバーや skills の後継です。発表ページと README では、一般提供（GA）とされています。 |
+| 構成 | マネージドの AWS MCP サーバー、skills（CDK / CloudFormation、サーバーレス、コンテナなど）、それらを束ねるプラグイン。 |
+| 対応ホスト | Claude Code、Codex、Cursor のプラグインに対応します。その他のエージェントは、MCP サーバーの設定と skills の導入で使います。README に GitHub Copilot の記載はありません。 |
+| 権限の絞り込み | エージェントによる操作を人間の操作と区別できる IAM 条件キーがあります。これにより、エージェントは読み取り専用、といったポリシーを書けます。 |
+| 監査 | リクエストを CloudTrail に記録でき、CloudWatch のメトリクスも出ます。 |
+| 費用 | 追加料金はなく、エージェントが使う AWS リソース分のみ課金されます。 |
+
+出典: [aws/agent-toolkit-for-aws](https://github.com/aws/agent-toolkit-for-aws)、[Announcing Agent Toolkit for AWS](https://aws.amazon.com/about-aws/whats-new/2026/05/agent-toolkit)
+
+SDD Forge との役割分担と、フックが効かない範囲は [README の併用の節](README.md#ベンダー公式ツールキットとの併用)にまとめています。
+
 ## 運用上の注意
 
 - AWS の認証情報はリポジトリに置かず、OIDC などの短命な仕組みを使います。`SDD_SUDO` や署名鍵の扱いは [THREAT-MODEL.md](../THREAT-MODEL.md) に従います。
