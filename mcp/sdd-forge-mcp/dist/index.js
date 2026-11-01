@@ -37117,12 +37117,19 @@ function listGuardedFilesWithDiagnostics(root, relDir) {
   const files = [];
   const errors = [];
   const realEvidenceKeyPath = resolvedEvidenceKeyPath();
+  const ancestors = /* @__PURE__ */ new Set();
   const walk = (absDir, relPrefix) => {
+    if (ancestors.has(absDir)) {
+      errors.push({ path: relPrefix, reason: "Directory traversal cycle detected." });
+      return;
+    }
+    ancestors.add(absDir);
     let entries;
     try {
       entries = readdirSync(absDir);
     } catch (error62) {
       errors.push({ path: relPrefix, reason: errorMessage(error62) });
+      ancestors.delete(absDir);
       return;
     }
     for (const entry of entries) {
@@ -37151,6 +37158,7 @@ function listGuardedFilesWithDiagnostics(root, relDir) {
         files.push(relEntryPath);
       }
     }
+    ancestors.delete(absDir);
   };
   walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
   return { files, errors };

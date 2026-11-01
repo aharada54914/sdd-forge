@@ -11,7 +11,7 @@ test("public tools keep malformed JSON shapes within domain results and remain u
   const call = async (name: string) => {
     const result = await fixture.client.callTool({name, arguments: {feature: fx.feature, ...(name === "get_task_state" ? {} : {taskId: fx.taskId})}});
     assert.notEqual(result.isError, true, "protocol errors must not replace domain envelopes");
-    const envelope = parseEnvelope(result as never) as {ok: boolean; error?: {code: string}; data: {verdict: string; artifacts: Array<{status: string}>; results: Array<{safe: boolean}>; invariants: {crossBindings: Array<{subject: string; status: string}>}}};
+    const envelope = parseEnvelope(result) as {ok: boolean; error?: {code: string}; data: {verdict: string; artifacts: Array<{status: string}>; results: Array<{safe: boolean}>; invariants: {crossBindings: Array<{subject: string; status: string}>}}};
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     return envelope;
   };
