@@ -15,3 +15,28 @@ Initial counts (2026-11-01): 11501 tracked entries; asset=39, current-code=365, 
 `rule-index.json` is a compact navigation index for the 30 rule sections, not an execution or gate registry. The native tool configuration, verification catalog and existing Full/Lite gate own execution. A native lint success never closes the context-review obligations of CS-013–016 or CS-027–030.
 
 The [reuse decision ledger](../reuse/decisions.md) owns consumer-specific CS-013–017 candidate assessments, including justified separation. Its candidate count is not a violation count. Concrete corrected violations remain in `findings.json`; language audit evidence and native reports provide their execution detail.
+
+## Snapshot bytes and derived artifacts
+
+`population-schema.json` fixes the existing population v1 shape and requires
+nonempty evidence for terminal judgments. Shape validation does not establish
+context review. Exact path-set equality, unique paths, blob/hash consistency and
+review evidence must also be checked. Four negative controls actually rejected
+unknown state, reviewed-without-evidence, malformed hash and empty population.
+
+A published census is a snapshot of its stated `base_commit`, not a promise
+that every subsequent HEAD is identical. Generate from a clean tree to make
+`git_blob` and `source_sha256` refer to the same committed bytes. The population
+file's own entry identifies its **previous committed bytes at the snapshot**,
+not the newly emitted JSON; a file cannot contain its own cryptographic hash.
+The enclosing Git commit binds the new census artifact. List and review the
+post-snapshot delta separately, including the census/evidence artifacts; do not
+keep rewriting hashes until pretending to reach a self-hash fixed point.
+Dirty census output remains useful discovery but must not be labeled a clean
+commit-byte attestation.
+
+`template-review.json` records full text/context review of all63 distributed
+templates, including applicable rules, actual parser/consumer controls and
+limits. `scope-review.json` records positive historical references and active
+classification corrections. Its absence-of-literal result is not exclusion
+evidence; dynamic consumers and actual staged executables remain in scope.
