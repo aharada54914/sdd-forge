@@ -250,6 +250,34 @@ else
     fail 'task-state subprocess data boundary regression'
 fi
 
+# Root and discovered report filenames are data, even when brackets form a glob.
+if [ "$HAVE_PWSH" -eq 1 ]; then
+    mkdir -p "$WORK/impl[x]" "$WORK/implx" "$WORK/qg[x]" "$WORK/qgx"
+    printf '## T-001\nApproval: Approved\nStatus: Implementation Complete\n' > "$WORK/tasks[x].md"
+    printf 'unrelated task\n' > "$WORK/impl[x]/report[x].md"
+    printf 'T-001\n' > "$WORK/implx/reportx.md"
+    for checker in "$FULL_PS1" "$LITE_PS1"; do
+        code=0
+        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+        if [ "$code" -eq 1 ]; then ok "$(basename "$checker") ignores wildcard sibling report roots";
+        else fail "$(basename "$checker") accepted unrelated literal reports: $code $output"; fi
+    done
+    printf 'T-001\n' > "$WORK/impl[x]/report[x].md"
+    for checker in "$FULL_PS1" "$LITE_PS1"; do
+        code=0
+        output="$(pwsh -NoProfile -File "$checker" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+        if [ "$code" -eq 0 ]; then ok "$(basename "$checker") reads literal bracket report filenames";
+        else fail "$(basename "$checker") rejected valid literal report: $code $output"; fi
+    done
+    printf '## T-001\nApproval: Approved\nStatus: Done\n' > "$WORK/tasks[x].md"
+    printf 'T-001\nVERDICT: FAIL\n' > "$WORK/qg[x]/report[x].md"
+    printf 'T-001\nVERDICT: PASS\n' > "$WORK/qgx/reportx.md"
+    code=0
+    output="$(pwsh -NoProfile -File "$LITE_PS1" "$WORK/tasks[x].md" "$WORK/qg[x]" "$WORK/impl[x]" "$WORK" 2>&1)" || code=$?
+    if [ "$code" -eq 1 ]; then ok 'Lite Done cannot borrow PASS from wildcard sibling root';
+    else fail "Lite Done accepted sibling report: $code $output"; fi
+fi
+
 echo ""
 echo "task-state-grammar-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1
