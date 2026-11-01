@@ -539,7 +539,7 @@ upsert_mcp_json() {
 const fs = require("fs");
 const [file, topKey, kind, ...pairs] = process.argv.slice(1);
 let text = "";
-try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { if (err.code !== "ENOENT") process.exit(1); }
 let root = {};
 if (text.trim() !== "") {
   try { root = JSON.parse(text); } catch (err) { process.exit(3); }
@@ -555,8 +555,8 @@ for (let i = 0; i + 1 < pairs.length; i += 2) {
 }
 const out = JSON.stringify(root, null, 2) + "\n";
 const tmp = file + ".sdd-forge.tmp";
-fs.writeFileSync(tmp, out);
-fs.renameSync(tmp, file);
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 ' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
     if [[ $rc -eq 3 ]]; then
         echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." >&2
