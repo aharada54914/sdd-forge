@@ -1921,6 +1921,38 @@ for rel in $ci_bare_invoked; do
   done
 done
 
+# A failed or truncated real backup read must stop before any publication.
+for backup_case in read-error truncated; do
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/repo/file.txt" old-live
+  write_file "$F/stage/file.txt" new-candidate
+  manifest_line "$F/stage" file.txt >"$F/stage/MANIFEST.sha256"
+  mkdir "$F/bin"
+  real_cat=$(command -v cat)
+  cat >"$F/bin/cat" <<'BACKUP_CAT'
+#!/bin/sh
+if [ "${1:-}" = -- ] && [ "${2:-}" = file.txt ]; then
+  case "$BACKUP_CASE" in
+    read-error) exec "$REAL_CAT" "$BACKUP_MISSING" ;;
+    truncated) exec "$REAL_CAT" /dev/null ;;
+  esac
+fi
+exec "$REAL_CAT" "$@"
+BACKUP_CAT
+  chmod +x "$F/bin/cat"
+  (cd "$F/repo" && PATH="$F/bin:$PATH" REAL_CAT="$real_cat" \
+    BACKUP_CASE="$backup_case" BACKUP_MISSING="$F/missing" \
+    "$APPLY_SH" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256") >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" = 21 ] && [ "$(category_of "$WORK/out")" = LIVE_PROBE_FAILED ] &&
+     [ "$(cat "$F/repo/file.txt")" = old-live ] &&
+     [ -z "$(find "$F/repo/sdd/.staging" -type f)" ]; then
+    pass "backup $backup_case: denied before journal and live rename"
+  else
+    fail "backup $backup_case: denied before journal and live rename (got $rc)"
+  fi
+done
+
 # ===========================================================================
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).

@@ -113,6 +113,36 @@ with tempfile.TemporaryDirectory(prefix='design JSON ') as tmp:
         result = subprocess.run(runtimes[0][1] + [str(root)], env=dict(os.environ, PATH=str(bin_dir)), capture_output=True, text=True)
         assert result.returncode == 1 and 'jq is required' in result.stderr, (result.returncode, result.stderr)
         print('PASS JSON: missing jq fails closed')
+        root.chmod(0o755)
+        raw_style = root / 'raw.css'
+        raw_style.write_text('a { color: #ffffff; }', encoding='utf-8')
+        design = root / 'design.md'
+        design.write_text('## Design System Compliance\nds_profile: full\n', encoding='utf-8')
+        def unprivileged():
+            if os.getuid() == 0:
+                os.setgroups([])
+                os.setgid(1000)
+                os.setuid(1000)
+        for unreadable in (raw_style, design):
+            unreadable.chmod(0)
+            try:
+                for enforce in ('warn', 'error'):
+                    result = subprocess.run(runtimes[0][1] + [str(root), str(design), str(raw_style)],
+                        env=dict(os.environ, SDD_DESIGN_SYSTEM_ENFORCE=enforce),
+                        preexec_fn=unprivileged, capture_output=True, text=True)
+                    assert result.returncode == 1 and 'passed.' not in result.stdout and 'cannot' in result.stderr, (unreadable.name, enforce, result)
+                    print('PASS IO:', unreadable.name, enforce)
+            finally:
+                unreadable.chmod(0o644)
+        # Force a genuine regex-engine error in the raw style scan.
+        import shlex
+        grep = bin_dir / 'grep'
+        grep.write_text('#!/bin/sh\nif [ "$1" = -nE ]; then exec ' + shlex.quote(shutil.which('grep')) + ' -E "[" /dev/null; fi\nexec ' + shlex.quote(shutil.which('grep')) + ' "$@"\n', encoding='utf-8')
+        grep.chmod(0o755)
+        result = subprocess.run(runtimes[0][1] + [str(root), '', str(raw_style)],
+            env=dict(os.environ, PATH=str(bin_dir) + os.pathsep + os.environ['PATH']), capture_output=True, text=True)
+        assert result.returncode == 1 and 'cannot scan' in result.stderr, result
+        print('PASS IO: actual grep regex failure')
 PY_BOUNDARIES
 then
   pass 'JSON envelope runtime controls'
