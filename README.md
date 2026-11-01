@@ -21,90 +21,46 @@ v1.21.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD�
 > 通常の不具合修正は `/sdd-bootstrap:bootstrap bugfix --lite <source>` から開始できます。短い受け入れ条件を定め、実装後に一度の独立レビューと関連回帰を確認します。既存のリスク昇格と full プロファイルの保護は維持され、重大な変更や影響不明な変更を自動で Lite に降格しません。
 
 
+### 全体の流れ
+
 ```mermaid
 flowchart TD
-    A([Issue / 要件]) --> B[investigate-codebase<br/>任意・refactor は必須]
-
-    subgraph ph1["Phase 1 — 仕様・設計"]
-        C[sdd-bootstrap<br/>Phase 1] --> D1[(requirements.md<br/>design.md<br/>acceptance-tests.md)]
-        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop<br/>デザイン確認ループ]
-        DSL -.-> D1
-    end
-
-    subgraph sr["仕様レビュー"]
-        S{spec-review-loop<br/>2体×最大3ラウンド}
-        SR[人間: requirements.md / acceptance-tests.md 修正 / --reset]
-        S -- NEEDS_WORK / BLOCKED --> SR --> S
-    end
-
-    subgraph ir["実装方針レビュー"]
-        E{impl-review-loop<br/>2体×最大3ラウンド}
-        F[人間: design.md 修正 / --reset]
-        E -- NEEDS_WORK / BLOCKED --> F --> E
-    end
-
-    subgraph ph2["Phase 2 — タスク分解"]
-        G[sdd-bootstrap<br/>Phase 2] --> H[(tasks.md<br/>traceability.md)]
-    end
-
-    subgraph tr["タスク分解レビュー"]
-        I{task-review-loop<br/>2体×最大3ラウンド}
-        J[人間: tasks.md 修正 / --reset]
-        I -- NEEDS_WORK / BLOCKED --> J --> I
-    end
-
-    subgraph impl["実装"]
-        K[人間: Approval: Approved]
-        L[sdd-implementation]
-    end
-
-    subgraph qg["品質保証"]
-        M{sdd-quality-loop}
-        N[fix-by-review-ticket]
-        M -- 指摘あり --> N --> M
-    end
-
-    B --> C
-    D1 --> S
-    S -- PASS / PASS-with-warnings --> E
-    E -- PASS / PASS-with-warnings --> G
-    H --> I
-    I -- PASS / PASS-with-warnings --> K
-    K --> L
-    L -. "UIタスク" .-> VVL[visual-verify-loop<br/>視覚検証]
-    VVL -.-> M
-    L --> M
-    M -- 全合格 --> O([Done])
-
-    style S fill:#dbeafe,stroke:#3b82f6
-    style E fill:#dbeafe,stroke:#3b82f6
-    style I fill:#dbeafe,stroke:#3b82f6
-    style M fill:#dbeafe,stroke:#3b82f6
-    style K fill:#fef3c7,stroke:#f59e0b
-    style ph1 fill:#f0fdf4,stroke:#22c55e
-    style ph2 fill:#f0fdf4,stroke:#22c55e
-    style sr fill:#eff6ff,stroke:#3b82f6
-    style ir fill:#eff6ff,stroke:#3b82f6
-    style tr fill:#eff6ff,stroke:#3b82f6
-    style impl fill:#fef9c3,stroke:#eab308
-    style qg fill:#fdf2f8,stroke:#ec4899
+    A([Issue / 要件]) --> P1["仕様・設計<br/>sdd-bootstrap Phase 1"]
+    P1 --> R1{{"spec-review-loop<br/>仕様の独立レビュー"}}
+    R1 --> R2{{"impl-review-loop<br/>実装方針の独立レビュー"}}
+    R2 --> P2["タスク分解<br/>sdd-bootstrap Phase 2"]
+    P2 --> R3{{"task-review-loop<br/>タスク分解の独立レビュー"}}
+    R3 --> H[/"人間が承認<br/>Approval: Approved"/]
+    H --> I["実装<br/>sdd-implementation"]
+    I --> Q{{"品質ゲート<br/>sdd-quality-loop"}}
+    Q -->|指摘あり| X["fix-by-review-ticket"]
+    X --> Q
+    Q -->|全合格| Z([Done])
 ```
 
-> **Brownfield 既存プロジェクトへの導入**: 上記フローの前に `/sdd-adopt` を実行してください（[詳細](docs/workflow-guide.md)）。
->
-> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
+> 六角形は独立レビュー・ゲート、平行四辺形は人間の操作です。各レビューで `NEEDS_WORK` / `BLOCKED` となった場合は、人間が修正して再実行します。差し戻しを含む詳細な図は [開発フローガイド](docs/workflow-guide.md#全体フロー図-feature--fullstack) にあります。
+
+### どのトラックで始めるか
 
 ```mermaid
-flowchart LR
-    A([開始]) --> B[lite-spec<br/>要件 / 設計 / タスク生成]
-    B --> C[人間: 単一承認]
-    C --> D[implement-task]
-    D --> E[lite-gate<br/>品質保証]
-    E --> F([Done])
-
-    style C fill:#fef3c7,stroke:#f59e0b
-    style E fill:#dbeafe,stroke:#3b82f6
+flowchart TD
+    S([始めたいこと]) --> N["新機能・リファクタ"]
+    S --> B["不具合の修正"]
+    S --> A["既存プロジェクトへの導入"]
+    A --> AD[/"/sdd-adopt を先に実行"/]
+    AD --> N
+    N --> F["Full（既定）<br/>bootstrap feature → ship"]
+    N -.->|"新機能が限定的な社内アプリ向け"| L["Lite<br/>bootstrap feature --lite → ship --lite<br/>lite-spec → 単一承認 → implement-task → lite-gate"]
+    B --> Q{"原因不明・再現困難<br/>回帰・性能退行?"}
+    Q -->|はい| D["diagnose<br/>診断 → lite-spec → 承認 → 実装 → lite-gate"]
+    Q -->|いいえ| BL["bootstrap bugfix --lite<br/>短い受け入れ条件・独立レビュー1回"]
 ```
+
+> Project Context が `spec_profile: full` を宣言している場合、`--lite` は `ERROR_STOP` で停止します。重大な変更や影響不明な変更は自動で Lite に降格されません。判定の正本は [トラック選択契約（ADR-0023）](docs/workflow-guide.md#トラック選択契約adr-0023) です。
+>
+> **Brownfield 既存プロジェクトへの導入**: 上記フローの前に `/sdd-adopt` を実行してください（[詳細](docs/workflow-guide.md)）。
+>
+> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。上図参照。
 
 ## Getting Started
 
@@ -290,23 +246,24 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 ## ドキュメントマップ
 
-| ドキュメント | 対象読者・目的 |
+目的別の詳しい案内は [docs/README.md](docs/README.md) にまとめています。
+
+```mermaid
+flowchart LR
+    R([README]) --> U["初めて使う"] --> UG["USERGUIDE"]
+    R --> F["開発フローを確認"] --> WG["workflow-guide"]
+    R --> A["仕組みを理解する"] --> AO["architecture/overview"]
+    R --> M["すべての文書"] --> DR["docs/README"]
+```
+
+| 目的 | ドキュメント |
 |---|---|
-| [README](README.md) (本ファイル) | 概要とフロー図、インストール／アンインストール手順 |
-| [USERGUIDE.md](USERGUIDE.md) | MCP サーバー / エージェントルーティングのリファレンス |
-| [AGENTS.md](AGENTS.md) | エージェント向けのリポジトリ規約 |
-| [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
-| [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
-| [docs/skill-reference.md](docs/skill-reference.md) | 26スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
-| [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
-| [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
-| [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
-| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
-| [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
-| [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
-| [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
+| 使い始める | [USERGUIDE.md](USERGUIDE.md)（MCP サーバー / エージェントルーティング） |
+| 開発フローを知る | [docs/workflow-guide.md](docs/workflow-guide.md) |
+| 仕組みを理解する | [docs/architecture/overview.md](docs/architecture/overview.md) / [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) |
+| スキル・エージェントを調べる | [docs/skill-reference.md](docs/skill-reference.md) |
+| 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
 
 ## 週次セルフ改善 (自動運用)
 
