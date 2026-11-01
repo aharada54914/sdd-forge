@@ -13,3 +13,5 @@ Population fields: `path`, `git_blob`, `source_sha256`, `classification`, `surfa
 Initial counts (2026-11-01): 11501 tracked entries; asset=39, current-code=365, current-config=258, current-guidance=315, current-template=63, current-test=1187, historical=9153, protected-human-copy=121. All are explicitly unreviewed except symlinks needing review. The final #692 audit must reconcile the whole current population, all confirmed violations and new files before claiming closure. This intake census is not that final audit.
 
 `rule-index.json` is a compact navigation index for the 30 rule sections, not an execution or gate registry. The native tool configuration, verification catalog and existing Full/Lite gate own execution. A native lint success never closes the context-review obligations of CS-013–016 or CS-027–030.
+
+The [reuse decision ledger](../reuse/decisions.md) owns consumer-specific CS-013–017 candidate assessments, including justified separation. Its candidate count is not a violation count. Concrete corrected violations remain in `findings.json`; language audit evidence and native reports provide their execution detail.

@@ -37,8 +37,38 @@
             "minLength": 1
           },
           "rule_id": {
-            "type": "string",
-            "pattern": "^CS-[0-9]{3}$"
+            "enum": [
+              "CS-001",
+              "CS-002",
+              "CS-003",
+              "CS-004",
+              "CS-005",
+              "CS-006",
+              "CS-007",
+              "CS-008",
+              "CS-009",
+              "CS-010",
+              "CS-011",
+              "CS-012",
+              "CS-013",
+              "CS-014",
+              "CS-015",
+              "CS-016",
+              "CS-017",
+              "CS-018",
+              "CS-019",
+              "CS-020",
+              "CS-021",
+              "CS-022",
+              "CS-023",
+              "CS-024",
+              "CS-025",
+              "CS-026",
+              "CS-027",
+              "CS-028",
+              "CS-029",
+              "CS-030"
+            ]
           },
           "path": {
             "type": "string",
@@ -175,7 +205,72 @@
               }
             ]
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "fixed",
+                    "false-positive",
+                    "justified-exception",
+                    "out-of-scope",
+                    "reviewed"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "minItems": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "fixed",
+                    "false-positive",
+                    "justified-exception",
+                    "out-of-scope"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "resolution": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "rule_id": {
+                  "enum": [
+                    "CS-013",
+                    "CS-014"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "reuse": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ]
       }
     }
   }
