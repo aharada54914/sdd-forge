@@ -4252,6 +4252,904 @@
       ],
       "resolution": "Copy retained bytes into an owned Uint8Array instead of retaining a view onto the oversized source allocation. Existing logical bound and public response contract remain unchanged.",
       "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-015",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+      "line": 250,
+      "source_sha256": "ec72d99136d0747a4113fe6f32bde63c2651e7409fa8a8e22a0bb1ce896f7cc6",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+      },
+      "impact": "Malformed previous hash or singleton-array terminal verdict could authorize a transition.",
+      "reproduction": "Real malformed prior/reset cases admitted before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Require object and exact consumed string fields; preserve literal comparison.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-016",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 217,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Malformed prior hash was considered different from current input and admitted an unchanged round.",
+      "reproduction": "Real null/list/non-hash receipt values admitted before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Validate object and64lowerhex string before comparing.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-017",
+      "rule_id": "CS-022",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+      "line": 272,
+      "source_sha256": "ec72d99136d0747a4113fe6f32bde63c2651e7409fa8a8e22a0bb1ce896f7cc6",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+      },
+      "impact": "Write failure after lock acquisition leaked the transition lock.",
+      "reproduction": "Real non-root chmod denial left .domain-review.lock before repair; final control removes it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Wrap lock-owned transition in finally cleanup.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-018",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 174,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Literal aggregate filenames broke fingerprint JSON/TSV/checksum transport.",
+      "reproduction": "Quoted/newline aggregate Approved fixture failed before repair; final fingerprint and repeat checks pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Serialize keys with jq, readJSON entries, hash file stdin.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-019",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "line": 40,
+      "source_sha256": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      },
+      "impact": "Positive integer arithmetic overflow rewrote attempt identity.",
+      "reproduction": "Actual18446744073709551617 attempt succeeded through arithmetic wrap before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Enforce int64 range before Bash arithmetic; preserve exact positive integer grammar in both twins.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-020",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1",
+      "line": 102,
+      "source_sha256": "33ecdaab4f9bb797106d79aff7e0ae36adcc1083b2f85776abae546d3d044a75",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree; check every existing blob read; use bounded raw Git helper.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-066",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 133,
+      "source_sha256": "508e9275a82640f45b39a696a2bf4a94402aa2dc75e06fdf8dff16d4147b465f",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree and require successful show; NUL-frame paths and classify UTF-8 failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-021",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 136,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Malformed manifest affected_components was coerced rather than reported as a hard schema error.",
+      "reproduction": "Actual scalar,numeric-item and singleton-root-array fixtures yielded violation1 instead of hard error2; final typed controls pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Require object with actual string array, including null-item rejection.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-022",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 210,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Provider join conflated component A and a and triggered an unrelated Fail-6.",
+      "reproduction": "Actual uppercase binding joined lowercase owned path before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Use ordinal dictionary for component identities.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-023",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 107,
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1"
+      },
+      "impact": "Singleton-list enforcement was coerced to required instead of documented invalid-value disabled-legacy.",
+      "reproduction": "Actual parsed YAML array value emitted missing-manifest error instead of disabled legacy.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Inspect the raw string type before exact enum comparison.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-001",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "line": 23,
+      "source_sha256": "7960c5733f0b68d54d3dfdbf13955ecf5c29c2537bad05dbe9de7837c9d46ea8",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Six invocation singleton-string fields admitted while Bash rejected.",
+      "reproduction": "Six invocation singleton-string fields admitted while Bash rejected.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixd67fe7c8",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/review-context-evidence/review-context-scalar-before.txt",
+        "docs/contributor/coding-standards/audit/shell/review-context-evidence/review-context-scalar-after.txt",
+        "fixed SHA256 2cc11cd65a55e9e6ec0fbaae4435c09e4298596b6c96b2b05519118096aebfbe"
+      ],
+      "resolution": "Scalar and object guards;78 durable negatives across runtimes, unchanged ledger.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-002",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "line": 306,
+      "source_sha256": "543aa0cc568fe54fdc6f95d8a218ec1e55b58277836fc5aef340404b131666d4",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Real stale pin rejected normally but jq final enumeration exit73 produced REVIEW_CONTEXT_OK.",
+      "reproduction": "Real stale pin rejected normally but jq final enumeration exit73 produced REVIEW_CONTEXT_OK.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixd67fe7c8",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/review-context-evidence/review-producer-before.txt",
+        "docs/contributor/coding-standards/audit/shell/review-context-evidence/review-producer-after.txt",
+        "fixed SHA256 a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43"
+      ],
+      "resolution": "Checked producer capture rejects before reservation; five live enumeration loops remain after dead helper removal.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-003",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "line": 96,
+      "source_sha256": "b79e05f1ce3af52125d41e8928d7a31ed8853aef6f9f6e4684bec6cd9ae30926",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Ledger previous_record_sha256 singleton array admitted.",
+      "reproduction": "Ledger previous_record_sha256 singleton array admitted.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-extra-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-extra-after.txt",
+        "fixed SHA256 2cc11cd65a55e9e6ec0fbaae4435c09e4298596b6c96b2b05519118096aebfbe"
+      ],
+      "resolution": "Scalar link required.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-004",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "line": 334,
+      "source_sha256": "61d077d838cacdc922e345630751b1b97eadb8c99657f0ad8340f2d27d90c8aa",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "stage/run_id trailing CR admitted after tr normalization.",
+      "reproduction": "stage/run_id trailing CR admitted after tr normalization.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-extra-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-extra-after.txt",
+        "fixed SHA256 a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43"
+      ],
+      "resolution": "Invocation stage/role/run/session control bytes rejected before extraction.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "line": 86,
+      "source_sha256": "3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "reproduction": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-after.txt",
+        "fixed SHA256 1ed4c655269d59a7d2622ee4d42771f6c3d88affc647d556c05194f1634d9654"
+      ],
+      "resolution": "Typed string equality, exact consumed keys, numeric equality without narrowing, root preservation. Valid1.0 remains accepted.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-006",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "line": 387,
+      "source_sha256": "e61f7a400953a4290de476e77441f2661d858093147cb66b1f66faa22d1d15da",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "reproduction": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-after.txt",
+        "fixed SHA256 f91822e61b7a0e6845330fdeb273c07ea5ccea0b931200ce1385d0ece221daab"
+      ],
+      "resolution": "Typed string equality, exact consumed keys, numeric equality without narrowing, root preservation. Valid1.0 remains accepted.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-007",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "line": 366,
+      "source_sha256": "fbf6452136b0bd636a005c06025f71d84558a75a612337df750a7a96767f7d6b",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "reproduction": "Public VerifyInputs admitted singleton schema/feature/hash; impl/task also string/bool/fractional indices and array root.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-scalars-after.txt",
+        "fixed SHA256 3c351e7dd5d6e70a4b5c66024f85ec99e5e533a4a748c57d44ab5764aae617b9"
+      ],
+      "resolution": "Typed string equality, exact consumed keys, numeric equality without narrowing, root preservation. Valid1.0 remains accepted.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-008",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "line": 86,
+      "source_sha256": "3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Native next-round command accepted singleton-array prior contract and created evidence.",
+      "reproduction": "Native next-round command accepted singleton-array prior contract and created evidence.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/spec-prior-root-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/spec-prior-root-after.txt",
+        "fixed SHA256 1ed4c655269d59a7d2622ee4d42771f6c3d88affc647d556c05194f1634d9654"
+      ],
+      "resolution": "Preserve root kind; malformed prior rejected with no new-round evidence, valid object still succeeds.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-009",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "line": 366,
+      "source_sha256": "fbf6452136b0bd636a005c06025f71d84558a75a612337df750a7a96767f7d6b",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "Native task precheck admitted lowercase t-001 blocker and generated graph/evidence.",
+      "reproduction": "Native task precheck admitted lowercase t-001 blocker and generated graph/evidence.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/blocker-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-downstream-final.txt",
+        "fixed SHA256 3c351e7dd5d6e70a4b5c66024f85ec99e5e533a4a748c57d44ab5764aae617b9"
+      ],
+      "resolution": "Canonical case-sensitive Blockers/task/lifecycle comparisons; unchanged valid graph and downstream suite.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-010",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "line": 96,
+      "source_sha256": "b79e05f1ce3af52125d41e8928d7a31ed8853aef6f9f6e4684bec6cd9ae30926",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "FIFO declared requirements input: Bash exit1; PS timeout124 after3s opening FIFO.",
+      "reproduction": "FIFO declared requirements input: Bash exit1; PS timeout124 after3s opening FIFO.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixa4eb5f6d",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-fifo-before.txt",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/context-fifo-after.txt",
+        "fixed SHA256 2cc11cd65a55e9e6ec0fbaae4435c09e4298596b6c96b2b05519118096aebfbe"
+      ],
+      "resolution": "Regular-file guard before reads/hashes for manifest, ledger, reports and declared inputs.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-011",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-verdict-case\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-verdict-case\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-verdict-case\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-012",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-attempt-string\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-attempt-string\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-attempt-string\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-013",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-warning-null\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-warning-null\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-warning-null\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-014",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-run-number\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-run-number\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-run-number\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-015",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"task-schema-case\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"task-schema-case\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"task-schema-case\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-016",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"task-reviewer-round-string\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"task-reviewer-round-string\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"task-reviewer-round-string\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-017",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-array-root\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-array-root\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-array-root\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-018",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-hash-key\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-hash-key\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-hash-key\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-019",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"spec-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"spec-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"spec-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-020",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 102,
+      "source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+      "flow": {
+        "input": "review invocation, ledger, report, path or lifecycle metadata",
+        "transformation": "native JSON/string/number coercion or unchecked producer/read boundary",
+        "sink": "review admission, reservation, graph or new-round evidence"
+      },
+      "impact": "{\"case\": \"task-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "reproduction": "{\"case\": \"task-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 0}",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixe0c8f4c2",
+        "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+        "fixed SHA256 41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+      ],
+      "resolution": "{\"case\": \"task-hash-value\", \"bash_exit\": 1, \"powershell_exit\": 1}",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-CONTRACT-SHAPE",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "line": 25,
+      "source_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
+      "flow": {
+        "input": "contract or terminal blocked/resume JSON and task text",
+        "transformation": "implicit native shape conversion or case-insensitive/partial token comparison",
+        "sink": "contract/resume admission"
+      },
+      "impact": "Native baseline accepted schema/task/evidence/id singleton arrays; present null bool dereferenced null. Consumer validation was later than implicit PowerShell coercion.",
+      "reproduction": "Native baseline accepted schema/task/evidence/id singleton arrays; present null bool dereferenced null. Consumer validation was later than implicit PowerShell coercion.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix50318199; compatibility follow-up293f535e",
+        "docs/contributor/coding-standards/audit/shell/contract-terminal-context-review.json",
+        "fixed SHA256 e06855b7f57b584e1cf66f0a54612f30fb5791a7ca8ea1bc575236ce90187668"
+      ],
+      "resolution": "Validate object/check array/member scalar shapes before casts and research opt-in; preserve legacy optional nulls; clean boolean diagnostics.",
+      "reuse": {
+        "intent": "Keep native JSON parsing and consumer validation ownership explicit before PowerShell coercion.",
+        "public_contract": "Native JSON parser owns grammar; the particular contract/resume consumer requires its actual object/root/array/string kinds before policy comparisons. Existing optional nulls and timestamp handling stay explicit.",
+        "stability_evidence": "Existing Bash twins and actual before/after object/array/null controls; full source review and preserved positive records. Native PowerShell7 measured; check-contract retains PS5.1 API syntax, not a new PS5.1 runtime proof.",
+        "consumer_requirements": "Contract gate owns check telemetry/evidence/research fields; terminal resume owns blocked-reason/task/hash/timestamp bindings. Their grammars are different even though both parse JSON.",
+        "divergence_counterexample": "A universal closed-object validator would reject legitimate legacy optional contract fields or conflate blocked-resume identity with quality-gate telemetry.",
+        "decision": "Reuse native parsing and existing dispatch mechanisms; keep narrow kind validation at each current consumer boundary.",
+        "reason": "Prevent implicit array/string/null conversions without introducing a second JSON parser or broad policy framework.",
+        "verification": "Retained contract/terminal before and after transcripts plus paired Bash controls and exact source pins in contract-terminal-context-review.json."
+      }
+    },
+    {
+      "finding_id": "PS-CONTRACT-CASE",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "line": 25,
+      "source_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
+      "flow": {
+        "input": "contract or terminal blocked/resume JSON and task text",
+        "transformation": "implicit native shape conversion or case-insensitive/partial token comparison",
+        "sink": "contract/resume admission"
+      },
+      "impact": "Native baseline accepted LINT as required lint baseline and LEGACY as exact legacy cross_model.",
+      "reproduction": "Native baseline accepted LINT as required lint baseline and LEGACY as exact legacy cross_model.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix50318199; compatibility follow-up293f535e",
+        "docs/contributor/coding-standards/audit/shell/contract-terminal-context-review.json",
+        "fixed SHA256 e06855b7f57b584e1cf66f0a54612f30fb5791a7ca8ea1bc575236ce90187668"
+      ],
+      "resolution": "Ordinal ID set, exact baseline/cross-model/TDD tokens and consumed key names; exact producer object/string/lowercase live digest.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-RESUME-SHAPE",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "line": 16,
+      "source_sha256": "eef6c101c5995cc550df36d3e833d26fb85b823b48bd54f6172e0704d9fb39e4",
+      "flow": {
+        "input": "contract or terminal blocked/resume JSON and task text",
+        "transformation": "implicit native shape conversion or case-insensitive/partial token comparison",
+        "sink": "contract/resume admission"
+      },
+      "impact": "Actual old module accepted singleton evidence root/schema/path and blocked schema/task/tier/reason/hash arrays.",
+      "reproduction": "Actual old module accepted singleton evidence root/schema/path and blocked schema/task/tier/reason/hash arrays.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix50318199; compatibility follow-up293f535e",
+        "docs/contributor/coding-standards/audit/shell/contract-terminal-context-review.json",
+        "fixed SHA256 20ecfa49681d7e423bd183b5f5f667cf7e2d557b86f214545d0fcb22f99e17a5"
+      ],
+      "resolution": "Preserve JSON root with NoEnumerate, assert object shape, assert all consumed scalar values before comparison/path calls.",
+      "reuse": {
+        "intent": "Keep native JSON parsing and consumer validation ownership explicit before PowerShell coercion.",
+        "public_contract": "Native JSON parser owns grammar; the particular contract/resume consumer requires its actual object/root/array/string kinds before policy comparisons. Existing optional nulls and timestamp handling stay explicit.",
+        "stability_evidence": "Existing Bash twins and actual before/after object/array/null controls; full source review and preserved positive records. Native PowerShell7 measured; check-contract retains PS5.1 API syntax, not a new PS5.1 runtime proof.",
+        "consumer_requirements": "Contract gate owns check telemetry/evidence/research fields; terminal resume owns blocked-reason/task/hash/timestamp bindings. Their grammars are different even though both parse JSON.",
+        "divergence_counterexample": "A universal closed-object validator would reject legitimate legacy optional contract fields or conflate blocked-resume identity with quality-gate telemetry.",
+        "decision": "Reuse native parsing and existing dispatch mechanisms; keep narrow kind validation at each current consumer boundary.",
+        "reason": "Prevent implicit array/string/null conversions without introducing a second JSON parser or broad policy framework.",
+        "verification": "Retained contract/terminal before and after transcripts plus paired Bash controls and exact source pins in contract-terminal-context-review.json."
+      }
+    },
+    {
+      "finding_id": "PS-RESUME-CASE",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1",
+      "line": 16,
+      "source_sha256": "eef6c101c5995cc550df36d3e833d26fb85b823b48bd54f6172e0704d9fb39e4",
+      "flow": {
+        "input": "contract or terminal blocked/resume JSON and task text",
+        "transformation": "implicit native shape conversion or case-insensitive/partial token comparison",
+        "sink": "contract/resume admission"
+      },
+      "impact": "Actual old module accepted lowercase blocked timestamp and lowercase Approval/Status in correctly rehashed task section. Both twins also permitted final newline in blocked timestamp/paired contract hash under ^...$ anchors.",
+      "reproduction": "Actual old module accepted lowercase blocked timestamp and lowercase Approval/Status in correctly rehashed task section. Both twins also permitted final newline in blocked timestamp/paired contract hash under ^...$ anchors.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix50318199; compatibility follow-up293f535e",
+        "docs/contributor/coding-standards/audit/shell/contract-terminal-context-review.json",
+        "fixed SHA256 20ecfa49681d7e423bd183b5f5f667cf7e2d557b86f214545d0fcb22f99e17a5"
+      ],
+      "resolution": "Case-sensitive regexes for protocol tokens, format/hash grammar and task approval/status. Absolute anchors reject trailing newline; Bash counterpart uses fullmatch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-006",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "line": 910,
+      "source_sha256": "b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b",
+      "flow": {
+        "input": "FIFO or symlink-to-FIFO contract path",
+        "transformation": "Test-Path Leaf admits a non-regular file before blocking read",
+        "sink": "PowerShell domain validator input read"
+      },
+      "impact": "Actual POSIX FIFO input passed Test-Path Leaf then blocked native PowerShell ReadAllBytes; caller killed it at2s.",
+      "reproduction": "Actual POSIX FIFO input passed Test-Path Leaf then blocked native PowerShell ReadAllBytes; caller killed it at2s.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fixf81642852fd9079ddd9552edb88c8d8cb46ea3eb",
+        "tests/sdd-domain/contract-v2-schema.Tests.ps1: Final stable source:324 Pester checks passed,0failed/0skipped onPowerShell7.6.7, including paired Bash compatibility and native FIFO rejection.",
+        "docs/contributor/coding-standards/audit/shell/independent-domain-fifo-review.json",
+        "fixed SHA256 3c5825b605465564a8f2f7c6a3aa4a915b2ce68853a09b68a9bc16effb85f450"
+      ],
+      "resolution": "Managed FileInfo/UnixStat regular-file check before read; regular symlink target remains accepted, FIFO and symlink-to-FIFO reject with V2-INPUT-NOT-FILE. No external validator dependency. Test process helper has deadline/reap/finally.",
+      "reuse": null
+    },
+    {
+      "finding_id": "OWNERSHIP-FIXTURE-DEPENDENCY",
+      "rule_id": "CS-013",
+      "path": "tests/ownership-digest.tests.ps1",
+      "line": 285,
+      "source_sha256": "57241c324af25cb45e33873520c85471320e449e40675d8e656a719e9e53aa41",
+      "flow": {
+        "input": "copied real resolver in isolated matcher fixture",
+        "transformation": "dependency-copy list omitted new shared helper",
+        "sink": "native resolver invocation before semantic assertions"
+      },
+      "impact": "Windows matcher fixture copied resolve-component-paths.ps1 without its new lib/native-arguments.ps1 dependency; dot-source failed at line1012 before TEST-040F could inspect semantics.",
+      "reproduction": "https://github.com/aharada54914/sdd-forge/actions/runs/41283733607/job/124780781154",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/after.txt",
+        "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/before.txt",
+        "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/mutation.txt",
+        "fix5b343bbc",
+        "fixed SHA256 a73fa38dd42453e32b5be71ce213d4c911230975acf2b854ea7ae807a32b92fc"
+      ],
+      "resolution": "Include existing native-arguments helper in the fixture dependency list. The real shared helper is copied without modification; no stub, bypass, changed expected value or registry relaxation. Production resolver and assertions unchanged.",
+      "reuse": {
+        "intent": "Execute the actual resolver with its real shared native-argument dependency in the isolated matcher fixture.",
+        "public_contract": "Copied resolve-component-paths.ps1 dot-sources lib/native-arguments.ps1; callers must preserve this dependency closure.",
+        "stability_evidence": "Actual Windows CI failed on missing helper; same failure reproduced locally, repaired suite13/0 and deliberate semantic mutation0/1.",
+        "consumer_requirements": "The fixture mutates matcher/version behavior while retaining the real resolver and transport helper; production resolver policy must not be stubbed.",
+        "divergence_counterexample": "Copying a stand-in helper or changing the expected matcher result would make the fixture prove a different program and could hide shared transport behavior.",
+        "decision": "Copy the existing unchanged helper alongside the existing resolver fixture.",
+        "reason": "Restore real dependency reuse without duplicating implementation or weakening the oracle.",
+        "verification": "ownership-fixture-delta.json records actual Windows failure, Linux baseline/pass and deliberate negative mutation; repaired Windows execution remains separately pending."
+      }
     }
   ]
 }
