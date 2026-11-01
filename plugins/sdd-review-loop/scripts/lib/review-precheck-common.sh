@@ -368,7 +368,11 @@ require_persisted_pass() {
   [[ -d "$root" && ! -L "$root" ]] || fail "missing ${stage} predecessor report root"
   local candidate candidate_dir relative_dir candidate_attempt candidate_round
   local latest_attempt=0 latest_round=0
+  local candidates
+  candidates=$(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print) ||
+    fail "persisted ${stage} review evidence cannot be enumerated completely"
   while IFS= read -r candidate; do
+    [[ -n "$candidate" ]] || continue
     candidate_dir="$(dirname "$candidate")"
     relative_dir="${candidate_dir#"${root}/"}"
     [[ "$relative_dir" =~ ^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)$ ]] ||
@@ -381,7 +385,7 @@ require_persisted_pass() {
       latest_round="$candidate_round"
       verdict="$candidate"
     fi
-  done < <(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print)
+  done <<< "$candidates"
   [[ -n "$verdict" ]] || fail "missing persisted ${stage} PASS verdict"
   contract_dir="$(dirname "$verdict")"; contract="${contract_dir}/${stage}-review-contract.json"
   [[ -f "$contract" && ! -L "$contract" ]] || fail "missing persisted ${stage} review contract"

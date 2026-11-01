@@ -110,6 +110,39 @@ run_case() {
   fi
 }
 
+# Genuine tool errors must not become clean status or an empty inventory.
+real_git=$(command -v git)
+real_jq=$(command -v jq)
+for broken_tool in git jq; do
+  repo="$(clone_fixture "bash-tool-error-$broken_tool")"
+  before="$(snapshot "$repo")"
+  tool_dir="$TMP/tool-error-$broken_tool"
+  mkdir "$tool_dir"
+  cat >"$tool_dir/git" <<'GIT_ERROR'
+#!/bin/sh
+for arg in "$@"; do
+  if [ "$arg" = status ]; then exec "$REAL_GIT" --invalid-status-control; fi
+done
+exec "$REAL_GIT" "$@"
+GIT_ERROR
+  cat >"$tool_dir/jq" <<'JQ_ERROR'
+#!/bin/sh
+if [ "${1:-}" = -r ]; then
+  case "${2:-}" in '.files[]'*) exec "$REAL_JQ" -r '[' /dev/null ;; esac
+fi
+exec "$REAL_JQ" "$@"
+JQ_ERROR
+  if [[ "$broken_tool" == git ]]; then rm "$tool_dir/jq"; else rm "$tool_dir/git"; fi
+  chmod +x "$tool_dir/$broken_tool"
+  status=0
+  output="$(PATH="$tool_dir:$PATH" REAL_GIT="$real_git" REAL_JQ="$real_jq" \
+    run_case bash "$repo" "$pass_validator" 2>&1)" || status=$?
+  after="$(snapshot "$repo")"
+  [[ "$status" -ne 0 && "$output" != *ROLLBACK_OK* && "$before" == "$after" ]] ||
+    fail "$broken_tool operational error reported success or changed live files"
+  printf 'ok: real %s error rejected before rollback mutation\n' "$broken_tool"
+done
+
 for runtime in bash powershell; do
   repo="$(clone_fixture "$runtime-success")"
   run_case "$runtime" "$repo" "$pass_validator" >/dev/null
