@@ -93,10 +93,11 @@ def _find_git_root(start_dir):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
+            timeout=30,
         )
         if result.returncode == 0:
             return result.stdout.decode("utf-8").strip()
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         pass
     # Fall back to a manual .git-directory walk.
     current = start_dir
@@ -396,6 +397,8 @@ def check_resolved_gate_id_duplicate(doc):
         if not isinstance(gate, dict):
             continue
         gate_id = gate.get("id")
+        if not isinstance(gate_id, str):
+            continue  # Schema diagnostics already explain malformed identifiers.
         if gate_id in seen:
             diags.append(Diagnostic(
                 "resolved-gate-id-duplicate",
@@ -418,6 +421,8 @@ def check_facet_classification_conflict(doc):
         if not isinstance(entry, dict):
             continue
         facet = entry.get("facet")
+        if not isinstance(facet, str):
+            continue  # Schema diagnostics already explain malformed identifiers.
         if facet in required_set:
             diags.append(Diagnostic(
                 "facet-classification-conflict",
@@ -437,6 +442,8 @@ def check_conditional_facet_duplicate(doc):
         if not isinstance(entry, dict):
             continue
         facet = entry.get("facet")
+        if not isinstance(facet, str):
+            continue  # Schema diagnostics already explain malformed identifiers.
         if facet in seen:
             diags.append(Diagnostic(
                 "conditional-facet-duplicate",
