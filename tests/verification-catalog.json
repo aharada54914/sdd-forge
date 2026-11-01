@@ -1,6 +1,8 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/mcp-diagnostics-sharing.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/python-input-boundaries.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/coding-standards.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
     {"path": "tests/coding-standards-audit.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
     {"path": "tests/benchmark-gates.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -820,6 +822,8 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/mcp-diagnostics-sharing.tests.py",
+      "tests/python-input-boundaries.tests.py",
       "tests/benchmark-gates.tests.py",
       "tests/human-copy-mirrors-classification.tests.py",
       "tests/factory-workflow.tests.py",
