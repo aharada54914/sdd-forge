@@ -1865,6 +1865,87 @@
       ],
       "resolution": "28ecd8ce end options before tag, put clobber before terminator, use --version= for SBOM CLI.",
       "reuse": null
+    },
+    {
+      "finding_id": "TS690-012",
+      "rule_id": "CS-018",
+      "path": "install.sh",
+      "line": 542,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Existing client JSON read fails EACCES",
+        "transformation": "catch-all substitutes empty object",
+        "sink": "atomic replacement of existing configuration"
+      },
+      "impact": "Unrelated client configuration can be destroyed after an unreadable file is treated as missing.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Ignore only ENOENT for creation; preserve and report every other read failure. Uninstall distinguishes read failure from absent file.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-013",
+      "rule_id": "CS-009",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Pre-existing predictable .sdd-forge.tmp file or symlink",
+        "transformation": "non-exclusive write follows and truncates existing temp target",
+        "sink": "configuration temporary file"
+      },
+      "impact": "Can overwrite unrelated files before rename, or race another writer.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Use exclusive wx creation; never unlink a temp file not created by this operation; cleanup own temp after rename failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-014",
+      "rule_id": "CS-010",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Client config may contain credential-bearing unrelated entries",
+        "transformation": "replacement file gets default mode derived from permissive umask",
+        "sink": "user client JSON on disk"
+      },
+      "impact": "On umask022 previously private configuration becomes world-readable.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Create temporary config with explicit0600 permissions; atomic rename keeps those permissions on POSIX.",
+      "reuse": null
     }
   ]
 }
