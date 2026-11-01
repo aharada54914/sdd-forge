@@ -6,7 +6,7 @@ Each example is schematic and original to this repository. Apply the language no
 
 ## CS-001: Shell source is not a data channel
 
-- Purpose: Shell source is not a data channel; prevent the failure described by the application condition.
+- Purpose: Prevent ordinary quotes, spaces or attacker-controlled text from becoming executable shell commands.
 - Surface: bash,powershell,python,javascript. Apply when: External values reach a command interpreter.
 - Severity: critical. Detection: data-flow. Tool mapping: ShellCheck SC2086/SC2294; Ruff S602 if enabled.
 - Fix and reason: Use argument arrays and validate the executable/option grammar; PowerShell uses & $exe @args; Python uses subprocess.run(argv, check=True).
@@ -29,7 +29,7 @@ args=(tool "$value"); "${args[@]}"
 
 ## CS-002: Keep embedded programs literal
 
-- Purpose: Keep embedded programs literal; prevent the failure described by the application condition.
+- Purpose: Keep input text from changing the syntax or behavior of an embedded Python, JavaScript or other program.
 - Surface: bash,powershell,python,javascript. Apply when: A shell here-document, here-string or -c builds another language program.
 - Severity: critical. Detection: data-flow. Tool mapping: ShellCheck SC2086 covers only part.
 - Fix and reason: Quote the here-document delimiter and pass arguments, stdin or environment as data; PowerShell single-quoted here-strings serve the same boundary.
@@ -52,7 +52,7 @@ VALUE="$value" python -c 'import os; print(os.environ["VALUE"])'
 
 ## CS-003: Bind SQL data
 
-- Purpose: Bind SQL data; prevent the failure described by the application condition.
+- Purpose: Prevent data from changing a query predicate or executing unintended SQL.
 - Surface: python,typescript,javascript,powershell. Apply when: External data enters a SQL expression.
 - Severity: critical. Detection: data-flow. Tool mapping: No universal checker; driver-specific review.
 - Fix and reason: Use driver parameters; allowlist identifiers separately because table names usually cannot be parameters.
@@ -75,7 +75,7 @@ db.execute("SELECT * FROM item WHERE name = ?", (name,))
 
 ## CS-004: Serialize structured values
 
-- Purpose: Serialize structured values; prevent the failure described by the application condition.
+- Purpose: Preserve values and types when quotes, newlines or YAML syntax would otherwise corrupt a document.
 - Surface: all. Apply when: Values are written as JSON or YAML consumed by another tool.
 - Severity: major. Detection: data-flow. Tool mapping: Ruff/ESLint syntax checks only.
 - Fix and reason: Use json/jq --arg, ConvertTo-Json or an existing YAML serializer; validate the consumer schema.
@@ -98,7 +98,7 @@ payload = json.dumps({"name": name})
 
 ## CS-005: Pass Actions expressions through data
 
-- Purpose: Pass Actions expressions through data; prevent the failure described by the application condition.
+- Purpose: Prevent pull-request titles and other event data from becoming CI shell source before the runner starts.
 - Surface: workflow,bash,powershell. Apply when: An Actions context expression reaches run source.
 - Severity: critical. Detection: machine. Tool mapping: Actions structural scan; actionlint when available.
 - Fix and reason: Use env or action inputs and quote at the receiving shell boundary.
@@ -122,7 +122,7 @@ run: printf '%s\n' "$TITLE"
 
 ## CS-006: Escape for the HTML destination
 
-- Purpose: Escape for the HTML destination; prevent the failure described by the application condition.
+- Purpose: Display untrusted text without allowing it to create markup or execute browser script.
 - Surface: python,typescript,javascript. Apply when: Dynamic text becomes HTML markup.
 - Severity: critical. Detection: data-flow. Tool mapping: ESLint no-unsanitized if installed; context review.
 - Fix and reason: Use text nodes or the template engine escape API; validate URL attributes separately.
@@ -145,7 +145,7 @@ node.textContent = userText
 
 ## CS-007: Separate regex syntax and literals
 
-- Purpose: Separate regex syntax and literals; prevent the failure described by the application condition.
+- Purpose: Prevent literal search text from changing which values match or introducing expensive regex behavior.
 - Surface: all. Apply when: User text is used as literal text in a regular expression.
 - Severity: major. Detection: data-flow. Tool mapping: Context review; regex tools do not infer intent.
 - Fix and reason: Use literal matching first; escape only the literal component and bound deliberately accepted regex execution.
@@ -168,7 +168,7 @@ re.search(re.escape(user_text), value)
 
 ## CS-008: Encode URL components independently
 
-- Purpose: Encode URL components independently; prevent the failure described by the application condition.
+- Purpose: Keep a value from adding query parameters, changing a path segment or redirecting a request to an unintended destination.
 - Surface: all. Apply when: Untrusted components enter an outbound URL.
 - Severity: critical. Detection: data-flow. Tool mapping: Context review; transport tests.
 - Fix and reason: Use the standard URL/query APIs; validate scheme, host and redirects at the transport boundary.
@@ -191,7 +191,7 @@ url = base + "?" + urllib.parse.urlencode({"name": name})
 
 ## CS-009: Preserve path and option boundaries
 
-- Purpose: Preserve path and option boundaries; prevent the failure described by the application condition.
+- Purpose: Keep each supplied path as one data argument and prevent options or traversal from selecting unintended resources.
 - Surface: all. Apply when: External path reaches filesystem or command arguments.
 - Severity: critical. Detection: data-flow. Tool mapping: ShellCheck SC2086; context containment review.
 - Fix and reason: Quote and use option terminators where supported; validate containment, symlinks and path ownership before mutation.
@@ -214,7 +214,7 @@ rm -- "$path"
 
 ## CS-010: Keep secrets out of code and logs
 
-- Purpose: Keep secrets out of code and logs; prevent the failure described by the application condition.
+- Purpose: Prevent credentials and sensitive values from leaking through source control, diagnostics or outbound data.
 - Surface: all. Apply when: Credentials or sensitive values are persisted, displayed or sent.
 - Severity: critical. Detection: data-flow. Tool mapping: Secret scanner if available plus data-flow review.
 - Fix and reason: Use the existing secret source and shared redaction boundary; rotate any real exposed credential through its owner.
@@ -237,7 +237,7 @@ logger.info("credential configured")
 
 ## CS-011: Name policy constants at their owner
 
-- Purpose: Name policy constants at their owner; prevent the failure described by the application condition.
+- Purpose: Keep policy updates consistent across consumers and avoid machine-specific values breaking other environments.
 - Surface: all. Apply when: A mutable policy, personal path or environment assumption is repeated.
 - Severity: major. Detection: context. Tool mapping: Context/consumer review.
 - Fix and reason: Locate configuration and defaults at the existing contract owner; validate supplied values and units.
@@ -260,7 +260,7 @@ timeout = PROCESS_TIMEOUT_SECONDS
 
 ## CS-012: Make state ownership visible
 
-- Purpose: Make state ownership visible; prevent the failure described by the application condition.
+- Purpose: Ensure a function uses the input and state its caller intended, without hidden global or shadowing effects.
 - Surface: all. Apply when: Shadowed names or globals alter the meaning of inputs across calls.
 - Severity: major. Detection: machine. Tool mapping: Ruff F811/F823; PowerShell automatic-variable analysis; ESLint no-shadow if enabled.
 - Fix and reason: Pass changing dependencies explicitly; keep local names distinct from shell automatic variables and public inputs.
@@ -285,7 +285,7 @@ def parse(source_text):
 
 ## CS-013: Reuse infrastructure with a stable contract
 
-- Purpose: Reuse infrastructure with a stable contract; prevent the failure described by the application condition.
+- Purpose: Keep authentication, redaction and resource-lifecycle guarantees consistent across compatible callers without merging their business policies.
 - Surface: all. Apply when: Logging, DB connection lifecycle, authentication or resource transport is reimplemented.
 - Severity: major. Detection: context. Tool mapping: Design review; no duplication-percentage gate.
 - Fix and reason: Verify semantic, error, side-effect, encoding and ordering compatibility; keep business retry, query and workflow decisions with the feature.
@@ -308,7 +308,7 @@ feature calls existing compatible resource client
 
 ## CS-014: Keep parser and validation ownership explicit
 
-- Purpose: Keep parser and validation ownership explicit; prevent the failure described by the application condition.
+- Purpose: Prevent consumers of one grammar from accepting different malformed inputs or interpreting valid values differently.
 - Surface: all. Apply when: Two consumers claim to interpret the same versioned grammar.
 - Severity: major. Detection: context. Tool mapping: Contract and call-site review.
 - Fix and reason: Share only the invariant grammar; retain consumer-specific admission/policy layers and test both against the contract.
@@ -331,7 +331,7 @@ consumer calls the canonical manifest parser
 
 ## CS-015: Separate independently changing responsibilities
 
-- Purpose: Separate independently changing responsibilities; prevent the failure described by the application condition.
+- Purpose: Make validation, effects and cleanup independently understandable so changing one responsibility does not silently break another.
 - Surface: all. Apply when: Nested code mixes admission, interpretation, effects and reporting.
 - Severity: minor. Detection: context. Tool mapping: Complexity tools are signals only.
 - Fix and reason: Split at real responsibility boundaries; use clear early failure without losing cleanup or checks.
@@ -354,7 +354,7 @@ validate_input(data); persist_validated(data)
 
 ## CS-016: Do not add speculative interfaces
 
-- Purpose: Do not add speculative interfaces; prevent the failure described by the application condition.
+- Purpose: Avoid maintaining unneeded switches and extension paths whose behavior and compatibility nobody requires.
 - Surface: all. Apply when: An abstraction/configuration exists only for hypothetical consumers.
 - Severity: major. Detection: context. Tool mapping: Design review.
 - Fix and reason: Prefer existing implementation, standard library and installed dependencies; remove unneeded policy switches.
@@ -377,7 +377,7 @@ one named operation with its required parameters
 
 ## CS-017: Remove abandoned paths without hiding failure
 
-- Purpose: Remove abandoned paths without hiding failure; prevent the failure described by the application condition.
+- Purpose: Prevent obsolete experiments and fallback defaults from masking invalid input or retaining unsupported behavior.
 - Surface: all. Apply when: Temporary edits, unused dependencies or fallback paths survive their purpose.
 - Severity: major. Detection: context. Tool mapping: Ruff F401/F841; ESLint no-unused-vars; context review.
 - Fix and reason: Remove unused experiments and dependencies; preserve required compatibility and explicit operational fallback contracts.
@@ -400,7 +400,7 @@ except Invalid as error: raise InputError("invalid manifest") from error
 
 ## CS-018: Preserve exception meaning
 
-- Purpose: Preserve exception meaning; prevent the failure described by the application condition.
+- Purpose: Keep missing data, invalid evidence and failed operations distinguishable so a caught error cannot become false success.
 - Surface: all. Apply when: An exception is caught at an application boundary.
 - Severity: critical. Detection: data-flow. Tool mapping: Ruff E722; ESLint no-empty; context review.
 - Fix and reason: Catch the narrow expected case, retain cause, and fail closed for invalid evidence or failed effects.
@@ -423,7 +423,7 @@ except ExpectedMissing: return documented_absence
 
 ## CS-019: Propagate process and pipeline status
 
-- Purpose: Propagate process and pipeline status; prevent the failure described by the application condition.
+- Purpose: Ensure a failed child or pipeline producer makes its caller fail instead of being hidden by a later successful command.
 - Surface: bash,powershell,python,typescript,javascript. Apply when: A child/pipeline can fail while the wrapper reports success.
 - Severity: critical. Detection: data-flow. Tool mapping: ShellCheck SC2155/SC2181; process regression.
 - Fix and reason: Check the exact child status before another command overwrites it; PowerShell native commands require LASTEXITCODE handling; inspect pipeline producers.
@@ -446,7 +446,7 @@ if ! tool; then exit 1; fi
 
 ## CS-020: Validate Python boundaries before narrowing
 
-- Purpose: Validate Python boundaries before narrowing; prevent the failure described by the application condition.
+- Purpose: Reject malformed external values before coercion turns missing, boolean or invalid data into apparently valid domain values.
 - Surface: python. Apply when: Parsed JSON, CLI or external bytes become trusted domain values.
 - Severity: major. Detection: context. Tool mapping: Ruff; mypy existing profile; schema tests.
 - Fix and reason: Reuse the existing validator; distinguish bool from int where schema does; reject malformed/unknown fields according to contract.
@@ -469,7 +469,7 @@ count = require_nonnegative_integer(payload, "count")
 
 ## CS-021: Narrow TypeScript unknown honestly
 
-- Purpose: Narrow TypeScript unknown honestly; prevent the failure described by the application condition.
+- Purpose: Prevent compile-time assertions from disguising external data that violates the runtime contract.
 - Surface: typescript,javascript. Apply when: External data is converted into a trusted type.
 - Severity: major. Detection: machine. Tool mapping: tsc strict/noUncheckedIndexedAccess; typescript-eslint no-explicit-any when enabled.
 - Fix and reason: Use existing runtime validation and discriminated unions; replace any/non-null/assertion escapes with actual proof.
@@ -492,7 +492,7 @@ const item = parseItem(JSON.parse(text) as unknown)
 
 ## CS-022: Own every asynchronous lifetime
 
-- Purpose: Own every asynchronous lifetime; prevent the failure described by the application condition.
+- Purpose: Ensure asynchronous failures, completion and cancellation remain observable to the operation that owns the work.
 - Surface: python,typescript,javascript,powershell. Apply when: A task or promise outlives its request, failure handler or cleanup.
 - Severity: major. Detection: context. Tool mapping: typescript-eslint no-floating-promises/no-misused-promises when enabled.
 - Fix and reason: Await owned work; explicitly supervise detached tasks and bounded concurrency; propagate rejection and cancellation.
@@ -515,7 +515,7 @@ await Promise.all(items.map(item => save(item)))
 
 ## CS-023: Bound external work and cleanup
 
-- Purpose: Bound external work and cleanup; prevent the failure described by the application condition.
+- Purpose: Prevent stalled external calls, oversized responses or abandoned child resources from exhausting a user request or worker.
 - Surface: all. Apply when: A child/network call can block a user path indefinitely.
 - Severity: major. Detection: context. Tool mapping: Process tests and data-flow review.
 - Fix and reason: Reuse the existing process/transport supervisor; bound total deadline, response size, child ownership and cleanup.
@@ -538,7 +538,7 @@ subprocess.run(argv, timeout=deadline_seconds, check=True)
 
 ## CS-024: Retry only a justified operation
 
-- Purpose: Retry only a justified operation; prevent the failure described by the application condition.
+- Purpose: Prevent retries from repeating irreversible effects or consuming resources after an operation's deadline.
 - Surface: all. Apply when: Failure causes a repeated side effect or unbounded loop.
 - Severity: critical. Detection: context. Tool mapping: Context review; failure-path tests.
 - Fix and reason: Classify transient failures, retain total deadline, and use idempotency/compensation owned by the feature.
@@ -561,7 +561,7 @@ retry_transient_idempotent_request(max_attempts=3)
 
 ## CS-025: Compare protocol tokens with required case
 
-- Purpose: Compare protocol tokens with required case; prevent the failure described by the application condition.
+- Purpose: Keep protocol admission consistent across runtimes when a differently cased token is invalid.
 - Surface: bash,powershell,python,typescript,javascript. Apply when: Machine tokens or filenames cross runtime/OS boundaries.
 - Severity: major. Detection: context. Tool mapping: PowerShell structural checks plus mis-cased negatives.
 - Fix and reason: Match the producer contract exactly, including PowerShell operators, switch, Select-String and collection/filter APIs.
@@ -584,7 +584,7 @@ $status -ceq "PASS"
 
 ## CS-026: Pin encoding at producer and consumer
 
-- Purpose: Pin encoding at producer and consumer; prevent the failure described by the application condition.
+- Purpose: Prevent non-ASCII corruption, BOM surprises and newline changes from breaking parsers or invalidating evidence hashes.
 - Surface: all. Apply when: Files/stdout cross JSON, PowerShell, Python or Node boundaries.
 - Severity: major. Detection: context. Tool mapping: Cross-runtime fixture and native OS test.
 - Fix and reason: Follow the existing UTF-8/BOM/newline contract and strict consumer; preserve byte hashes of frozen evidence.
@@ -607,7 +607,7 @@ Good (adapt to the actual API):
 
 ## CS-027: Implement the input domain, not fixture names
 
-- Purpose: Implement the input domain, not fixture names; prevent the failure described by the application condition.
+- Purpose: Make the implementation work for valid unseen inputs instead of only the examples already in the test suite.
 - Surface: all. Apply when: Production behavior branches on known test values.
 - Severity: major. Detection: context. Tool mapping: Context review and held-out cases.
 - Fix and reason: Implement the specified general operation; add an unseen negative and normal case.
@@ -630,7 +630,7 @@ return compute_from_contract(name)
 
 ## CS-028: Keep the oracle independent
 
-- Purpose: Keep the oracle independent; prevent the failure described by the application condition.
+- Purpose: Ensure a defect in the implementation cannot also produce the expected result and make its own test pass.
 - Surface: all. Apply when: Expected results repeat the same algorithm as the implementation.
 - Severity: major. Detection: context. Tool mapping: Review assertion provenance.
 - Fix and reason: Use contract examples, independent arithmetic, metamorphic properties or an independent consumer.
@@ -653,7 +653,7 @@ expected = externally_derived_known_result
 
 ## CS-029: Label evidence by the boundary actually run
 
-- Purpose: Label evidence by the boundary actually run; prevent the failure described by the application condition.
+- Purpose: Prevent simulated or partial checks from being mistaken for evidence that the actual user or provider path works.
 - Surface: all. Apply when: A result is called live/E2E/native while dependencies are mocked or unrun.
 - Severity: critical. Detection: context. Tool mapping: Existing observation/catalog validators plus context review.
 - Fix and reason: Record actual entry path, runtime, substitutions, side effects and limitations using the existing evidence collector.
@@ -676,7 +676,7 @@ report(kind="mock-integration", live_status="not-run")
 
 ## CS-030: Do not weaken acceptance to get green
 
-- Purpose: Do not weaken acceptance to get green; prevent the failure described by the application condition.
+- Purpose: Keep a failing requirement visible until the behavior is repaired or the requirement is legitimately changed.
 - Surface: all. Apply when: A failing assertion/threshold is relaxed without a requirement change.
 - Severity: critical. Detection: context. Tool mapping: Diff and acceptance/provenance review.
 - Fix and reason: Repair the behavior or correct a demonstrably wrong oracle with evidence; preserve failures, skips and unknown values distinctly.
