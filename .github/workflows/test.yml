@@ -1708,3 +1708,27 @@ jobs:
         if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/check-installed-plugin-drift.tests.ps1
+
+  coding-standards:
+    name: complete coding standards audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install locked TypeScript compiler
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: Install pinned native analyzers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/coding-standards"
+          "$RUNNER_TEMP/coding-standards/bin/pip" install -r tests/coding-standards/requirements.txt
+          printf '%s\n' "$RUNNER_TEMP/coding-standards/bin" >> "$GITHUB_PATH"
+      - name: Install pinned PowerShell analyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -ErrorAction Stop
+      - name: Run native controls and complete tracked-source audit
+        shell: bash
+        run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
