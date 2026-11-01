@@ -400,7 +400,7 @@ foreach ($o in $generatedNames) {
 if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
     Test-Pass 'staging: MANIFEST.sha256 exists'
     $shaLines = @([IO.File]::ReadAllLines($ManifestSha) | Where-Object { $_ -ne '' })
-    $badLines = @($shaLines | Where-Object { $_ -notmatch '^[0-9a-f]{64}  [^ ].*$' })
+    $badLines = @($shaLines | Where-Object { $_ -cnotmatch '^[0-9a-f]{64}  [^ ].*$' })
     Assert-Eq $badLines.Count 0 'staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>'
 
     # Class lock (2026-08-11 human ruling, RT-20260811-002): the repo-shared

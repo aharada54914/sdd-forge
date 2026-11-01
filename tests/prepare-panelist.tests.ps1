@@ -1652,7 +1652,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
     ok "TEST-049d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-049d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -1945,7 +1945,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
     ok "TEST-055d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-055d: digest must not print when the size guard fails. Output: $($script:PP_Output)"

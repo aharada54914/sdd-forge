@@ -1,0 +1,45 @@
+{
+  "schema": "coding-standards-root-boundary-findings/v1",
+  "findings": [
+    {
+      "id": "ROOT-001",
+      "rule_ids": [
+        "CS-019",
+        "CS-023"
+      ],
+      "paths": [
+        "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+        "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh"
+      ],
+      "before": "Both actual wrapper entrypoints invoked CLI after injected real cat failure on input; exit1 reflected downstream stub rather than refusing incomplete input.",
+      "after": "Both exit2 before CLI invocation. Scratch creation, prompt write, all concatenation stages and prompt reread checked. Trailing argument explicitly rejected under sh and bash.",
+      "test": "tests/cross-model.tests.sh",
+      "result": "84 passed, 0 failed",
+      "source_sha256": {
+        "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "1adba1ec7bec60d5cc24aa6d3e729bdba8c8fbb9b176c8cd3bf848b5f7b70acc",
+        "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "0e8d43d3557fedca0066cf5da06e078c8c8862ced92b99aacdc0ea6177241d3c"
+      },
+      "status": "fixed"
+    },
+    {
+      "id": "ROOT-002",
+      "rule_ids": [
+        "CS-009",
+        "CS-027"
+      ],
+      "paths": [
+        "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+        "plugins/sdd-review-loop/scripts/review-contract-validate.ps1"
+      ],
+      "before": "Valid contract with reports/.. accepted and emitted PASS; parent-only canonicalization ignored terminal traversal. PS Split-Path normalizes terminal component separately.",
+      "after": "Reject terminal dot/dotdot on raw path before emitting validation JSON. Preserve literal paths and existing parent/symlink rules.",
+      "test": "tests/review-contract-foundation.tests.sh",
+      "result": "Full suite passed including Bash+PowerShell terminal traversal negatives and CRLF/symlink provenance controls",
+      "source_sha256": {
+        "plugins/sdd-review-loop/scripts/review-contract-validate.sh": "7e44a1c350fd65340ab3a9a78ca3d2c0a48ca5439402400ab9972e39d7b20b75",
+        "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370"
+      },
+      "status": "fixed"
+    }
+  ]
+}

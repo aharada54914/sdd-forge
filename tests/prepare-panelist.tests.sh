@@ -3069,6 +3069,82 @@ else
     echo "SKIP: PP-082 host does not create symlinks"
 fi
 
+# Real POSIX I/O failures cannot yield a successful empty review bundle.
+if python3 - "${SCRIPTS_DIR}/prepare-panelist-input.sh" <<'PY_IO'
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+script = sys.argv[1]
+missing = subprocess.run(['bash', script, '--task'], capture_output=True, text=True, timeout=5)
+assert missing.returncode == 2 and 'missing option value' in missing.stderr, missing
+if os.name == 'nt':
+    print('SKIP: POSIX permission controls unavailable on Windows')
+    sys.exit(0)
+with tempfile.TemporaryDirectory(prefix='prepare IO ') as tmp:
+    root = Path(tmp)
+    root.chmod(0o777)
+    tasks = root / 'tasks.md'
+    tasks.write_text('## T-001\nCross-Model: enabled\n', encoding='utf-8')
+    source = root / 'input.txt'
+    source.write_text('review this complete input\n', encoding='utf-8')
+    output = root / 'out.txt'
+    command = ['bash', script, '--task', 'T-001', '--feature', 'demo', '--input', str(source),
+               '--tasks-file', str(tasks), '--project-root', str(root), '--out', str(output)]
+    def unprivileged():
+        if os.getuid() == 0:
+            os.setgroups([])
+            os.setgid(1000)
+            os.setuid(1000)
+    def run(argv):
+        return subprocess.run(argv, preexec_fn=unprivileged, capture_output=True, text=True, timeout=15)
+    control = run(command)
+    assert control.returncode == 0 and 'review this complete input' in output.read_text(), control
+    output.unlink()
+    source.chmod(0)
+    try:
+        result = run(command)
+        assert result.returncode == 2 and not result.stdout and not output.exists(), result
+    finally:
+        source.chmod(0o644)
+    denied_output = root / 'denied-output'
+    denied_output.mkdir()
+    denied_output.chmod(0o555)
+    try:
+        result = run(command[:-1] + [str(denied_output / 'out.txt')])
+        assert result.returncode == 2 and not result.stdout, result
+    finally:
+        denied_output.chmod(0o755)
+    evidence = root / 'specs/demo/verification/T-001/private'
+    evidence.mkdir(parents=True)
+    (evidence / 'evidence.log').write_text('must not omit', encoding='utf-8')
+    evidence.chmod(0)
+    directory_command = list(command)
+    directory_command[directory_command.index('--input') + 1] = str(root)
+    try:
+        result = run(directory_command)
+        assert result.returncode == 2 and not output.exists(), result
+    finally:
+        evidence.chmod(0o755)
+    report = root / 'reports/implementation/demo/T-001.md'
+    report.parent.mkdir(parents=True)
+    report.write_text('## Outputs\n', encoding='utf-8')
+    report.chmod(0)
+    try:
+        result = run(command)
+        assert result.returncode == 2 and not output.exists(), result
+    finally:
+        report.chmod(0o644)
+print('PASS: missing value, complete-input control, unreadable input/report/tree, and denied output')
+PY_IO
+then
+    ok 'review input I/O boundaries fail closed'
+else
+    fail 'review input I/O boundaries fail closed'
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================
