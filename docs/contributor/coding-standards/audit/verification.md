@@ -80,3 +80,14 @@ narrowing), not parser-reuse CS-014: accepting a numeric prefix is the defect,
 and no consolidation decision is asserted. Schema and unique-ID checks pass
 for 80 central records. Record counts are grouped audit observations, not a
 normalized defect-frequency estimate or proof of whole-population closure.
+
+## Further shell boundaries and known unresolved violation
+
+Imported four #688 follow-up records from `28ecd8ce`, validating both original
+and current source pins. Installer URI-component fixes map to CS-008; the release
+option-terminator fix maps to CS-009. SH-008 remains `confirmed-violation` with
+null resolution: an inaccessible stop-marker directory can cause the POSIX
+predicate to treat an inspection failure as absence. The actual unprivileged
+EACCES reproduction is recorded by its owner. The central ledger now has 84
+records and explicitly does **not** report zero confirmed violations. Further
+PowerShell argument-boundary findings are still being investigated by #688.

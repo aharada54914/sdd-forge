@@ -1781,6 +1781,90 @@
       ],
       "resolution": "Use fileURLToPath standard conversion.",
       "reuse": null
+    },
+    {
+      "finding_id": "SH-008",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.sh",
+      "line": 9,
+      "source_sha256": "c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd",
+      "flow": {
+        "input": "filesystem metadata",
+        "transformation": "test predicate",
+        "sink": "allow decision"
+      },
+      "impact": "POSIX test -f masks EACCES as absent and allows tool use",
+      "reproduction": "Unprivileged uid1000 chmod000 directory with AGENT_STOP; CLAUDE_PROJECT_DIR points at it: unchanged script exits0. Broad find fix rejected because it denied unrelated symlink/missing-root controls. Portable errno distinction unresolved.",
+      "state": "confirmed-violation",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/kill-switch.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd\"}"
+      ],
+      "resolution": null,
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-009",
+      "rule_id": "CS-008",
+      "path": "install.sh",
+      "line": 355,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Valid Git ref fragment delimiter truncates archive request; path value not encoded",
+      "reproduction": "Public installer test remote entry with feature/日本語#topic asserts feature%2F%E6%97%A5%E6%9C%AC%E8%AA%9E%23topic and completes install;52 assertions pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"install.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"9284e7b78f7b0263f8d1eff0ba2bc1aaa4b0e56dca7b897f306854594c75bb40\"}"
+      ],
+      "resolution": "28ecd8ce bytewise URI component encoding without bootstrap dependency; owner/repo grammar checked.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-005",
+      "rule_id": "CS-008",
+      "path": "install.ps1",
+      "line": 560,
+      "source_sha256": "7dc0b742a29a18daf85809caf8a2e92be098608a6cc1b1a29612470c9b64e056",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Valid Git ref fragment delimiter truncates archive request; path value not encoded",
+      "reproduction": "Public native PS installer core lane passes with feature/topic#fragment exact encoded URI and authenticated transport fixture.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"install.ps1\", \"revision\": \"28ecd8ce\", \"sha256\": \"92d4062c52455afd71c0ab9571b0b82d3b3bf6c8ea609ae0fc1dd7732cf7c005\"}"
+      ],
+      "resolution": "28ecd8ce Uri.EscapeDataString plus owner/repo grammar.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-010",
+      "rule_id": "CS-009",
+      "path": ".github/workflows/release.yml",
+      "line": 170,
+      "source_sha256": "5ac7fcee96072d6e1e8c43979fd2924083e319b8de97ee61949cedb795e1818e",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Leading-hyphen tag may be parsed as gh option despite data transport",
+      "reproduction": "Actual Upload release assets shell body run with captured gh function shows release,upload,--clobber,--,--help argv prefix.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \".github/workflows/release.yml\", \"revision\": \"28ecd8ce\", \"sha256\": \"3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9\"}"
+      ],
+      "resolution": "28ecd8ce end options before tag, put clobber before terminator, use --version= for SBOM CLI.",
+      "reuse": null
     }
   ]
 }
