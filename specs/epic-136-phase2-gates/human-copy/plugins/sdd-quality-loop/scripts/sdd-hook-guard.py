@@ -373,9 +373,9 @@ def kill_switch_tripped():
             bases.append(".")
     for base in bases:
         try:
-            if os.path.isfile(os.path.join(base, "AGENT_STOP")):
+            if stat.S_ISREG(os.stat(os.path.join(base, "AGENT_STOP")).st_mode):
                 return True
-        except OSError:
+        except (FileNotFoundError, NotADirectoryError):
             pass
     return False
 
@@ -1992,7 +1992,12 @@ def main():
         return
 
     # Check 1: kill switch runs regardless of payload validity (checked before stdin read, matching JS/PS1).
-    if kill_switch_tripped():
+    try:
+        stopped = kill_switch_tripped()
+    except OSError:
+        emit("deny", "SDD kill switch: unable to inspect AGENT_STOP; tool use denied.", mode)
+        return
+    if stopped:
         emit("deny", KILL_MSG, mode)
 
     raw = os.environ.get("PAYLOAD")
