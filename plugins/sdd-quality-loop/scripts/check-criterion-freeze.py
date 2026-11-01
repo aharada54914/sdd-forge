@@ -30,11 +30,16 @@ FROZEN_MARK = re.compile(r"^Task-Review-Status:[ \t]*Passed[ \t]*\r?$", re.M)
 
 
 def git(*args, allow_fail=False):
-    proc = subprocess.run(
-        ["git", "-C", ROOT] + list(args),
-        capture_output=True, text=True,
-        encoding="utf-8",
-    )
+    try:
+        proc = subprocess.run(
+            ["git", "-C", ROOT] + list(args),
+            capture_output=True, text=True,
+            encoding="utf-8",
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        sys.stderr.write("check-criterion-freeze: git inspection failed: %s\n" % type(exc).__name__)
+        sys.exit(2)
     if proc.returncode != 0:
         if allow_fail:
             return None

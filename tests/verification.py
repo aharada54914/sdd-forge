@@ -127,10 +127,10 @@ def runtime_command(runtime, powershell=None, host_args=None):
 
 def repository_state(root):
     try:
-        revision = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root, text=True, capture_output=True, check=False)
+        revision = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root, text=True, capture_output=True, check=False, timeout=30)
         status = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=normal'], cwd=root,
-                                text=True, capture_output=True, check=False)
-    except OSError:
+                                text=True, capture_output=True, check=False, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
         return None, None
     return (revision.stdout.strip() if revision.returncode == 0 else None,
             not status.stdout if status.returncode == 0 else None)

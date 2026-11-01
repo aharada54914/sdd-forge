@@ -1024,7 +1024,10 @@ def _run_git(repo_root: str, args: List[str]) -> Tuple[int, bytes, bytes]:
             ["git", "-C", repo_root] + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=30,
         )
+    except subprocess.TimeoutExpired as exc:
+        raise GitDiffError("git inspection exceeded the 30-second deadline") from exc
     except FileNotFoundError as exc:
         raise GitDiffError(f"git executable not found: {exc}") from exc
     return proc.returncode, proc.stdout, proc.stderr

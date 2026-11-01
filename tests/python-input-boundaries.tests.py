@@ -32,6 +32,106 @@ class InputBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(resolver.GitDiffError, 'status failed'):
                     resolver._capture_fingerprint(directory)
 
+    @unittest.skipUnless(os.name == 'posix', 'POSIX executable fixture')
+    def test_git_timeout_reaps_direct_child_and_fails_closed(self):
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location('component_deadline', SCRIPTS / 'resolve-component-paths.py')
+        resolver = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(resolver)
+        actual_run = subprocess.run
+
+        def shortened_deadline(*args, **kwargs):
+            self.assertEqual(kwargs['timeout'], 30)
+            kwargs['timeout'] = 0.1
+            return actual_run(*args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            git = root / 'git'
+            git.write_text('#!/bin/sh\nprintf "%s" "$$" > "$2/git-child.pid"\nexec sleep 10\n', encoding='utf-8')
+            git.chmod(0o700)
+            with patch.dict(os.environ, PATH=directory + os.pathsep + os.environ.get('PATH', '')):
+                with patch.object(resolver.subprocess, 'run', side_effect=shortened_deadline):
+                    with self.assertRaisesRegex(resolver.GitDiffError, 'deadline'):
+                        resolver._run_git(directory, ['rev-parse', 'HEAD'])
+            pid = int((root / 'git-child.pid').read_text(encoding='utf-8'))
+            with self.assertRaises(ProcessLookupError):
+                os.kill(pid, 0)
+
+    def test_facet_semantics_preserve_schema_diagnostics_for_unhashable_ids(self):
+        cases = ({'resolved_gates': [{'id': []}]},
+                 {'required_facets': ['ui'], 'conditional_facets': [{'facet': {}}]},
+                 {'conditional_facets': [{'facet': []}]})
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / 'manifest.json'
+            for value in cases:
+                with self.subTest(value=value):
+                    manifest.write_text(json.dumps(value), encoding='utf-8')
+                    result = subprocess.run([sys.executable, str(SCRIPTS / 'validate-facet-manifest.py'),
+                                             '--manifest', str(manifest)], capture_output=True,
+                                            text=True, encoding='utf-8', timeout=10, check=False)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn('facet-manifest: schema-invalid:', result.stdout)
+                    self.assertNotIn('Traceback', result.stderr)
+
+    def test_embedded_python_rejects_malformed_json_shapes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input.json'
+            verdicts = root / 'f/verification'
+            verdicts.mkdir(parents=True)
+            verdict = verdicts / 'T-001.panelist-fixture.verdict.json'
+            for value in ([], None, 1):
+                source.write_text(json.dumps(value), encoding='utf-8')
+                verdict.write_text(json.dumps(value), encoding='utf-8')
+                commands = [([str(SCRIPTS / 'check-cross-model.sh'), '--task', 'T-001', '--feature', 'f',
+                              '--spec-root', str(root)], 2, 'check-cross-model:'),
+                            ([str(SCRIPTS / 'check-evidence-bundle.sh'), str(source), str(root)], 1, 'Evidence bundle FAILED'),
+                            ([str(SCRIPTS / 'check-traceability.sh'), str(source), str(root)], 1, 'Traceability check FAILED')]
+                for command, code, diagnostic in commands:
+                    with self.subTest(value=value, command=command[0]):
+                        result = subprocess.run(['sh', *command], capture_output=True, text=True,
+                                                encoding='utf-8', timeout=10)
+                        self.assertEqual(result.returncode, code)
+                        self.assertNotIn('Traceback', result.stderr)
+                        self.assertIn(diagnostic, result.stdout + result.stderr)
+
+    def test_embedded_traceability_requires_typed_identifiers(self):
+        valid = {'feature': 'f', 'links': [{'req': 'REQ-1', 'acs': ['AC-1', ''], 'tests': ['TEST-1']}]}
+        cases = [dict(feature=1, links=valid['links']), dict(feature='f', links=[None]),
+                 dict(feature='f', links=[{'acs': ['AC-1'], 'tests': ['TEST-1']}])]
+        for key, value in (('req', 1), ('acs', [1]), ('tests', [{}]), ('evidence', [1])):
+            link = dict(valid['links'][0], **{key: value})
+            cases.append(dict(feature='f', links=[link]))
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'traceability.json'
+            for value in [valid, *cases]:
+                with self.subTest(value=value):
+                    source.write_text(json.dumps(value), encoding='utf-8')
+                    result = subprocess.run(['sh', str(SCRIPTS / 'check-traceability.sh'), str(source), directory],
+                                            capture_output=True, text=True, encoding='utf-8', timeout=10)
+                    self.assertEqual(result.returncode, 0 if value is valid else 1)
+                    self.assertNotIn('Traceback', result.stderr)
+
+    @unittest.skipUnless(os.name == 'posix', 'POSIX executable fixture')
+    def test_bundle_generation_rejects_failed_git_status_without_output(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'contract.json').write_text(json.dumps({'task_id': 'T-001', 'checks': []}), encoding='utf-8')
+            (root / 'report.md').write_text('Task ID: T-001\nVERDICT: PASS\n', encoding='utf-8')
+            fake_git = root / 'git'
+            fake_git.write_text('#!/bin/sh\ncase "$3" in\nrev-parse) printf "' + 'a' * 40 + '\\n";;\nstatus) exit 7;;\nesac\n', encoding='utf-8')
+            fake_git.chmod(0o700)
+            output = root / 'T-001.evidence.json'
+            with patch.dict(os.environ, PATH=directory + os.pathsep + os.environ.get('PATH', '')):
+                result = subprocess.run(['sh', str(SCRIPTS / 'generate-evidence-bundle.sh'),
+                                         str(root / 'contract.json'), str(root / 'report.md'), directory, str(output)],
+                                        capture_output=True, text=True, encoding='utf-8', timeout=10)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn('git status failed', result.stderr)
+            self.assertFalse(output.exists())
+
     def test_contract_invalid_shapes_have_failure_diagnostics(self):
         cases = [[], None, 1, {'schema': 1}, {'checks': [{'id': []}]},
                  {'checks': [{'id': 'lint', 'waiver_reason': 1}]},

@@ -157,8 +157,14 @@ def evidence_canonical(bundle):
     return "\n".join(lines)
 
 
-with open(bundle_path, encoding="utf-8") as handle:
-    bundle = json.load(handle)
+try:
+    with open(bundle_path, encoding="utf-8") as handle:
+        bundle = json.load(handle)
+    if not isinstance(bundle, dict):
+        raise ValueError("bundle must be an object")
+except (OSError, ValueError) as exc:
+    print(f"Evidence bundle FAILED:\n - cannot read bundle: {exc}")
+    sys.exit(1)
 
 task_id = str(bundle.get("task_id", "")).strip()
 bundle_feature = str(bundle.get("feature", "")).strip()
@@ -206,7 +212,11 @@ if quality_abs is not None:
 if contract_abs is not None:
     try:
         contract = json.loads(pathlib.Path(contract_abs).read_text(encoding="utf-8"))
-    except Exception as exc:
+        if (not isinstance(contract, dict) or not isinstance(contract.get("checks", []), list)
+                or any(not isinstance(check, dict) for check in contract.get("checks", []))):
+            raise ValueError("contract must be an object with a checks array of objects")
+    except (OSError, ValueError) as exc:
+        contract = None
         fail(f"verification_contract could not be parsed as JSON: {verification_contract} ({exc})")
     else:
         contract_task = str(contract.get("task_id", "")).strip()
@@ -261,6 +271,9 @@ if contract:
 
 artifact_index = {}
 for artifact in artifacts:
+    if not isinstance(artifact, dict):
+        fail("artifact must be an object")
+        continue
     path_value = artifact.get("path")
     sha_value = str(artifact.get("sha256", "")).strip().lower()
     artifact_norm, artifact_abs = resolve_repo_path(path_value, "artifact path")
@@ -296,7 +309,7 @@ else:
         try:
             r1 = subprocess.run(
                 ["git", "-C", abs_root, "cat-file", "-e", f"{git_commit_str}^{{commit}}"],
-                capture_output=True,
+                capture_output=True, timeout=30,
             )
             if r1.returncode != 0:
                 fail(f"git_commit does not exist in repository: {git_commit_str}")
@@ -304,7 +317,7 @@ else:
                 # Verify commit is HEAD or an ancestor of HEAD
                 r2 = subprocess.run(
                     ["git", "-C", abs_root, "merge-base", "--is-ancestor", git_commit_str, "HEAD"],
-                    capture_output=True,
+                    capture_output=True, timeout=30,
                 )
                 if r2.returncode != 0:
                     # Commit exists but is not an ancestor — may have been rewritten after

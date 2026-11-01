@@ -42,7 +42,7 @@ NEW = {'spec_profile': 'full', 'artifact_layout': 'facet-hybrid', 'capability_en
 
 
 def git(root, *args):
-    return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE).decode().strip()
+    return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE, timeout=30).decode().strip()
 
 
 def document(check, binding):
@@ -103,7 +103,7 @@ def findings(check, record, cycle):
                     re.search(r'\bPR #' + str(item['pr']) + r'(?![\w-])', problem) and '{{' not in problem,
                     'WFI does not identify the observed false positive')
             committed = subprocess.check_output(['git', 'show', cycle['head_sha'] + ':' + binding['path']],
-                                                cwd=check.root, stderr=subprocess.PIPE)
+                                                cwd=check.root, stderr=subprocess.PIPE, timeout=30)
             require(committed == raw, 'WFI was not saved in the approved release revision')
         else:
             require(item['wfi'] is None, 'ordinary finding has an unexpected WFI receipt')
@@ -129,7 +129,7 @@ def compatibility(check, record, head):
         require(identity in expected and identity not in seen and type(row['exit_code']) is int and row['exit_code'] == 0,
                 'compatibility suite missing, duplicated or failed')
         seen.add(identity)
-        source = subprocess.check_output(['git', 'show', head + ':' + row['suite']], cwd=check.root, stderr=subprocess.PIPE)
+        source = subprocess.check_output(['git', 'show', head + ':' + row['suite']], cwd=check.root, stderr=subprocess.PIPE, timeout=30)
         require(ROLLBACK.digest(source) == row['source_sha256'], 'compatibility suite source is stale')
         log = check.bound(row['log']).decode('utf-8')
         require(re.search(r'(?m)^[1-9][0-9]* passed, 0 failed\s*\Z', log) and
@@ -177,7 +177,7 @@ def cross_runtime(check, record, head, decided):
     require(record['schema'] == 'a9-cross-runtime-observation/v1' and record['head_sha'] == head and
             record['suite'] in ('tests/cross-runtime-handoff.tests.sh', 'tests/cross-runtime-handoff.tests.ps1') and
             type(record['exit_code']) is int and record['exit_code'] == 0, 'cross-runtime evidence is stale or failed')
-    source = subprocess.check_output(['git', 'show', head + ':' + record['suite']], cwd=check.root, stderr=subprocess.PIPE)
+    source = subprocess.check_output(['git', 'show', head + ':' + record['suite']], cwd=check.root, stderr=subprocess.PIPE, timeout=30)
     require(ROLLBACK.digest(source) == record['source_sha256'], 'cross-runtime suite source is stale')
     trace = document(check, record['trace'])
     require(trace['schema'] == 'cross-runtime-handoff-trace/v1' and trace['result'] == 'PASS' and
@@ -355,7 +355,7 @@ def main(argv=None):
     try:
         print(json.dumps(run(parser().parse_args(argv)), sort_keys=True))
         return 0
-    except (ROLLBACK.Refusal, OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.CalledProcessError,
+    except (ROLLBACK.Refusal, OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.CalledProcessError, subprocess.TimeoutExpired,
             APPROVAL.ValidateApprovalSidecarError, PROOF.ValidationError, PROOF.CANON.CanonicalizeError) as error:
         print(json.dumps({'schema': 'a9-promotion-validation/v1', 'result': 'BLOCKED',
                           'category': getattr(error, 'category', getattr(error, 'code', 'PROMOTION_REFUSED'))}))

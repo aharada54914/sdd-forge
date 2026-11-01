@@ -877,6 +877,560 @@
       ],
       "resolution": "Check status return code before hashing and raise existing GitDiffError with child diagnostic.",
       "reuse": null
+    },
+    {
+      "finding_id": "PY-041",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 399,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+      "reproduction": "Three real CLI cases produced traceback/no schema diagnostic before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:8 pass",
+        "facet-manifest-schema:57 pass",
+        "facet-manifest-semantics:15 pass"
+      ],
+      "resolution": "Skip nonstring IDs in semantic checks; preserve full schema errors and independent valid-field semantic diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-042",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "line": 18,
+      "source_sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+        "sink": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py"
+      },
+      "impact": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+      "reproduction": "Real CLI valid control passed; dict/None/integer controls emitted tracebacks before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "supplemental-delivery-declaration:32 pass with Bash/PowerShell parity"
+      ],
+      "resolution": "Check object and consumed input-array shape before field use; no broad catch added.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-043",
+      "rule_id": "CS-023",
+      "path": "tests/t001-evaluation-preparation.tests.py",
+      "line": 69,
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+        "sink": "tests/t001-evaluation-preparation.tests.py"
+      },
+      "impact": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+      "reproduction": "Frozen T005 helper allocates scratch before supplemental validation; failure branch has no deletion. Source traced; no claimed historical live Red.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "t001-evaluation-preparation:16 pass"
+      ],
+      "resolution": "Current test consumer owns separate child temp root through TMPDIR/TMP/TEMP and unittest cleanup; frozen helper bytes untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-044",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 1,
+      "source_sha256": "202bf36c4ae02c867b315e4f5207e43d524b6ff62d507bde24f852166726ddd4",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-045",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "line": 1,
+      "source_sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-046",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "line": 1,
+      "source_sha256": "bc09ff0ffff8df1d06beae2a0fb8f5614e38d8a74f0d9cc5f21a89b219236521",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/registry_discovery.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-047",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1,
+      "source_sha256": "72afd70c63053d2418574004d22c7ee783c4d0342d67ab57dab2f7a7ec7220da",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-048",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "line": 1,
+      "source_sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-project-context.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-049",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "line": 1,
+      "source_sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-050",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "line": 1,
+      "source_sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-context-projection.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-051",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 1,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-052",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "line": 1,
+      "source_sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-053",
+      "rule_id": "CS-023",
+      "path": "scripts/human_copy_mirrors.py",
+      "line": 1,
+      "source_sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/human_copy_mirrors.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-054",
+      "rule_id": "CS-023",
+      "path": "scripts/observe-a9-advisory.py",
+      "line": 1,
+      "source_sha256": "d788e472e4d0e70b37d9ab197c7b04c3bfcaef7624d1fb9490a53eef9af1d0ab",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/observe-a9-advisory.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-055",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-candidate.py",
+      "line": 1,
+      "source_sha256": "68fb96877a53d121dc303b255b5badbb6bd1e58cfc285979c0f671a0dd425963",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-candidate.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-056",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-promotion.py",
+      "line": 1,
+      "source_sha256": "45492c515f50ef7c1b6d926d906b0c1dc4986c34e7a43aa4044c6c631843a341",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-promotion.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-057",
+      "rule_id": "CS-023",
+      "path": "tests/benchmark-gates.py",
+      "line": 1,
+      "source_sha256": "882e363034c7c6f93803751cca2dba8e04265ea812bca47f60e1837ee76a8998",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/benchmark-gates.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-058",
+      "rule_id": "CS-023",
+      "path": "tests/factory-pilot.py",
+      "line": 1,
+      "source_sha256": "e2f2eb554e937cae522b0eccafff1e2ca108191cd56421a7f3cb4490015e6f4d",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/factory-pilot.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-059",
+      "rule_id": "CS-023",
+      "path": "tests/verification-impact.py",
+      "line": 1,
+      "source_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification-impact.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-060",
+      "rule_id": "CS-023",
+      "path": "tests/verification.py",
+      "line": 1,
+      "source_sha256": "4e72b661e2b03e1eaaf20425aec0cc23da593d27272f9b5ebb4bc082d4ad441a",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-061",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 107,
+      "source_sha256": "feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d",
+      "flow": {
+        "input": "External verdict JSON object and consumed field shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-cross-model.sh"
+      },
+      "impact": "External verdict JSON object and consumed field shapes",
+      "reproduction": "Nine malformed top-level gate CLI cases failed before repair; cross-model returned consensus failure instead of tool error.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require object, exact string digest/fullmatch, nonempty string consent kind, and list-of-object findings; preserve omitted findings and consensus failure policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-062",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 160,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "External evidence bundle and nested contract/artifact JSON shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "External evidence bundle and nested contract/artifact JSON shapes",
+      "reproduction": "Malformed scalar/list/null top-level inputs raised tracebacks in actual pre-edit CLI tests.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Validate object and nested consumed arrays/objects and report existing gate failure instead of an attribute error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-063",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "line": 39,
+      "source_sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+      "flow": {
+        "input": "External feature, link, requirement, ACS/test and evidence values",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-traceability.sh"
+      },
+      "impact": "External feature, link, requirement, ACS/test and evidence values",
+      "reproduction": "Malformed top-level inputs raised tracebacks in actual pre-edit CLI tests; typed identifier regression now checks missing/numeric req, mixed collection entries and normal blank-plus-valid control.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require consumed strings and link objects; require at least one nonempty ACS/test entry while preserving blank companions and optional null evidence.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-064",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "line": 185,
+      "source_sha256": "92999f5c81fe4a7cf75c6e630427a9ff866d4973a60aa4bf4df7043ad546f448",
+      "flow": {
+        "input": "Git status nonzero result becomes an empty clean-worktree snapshot",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+      },
+      "impact": "Git status nonzero result becomes an empty clean-worktree snapshot",
+      "reproduction": "Historical HEAD replay of the new actual fake-Git CLI test returned 0 instead of expected 1; this is explicitly a post-edit baseline replay, not a pre-edit red observation.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Check status result before constructing a bundle; classify Git timeouts and OSError; do not write output on failed Git status.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-065",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 298,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "Git object/ancestor checks may invoke unbounded external work",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "Git object/ancestor checks may invoke unbounded external work",
+      "reproduction": "Source inspection of previously unbounded Git subprocess calls; existing gate suite exercises valid and failed ancestry.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
+      "reuse": null
     }
   ]
 }

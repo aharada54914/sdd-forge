@@ -642,6 +642,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install template YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Test template-validator parity (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -1567,7 +1570,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory]
+    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory, coding-standards]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1619,6 +1622,10 @@ jobs:
           fi
           if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then
             echo "cli-hook-enforcement job failed"
+            exit 1
+          fi
+          if [ "${{ needs.coding-standards.result }}" != "success" ]; then
+            echo "coding-standards job failed"
             exit 1
           fi
           if [ "${{ needs.posix-regression.result }}" != "success" ]; then

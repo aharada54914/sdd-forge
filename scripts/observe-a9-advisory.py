@@ -46,7 +46,7 @@ def sha(raw):
 
 
 def git(root, *args):
-    return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE)
+    return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE, timeout=30)
 
 
 def commit(value):
@@ -230,7 +230,7 @@ def validate_observation(record, head_sha, base_sha, root, expected_state="advis
         if plan['bindings'] != expected:
             raise ValueError('selected plan input binding mismatch')
         replay_plan(record, docs, root, head_sha, owned)
-    except (KeyError, TypeError, ValueError, AttributeError, OSError, subprocess.CalledProcessError,
+    except (KeyError, TypeError, ValueError, AttributeError, OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired,
             resolver.CanonicalizerFailed, resolver.CanonicalizerOutputMalformed, resolver.RegistryValidationFailed,
             resolver.DependencySubprocessFailed, resolver.DependencyOutputMalformed,
             resolver.AffectedComponentAbsentFromContext, evidence.ValidatorError,
@@ -467,7 +467,7 @@ def main():
         print(json.dumps({'state': 'blocked', 'result': 'BLOCKED', 'authorization_checked': False,
                           'missing_inputs': exc.names}, sort_keys=True))
         return 1
-    except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         print('A9 observation BLOCKED: ' + type(exc).__name__, file=sys.stderr)
         return 1
 

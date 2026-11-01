@@ -99,7 +99,7 @@ function Test-PluginsGitHistoryAvailable() {
 function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [string]$EvidenceFile) {
     if (-not (Test-Path -LiteralPath $PluginsFile -PathType Leaf) -or
         (Get-Item -LiteralPath $PluginsFile -Force).LinkType) { return $false }
-    if ((Get-Sha256 $PluginsFile) -eq $Expected) { return $true }
+    if ((Get-Sha256 $PluginsFile) -ceq $Expected) { return $true }
     if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $PluginsFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
@@ -108,7 +108,7 @@ function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [strin
     if (-not $pin) { return $false }
     $historical = Get-PluginsHashAtPin $pin $pluginsRelative
     if (-not $historical) { return $false }
-    return $historical -eq $Expected
+    return $historical -ceq $Expected
 }
 
 # The amendment re-review lane (spec-review's own "## Amendment Re-Review
@@ -339,7 +339,7 @@ function Get-TraceabilityNormalizedHash([string]$Path) {
 }
 function Test-TraceabilityHash([string]$Candidate, [string]$Raw, [string]$Normalized) {
     if ([string]::IsNullOrEmpty($Candidate)) { return $false }
-    return ($Candidate -eq $Raw -or $Candidate -eq $Normalized)
+    return ($Candidate -ceq $Raw -or $Candidate -ceq $Normalized)
 }
 function Get-Header([string]$Path, [string]$Header) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "" }
@@ -461,7 +461,7 @@ function Test-ManifestHash(
         foreach ($item in @($reviewer.allowed_input_manifest)) {
             $path = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot $recorded.Root
             if ($null -ne $path -and $path -ceq $target -and
-                [string]$item.sha256 -eq $Expected) {
+                [string]$item.sha256 -ceq $Expected) {
                 $found = $true
                 break
             }
@@ -548,15 +548,15 @@ function Get-ManifestRecordedHashesForPath($Contract, [string]$Suffix, [string]$
 # an edit to the body still matches neither.
 function Test-ReviewedHash([string]$FilePath, [string]$Stage, [string]$Candidate) {
     if ([string]::IsNullOrEmpty($Candidate)) { return $false }
-    if ($Candidate -eq (Get-NormalizedHash $FilePath $Stage)) { return $true }
-    if ($Candidate -eq (Get-Sha256 $FilePath)) { return $true }
+    if ($Candidate -ceq (Get-NormalizedHash $FilePath $Stage)) { return $true }
+    if ($Candidate -ceq (Get-Sha256 $FilePath)) { return $true }
     if ($Stage -eq "task") {
         # A task-stage re-review binds the raw bytes of an executable state;
         # the quality gate's later Done flips are lifecycle transitions, not
         # body edits, and are absorbed by the two re-review canonical forms
         # (mirrors the bash twin's rereview_normalized_hash).
-        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Implementation Complete")) { return $true }
-        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Done")) { return $true }
+        if ($Candidate -ceq (Get-RereviewNormalizedHash $FilePath "Implementation Complete")) { return $true }
+        if ($Candidate -ceq (Get-RereviewNormalizedHash $FilePath "Done")) { return $true }
     }
     return $false
 }
@@ -720,7 +720,7 @@ $script:OpeningStage = ""
 $script:OpeningAttempt = 0
 $script:OpeningRound = 0
 for ($i = 0; $i -lt $args.Count; $i++) {
-    switch ([string]$args[$i]) {
+    switch -CaseSensitive ([string]$args[$i]) {
         "--feature" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--feature requires a value" }
             $FeatureFilter = [string]$args[$i]
@@ -732,7 +732,7 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         "--opening" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--opening requires a value" }
             $openingValue = [string]$args[$i]
-            if ($openingValue -notmatch "^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$") {
+            if ($openingValue -cnotmatch "^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$") {
                 Stop-WorkflowState "repository" "cli-usage" "--opening must be stage:attempt:round"
             }
             $script:OpeningStage = $Matches[1]
@@ -742,7 +742,7 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         default { Stop-WorkflowState "repository" "cli-usage" "unknown argument: $($args[$i])" }
     }
 }
-if ($FeatureFilter -and $FeatureFilter -notmatch "^[a-z0-9][a-z0-9-]*$") {
+if ($FeatureFilter -and $FeatureFilter -cnotmatch "^[a-z0-9][a-z0-9-]*$") {
     Stop-WorkflowState $FeatureFilter "cli-usage" "invalid feature slug"
 }
 # --opening names the single round a review-loop precheck is about to open;
@@ -759,12 +759,16 @@ try { $RegistryText = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $Registr
 catch { Stop-WorkflowState "repository" "registry-unreadable" "registry is missing, linked, or unreadable" }
 try { $RegistryData = $RegistryText | ConvertFrom-Json }
 catch { Stop-WorkflowState "repository" "registry-malformed" "registry is not valid JSON" }
-if ($RegistryData.schema_version -ne 1 -or -not @($RegistryData.entries).Count) {
+if (-not $RegistryText.TrimStart([char[]]" `t`r`n").StartsWith('{', [StringComparison]::Ordinal) -or
+    -not ($RegistryData.schema_version -is [int] -or $RegistryData.schema_version -is [long] -or
+        $RegistryData.schema_version -is [double] -or $RegistryData.schema_version -is [decimal]) -or
+    $RegistryData.schema_version -ne 1 -or -not @($RegistryData.entries).Count) {
     Stop-WorkflowState "repository" "registry-malformed" "registry shape or version is invalid"
 }
 foreach ($entry in @($RegistryData.entries)) {
-    if ([string]$entry.feature -notmatch "^[a-z0-9][a-z0-9-]*$" -or
-        [string]$entry.profile -notin @("full", "lite", "legacy")) {
+    if ($entry.feature -isnot [string] -or $entry.profile -isnot [string] -or
+        $entry.feature -cnotmatch "^[a-z0-9][a-z0-9-]*$" -or
+        $entry.profile -cnotin @("full", "lite", "legacy")) {
         Stop-WorkflowState "repository" "registry-malformed" "registry shape or version is invalid"
     }
 }
@@ -791,7 +795,12 @@ function Test-JsonValueEqual($Left, $Right) {
         }
         return $true
     }
-    return $Left -ceq $Right
+    # JSON equality never converts a number/bool to a string, or rounds a
+    # fractional number to the integer type of the other operand.
+    if (($Left -is [string]) -ne ($Right -is [string]) -or
+        ($Left -is [bool]) -ne ($Right -is [bool])) { return $false }
+    if ($Left -is [string] -or $Left -is [bool]) { return $Left -ceq $Right }
+    return [double]$Left -eq [double]$Right
 }
 # PS5.1-safe (no Test-Json, unavailable before PowerShell 6.1): mirrors the
 # hand-rolled structural check in the bash twin (check-workflow-state.sh)
@@ -842,7 +851,7 @@ $SpecsRoot = (Resolve-Path (Split-Path -Parent $Registry)).Path
 $RepoRoot = (Resolve-Path (Join-Path $SpecsRoot "..")).Path
 $duplicate = @($RegistryData.entries | Group-Object feature | Where-Object Count -gt 1 | Select-Object -First 1)
 if ($duplicate) { Stop-WorkflowState $duplicate[0].Name "registry-duplicate" "feature is registered more than once" }
-$declared = @{}
+$declared = [Collections.Generic.Dictionary[string,bool]]::new([StringComparer]::Ordinal)
 $script:RegistryFailedFeatures = @{}
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
@@ -1016,7 +1025,7 @@ function Stop-WorkflowStateOrTolerateOmit(
         $explained = $false
         if (Test-StageDownstreamOfOpening $Stage) {
             $hashes = @(Get-ManifestRecordedHashesForPath $Contract $check.Suffix $RepositoryRoot)
-            if ($hashes.Count -eq 1 -and $hashes[0] -ne $check.Expected) {
+            if ($hashes.Count -eq 1 -and $hashes[0] -cne $check.Expected) {
                 Write-TolerantOmitNotice $Feature $check.Suffix $hashes[0] $check.Expected
                 $explained = $true
             }
@@ -1823,6 +1832,24 @@ function Read-AdrHistoryEvidence([string]$Feature, [int]$Attempt, [int]$Round,
     return $binding
 }
 function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {
+    # Newer PowerShell otherwise converts timestamp-shaped JSON identifiers to DateTime.
+    $jsonOptions = @{}
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+        $jsonOptions.DateKind = 'String'
+    }
+    function Get-ProvenanceField($Object, [string]$Name) {
+        $property = @($Object.PSObject.Properties | Where-Object Name -CEQ $Name)
+        if ($property.Count -eq 1) { return ,$property[0].Value }
+        return $null
+    }
+    function Read-ProvenanceObject([string]$Path) {
+        $text = [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false, $true))
+        # ConvertFrom-Json unwraps a singleton root array; evidence must be an object.
+        if (-not $text.TrimStart([char[]]" `t`r`n").StartsWith('{', [StringComparison]::Ordinal)) {
+            throw 'review evidence root must be an object'
+        }
+        return ConvertFrom-Json -InputObject $text @jsonOptions
+    }
     $root = Join-Path $RepoRoot "reports/$Stage-review/$Feature"
     if (-not (Test-Path -LiteralPath $root -PathType Container) -or (Get-Item $root -Force).LinkType) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage PASS has no review report root"
@@ -1867,8 +1894,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             $verdict = $adrHistory.Verdict
             $contract = $adrHistory.Contract
         } else {
-            $verdict = Get-Content -LiteralPath $latest.File.FullName -Raw | ConvertFrom-Json
-            $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+            $verdict = Read-ProvenanceObject $latest.File.FullName
+            $contract = Read-ProvenanceObject $contractPath
         }
     } catch {
         # Identify the failed validation boundary without exposing evidence or exception text.
@@ -1892,46 +1919,94 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             $reviewerB = $adrHistory.ReviewerB
             $summary = $adrHistory.Summary
         } else {
-            $reviewerA = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
-            $reviewerB = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json
-            $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
+            $reviewerA = Read-ProvenanceObject $reviewerAPath
+            $reviewerB = Read-ProvenanceObject $reviewerBPath
+            $summary = Read-ProvenanceObject $summaryPath
         }
     } catch { Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer evidence is malformed" }
-    $identityOk = [string]$verdict.feature -eq $Feature -and [string]$verdict.stage -eq $Stage -and
-        [int]$verdict.attempt -eq $latest.Attempt -and [int]$verdict.round -eq $latest.Round -and
-        ([string]$verdict.verdict -eq "PASS" -or
-         ($Stage -ne "spec" -and [string]$verdict.verdict -eq "PASS-with-warnings"))
+    # Match jq's JSON scalar semantics: no null/string/bool-to-number coercion,
+    # and exact member spelling, while leaving unrelated historical fields alone.
+    function Test-ProvenanceFields($Object, [string[]]$TextFields, [string[]]$NumberFields,
+        [string[]]$MemberFields = @()) {
+        if ($Object -isnot [Management.Automation.PSCustomObject]) { return $false }
+        foreach ($name in $MemberFields) {
+            if (@($Object.PSObject.Properties.Name) -cnotcontains $name) { return $false }
+        }
+        foreach ($name in $TextFields) {
+            $property = @($Object.PSObject.Properties | Where-Object Name -CEQ $name)
+            if ($property.Count -ne 1 -or $property[0].Value -isnot [string] -or
+                $property[0].Value.Length -eq 0) { return $false }
+        }
+        foreach ($name in $NumberFields) {
+            $property = @($Object.PSObject.Properties | Where-Object Name -CEQ $name)
+            if ($property.Count -ne 1) { return $false }
+            $value = $property[0].Value
+            if (-not ($value -is [int] -or $value -is [long] -or
+                $value -is [double] -or $value -is [decimal] -or
+                $value -is [bigint])) { return $false }
+        }
+        return $true
+    }
+    $verdictText = @('schema','feature','stage','verdict')
+    $verdictNumbers = @('attempt','round')
+    if ($Stage -ceq 'spec') {
+        $verdictText += @('reviewer_a_run_id','reviewer_b_run_id',
+            'reviewer_a_host_session_id','reviewer_b_host_session_id')
+    } else {
+        $verdictText += @('run_id','reviewer_a_verdict','reviewer_b_verdict')
+        $verdictNumbers += @('findings_critical','findings_major','findings_minor')
+    }
+    $identityOk = (Test-ProvenanceFields $verdict $verdictText $verdictNumbers) -and [string]$verdict.feature -ceq $Feature -and [string]$verdict.stage -ceq $Stage -and
+        $verdict.attempt -eq $latest.Attempt -and $verdict.round -eq $latest.Round -and
+        ([string]$verdict.verdict -ceq "PASS" -or
+         ($Stage -ne "spec" -and [string]$verdict.verdict -ceq "PASS-with-warnings"))
     if ($Stage -eq "spec") {
-        $identityOk = $identityOk -and [string]$verdict.schema -eq "spec-review-integrated-verdict/v1" -and
+        $identityOk = $identityOk -and [string]$verdict.schema -ceq "spec-review-integrated-verdict/v1" -and
             $verdict.reviewer_a_run_id -and $verdict.reviewer_b_run_id -and
             $verdict.reviewer_a_host_session_id -and $verdict.reviewer_b_host_session_id -and
-            $verdict.reviewer_a_run_id -ne $verdict.reviewer_b_run_id -and
-            $verdict.reviewer_a_host_session_id -ne $verdict.reviewer_b_host_session_id
+            $verdict.reviewer_a_run_id -cne $verdict.reviewer_b_run_id -and
+            $verdict.reviewer_a_host_session_id -cne $verdict.reviewer_b_host_session_id
     } else {
-        $identityOk = $identityOk -and [string]$verdict.schema -eq "integrated-verdict/v1" -and
+        $identityOk = $identityOk -and [string]$verdict.schema -ceq "integrated-verdict/v1" -and
             -not [string]::IsNullOrWhiteSpace([string]$verdict.run_id) -and
-            [string]$verdict.reviewer_a_verdict -in @("PASS", "NEEDS_WORK") -and
-            [string]$verdict.reviewer_b_verdict -in @("PASS", "NEEDS_WORK") -and
-            [int]$verdict.findings_critical -eq 0 -and [int]$verdict.findings_major -eq 0
+            [string]$verdict.reviewer_a_verdict -cin @("PASS", "NEEDS_WORK") -and
+            [string]$verdict.reviewer_b_verdict -cin @("PASS", "NEEDS_WORK") -and
+            $verdict.findings_critical -eq 0 -and $verdict.findings_major -eq 0
     }
     if (-not $identityOk) {
         if (Test-StageIsBeingOpened $Stage $Feature $latest.Attempt $latest.Round) { return }
         Stop-WorkflowState $Feature "stage-provenance" "$Stage integrated verdict is not a valid PASS"
     }
     $roles = @($contract.reviewers | ForEach-Object { [string]$_.role } | Sort-Object)
-    $runs = @($contract.reviewers | ForEach-Object { [string]$_.run_id } | Sort-Object -Unique)
-    $hosts = @($contract.reviewers | ForEach-Object { [string]$_.host_session_id } | Sort-Object -Unique)
-    $contractOk = [string]$contract.schema -eq "$Stage-review-contract/v1" -and
-        [string]$contract.feature -eq $Feature -and [string]$contract.stage -eq $Stage -and
-        [int]$contract.attempt -eq $latest.Attempt -and [int]$contract.round -eq $latest.Round -and
-        ([string]$contract.verdict -eq "PASS" -or
-         ($Stage -ne "spec" -and [string]$contract.verdict -eq "PASS-with-warnings")) -and
+    $runs = @($contract.reviewers | ForEach-Object { [string]$_.run_id } | Sort-Object -CaseSensitive -Unique)
+    $hosts = @($contract.reviewers | ForEach-Object { [string]$_.host_session_id } | Sort-Object -CaseSensitive -Unique)
+    $contractText = @('schema','feature','stage','verdict','run_id','requirements_sha256','acceptance_sha256')
+    $contractNumbers = @('attempt','round')
+    if ($Stage -ceq 'spec') { $contractNumbers += 'warningCount' }
+    else {
+        $contractText += @('reviewer_a_verdict','reviewer_b_verdict')
+        $contractNumbers += @('findings_critical','findings_major','findings_minor')
+    }
+    $contractFieldsOk = Test-ProvenanceFields $contract $contractText $contractNumbers @('reviewers')
+    foreach ($reviewerEntry in @($contract.reviewers)) {
+        $contractFieldsOk = $contractFieldsOk -and
+            (Test-ProvenanceFields $reviewerEntry @('role','run_id','host_session_id') @() @('allowed_input_manifest'))
+        foreach ($item in @($reviewerEntry.allowed_input_manifest)) {
+            $contractFieldsOk = $contractFieldsOk -and
+                (Test-ProvenanceFields $item @('path','sha256') @())
+        }
+    }
+    $contractOk = $contractFieldsOk -and [string]$contract.schema -ceq "$Stage-review-contract/v1" -and
+        [string]$contract.feature -ceq $Feature -and [string]$contract.stage -ceq $Stage -and
+        $contract.attempt -eq $latest.Attempt -and $contract.round -eq $latest.Round -and
+        ([string]$contract.verdict -ceq "PASS" -or
+         ($Stage -ne "spec" -and [string]$contract.verdict -ceq "PASS-with-warnings")) -and
         -not [string]::IsNullOrWhiteSpace([string]$contract.run_id) -and
         ($Stage -eq "spec" -or (
-            [string]$contract.reviewer_a_verdict -in @("PASS", "NEEDS_WORK") -and
-            [string]$contract.reviewer_b_verdict -in @("PASS", "NEEDS_WORK") -and
-            [int]$contract.findings_critical -eq 0 -and [int]$contract.findings_major -eq 0)) -and
-        ($roles -join ",") -eq "$Stage-reviewer-a,$Stage-reviewer-b" -and
+            [string]$contract.reviewer_a_verdict -cin @("PASS", "NEEDS_WORK") -and
+            [string]$contract.reviewer_b_verdict -cin @("PASS", "NEEDS_WORK") -and
+            $contract.findings_critical -eq 0 -and $contract.findings_major -eq 0)) -and
+        ($roles -join ",") -ceq "$Stage-reviewer-a,$Stage-reviewer-b" -and
         $runs.Count -eq 2 -and $hosts.Count -eq 2 -and -not ($runs -contains "") -and -not ($hosts -contains "")
     if (-not $contractOk) { Stop-WorkflowState $Feature "stage-provenance" "$Stage review contract identity is invalid" }
     # Extended impl manifests were strictly validated by Get-AdrHistoryBinding.
@@ -2011,69 +2086,92 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 # when the live change is not pure, section-confined growth
                 # over independently-verified historical bytes.
                 $currentHash = Get-Sha256 $manifestFile
-                if ($currentHash -ne [string]$item.sha256) {
+                if ($currentHash -cne [string]$item.sha256) {
                     if (Test-InvestigationAmendmentReconciles $manifestFile ([string]$item.sha256) $contractPath) {
                         Write-InvestigationAmendmentNotice $Feature $Stage $manifestRelative ([string]$item.sha256) $currentHash
                     } else {
                         Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
                     }
                 }
-            } elseif ((Get-Sha256 $manifestFile) -ne [string]$item.sha256) {
+            } elseif ((Get-Sha256 $manifestFile) -cne [string]$item.sha256) {
                 Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
             }
         }
     }
     if ($Stage -eq "spec") {
         $map = @{}; foreach ($r in $contract.reviewers) { $map[[string]$r.role] = $r }
-        $linked = $map["spec-reviewer-a"].run_id -eq $verdict.reviewer_a_run_id -and
-            $map["spec-reviewer-b"].run_id -eq $verdict.reviewer_b_run_id -and
-            $map["spec-reviewer-a"].host_session_id -eq $verdict.reviewer_a_host_session_id -and
-            $map["spec-reviewer-b"].host_session_id -eq $verdict.reviewer_b_host_session_id
-    } else { $linked = [string]$contract.run_id -eq [string]$verdict.run_id }
+        $linked = $map["spec-reviewer-a"].run_id -ceq $verdict.reviewer_a_run_id -and
+            $map["spec-reviewer-b"].run_id -ceq $verdict.reviewer_b_run_id -and
+            $map["spec-reviewer-a"].host_session_id -ceq $verdict.reviewer_a_host_session_id -and
+            $map["spec-reviewer-b"].host_session_id -ceq $verdict.reviewer_b_host_session_id
+    } else { $linked = [string]$contract.run_id -ceq [string]$verdict.run_id }
     if (-not $linked) { Stop-WorkflowState $Feature "stage-provenance" "$Stage contract and verdict contradict each other" }
 
     $reviewerMap = @{}
     foreach ($entry in @($contract.reviewers)) { $reviewerMap[[string]$entry.role] = $entry }
     if ($Stage -eq "task") {
         $reviewerIdentityOk =
-            [string]$reviewerA.schema -eq "task-reviewer-a/v1" -and
-            [string]$reviewerA.stage -eq "task-review" -and [string]$reviewerA.role -eq "reviewer-a" -and
-            [string]$reviewerB.schema -eq "task-reviewer-b/v1" -and
-            [string]$reviewerB.stage -eq "task" -and [string]$reviewerB.role -eq "task-reviewer-b" -and
-            [string]$reviewerA.feature -eq $Feature -and [string]$reviewerB.feature -eq $Feature -and
-            [int]$reviewerA.attempt -eq $latest.Attempt -and [int]$reviewerB.attempt -eq $latest.Attempt -and
-            [int]$reviewerA.round -eq $latest.Round -and [int]$reviewerB.round -eq $latest.Round
+            [string]$reviewerA.schema -ceq "task-reviewer-a/v1" -and
+            [string]$reviewerA.stage -ceq "task-review" -and [string]$reviewerA.role -ceq "reviewer-a" -and
+            [string]$reviewerB.schema -ceq "task-reviewer-b/v1" -and
+            [string]$reviewerB.stage -ceq "task" -and [string]$reviewerB.role -ceq "task-reviewer-b" -and
+            [string]$reviewerA.feature -ceq $Feature -and [string]$reviewerB.feature -ceq $Feature -and
+            $reviewerA.attempt -eq $latest.Attempt -and $reviewerB.attempt -eq $latest.Attempt -and
+            $reviewerA.round -eq $latest.Round -and $reviewerB.round -eq $latest.Round
         $manifestA = @($reviewerA.manifest)
         $manifestB = @($reviewerB.manifest.allowed_inputs)
         $resultProperty = "status"
     } else {
         $reviewerIdentityOk =
-            [string]$reviewerA.schema -eq "$Stage-reviewer-a/v1" -and
-            [string]$reviewerA.stage -eq $Stage -and [string]$reviewerA.role -eq "$Stage-reviewer-a" -and
-            [string]$reviewerB.schema -eq "$Stage-reviewer-b/v1" -and
-            [string]$reviewerB.stage -eq $Stage -and [string]$reviewerB.role -eq "$Stage-reviewer-b"
+            [string]$reviewerA.schema -ceq "$Stage-reviewer-a/v1" -and
+            [string]$reviewerA.stage -ceq $Stage -and [string]$reviewerA.role -ceq "$Stage-reviewer-a" -and
+            [string]$reviewerB.schema -ceq "$Stage-reviewer-b/v1" -and
+            [string]$reviewerB.stage -ceq $Stage -and [string]$reviewerB.role -ceq "$Stage-reviewer-b"
         $manifestA = @($reviewerA.allowed_input_manifest)
         $manifestB = @($reviewerB.allowed_input_manifest)
         $resultProperty = "result"
     }
     $contractA = $reviewerMap["$Stage-reviewer-a"]
     $contractB = $reviewerMap["$Stage-reviewer-b"]
+    $reviewerNumbers = if ($Stage -ceq 'task') { @('attempt','round') } else { @() }
+    $reviewerFields = @('schema','stage','role','run_id','host_session_id','verdict')
+    if ($Stage -ceq 'task') { $reviewerFields += 'feature' }
+    $reviewerMembers = if ($Stage -ceq 'task') { @('checks','manifest','findings') }
+        else { @('checks','allowed_input_manifest') }
     $reviewerIdentityOk = $reviewerIdentityOk -and
+        (Test-ProvenanceFields $reviewerA $reviewerFields $reviewerNumbers $reviewerMembers) -and
+        (Test-ProvenanceFields $reviewerB $reviewerFields $reviewerNumbers $reviewerMembers) -and
         -not [string]::IsNullOrWhiteSpace([string]$reviewerA.run_id) -and
         -not [string]::IsNullOrWhiteSpace([string]$reviewerA.host_session_id) -and
         -not [string]::IsNullOrWhiteSpace([string]$reviewerB.run_id) -and
         -not [string]::IsNullOrWhiteSpace([string]$reviewerB.host_session_id) -and
-        [string]$reviewerA.run_id -eq [string]$contractA.run_id -and
-        [string]$reviewerA.host_session_id -eq [string]$contractA.host_session_id -and
-        [string]$reviewerB.run_id -eq [string]$contractB.run_id -and
-        [string]$reviewerB.host_session_id -eq [string]$contractB.host_session_id
+        [string]$reviewerA.run_id -ceq [string]$contractA.run_id -and
+        [string]$reviewerA.host_session_id -ceq [string]$contractA.host_session_id -and
+        [string]$reviewerB.run_id -ceq [string]$contractB.run_id -and
+        [string]$reviewerB.host_session_id -ceq [string]$contractB.host_session_id
+    foreach ($item in @($manifestA) + @($manifestB)) {
+        $reviewerIdentityOk = $reviewerIdentityOk -and
+            (Test-ProvenanceFields $item @('path','sha256') @())
+    }
+    if ($Stage -ceq 'task') {
+        $reviewerIdentityOk = $reviewerIdentityOk -and
+            (Test-ProvenanceFields $reviewerB.manifest @() @() @('allowed_inputs'))
+    }
+    foreach ($check in @($reviewerA.checks)) {
+        $reviewerIdentityOk = $reviewerIdentityOk -and
+            (Test-ProvenanceFields $check @('id', $resultProperty) @())
+    }
+    foreach ($check in @($reviewerB.checks)) {
+        $reviewerIdentityOk = $reviewerIdentityOk -and
+            (Test-ProvenanceFields $check @('id', 'result') @())
+    }
     $reviewerIdentityOk = $reviewerIdentityOk -and
         (Test-ManifestSuperset $manifestA $contractA.allowed_input_manifest $Feature $Stage $RepoRoot $recorded.Root) -and
         (Test-ManifestSuperset $manifestB $contractB.allowed_input_manifest $Feature $Stage $RepoRoot $recorded.Root)
-    $failedA = @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -eq "FAIL" })
+    $failedA = @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -ceq "FAIL" })
     $reviewerBResultProperty = if ($Stage -eq "task") { "result" } else { $resultProperty }
     $failedB = @($reviewerB.checks | Where-Object {
-        [string]$_.$reviewerBResultProperty -eq "FAIL"
+        [string]$_.$reviewerBResultProperty -ceq "FAIL"
     })
     if ($Stage -eq "task") {
         $findingsA = @($reviewerA.findings)
@@ -2094,7 +2192,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
         if ($frozenFlagged.Count -gt 0) {
             $observedDoneWhen = @($reviewerA.checks |
-                Where-Object { [string]$_.id -eq "OBSERVABLE-DONE" } |
+                Where-Object { [string]$_.id -ceq "OBSERVABLE-DONE" } |
                 ForEach-Object { [string]$_.finding }) -join " "
             foreach ($flaggedItem in $frozenFlagged) {
                 if (-not $observedDoneWhen.Contains([string]$flaggedItem.task)) {
@@ -2106,58 +2204,74 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         $findingsA = $failedA
         $findingsB = $failedB
     }
-    $expectedVerdictA = if (@($findingsA | Where-Object severity -eq "Critical").Count) {
+    $expectedVerdictA = if (@($findingsA | Where-Object severity -ceq "Critical").Count) {
         "BLOCKED"
     } elseif ($findingsA.Count) { "NEEDS_WORK" } else { "PASS" }
-    $expectedVerdictB = if (@($findingsB | Where-Object severity -eq "Critical").Count) {
+    $expectedVerdictB = if (@($findingsB | Where-Object severity -ceq "Critical").Count) {
         "BLOCKED"
     } elseif ($findingsB.Count) { "NEEDS_WORK" } else { "PASS" }
     $reviewerIdentityOk = $reviewerIdentityOk -and
-        [string]$reviewerA.verdict -eq $expectedVerdictA -and
-        [string]$reviewerB.verdict -eq $expectedVerdictB
+        [string]$reviewerA.verdict -ceq $expectedVerdictA -and
+        [string]$reviewerB.verdict -ceq $expectedVerdictB
     $summaryIds = if ($Stage -eq "spec") {
-        @($summary.reviewer_a_checks | ForEach-Object { [string]$_.id } | Sort-Object)
-    } else { @($summary.reviewer_a_check_ids | ForEach-Object { [string]$_ } | Sort-Object) }
-    $reviewerAIds = @($reviewerA.checks | ForEach-Object { [string]$_.id } | Sort-Object)
-    $summaryOk = [string]$summary.schema -eq "integrated-summary/v1" -and
-        [int]$summary.attempt -eq $latest.Attempt -and [int]$summary.round -eq $latest.Round -and
-        (($summaryIds -join "`n") -ceq ($reviewerAIds -join "`n")) -and
-        [int]$summary.reviewer_a_fail_count -eq $failedA.Count -and
-        [int]$summary.reviewer_a_pass_count -eq
-            @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -eq "PASS" }).Count -and
-        [int]$summary.reviewer_a_skip_count -eq
-            @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -eq "SKIP" }).Count
+        @($summary.reviewer_a_checks | ForEach-Object { $_.id } | Sort-Object -CaseSensitive)
+    } else { @($summary.reviewer_a_check_ids | Sort-Object -CaseSensitive) }
+    $reviewerAIds = @($reviewerA.checks | ForEach-Object { $_.id } | Sort-Object -CaseSensitive)
+    $summaryMember = if ($Stage -ceq 'spec') { 'reviewer_a_checks' } else { 'reviewer_a_check_ids' }
+    $summaryNumbers = @('attempt','round','reviewer_a_fail_count','reviewer_a_pass_count','reviewer_a_skip_count')
+    $summaryOk = (Test-ProvenanceFields $summary @('schema') $summaryNumbers @($summaryMember)) -and
+        [string]$summary.schema -ceq "integrated-summary/v1" -and
+        $summary.attempt -eq $latest.Attempt -and $summary.round -eq $latest.Round -and
+        ((ConvertTo-Json -InputObject @($summaryIds) -Compress) -ceq
+            (ConvertTo-Json -InputObject @($reviewerAIds) -Compress)) -and
+        $summary.reviewer_a_fail_count -eq $failedA.Count -and
+        $summary.reviewer_a_pass_count -eq
+            @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -ceq "PASS" }).Count -and
+        $summary.reviewer_a_skip_count -eq
+            @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -ceq "SKIP" }).Count
+    if ($Stage -ceq 'spec') {
+        foreach ($check in @($summary.reviewer_a_checks)) {
+            $summaryOk = $summaryOk -and (Test-ProvenanceFields $check @('id') @())
+        }
+    }
     $allFindings = @($findingsA) + @($findingsB)
-    $criticalCount = @($allFindings | Where-Object severity -eq "Critical").Count
-    $majorCount = @($allFindings | Where-Object severity -eq "Major").Count
-    $minorCount = @($allFindings | Where-Object severity -eq "Minor").Count
+    $findingFieldsOk = $true
+    foreach ($finding in $allFindings) {
+        $findingFieldsOk = $findingFieldsOk -and (Test-ProvenanceFields $finding @('severity') @())
+    }
+    $criticalCount = @($allFindings | Where-Object severity -ceq "Critical").Count
+    $majorCount = @($allFindings | Where-Object severity -ceq "Major").Count
+    $minorCount = @($allFindings | Where-Object severity -ceq "Minor").Count
     $severityCount = $criticalCount + $majorCount + $minorCount
-    $finalEvidenceOk = $severityCount -eq $allFindings.Count -and
+    $finalEvidenceOk = $findingFieldsOk -and $severityCount -eq $allFindings.Count -and
         $criticalCount -eq 0 -and $majorCount -eq 0 -and
         ($minorCount -eq 0 -or $latest.Round -eq 3)
     if ($Stage -eq "spec") {
         $finalEvidenceOk = $finalEvidenceOk -and
-            [string]$contract.verdict -eq "PASS" -and [string]$verdict.verdict -eq "PASS" -and
-            [int]$contract.warningCount -eq $minorCount -and
-            [int]$verdict.warningCount -eq $minorCount -and
-            [int]$verdict.finding_counts.critical -eq $criticalCount -and
-            [int]$verdict.finding_counts.major -eq $majorCount -and
-            [int]$verdict.finding_counts.minor -eq $minorCount
+            (Test-ProvenanceFields $verdict @() @('warningCount') @('finding_counts')) -and
+            (Test-ProvenanceFields $verdict.finding_counts @() @('critical','major','minor')) -and
+            @($verdict.finding_counts.PSObject.Properties).Count -eq 3 -and
+            [string]$contract.verdict -ceq "PASS" -and [string]$verdict.verdict -ceq "PASS" -and
+            $contract.warningCount -eq $minorCount -and
+            $verdict.warningCount -eq $minorCount -and
+            $verdict.finding_counts.critical -eq $criticalCount -and
+            $verdict.finding_counts.major -eq $majorCount -and
+            $verdict.finding_counts.minor -eq $minorCount
     } else {
         $expectedFinalVerdict = if ($minorCount) { "PASS-with-warnings" } else { "PASS" }
         $finalEvidenceOk = $finalEvidenceOk -and
-            [string]$contract.verdict -eq $expectedFinalVerdict -and
-            [string]$verdict.verdict -eq $expectedFinalVerdict -and
-            [int]$contract.findings_critical -eq $criticalCount -and
-            [int]$contract.findings_major -eq $majorCount -and
-            [int]$contract.findings_minor -eq $minorCount -and
-            [int]$verdict.findings_critical -eq $criticalCount -and
-            [int]$verdict.findings_major -eq $majorCount -and
-            [int]$verdict.findings_minor -eq $minorCount -and
-            [string]$contract.reviewer_a_verdict -eq [string]$reviewerA.verdict -and
-            [string]$contract.reviewer_b_verdict -eq [string]$reviewerB.verdict -and
-            [string]$verdict.reviewer_a_verdict -eq [string]$reviewerA.verdict -and
-            [string]$verdict.reviewer_b_verdict -eq [string]$reviewerB.verdict
+            [string]$contract.verdict -ceq $expectedFinalVerdict -and
+            [string]$verdict.verdict -ceq $expectedFinalVerdict -and
+            $contract.findings_critical -eq $criticalCount -and
+            $contract.findings_major -eq $majorCount -and
+            $contract.findings_minor -eq $minorCount -and
+            $verdict.findings_critical -eq $criticalCount -and
+            $verdict.findings_major -eq $majorCount -and
+            $verdict.findings_minor -eq $minorCount -and
+            [string]$contract.reviewer_a_verdict -ceq [string]$reviewerA.verdict -and
+            [string]$contract.reviewer_b_verdict -ceq [string]$reviewerB.verdict -and
+            [string]$verdict.reviewer_a_verdict -ceq [string]$reviewerA.verdict -and
+            [string]$verdict.reviewer_b_verdict -ceq [string]$reviewerB.verdict
     }
     if (-not $reviewerIdentityOk -or -not $summaryOk -or -not $finalEvidenceOk) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer outputs or integrated summary contradict the final PASS"
@@ -2173,8 +2287,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     # Tolerated downstream: direct comparison of the contract's own
     # top-level field against a freshly computed live-file hash --
     # unambiguous freshness, no manifest-array existence question involved.
-    if ([string]$contract.requirements_sha256 -ne $reqHash -or
-        [string]$contract.acceptance_sha256 -ne (Get-Sha256 $acceptance)) {
+    if ([string]$contract.requirements_sha256 -cne $reqHash -or
+        [string]$contract.acceptance_sha256 -cne (Get-Sha256 $acceptance)) {
         Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage top-level contract hashes are stale"
     }
     # Test-ManifestHash's ambiguity, disambiguated per path: if EVERY
@@ -2210,7 +2324,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         $precheckData = $adrHistory.Precheck
         $precheckHash = $adrHistory.EvidenceHashes[$precheckRelative]
     } else {
-        $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
+        $precheckData = Read-ProvenanceObject $precheck
     }
     # Same per-path disambiguation. The calibration doc's own plugins/
     # historical-pin fallback (Test-ManifestHashForFile) is tried FIRST and
@@ -2242,10 +2356,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation design hash is stale"
         }
         # Tolerated downstream: direct top-level field vs live-hash comparison.
-        if (-not (Test-ReviewedHash $design "impl" ([string]$contract.design_sha256))) {
+        if (-not (Test-ReviewedHash $design "impl" ([string](Get-ProvenanceField $contract 'design_sha256')))) {
             Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation top-level design hash is stale"
         }
-        $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
+        $layerManifestProperty = @($precheckData.PSObject.Properties | Where-Object Name -CEQ 'layer_sha256')
         $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) {
             @()
         } else {
@@ -2254,7 +2368,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         if ($layerProperties.Count -gt 0) {
             $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
             if ($layerProperties.Count -ne $expectedLayers.Count -or
-                @($expectedLayers | Where-Object { $_ -notin $layerProperties.Name }).Count -gt 0) {
+                @($expectedLayers | Where-Object { $_ -cnotin $layerProperties.Name }).Count -gt 0) {
                 Stop-WorkflowState $Feature "stage-provenance" "implementation layer precheck manifest is incomplete"
             }
             # The omit-vs-stale disambiguation runs once across all four
@@ -2271,8 +2385,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 $layerHash = Get-Sha256 $layerPath
                 # Tolerated downstream: direct precheck/contract field vs
                 # live-hash comparison.
-                if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or
-                    [string]$contract.layer_sha256.$layer -ne $layerHash) {
+                if ([string](Get-ProvenanceField (Get-ProvenanceField $precheckData 'layer_sha256') $layer) -cne $layerHash -or
+                    [string](Get-ProvenanceField (Get-ProvenanceField $contract 'layer_sha256') $layer) -cne $layerHash) {
                     Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation layer hash is stale"
                 }
                 $layerOmitChecks += @{
@@ -2292,10 +2406,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task plan hash is stale"
         }
         # Tolerated downstream: direct top-level field vs live-hash comparison.
-        if (-not (Test-ReviewedHash $tasks "task" ([string]$contract.tasks_sha256))) {
+        if (-not (Test-ReviewedHash $tasks "task" ([string](Get-ProvenanceField $contract 'tasks_sha256')))) {
             Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task top-level plan hash is stale"
         }
-        $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
+        $layerManifestProperty = @($precheckData.PSObject.Properties | Where-Object Name -CEQ 'layer_sha256')
         $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) { @() } else { @($layerManifestProperty.Value.psobject.Properties) }
         if ($layerProperties.Count -gt 0) {
             $traceability = Join-Path $FeatureDir "traceability.md"
@@ -2306,8 +2420,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             $traceabilityNormalized = Get-TraceabilityNormalizedHash $traceability
             # Tolerated downstream: direct precheck/contract field vs
             # live-hash (raw or normalized) comparison.
-            if (-not (Test-TraceabilityHash ([string]$precheckData.traceability_sha256) $traceabilityHash $traceabilityNormalized) -or
-                -not (Test-TraceabilityHash ([string]$contract.traceability_sha256) $traceabilityHash $traceabilityNormalized)) {
+            if (-not (Test-TraceabilityHash ([string](Get-ProvenanceField $precheckData 'traceability_sha256')) $traceabilityHash $traceabilityNormalized) -or
+                -not (Test-TraceabilityHash ([string](Get-ProvenanceField $contract 'traceability_sha256')) $traceabilityHash $traceabilityNormalized)) {
                 Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task traceability hash is stale"
             }
             $taskDesign = Join-Path $FeatureDir "design.md"
@@ -2317,7 +2431,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             # surfacing on the task side of the epic-196 deadlock (design.md
             # is impl's own reviewed input, task's contract separately pins
             # its hash too).
-            if ([string]$precheckData.design_sha256 -ne (Get-Sha256 $taskDesign) -or [string]$contract.design_sha256 -ne $taskDesignHash) {
+            if ([string](Get-ProvenanceField $precheckData 'design_sha256') -cne (Get-Sha256 $taskDesign) -or [string](Get-ProvenanceField $contract 'design_sha256') -cne $taskDesignHash) {
                 Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task design hash is stale"
             }
             # Test-ManifestHash's ambiguity, disambiguated: this is the
@@ -2344,7 +2458,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                        Suffix = "/specs/$Feature/traceability.md"; Expected = $traceabilityHash }
                 )
             $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
-            if ($layerProperties.Count -ne $expectedLayers.Count -or @($expectedLayers | Where-Object { $_ -notin $layerProperties.Name }).Count -gt 0) {
+            if ($layerProperties.Count -ne $expectedLayers.Count -or @($expectedLayers | Where-Object { $_ -cnotin $layerProperties.Name }).Count -gt 0) {
                 Stop-WorkflowState $Feature "stage-provenance" "task layer precheck manifest is incomplete"
             }
             # Aggregate, same as the impl-stage layer loop above: one
@@ -2359,7 +2473,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 $layerHash = Get-Sha256 $layerPath
                 # Tolerated downstream: direct precheck/contract field vs
                 # live-hash comparison.
-                if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or [string]$contract.layer_sha256.$layer -ne $layerHash) {
+                if ([string](Get-ProvenanceField (Get-ProvenanceField $precheckData 'layer_sha256') $layer) -cne $layerHash -or [string](Get-ProvenanceField (Get-ProvenanceField $contract 'layer_sha256') $layer) -cne $layerHash) {
                     Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task layer hash is stale"
                 }
                 $layerOmitChecks += @{
@@ -2382,12 +2496,12 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
     foreach ($stage in $stages) {
         $value = Get-Header (Join-Path $Directory $stage[1]) $stage[2]
         if (-not $value) {
-            if (@($Entry.legacy.allowed_missing_stages) -notcontains $stage[0]) {
+            if (@($Entry.legacy.allowed_missing_stages) -cnotcontains $stage[0]) {
                 Stop-WorkflowState $Feature "legacy-state" "missing $($stage[0]) status is not declared"
             }
         } else {
             $allowed = @($Entry.legacy.allowed_noncanonical_statuses.($stage[3]))
-            if ($allowed -notcontains $value) {
+            if ($allowed -cnotcontains $value) {
                 Stop-WorkflowState $Feature "legacy-state" "$($stage[0]) status is broader than the migration record"
             }
         }
@@ -2395,12 +2509,12 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
     $tasks = Join-Path $Directory "tasks.md"
     if (Test-Path $tasks -PathType Leaf) {
         foreach ($match in [regex]::Matches([IO.File]::ReadAllText($tasks), "(?m)^Approval:\s*([^\r\n(]+)")) {
-            if (@($Entry.legacy.allowed_task_approvals) -notcontains $match.Groups[1].Value.Trim()) {
+            if (@($Entry.legacy.allowed_task_approvals) -cnotcontains $match.Groups[1].Value.Trim()) {
                 Stop-WorkflowState $Feature "legacy-state" "task approval is broader than the migration record"
             }
         }
         foreach ($match in [regex]::Matches([IO.File]::ReadAllText($tasks), "(?m)^Status:\s*([^\r\n]+)")) {
-            if (@($Entry.legacy.allowed_task_statuses) -notcontains $match.Groups[1].Value.Trim()) {
+            if (@($Entry.legacy.allowed_task_statuses) -cnotcontains $match.Groups[1].Value.Trim()) {
                 Stop-WorkflowState $Feature "legacy-state" "task lifecycle is broader than the migration record"
             }
         }
@@ -2409,14 +2523,14 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
 
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
-    if ($FeatureFilter -and $feature -ne $FeatureFilter) { continue }
+    if ($FeatureFilter -and $feature -cne $FeatureFilter) { continue }
     if ($script:RegistryFailedFeatures.ContainsKey($feature)) { continue }
     $script:FeatureScopeActive = $true
     try {
     $featureProfile = [string]$entry.profile
     $directory = Join-Path $SpecsRoot $feature
-    if ($featureProfile -eq "lite") { continue }
-    if ($featureProfile -eq "legacy") { Test-Legacy $feature $directory $entry; continue }
+    if ($featureProfile -ceq "lite") { continue }
+    if ($featureProfile -ceq "legacy") { Test-Legacy $feature $directory $entry; continue }
     foreach ($required in @("requirements.md", "design.md", "acceptance-tests.md")) {
         $path = Join-Path $directory $required
         if (-not (Test-Path $path -PathType Leaf) -or (Get-Item $path -Force).LinkType) {
@@ -2432,14 +2546,14 @@ foreach ($entry in @($RegistryData.entries)) {
     }
     $task = Get-Header $tasks "Task-Review-Status"
     if ($taskItem -and -not $task) { Stop-WorkflowState $feature "stage-status" "tasks.md has no Task-Review-Status" }
-    if ($spec -notin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Spec status is missing or invalid" }
-    if ($impl -notin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Impl status is missing or invalid" }
-    if ($task -and $task -notin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Task status is invalid" }
-    if ($impl -eq "Passed" -and $spec -ne "Passed") { Stop-WorkflowState $feature "stage-order" "Impl Passed requires Spec Passed" }
-    if ($task -eq "Passed" -and ($spec -ne "Passed" -or $impl -ne "Passed")) {
+    if ($spec -cnotin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Spec status is missing or invalid" }
+    if ($impl -cnotin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Impl status is missing or invalid" }
+    if ($task -and $task -cnotin @("Pending", "Passed")) { Stop-WorkflowState $feature "stage-status" "Task status is invalid" }
+    if ($impl -ceq "Passed" -and $spec -cne "Passed") { Stop-WorkflowState $feature "stage-order" "Impl Passed requires Spec Passed" }
+    if ($task -ceq "Passed" -and ($spec -cne "Passed" -or $impl -cne "Passed")) {
         Stop-WorkflowState $feature "stage-order" "Task Passed requires Spec and Impl Passed"
     }
-    if ((Test-Path $tasks -PathType Leaf) -and ($spec -ne "Passed" -or $impl -ne "Passed")) {
+    if ((Test-Path $tasks -PathType Leaf) -and ($spec -cne "Passed" -or $impl -cne "Passed")) {
         Stop-WorkflowState $feature "task-lifecycle" "tasks.md requires Spec and Impl Passed"
     }
     if (Test-Path $tasks -PathType Leaf) {
@@ -2449,39 +2563,39 @@ foreach ($entry in @($RegistryData.entries)) {
         $statuses = @([regex]::Matches($taskText, "(?m)^Status:\s*([^\r\n]+)") |
             ForEach-Object { $_.Groups[1].Value.Trim() })
         foreach ($approval in $approvals) {
-            if ($approval -ne "Draft" -and $approval -notmatch "^Approved(?:\s+\([^)]*\))?$") {
+            if ($approval -cne "Draft" -and $approval -cnotmatch "^Approved(?:\s+\([^)]*\))?$") {
                 Stop-WorkflowState $feature "task-lifecycle" "task approval is invalid"
             }
         }
         foreach ($status in $statuses) {
-            if ($status -notin @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")) {
+            if ($status -cnotin @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")) {
                 Stop-WorkflowState $feature "task-lifecycle" "task status is invalid"
             }
         }
         if ($approvals.Count -eq 0 -or $approvals.Count -ne $statuses.Count) {
             Stop-WorkflowState $feature "task-lifecycle" "task lifecycle fields are incomplete"
         }
-        if ($task -eq "Pending") {
+        if ($task -ceq "Pending") {
             foreach ($match in [regex]::Matches($taskText, "(?m)^Approval:\s*([^\r\n]+)")) {
-                if ($match.Groups[1].Value.Trim() -ne "Draft") {
+                if ($match.Groups[1].Value.Trim() -cne "Draft") {
                     Stop-WorkflowState $feature "task-lifecycle" "pending task review permits only Draft approvals"
                 }
             }
             foreach ($match in [regex]::Matches($taskText, "(?m)^Status:\s*([^\r\n]+)")) {
-                if ($match.Groups[1].Value.Trim() -ne "Planned") {
+                if ($match.Groups[1].Value.Trim() -cne "Planned") {
                     Stop-WorkflowState $feature "task-lifecycle" "pending task review permits only Planned statuses"
                 }
             }
         }
-        if (($taskText -match "(?m)^Approval:\s*Approved" -or
-             $taskText -match "(?m)^Status:\s*(In Progress|Blocked|Implementation Complete|Done)") -and
-            ($spec -ne "Passed" -or $impl -ne "Passed" -or $task -ne "Passed")) {
+        if (($taskText -cmatch "(?m)^Approval:\s*Approved" -or
+             $taskText -cmatch "(?m)^Status:\s*(In Progress|Blocked|Implementation Complete|Done)") -and
+            ($spec -cne "Passed" -or $impl -cne "Passed" -or $task -cne "Passed")) {
             Stop-WorkflowState $feature "task-lifecycle" "executable task state requires all reviews Passed"
         }
     }
-    if ($spec -eq "Passed") { Test-PassedStage $feature "spec" $directory }
-    if ($impl -eq "Passed") { Test-PassedStage $feature "impl" $directory }
-    if ($task -eq "Passed") { Test-PassedStage $feature "task" $directory }
+    if ($spec -ceq "Passed") { Test-PassedStage $feature "spec" $directory }
+    if ($impl -ceq "Passed") { Test-PassedStage $feature "impl" $directory }
+    if ($task -ceq "Passed") { Test-PassedStage $feature "task" $directory }
     } catch {
         if ([string]$_.Exception.Message -ne $script:WorkflowStateFeatureAbort) { throw }
         $script:WorkflowStateFailed++

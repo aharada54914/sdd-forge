@@ -250,7 +250,7 @@ Rules:
             $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
             continue
         }
-        if (-not [string]::Equals([string]$parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
+        if ($parsed.schema -isnot [string] -or -not [string]::Equals($parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
             $rejections.Add("candidate ${candidateNum}: parsed but schema is '$($parsed.schema)' (expected '$targetSchema')")
             continue
         }
@@ -266,16 +266,16 @@ Rules:
         exit 1
     }
 
-    if ($verdict.schema -ne "cross-model-verdict/v1") {
+    if ($verdict.schema -isnot [string] -or $verdict.schema -cne "cross-model-verdict/v1") {
         [Console]::Error.WriteLine("run-panelist-gemini: wrong schema: $($verdict.schema)"); exit 1
     }
-    if ($verdict.blind -ne $true) {
+    if ($verdict.blind -isnot [bool] -or $verdict.blind -ne $true) {
         [Console]::Error.WriteLine("run-panelist-gemini: blind must be true"); exit 1
     }
-    if ($verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
+    if ($verdict.input_digest -isnot [string] -or $verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
         [Console]::Error.WriteLine("run-panelist-gemini: input_digest must be 64 lowercase hex"); exit 1
     }
-    if ($verdict.verdict -notin @("PASS","NEEDS_WORK")) {
+    if ($verdict.verdict -isnot [string] -or $verdict.verdict -cnotin @("PASS","NEEDS_WORK")) {
         [Console]::Error.WriteLine("run-panelist-gemini: verdict must be PASS or NEEDS_WORK"); exit 1
     }
 

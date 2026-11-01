@@ -352,12 +352,16 @@ get_github_auth_token() {
 
 # Encode one GitHub route value without adding a bootstrap runtime dependency.
 url_path_value() {
-    local LC_ALL=C value="$1" encoded="" char i
+    local LC_ALL=C value="$1" encoded="" char byte i
     for ((i=0; i<${#value}; i++)); do
         char="${value:i:1}"
         case "$char" in
             [a-zA-Z0-9.~_-]) encoded+="$char" ;;
-            *) printf -v encoded '%s%%%02X' "$encoded" "'$char" ;;
+            *)
+                # Bash 3.2 reports high bytes as signed character values.
+                printf -v byte '%d' "'$char"
+                printf -v encoded '%s%%%02X' "$encoded" "$((byte & 255))"
+                ;;
         esac
     done
     printf '%s' "$encoded"
@@ -911,8 +915,24 @@ mkdir -p "$INSTALL_PARENT"
 # lock another installer just created.
 # ---------------------------------------------------------------------------
 LOCK_DIR="${INSTALL_ROOT}.sdd-install.lock"
-_lock_timeout="${SDD_INSTALL_LOCK_TIMEOUT:-120}"
-_lock_stale="${SDD_INSTALL_LOCK_STALE:-600}"
+# Environment values are data: Bash recursively evaluates arithmetic variable
+# contents, including array subscripts. Validate before any arithmetic use.
+parse_lock_seconds() {
+    local name="$1" value="$2"
+    case "$value" in
+        ''|*[!0-9]*) echo "Error: $name must be decimal seconds in 0..2147483647." >&2; return 1 ;;
+    esac
+    while [[ ${#value} -gt 1 && "$value" == 0* ]]; do value="${value#0}"; done
+    # Compare equal-width decimal text before permitting arithmetic evaluation.
+    # shellcheck disable=SC2071
+    if [[ ${#value} -gt 10 ]] || { [[ ${#value} -eq 10 ]] && [[ "$value" > 2147483647 ]]; }; then
+        echo "Error: $name must be decimal seconds in 0..2147483647." >&2
+        return 1
+    fi
+    printf '%s' "$value"
+}
+_lock_timeout="$(parse_lock_seconds SDD_INSTALL_LOCK_TIMEOUT "${SDD_INSTALL_LOCK_TIMEOUT:-120}")" || exit 1
+_lock_stale="$(parse_lock_seconds SDD_INSTALL_LOCK_STALE "${SDD_INSTALL_LOCK_STALE:-600}")" || exit 1
 _lock_deadline=$(( $(date +%s) + _lock_timeout ))
 _lock_reclaimed=0
 
