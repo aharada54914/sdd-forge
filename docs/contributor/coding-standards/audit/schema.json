@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Coding standards findings; metadata is not completion evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "findings"
+  ],
+  "properties": {
+    "schema": {
+      "const": "coding-standards-findings/v1"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "finding_id",
+          "rule_id",
+          "path",
+          "line",
+          "source_sha256",
+          "flow",
+          "impact",
+          "reproduction",
+          "state",
+          "owner_issue",
+          "evidence",
+          "resolution",
+          "reuse"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rule_id": {
+            "type": "string",
+            "pattern": "^CS-[0-9]{3}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "source_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "flow": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "input",
+              "transformation",
+              "sink"
+            ],
+            "properties": {
+              "input": {
+                "type": "string",
+                "minLength": 1
+              },
+              "transformation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sink": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "impact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reproduction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "unreviewed",
+              "needs-review",
+              "confirmed-violation",
+              "false-positive",
+              "fixed",
+              "justified-exception",
+              "out-of-scope",
+              "reviewed"
+            ]
+          },
+          "owner_issue": {
+            "type": "integer",
+            "enum": [
+              686,
+              687,
+              688,
+              689,
+              690,
+              691,
+              692
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "resolution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reuse": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "intent",
+                  "public_contract",
+                  "stability_evidence",
+                  "consumer_requirements",
+                  "divergence_counterexample",
+                  "decision",
+                  "reason",
+                  "verification"
+                ],
+                "properties": {
+                  "intent": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "public_contract": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "stability_evidence": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "consumer_requirements": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "divergence_counterexample": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "decision": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

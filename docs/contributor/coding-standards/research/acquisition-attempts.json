@@ -1,0 +1,104 @@
+{
+  "attempts": [
+    {
+      "source_id": "SRC-001",
+      "command": "research-acquire.py --source-id SRC-001 --url https://v2ex.com/t/1251827 --allow-host v2ex.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-002",
+      "command": "research-acquire.py --source-id SRC-002 --url https://linux.do/t/topic/1769057 --allow-host linux.do",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-003",
+      "command": "research-acquire.py --source-id SRC-003 --url https://security.tencent.com/index.php/blog/msg/210 --allow-host security.tencent.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-004",
+      "command": "research-acquire.py --source-id SRC-004 --url https://news.ycombinator.com/item?id=47398197 --allow-host news.ycombinator.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-005",
+      "command": "research-acquire.py --source-id SRC-005 --url https://community.openai.com/t/codex-desktop-repeatedly-loses-the-original-acceptance-goal-after-compaction-and-enters-endless-subagent-test-loops/1391211 --allow-host community.openai.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-006",
+      "command": "research-acquire.py --source-id SRC-006 --url https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices --allow-host platform.claude.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-007",
+      "command": "research-acquire.py --source-id SRC-007 --url https://arxiv.org/abs/2607.18161 --allow-host arxiv.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-008",
+      "command": "research-acquire.py --source-id SRC-008 --url https://docs.github.com/en/actions/reference/security/secure-use --allow-host docs.github.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-009",
+      "command": "research-acquire.py --source-id SRC-009 --url https://docs.python.org/3/library/subprocess.html --allow-host docs.python.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-010",
+      "command": "research-acquire.py --source-id SRC-010 --url https://github.com/aharada54914/sdd-forge/blob/82b536954626e73b36853711b264cbf5df400d22/docs/contributor/issue-601-structural-prevention.md --allow-host github.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:43:35Z"
+    }
+  ]
+}
