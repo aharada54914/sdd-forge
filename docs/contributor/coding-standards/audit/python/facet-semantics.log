@@ -1,0 +1,17 @@
+ok: TEST-028: schema-invalid.json invalid as expected (contains 'facet-manifest: schema-invalid:')
+ok: TEST-028: resolved-gate-id-duplicate.json invalid as expected (contains 'facet-manifest: resolved-gate-id-duplicate:')
+ok: TEST-028: facet-classification-conflict.json invalid as expected (contains 'facet-manifest: facet-classification-conflict:')
+ok: TEST-028: conditional-facet-duplicate.json invalid as expected (contains 'facet-manifest: conditional-facet-duplicate:')
+ok: TEST-028: affected-components-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted:')
+ok: TEST-028 negative proof: fully-clean.json valid (exit 0, no diagnostics)
+ok: AC-047: conditional-facet-duplicate.json invalid as expected (contains 'duplicate conditional_facets facet')
+ok: array-not-stable-sorted: required-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /required_facets:')
+ok: array-not-stable-sorted: capabilities-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /capabilities:')
+ok: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:')
+ok: array-not-stable-sorted: conditional-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /conditional_facets:')
+ok: array-not-stable-sorted: resolved-gates-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /resolved_gates:')
+ok: determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly
+ok: determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-semantics: 15 passed, 0 failed

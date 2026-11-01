@@ -1,0 +1,25 @@
+{
+  "schema": "python-final-checks/v1",
+  "checks": [
+    {
+      "command": "ruff check plugins scripts tests .github mcp/shared/sync-diagnostics.py --select E4,E7,E9,F --exclude tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "result": "All checks passed; exact intentional invalid-syntax fixture excluded"
+    },
+    {
+      "command": "mypy --config-file tests/shared-launch-python/pyproject.toml",
+      "result": "Success: no issues found in 7 source files"
+    },
+    {
+      "command": "python3 tests/python-input-boundaries.tests.py",
+      "result": "11 passed"
+    },
+    {
+      "command": "python3 tests/sdd-domain-multitarget-T-003.tests.py",
+      "result": "32 tests, OK, 1 native Windows junction test skipped"
+    }
+  ],
+  "source_hashes": {
+    "tests/python-input-boundaries.tests.py": "6f4a768b8dca799c8aedad028fe45fe9e03fedcbb2520fcfc947f00cd55d7a39",
+    "tests/sdd-domain-multitarget-T-003.tests.py": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34"
+  }
+}
