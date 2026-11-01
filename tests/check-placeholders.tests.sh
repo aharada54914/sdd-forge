@@ -99,6 +99,21 @@ else
     fail "CP-004: recursive scan should exit 1, got ${CP_EXIT}. Output: ${CP_OUTPUT}"
 fi
 
+# Literal paths must never select a clean wildcard sibling instead of the target.
+if command -v pwsh >/dev/null 2>&1; then
+    printf 'TODO implement this\n' > "${WORK}/target[x].py"
+    printf 'complete = True\n' > "${WORK}/targetx.py"
+    CP_EXIT=0
+    CP_OUTPUT="$(pwsh -NoProfile -File "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-placeholders.ps1" "${WORK}/target[x].py" 2>&1)" || CP_EXIT=$?
+    if [ "$CP_EXIT" -eq 1 ] && [[ "$CP_OUTPUT" == *'Placeholder scan FAILED'* ]]; then
+        ok 'PowerShell scans the literal bracket filename, not its clean sibling'
+    else
+        fail "PowerShell literal target expected violation 1, got $CP_EXIT: $CP_OUTPUT"
+    fi
+else
+    echo 'skip: PowerShell literal filename regression (pwsh absent)'
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================

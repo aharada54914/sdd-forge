@@ -1,0 +1,15 @@
+=== CP-001: dirty file is flagged ===
+ok: CP-001a: dirty file exits 1
+ok: CP-001b: dirty file reports FAILED
+=== CP-002: clean file passes ===
+ok: CP-002a: clean file exits 0
+ok: CP-002b: clean file reports passed
+=== CP-003: real grep error fails closed (issue #127) ===
+ok: CP-003a: missing path exits >=2 (got 2)
+ok: CP-003b: missing path prints a FATAL diagnostic
+ok: CP-003c: missing path does not report a false 'passed'
+=== CP-004: recursive directory scan still works ===
+ok: CP-004: directory with a nested marker exits 1
+ok: PowerShell scans the literal bracket filename, not its clean sibling
+
+Results: 9 passed, 0 failed
