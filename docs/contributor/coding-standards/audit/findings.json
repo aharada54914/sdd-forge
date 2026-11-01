@@ -2151,6 +2151,56 @@
       ],
       "resolution": "Separate CHECK0=reproduced,1=absent,>1=unavailable; reject invalid/overflow bounds and EOF with exit2. Correct reversed status comment; preserve interactive bounded loop and existing red/green behavior.",
       "reuse": null
+    },
+    {
+      "finding_id": "DOC-005",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 108,
+      "source_sha256": "51c73d5e3900d7d56147e4f6e930639feec6b8aeb5b010fb1b70f0b469c67aac",
+      "flow": {
+        "input": "operator registry JSON and filesystem paths",
+        "transformation": "PowerShell property/comparison coercion and wildcard path resolution",
+        "sink": "agent frontmatter renderer configuration and target lookup"
+      },
+      "impact": "Malformed or case-altered registry tokens can be admitted as a valid rendering configuration through PowerShell coercion.",
+      "reproduction": "Real current registry copied with schema singleton array, Schema key, root singleton array, default_effort array or model name array returns exit0 before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "baseline source 9a70b0ed83601b8c41143f1a5f1d5512f0ebc687",
+        "reports/verification/coding-standards-renderer-20261101/baseline.log: 35 pass / 7 fail",
+        "reports/verification/coding-standards-renderer-20261101/fixed.log: 42 pass / 0 fail",
+        "tests/render-agent-frontmatter.tests.ps1 actual Linux PowerShell subprocess controls; protected live target hashes unchanged",
+        "fixed source SHA256 0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f"
+      ],
+      "resolution": "Require exact consumed field names, root/model/role objects and actual string scalar fields before comparison; preserve unrelated extension fields.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-006",
+      "rule_id": "CS-009",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 43,
+      "source_sha256": "51c73d5e3900d7d56147e4f6e930639feec6b8aeb5b010fb1b70f0b469c67aac",
+      "flow": {
+        "input": "operator registry JSON and filesystem paths",
+        "transformation": "PowerShell property/comparison coercion and wildcard path resolution",
+        "sink": "agent frontmatter renderer configuration and target lookup"
+      },
+      "impact": "Bracket characters in operator-selected repository, registry or target paths are treated as wildcard syntax, failing or selecting a different location.",
+      "reproduction": "A disposable repo[fixture] with registry[fixture].json and targets[fixture].json fails before repair; literal path resolution now returns check summary0targets0drift.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "baseline source 9a70b0ed83601b8c41143f1a5f1d5512f0ebc687",
+        "reports/verification/coding-standards-renderer-20261101/baseline.log: 35 pass / 7 fail",
+        "reports/verification/coding-standards-renderer-20261101/fixed.log: 42 pass / 0 fail",
+        "tests/render-agent-frontmatter.tests.ps1 actual Linux PowerShell subprocess controls; protected live target hashes unchanged",
+        "fixed source SHA256 0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f"
+      ],
+      "resolution": "Use LiteralPath for Resolve-Path and Test-Path probes; retain System.IO literal reads/writes.",
+      "reuse": null
     }
   ]
 }

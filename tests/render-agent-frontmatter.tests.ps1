@@ -506,6 +506,35 @@ Body text unaffected.
         Test-Bad 'human-copy: at least one staged candidate or its MANIFEST.sha256 entry is missing/incorrect'
     }
 
+    # Actual parser controls: PowerShell must not coerce arrays or key casing.
+    foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array')) {
+        $bad = [System.IO.File]::ReadAllText($realRegistry) | ConvertFrom-Json
+        switch ($variant) {
+            'schema-array' { $bad.schema = @($bad.schema) }
+            'schema-case' { $value = $bad.schema; $bad.PSObject.Properties.Remove('schema'); $bad | Add-Member NoteProperty Schema $value }
+            'models-object' { $bad.models = $bad.models[0] }
+            'role-array' { $bad.role_defaults.'sdd-evaluator' = @($bad.role_defaults.'sdd-evaluator') }
+            'effort-array' { $bad.role_defaults.'sdd-evaluator'.default_effort = @('high') }
+            'name-array' { $bad.models[0].name = @($bad.models[0].name) }
+        }
+        $json = ConvertTo-Json -InputObject $bad -Depth 30
+        if ($variant -eq 'root-array') { $json = '[' + $json + ']' }
+        $badPath = Join-Path $tmp 'invalid-registry.json'
+        [System.IO.File]::WriteAllText($badPath, $json)
+        $r = Invoke-Render @('-Check', '-RepoRoot', $root, '-Registry', $badPath)
+        if ($r.ExitCode -ne 0 -and $r.Combined -match 'RENDER_ERROR') { Test-Ok "reject registry $variant" }
+        else { Test-Bad "reject registry $variant (exit $($r.ExitCode))" }
+    }
+    $literalRepo = Join-Path $tmp 'repo[fixture]'
+    [System.IO.Directory]::CreateDirectory($literalRepo) | Out-Null
+    $literalRegistry = Join-Path $literalRepo 'registry[fixture].json'
+    [System.IO.File]::Copy($realRegistry, $literalRegistry)
+    $literalTargets = Join-Path $literalRepo 'targets[fixture].json'
+    [System.IO.File]::WriteAllText($literalTargets, '[]')
+    $r = Invoke-Render @('-Check', '-RepoRoot', $literalRepo, '-Registry', $literalRegistry, '-TargetsFile', $literalTargets)
+    if ($r.ExitCode -eq 0 -and $r.Combined -match '0 targets, 0 drift') { Test-Ok 'literal bracket paths for repo, registry and targets' }
+    else { Test-Bad "literal bracket paths (exit $($r.ExitCode)): $($r.Combined)" }
+
     $liveProtectedUnchanged = $true
     foreach ($rel in $protectedRelPaths) {
         if ((Get-Sha256OfFile (Join-Path $root $rel)) -cne $liveProtectedShaBefore[$rel]) { $liveProtectedUnchanged = $false }
