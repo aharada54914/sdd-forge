@@ -421,7 +421,7 @@ if (-not (Test-Path "$cl015/specs/feat/verification/T-015.panelist-google.verdic
 
 # ============================================================================
 # CL-016: run-panelist-gemini -- argv/stdin contract: panelist instructions
-# go through -p, the sanitized bundle goes on stdin (no duplication).
+# and sanitized bundle go through stdin; -p is fixed for Windows cmd shims.
 # ============================================================================
 
 Write-Host "=== CL-016: run-panelist-gemini -p/stdin contract ==="
@@ -453,17 +453,17 @@ Start-Process -FilePath "pwsh" `
     -Wait -PassThru -NoNewWindow | Out-Null
 
 $argvFlat16 = if (Test-Path $cl016Argv) { ((Get-Content $cl016Argv) -join " ").TrimEnd() } else { "" }
-if (($argvFlat16 -like "--model gemini-2.0-flash -p *") -and ($argvFlat16 -match "READ-ONLY")) {
-    ok "CL-016a: gemini argv is --model <m> -p <panelist-instructions> (instructions travel via -p, not stdin)"
+if ($argvFlat16 -ceq "--model gemini-2.0-flash -p Review the complete instructions and sanitized input on stdin.") {
+    ok "CL-016a: gemini argv retains the fixed non-interactive prompt"
 } else {
     fail "CL-016a: gemini argv did not match the -p contract -- $argvFlat16"
 }
 
 $stdinContent16 = [string]$(if (Test-Path $cl016Stdin) { Get-Content -Raw $cl016Stdin } else { "" })
-if (($stdinContent16 -match "sanitized bundle body") -and ($stdinContent16 -notmatch "READ-ONLY")) {
-    ok "CL-016b: stdin carries only the sanitized bundle (no duplicated panelist instructions)"
+if ([regex]::Matches($stdinContent16, "sanitized bundle body").Count -eq 1 -and [regex]::Matches($stdinContent16, "READ-ONLY").Count -eq 1) {
+    ok "CL-016b: stdin carries one complete instruction block and one sanitized bundle"
 } else {
-    fail "CL-016b: stdin content did not match the bundle-only contract -- $stdinContent16"
+    fail "CL-016b: stdin content did not match the instruction-and-bundle contract -- $stdinContent16"
 }
 
 # ============================================================================
@@ -851,6 +851,12 @@ foreach ($case in $geminiCases) {
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
+
+$probePython = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $probePython) { $probePython = Get-Command python -ErrorAction Stop }
+& $probePython.Source (Join-Path $RepoRoot 'tests/lib/detect-panel-probe.py') (Join-Path $ScriptsDir 'detect-panel.ps1') (Get-Process -Id $PID).Path
+if ($LASTEXITCODE -eq 0) { ok 'detect-panel version success/failure/deadline and child cleanup' }
+else { fail 'detect-panel version deadline regression' }
 
 # ============================================================================
 # Summary
