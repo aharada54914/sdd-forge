@@ -1,0 +1,173 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "CHK-SH-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "line": 82,
+      "source_sha256": "cd86b9c11d472cb3e8a9855849b183c2c078873640220beb88b507e0dba0080d",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh"
+      },
+      "impact": "An unreadable HTML directory or grep error was hidden by pipelines, producing a false clean scan.",
+      "reproduction": "Real denied directory and actual invalid-regex grep controls returned0 before,2 after.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-sync-scan.tests.sh:102 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Checked find/sort/grep status before interpreting findings; reject newline filenames explicitly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 20,
+      "source_sha256": "d380f71ff0385f305f655081d537ccb4668a644f34f821564d80418cf52ac263",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Literal filename --exclude=* was parsed as a grep option and suppressed TODO findings in both files.",
+      "reproduction": "Actual leading-option filename and normal file both contain TODO: before0,after1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Add -- before filename operands in both searches.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-003",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 929,
+      "source_sha256": "93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Backup read failure was overwritten by exit0 and publication proceeded without recoverable pre-state.",
+      "reproduction": "Real cat missing-file failure during backup: before0/statusok/newlive; after21/LIVE_PROBE_FAILED/oldlive; truncated-success backup also denied.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/apply-human-copy.tests.sh:253 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Require successful backup bytes/mode and matching prehash before journal and rename.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "line": 75,
+      "source_sha256": "52d04f722f0e9a55d11b8bb2c8bfb3c7c44e94d32ef54bbf3dce0c36eb1c4e26",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-design-system.sh"
+      },
+      "impact": "Unreadable CSS was silently omitted and check-design-system printed passed.",
+      "reproduction": "Actual chmod000 CSS under uid1000: before0passed,after1. Bothwarn/error modes and designfile failures exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.sh:8 passed plus JSON/IO controls; posix-io-evidence.zip"
+      ],
+      "resolution": "Inspect actual grep exit status before cap/render; protect operands; preserve warn finding policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-005",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "line": 1346,
+      "source_sha256": "a97837ba7350be459900ed6d9f5b63ae0006488763c94e715bd8f9d9abf875d2",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+      },
+      "impact": "Unreadable newer review round was omitted and older PASS accepted; same shared predecessor pattern.",
+      "reproduction": "Actual uid1000 control0; denied attempt99/round1 before0workflow-state:ok,after1. PS twin already fails1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/workflow-state.tests.sh complete suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Capture and check complete find output in workflow and review-precheck-common before choosing latest verdict.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 731,
+      "source_sha256": "8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh"
+      },
+      "impact": "Unreadable review source became an empty successful sanitized bundle; failed output/collection also lost errors.",
+      "reproduction": "Actual chmod000 input before0 with emptydigest+outputfile; after2/nooutput. Report/tree/output permission controls and missingoption timeout exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/prepare-panelist.tests.sh:192 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check content/parser/traversal/output statuses; keep private temp files and fail missing option values.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-007",
+      "rule_id": "CS-019",
+      "path": "scripts/rollback-1.5.0.sh",
+      "line": 54,
+      "source_sha256": "6eea918fa80135ff34fa2e0aa8c9719e34ca2efcf133ddd036c6a755b1117127",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "scripts/rollback-1.5.0.sh"
+      },
+      "impact": "Git status errors appeared clean and jq producer failures skipped inventory loops, permitting false successful rollback.",
+      "reproduction": "Same real Git invalid-option and jq syntax-error controls fail beforefix tests; afterfix reject before changing bytes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.sh paired/canonical suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check Git status and capture one checked nonempty inventory for all transaction phases.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-008",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 132,
+      "source_sha256": "5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/emit-run-record.sh"
+      },
+      "impact": "Unreadable tasks emitted a successful run record with fabricated zero task metrics.",
+      "reproduction": "Actual chmod000 tasks before0/wrote/total0; after nonzero/no record. Spaced-path complete metrics positivecontrol plus unreadable task/reporttree/ticket.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/emit-run-record-feature-scope.tests.sh:56 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Normalize tasks once with checked read; distinguish grep no-match1 from error2; preserve spaces in inventories and propagate metric source failures.",
+      "reuse": null
+    }
+  ]
+}

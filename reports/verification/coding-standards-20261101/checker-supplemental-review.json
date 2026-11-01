@@ -1,0 +1,78 @@
+{
+  "schema": "coding-checker-supplemental-context-review/v1",
+  "sources": [
+    {
+      "path": "reports/verification/coding-standards-20261101/heldout.py",
+      "sha256": "3bc5c7e1b1250a246e0694ddc7b72f384f9ff844d540454473100520f186d30d",
+      "review": "Read full executable helper. Frozen9 synthetic native controls use explicit source/expected sets, temp repository, fixed argv and dynamic actual checker SHA/revision. Git calls now bounded30s. Shared adapter/config and pinned deps reused. Original outputs remain evidence of86fc4955 only; helper maintenance did not rerun or retroactively change them. Ruff configured checks pass; no model inference or remote writes."
+    },
+    {
+      "path": "tests/coding-standards/tools.json",
+      "sha256": "a4e7814962339daae9224543c095e3cd270f4036087ba338d93b2ec11d4c7e09",
+      "review": "Pinned versions and narrow native rule codes match strict scanner schema; only intentional invalid-source fixture exception, bound to exact bytes/control. Not a whole-rule preset."
+    },
+    {
+      "path": "tests/coding-standards/requirements.txt",
+      "sha256": "a33142500dcfbc80235670870caae6e3da4e4f5f3dfab2dd07f4ee60edbf3d35",
+      "review": "Exact Ruff0.13.3 and shellcheck-py0.11.0.1, no range or provider endpoint; shared Ruff configuration reused."
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "431fb96bf47d05e717e2b8f79d3fb23d20ce29efae5d97e0db05dc01411e5eaa",
+      "review": "Current executable routing metadata,384 suites/7 profiles. Reviewed new native, guard, diagnostics, Python and signer/kill-switch registrations plus profile command selection. Existing catalog validates canonical paths, runtime/delegation and profile closure;15tests pass1skip. Not excluded as historical data."
+    },
+    {
+      "path": "tests/verification-timings.json",
+      "sha256": "dc20362834826bd087a00b42243d4436a8266e67d7616346fcde3649952a33fd",
+      "review": "Current scheduling metadata,84 suite weights from2 explicitly named historical runs. Read measurement semantics and parsed all records; weights are elapsed scheduling hints including overhead, not current benchmark claims or acceptance results. Catalog parser owns validation; no command source is derived from timing values."
+    },
+    {
+      "path": "tests/loops/loop-inventory.json",
+      "sha256": "514449dd05379a5f6bcb424717678f3a7261b391dcbe5d1b52a68eba2e634fb8",
+      "review": "Read all8 loop records. Script versus skill-instruction caps explicitly differ; terminal-tier cap is state/null, domain roundcap BLOCKED, quality-gate>=3 escalation, HITL5/WFI3. Paths reference existing production scripts; metadata does not prove host executed skill caps. Current config, not excluded data."
+    }
+  ],
+  "rule_families_considered": [
+    "CS-001",
+    "CS-002",
+    "CS-003",
+    "CS-004",
+    "CS-005",
+    "CS-006",
+    "CS-007",
+    "CS-008",
+    "CS-009",
+    "CS-010",
+    "CS-011",
+    "CS-012",
+    "CS-013",
+    "CS-014",
+    "CS-015",
+    "CS-016",
+    "CS-017",
+    "CS-018",
+    "CS-019",
+    "CS-020",
+    "CS-021",
+    "CS-022",
+    "CS-023",
+    "CS-024",
+    "CS-025",
+    "CS-026",
+    "CS-027",
+    "CS-028",
+    "CS-029",
+    "CS-030"
+  ],
+  "not_applicable": [
+    "CS-003 SQL: no database sink",
+    "CS-006 HTML: no rendering sink"
+  ],
+  "validation": [
+    "verification-catalog.tests.py:15 tests,1 explicit skip",
+    "heldout.py configured Ruff: allchecks passed"
+  ],
+  "limits": [
+    "No native controls rerun solely for helper metadata/deadline repair. Original heldout results retain original checker identity."
+  ]
+}
