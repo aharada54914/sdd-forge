@@ -884,6 +884,35 @@ fi
 rm -rf "$_k3_root"
 [[ $_k3_ok -eq 1 ]] && ok "untracked required release file is rejected before deployment"
 
+# Lock environment values must never become executable arithmetic expressions.
+_lock_input_root="$(mktemp -d)"
+for _lock_name in SDD_INSTALL_LOCK_TIMEOUT SDD_INSTALL_LOCK_STALE; do
+    # Literal command substitution is the hostile data under test.
+    # shellcheck disable=SC2016
+    for _lock_value in 'BASH_VERSINFO[$(touch "'"${_lock_input_root}/executed"'" )]' -1 1.5 2147483648 999999999999999999999999; do
+        _lock_input_rc=0
+        _lock_input_out="$(env "${_lock_name}=${_lock_value}" "$BASH" "$INSTALLER" \
+            --source-directory "$SOURCE_FIXTURE" --install-root "${_lock_input_root}/installed" \
+            --target FilesOnly --skip-agent-install --skip-mcp 2>&1)" || _lock_input_rc=$?
+        if [[ $_lock_input_rc -ne 0 && ! -e "${_lock_input_root}/executed" && ! -e "${_lock_input_root}/installed" ]] &&
+            [[ "$_lock_input_out" == *"$_lock_name must be decimal seconds"* ]]; then
+            ok "$_lock_name rejects nondecimal or overflowing arithmetic data"
+        else
+            fail "$_lock_name accepted unsafe lock input: $_lock_value"
+        fi
+    done
+done
+_lock_input_rc=0
+SDD_INSTALL_LOCK_TIMEOUT=00008 SDD_INSTALL_LOCK_STALE=00000 "$BASH" "$INSTALLER" \
+    --source-directory "$SOURCE_FIXTURE" --install-root "${_lock_input_root}/installed" \
+    --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _lock_input_rc=$?
+if [[ $_lock_input_rc -eq 0 && -d "${_lock_input_root}/installed" ]]; then
+    ok "lock settings accept zero and leading-zero decimal seconds"
+else
+    fail "lock settings rejected valid decimal seconds"
+fi
+rm -rf "$_lock_input_root"
+
 # ---------------------------------------------------------------------------
 # Scenario (l): concurrent-lock — pre-created lock with live pid blocks install
 # ---------------------------------------------------------------------------
