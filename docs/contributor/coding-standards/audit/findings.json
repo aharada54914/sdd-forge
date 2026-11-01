@@ -61,9 +61,10 @@
       "state": "justified-exception",
       "owner_issue": 689,
       "evidence": [
-        "tests/resolve-project-context-block-check.py: registry-discovery-syntax-error case; independent final review required"
+        "tests/resolve-project-context-block-check.py: registry-discovery-syntax-error case",
+        "docs/contributor/coding-standards/audit/independent-exception-review.json: exact source verification; actual Bash/PowerShell error controls and normal publication 17 passed, 0 failed"
       ],
-      "resolution": "Exclude this exact fixture only from syntax lint; keep resolver behavioral regression.",
+      "resolution": "Exclude this exact fixture only from syntax lint; keep resolver behavioral regression. Independent review confirms bounded exception; no broader source/platform exclusion.",
       "reuse": null
     },
     {

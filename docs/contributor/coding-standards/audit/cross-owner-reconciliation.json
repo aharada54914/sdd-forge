@@ -39,6 +39,19 @@
         "docs/contributor/coding-standards/audit/shell/context-precheck-whole-file-review.json",
         "docs/contributor/coding-standards/audit/shell/context-precheck-evidence/precheck-downstream-final.txt"
       ]
+    },
+    {
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "source_sha256": "9022a237811e587d3d7864ba4c903ca1c100022b0d23e7d5490baf887daba1d8",
+      "state": "reviewed",
+      "review_scope": "whole_file",
+      "reason": "Complete 86-line test reviewed with documented signer owner change aa233896: fixed RFC4231 vector, three key-source precedence controls, malformed/missing key no-output controls, live argv observation with fake key only. TemporaryDirectory owns fixtures; every child has bounded communicate/run and finally kill/reap. Existing five guard mutation assertions preserved. Linux /proc assertion is conditional; no native Windows process-inspection claim. Actual execution evidence recorded by DOC-003; not a new rerun."
+    },
+    {
+      "path": "docs/contributor/coding-standards/python-findings.json",
+      "source_sha256": "b3589f37484c16f6661ae6fa528dc5929e71f805fd8f31d50b635e2eb2cfcfe4",
+      "state": "out-of-scope",
+      "reason": "Owner finding catalogue JSON parsed; metadata supplies canonical finding imports, not runtime implementation. Individual evidence retains original source and execution limitations."
     }
   ]
 }
