@@ -39,7 +39,10 @@ def validate_evidence_path(label, raw_path, root, failures):
     """
     initial_count = len(failures)
 
-    path = str(raw_path).strip() if raw_path is not None else ""
+    if raw_path is not None and not isinstance(raw_path, str):
+        failures.append(f"{label} must be a string")
+        return False
+    path = raw_path.strip() if raw_path is not None else ""
     if not path:
         failures.append(f"{label} is missing or empty")
         return False
@@ -55,10 +58,10 @@ def validate_evidence_path(label, raw_path, root, failures):
         return False
 
     # Resolve and check for traversal outside root
-    abs_root = str(pathlib.Path(root).resolve())
     try:
+        abs_root = str(pathlib.Path(root).resolve())
         resolved = str(pathlib.Path(root).joinpath(path).resolve())
-    except Exception:
+    except (OSError, RuntimeError, ValueError):
         failures.append(f"{label} path could not be resolved: {raw_path}")
         return False
 
