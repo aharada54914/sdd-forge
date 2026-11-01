@@ -83,3 +83,15 @@ Pester installation failure passed on one same-head retry. These are preparation
 observations, not invented live advisory findings. Owner key enrollment and
 actual protected-job review were required admission steps; no human-only timing
 measurement is claimed from CI queue durations.
+
+## 公開証拠の参照先
+
+独立レビュー原文の `/workspace/` は実行当時の所在を示します。GitHub上では
+[独立レビュー](../../../../reports/quality-gate/epic-197-a9-dogfood-T-678-final.md)、
+[原文と公開版の対応](../../verification/T-678/acceptance-20261101/independent-review-provenance.json)、
+[実行コマンド・時刻・終了コード](../../verification/T-678/acceptance-20261101/executions.json)、
+[310テストの実出力](../../verification/T-678/acceptance-20261101/fullsuite.stdout)、
+[ソース・依存ロックのハッシュ](../../verification/T-678/acceptance-20261101/source-binding.json)、
+[実MCP操作の公開要約](../../verification/T-678/acceptance-20261101/real-mcp-summary.json)、
+[PR #693のCI対応記録](../../verification/T-678/acceptance-20261101/activation-ci-association.json)
+を参照できます。生のMCP応答・advisory観測・APIログは非公開で保持しています。
