@@ -173,6 +173,94 @@ class Fixture:
 
 
 class DomainFinalizerTests(unittest.TestCase):
+    def precheck(self, fixture, attempt=1, round_number=1, reset=False):
+        script = fixture.root / 'plugins/sdd-domain/scripts/domain-review-precheck'
+        if fixture.runtime == 'powershell':
+            command = ['pwsh', '-NoProfile', '-File', str(script.with_suffix('.ps1')),
+                       '-Attempt', str(attempt), '-Round', str(round_number)]
+            if round_number > 1:
+                command += ['-EditSummary', 'fixture edit']
+            if reset:
+                command += ['-Reset']
+        else:
+            command = ['bash', str(script.with_suffix('.sh')), str(attempt), str(round_number)]
+            if round_number > 1:
+                command += ['--edit-summary=fixture edit']
+            if reset:
+                command += ['--reset']
+        return subprocess.run(command, cwd=fixture.root, env=fixture.env,
+                              capture_output=True, text=True, timeout=30)
+
+    def test_precheck_rejects_malformed_prior_hash_and_reset_verdict(self):
+        for runtime in ('bash', 'powershell'):
+            if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
+                continue
+            for value in (None, ['0' * 64], 'not-a-digest'):
+                with self.subTest(runtime=runtime, prior_hash=value):
+                    f = Fixture(self, runtime=runtime, reserve=False)
+                    receipt = f.round / 'precheck-result.json'
+                    data = read(receipt)
+                    data['input_sha256'] = value
+                    save(receipt, data)
+                    result = self.precheck(f, round_number=2)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertFalse((f.round.parent / 'round-2').exists())
+            for verdict in (['PASS'], ['BLOCKED'], True):
+                with self.subTest(runtime=runtime, reset_verdict=verdict):
+                    f = Fixture(self, runtime=runtime, reserve=False)
+                    save(f.round / 'domain-review-contract.json', {'verdict': verdict})
+                    result = self.precheck(f, attempt=2, reset=True)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertFalse((f.round.parent.parent / 'attempt-2').exists())
+
+    def test_precheck_argument_integer_range_and_spelling(self):
+        for runtime in ('bash', 'powershell'):
+            if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
+                continue
+            for value in ('1\n', '1.0', '18446744073709551617'):
+                with self.subTest(runtime=runtime, attempt=value):
+                    f = Fixture(self, runtime=runtime, reserve=False)
+                    result = self.precheck(f, attempt=value)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn('positive integer', result.stderr)
+
+    @unittest.skipIf(os.name == 'nt' or (hasattr(os, 'geteuid') and os.geteuid() == 0),
+                     'real POSIX permission denial requires non-root')
+    def test_precheck_releases_lock_after_actual_output_failure(self):
+        for runtime in ('bash', 'powershell'):
+            if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
+                continue
+            with self.subTest(runtime=runtime):
+                f = Fixture(self, runtime=runtime, reserve=False)
+                shutil.rmtree(f.round)
+                f.round.parent.chmod(0o500)
+                try:
+                    result = self.precheck(f)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse((f.round.parent.parent / '.domain-review.lock').exists(), result.stderr)
+                finally:
+                    f.round.parent.chmod(0o700)
+
+    @unittest.skipIf(os.name == 'nt', 'fixture filenames are POSIX-only')
+    def test_precheck_approved_fingerprint_serializes_literal_filenames(self):
+        names = ('quoted " card.md', 'line\ncard.md')
+        for runtime in ('bash', 'powershell'):
+            if not shutil.which('pwsh' if runtime == 'powershell' else 'bash'):
+                continue
+            with self.subTest(runtime=runtime):
+                f = Fixture(self, runtime=runtime, reserve=False, aggregate_names=names)
+                context = f.root / 'domain/context-map.md'
+                context.write_text('Domain-Model-Status: Approved\n', encoding='utf-8')
+                result = self.precheck(f)
+                self.assertNotEqual(result.returncode, 0)
+                fingerprint = read(f.round.parent.parent / 'last-approved-fingerprint.json')
+                for name in names:
+                    self.assertEqual(fingerprint['files']['domain/aggregates/' + name],
+                                     digest(f.root / 'domain/aggregates' / name))
+                repeated = self.precheck(f)
+                self.assertIn('does not re-review an approved model', repeated.stderr)
+                self.assertNotIn('drift detected', repeated.stderr)
+
     def assert_success(self, result):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
