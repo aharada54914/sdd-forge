@@ -813,6 +813,28 @@
       ],
       "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
       "reuse": null
+    },
+    {
+      "finding_id": "PY-038",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "line": 96,
+      "source_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+      "flow": {
+        "input": "missing working directory passed to execute",
+        "transformation": "allocate status pipe then Popen raises FileNotFoundError",
+        "sink": "read FD remains open"
+      },
+      "impact": "Repeated failed child startup leaks file descriptors in the caller process.",
+      "reproduction": "New lifecycle test ran before implementation edit: actual missing cwd; fd inventory extra4; FAILED exit1.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/project-skill-lifecycle.tests.py:Lifecycle.test_failed_process_start_releases_status_pipe",
+        "reports/verification/coding-standards-python-20261101/context-review.json"
+      ],
+      "resolution": "Close read descriptor before reraising any startup exception; existing finally closes write descriptor. Successful process ownership and diagnostic semantics preserved.",
+      "reuse": null
     }
   ]
 }
