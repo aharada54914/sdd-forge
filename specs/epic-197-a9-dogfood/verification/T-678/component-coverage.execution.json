@@ -1,0 +1,11 @@
+{
+  "command": "python3 plugins/sdd-quality-loop/scripts/check-component-coverage.py --config sdd/project-context.yaml --facet-manifest specs/epic-197-a9-dogfood/facet-manifest.yaml --repo-root /workspace/sdd-forge --changed-paths-file /workspace/scratch/678-live-activation-20261101/changed-paths-C0.txt",
+  "base_sha": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+  "head_sha": "0a582e3d741424bac3c55411d99ff8f874749dcb",
+  "started_at": "2026-11-01T00:53:14.189854Z",
+  "finished_at": "2026-11-01T00:53:14.306519Z",
+  "exit_code": 0,
+  "changed_paths_sha256": "812fd1ea42ba72d818cfd05093c8e7248a67055ac04d5f1c2a315c96ad31f937",
+  "evidence_sha256": "2744af5072e34443b7afd033b22c7aa4d22b7b15befcccdd93a5257470ecf3f6",
+  "meaning": "Actual coverage execution on C0 diff; not a final-head execution certificate"
+}

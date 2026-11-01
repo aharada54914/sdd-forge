@@ -1,88 +1,68 @@
 # Operational status for Issue 678
 
-The owner has approved the prospective task, single-owner registry proposal and
-exact Phase-1 candidate, and authorized completing the remaining operational
-work. See [approval provenance](approval-provenance.json). T-678 is Approved /
-Planned, not Done. The original exported draft is retained unchanged.
+T-678 is Approved / Planned. It is the prospective acceptance work originally
+reviewed as packet T-001; relocation.json retains the identity/path mapping.
+No retrospective specification-first development or TDD is claimed.
 
-The request and technical contract now occupy their real repository paths.
-Historical raw execution evidence was restored byte-for-byte, not rerun or
-redated. Current source comparison confirms the four production files, report
-reuse test and dependency lock match the historical record. Generated dist output
-was not regenerated or asserted current. The Approved/Planned task-state check
-and contract check were executed again; their separately named records retain
-actual timestamps and outputs.
+## Actual signing and publication
 
-## Remaining boundary
+The owner configured the independent GitHub environment secret and approved the
+protected job in [run 41258114242](https://github.com/aharada54914/sdd-forge/actions/runs/41258114242).
+The fixed issuer and exact approved candidate produced a signature and VALID.
+The environment requires the actual owner reviewer, disables administrator
+bypass and restricts deployment to main. The agent obtained only public artifacts;
+it did not obtain the new signing key. Owner-controlled key generation is reported
+by the owner, not independently audited by this repository.
 
-PR #681 contains an owner-authorized delegated cloud signature. Its cloud key is
-agent-accessible, so it does not satisfy ADR-0019 / A1 B3 external-key custody.
-The current GitHub integration returned HTTP 403 (Resource not accessible by
-integration) for the repository Actions secrets metadata endpoint. The managed
-runtime has no configured independent signing service. These are infrastructure
-and access limitations, not a pending request to approve T-678 again.
+The original artifact digest, manifest and candidate bytes were verified. The
+existing transactional publisher applied Context, registry, approval and approved
+snapshot on this activation branch. See
+[publication observation](../../verification/T-678/phase1-publication.json).
+Local byte/hash verification is not independent HMAC verification; the protected
+CI run supplies that separate authentication provenance. The earlier agent-key
+signature in PR #681 is retained as history and is not used for live publication.
 
-No live project-context.yaml, approval sidecar, approved anchor, or registry is
-activated by this change. The committed request alone cannot activate advisory
-collection. Production acceptance still requires an independent authorized
-signer, publication through the existing transactional mechanism, genuine
-final-head advisory collection with authenticated CI association, and an actual
-published-release interval. Promotion is conditional on observed evidence; a
-retain-advisory decision must not be reported as completed Phase-2 execution.
+## Current verification
 
-Private raw advisory observations must remain private. This directory contains
-only the previously reviewed public technical evidence and preparation records.
-Issue #678 remains open.
+Historical MCP typecheck/build/309-test evidence remains byte-identical to the
+review packet. Current source comparison retains its original scope. Actual
+component coverage was added because it becomes required with live Context.
+Its record retains the initial activation/version-bump diff and actual times;
+final-head replay equality and authentic CI association are separate checks.
+No ownership failure was observed in that execution. Missing optional provider
+bindings were reported N/A, not represented as configured or verified.
 
-Preparation friction: the first current contract check rejected UTC `+00:00`
-notation because its contract requires `Z`. Only the timestamp representation
-was corrected; the actual instants and original execution record were preserved.
-The failed and successful check outputs are both retained. This is preparation
-friction, not a completed live advisory observation.
+The v1.19.0 bootstrap version update uses the existing bump script and its
+mandatory loop suites. Release-validation parity also passed. The version heading
+is preparation; no GitHub Release has yet been published by this change.
 
-## Release readiness
+## Acceptance still required
 
-The current declared version is 1.18.0 with Unreleased additions. Repository
-Release listing returned zero records during preparation. A next minor 1.19.0
-is a reasonable proposal for the added features, not a published version or a
-version bump performed by this preparation.
+Merge the signed activation and obtain genuine final-head capability-mode Gate
+execution. Keep full observations private, retain the original CI digest/check
+association, and reconstruct only from the exact trusted tooling and committed
+inputs. A matching private reconstruction is not a new historical CI invocation.
+Complete operational review before marking T-678 Done.
 
-After genuine advisory activation, publish a real bootstrap Release to establish
-the start boundary (1.19.0 is the provisional proposal above). Then perform the
-actual observed PR interval and publish a subsequent Release as its end boundary.
-Choose the endpoint version from the actual changes after their checks succeed.
-This plan satisfies both release boundaries without inventing a historical
-Release; neither Release has been published by this preparation.
+Publish a genuine bootstrap Release after exact-commit CI succeeds, then observe
+real PR work between that start boundary and a final published Release. Every
+first-parent commit in the interval must map to its actual PR and latest
+advisory observation. There was no prior GitHub Release to invent as the start.
+Use the existing contributor release runbook, artifact/SBOM/checksum/attestation
+workflow and release-cycle preflight; release work is already authorized.
 
-Record the start commit and final release head explicitly. The release preflight
-accepts explicit base/head commits and requires a genuine published final
-Release/tag at the head. Every first-parent commit in that interval must map
-exactly once to an observed PR and its final-head checks.
+Finally record an evidence-based retain-advisory or promotion decision. Promotion
+requires its existing independent signing, compatibility/live-host and rollback
+proofs; retaining advisory does not claim Phase-2 or post-promotion execution.
+Issue #678 remains open until actual acceptance is complete.
 
-Use the existing contributor release runbook: add the actual CHANGELOG version
-heading, run `bash scripts/bump-version.sh <version>` (including its mandatory
-loop suites), review and merge the release changes with their own advisory
-request/evidence, and obtain successful `test.yml` execution on the exact tag
-commit before publication. The existing `release.yml` checks that exact-commit
-CI result before building artifacts, checksums, SBOM and attestations. Preserve
-authentic PR/check/observation associations and verify the published artifacts.
-Release work is authorized in the current task; infrastructure and genuine
-execution evidence, rather than renewed blanket approval, remain prerequisites.
+## Preserved preparation friction
 
-Promotion is deferred pending actual advisory/release results. This is a current
-status, not a completed evidence-based final promotion decision. If the eventual
-decision is to retain advisory, record its measured basis; do not claim Phase-2
-or post-promotion feature acceptance occurred.
-
-## Placement and task identity
-
-The original preparation used packet-local T-001 under an unregistered new
-specification directory. Repository workflow-state CI rejected that placement.
-This work is operational acceptance of existing A9, not a newly completed
-full development workflow, so the packet now resides below the existing A9
-operational directory. Its unused task identifier is T-678, with the contract
-in A9 verification/T-678/contract.json. The owner's approved scope is unchanged.
-Historical execution bytes retain their original T-001 and source paths; the
-relocation map and current contract provide the explicit correspondence. No
-Passed spec/implementation/task review history was fabricated to register a new
-full-profile feature.
+The original task-state/contract preparation rejected non-Z timestamp notation;
+its failed and successful records remain unchanged. CI later detected an
+unregistered prospective-feature directory, corrected by placing the acceptance
+under existing A9 without inventing full-stage review provenance. PR #683's
+Pester installation failure passed on one same-head retry. These are preparation
+observations, not invented live advisory findings. Owner key enrollment and
+actual protected-job review were required admission steps; no human-only timing
+measurement is claimed from CI queue durations.
