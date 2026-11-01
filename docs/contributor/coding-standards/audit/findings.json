@@ -2105,6 +2105,52 @@
       ],
       "resolution": "Use YAML literal block for echo command; preserves shell quoting and intentional exit1 until configured.",
       "reuse": null
+    },
+    {
+      "finding_id": "DOC-003",
+      "rule_id": "CS-010",
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "line": 177,
+      "source_sha256": "cabafe728d29658b6bcbdc1eccb0304b396a925c73be6c7fd0fe1b038686c8ae",
+      "flow": {
+        "input": "Human signing secret KEY",
+        "transformation": "Shell expands secret into openssl -hmac argument",
+        "sink": "OS process command-line inspection"
+      },
+      "impact": "Signing credential can be read from process arguments by observers allowed to inspect them.",
+      "reproduction": "Started real openssl dgst with fake key and blocked stdin; Linux /proc/<pid>/cmdline contained the exact fake key. Fixed documented Python program exposes no key in argv and matches independent RFC4231 HMAC vector.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/sdd-sudo-guard-mutation.tests.py: actual doc signer, three key-source precedence controls, BOM/trailing-space file normalization, two fail-closed failures, RFC4231 case2, process argv inspection.",
+        "Repaired source sha256=139a2fa06e5060d550a79a25a04491fa511fa05f63b2eaa49956ceb59b256452",
+        "PowerShell key generation now uses Create()/instance GetBytes(byte[]) and disposes RNG; actual Linux PowerShell7.6.7 produces32bytes. Native Windows PowerShell5.1 was not executed."
+      ],
+      "resolution": "Read key inside fixed Python program from documented env/file/home sources; keep message on stdin and fail on missing/empty key. No real token or credential was generated.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "line": 25,
+      "source_sha256": "e05b3aad1e94b07ad102c1200c2e458400e5c0be6082aa79a3b8f3ceff2ce840",
+      "flow": {
+        "input": "Unfilled CHECK, tool failure, invalid iteration count or closed manual stdin",
+        "transformation": "All nonzero CHECK outcomes/failed reads treated as absence; invalid loop bound skips loop",
+        "sink": "green observations and final exit0"
+      },
+      "impact": "The shipped human feedback template can claim no reproduced symptom without executing a valid check or receiving the manual observation.",
+      "reproduction": "Existing HITL suite extended with actual unfilled/tool-error/iteration/input controls: baseline16 passed/9 failed, fixed25 passed/0 failed. Existing reproduce-on-iteration3 returns1 and genuine absence1 from CHECK completes5iterations exit0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hitl-wfi-terminal.tests.sh: actual fixture copy with exported CHECK and actual five Enter inputs, failure controls (missing/2/127), invalid caps, stdinEOF.",
+        "tests/hitl-wfi-terminal.tests.ps1:16passed/0failed on LinuxPowerShell7.6.7/Bash5.2.37.",
+        "Repaired source sha256=8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849"
+      ],
+      "resolution": "Separate CHECK0=reproduced,1=absent,>1=unavailable; reject invalid/overflow bounds and EOF with exit2. Correct reversed status comment; preserve interactive bounded loop and existing red/green behavior.",
+      "reuse": null
     }
   ]
 }
