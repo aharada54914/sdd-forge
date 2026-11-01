@@ -3529,6 +3529,29 @@
       ],
       "resolution": "Reject terminal dot/dotdot on raw path before emitting validation JSON. Preserve literal paths and existing parent/symlink rules.",
       "reuse": null
+    },
+    {
+      "finding_id": "ROOT-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 22,
+      "source_sha256": "10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370",
+      "flow": {
+        "input": "report path with linked ancestor",
+        "transformation": "PowerShell Resolve-Path retains linked parent text",
+        "sink": "reports directory containment admission"
+      },
+      "impact": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "reproduction": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix11371dac",
+        "tests/review-contract-foundation.tests.sh: Full suite passed; paired Bash/PowerShell outside-link rejection and internal-link acceptance.",
+        "fixed source SHA256 35b5cc2fad028d83353e5707c8b8a38ebb74b2a508e6822519cd21862cca64d0"
+      ],
+      "resolution": "Resolve each directory ancestor and link target physically, compare against physical reports root. Internal ancestor links remain accepted; cyclic/unresolvable links fail.",
+      "reuse": null
     }
   ]
 }
