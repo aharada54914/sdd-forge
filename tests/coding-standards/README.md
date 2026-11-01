@@ -7,7 +7,12 @@ The CI job in `.github/workflows/test.yml` installs these dependencies and runs 
 It fails on tool/config/runtime/parse/timeout failures. Local execution does not prove remote CI ran.
 
 `python3 tests/coding_standards.py census` emits the tracked working-tree population,
-with index blob identity and current content SHA256. It starts every review as unknown.
+with index blob identity and current content SHA256. These are distinct: a dirty
+file can differ from its indexed blob. Scan results bind each selected path to both
+identities and reject observed content changes before completion. As with existing
+receipts, a change and restoration during execution is not detectable; no reusable
+execution proof is claimed. Native tool text is strict UTF-8. Every census starts
+every review as unknown.
 `scan --mode all` is the complete native scan; `scan --mode diff --base COMMIT` uses the
 same rules on changed tracked files for early feedback. Missing/shallow bases fail.
 Diff success cannot close the full audit. New files must first be added to Git's index.
@@ -31,7 +36,7 @@ would not establish these failure-handling properties. Native tool success is no
 passing: `manual_review`, `manual_unreviewed_count` and the canonical audit ledger preserve that gap.
 
 Current executable code, tests, generated runtime files and templates are eligible for native
-scanning. Documentation fences are surfaced for contextual review, not extracted as fabricated
+scanning. Backtick/tilde documentation fences (including unlabeled unknown blocks) are surfaced for contextual review, not extracted as fabricated
 standalone programs. Unknown fence languages and shebangs remain visible. Historical records,
 human-copy bundles and symlinks remain in the census; routing does not approve or exempt them.
 Symlinks are hashed as link text and never followed, preventing escapes and duplicate target counts.

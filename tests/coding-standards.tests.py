@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Native positive/negative controls and fail-closed census/adapter contracts."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -58,6 +59,41 @@ class StandardsTests(unittest.TestCase):
         self.assertIn('embedded:unknown', rows['guide.md']['surfaces'])
         self.assertTrue(all(r['state'] in {'unreviewed', 'needs-review'} for r in rows.values()))
 
+    def test_fence_routing_and_module_extensions_remain_visible(self):
+        self.track('guide.md', '~~~python\nprint(1)\n~~~\n```\nunknown\n```\n')
+        for name in ('module.mts', 'module.cts', 'component.jsx'):
+            self.track(name, 'const x = 1;\n')
+        rows = {r['path']: r for r in C.census(self.root)['entries']}
+        self.assertIn('embedded:python', rows['guide.md']['surfaces'])
+        self.assertIn('embedded:unknown', rows['guide.md']['surfaces'])
+        for name in ('module.mts', 'module.cts'):
+            self.assertEqual(rows[name]['surfaces'], ['typescript'])
+        self.assertEqual(rows['component.jsx']['surfaces'], ['javascript'])
+
+    def test_worktree_hash_is_not_mislabeled_as_index_content(self):
+        self.track('a.py', 'print(1)\n')
+        indexed_blob = self.git('rev-parse', ':a.py').decode().strip()
+        self.write('a.py', 'print(2)\n')
+        row = next(r for r in C.census(self.root)['entries'] if r['path'] == 'a.py')
+        self.assertEqual(row['git_blob'], indexed_blob)
+        self.assertEqual(row['source_sha256'], hashlib.sha256(b'print(2)\n').hexdigest())
+        self.assertNotEqual(row['source_sha256'], hashlib.sha256(self.git('show', ':a.py')).hexdigest())
+
+    def test_tool_output_is_utf8_and_mid_scan_edits_fail(self):
+        completed = subprocess.CompletedProcess([], 0, '[]', '')
+        with patch.object(C.subprocess, 'run', return_value=completed) as run:
+            C.invoke(['ruff'], self.root)
+            self.assertEqual(run.call_args.kwargs['encoding'], 'utf-8')
+            self.assertEqual(run.call_args.kwargs['errors'], 'strict')
+        self.track('a.py', 'print(1)\n')
+        def mutate(command, root, **kwargs):
+            if command[-1] == '--version':
+                return subprocess.CompletedProcess([], 0, 'ruff 0.13.3\n', '')
+            self.write('a.py', 'print(2)\n')
+            return completed
+        with patch.object(C, 'invoke', side_effect=mutate), self.assertRaisesRegex(ValueError, 'source changed'):
+            C.scan(self.root, 'all', None, 'python')
+
     def test_history_and_generated_are_distinct_and_neither_approved(self):
         self.track('reports/run/result.py', 'print(1)\n')
         self.track('plugins/p/scripts/generated/live.py', 'print(1)\n')
@@ -105,11 +141,11 @@ class StandardsTests(unittest.TestCase):
             C.scan(self.root, 'all', None, 'python')
 
     def test_native_python_bad_and_good_strict_tolerant_controls(self):
-        self.track('case space\nname.py', 'print(undefined_name)\n')
+        self.track('case 日本語\nname.py', 'print(未定義)\n')
         bad = C.scan(self.root, 'all', None, 'python')
         self.assertTrue(any(r['native_rule'] == 'F821' for r in bad['findings']))
         self.assertEqual(C.scan(self.root, 'diff', 'HEAD', 'python')['findings'], bad['findings'])
-        self.track('case space\nname.py', '''def strict(value):
+        self.track('case 日本語\nname.py', '''def strict(value):
     return int(value)
 
 
