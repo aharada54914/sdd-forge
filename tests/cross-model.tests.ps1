@@ -249,6 +249,10 @@ response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
     feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
     findings=[], blind=True, input_digest='a' * 64,
     consent=dict(kind='human-flag', ref='test fixture')), separators=(',', ':'))
+if os.environ.get('STUB_VERDICT_PATCH'):
+    patched = json.loads(response)
+    patched.update(json.loads(os.environ['STUB_VERDICT_PATCH']))
+    response = json.dumps(patched)
 phase_path = os.environ.get('STUB_PHASE_FILE')
 # Open diagnostic files before the near-deadline wait, not on the exit path.
 phase_handle = open(phase_path, 'w', encoding='utf-8') if phase_path else None
@@ -1080,6 +1084,26 @@ $panelistRunners = @(
         Ok "TEST-014: unbounded external panelist risk is recorded as closed with its timeout control"
     } else {
         Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
+    }
+
+    foreach ($runner in $panelistRunners) {
+        $caseIndex = 0
+        foreach ($patch in @(
+            @{ schema = @('cross-model-verdict/v1') },
+            @{ blind = 'true' }, @{ blind = 1 }, @{ blind = @($true) },
+            @{ verdict = 'pass' }, @{ verdict = @('PASS') },
+            @{ input_digest = @(('a' * 64)) }
+        )) {
+            $caseRoot = Join-Path $workDir "schema-$($runner.Name)-$caseIndex"
+            Invoke-PanelistRunner -Runner $runner -SpecRoot $caseRoot `
+                -TimeoutMode set -TimeoutValue '10' -StubEnvironment @{
+                    STUB_VERDICT_PATCH = ($patch | ConvertTo-Json -Depth 5 -Compress)
+                }
+            if ($script:panelistExit -eq 1 -and -not (Test-Path (Join-Path $caseRoot "timeout-test/verification/$($runner.VerdictName)"))) {
+                Ok "runner $($runner.Name) rejects noncanonical scalar case $caseIndex"
+            } else { Fail "runner $($runner.Name) accepted noncanonical scalar case $caseIndex" }
+            $caseIndex++
+        }
     }
 
     # Capture actual native argv, rather than accepting a stub's mere exit.
