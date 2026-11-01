@@ -170,6 +170,30 @@ stateDiagram-v2
 
 `legacy` は履歴上の事実を凍結するための区分であり、新規 feature が意図的に `legacy` を選ぶことはない。
 
+### レビューゲートの試行とラウンド遷移（spec-review-loop）
+
+仕様レビューは「attempt（試行）」と「round（ラウンド）」で進みます。人間が修正して再実行するたびに次のラウンドへ進み、最大 3 ラウンドです。ラウンド 3 で Minor のみなら合格、Major / Critical が残れば BLOCKED になります。完了した試行や BLOCKED の試行からやり直すには `--reset` で次の attempt のラウンド 1 を始めます。
+
+途中で止まった場合の回復経路も別にあります。レビュアー A が実質的な読込みの前に止まり、B は未起動で、直近のラウンドが 2 または 3 のときだけ、人間の認可を受けて attempt N+1 のラウンド 1 を作れます。回復は合格を意味せず、タスクの承認も出しません。
+
+```mermaid
+stateDiagram-v2
+    [*] --> Round1: 初回実行
+    Round1 --> Passed: 指摘なし
+    Round1 --> NeedsWork: 指摘あり
+    NeedsWork --> NextRound: 人間が修正して再実行<br/>(ラウンド 2・3)
+    NextRound --> Passed: 合格<br/>(ラウンド 3 は Minor のみでも合格)
+    NextRound --> NeedsWork: 指摘あり<br/>(ラウンド 2 まで)
+    NextRound --> Blocked: ラウンド 3 に<br/>Major / Critical
+    NextRound --> Interrupted: レビュアー A が読込み前に停止<br/>(B は未起動)
+    Blocked --> NewAttempt: 人間が --reset
+    Passed --> NewAttempt: 再レビューが必要なら --reset
+    Interrupted --> NewAttempt: 人間の認可つきで回復
+    NewAttempt --> Round1: attempt N+1<br/>ラウンド 1
+```
+
+この図は `plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md` の遷移表と、[中断回復の手順](contributor/interrupted-review-recovery.md)に基づきます。回復の検証器は内容・ハッシュ・束縛を確かめるだけで、人間が実際に認可したかどうかは認証しません。impl-review-loop / task-review-loop にこの回復経路の記載はなく、図は仕様レビューに限っています。
+
 ---
 
 ## 3. 正常系フロー
