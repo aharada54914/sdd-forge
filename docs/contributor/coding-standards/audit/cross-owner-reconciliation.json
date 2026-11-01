@@ -52,6 +52,12 @@
       "source_sha256": "b3589f37484c16f6661ae6fa528dc5929e71f805fd8f31d50b635e2eb2cfcfe4",
       "state": "out-of-scope",
       "reason": "Owner finding catalogue JSON parsed; metadata supplies canonical finding imports, not runtime implementation. Individual evidence retains original source and execution limitations."
+    },
+    {
+      "path": "tests/fixtures/research-consumer-current-publication.json",
+      "source_sha256": "2df02f958e84bbeb6b6a05e2e238c309c6ba4ae17ca546f7697b038ae5297b11",
+      "state": "out-of-scope",
+      "reason": "Publication predecessor/successor fixture metadata, not executable implementation. Parsed and checked all declared live/staged SHA bindings against current bytes; 8/8 match. Any mismatch remains producer/provenance obligation and does not become source coverage. Its note preserves independent review status; code bodies retain separate contextual reviews."
     }
   ]
 }
