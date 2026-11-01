@@ -234,7 +234,7 @@ export type ListWorkflowRunsInput = z.infer<typeof listWorkflowRunsInputSchema>;
  * filters, forwarded as GitHub REST query params.
  */
 export async function listWorkflowRuns(
-  input: ListWorkflowRunsInput,
+  input: unknown,
   options: ActionsToolOptions = {},
 ): Promise<Result<WorkflowRunsData>> {
   const parsed = listWorkflowRunsInputSchema.safeParse(input);
@@ -288,7 +288,7 @@ export type GetWorkflowRunInput = z.infer<typeof getWorkflowRunInputSchema>;
  * mapped by error-normalizer.ts).
  */
 export async function getWorkflowRun(
-  input: GetWorkflowRunInput,
+  input: unknown,
   options: ActionsToolOptions = {},
 ): Promise<Result<WorkflowRunData>> {
   const parsed = getWorkflowRunInputSchema.safeParse(input);
@@ -392,7 +392,7 @@ export type ListRunJobsInput = z.infer<typeof listRunJobsInputSchema>;
  * steps are reported.
  */
 export async function listRunJobs(
-  input: ListRunJobsInput,
+  input: unknown,
   options: ActionsToolOptions = {},
 ): Promise<Result<RunJobsData>> {
   const parsed = listRunJobsInputSchema.safeParse(input);
@@ -488,7 +488,7 @@ export type ListRunArtifactsInput = z.infer<typeof listRunArtifactsInputSchema>;
  * `expired: true` artifact is ordinary data, not an error.
  */
 export async function listRunArtifacts(
-  input: ListRunArtifactsInput,
+  input: unknown,
   options: ActionsToolOptions = {},
 ): Promise<Result<RunArtifactsData>> {
   const parsed = listRunArtifactsInputSchema.safeParse(input);
@@ -598,7 +598,7 @@ export type GetJobLogInput = z.infer<typeof getJobLogInputSchema>;
  * returned (`returnedBytes`) — always `ok: true` regardless.
  */
 export async function getJobLog(
-  input: GetJobLogInput,
+  input: unknown,
   options: ActionsToolOptions = {},
 ): Promise<Result<JobLogData>> {
   const parsed = getJobLogInputSchema.safeParse(input);

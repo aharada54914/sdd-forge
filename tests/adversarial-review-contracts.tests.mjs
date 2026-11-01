@@ -3,8 +3,9 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const requireFromCiMcp = createRequire(path.join(root, "mcp/ci-mcp/package.json"));
 let Ajv;
 try {
