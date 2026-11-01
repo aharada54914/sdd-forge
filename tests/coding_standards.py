@@ -110,6 +110,9 @@ def load_tools(root):
                 or not row['reason'].strip() or row['tools'] != ['ruff']
                 or Path(row['path']).is_absolute() or '..' in Path(row['path']).parts
                 or Path(row['control']).is_absolute() or '..' in Path(row['control']).parts
+                or not (root / row['path']).resolve().is_relative_to(root.resolve())
+                or (root / row['path']).is_symlink()
+                or not (root / row['control']).resolve().is_relative_to(root.resolve())
                 or not (root / row['control']).is_file()
                 or hashlib.sha256((root / row['path']).read_bytes()).hexdigest() != row['sha256']):
             raise ValueError('invalid or stale bounded exception')
@@ -252,7 +255,9 @@ def main():
         if result.get('findings'):
             return 1
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
-        print(json.dumps({'status': 'error', 'reason': str(error), 'finding_count': None}), file=sys.stderr)
+        print(json.dumps({'schema': 'coding-standards-scan/v1', 'status': 'error',
+                          'reason': str(error), 'finding_count': None,
+                          'inspected_count': None, 'unexecuted_count': None}), file=sys.stderr)
         return 2
     return 0
 
