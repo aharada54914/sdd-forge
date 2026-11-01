@@ -147,3 +147,39 @@ separate reconciliation; excluding them from this candidate search is not an
 exception from final audit. No DB connection layer was established by this
 search. Remaining external-process and document-embedded candidates belong to
 the language/census audits, not a claim of zero unreviewed files here.
+
+### PowerShell native process adapter and discovery probes
+
+R-013 (technical infrastructure): `lib/native-arguments.ps1` now owns
+`Invoke-SddNativeRaw`, extracted from the existing `Invoke-SddGitRaw` implementation.
+The existing Git wrapper keeps its repository/argument inputs, raw stdout/stderr
+bytes, exit status, 30-second deadline and Git-prefixed error contract. Resolver,
+panelist preparation and evidence generation retain their own admission,
+provenance and optional-metadata policies. Evidence generation supplies the second
+actual executable consumer: Python's optional version probe uses a five-second
+budget and degrades to empty metadata on failure; required Git HEAD/status failure
+still aborts publication. Concurrent stream draining, process lifetime and cleanup
+are identical technical mechanisms. Argument arrays remain data, stdout/stderr
+buffers and cancellation belong to one invocation, and cleanup cancels reads,
+kills an unfinished process and waits before disposing resources. No cache,
+retry, policy switch, package dependency or public command-line option is added.
+The helper is newly extracted, so stability evidence is the preserved Git wrapper
+and executed boundary controls, not a longevity claim. Tests exercise empty,
+quoted, backslash and newline arguments, exact byte streams, nonzero status,
+a real deadline and a separately observed terminated child.
+
+R-014 (deliberately separate discovery policy): `detect-panel.sh` remains a
+standalone POSIX-shell command. Its five-second `--version` probe owns and reaps
+the direct child, with one second for TERM before KILL; it does not promise
+process-tree supervision. `detect-panel.ps1` owns a native process with the same
+liveness budget and uses tree termination where its runtime supports it. Timeout
+or a failed version probe omits the slug, preserving graceful-degrade exit 1.
+These contracts differ from the model runners' Python process-group supervisor,
+which owns a scratch status file, model deadline and descendant cleanup. Reusing
+that runner for shell discovery would silently introduce Python and scratch-state
+requirements, so discovery keeps its small direct-child mechanism. The detector
+creates no status/temp files and does not turn a version response into proof of
+authentication. Disposable real-command tests cover version success, nonzero exit,
+a TERM-resistant hanging child, elapsed time and child termination. The local
+Bash suite passed 53/53 and PowerShell suite passed 60/60; native Windows/macOS
+execution remains separately recorded by CI.

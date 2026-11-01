@@ -907,7 +907,21 @@ function Invoke-Validation {
     }
     $size = -1
     try {
-        $size = (Get-Item -LiteralPath $ContractPath -Force).Length
+        $item = Get-Item -LiteralPath $ContractPath -Force
+        if ([IO.Path]::DirectorySeparatorChar -ne '\' -and $item.LinkType) {
+            $target = $item.ResolveLinkTarget($true)
+            $item = Get-Item -LiteralPath $target.FullName -Force
+        }
+        $regular = ($item -is [IO.FileInfo]) -and -not $item.PSIsContainer -and -not ($item.Attributes -band [IO.FileAttributes]::Device)
+        if ([IO.Path]::DirectorySeparatorChar -ne '\') {
+            $unix = $item.PSObject.Properties['UnixStat']
+            $regular = $regular -and ($null -ne $unix) -and ($null -ne $unix.Value) -and ([string]$unix.Value.ItemType -ceq 'File')
+        }
+        if (-not $regular) {
+            Add-Violation 'V2-INPUT-NOT-FILE' ('input path is not a regular file: ' + (ConvertTo-SafeText $ContractPath))
+            return (Complete-Validation)
+        }
+        $size = $item.Length
     } catch {
         Add-Violation 'V2-INPUT-UNREADABLE' ("input path could not be read: " + (ConvertTo-SafeText $ContractPath))
         return (Complete-Validation)

@@ -195,8 +195,8 @@
     },
     {
       "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
-      "sha256": "b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b",
-      "review": "Read complete1017-line baseline and callers/tests: strict JSON lexical scanner, 10MiB pre-read ceiling, UTF8/BOM, v2 root/schema dispatch, exact ordinal property lookup, typed structural validation then referential integrity, six semantic indexes and single diagnostic accumulator. Preserved deliberately v1-outside-authority optional context subtree and permissive extension keys, Python JSON nonfinite/duplicate-key parser parity and known case-variant-key parser limitation. Fixed singleton root/schema admission and native timestamp-looking string coercion via capability-checked DateKind. No network/commands/writes; PS5.1 syntax retained. No claim of native PS5.1 execution; DateKind control records older host capability limitation."
+      "sha256": "3c5825b605465564a8f2f7c6a3aa4a915b2ce68853a09b68a9bc16effb85f450",
+      "review": "Read complete1017-line baseline and callers/tests: strict JSON lexical scanner, 10MiB pre-read ceiling, UTF8/BOM, v2 root/schema dispatch, exact ordinal property lookup, typed structural validation then referential integrity, six semantic indexes and single diagnostic accumulator. Preserved deliberately v1-outside-authority optional context subtree and permissive extension keys, Python JSON nonfinite/duplicate-key parser parity and known case-variant-key parser limitation. Fixed singleton root/schema admission and native timestamp-looking string coercion via capability-checked DateKind. No network/commands/writes; PS5.1 syntax retained. No claim of native PS5.1 execution; DateKind control records older host capability limitation. Follow-up: native FIFO input rejected via managed UnixStat; regular symlink follows checked target. Older Unix hosts without UnixStat are not certified; native Linux7.6.7 and existing Windows5.1-compatible syntax are distinct claims."
     }
   ],
   "rule_applicability": [

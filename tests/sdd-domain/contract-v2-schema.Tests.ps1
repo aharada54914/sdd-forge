@@ -236,7 +236,7 @@ function Invoke-CapturedProcess {
     # Deliberately NOT Start-Process: the assertions below depend on stdout
     # being empty and on stderr being exactly one line, so both streams must be
     # captured verbatim and independently.
-    param([string]$FilePath, [string[]]$ArgumentList)
+    param([string]$FilePath, [string[]]$ArgumentList, [int]$TimeoutMilliseconds = 120000)
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $FilePath
     $startInfo.Arguments = ConvertTo-SddNativeArgumentString $ArgumentList
@@ -246,19 +246,24 @@ function Invoke-CapturedProcess {
     $startInfo.CreateNoWindow = $true
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $startInfo
+    try {
     [void]$process.Start()
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
     $stderrTask = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
+    if (-not $process.WaitForExit($TimeoutMilliseconds)) {
+        $process.Kill()
+        $process.WaitForExit()
+        throw 'Domain validator exceeded the test process deadline'
+    }
     $stdout = $stdoutTask.Result
     $stderr = $stderrTask.Result
     $exitCode = $process.ExitCode
-    $process.Dispose()
     return New-Object PSObject -Property @{
         ExitCode = $exitCode
         StdOut   = $stdout
         StdErr   = $stderr
     }
+    } finally { $process.Dispose() }
 }
 
 function Invoke-ValidatorPs1 {
@@ -3011,5 +3016,34 @@ Describe "Domain v2 literal JSON string values" {
             (Invoke-ValidatorPs1 -ContractPath $fixture).ExitCode | Should Be 0
             (Invoke-ValidatorSh -ContractPath $fixture).ExitCode | Should Be 0
         } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain contract regular-file input" {
+    It "rejects a POSIX FIFO before opening it" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command mkfifo -ErrorAction SilentlyContinue)) {
+        $fixture = New-EphemeralContractFile -Content ''
+        Remove-Item -LiteralPath $fixture
+        & mkfifo $fixture
+        $LASTEXITCODE | Should Be 0
+        try {
+            $result = Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList @('-NoProfile', '-NonInteractive', '-File', $validatorPs1Path, $fixture) -TimeoutMilliseconds 5000
+            Assert-FailClosed $result 'V2-INPUT-NOT-FILE'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain contract linked regular-file compatibility" {
+    It "preserves regular-file symlink input" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command ln -ErrorAction SilentlyContinue)) {
+        $fixture = New-EphemeralContractFile -Content $rtBaseContractJson
+        $link = $fixture + '.link'
+        & ln -s $fixture $link
+        $LASTEXITCODE | Should Be 0
+        try {
+            (Invoke-ValidatorPs1 -ContractPath $link).ExitCode | Should Be 0
+            (Invoke-ValidatorSh -ContractPath $link).ExitCode | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $link
+            Remove-EphemeralPath -Path $fixture
+        }
     }
 }
