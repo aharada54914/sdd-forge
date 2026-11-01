@@ -1,0 +1,67 @@
+{
+  "schema": "coding-test-context-delta/v1",
+  "revision": "061cce4fe33f1d8025a79663bd56c2cc5b7b451f",
+  "scope": "Source-bound delta carry-forward from existing whole-source owner records; no repeat suite runs",
+  "files": [
+    {
+      "path": "tests/apply-human-copy.tests.sh",
+      "before_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+      "sha256": "fa6f81f9d789cfed66d76d182bf3f9f36596dd9023fcc29924db73570a43a0cb",
+      "review": "Reviewed added actual unreadable backup control and six permission-denied recovery/restored-recovery cases across Bash and PowerShell. Fixtures under private temporary root; chmod restored in finally; uid root path uses explicit demotion, unsupported host reports skip. Assertions inspect real exit code, live bytes and retained journal; no preselected success. Existing whole-file owner review carries unchanged source. Bash final259 passed with PowerShell available.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-023",
+        "CS-025",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/apply-human-copy.tests.ps1",
+      "before_sha256": "eca94ed5a6104659c346ddeec6cdf9de22b4d6782b183924054ed4e336f6e311",
+      "sha256": "750bdc6a02f84e5c46ad8ce22e751896a6a8cfec7278d7facd1731b7d5a768a7",
+      "review": "Reviewed added real Copy-Item then truncation wrapper, malformed target scalar shapes, invalid UTF-8 manifest target and native Windows Path.IsPathRooted guard control. Child argv uses existing process runner; actual bytes/journal preserved assertions; fixtures cleanup scoped. Windows branch not executed on Linux and explicitly conditional. Existing whole-file owner review carries unchanged source; local173 passed before Windows-only test addition; latest Windows native outcome remains CI-owned.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-023",
+        "CS-025",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/check-placeholders.tests.sh",
+      "before_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+      "sha256": "76ebc7e6f12fac308c8071d26636a82f789e992b78969ba0503bd7964e774405",
+      "review": "Reviewed literal leading-hyphen filename regression (actual TODO input) and real sort invalid-option failure wrapper. Exit1 findings versus exit2 infrastructure failures checked; wrapper invokes genuine sort error, never substitutes a fake success result. Existing scoped temporary cleanup retained; final10 passed.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-023",
+        "CS-025",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "before_sha256": "431fb96bf47d05e717e2b8f79d3fb23d20ce29efae5d97e0db05dc01411e5eaa",
+      "sha256": "a2581fa56975a90196a5bb00447bc2accf724a7515729d485e7fb3c090905431",
+      "review": "Reviewed three-line registration11b4c5e8 only relative to prior full config review: unique evidence-generation-boundary.tests.ps1 record with PowerShell runtime and existing test/test-windows-heavy jobs; added to local-powershell and ci-portable-prechecks. Existing workflow invokes exact profile on Ubuntu/macOS and native Windows gates. CLI list proves selection; catalog tests15 OK with1 explicit skip; shell owner native suite40 checks exit0. No required project Registry change.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-023",
+        "CS-025",
+        "CS-027",
+        "CS-028"
+      ]
+    }
+  ]
+}
