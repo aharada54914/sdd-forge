@@ -117,33 +117,26 @@ export interface WorkflowRunData {
 // `workflow_name` shape decision.
 // ---------------------------------------------------------------------------
 
-interface UpstreamWorkflowRun {
-  id: number;
-  name: string;
-  workflow_name?: string;
-  head_branch: string | null;
-  event: string;
-  run_number: number;
-  status: string;
-  conclusion: string | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-  head_sha?: string;
-  run_started_at?: string | null;
-}
-
-interface UpstreamWorkflowRunsResponse {
-  workflow_runs: UpstreamWorkflowRun[];
-}
+const runStatusSchema = z.enum(["queued", "in_progress", "completed", "waiting", "requested", "pending"]);
+const runConclusionSchema = z.enum(["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral", "stale", "startup_failure"]).nullable();
+// Validate consumed fields while allowing GitHub to add unrelated properties.
+const upstreamWorkflowRunSchema = z.object({
+  id: z.number().int().positive(), name: z.string(), workflow_name: z.string().optional(),
+  head_branch: z.string().nullable(), event: z.string(), run_number: z.number().int().nonnegative(),
+  status: runStatusSchema, conclusion: runConclusionSchema,
+  created_at: z.string(), updated_at: z.string(), html_url: z.string(),
+  head_sha: z.string().optional(), run_started_at: z.string().nullable().optional(),
+});
+type UpstreamWorkflowRun = z.infer<typeof upstreamWorkflowRunSchema>;
+const upstreamWorkflowRunsSchema = z.object({ workflow_runs: z.array(upstreamWorkflowRunSchema) });
 
 /** Maps a raw upstream run object onto the contract's `WorkflowRun` shape. */
 function mapUpstreamRun(raw: UpstreamWorkflowRun): WorkflowRun {
   const run: WorkflowRun = {
     id: raw.id,
     name: raw.name,
-    status: raw.status as RunStatus,
-    conclusion: raw.conclusion as RunConclusion,
+    status: raw.status,
+    conclusion: raw.conclusion,
     branch: raw.head_branch,
     event: raw.event,
     runNumber: raw.run_number,
@@ -253,7 +246,7 @@ export async function listWorkflowRuns(
   const { owner, repo, branch, status, event, perPage } = parsed.data;
 
   return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
-    const outcome = await githubGet<UpstreamWorkflowRunsResponse>(
+    const outcome = await githubGet(
       {
         pathSegments: ["repos", resolvedRepo.owner, resolvedRepo.repo, "actions", "runs"],
         searchParams: { branch, status, event, per_page: perPage },
@@ -264,9 +257,11 @@ export async function listWorkflowRuns(
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamWorkflowRunsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok<WorkflowRunsData>({
       kind: "workflow-runs",
-      runs: outcome.data.workflow_runs.map(mapUpstreamRun),
+      runs: body.data.workflow_runs.map(mapUpstreamRun),
     });
   });
 }
@@ -305,7 +300,7 @@ export async function getWorkflowRun(
   const { owner, repo, runId } = parsed.data;
 
   return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
-    const outcome = await githubGet<UpstreamWorkflowRun>(
+    const outcome = await githubGet(
       {
         pathSegments: ["repos", resolvedRepo.owner, resolvedRepo.repo, "actions", "runs", String(runId)],
         token,
@@ -315,7 +310,9 @@ export async function getWorkflowRun(
     if (!outcome.ok) {
       return outcome;
     }
-    return ok<WorkflowRunData>({ kind: "workflow-run", run: mapUpstreamRun(outcome.data) });
+    const body = upstreamWorkflowRunSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
+    return ok<WorkflowRunData>({ kind: "workflow-run", run: mapUpstreamRun(body.data) });
   });
 }
 
@@ -340,24 +337,15 @@ export interface RunJobsData {
   jobs: Job[];
 }
 
-interface UpstreamJobStep {
-  number: number;
-  conclusion: string | null;
-}
-
-interface UpstreamJob {
-  id: number;
-  name: string;
-  status: string;
-  conclusion: string | null;
-  started_at?: string | null;
-  completed_at?: string | null;
-  steps?: UpstreamJobStep[];
-}
-
-interface UpstreamRunJobsResponse {
-  jobs: UpstreamJob[];
-}
+const upstreamJobStepSchema = z.object({ number: z.number().int().nonnegative(), conclusion: runConclusionSchema });
+const upstreamJobSchema = z.object({
+  id: z.number().int().positive(), name: z.string(), status: runStatusSchema, conclusion: runConclusionSchema,
+  started_at: z.string().nullable().optional(), completed_at: z.string().nullable().optional(),
+  steps: z.array(upstreamJobStepSchema).optional(),
+});
+type UpstreamJobStep = z.infer<typeof upstreamJobStepSchema>;
+type UpstreamJob = z.infer<typeof upstreamJobSchema>;
+const upstreamRunJobsSchema = z.object({ jobs: z.array(upstreamJobSchema) });
 
 /** Derives the first failed step's number from a job's steps, or `null` when none failed. */
 function deriveFailedStep(steps: UpstreamJobStep[] | undefined): number | null {
@@ -373,8 +361,8 @@ function mapUpstreamJob(raw: UpstreamJob): Job {
   const job: Job = {
     id: raw.id,
     name: raw.name,
-    status: raw.status as RunStatus,
-    conclusion: raw.conclusion as RunConclusion,
+    status: raw.status,
+    conclusion: raw.conclusion,
     failedStep: deriveFailedStep(raw.steps),
   };
   if (raw.started_at !== undefined) {
@@ -416,7 +404,7 @@ export async function listRunJobs(
   const { owner, repo, runId } = parsed.data;
 
   return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
-    const outcome = await githubGet<UpstreamRunJobsResponse>(
+    const outcome = await githubGet(
       {
         pathSegments: ["repos", resolvedRepo.owner, resolvedRepo.repo, "actions", "runs", String(runId), "jobs"],
         token,
@@ -426,9 +414,11 @@ export async function listRunJobs(
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamRunJobsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok<RunJobsData>({
       kind: "run-jobs",
-      jobs: outcome.data.jobs.map(mapUpstreamJob),
+      jobs: body.data.jobs.map(mapUpstreamJob),
     });
   });
 }
@@ -453,18 +443,12 @@ export interface RunArtifactsData {
   artifacts: Artifact[];
 }
 
-interface UpstreamArtifact {
-  id: number;
-  name: string;
-  size_in_bytes: number;
-  expired: boolean;
-  expires_at?: string | null;
-  created_at?: string | null;
-}
-
-interface UpstreamRunArtifactsResponse {
-  artifacts: UpstreamArtifact[];
-}
+const upstreamArtifactSchema = z.object({
+  id: z.number().int().positive(), name: z.string(), size_in_bytes: z.number().int().nonnegative(), expired: z.boolean(),
+  expires_at: z.string().nullable().optional(), created_at: z.string().nullable().optional(),
+});
+type UpstreamArtifact = z.infer<typeof upstreamArtifactSchema>;
+const upstreamRunArtifactsSchema = z.object({ artifacts: z.array(upstreamArtifactSchema) });
 
 /**
  * Maps a raw upstream artifact object onto the contract's `Artifact` shape.
@@ -516,7 +500,7 @@ export async function listRunArtifacts(
   const { owner, repo, runId } = parsed.data;
 
   return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
-    const outcome = await githubGet<UpstreamRunArtifactsResponse>(
+    const outcome = await githubGet(
       {
         pathSegments: [
           "repos",
@@ -534,9 +518,11 @@ export async function listRunArtifacts(
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamRunArtifactsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok<RunArtifactsData>({
       kind: "run-artifacts",
-      artifacts: outcome.data.artifacts.map(mapUpstreamArtifact),
+      artifacts: body.data.artifacts.map(mapUpstreamArtifact),
     });
   });
 }

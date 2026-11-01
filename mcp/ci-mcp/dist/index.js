@@ -36751,14 +36751,16 @@ function rateLimitResetAt(response) {
   if (resetHeader !== null) {
     const resetEpochSeconds = Number(resetHeader);
     if (Number.isFinite(resetEpochSeconds) && resetEpochSeconds > 0) {
-      return new Date(resetEpochSeconds * 1e3).toISOString();
+      const resetAt = new Date(resetEpochSeconds * 1e3);
+      if (Number.isFinite(resetAt.getTime())) return resetAt.toISOString();
     }
   }
   const retryAfterHeader = response.getHeader("retry-after");
   if (retryAfterHeader !== null) {
     const retryAfterSeconds = Number(retryAfterHeader);
     if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
-      return new Date(Date.now() + retryAfterSeconds * 1e3).toISOString();
+      const resetAt = new Date(Date.now() + retryAfterSeconds * 1e3);
+      if (Number.isFinite(resetAt.getTime())) return resetAt.toISOString();
     }
   }
   return void 0;
@@ -36814,6 +36816,7 @@ function buildGithubUrl(pathSegments, searchParams) {
   }
   return url2.toString();
 }
+var REQUEST_TIMEOUT_MS = 3e4;
 var defaultFetch = (url2, init) => fetch(url2, init);
 async function githubGet(request, fetchImpl = defaultFetch) {
   const url2 = buildGithubUrl(request.pathSegments, request.searchParams);
@@ -36823,7 +36826,9 @@ async function githubGet(request, fetchImpl = defaultFetch) {
   }
   let response;
   try {
-    response = await fetchImpl(url2, { method: "GET", headers });
+    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = request.signal === void 0 ? deadline : AbortSignal.any([request.signal, deadline]);
+    response = await fetchImpl(url2, { method: "GET", headers, signal });
   } catch (error62) {
     return normalizeNetworkError(error62);
   }
@@ -36903,7 +36908,9 @@ async function githubGetText(request, fetchImpl = defaultTextFetch) {
   }
   let response;
   try {
-    response = await fetchImpl(url2, { method: "GET", headers });
+    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = request.signal === void 0 ? deadline : AbortSignal.any([request.signal, deadline]);
+    response = await fetchImpl(url2, { method: "GET", headers, signal });
   } catch (error62) {
     return normalizeNetworkError(error62);
   }
@@ -36931,6 +36938,24 @@ async function githubGetText(request, fetchImpl = defaultTextFetch) {
 }
 
 // src/tools/actions.ts
+var runStatusSchema = external_exports.enum(["queued", "in_progress", "completed", "waiting", "requested", "pending"]);
+var runConclusionSchema = external_exports.enum(["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral", "stale", "startup_failure"]).nullable();
+var upstreamWorkflowRunSchema = external_exports.object({
+  id: external_exports.number().int().positive(),
+  name: external_exports.string(),
+  workflow_name: external_exports.string().optional(),
+  head_branch: external_exports.string().nullable(),
+  event: external_exports.string(),
+  run_number: external_exports.number().int().nonnegative(),
+  status: runStatusSchema,
+  conclusion: runConclusionSchema,
+  created_at: external_exports.string(),
+  updated_at: external_exports.string(),
+  html_url: external_exports.string(),
+  head_sha: external_exports.string().optional(),
+  run_started_at: external_exports.string().nullable().optional()
+});
+var upstreamWorkflowRunsSchema = external_exports.object({ workflow_runs: external_exports.array(upstreamWorkflowRunSchema) });
 function mapUpstreamRun(raw) {
   const run = {
     id: raw.id,
@@ -37011,9 +37036,11 @@ async function listWorkflowRuns(input2, options = {}) {
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamWorkflowRunsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok({
       kind: "workflow-runs",
-      runs: outcome.data.workflow_runs.map(mapUpstreamRun)
+      runs: body.data.workflow_runs.map(mapUpstreamRun)
     });
   });
 }
@@ -37042,9 +37069,22 @@ async function getWorkflowRun(input2, options = {}) {
     if (!outcome.ok) {
       return outcome;
     }
-    return ok({ kind: "workflow-run", run: mapUpstreamRun(outcome.data) });
+    const body = upstreamWorkflowRunSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
+    return ok({ kind: "workflow-run", run: mapUpstreamRun(body.data) });
   });
 }
+var upstreamJobStepSchema = external_exports.object({ number: external_exports.number().int().nonnegative(), conclusion: runConclusionSchema });
+var upstreamJobSchema = external_exports.object({
+  id: external_exports.number().int().positive(),
+  name: external_exports.string(),
+  status: runStatusSchema,
+  conclusion: runConclusionSchema,
+  started_at: external_exports.string().nullable().optional(),
+  completed_at: external_exports.string().nullable().optional(),
+  steps: external_exports.array(upstreamJobStepSchema).optional()
+});
+var upstreamRunJobsSchema = external_exports.object({ jobs: external_exports.array(upstreamJobSchema) });
 function deriveFailedStep(steps) {
   if (steps === void 0) {
     return null;
@@ -37093,12 +37133,23 @@ async function listRunJobs(input2, options = {}) {
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamRunJobsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok({
       kind: "run-jobs",
-      jobs: outcome.data.jobs.map(mapUpstreamJob)
+      jobs: body.data.jobs.map(mapUpstreamJob)
     });
   });
 }
+var upstreamArtifactSchema = external_exports.object({
+  id: external_exports.number().int().positive(),
+  name: external_exports.string(),
+  size_in_bytes: external_exports.number().int().nonnegative(),
+  expired: external_exports.boolean(),
+  expires_at: external_exports.string().nullable().optional(),
+  created_at: external_exports.string().nullable().optional()
+});
+var upstreamRunArtifactsSchema = external_exports.object({ artifacts: external_exports.array(upstreamArtifactSchema) });
 function mapUpstreamArtifact(raw) {
   const artifact = {
     id: raw.id,
@@ -37147,9 +37198,11 @@ async function listRunArtifacts(input2, options = {}) {
     if (!outcome.ok) {
       return outcome;
     }
+    const body = upstreamRunArtifactsSchema.safeParse(outcome.data);
+    if (!body.success) return err("upstream-error", "Invalid GitHub API response body.");
     return ok({
       kind: "run-artifacts",
-      artifacts: outcome.data.artifacts.map(mapUpstreamArtifact)
+      artifacts: body.data.artifacts.map(mapUpstreamArtifact)
     });
   });
 }

@@ -61,7 +61,7 @@ export interface GithubHttpResponse {
 /** Fetch-shaped function github-client calls. Only ever invoked with `method: "GET"`. */
 export type GithubFetch = (
   url: string,
-  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
+  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>>; readonly signal: AbortSignal },
 ) => Promise<GithubHttpResponse>;
 
 export interface GithubGetRequest {
@@ -72,6 +72,8 @@ export interface GithubGetRequest {
    * host, scheme, or unescaped path separator.
    */
   pathSegments: readonly string[];
+  /** Optional caller cancellation; the transport also enforces its own deadline. */
+  signal?: AbortSignal;
   /** Optional query-string parameters. `undefined` values are omitted. */
   searchParams?: Readonly<Record<string, string | number | boolean | undefined>>;
   /** Read-only GitHub token. When provided, sent as `Authorization: Bearer <token>` only — never logged or echoed. */
@@ -97,6 +99,8 @@ function buildGithubUrl(
   return url.toString();
 }
 
+const REQUEST_TIMEOUT_MS = 30_000;
+
 const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
 
 /**
@@ -106,10 +110,10 @@ const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
  * discarded on every error path — it is never attached to the returned
  * envelope.
  */
-export async function githubGet<T>(
+export async function githubGet(
   request: GithubGetRequest,
   fetchImpl: GithubFetch = defaultFetch,
-): Promise<GithubGetOutcome<T>> {
+): Promise<GithubGetOutcome<unknown>> {
   const url = buildGithubUrl(request.pathSegments, request.searchParams);
   const headers: Record<string, string> = { accept: "application/vnd.github+json" };
   if (request.token !== undefined && request.token.length > 0) {
@@ -118,7 +122,9 @@ export async function githubGet<T>(
 
   let response: GithubHttpResponse;
   try {
-    response = await fetchImpl(url, { method: "GET", headers });
+    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = request.signal === undefined ? deadline : AbortSignal.any([request.signal, deadline]);
+    response = await fetchImpl(url, { method: "GET", headers, signal });
   } catch (error) {
     return normalizeNetworkError(error);
   }
@@ -132,7 +138,7 @@ export async function githubGet<T>(
   }
 
   try {
-    const data = (await response.json()) as T;
+    const data: unknown = await response.json();
     return { ok: true, data };
   } catch {
     return err("upstream-error", "Failed to parse the GitHub API response body.");
@@ -279,7 +285,7 @@ export async function readBoundedTail(
 /** Fetch-shaped function `githubGetText` calls. Only ever invoked with `method: "GET"`. */
 export type GithubTextFetch = (
   url: string,
-  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
+  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>>; readonly signal: AbortSignal },
 ) => Promise<GithubTextHttpResponse>;
 
 export type GithubGetTextOutcome =
@@ -327,7 +333,9 @@ export async function githubGetText(
 
   let response: GithubTextHttpResponse;
   try {
-    response = await fetchImpl(url, { method: "GET", headers });
+    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = request.signal === undefined ? deadline : AbortSignal.any([request.signal, deadline]);
+    response = await fetchImpl(url, { method: "GET", headers, signal });
   } catch (error) {
     return normalizeNetworkError(error);
   }
