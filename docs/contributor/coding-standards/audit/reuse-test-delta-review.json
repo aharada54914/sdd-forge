@@ -38,9 +38,10 @@
   ],
   "documentation_delta": {
     "path": "docs/contributor/coding-standards/reuse/decisions.md",
-    "source_sha256": "2a0501b133995f51dfb2df1e0089e8db7ab5750cb0841615b7bae75236fde85f",
+    "source_sha256": "e1ca4ffbc0911908793de43ba4221a50c3bbd2748a83fec907ca8d754024de63",
     "state": "reviewed",
-    "review_scope": "changed_hunks",
-    "review": "Status prose distinguishes completed source-bound owner and heldout helper controls from pending final native CI. No new behavior, whole-population completion, live GitHub transport, every-tool stdio, or native WinPS5.1 certification is asserted. R006/R008 retain pending final-integration receipts until their owner provides evidence."
+    "review_scope": "whole_file",
+    "review": "Final complete decisions.md read, including R001\u2013R016, historical source/history claims, existing mechanisms, divergence counterexamples, generator CLI, lower-level API contracts, current owner receipts and explicit scope limits. This is an explanatory reuse decision index, with no dispatched code or new authority. Updated obsolete registration and freshness failure status against actual catalog and ROOT-004 receipt. Completed source-bound controls remain distinct from pending final native CI, live remote transport, every-tool stdio and native WinPS5.1 guarantees. R006/R008 final-integration receipts remain pending owner evidence. This whole-document review does not extend implementation coverage beyond linked source-bound owner artifacts.",
+    "before_sha256": "1f99a83a13f600c021d66cb713c4ec16ae518d016e585bf75db7c20aa41eda37"
   }
 }
