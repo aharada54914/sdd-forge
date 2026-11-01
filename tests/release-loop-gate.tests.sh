@@ -309,6 +309,16 @@ for line in lines[run:]:
     body.append(line[10:])
 script = '\n'.join(body)
 assert '${{' not in script, 'Actions values must enter through env'
+# A leading hyphen remains a tag value at the gh argument boundary.
+upload_start = lines.index('      - name: Upload release assets')
+upload_run = lines.index('        run: |', upload_start) + 1
+upload_body = '\n'.join(line[10:] for line in lines[upload_run:])
+result = subprocess.run(['bash', '-c', 'gh() { printf \'%s\\0\' "$@"; };\n' + upload_body],
+    env=dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz'),
+    capture_output=True, timeout=10)
+assert result.returncode == 0, result.stderr
+assert result.stdout.split(b'\0')[:5] == [b'release', b'upload', b'--clobber', b'--', b'--help']
+
 with tempfile.TemporaryDirectory() as temporary:
     root = Path(temporary)
     output = root / 'output'

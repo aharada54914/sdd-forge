@@ -489,6 +489,7 @@ invoke_installer_scenario() {
 }
 
 invoke_remote_installer_scenario() {
+    local archive_ref="${1:-main}" expected_ref="${2:-main}"
     local test_root
     test_root="$(mktemp -d)"
     local install_root="${test_root}/installed"
@@ -509,6 +510,7 @@ invoke_remote_installer_scenario() {
     out="$(run_installer \
         --install-root "$install_root" \
         --target All \
+        --ref "$archive_ref" \
         2>&1)" || installer_failed=1
 
     export PATH="$original_path"
@@ -538,7 +540,7 @@ invoke_remote_installer_scenario() {
         fail "authenticated remote install did not use curl"
         remote_ok=0
     fi
-    if ! grep -qF "https://api.github.com/repos/aharada54914/sdd-forge/tarball/main" "$command_log"; then
+    if ! grep -qF "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$expected_ref" "$command_log"; then
         fail "authenticated remote install did not use the GitHub API archive URL"
         remote_ok=0
     fi
@@ -819,6 +821,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Ref bytes must stay one route value (slash, fragment delimiter, UTF-8).
+if invoke_remote_installer_scenario 'feature/日本語#topic' 'feature%2F%E6%97%A5%E6%9C%AC%E8%AA%9E%23topic'; then
+    ok "authenticated remote install encodes ref as a URL path value"
+else
+    fail "authenticated remote install encodes ref as a URL path value"
+fi
+
 # Scenario (k2): a local source distributes tracked files only
 # ---------------------------------------------------------------------------
 _k2_root="$(mktemp -d)"
