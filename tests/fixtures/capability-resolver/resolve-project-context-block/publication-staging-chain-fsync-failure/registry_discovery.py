@@ -15,7 +15,6 @@ mutant P dies. The overlay mechanism (real module re-exported as
 `registry_discovery_real`) is unchanged from its siblings.
 """
 import os
-import sys
 
 import registry_discovery_real as _real
 

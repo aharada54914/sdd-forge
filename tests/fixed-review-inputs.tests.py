@@ -89,7 +89,7 @@ class SnapshotTests(unittest.TestCase):
             value['hmac'] = hmac.new(key, auth._canonicalize_json_preimage(value),
                                      hashlib.sha256).hexdigest()
             return value
-        def verify(value, registry={'fixture-human'}):
+        def verify(value, registry=frozenset({'fixture-human'})):
             return self.module.verify_approval(value, inventory, feature='demo',
                 stage='impl', task_id='T-001', key=key, registry_ids=registry)
         sign(document)

@@ -55,7 +55,7 @@ def check(manifest, expected, repository, scratch=None, reserve=False,
         command.extend(["--fixed-input-record", str(fixed_input_record),
                         "--fixed-input-snapshot", str(fixed_input_snapshot)])
     result = subprocess.run(command,
-                            capture_output=True, text=True, timeout=120)
+                            capture_output=True, text=True, timeout=120, encoding="utf-8")
     if result.returncode != 0:
         # Only the validator's bounded category is exposed, never its raw log.
         category = re.search(r"\bREVIEW_CONTEXT_([A-Z_]+):", result.stderr + result.stdout)
@@ -78,7 +78,7 @@ def check(manifest, expected, repository, scratch=None, reserve=False,
         if manifest.read_bytes() != raw:
             raise DeliveryError("manifest-changed")
         result = subprocess.run(command + ["--reserve"],
-                                capture_output=True, text=True, timeout=120)
+                                capture_output=True, text=True, timeout=120, encoding="utf-8")
         if result.returncode != 0:
             raise DeliveryError("reservation-rejected")
         print(result.stdout, end="")

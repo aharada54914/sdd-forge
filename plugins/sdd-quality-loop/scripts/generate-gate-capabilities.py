@@ -58,6 +58,8 @@ def build_projection(data: dict[str, Any], digest: str) -> dict[str, Any]:
     all_gates = data.get("gates", [])
     if not isinstance(all_gates, list):
         raise ValueError("Registry 'gates' must be an array")
+    if any(not isinstance(gate, dict) or not isinstance(gate.get("id"), str) for gate in all_gates):
+        raise ValueError("Registry gates must be objects with string IDs")
     impl_gates = sorted(
         (g for g in all_gates if isinstance(g, dict) and g.get("stage") == "implementation"),
         key=lambda g: str(g.get("id", "")),
@@ -67,6 +69,8 @@ def build_projection(data: dict[str, Any], digest: str) -> dict[str, Any]:
     capabilities = data.get("capabilities", [])
     if not isinstance(capabilities, list):
         raise ValueError("Registry 'capabilities' must be an array")
+    if any(not isinstance(cap, dict) or not isinstance(cap.get("id"), str) for cap in capabilities):
+        raise ValueError("Registry capabilities must be objects with string IDs")
     capability_gate_map: dict[str, list[str]] = {}
     for cap in sorted(
         (c for c in capabilities if isinstance(c, dict) and c.get("id")),
@@ -74,8 +78,8 @@ def build_projection(data: dict[str, Any], digest: str) -> dict[str, Any]:
     ):
         cap_id = cap["id"]
         gate_ids = cap.get("gate_ids", [])
-        if not isinstance(gate_ids, list):
-            gate_ids = []
+        if not isinstance(gate_ids, list) or any(not isinstance(gid, str) for gid in gate_ids):
+            raise ValueError("Registry capability gate_ids must be an array of strings")
         capability_gate_map[cap_id] = sorted(gid for gid in gate_ids if gid in impl_gate_ids)
 
     return {

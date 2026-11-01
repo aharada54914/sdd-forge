@@ -40,7 +40,7 @@ if ($obj.state -eq "not-applicable (disabled-legacy)" -and $obj.manifest_status 
 } else {
     Fail "TEST-026.1: expected disabled-legacy/not-consulted, got state=$($obj.state) manifest_status=$($obj.manifest_status)"
 }
-if ($obj.fail_conditions.Count -eq 0 -and $obj.schema -eq "check-component-coverage-verdict/v1") {
+if ($obj.fail_conditions.Count -eq 0 -and $obj.schema -ceq "check-component-coverage-verdict/v1") {
     Ok "TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record"
 } else {
     Fail "TEST-027.1: expected fail_conditions empty and correct schema"
@@ -66,7 +66,7 @@ if ($r.ExitCode -eq 2) { Ok "TEST-028.2: -FacetManifest omitted entirely is also
 Write-Output "=== TEST-029: -Diagnose never Gate-invoked ==="
 $r = Invoke-Diagnose (Join-Path $fixtures "config-advisory.yaml") (Join-Path $fixtures "changed-paths-fail1.txt")
 $obj = $r.Output | ConvertFrom-Json
-if ($obj.schema -eq "resolve-component-paths-diagnose/v1") {
+if ($obj.schema -ceq "resolve-component-paths-diagnose/v1") {
     Ok "TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema"
 } else {
     Fail "TEST-029.1: expected resolve-component-paths-diagnose/v1, got $($obj.schema)"
@@ -186,7 +186,7 @@ $realSha = (Get-FileHash -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-
 function Test-Producer {
     param([string]$Label, [string]$Output)
     $obj = $Output | ConvertFrom-Json
-    if ($obj.schema -eq "check-component-coverage-verdict/v1" -and $obj.check_id -eq "check-component-coverage" -and $obj.producer.sha256 -eq $realSha) {
+    if ($obj.schema -ceq "check-component-coverage-verdict/v1" -and $obj.check_id -ceq "check-component-coverage" -and $obj.producer.sha256 -eq $realSha) {
         Ok "TEST-054 ($Label): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script"
     } else {
         Fail "TEST-054 ($Label): schema=$($obj.schema) check_id=$($obj.check_id) sha=$($obj.producer.sha256) real=$realSha"
@@ -558,6 +558,32 @@ if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/check-component-coverag
 } else {
     Fail "check-component-coverage missing from run-all.sh/.ps1 registration"
 }
+
+$boundaryRoot = Join-Path ([IO.Path]::GetTempPath()) ('component-boundaries-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $boundaryRoot | Out-Null
+try {
+    $boundaryManifest = Join-Path $boundaryRoot 'manifest.json'
+    foreach ($payload in @('{"affected_components":"desktop"}', '{"affected_components":[12]}', '{"affected_components":[null]}', '[{"affected_components":["desktop"]}]')) {
+        [IO.File]::WriteAllText($boundaryManifest, $payload)
+        $r = Invoke-Gate (Join-Path $fixtures 'config-required.yaml') $boundaryManifest (Join-Path $fixtures 'changed-paths-clean.txt') $null
+        if ($r.ExitCode -eq 2) { Ok "malformed affected-components remains hard error: $payload" }
+        else { Fail "malformed affected-components admitted: exit=$($r.ExitCode) $payload $($r.Output)" }
+    }
+    $boundaryConfig = Join-Path $boundaryRoot 'config.yaml'
+    [IO.File]::WriteAllText($boundaryConfig, "workflow:`n  capability_enforcement:`n    - required`ncomponents: []`n")
+    $r = Invoke-Gate $boundaryConfig $null (Join-Path $fixtures 'changed-paths-clean.txt') $null
+    if ($r.ExitCode -eq 0 -and ($r.Output | ConvertFrom-Json).state -ceq 'not-applicable (disabled-legacy)') { Ok 'non-string enforcement preserves invalid-value legacy policy' }
+    else { Fail "non-string enforcement was coerced: $($r.Output)" }
+    [IO.File]::WriteAllText($boundaryConfig, "workflow:`n  capability_enforcement: required`ncomponents:`n  - id: A`n    paths:`n      include:`n        - 'upper/**'`n  - id: a`n    paths:`n      include:`n        - 'lower/**'`n")
+    $boundaryPaths = Join-Path $boundaryRoot 'paths.txt'
+    [IO.File]::WriteAllText($boundaryPaths, "upper/file`nlower/file`n")
+    [IO.File]::WriteAllText($boundaryManifest, '{"affected_components":["A","a"]}')
+    $boundaryBindings = Join-Path $boundaryRoot 'bindings.json'
+    [IO.File]::WriteAllText($boundaryBindings, '{"bindings":[{"adapter_paths":["lower/**"],"provider_binding_ids":["A"]}]}')
+    $r = Invoke-Gate $boundaryConfig $boundaryManifest $boundaryPaths $boundaryBindings
+    if ($r.ExitCode -eq 0 -and -not (($r.Output | ConvertFrom-Json).fail_conditions | Where-Object { $_.id -ceq 'Fail-6' }).triggered) { Ok 'coverage provider join preserves A/a identity' }
+    else { Fail "coverage provider join conflates case: $($r.Output)" }
+} finally { Remove-Item -LiteralPath $boundaryRoot -Recurse -Force }
 
 # ============================================================================
 # Summary

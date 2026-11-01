@@ -626,5 +626,65 @@ else
   fail 'metadata serialization or failed-write regression'
 fi
 
+if python3 - "$SCRIPT" <<'PY_METRIC_IO'
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+script = sys.argv[1]
+missing = subprocess.run(['sh', script, 'demo', '--track'], capture_output=True, text=True, timeout=5)
+assert missing.returncode != 0 and 'missing option value' in missing.stderr, missing
+if os.name == 'nt':
+    print('SKIP: POSIX metric-source permissions unavailable on Windows')
+    sys.exit(0)
+with tempfile.TemporaryDirectory(prefix='metric IO ') as tmp:
+    root = Path(tmp)
+    root.chmod(0o777)
+    tasks = root / 'specs/demo/tasks.md'
+    gate = root / 'reports/quality-gate/report with spaces.md'
+    ticket = root / 'docs/review-tickets/ticket with spaces.md'
+    runs = root / 'reports/runs'
+    for target, text in ((tasks, '## T-001\nStatus: Done\n'),
+                         (gate, 'Feature: demo\nTask: T-001\nVERDICT: PASS\n'),
+                         (ticket, 'feature: demo\nseverity: critical\n')):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding='utf-8')
+    runs.mkdir()
+    runs.chmod(0o777)
+    def unprivileged():
+        if os.getuid() == 0:
+            os.setgroups([])
+            os.setgid(1000)
+            os.setuid(1000)
+    def run():
+        return subprocess.run(['sh', script, 'demo'], cwd=root, preexec_fn=unprivileged,
+                              capture_output=True, text=True, timeout=15)
+    result = run()
+    assert result.returncode == 0, result
+    output = next(runs.glob('*.json'))
+    record = json.loads(output.read_text(encoding='utf-8'))
+    assert record['metrics']['tasks']['done'] == 1
+    assert record['metrics']['gate_reports']['total'] == 1
+    assert record['metrics']['review_tickets']['critical'] == 1
+    output.unlink()
+    for unreadable in (tasks, gate.parent, ticket):
+        mode = unreadable.stat().st_mode & 0o777
+        unreadable.chmod(0)
+        try:
+            result = run()
+            assert result.returncode != 0 and 'wrote' not in result.stdout and not list(runs.glob('*.json')), result
+        finally:
+            unreadable.chmod(mode)
+print('PASS: complete metrics with spaced paths; real unreadable task/report tree/ticket fail closed')
+PY_METRIC_IO
+then
+  ok 'metric-source I/O failures do not become zero counts'
+else
+  fail 'metric-source I/O regression'
+fi
+
 printf '\nemit-run-record-feature-scope.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 [ "$FAIL_COUNT" -eq 0 ]

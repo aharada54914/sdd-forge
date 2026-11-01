@@ -48,12 +48,13 @@ MARKS = (
 def _clock_domain():
     try:
         if sys.platform == "linux":
-            boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+            boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text(encoding="utf-8").strip()))
             return "linux-boot:" + boot
         elif sys.platform == "darwin":
             result = subprocess.run(
                 ["sysctl", "-n", "kern.boottime"], capture_output=True,
                 text=True, check=True, timeout=2,
+                encoding="utf-8",
             )
             match = re.search(r"\bsec\s*=\s*(\d+).*\busec\s*=\s*(\d+)", result.stdout)
             if not match or not platform.node():

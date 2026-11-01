@@ -1,0 +1,56 @@
+ok: parity [bare-approved]: full and lite agree (exit 0)
+ok: parity-ps1 [bare-approved]: both ps1 twins agree (exit 0)
+ok: parity [draft]: full and lite agree (exit 1)
+ok: parity-ps1 [draft]: both ps1 twins agree (exit 1)
+ok: parity [strict-annotated]: full and lite agree (exit 0)
+ok: parity-ps1 [strict-annotated]: both ps1 twins agree (exit 0)
+ok: parity [minutes-precision]: full and lite agree (exit 1)
+ok: parity-ps1 [minutes-precision]: both ps1 twins agree (exit 1)
+ok: parity [fractional-seconds]: full and lite agree (exit 1)
+ok: parity-ps1 [fractional-seconds]: both ps1 twins agree (exit 1)
+ok: parity [empty-annotation]: full and lite agree (exit 1)
+ok: parity-ps1 [empty-annotation]: both ps1 twins agree (exit 1)
+ok: parity [free-text]: full and lite agree (exit 1)
+ok: parity-ps1 [free-text]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-annotated]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-annotated]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-lower]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-lower]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-upper]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-upper]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-bare-mixed]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-bare-mixed]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-status-planned]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-status-planned]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-status-inprogress]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-status-inprogress]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-approval]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-approval]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-status]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-status]: both ps1 twins agree (exit 1)
+ok: parity [mis-cased-key-both-upper]: full and lite agree (exit 1)
+ok: parity-ps1 [mis-cased-key-both-upper]: both ps1 twins agree (exit 1)
+ok: extraction [strict]: validity and approver extraction agree
+ok: extraction [minutes-precision]: validity and approver extraction agree
+ok: extraction [fractional-seconds]: validity and approver extraction agree
+ok: extraction [free-text]: validity and approver extraction agree
+ok: verdict-case [canonical]: lite sh exit 0
+ok: verdict-case-ps1 [canonical]: lite ps1 exit 0
+ok: verdict-case [verdict-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-lower]: lite ps1 exit 1
+ok: verdict-case [verdict-value-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-value-lower]: lite ps1 exit 1
+ok: verdict-case [verdict-key-lower]: lite sh exit 1
+ok: verdict-case-ps1 [verdict-key-lower]: lite ps1 exit 1
+ok: verdict-case [task-id-lower]: lite sh exit 1
+ok: verdict-case-ps1 [task-id-lower]: lite ps1 exit 1
+ok: Full/Lite task-state subprocesses preserve path data and reject absent evidence
+ok: check-task-state.ps1 ignores wildcard sibling report roots
+ok: check-task-state-lite.ps1 ignores wildcard sibling report roots
+FAIL: check-task-state.ps1 rejected valid literal report: 1 Task state check FAILED:
+ - T-001 is Implementation Complete but no implementation report in /tmp/tmp.Jc70BHyUXW/impl[x] mentions it
+FAIL: check-task-state-lite.ps1 rejected valid literal report: 1 Task state (lite) check FAILED:
+ - T-001 is 'Implementation Complete' but no implementation report in /tmp/tmp.Jc70BHyUXW/impl[x] mentions it
+ok: Lite Done cannot borrow PASS from wildcard sibling root
+
+task-state-grammar-parity.tests.sh: 50 passed, 2 failed

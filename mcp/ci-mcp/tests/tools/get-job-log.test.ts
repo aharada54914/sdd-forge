@@ -228,7 +228,7 @@ test("AC-004: a log exactly at the 256 KiB cap is not truncated", async () => {
 test("jobId is required: missing jobId is rejected with invalid-input", async () => {
   const { fetchImpl, calls } = fakeTextFetch("");
 
-  const result = await getJobLog({ owner: "acme", repo: "widgets" } as never, {
+  const result = await getJobLog({ owner: "acme", repo: "widgets" }, {
     env: TOKEN_ENV,
     textFetchImpl: fetchImpl,
   });

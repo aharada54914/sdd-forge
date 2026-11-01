@@ -30,14 +30,27 @@ function Invoke-Prepare {
     param([string[]]$ArgList)
     $script:PP_Exit   = 0
     $script:PP_Output = ""
-    try {
-        $out = & $PowerShellHost -NoLogo -NoProfile -File (Join-Path $ScriptsDir "prepare-panelist-input.ps1") @ArgList 2>&1
-        $script:PP_Exit   = $LASTEXITCODE
-        $script:PP_Output = ($out -join "`n")
-    } catch {
-        $script:PP_Exit   = 99
-        $script:PP_Output = $_.ToString()
+    $start = [Diagnostics.ProcessStartInfo]::new()
+    $start.FileName = $PowerShellHost
+    $start.UseShellExecute = $false
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    foreach ($atom in @('-NoLogo', '-NoProfile', '-File', (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) + $ArgList) {
+        [void]$start.ArgumentList.Add($atom)
     }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $start
+    try {
+        [void]$process.Start()
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $process.WaitForExit()
+        $script:PP_Exit = $process.ExitCode
+        $script:PP_Output = $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult()
+    } catch {
+        $script:PP_Exit = 99
+        $script:PP_Output = $_.ToString()
+    } finally { $process.Dispose() }
 }
 
 function Write-TasksWithConsent {
@@ -1652,7 +1665,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
     ok "TEST-049d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-049d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -1945,7 +1958,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
 }
-if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
     ok "TEST-055d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-055d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -2971,6 +2984,68 @@ if ($bundleText077.Contains("MARKER_077")) {
     ok "TEST-077b: the row's content made it into the bundle despite the path-cell annotation"
 } else {
     fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: $($script:PP_Output)"
+}
+
+# Literal input/output paths and exact consent spelling are security boundaries.
+$literalRoot = Join-Path $Work 'literal-boundaries'
+New-Item -ItemType Directory -Path $literalRoot -Force | Out-Null
+$literalTasks = Join-Path $literalRoot 'tasks.md'
+$literalInput = Join-Path $literalRoot 'input[x].txt'
+$literalSibling = Join-Path $literalRoot 'inputx.txt'
+$literalOut = Join-Path $literalRoot 'bundle.txt'
+[IO.File]::WriteAllText($literalTasks, "## T-004`nCross-Model: enabled`n")
+[IO.File]::WriteAllText($literalInput, 'LITERAL_EVIDENCE')
+[IO.File]::WriteAllText($literalSibling, 'WRONG_SIBLING_EVIDENCE')
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalInput,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 0 -and [IO.File]::ReadAllText($literalOut).Contains('LITERAL_EVIDENCE') -and -not [IO.File]::ReadAllText($literalOut).Contains('WRONG_SIBLING_EVIDENCE')) {
+    ok 'literal bracket input content is preserved'
+} else { fail "literal input used wildcard sibling: $($script:PP_Exit) $($script:PP_Output)" }
+$bracketOut = Join-Path $literalRoot 'bundle[x].txt'
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$bracketOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 0 -and [IO.File]::Exists($bracketOut)) { ok 'literal bracket output is created' }
+else { fail "literal output was not created: $($script:PP_Exit) $($script:PP_Output)" }
+[IO.File]::WriteAllText($literalTasks, "## T-004`ncross-model: ENABLED`n")
+Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+if ($script:PP_Exit -eq 1 -and $script:PP_Output -match 'consent denied') { ok 'mis-cased human consent does not authorize' }
+else { fail "mis-cased human consent was accepted: $($script:PP_Exit) $($script:PP_Output)" }
+
+$linkedSpec = Join-Path $literalRoot 'specs/literal'
+$linkedEvidence = Join-Path $linkedSpec 'verification/T-004'
+New-Item -ItemType Directory -Path $linkedEvidence -Force | Out-Null
+[IO.File]::WriteAllText($literalTasks, "## T-004`nCross-Model: enabled`n")
+[IO.File]::WriteAllText($literalSibling, 'OUTSIDE_SYMLINK_SENTINEL')
+$linkCreated = $false
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $linkedEvidence 'external.log') -Target $literalSibling -ErrorAction Stop | Out-Null
+    $linkCreated = $true
+} catch { Write-Host 'skip: symlink evidence test requires link creation capability' }
+if ($linkCreated) {
+    Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$linkedSpec,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+    if ($script:PP_Exit -eq 0 -and -not [IO.File]::ReadAllText($literalOut).Contains('OUTSIDE_SYMLINK_SENTINEL')) { ok 'task evidence traversal excludes symbolic-link files' }
+    else { fail "task evidence followed symbolic-link file: $($script:PP_Exit) $($script:PP_Output)" }
+}
+
+if ([IO.Path]::DirectorySeparatorChar -eq '/') {
+    [IO.File]::WriteAllText($literalTasks, "## T-004`n")
+    $savedSudoKey = $env:SDD_SUDO_KEY
+    $savedSkipSignature = $env:SDD_SUDO_SKIP_SIG
+    try {
+        $env:SDD_SUDO_KEY = 'public-fixture-signing-key'
+        $env:SDD_SUDO_SKIP_SIG = '0'
+        $tokenIssued = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        $tokenExpires = $tokenIssued + 300
+        foreach ($binding in @($literalRoot, $literalRoot.ToUpperInvariant())) {
+            $signature = Get-SudoSignature -Key $env:SDD_SUDO_KEY -Issuer 'fixture' -Nonce ('a' * 32) -Repo $binding -Issued $tokenIssued -Expires $tokenExpires
+            [IO.File]::WriteAllText((Join-Path $literalRoot 'SDD_SUDO'), "issuer: fixture`nnonce: $('a' * 32)`nrepo: $binding`nissued-epoch: $tokenIssued`nexpires-epoch: $tokenExpires`nsig: $signature`n")
+            Invoke-Prepare -ArgList @('--task','T-004','--feature','literal','--input',$literalSibling,'--tasks-file',$literalTasks,'--out',$literalOut,'--project-root',$literalRoot)
+            $expected = if ($binding -ceq $literalRoot) { 0 } else { 1 }
+            if ($script:PP_Exit -eq $expected) { ok "signed consent enforces exact repository binding: expected $expected" }
+            else { fail "signed consent repo comparison: expected $expected got $($script:PP_Exit) $($script:PP_Output)" }
+        }
+    } finally {
+        $env:SDD_SUDO_KEY = $savedSudoKey
+        $env:SDD_SUDO_SKIP_SIG = $savedSkipSignature
+    }
 }
 
 } finally {

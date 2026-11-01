@@ -1,0 +1,28 @@
+{
+  "schema": "research-search-result/v1",
+  "routes": [
+    {
+      "query": "AI coding overengineering hardcoded tests interpreter data boundaries official documentation specification",
+      "route": "official",
+      "source_ids": [
+        "SRC-003",
+        "SRC-006",
+        "SRC-008",
+        "SRC-009"
+      ]
+    },
+    {
+      "query": "AI coding overengineering hardcoded tests interpreter data boundaries primary source references implementation",
+      "route": "citation-trail",
+      "source_ids": [
+        "SRC-001",
+        "SRC-002",
+        "SRC-004",
+        "SRC-005",
+        "SRC-007",
+        "SRC-010"
+      ]
+    }
+  ],
+  "claims_assessed": false
+}

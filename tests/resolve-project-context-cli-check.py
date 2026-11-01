@@ -23,7 +23,6 @@ Epic A3's own, out-of-scope concern, already exercised via a real
 subprocess by T-003's own suite."""
 
 import importlib.util
-import json
 from pathlib import Path
 import shutil
 import subprocess

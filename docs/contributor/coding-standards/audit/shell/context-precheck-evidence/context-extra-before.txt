@@ -1,0 +1,5 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+ledger bash=1 pwsh=0
+stage-cr bash=0 pwsh=1
+run-cr bash=0 pwsh=1

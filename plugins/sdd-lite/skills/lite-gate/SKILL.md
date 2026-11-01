@@ -81,6 +81,17 @@ lite ゲートとして実行してよいか、full quality-gate に切り替え
 
 この表の正本は `PLUGIN-CONTRACTS.md` の Track Detection セクションである。
 
+## Coding Standards Scope
+
+変更言語に対して導入先が採用した規約・設定だけを参照する。sdd-forge 本体では
+`docs/contributor/coding-standards.md` が言語別の索引となるが、その lint preset を
+導入先へ強制しない。規約不在・未採用・非コード案件を理由に新しいゲートを作らない。
+検証は以下の既存 `run-lite-gate.py` の発見・実行・捕捉を使い、baseline コマンド不在と
+Registry 由来の必須 check 未発見を区別する。必須未発見・実行失敗は N/A にしない。
+規約の native 検査や project-skill 観測の PASS だけで独立レビュー・Done を代用せず、
+文脈上の未確認と未実行をレポートへ残す。Full 専用 bundle・署名・二者承認は追加しない。
+legacy のトラック判定と既存の必須 check はそのまま適用する。
+
 ## Process
 
 > **順序が重要**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。

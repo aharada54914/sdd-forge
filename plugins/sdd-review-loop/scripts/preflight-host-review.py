@@ -100,7 +100,7 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
         require(all(re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*', part) for part in help_subcommands),
                 'unsafe CLI help subcommand')
         result = subprocess.run(['rtk', 'proxy', str(host_cli), *help_subcommands, '--help'], cwd=root, capture_output=True,
-                                text=True, timeout=30)
+                                text=True, timeout=30, encoding="utf-8")
         require(result.returncode == 0, 'host CLI help failed')
         declarations = '\n'.join(line.split('  ', 1)[0] for line in
                                  (line.strip() for line in result.stdout.splitlines())
@@ -121,7 +121,7 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
                          '--fixed-input-snapshot', str(fixed_input_snapshot)] if runtime == 'bash' else
                         ['-FixedInputRecord', str(fixed_input_record),
                          '-FixedInputSnapshot', str(fixed_input_snapshot)]))
-    result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=600)
+    result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=600, encoding="utf-8")
     require(result.returncode == 0 and
             re.fullmatch(r'REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* '
                          r'previous_record_sha256=(?:-|[0-9a-f]{64}) '

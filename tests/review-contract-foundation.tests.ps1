@@ -27,7 +27,7 @@ try {
   # ConvertFrom-Json may materialize JSON integer tokens as BigInteger-like
   # objects on newer PowerShell/macOS builds. Assert the canonical numeric JSON
   # tokens from the raw protocol output, then parse string fields normally.
-  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $rawOutput -notmatch '"attempt":1(,|})' -or $rawOutput -notmatch '"round":2(,|})' -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
+  if ($output.schema -cne 'review-contract-validation/v1' -or $output.feature -cne 'utf8-feature' -or $rawOutput -notmatch '"attempt":1(,|})' -or $rawOutput -notmatch '"round":2(,|})' -or $output.stage -cne 'spec' -or $output.verdict -cne 'PASS') {
     throw "unexpected canonical output: $($output | ConvertTo-Json -Compress)"
   }
 

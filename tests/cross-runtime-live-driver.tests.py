@@ -139,12 +139,18 @@ def proof_cases(runtime, temp, environment):
         if mode == 'missing-record':
             record.unlink()
         elif mode == 'unsigned-record':
-            data = json.loads(record.read_text()); data['operator_signature'] = ''; record.write_text(json.dumps(data))
+            data = json.loads(record.read_text())
+            data['operator_signature'] = ''
+            record.write_text(json.dumps(data))
         elif mode == 'invalid-issuer':
-            data = json.loads(fixture.ledger.read_text()); data['entries'][0]['issuer_signature'] = ''; fixture.ledger.write_text(json.dumps(data))
+            data = json.loads(fixture.ledger.read_text())
+            data['entries'][0]['issuer_signature'] = ''
+            fixture.ledger.write_text(json.dumps(data))
         elif mode == 'untrusted-signer':
             registry = references / 'a8-trusted-signers.json'
-            data = json.loads(registry.read_text()); del data['signers']['operator-key']; registry.write_text(json.dumps(data))
+            data = json.loads(registry.read_text())
+            del data['signers']['operator-key']
+            registry.write_text(json.dumps(data))
         trace = project / 'trace.json'
         env = {**environment, 'SDD_A8_COPILOT_MODEL': 'auto', 'SDD_STUB_MODE': 'good',
                'SDD_CROSS_RUNTIME_TASKS_PATH': str(tasks), 'SDD_CROSS_RUNTIME_MAIN_REF': 'HEAD'}
@@ -178,8 +184,10 @@ def proof_cases(runtime, temp, environment):
             replayed = helper.read_only_proof(project, relocated / 'tests/hook-activation-live-proof')
             assert replayed['artifacts'] == verified['artifacts'], 'transport changed stable proof identities'
             for consumed in (None, 'tests/hook-activation-live-proof/another.json'):
-                mutated = json.loads(before); mutated['entries'][0]['consumed_by_record'] = consumed
-                ledger.write_text(json.dumps(mutated)); changed = ledger.read_bytes()
+                mutated = json.loads(before)
+                mutated['entries'][0]['consumed_by_record'] = consumed
+                ledger.write_text(json.dumps(mutated))
+                changed = ledger.read_bytes()
                 try:
                     helper.read_only_proof(project, proof_records)
                 except ValueError as exc:

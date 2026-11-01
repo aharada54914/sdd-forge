@@ -1,0 +1,178 @@
+{
+  "checker_revision": "86fc49554614fb842d937147595baa6ef66fd63c",
+  "criteria": "Exact native diagnostic set; no findings on valid controls.",
+  "repetitions": 1,
+  "model_comparison": "not-performed",
+  "token_cost": "unknown",
+  "results": [
+    {
+      "case": "bad.py",
+      "source": "def double(value):\n    return value + absent_operand\n",
+      "language": "python",
+      "expected": [
+        "F821"
+      ],
+      "observed": [
+        "F821"
+      ],
+      "passed": true,
+      "elapsed_seconds": 0.01082183700054884,
+      "tools": [
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "good.py",
+      "source": "def double(value):\n    return value + value\n",
+      "language": "python",
+      "expected": [],
+      "observed": [],
+      "passed": true,
+      "elapsed_seconds": 0.010510635998798534,
+      "tools": [
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "bad.sh",
+      "source": "#!/bin/bash\ninput=\"$1\"\nprintf \"%s\\n\" $input\n",
+      "language": "bash",
+      "expected": [
+        "SC2086"
+      ],
+      "observed": [
+        "SC2086"
+      ],
+      "passed": true,
+      "elapsed_seconds": 0.008993447991088033,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "good.sh",
+      "source": "#!/bin/bash\ninput=\"$1\"\nprintf \"%s\\n\" \"$input\"\n",
+      "language": "bash",
+      "expected": [],
+      "observed": [],
+      "passed": true,
+      "elapsed_seconds": 0.00893922700197436,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "bad.ps1",
+      "source": "$PID = 123\nWrite-Output $PID\n",
+      "language": "powershell",
+      "expected": [
+        "PSAvoidAssignmentToAutomaticVariable"
+      ],
+      "observed": [
+        "PSAvoidAssignmentToAutomaticVariable"
+      ],
+      "passed": true,
+      "elapsed_seconds": 0.42690819600829855,
+      "tools": [
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "good.ps1",
+      "source": "$ChildProcessId = 123\nWrite-Output $ChildProcessId\n",
+      "language": "powershell",
+      "expected": [],
+      "observed": [],
+      "passed": true,
+      "elapsed_seconds": 0.4126628950034501,
+      "tools": [
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "bad.mts",
+      "source": "export function parse(input: any) { return input; }\n",
+      "language": "typescript",
+      "expected": [
+        "explicit-any"
+      ],
+      "observed": [
+        "explicit-any"
+      ],
+      "passed": true,
+      "elapsed_seconds": 0.19088632299099118,
+      "tools": [
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "good.mts",
+      "source": "export function parse(input: unknown) { return input; }\n",
+      "language": "typescript",
+      "expected": [],
+      "observed": [],
+      "passed": true,
+      "elapsed_seconds": 0.1619462460075738,
+      "tools": [
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "case": "good.cjs",
+      "source": "module.exports = {any: \"any\", value: 1};\n",
+      "language": "javascript",
+      "expected": [],
+      "observed": [],
+      "passed": true,
+      "elapsed_seconds": 0.21502614300698042,
+      "tools": [
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 1
+        }
+      ]
+    }
+  ]
+}

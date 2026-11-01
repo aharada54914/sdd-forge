@@ -11,6 +11,22 @@ than silently adding heavy tools.
 If no executable verification commands exist, create a review ticket and do
 not mark the task `Done`.
 
+## Coding Standards Scope
+
+Use the project's adopted rules and discovered configuration for the changed
+languages. In the sdd-forge source repository, the [coding standards index](../../../docs/contributor/coding-standards.md)
+leads to selective language notes and the existing catalog's `coding-standards`
+profile. Full verification keeps the existing contract/check/evidence owners;
+the rule index is not another registry. Record missing tools, failed execution
+and contextual review gaps separately from native findings. Project-skill PASS
+is execution evidence, not independent review or permission to mark Done.
+
+Installed projects retain their own presets. Missing/unadopted coding rules and
+non-code tasks do not require installing this repository's analyzers. Absence of
+a baseline local command is distinct from an undiscovered Registry-required
+check: the latter still fails under the existing check contract, never N/A.
+Legacy track resolution and all existing required checks remain authoritative.
+
 ## Related Documents
 
 - [cross-model-verification-policy.md](cross-model-verification-policy.md) — multi-vendor panelist verification: consent, sanitization, consensus algorithm, and contract integration.

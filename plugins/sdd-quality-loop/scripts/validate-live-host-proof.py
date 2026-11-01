@@ -67,7 +67,7 @@ CONSUMER_PATHS = {
 Q = 2**255 - 19
 L = 2**252 + 27742317777372353535851937790883648493
 D = (-121665 * pow(121666, Q - 2, Q)) % Q
-I = pow(2, (Q - 1) // 4, Q)
+SQRT_MINUS_ONE = pow(2, (Q - 1) // 4, Q)
 IDENTITY = (0, 1, 1, 0)
 
 
@@ -191,7 +191,7 @@ def decode_point(encoded):
     xx = (yy - 1) * pow(D * yy + 1, Q - 2, Q) % Q
     x = pow(xx, (Q + 3) // 8, Q)
     if (x * x - xx) % Q:
-        x = x * I % Q
+        x = x * SQRT_MINUS_ONE % Q
     if (x * x - xx) % Q:
         return None
     if x == 0 and sign_bit:
@@ -213,7 +213,7 @@ BY = 4 * pow(5, Q - 2, Q) % Q
 _BXX = (BY * BY - 1) * pow(D * BY * BY + 1, Q - 2, Q) % Q
 BX = pow(_BXX, (Q + 3) // 8, Q)
 if (BX * BX - _BXX) % Q:
-    BX = BX * I % Q
+    BX = BX * SQRT_MINUS_ONE % Q
 if BX & 1:
     BX = Q - BX
 B = (BX, BY, 1, BX * BY % Q)

@@ -158,7 +158,8 @@ class NativeClaude(unittest.TestCase):
                         ('sdd-quality-loop@fixture-marketplace','other@fixture-marketplace')]:
             changed=copy.deepcopy(self.record)
             changed['raw_result']['content']=changed['raw_result']['content'].replace(old,new)
-            with self.assertRaises(handshake.HookHandshakeError):self.verify(changed)
+            with self.assertRaises(handshake.HookHandshakeError):
+                self.verify(changed)
 
     def test_guard_wrapper_is_one_absolute_script_operand(self):
         original = 'sh "/fixture/scripts/sdd-hook-guard.sh"'
@@ -220,9 +221,12 @@ class NativeClaude(unittest.TestCase):
         }
         for label, mutation in mutations.items():
             with self.subTest(case=label):
-                changed=copy.deepcopy(self.record);mutation(changed)
-                with self.assertRaises(handshake.HookHandshakeError):self.verify(changed)
-        with self.assertRaises(handshake.HookHandshakeError):self.verify(runtime='copilot-cli')
+                changed=copy.deepcopy(self.record)
+                mutation(changed)
+                with self.assertRaises(handshake.HookHandshakeError):
+                    self.verify(changed)
+        with self.assertRaises(handshake.HookHandshakeError):
+            self.verify(runtime='copilot-cli')
 
     def test_nonce_is_present_in_claude_challenge_and_capture_template(self):
         challenge=handshake.build_challenge()
@@ -231,7 +235,8 @@ class NativeClaude(unittest.TestCase):
         template=challenge['recorded_result_template']['claude-code']
         self.assertEqual(template['schema'], 'sdd-claude-host-denial/v1')
         self.assertEqual(template['nonce'], challenge['nonce'])
-        self.assertIsNone(template['raw_request']);self.assertIsNone(template['raw_result'])
+        self.assertIsNone(template['raw_request'])
+        self.assertIsNone(template['raw_result'])
         self.assertIn('Never infer',challenge['capture_instructions']['claude-code'])
 
     def test_cli_duplicate_raw_members_remain_unreadable(self):

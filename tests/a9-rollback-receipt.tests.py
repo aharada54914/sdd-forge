@@ -126,7 +126,8 @@ class Fixture:
         record['signature'] = base64.b64encode(CRYPTO.sign(seed, public, hashlib.sha256(CORE.PROOF.jcs(unsigned) + domain).digest())).decode()
 
     def refresh(self, sign_sidecar=True):
-        if sign_sidecar: self.hmac_write(self.stage + '/' + CORE.TARGETS[1], self.after)
+        if sign_sidecar:
+            self.hmac_write(self.stage + '/' + CORE.TARGETS[1], self.after)
         manifest = ''.join(self.binding(self.stage + '/' + path)['sha256'] + '  ' + path + '\n' for path in CORE.TARGETS)
         self.write(self.stage + '/MANIFEST.sha256', manifest.encode())
         paths = {'before_context': 'rollback/before.yaml', 'before_approval': 'rollback/before.approval.json',
@@ -166,7 +167,8 @@ class RollbackTests(unittest.TestCase):
             with self.assertRaises((CORE.Refusal, CORE.APPROVAL.ValidateApprovalSidecarError, CORE.PROOF.ValidationError, OSError)) as caught:
                 CORE.run(self.fixture.args(*extra))
             self.assertFalse(any('apply-human-copy' in str(call.args) for call in calls.call_args_list))
-        if reason: self.assertIn(reason, str(caught.exception))
+        if reason:
+            self.assertIn(reason, str(caught.exception))
 
     def test_solo_exact_24_hours_and_plus_one(self):
         for timestamp in (EFFECTIVE, '2026-01-03T00:00:01Z'):
@@ -305,7 +307,8 @@ class RollbackTests(unittest.TestCase):
         verified = CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
         self.assertEqual('APPLIED_VERIFIED', verified['result'])
         self.assertTrue(verified['signed_application_checked'])
-        with self.assertRaises(CORE.Refusal): CORE.run(self.fixture.args('--apply'))
+        with self.assertRaises(CORE.Refusal):
+            CORE.run(self.fixture.args('--apply'))
 
     @unittest.skipUnless(shutil.which('pwsh') and os.name != 'nt', 'additional PowerShell runtime unavailable')
     def test_real_powershell_publisher(self):
@@ -318,16 +321,19 @@ class RollbackTests(unittest.TestCase):
         attestation = self.fixture.attestation(result)
         attestation['signature'] = base64.b64encode(bytes(64)).decode()
         self.fixture.write('rollback/applied.json', attestation)
-        with self.assertRaises(CORE.Refusal): CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
+        with self.assertRaises(CORE.Refusal):
+            CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
         self.fixture.attestation(result)
         self.fixture.write('rollback/application-result.json', encoded(result) + b' ')
-        with self.assertRaises(CORE.Refusal): CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
+        with self.assertRaises(CORE.Refusal):
+            CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
 
     def test_post_application_current_bytes_are_verified(self):
         result = CORE.run(self.fixture.args('--apply'))
         self.fixture.attestation(result)
         self.fixture.write(CORE.TARGETS[0], b'changed')
-        with self.assertRaises(CORE.Refusal): CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
+        with self.assertRaises(CORE.Refusal):
+            CORE.run(self.fixture.args('--applied-attestation', 'rollback/applied.json'))
 
     def test_preserved_predecessor_cannot_alias_live_target(self):
         self.fixture.record['bindings']['before_context'] = self.fixture.binding(CORE.TARGETS[2])
@@ -348,8 +354,10 @@ class RollbackTests(unittest.TestCase):
         path.unlink()
         target = self.fixture.root / 'other-before.yaml'
         target.write_bytes(original)
-        try: path.symlink_to(target)
-        except OSError: self.skipTest('symlink privilege unavailable')
+        try:
+            path.symlink_to(target)
+        except OSError:
+            self.skipTest('symlink privilege unavailable')
         self.rejected('symlink/reparse')
 
     def test_signature_purpose_cannot_be_reused(self):

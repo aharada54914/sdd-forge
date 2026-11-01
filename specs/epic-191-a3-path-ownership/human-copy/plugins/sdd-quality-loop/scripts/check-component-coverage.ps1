@@ -104,7 +104,8 @@ function Get-DerivedState {
     $data = ConvertFrom-MinimalYaml $text
     $workflow = $data["workflow"]
     if ($workflow -isnot [System.Collections.IDictionary]) { return "disabled-legacy" }
-    $value = [string]$workflow["capability_enforcement"]
+    $value = $workflow["capability_enforcement"]
+    if ($value -isnot [string]) { return "disabled-legacy" }
     if ([string]::Equals($value, "advisory", [System.StringComparison]::Ordinal)) { return "advisory" }
     if ([string]::Equals($value, "required", [System.StringComparison]::Ordinal)) { return "required" }
     return "disabled-legacy"
@@ -121,7 +122,7 @@ function Import-FacetManifest {
         return @{ Affected = $null; Error = "Facet Manifest unreadable: $Path ($($_.Exception.Message))" }
     }
     try {
-        $data = $text | ConvertFrom-Json -AsHashtable
+        $data = $text | ConvertFrom-Json -AsHashtable -NoEnumerate
     } catch {
         try {
             $data = ConvertFrom-MinimalYaml $text
@@ -132,7 +133,15 @@ function Import-FacetManifest {
     if ($data -isnot [System.Collections.IDictionary] -or -not $data.Contains("affected_components")) {
         return @{ Affected = $null; Error = "Facet Manifest at $Path has no top-level 'affected_components' key" }
     }
-    return @{ Affected = @($data["affected_components"]); Error = $null }
+    $affected = $data["affected_components"]
+    $invalidAffected = $affected -isnot [System.Array]
+    foreach ($component in $affected) {
+        if ($component -isnot [string]) { $invalidAffected = $true }
+    }
+    if ($invalidAffected) {
+        return @{ Affected = $null; Error = "Facet Manifest at $Path 'affected_components' must be a list of strings" }
+    }
+    return @{ Affected = $affected; Error = $null }
 }
 
 function Import-ProviderBindingsFile {
@@ -150,7 +159,7 @@ function Import-ProviderBindingsFile {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
     $text = Get-Content -Raw -LiteralPath $Path -Encoding utf8
     try {
-        $data = $text | ConvertFrom-Json -AsHashtable
+        $data = $text | ConvertFrom-Json -AsHashtable -NoEnumerate
     } catch {
         $data = ConvertFrom-MinimalYaml $text
     }
@@ -208,7 +217,7 @@ function Test-FailConditions {
         $fail6 = [ordered]@{ id = "Fail-6"; triggered = $false; detail = [ordered]@{ status = "not-applicable (provider-bindings absent)" } }
         $warnings.Add("Fail-6: sdd/provider-bindings.yaml absent; recorded N/A")
     } else {
-        $exclusiveByComponent = @{}
+        $exclusiveByComponent = [System.Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
         foreach ($r in $Records) {
             if ($r.classification -eq "EXCLUSIVE") {
                 foreach ($comp in $r.owning_components) {
@@ -217,7 +226,7 @@ function Test-FailConditions {
                 }
             }
         }
-        $matches = [System.Collections.Generic.List[object]]::new()
+        $matchedEntries = [System.Collections.Generic.List[object]]::new()
         foreach ($binding in $Bindings) {
             if ($null -eq $binding.AdapterPaths) {
                 $warnings.Add("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
@@ -240,13 +249,13 @@ function Test-FailConditions {
                     $nfcPath = ConvertTo-Nfc $path
                     foreach ($pair in $usablePatterns) {
                         if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
-                            $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
+                            $matchedEntries.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                         }
                     }
                 }
             }
         }
-        $fail6 = [ordered]@{ id = "Fail-6"; triggered = ($matches.Count -gt 0); detail = [ordered]@{ matches = @($matches) } }
+        $fail6 = [ordered]@{ id = "Fail-6"; triggered = ($matchedEntries.Count -gt 0); detail = [ordered]@{ matches = @($matchedEntries) } }
     }
 
     return @{ Conditions = @($fail1, $fail2, $fail3, $fail4, $fail5, $fail6); Warnings = @($warnings) }

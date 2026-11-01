@@ -96,7 +96,8 @@ class Inputs(unittest.TestCase):
     def test_schema_dependency_missing_blocks(self):
         self.domain()
         (self.root / 'contracts/domain-contract.v1.schema.json').unlink()
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
 
     def test_status_case_skips_and_bytes_bound(self):
         self.domain()
@@ -115,7 +116,8 @@ class Inputs(unittest.TestCase):
         doc['contexts'].append(other)
         self.put('domain/domain-contract.json', json.dumps(doc))
         self.assertEqual(self.resolve('spec')['domain_status'], 'active')
-        with self.assertRaisesRegex(ValueError, 'missing conditional input'): self.resolve()
+        with self.assertRaisesRegex(ValueError, 'missing conditional input'):
+            self.resolve()
         self.put('domain/aggregates/Order.md', 'Not mentioned in the design')
         selected = self.resolve()['inputs']
         self.assertEqual([x['path'] for x in selected][2:], ['domain/aggregates/Order.md'])
@@ -142,18 +144,21 @@ class Inputs(unittest.TestCase):
         for card in ('specs/example/design.md', '../outside.md', 'domain/aggregates/../secret.md', 'domain/aggregates/\\secret.md'):
             doc['contexts'][0]['aggregates'] = [dict(aggregate, card=card)]
             self.put('domain/domain-contract.json', json.dumps(doc))
-            with self.assertRaises(ValueError): self.resolve()
+            with self.assertRaises(ValueError):
+                self.resolve()
         card = 'domain/aggregates/Order.md'
         doc['contexts'][0]['aggregates'] = [dict(aggregate, card=card)]
         self.put('domain/domain-contract.json', json.dumps(doc))
         self.put('domain/aggregates/Other.md', 'data')
         (self.root / card).symlink_to(self.root / 'domain/aggregates/Other.md')
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
 
     def test_ds_requires_three_and_spec_excludes(self):
         self.put('design-system/design-tokens.json', '{}')
         self.assertEqual(self.resolve('spec')['inputs'], [])
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
         self.put('design-system/design-system.md', 'rules')
         self.put('design-system/ui-patterns.md', 'patterns')
         self.assertEqual(len(self.resolve()['inputs']), 3)
@@ -165,22 +170,27 @@ class Inputs(unittest.TestCase):
         self.assertEqual(result['design_system_status'], 'skipped')
         self.assertIn('specs/example/design.md', result['observed'])
         self.put('specs/example/design.md', '## Design System Compliance\nN/A — ds_profile: none\nextra')
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
 
     def test_symlink_ancestor_and_broken_ds_rejected(self):
         (self.root / 'domain').symlink_to(self.root / 'absent', target_is_directory=True)
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
         (self.root / 'domain').unlink()
         (self.root / 'design-system').symlink_to(self.root / 'absent', target_is_directory=True)
-        with self.assertRaises(ValueError): self.resolve()
+        with self.assertRaises(ValueError):
+            self.resolve()
 
     def test_path_boundaries(self):
         for value in ('../outside', '/etc/passwd', 'domain/../x', 'domain\\x'):
-            with self.assertRaises(ValueError): module.read_safe(self.root, value)
+            with self.assertRaises(ValueError):
+                module.read_safe(self.root, value)
 
     def test_canonical_admission_both_runtimes(self):
         self.domain()
-        digest = lambda data: hashlib.sha256(data).hexdigest()
+        def digest(data):
+            return hashlib.sha256(data).hexdigest()
         record_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
         ledger = {'schema': 'review-identity-ledger/v1', 'records': [dict(
             sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-1',
@@ -205,11 +215,13 @@ class Inputs(unittest.TestCase):
         for command in commands:
             for case in ('valid', 'wrong-hash', 'unrelated', 'omit-one', 'omit-all'):
                 trial = json.loads(json.dumps(manifest))
-                if case == 'wrong-hash': trial['allowed_input_manifest'][0]['sha256'] = '0' * 64
+                if case == 'wrong-hash':
+                    trial['allowed_input_manifest'][0]['sha256'] = '0' * 64
                 if case == 'unrelated':
                     self.put('domain/unrelated.md', 'not a role input')
                     trial['allowed_input_manifest'].append(dict(path='domain/unrelated.md', sha256=digest(b'not a role input')))
-                if case == 'omit-one': trial['allowed_input_manifest'].pop()
+                if case == 'omit-one':
+                    trial['allowed_input_manifest'].pop()
                 if case == 'omit-all':
                     trial['allowed_input_manifest'] = [dict(
                         path='specs/example/requirements.md',
@@ -225,7 +237,8 @@ class Inputs(unittest.TestCase):
                         self.assertEqual((self.root / ledger_path).read_bytes(), before)
 
     def test_persisted_reservation_keeps_historical_conditional_selection(self):
-        digest = lambda data: hashlib.sha256(data).hexdigest()
+        def digest(data):
+            return hashlib.sha256(data).hexdigest()
         record_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
         ledger_path = 'reports/review-context/identity-ledger.json'
         initial = {'schema': 'review-identity-ledger/v1', 'records': [dict(
@@ -284,7 +297,8 @@ class Inputs(unittest.TestCase):
             invariants=['valid'], transaction_boundary='order', card=card)]
         self.put('domain/domain-contract.json', json.dumps(doc))
         self.put(card, 'Order aggregate')
-        digest = lambda data: hashlib.sha256(data).hexdigest()
+        def digest(data):
+            return hashlib.sha256(data).hexdigest()
         record_hash = digest(b'1|impl|impl-reviewer-a|fixture-1|session-1|')
         ledger_path = 'reports/review-context/identity-ledger.json'
         ledger = {'schema': 'review-identity-ledger/v1', 'records': [dict(
@@ -326,7 +340,8 @@ class Inputs(unittest.TestCase):
     def test_historical_conditional_paths_need_exact_name_and_input_binding(self):
         self.domain()
         self.put('domain/unrelated.md', 'unrelated')
-        digest = lambda data: hashlib.sha256(data).hexdigest()
+        def digest(data):
+            return hashlib.sha256(data).hexdigest()
         first_hash = digest(b'1|spec|spec-reviewer-a|fixture-1|session-1|')
         ledger_path = 'reports/review-context/identity-ledger.json'
         first = dict(sequence=1, stage='spec', role='spec-reviewer-a', run_id='fixture-1',

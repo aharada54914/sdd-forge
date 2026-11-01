@@ -19,14 +19,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+
 import { buildServer } from "../../src/server.js";
 
-/** Narrow shape exposing McpServer's private tool-registration map for a white-box zero-tools check. */
-interface McpServerToolInternals {
-  _registeredTools: Record<string, unknown>;
-}
-
-test("buildServer() constructs fast and registers all 5 read-only Actions tools (T-013 scope)", () => {
+test("buildServer() constructs fast and registers all 5 read-only Actions tools (T-013 scope)", async () => {
   const start = process.hrtime.bigint();
   const server = buildServer();
   const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
@@ -34,15 +32,18 @@ test("buildServer() constructs fast and registers all 5 read-only Actions tools 
   // Construction alone must stay well under the 1s startup SLO (design.md).
   assert.ok(elapsedMs < 1000, `buildServer() took ${elapsedMs}ms, expected < 1000ms`);
 
-  // As of T-013, all 5 read-only Actions tools are registered. Asserted
-  // directly (white-box) via the MCP SDK's internal tool map rather than a
-  // `tools/list` round-trip.
-  const registeredToolNames = Object.keys((server as unknown as McpServerToolInternals)._registeredTools).sort();
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  const client = new Client({ name: "startup-test", version: "1" });
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  try {
+  const registeredToolNames = (await client.listTools()).tools.map(tool => tool.name).sort();
   assert.deepEqual(
     registeredToolNames,
     ["get_job_log", "get_workflow_run", "list_run_artifacts", "list_run_jobs", "list_workflow_runs"],
     "T-013 registers get_job_log, the 5th and final tool",
   );
+  } finally { await client.close(); await server.close(); }
 });
 
 test("buildServer() never reads a GitHub token env var during construction", () => {

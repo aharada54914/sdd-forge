@@ -628,7 +628,6 @@ def run_t003_case(kind, case_name, counts):
 
         if case_name == "affected-component-resolution-failed":
             expected_id = "affected-component-resolution-failed"
-            repo_relative_config = "project-context.yaml"
             expected_detail = None  # computed after the run, from the real exit code
 
         elif case_name == "resolve-component-paths-launch-failed":
@@ -957,8 +956,8 @@ def run_t003_case(kind, case_name, counts):
 
         if case_name == "affected-component-resolution-failed":
             expected_detail = (
-                f"resolve-component-paths exited 3 resolving project-context.yaml; "
-                f"see resolve-component-paths diagnostics"
+                "resolve-component-paths exited 3 resolving project-context.yaml; "
+                "see resolve-component-paths diagnostics"
             )
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"

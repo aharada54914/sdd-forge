@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { buildServer } from "../../src/server.js";
 import type { SddRoot } from "../../src/root.js";
 import { makeTempSddRoot, writeFile, type TempSddRoot } from "../test-helpers.js";
@@ -77,15 +77,16 @@ export function getEnvelopeValidator(): ((data: unknown) => boolean) & { errors?
   const schema = JSON.parse(readFileSync(findContractsSchemaPath(), "utf-8")) as object;
   const ajv = new Ajv2020({ strict: true });
   const validate = ajv.compile(schema);
-  cachedValidator = validate as unknown as ((data: unknown) => boolean) & { errors?: unknown };
+  cachedValidator = validate;
   return cachedValidator;
 }
 
 /** Parses a `CallToolResult`'s `content[0].text` as JSON (the v1 envelope). */
-export function parseEnvelope(result: CallToolResult): unknown {
-  const first = result.content[0];
+export function parseEnvelope(result: unknown): unknown {
+  const parsed = CallToolResultSchema.parse(result);
+  const first = parsed.content[0];
   if (first === undefined || first.type !== "text") {
-    throw new Error(`Expected a text content block, got: ${JSON.stringify(result.content)}`);
+    throw new Error(`Expected a text content block, got: ${JSON.stringify(parsed.content)}`);
   }
   return JSON.parse(first.text);
 }

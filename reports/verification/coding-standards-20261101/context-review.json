@@ -1,0 +1,205 @@
+{
+  "schema": "coding-checker-context-review/v1",
+  "revision": "cc2006b595b9248de2f8b6acbee9c92572dc1460",
+  "scope": "Complete checker/adapters and listed integration guidance; contextual read of implementation plus source-bound existing tests, not whole-repository acceptance",
+  "reviewer": "same implementation agent; not independent blinded reviewer",
+  "sources": [
+    {
+      "path": "tests/coding_standards.py",
+      "sha256": "29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5"
+    },
+    {
+      "path": "tests/coding-standards/typescript.mjs",
+      "sha256": "75a56f6a176f1f3b4b868b63112e5a1eb04278ee08629b62ee9425c949b18c03"
+    },
+    {
+      "path": "tests/coding-standards/powershell.ps1",
+      "sha256": "376daf5440c7107db0cddc72cd7db4f805a5df1b4a4d6b750a37400b93f6eda9"
+    },
+    {
+      "path": "tests/coding-standards/tools.json",
+      "sha256": "a4e7814962339daae9224543c095e3cd270f4036087ba338d93b2ec11d4c7e09"
+    },
+    {
+      "path": "tests/coding-standards/requirements.txt",
+      "sha256": "a33142500dcfbc80235670870caae6e3da4e4f5f3dfab2dd07f4ee60edbf3d35"
+    },
+    {
+      "path": "tests/coding-standards.tests.py",
+      "sha256": "7a09698d7199cc93566998a08362edbde85c72981b78eef079ea263db5cc4943"
+    },
+    {
+      "path": "tests/coding-standards-audit.tests.py",
+      "sha256": "1d6eccfea59a412dde497ee6d4ab1266d1a9f36ca7b67351f415ec7763589c31"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "ac84b08f2a037eb36da6ab774620e2e255516c320c09a7a074cd40408d23fedb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/verification-policy.md",
+      "sha256": "d7534493e7deaeeeb3d0dfdac25a11f3cb3c07b2f98abe0ff19af2f911798989"
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "392bb8af912378444a903df5cb23b19bd8f2acb77f0ef686b328e2d1d1ac1c96"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "CS-001",
+      "review": "Native tools receive argv arrays, stdin JSON and no shell=True/eval; PowerShell invokes parser/analyzer against literal path arguments.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-002",
+      "review": "No generated embedded source from input. Markdown fence recognition routes contextual surfaces only.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-003",
+      "review": "Not applicable: no database/SQL sink in reviewed checker/adapters/config.",
+      "status": "not-applicable"
+    },
+    {
+      "rule_id": "CS-004",
+      "review": "JSON serialization owns stdin/report transport; duplicate config keys rejected by existing verification.unique_object.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-005",
+      "review": "Repository CI uses fixed commands, runner-temp only in quoted shell variables; no issue/PR content inserted into source.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-006",
+      "review": "Not applicable: no HTML output in checker/adapters.",
+      "status": "not-applicable"
+    },
+    {
+      "rule_id": "CS-007",
+      "review": "Fence regex is fixed; source lines are matched data, not regex source.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-008",
+      "review": "Not applicable: no URL construction/network requests in checker/adapters.",
+      "status": "not-applicable"
+    },
+    {
+      "rule_id": "CS-009",
+      "review": "Git uses NUL delimiters; tracked symlinks never followed; normal entries checked for containment; ShellCheck/Ruff receive -- before paths; TypeScript/PowerShell use absolute path lists through JSON.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-010",
+      "review": "No credentials in config. Native findings use path/location/rule diagnostics; generic TS/PS failures omit raw source. No secret-bearing environment dump.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-011",
+      "review": "Tools.json owns pinned native versions/rule selection; adapter gates pin their API/runtime dependencies. Existing MCP package scripts remain authoritative for build/typecheck.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-012",
+      "review": "Per-scan state local; tool API lifetime owned by adapter; immutable source identity captured before scan and rechecked after.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-013",
+      "review": "Existing verification catalog/runner and NUL-safe verification-impact selector reused; language adapters retain distinct native output semantics.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-014",
+      "review": "Native parsers own syntax. Census classification is routing, not exemption or semantic approval. Exception needs exact path/content and existing resolver control.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-015",
+      "review": "Census/selection/native adaptation and product check discovery remain separate; no universal parser or product state engine.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-016",
+      "review": "Only all/diff and explicit supported language scope added; no project-wide preset auto-installation or additional public gate.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-017",
+      "review": "Missing files/tools/history/config and malformed outputs propagate failure; no baseline suppressions or success fallback.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-018",
+      "review": "Main maps operational errors to status:error/finding_count:null/exit2. TS/PS catch returns fixed failure, not empty success. Invalid native JSON cannot be parsed as no findings.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-019",
+      "review": "Nonzero tools without findings reject; Bash syntax additionally checked despite filtered ShellCheck subset; catalog wrapper returns actual main status.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-020",
+      "review": "Config shape/version and bounded exception fields validated before native invocation. Native output is trusted version-pinned tool protocol, not a project plugin output. Malformed output raises errors.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-021",
+      "review": "TS parses AST and reports AnyKeyword; not an unsafe narrowing implementation. unknown, named properties and string any are normal controls.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-022",
+      "review": "No detached async tasks in checker. TS synchronous API closes in finally; catalog owns scheduling.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-023",
+      "review": "Git timeout60/native timeout120; temporary fixture directories cleanup; TS API.close on normal/caught error. Descendant termination on forced parent timeout has not been independently demonstrated.",
+      "status": "reviewed-with-limit"
+    },
+    {
+      "rule_id": "CS-024",
+      "review": "Not applicable: checker has no automatic retries.",
+      "status": "not-applicable"
+    },
+    {
+      "rule_id": "CS-025",
+      "review": "Exact version/schema/rule tokens; .suffix normalization only for language routing, not protocol authorization.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-026",
+      "review": "Native subprocess transport is explicit strict UTF-8. Git paths decoded UTF-8, source identity hashes raw bytes; classification replacement decoding never certifies syntax.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-027",
+      "review": "Tests use temporary repositories/path variants; no fixture-specific production pass branch. Single invalid-source exception bound to exact hash/control, not filename alone.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-028",
+      "review": "Native tools supply independent syntax/rule diagnostics; nine post-freeze heldout cases supplement development fixtures. Mock failures test transport only, not native behavior.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-029",
+      "review": "Reports distinguish inspected/selected/population, native findings and manual unknown, no-targets and unavailable. Local evidence does not assert remote CI/native host invocation.",
+      "status": "reviewed-no-confirmed-violation"
+    },
+    {
+      "rule_id": "CS-030",
+      "review": "No product required-set contract changed. Native subset0 is not all-rule compliance. Historical/human-copy and embedded routing remain visible to contextual review.",
+      "status": "reviewed-no-confirmed-violation"
+    }
+  ],
+  "unverified": [
+    "forced-timeout descendant process cleanup",
+    "actual model adherence to conditional project guidance",
+    "remote CI and host execution owned by root integration"
+  ]
+}

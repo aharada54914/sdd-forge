@@ -44,6 +44,7 @@ def _load_summary(path: Path) -> dict:
             stderr=subprocess.PIPE,
             text=True,
             check=False,
+            encoding="utf-8",
         )
         if result.returncode != 0:
             detail = result.stderr.strip() or f"exit {result.returncode}"
@@ -67,6 +68,7 @@ def _load_summary(path: Path) -> dict:
         stderr=subprocess.PIPE,
         text=True,
         check=False,
+        encoding="utf-8",
     )
     if validation.returncode != 0:
         detail = validation.stdout.strip() or validation.stderr.strip() or f"exit {validation.returncode}"
@@ -153,6 +155,7 @@ def _run_one(root: Path, check_id: str, runtime: str, timeout: float, max_output
             errors="replace",
             timeout=timeout,
             check=False,
+            encoding="utf-8",
         )
         timed_out = False
         exit_code = result.returncode

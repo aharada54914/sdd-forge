@@ -133,3 +133,8 @@ test("AC-005: logFatal scrubs secrets carried in the error message", () => {
     assert.ok(!raw.includes(home), "logFatal output must not contain the home path");
   }
 });
+
+test("shared mechanism leaves provider-specific Bearer policy to the local logger", () => {
+  const marker = "Bearer rotated-credential-R691";
+  assert.equal(scrubMessage(marker), marker);
+});

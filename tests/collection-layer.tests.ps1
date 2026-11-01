@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 # collection-layer.tests.ps1 — offline tests for T-005 collection layer (pwsh)
 # Tests detect-panel graceful-degrade and runner presence/format.
 # No real CLI invocations; no network access.
@@ -28,7 +29,7 @@ $minPath = "C:\Windows\System32;C:\Windows"
 if ($IsLinux -or $IsMacOS) { $minPath = "/usr/bin:/bin" }
 
 $dpProc = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1" `
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1")) `
     -Environment @{ PATH = $minPath } `
     -RedirectStandardOutput (Join-Path $Work "dp001-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "dp001-stderr.txt") `
@@ -60,7 +61,7 @@ if ($dpStderr -imatch "codex|gemini") {
 Write-Host "=== CL-002: detect-panel -Quiet suppresses warning ==="
 
 $dpProc2 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet" `
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet")) `
     -Environment @{ PATH = $minPath } `
     -RedirectStandardOutput (Join-Path $Work "dp002-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "dp002-stderr.txt") `
@@ -100,7 +101,7 @@ if ($IsLinux -or $IsMacOS) {
 
 $testPath3 = if ($IsLinux -or $IsMacOS) { "${stubBin3}:/usr/bin:/bin" } else { "$stubBin3;C:\Windows\System32" }
 $dpProc3 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1" `
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1")) `
     -Environment @{ PATH = $testPath3 } `
     -RedirectStandardOutput (Join-Path $Work "dp003-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "dp003-stderr.txt") `
@@ -151,10 +152,10 @@ $digest = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 Set-Content -Path "$cl008/input.txt" -Value "# Panelist Input Bundle`n# task_id: T-005`n# feature: feat`n# input_digest: $digest`n# consent: human-flag`n`ntest"
 
 $runProc8 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-005", "--feature", "feat",
         "--input", "$cl008/input.txt",
-        "--spec-root", "$cl008/specs" `
+        "--spec-root", "$cl008/specs")) `
     -Environment @{ PATH = $minPath } `
     -RedirectStandardOutput (Join-Path $Work "run008-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "run008-stderr.txt") `
@@ -184,10 +185,10 @@ New-Item -ItemType Directory -Path "$cl009/specs/feat/verification" -Force | Out
 Copy-Item "$cl008/input.txt" "$cl009/input.txt"
 
 $runProc9 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
         "--task", "T-005", "--feature", "feat",
         "--input", "$cl009/input.txt",
-        "--spec-root", "$cl009/specs" `
+        "--spec-root", "$cl009/specs")) `
     -Environment @{ PATH = $minPath } `
     -RedirectStandardOutput (Join-Path $Work "run009-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "run009-stderr.txt") `
@@ -214,8 +215,8 @@ Write-Host "=== CL-010: runner required arg validation ==="
 
 foreach ($runner in @("run-panelist-gpt.ps1", "run-panelist-gemini.ps1")) {
     $rProc = Start-Process -FilePath "pwsh" `
-        -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/$runner",
-            "--feature", "feat", "--input", "nul" `
+        -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/$runner",
+            "--feature", "feat", "--input", "nul")) `
         -RedirectStandardOutput (Join-Path $Work "rval-stdout.txt") `
         -RedirectStandardError  (Join-Path $Work "rval-stderr.txt") `
         -Wait -PassThru -NoNewWindow
@@ -355,11 +356,11 @@ Set-Content -Path "$cl014/input.txt" -Value "plain bundle content, no JSON here.
 $cl014Path = if ($IsLinux -or $IsMacOS) { "${cl014Bin}:/usr/bin:/bin" } else { "$cl014Bin;C:\Windows\System32" }
 
 $runProc14 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-014", "--feature", "feat",
         "--input", "$cl014/input.txt",
         "--spec-root", "$cl014/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl014Path } `
     -RedirectStandardOutput (Join-Path $Work "run014-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "run014-stderr.txt") `
@@ -400,11 +401,11 @@ Set-Content -Path "$cl015/input.txt" -Value "plain bundle content, no JSON here.
 $cl015Path = if ($IsLinux -or $IsMacOS) { "${cl015Bin}:/usr/bin:/bin" } else { "$cl015Bin;C:\Windows\System32" }
 
 $runProc15 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
         "--task", "T-015", "--feature", "feat",
         "--input", "$cl015/input.txt",
         "--spec-root", "$cl015/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl015Path } `
     -Wait -PassThru -NoNewWindow
 
@@ -430,10 +431,12 @@ $cl016Bin = Join-Path $Work "cl016-bin"
 $cl016Argv = Join-Path $Work "cl016-argv.txt"
 $cl016Stdin = Join-Path $Work "cl016-stdin.txt"
 $stubJson16 = '{"schema":"cross-model-verdict/v1","task_id":"T-016","feature":"feat","vendor":"google","model":"stub","verdict":"PASS","findings":[],"blind":true,"input_digest":"' + ("0" * 64) + '","consent":{"kind":"human-flag","ref":"stub"}}'
-$shBody16 = "#!/bin/sh`nprintf '%s\n' `"`$@`" > `"$cl016Argv`"`ncat > `"$cl016Stdin`"`nprintf '%s\n' '$stubJson16'`nexit 0`n"
+$shArgv16 = "'" + $cl016Argv.Replace("'", "'\''") + "'"
+$shStdin16 = "'" + $cl016Stdin.Replace("'", "'\''") + "'"
+$shBody16 = "#!/bin/sh`nprintf '%s\n' `"`$@`" > $shArgv16`ncat > $shStdin16`nprintf '%s\n' '$stubJson16'`nexit 0`n"
 New-StubCli -BinDir $cl016Bin -Name "gemini" -ShBody $shBody16
 if (-not ($IsLinux -or $IsMacOS)) {
-    $workerBody16 = "`$argvFile = '$cl016Argv'`n`$stdinFile = '$cl016Stdin'`nforeach (`$a in `$args) { Add-Content -LiteralPath `$argvFile -Value `$a }`n[Console]::In.ReadToEnd() | Set-Content -NoNewline -Path `$stdinFile`nWrite-Output '$stubJson16'`nexit 0`n"
+    $workerBody16 = "`$argvFile = '$($cl016Argv.Replace("'", "''"))'`n`$stdinFile = '$($cl016Stdin.Replace("'", "''"))'`nforeach (`$a in `$args) { Add-Content -LiteralPath `$argvFile -Value `$a }`n[Console]::In.ReadToEnd() | Set-Content -NoNewline -Path `$stdinFile`nWrite-Output '$stubJson16'`nexit 0`n"
     Set-Content -Path (Join-Path $cl016Bin "gemini-worker.ps1") -Value $workerBody16
 }
 
@@ -443,12 +446,12 @@ Set-Content -Path "$cl016/input.txt" -Value "sanitized bundle body, no panelist 
 $cl016Path = if ($IsLinux -or $IsMacOS) { "${cl016Bin}:/usr/bin:/bin" } else { "$cl016Bin;C:\Windows\System32" }
 
 Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gemini.ps1",
         "--task", "T-016", "--feature", "feat",
         "--input", "$cl016/input.txt",
         "--spec-root", "$cl016/specs",
         "--digest", ("0" * 64),
-        "--model", "gemini-2.0-flash" `
+        "--model", "gemini-2.0-flash")) `
     -Environment @{ PATH = $cl016Path } `
     -Wait -PassThru -NoNewWindow | Out-Null
 
@@ -482,7 +485,7 @@ if (-not ($IsLinux -or $IsMacOS)) {
 $cl017Path = if ($IsLinux -or $IsMacOS) { "${cl017Bin}:/usr/bin:/bin" } else { "$cl017Bin;C:\Windows\System32" }
 
 $dpProc17 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet" `
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet")) `
     -Environment @{ PATH = $cl017Path } `
     -RedirectStandardOutput (Join-Path $Work "dp017-stdout.txt") `
     -Wait -PassThru -NoNewWindow
@@ -518,7 +521,7 @@ if ($IsLinux -or $IsMacOS) {
     $cl018Path = "${cl018Bin}:/usr/bin:/bin"
 
     $dpProc18 = Start-Process -FilePath "pwsh" `
-        -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet" `
+        -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/detect-panel.ps1", "-Quiet")) `
         -Environment @{ PATH = $cl018Path } `
         -RedirectStandardOutput (Join-Path $Work "dp018-stdout.txt") `
         -Wait -PassThru -NoNewWindow
@@ -593,11 +596,11 @@ Set-Content -Path "$cl019/input.txt" -Value "bundle content"
 $cl019Path = if ($IsLinux -or $IsMacOS) { "${cl019Bin}:/usr/bin:/bin" } else { "$cl019Bin;C:\Windows\System32" }
 
 $runProc19 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-019", "--feature", "feat",
         "--input", "$cl019/input.txt",
         "--spec-root", "$cl019/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl019Path } `
     -RedirectStandardOutput (Join-Path $Work "run019-stdout.txt") `
     -RedirectStandardError  (Join-Path $Work "run019-stderr.txt") `
@@ -640,11 +643,11 @@ Set-Content -Path "$cl020/input.txt" -Value "bundle content"
 $cl020Path = if ($IsLinux -or $IsMacOS) { "${cl020Bin}:/usr/bin:/bin" } else { "$cl020Bin;C:\Windows\System32" }
 
 $runProc20 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-020", "--feature", "feat",
         "--input", "$cl020/input.txt",
         "--spec-root", "$cl020/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl020Path } `
     -Wait -PassThru -NoNewWindow
 $cl020Out = "$cl020/specs/feat/verification/T-020.panelist-openai.verdict.json"
@@ -679,11 +682,11 @@ Set-Content -Path "$cl021/input.txt" -Value "bundle content"
 $cl021Path = if ($IsLinux -or $IsMacOS) { "${cl021Bin}:/usr/bin:/bin" } else { "$cl021Bin;C:\Windows\System32" }
 
 $runProc21 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-021", "--feature", "feat",
         "--input", "$cl021/input.txt",
         "--spec-root", "$cl021/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl021Path } `
     -RedirectStandardError (Join-Path $Work "run021-stderr.txt") `
     -Wait -PassThru -NoNewWindow
@@ -727,11 +730,11 @@ Set-Content -Path "$cl022/input.txt" -Value "bundle content"
 $cl022Path = if ($IsLinux -or $IsMacOS) { "${cl022Bin}:/usr/bin:/bin" } else { "$cl022Bin;C:\Windows\System32" }
 
 $runProc22 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-022", "--feature", "feat",
         "--input", "$cl022/input.txt",
         "--spec-root", "$cl022/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl022Path } `
     -Wait -PassThru -NoNewWindow
 $cl022Out = "$cl022/specs/feat/verification/T-022.panelist-openai.verdict.json"
@@ -765,11 +768,11 @@ Set-Content -Path "$cl023/input.txt" -Value "bundle content"
 $cl023Path = if ($IsLinux -or $IsMacOS) { "${cl023Bin}:/usr/bin:/bin" } else { "$cl023Bin;C:\Windows\System32" }
 
 $runProc23 = Start-Process -FilePath "pwsh" `
-    -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
+    -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$ScriptsDir/run-panelist-gpt.ps1",
         "--task", "T-023", "--feature", "feat",
         "--input", "$cl023/input.txt",
         "--spec-root", "$cl023/specs",
-        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" `
+        "--digest", "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2")) `
     -Environment @{ PATH = $cl023Path } `
     -RedirectStandardError (Join-Path $Work "run023-stderr.txt") `
     -Wait -PassThru -NoNewWindow
@@ -823,9 +826,9 @@ foreach ($case in $geminiCases) {
     Set-Content -Path "$caseRoot/input.txt" -Value 'offline bundle'
     $casePath = if ($IsLinux -or $IsMacOS) { "${caseBin}:/usr/bin:/bin" } else { "$caseBin;C:\Windows\System32" }
     $caseProc = Start-Process -FilePath $PowerShellHost `
-        -ArgumentList '-NoProfile', '-File', "$ScriptsDir/run-panelist-gemini.ps1",
+        -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @('-NoProfile', '-File', "$ScriptsDir/run-panelist-gemini.ps1",
             '--task', 'T-024', '--feature', 'feat', '--input', "$caseRoot/input.txt",
-            '--spec-root', "$caseRoot/specs", '--digest', $digest `
+            '--spec-root', "$caseRoot/specs", '--digest', $digest)) `
         -Environment @{ PATH = $casePath } `
         -RedirectStandardOutput "$caseRoot/stdout.txt" -RedirectStandardError "$caseRoot/stderr.txt" `
         -Wait -PassThru -NoNewWindow

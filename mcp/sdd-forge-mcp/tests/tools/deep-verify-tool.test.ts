@@ -37,7 +37,7 @@ test("AC-001: evidence_deep_verify tool returns an ok pass envelope for a consis
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
 
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -103,7 +103,7 @@ test("error envelope: an invalid taskId maps to invalid-input through the tool",
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: "not-a-task-id" },
     });
-    const envelope = parseEnvelope(result as never) as ErrorEnvelope;
+    const envelope = parseEnvelope(result) as ErrorEnvelope;
 
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal(envelope.ok, false);
@@ -121,7 +121,7 @@ test("error envelope: an invalid feature maps to invalid-input through the tool"
       name: "evidence_deep_verify",
       arguments: { feature: "../escape", taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never) as ErrorEnvelope;
+    const envelope = parseEnvelope(result) as ErrorEnvelope;
 
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal(envelope.ok, false);
@@ -140,7 +140,7 @@ test("error envelope: a missing bundle maps to not-found through the tool", asyn
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: "T-999" },
     });
-    const envelope = parseEnvelope(result as never) as ErrorEnvelope;
+    const envelope = parseEnvelope(result) as ErrorEnvelope;
 
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal(envelope.ok, false);
@@ -160,7 +160,7 @@ test("error envelope: a malformed-JSON bundle maps to cannot-parse through the t
       name: "evidence_deep_verify",
       arguments: { feature: fx.feature, taskId: fx.taskId },
     });
-    const envelope = parseEnvelope(result as never) as ErrorEnvelope;
+    const envelope = parseEnvelope(result) as ErrorEnvelope;
 
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal(envelope.ok, false);

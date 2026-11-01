@@ -113,6 +113,10 @@ def execute(argv, cwd, timeout, limit, *, input_fds=(), env=None):
             pass_fds=(write_fd, *input_fds),
             env=env,
         )
+    except BaseException:
+        # Ownership never transfers to the drain path if process creation fails.
+        os.close(read_fd)
+        raise
     finally:
         os.close(write_fd)
     data = [bytearray(), bytearray()]

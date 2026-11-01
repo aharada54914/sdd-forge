@@ -248,5 +248,30 @@ for destination in "specs/demo/archive.md" "specs/renamed/tasks.md"; do
   expect_case "CF.10 control: specs-only rename to $destination passes" HEAD 0 "is specs-only"
 done
 
+# Native infrastructure errors while reading existing blobs are not additions.
+mkdir -p "$REPO/specs/error-case"
+write_tasks "$REPO/specs/error-case/tasks.md" Passed 'Frozen baseline criterion' ' ' Planned
+git -C "$REPO" add -A
+git -C "$REPO" commit -qm 'fixture: establish reviewed error-case'
+write_tasks "$REPO/specs/error-case/tasks.md" Passed 'Changed criterion' ' ' Planned
+printf 'mixed change\n' >> "$REPO/src/app.txt"
+git -C "$REPO" add -A
+git -C "$REPO" commit -qm 'fixture: mixed change for Git read failure'
+export CRITERION_REAL_GIT
+CRITERION_REAL_GIT="$(command -v git)"
+mkdir -p "$WORK/fake-bin"
+cat > "$WORK/fake-bin/git" <<'GIT'
+#!/bin/sh
+for atom do
+  if [ "$atom" = show ]; then
+    printf 'fixture object storage read failure\n' >&2
+    exit 91
+  fi
+done
+exec "$CRITERION_REAL_GIT" "$@"
+GIT
+chmod +x "$WORK/fake-bin/git"
+PATH="$WORK/fake-bin:$PATH" expect_case 'CF.11: Git show infrastructure failure fails closed' HEAD 2 'failed'
+
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

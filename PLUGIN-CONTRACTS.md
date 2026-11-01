@@ -3,6 +3,18 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Coding standards and project adoption
+
+The [sdd-forge coding standards](docs/contributor/coding-standards.md) govern this
+repository's source, tests and distribution. Their rule IDs are review references,
+not new required check IDs. Full retains its contract/check/evidence path; Lite
+retains `run-lite-gate.py` discovery and capture; legacy track selection is unchanged.
+Installed projects use their adopted rules and configuration rather than this
+repository's native preset. Missing/unadopted coding rules or a non-code task do
+not create a new code gate. An undiscovered Registry-required check remains a
+failure, distinct from an absent baseline local command. Native lint and project
+skill observations do not replace contextual or independent review or grant Done.
+
 ## Project skill observations
 
 `project-skill-manifest/v1` binds the declared executable entry and its skill

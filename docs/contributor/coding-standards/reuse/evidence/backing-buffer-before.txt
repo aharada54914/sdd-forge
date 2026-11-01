@@ -1,0 +1,88 @@
+✖ tail reader releases oversized upstream backing allocation before EOF (120.538829ms)
+✖ tail reader releases small-view upstream backing allocation before EOF (107.215976ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 300.640968
+
+✖ failing tests:
+
+test at mcp/ci-mcp/dist-test/tests/error-paths/backing-buffer-retention.test.js:6:5
+✖ tail reader releases oversized upstream backing allocation before EOF (120.538829ms)
+  AssertionError [ERR_ASSERTION]: node:internal/modules/run_main:107
+      triggerUncaughtException(
+      ^
+  
+  AssertionError [ERR_ASSERTION]: upstream allocation must be collectible while the stream is open
+  
+  true !== false
+  
+      at file:///workspace/scratch/standards-685/reuse/[eval1]:28:14 {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+  
+  Node.js v24.19.0
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/standards-685/reuse/mcp/ci-mcp/dist-test/tests/error-paths/backing-buffer-retention.test.js:42:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at mcp/ci-mcp/dist-test/tests/error-paths/backing-buffer-retention.test.js:6:5
+✖ tail reader releases small-view upstream backing allocation before EOF (107.215976ms)
+  AssertionError [ERR_ASSERTION]: node:internal/modules/run_main:107
+      triggerUncaughtException(
+      ^
+  
+  AssertionError [ERR_ASSERTION]: upstream allocation must be collectible while the stream is open
+  
+  true !== false
+  
+      at file:///workspace/scratch/standards-685/reuse/[eval1]:28:14 {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+  
+  Node.js v24.19.0
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/standards-685/reuse/mcp/ci-mcp/dist-test/tests/error-paths/backing-buffer-retention.test.js:42:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
