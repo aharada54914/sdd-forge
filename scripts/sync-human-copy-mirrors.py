@@ -28,6 +28,7 @@ snapshotting a new file is a review decision, not a sync.
 import hashlib
 import os
 import sys
+import subprocess
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -111,4 +112,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except subprocess.TimeoutExpired:
+        print("mirror inspection: git exceeded the 30-second deadline; no classification available", file=sys.stderr)
+        sys.exit(3)

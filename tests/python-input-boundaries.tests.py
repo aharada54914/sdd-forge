@@ -32,6 +32,48 @@ class InputBoundaryTests(unittest.TestCase):
                 with self.assertRaisesRegex(resolver.GitDiffError, 'status failed'):
                     resolver._capture_fingerprint(directory)
 
+    @unittest.skipUnless(os.name == 'posix', 'POSIX executable fixture')
+    def test_git_timeout_reaps_direct_child_and_fails_closed(self):
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location('component_deadline', SCRIPTS / 'resolve-component-paths.py')
+        resolver = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(resolver)
+        actual_run = subprocess.run
+
+        def shortened_deadline(*args, **kwargs):
+            self.assertEqual(kwargs['timeout'], 30)
+            kwargs['timeout'] = 0.1
+            return actual_run(*args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            git = root / 'git'
+            git.write_text('#!/bin/sh\nprintf "%s" "$$" > "$2/git-child.pid"\nexec sleep 10\n', encoding='utf-8')
+            git.chmod(0o700)
+            with patch.dict(os.environ, PATH=directory + os.pathsep + os.environ.get('PATH', '')):
+                with patch.object(resolver.subprocess, 'run', side_effect=shortened_deadline):
+                    with self.assertRaisesRegex(resolver.GitDiffError, 'deadline'):
+                        resolver._run_git(directory, ['rev-parse', 'HEAD'])
+            pid = int((root / 'git-child.pid').read_text(encoding='utf-8'))
+            with self.assertRaises(ProcessLookupError):
+                os.kill(pid, 0)
+
+    def test_facet_semantics_preserve_schema_diagnostics_for_unhashable_ids(self):
+        cases = ({'resolved_gates': [{'id': []}]},
+                 {'required_facets': ['ui'], 'conditional_facets': [{'facet': {}}]},
+                 {'conditional_facets': [{'facet': []}]})
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / 'manifest.json'
+            for value in cases:
+                with self.subTest(value=value):
+                    manifest.write_text(json.dumps(value), encoding='utf-8')
+                    result = subprocess.run([sys.executable, str(SCRIPTS / 'validate-facet-manifest.py'),
+                                             '--manifest', str(manifest)], capture_output=True,
+                                            text=True, encoding='utf-8', timeout=10, check=False)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn('facet-manifest: schema-invalid:', result.stdout)
+                    self.assertNotIn('Traceback', result.stderr)
+
     def test_contract_invalid_shapes_have_failure_diagnostics(self):
         cases = [[], None, 1, {'schema': 1}, {'checks': [{'id': []}]},
                  {'checks': [{'id': 'lint', 'waiver_reason': 1}]},
