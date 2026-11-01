@@ -1896,7 +1896,7 @@ rm -rf "$_ab_root"
 
 # ---------------------------------------------------------------------------
 # T-003 context-presence invariant: FilesOnly output is byte-identical whether
-# an otherwise identical source fixture has project-context.yaml or not.
+# the same tracked payload has an untracked local project-context.yaml or not.
 # ---------------------------------------------------------------------------
 _t003_absent="$(build_fixture absent absent disabled-legacy valid none)"
 _t003_present="$(build_fixture present absent advisory valid none)"
@@ -1906,8 +1906,21 @@ _t003_absent_install="${_t003_absent}/installed"
 _t003_present_install="${_t003_present}/installed"
 clone_fixture "$SOURCE_FIXTURE" "$_t003_absent_source"
 clone_fixture "$SOURCE_FIXTURE" "$_t003_present_source"
+# The development repository may now track its own live Context. Normalize
+# only these disposable sources before adding the local/untracked variant.
+for _t003_source in "$_t003_absent_source" "$_t003_present_source"; do
+    git -C "$_t003_source" rm -q -f --ignore-unmatch -- sdd/project-context.yaml
+    [[ ! -e "${_t003_source}/sdd/project-context.yaml" ]] || {
+        fail "T-003 absent source unexpectedly contains project-context.yaml"
+        exit 1
+    }
+done
 mkdir -p "${_t003_present_source}/sdd"
 cp -p "${_t003_present}/sdd/project-context.yaml" "${_t003_present_source}/sdd/project-context.yaml"
+[[ -z "$(git -C "$_t003_present_source" ls-files -- sdd/project-context.yaml)" ]] || {
+    fail "T-003 local Context must not change the tracked payload"
+    exit 1
+}
 _t003_failed=0
 bash "$INSTALLER" --source-directory "$_t003_absent_source" --install-root "$_t003_absent_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
 bash "$INSTALLER" --source-directory "$_t003_present_source" --install-root "$_t003_present_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
