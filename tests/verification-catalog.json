@@ -131,6 +131,7 @@
     {"path": "tests/emit-run-record-feature-scope.tests.sh", "runtime": "bash"},
     {"path": "tests/escalation-skip-activation.tests.sh", "runtime": "bash", "excluded": "Isolated clone mutation diagnostic; not registered by the previous runners."},
     {"path": "tests/eval.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+    {"path": "tests/evidence-generation-boundary.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/evaluate-predicate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
     {"path": "tests/evaluate-predicate.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/evaluator-scratch-metrics.tests.py", "runtime": "python", "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"},
@@ -598,6 +599,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/evidence-generation-boundary.tests.ps1",
       "tests/spec-review-interrupted-recovery.tests.ps1",
       "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
@@ -871,6 +873,7 @@
       "tests/promote-golden-baseline-ci-guard.tests.ps1"
     ],
     "ci-portable-prechecks": [
+      "tests/evidence-generation-boundary.tests.ps1",
       "tests/review-contract-foundation.tests.ps1",
       "tests/downstream-review-precheck.tests.ps1",
       "tests/impl-layer-review-inputs.tests.ps1",
