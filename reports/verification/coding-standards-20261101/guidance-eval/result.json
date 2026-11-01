@@ -1,0 +1,127 @@
+{
+  "status": "two bounded probes completed; not general host acceptance",
+  "independent_model_calls": 2,
+  "blinded_judging": false,
+  "baseline_comparison": "not performed",
+  "skill_discovery": "not tested; local policy read requested explicitly",
+  "scope_limit": "Parent workspace instructions also read; no full product state machine or independent review simulated",
+  "results": [
+    {
+      "case": "field-notes",
+      "model": "gpt-6-astra",
+      "actual_native_cli": true,
+      "launch": "verify-codex exec --ephemeral --json --skip-git-repo-check --sandbox read-only --model gpt-6-astra -C FIXTURE -",
+      "completed": true,
+      "rubric_results": [
+        true,
+        true,
+        true
+      ],
+      "commands": [
+        {
+          "command": "/bin/bash -lc pwd",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc \"rg --files -g 'AGENTS.md' -g 'README.md' -g 'implementation-policy.md' -g '*propos*'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc 'for d in / /workspace /workspace/.tools /workspace/.tools/sdd-forge-dev /workspace/.tools/sdd-forge-dev/verification-workspace /workspace/.tools/sdd-forge-dev/verification-workspace/field-notes; do if [ -f \"$d/AGENTS.md\" ]; then printf '\"'\\\\n%s\\\\n' \\\"\"'$d/AGENTS.md\"; cat \"$d/AGENTS.md\"; fi; done'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc 'cat README.md plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md'",
+          "exit_code": 0
+        }
+      ],
+      "answer": "The proposed change is documentation only: support hours from **9\u20135 to 10\u20136**, as stated in [README.md](/workspace/.tools/sdd-forge-dev/verification-workspace/field-notes/README.md:1).\n\n- **Applicable guidance:** preserve unrelated content and follow existing document conventions. No language-specific coding guidance applies: this project adopts no coding standard or language tools.\n- **Required correction:** none to the proposed edit. Any requirement to import sdd-forge coding standards, add tooling, or apply UI rules would be misplaced. The [implementation policy](/workspace/.tools/sdd-forge-dev/verification-workspace/field-notes/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md:12) explicitly says its development preset is not imposed on installed projects and non-code tasks do not create a blocker.\n- **Verification boundary:** a focused textual review confirming the intended hours and no unrelated changes is sufficient. It would not verify whether those hours match actual business operations. No lint, build, tests, or full SDD workflow is warranted.\n\nBoth requested files were read. No checks were executed or files changed.",
+      "usage": {
+        "input_tokens": 51651,
+        "cached_input_tokens": 44416,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 525,
+        "reasoning_output_tokens": 0
+      },
+      "sources": [
+        {
+          "path": "README.md",
+          "sha256": "1b5801f46501de8097ac0108291c856edd2fb800ad8ae5c0df99d4424bd2fac1"
+        },
+        {
+          "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+          "sha256": "ac84b08f2a037eb36da6ab774620e2e255516c320c09a7a074cd40408d23fedb"
+        }
+      ]
+    },
+    {
+      "case": "forge-parser",
+      "model": "gpt-6-astra",
+      "actual_native_cli": true,
+      "launch": "verify-codex exec --ephemeral --json --skip-git-repo-check --sandbox read-only --model gpt-6-astra -C FIXTURE -",
+      "completed": true,
+      "rubric_results": [
+        true,
+        true,
+        true
+      ],
+      "commands": [
+        {
+          "command": "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'README.md' -g 'implementation-policy.md' -g '*proposal*' -g '*.patch' -g '*.diff'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc 'cat README.md plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc 'for p in /AGENTS.md /workspace/AGENTS.md /workspace/.tools/AGENTS.md /workspace/.tools/sdd-forge-dev/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/forge-parser/AGENTS.md; do if [ -f \"$p\" ]; then printf '\"'\\\\n%s\\\\n' \\\"\"'$p\"; cat \"$p\"; fi; done\nrg --files --hidden -g '\"'\"'!.git'\"'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc \"cat docs/contributor/coding-standards.md\nrg --files -g '*parse_output*' -g 'pyproject.toml' -g 'ruff.toml' -g '.ruff.toml' -g 'setup.cfg'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/bash -lc 'cat parse_output.py docs/contributor/coding-standards/python.md docs/contributor/coding-standards/common.md'",
+          "exit_code": 0
+        }
+      ],
+      "answer": "The proposed code requires correction at [parse_output.py:4](/workspace/.tools/sdd-forge-dev/verification-workspace/forge-parser/parse_output.py:4): it concatenates `user_path` into shell source with `shell=True`, allowing command injection.\n\nI read both requested files, the coding standards index, Python guidance, common rules, and the source. README identifies this fixture as **sdd-forge source development**, so its source coding standards apply.\n\nApplicable guidance:\n\n- **CS-001 / CS-009:** Pass an argument array without a shell and protect against option injection. For an `ls` implementation supporting `--`, the core correction is `subprocess.check_output([\"ls\", \"--\", user_path], text=True)`. This also preserves spaces and shell metacharacters as path data.\n- **CS-019:** Preserve failure propagation. Existing `check_output` already raises on nonzero exit; do not replace that with unchecked execution or success defaults.\n- **CS-023:** The subprocess currently has no deadline or output bound. Use the existing process supervisor if available in the complete project; its availability and lifecycle contract are not established by this fixture.\n- **CS-026:** `text=True` uses implicit decoding. Establish the producer/consumer encoding contract before choosing an explicit encoding.\n\nSQL, JSON validation, UI, async, and other language rules have no demonstrated applicability here. The filename alone does not establish a parser boundary.\n\nAppropriate later verification is narrowly scoped: ordinary paths, spaces, literal shell metacharacters, leading hyphens, non-ASCII names, missing paths/nonzero exits, and deadline/output-limit behavior on supported hosts. Expected results should be independent (**CS-028**). Mocked subprocess tests establish argument construction only; native execution is needed to establish actual `ls` and platform behavior (**CS-029**). Existing Ruff/mypy profiles may supplement this review, but a clean subset cannot establish complete compliance.\n\n**Verification status: static file review only.** No checks executed, tools installed, files edited, workflow run, commits made, or content published.",
+      "usage": {
+        "input_tokens": 79853,
+        "cached_input_tokens": 64896,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 821,
+        "reasoning_output_tokens": 0
+      },
+      "sources": [
+        {
+          "path": "README.md",
+          "sha256": "fcc99906ac7be3762ab07ec8a7a40685c1fe361c8a9b2d24f26d64e327f317a1"
+        },
+        {
+          "path": "docs/contributor/coding-standards/common.md",
+          "sha256": "83f68e5e4fce213120f4efe42e738b69ba5af3d5e39021a15127eef656a5453a"
+        },
+        {
+          "path": "docs/contributor/coding-standards/python.md",
+          "sha256": "51020f8eec6bfee091975ef0a8f681b01c5b63129d34ea956b3343275ec8aa26"
+        },
+        {
+          "path": "docs/contributor/coding-standards.md",
+          "sha256": "ee66533a568b8811bdd62f18edab63915031d1c2eac5e371a981b80a78a7d659"
+        },
+        {
+          "path": "parse_output.py",
+          "sha256": "760a424ba733e0fd9358b941f5378cc0f456cf49e7f9eb7b33a9832aaf38ed21"
+        },
+        {
+          "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+          "sha256": "ac84b08f2a037eb36da6ab774620e2e255516c320c09a7a074cd40408d23fedb"
+        }
+      ],
+      "additional_observation": "Read complete common.md rather than selecting only relevant rule sections; narrower lookup efficiency not established. No unrelated language references read."
+    }
+  ]
+}

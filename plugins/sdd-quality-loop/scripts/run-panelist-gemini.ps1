@@ -134,15 +134,15 @@ Rules:
 - Do not include any text outside the JSON object.
 '@
 
-    # The panelist instructions go through -Prompt (the CLI's documented
-    # non-interactive entry point); the sanitized bundle is piped on stdin,
-    # which the CLI appends after the -p prompt. No prompt/bundle
-    # concatenation needed here (unlike the codex twin, which has no
-    # dedicated instruction flag and stays with one combined stdin blob).
-    $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
-    $stdinContent = "## Sanitized Input Bundle`n`n" + $bundleContent
+    # The npm CLI commonly resolves to a .cmd shim on Windows. Its %*
+    # forwarding cannot preserve multiline prompt arguments. Gemini appends
+    # stdin to -p, so keep the non-interactive switch fixed and transport the
+    # complete instructions and sanitized bundle in the redirected UTF-8 file.
+    $cliPrompt = 'Review the complete instructions and sanitized input on stdin.'
+    $bundleContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $InputPath
+    $stdinContent = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
     $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
-    Set-Content -Encoding Utf8 -Path $stdinBundleFile -Value $stdinContent
+    [IO.File]::WriteAllText($stdinBundleFile, $stdinContent, [Text.UTF8Encoding]::new($false))
 
     [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)")
 
@@ -157,7 +157,7 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath "gemini" `
-                -ArgumentList (ConvertTo-SddNativeArgumentString @("--model", $Model, "-p", $promptText)) `
+                -ArgumentList (ConvertTo-SddNativeArgumentString @("--model", $Model, "-p", $cliPrompt)) `
                 -RedirectStandardInput  $stdinBundleFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
@@ -250,7 +250,7 @@ Rules:
             $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
             continue
         }
-        if (-not [string]::Equals([string]$parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
+        if ($parsed.schema -isnot [string] -or -not [string]::Equals($parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
             $rejections.Add("candidate ${candidateNum}: parsed but schema is '$($parsed.schema)' (expected '$targetSchema')")
             continue
         }
@@ -266,16 +266,16 @@ Rules:
         exit 1
     }
 
-    if ($verdict.schema -ne "cross-model-verdict/v1") {
+    if ($verdict.schema -isnot [string] -or $verdict.schema -cne "cross-model-verdict/v1") {
         [Console]::Error.WriteLine("run-panelist-gemini: wrong schema: $($verdict.schema)"); exit 1
     }
-    if ($verdict.blind -ne $true) {
+    if ($verdict.blind -isnot [bool] -or $verdict.blind -ne $true) {
         [Console]::Error.WriteLine("run-panelist-gemini: blind must be true"); exit 1
     }
-    if ($verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
+    if ($verdict.input_digest -isnot [string] -or $verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
         [Console]::Error.WriteLine("run-panelist-gemini: input_digest must be 64 lowercase hex"); exit 1
     }
-    if ($verdict.verdict -notin @("PASS","NEEDS_WORK")) {
+    if ($verdict.verdict -isnot [string] -or $verdict.verdict -cnotin @("PASS","NEEDS_WORK")) {
         [Console]::Error.WriteLine("run-panelist-gemini: verdict must be PASS or NEEDS_WORK"); exit 1
     }
 

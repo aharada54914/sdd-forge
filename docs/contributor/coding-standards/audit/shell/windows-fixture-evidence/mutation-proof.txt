@@ -1,0 +1,2 @@
+newline-bytes=0A old-changed=True fixed-changed=True exact-remainder=True
+newline-bytes=0D-0A old-changed=False fixed-changed=True exact-remainder=True

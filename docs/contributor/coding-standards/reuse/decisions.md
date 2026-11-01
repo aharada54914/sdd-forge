@@ -1,10 +1,11 @@
 # #691 reuse decisions and adoption index
 
 Review baseline: `82b536954626e73b36853711b264cbf5df400d22` (2026-11-01).
-This is an in-progress candidate assessment, not whole-population completion.
-#686 inventory and #688–#690 final trees still require reconciliation. Paths
-below are relative to the repository at that hash unless an adoption commit is
-recorded. Historical evidence and pending human-copy snapshots are unchanged.
+Candidate decisions below are reviewed through the source-bound owner records
+and independent helper review at `f6767ae3`, reconciled on integration `537a50b2`.
+This decision index is not the whole-population completion ledger: #686 owns
+that reconciliation, and final native CI remains pending. Paths below refer to
+the original baseline unless a later adoption or evidence revision is recorded. Historical evidence and pending human-copy snapshots are unchanged.
 
 ## Adoption criteria
 
@@ -22,11 +23,11 @@ that future consumers can never diverge.
 | R-001 technical logging | `mcp/{local-env-mcp,ci-mcp}/src/diagnostics.ts` → each `src/index.ts`, no-secrets tests; secret-safe startup/fatal stderr | `logStartup(info,sink?)`, `logFatal(error,sink?)`, `scrubMessage(message)`; package REQ-005 owners. Single JSON line, allowlisted fields, longest exact secrets first, env/OS read at call time, no stdout | Local logger introduced `136d3051` (2026-07-05), CI logger `08a49e3c` (2026-07-08). CI adds Bearer scrub; otherwise collection/serialization mechanisms agree. Existing public functions have no later path changes through baseline; only a four-month observed interval | Same `Bearer token` input legitimately differs between providers when token is absent from environment. Share lower-level collection/literal scrub/sink only; retain CI Bearer policy and event allowlist wrappers. Direct cross-package TS imports violate standalone test rootDir/deployment; generated package-local copies permit build-time sharing without runtime dependency | Adopted lower-level core; both packages build/typecheck and tests pass (54 local, 149 CI); freshness positive/stale-negative pass (2). New core API stability has no historical evidence |
 | R-002 technical GitHub client | `mcp/ci-mcp/src/github-client.ts` → five `tools/actions.ts` endpoints; auth gate `auth.ts` shared by handlers | GET-only fixed GitHub host, segment encoding, normalized errors without upstream body/token; JSON `githubGet` vs bounded text `githubGetText` | `2685d421` introduces client 2026-07-08; `12b62a5a` adds text, `a994adc7` bounds reads, `58c459e4` fixes oversized chunks. Semantic evolution in same day disproves blanket stability from signature. Actions consumer requires total bytes to derive truncation | JSON payload validation and UTF-8 tail retention are distinct correct responses, so retain public APIs. Private common GET request/auth/deadline/status mechanics now shared after #690 `67648d61`; no retry/business workflow extraction | Adopted on #690 `67648d61` dependency: 30s deadline + caller cancellation retained. Build/typecheck and 157 CI tests pass; paired JSON/text controls verify headers/status rejection and one request, no retry. Hosted/live transport not tested |
 | R-003 technical mirror classification | `scripts/human_copy_mirrors.py` → sync tool and Bash/PS freshness wrappers | `enumerate_mirrors`, classification and TSV CLI; repository mirror owner. Fresh/stale/pending distinguish already-applied vs reviewed pending bytes using main | `9800296d` 2026-08-21 introduction; `73d56299` 09-20 pending fix; `e72e72b9`, `a8e13fe6`, `a0822a96` 10-27/28 frozen successor pin semantics. Contract changes affect sync safety, not just formatting | Unequal bytes alone cannot authorize rewrite. Retain shared classifier; do not duplicate in a new source generator or collapse pending to stale. Frozen successor/publication policy stays here | `tests/human-copy-mirrors-classification.tests.py` passed groups 6/26/10 and 133 mutation cases on baseline; freshness wrappers remain final integration checks. No new classifier adoption needed |
-| R-004 feature report interpretation | `plugins/sdd-implementation/scripts/validate-implementation-report.sh` vs `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts` → admission vs read-only evidence/tasks | Strict current report contract vs tolerant historical mentions and directory read diagnostics; implementation gate and read-only MCP own different questions | Strict parser changes `6b40b6e1` (08-02 outputs heading), `ea015527`, `5bb6aee7`, `150f8bc7`, `ff5fe65a` (08-24/26 heading/authorization validity), `fd3da681` (10-17 scratch display). MCP `bb31d9ac` 07-29 preserves failed-scan unknown; `451fa4c9` 10-31 introduces per-operation lookup cache | An old report can establish that a task was mentioned while failing today's admission. Merge would wrongly reject historical evidence or weaken admission. Intentional separation; no common parser asserted | `tests/implementation-report-corpus.tests.sh`, MCP report lookup/error tests. Historical fixture bytes stay unchanged; final regression pending |
-| R-005 feature approval policy | Full task validation (`mcp/sdd-forge-mcp/src/parsers/task-validation.ts`, quality-loop scripts) vs `plugins/sdd-lite/scripts/check-task-state-lite.{sh,ps1}` | Full risk/second named approval rules vs Lite's own admission contract | Lite checker introduced `c7e51909` 2026-06-15 with evidence-bundle-free Done; Full validation altered through `451fa4c9` 2026-10-31. Existing #601 record identifies distinct policies; no stable shared approval API demonstrated | Critical Full requires named distinct second approver; Lite must not inherit Full two-person bundle. Intentional separation of policy; same spelling of `Approved` does not establish shared invariant | Language agents own final regressions; baseline policy decision reviewed, final changed paths remain to reconcile |
+| R-004 feature report interpretation | `plugins/sdd-implementation/scripts/validate-implementation-report.sh` vs `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts` → admission vs read-only evidence/tasks | Strict current report contract vs tolerant historical mentions and directory read diagnostics; implementation gate and read-only MCP own different questions | Strict parser changes `6b40b6e1` (08-02 outputs heading), `ea015527`, `5bb6aee7`, `150f8bc7`, `ff5fe65a` (08-24/26 heading/authorization validity), `fd3da681` (10-17 scratch display). MCP `bb31d9ac` 07-29 preserves failed-scan unknown; `451fa4c9` 10-31 introduces per-operation lookup cache | An old report can establish that a task was mentioned while failing today's admission. Merge would wrongly reject historical evidence or weaken admission. Intentional separation; no common parser asserted | Historical fixture bytes stay unchanged. Completed MCP real-filesystem report-reuse/done-state controls are recorded in `audit/typescript/contextual-coverage.json`; native scripts controls in `audit/shell/contract-terminal-evidence/contract-after.txt`. Final integrated corpus/native matrix receipts remain a separate CI gate; stdio smoke covers get_spec_status, not report lookup |
+| R-005 feature approval policy | Full task validation (`mcp/sdd-forge-mcp/src/parsers/task-validation.ts`, quality-loop scripts) vs `plugins/sdd-lite/scripts/check-task-state-lite.{sh,ps1}` | Full risk/second named approval rules vs Lite's own admission contract | Lite checker introduced `c7e51909` 2026-06-15 with evidence-bundle-free Done; Full validation altered through `451fa4c9` 2026-10-31. Existing #601 record identifies distinct policies; no stable shared approval API demonstrated | Critical Full requires named distinct second approver; Lite must not inherit Full two-person bundle. Intentional separation of policy; same spelling of `Approved` does not establish shared invariant | Completed Full field-validation/done-state/evidence-bundle controls are recorded by `audit/typescript/contextual-coverage.json`; Full/Lite native script controls by `audit/shell/contract-terminal-evidence/contract-after.txt`. These retain separate acceptance policies; final native matrix receipts remain pending |
 | R-006 technical launch boundary with feature orchestration | `plugins/sdd-review-loop/scripts/launch-impl-review.py` and existing preflight helpers → review/evaluator entrypoints and FilesOnly installer | Existing pinned-input/preflight/launch APIs, subprocess argv; review admission and quality delivery policies remain distinct | `0b300194` 10-11 integrated shared preflight; `bdfe7ab4` 10-14 fixed Git inputs; `e899b84d` nullable input fix; `f218c90c`, `1e882446` 10-17 concept decision gates. Frequent semantic changes mean orchestration is not stable universal process API | Review admission can require immutable review sources while another subprocess merely probes version. Do not wrap every subprocess into review launcher. Reuse only consumers already sharing pinned launch contract | `tests/shared-launch-build.tests.py` exercises installed scripts and fixed-input history. Final #689 assessment pending |
 
-| R-007 technical bootstrap download | `install.sh` `download_authenticated_archive` and `install.ps1` `Download-AuthenticatedArchive` → remote installer archive placement | GitHub tarball download to destination, installer owns authentication/runtime and cleanup; shell uses gh, PS permits GH_TOKEN/GITHUB_TOKEN then gh | `12628af2` 2026-06-13 introduced private authenticated install. Current APIs inspected at baseline; transport options/auth behavior must be reassessed after #688, not inferred from unchanged function names | Cannot use Node ci-mcp client before Node/package installation; CI's env-only read-only token gate differs from installer credentials and file output. Keep runtime-specific adapters; preserve same installer outcome via twin tests, no universal cross-runtime wrapper | Existing install and install-uninstall matrix suites; #688 execution pending. No new network library or Node prerequisite |
+| R-007 technical bootstrap download | `install.sh` `download_authenticated_archive` and `install.ps1` `Download-AuthenticatedArchive` → remote installer archive placement | GitHub tarball download to destination, installer owns authentication/runtime and cleanup; shell uses gh, PS permits GH_TOKEN/GITHUB_TOKEN then gh | `12628af2` 2026-06-13 introduced private authenticated install. Current APIs inspected at baseline; transport options/auth behavior must be reassessed after #688, not inferred from unchanged function names | Cannot use Node ci-mcp client before Node/package installation; CI's env-only read-only token gate differs from installer credentials and file output. Keep runtime-specific adapters; preserve same installer outcome via twin tests, no universal cross-runtime wrapper | Completed local installer controls are recorded in `audit/shell/summary.json` (Bash52; PowerShell core passed). Final native installer matrix remains a separate CI gate. These local controls do not establish live remote authenticated archive retrieval; no new network library or Node prerequisite |
 | R-008 technical public research transport | `plugins/sdd-bootstrap/scripts/research-acquire.py` `request_pinned` → `_acquire`, bounded worker and research command | Validated public IP, origin Host/SNI, socket/HTTP connection ownership, bounded response and deadline, proxy refusal; owner bootstrap research acquisition | Introduced `96d24cf0` 2026-10-27. Only days of history: stability unproven; existing adapter already centralizes transport | GitHub adapter accepts credentials and ordinary fetch redirects; research must validate every redirect peer, reject inherited proxy and never forward GitHub token. Keep separate provider adapter; consumer orchestration/quote interpretation remains separate | `tests/research-acquire.tests.py`: 32 run, 31 passed, 1 skipped on baseline; proxy refusal, deadline worker cleanup and malformed payload covered. Python owner independently inspected cleanup, found no defect; final integration remains pending |
 
 | R-009 technical retention vs feature presentation limits | `github-client.ts` `TAIL_READ_CAP_BYTES`/`TAIL_READ_MARGIN_BYTES` → bounded reader; `tools/actions.ts` `MAX_JOB_LOG_BYTES` → UTF-8 output cut | Transport memory window vs final wire byte cap, both presently 256 KiB base | `12b62a5a`, `a994adc7`, `58c459e4` (2026-07-08) changed streaming implementation without changing final output cap | Larger retention slack can be valid while final cap remains fixed; do not alias unrelated policy knobs just because base numbers match. Retain distinct named constants and existing bounded-reader/output tests | CI full suite exercises oversized chunk, memory window, UTF-8 tail truncation. No constant API change |
@@ -118,8 +119,10 @@ is still open. It does not trust `maxRetainedBytes` as its memory oracle or add 
 fixture-specific production path. The same new tests fail 2/2 before the fix and
 pass 2/2 after it under Node 24.19.0 on Linux. See `evidence/` for raw output and
 `independent-review.json` for source-bound review scope. Node's explicit GC and
-runtime weak-reference behavior are test prerequisites; native matrix execution
-remains integration work.
+runtime weak-reference behavior are test prerequisites. The completed public
+stdio distribution smoke is recorded in `audit/mcp-public-entry-review.json`;
+it does not replace the backing-allocation oracle. Final native matrix receipts
+remain pending.
 
 The R-001/R-002 shared mechanisms retain narrow meanings and wrapper policy.
 Independent logger checks covered Unicode/regex-literal secrets, newline JSON
@@ -147,3 +150,73 @@ separate reconciliation; excluding them from this candidate search is not an
 exception from final audit. No DB connection layer was established by this
 search. Remaining external-process and document-embedded candidates belong to
 the language/census audits, not a claim of zero unreviewed files here.
+
+### PowerShell native process adapter and discovery probes
+
+R-013 (technical infrastructure): `lib/native-arguments.ps1` now owns
+`Invoke-SddNativeRaw`, extracted from the existing `Invoke-SddGitRaw` implementation.
+The existing Git wrapper keeps its repository/argument inputs, raw stdout/stderr
+bytes, exit status, 30-second deadline and Git-prefixed error contract. Resolver,
+panelist preparation, criterion inspection and evidence generation retain their own admission,
+provenance and optional-metadata policies. Evidence generation supplies the second
+actual executable consumer: Python's optional version probe uses a five-second
+budget and degrades to empty metadata on failure; required Git HEAD/status failure
+still aborts publication. Concurrent stream draining, process lifetime and cleanup
+are identical technical mechanisms. Argument arrays remain data, stdout/stderr
+buffers and cancellation belong to one invocation, and cleanup cancels reads,
+kills an unfinished process and waits before disposing resources. No cache,
+retry, policy switch, package dependency or public command-line option is added.
+The helper is newly extracted, so stability evidence is the preserved Git wrapper
+and executed boundary controls, not a longevity claim. Tests exercise empty,
+quoted, backslash and newline arguments, exact byte streams, nonzero status,
+a real deadline and a separately observed terminated child.
+
+R-014 (deliberately separate discovery policy): `detect-panel.sh` remains a
+standalone POSIX-shell command. Its five-second `--version` probe owns and reaps
+the direct child, with one second for TERM before KILL; it does not promise
+process-tree supervision. `detect-panel.ps1` owns a native process with the same
+liveness budget and uses tree termination where its runtime supports it. Timeout
+or a failed version probe omits the slug, preserving graceful-degrade exit 1.
+These contracts differ from the model runners' Python process-group supervisor,
+which owns a scratch status file, model deadline and descendant cleanup. Reusing
+that runner for shell discovery would silently introduce Python and scratch-state
+requirements, so discovery keeps its small direct-child mechanism. The detector
+creates no status/temp files and does not turn a version response into proof of
+authentication. Disposable real-command tests cover version success, nonzero exit,
+a TERM-resistant hanging child, elapsed time and child termination. The local
+Bash suite passed 53/53 and PowerShell suite passed 60/60; native Windows/macOS
+execution remains separately recorded by CI.
+
+### Evidence key bytes and physical path resolution
+
+R-015: `lib/evidence-key.ps1` extracts the identical acquisition mechanism from
+`generate-evidence-bundle.ps1` and `check-evidence-bundle.ps1`. Both consume the
+same environment-key, explicit-keyfile, home-keyfile priority and UTF8 BOM plus
+trailing ASCII whitespace normalization. Byte-index normalization repairs the
+existing generic LINQ invocation failure without broadening normalization to
+interior or non-ASCII bytes. Acquisition owns no cache or logging; callers retain
+critical/high-risk signing and validation policy. Sudo authorization has a
+different key contract and remains separate. Actual producer and consumer tests,
+including BOM-prefixed keyfile signing and environment precedence, supply reuse
+evidence; this new helper has no longevity claim.
+
+R-016: `lib/evidence-path.ps1` provides existing-file physical path resolution to
+the same evidence producer and validator. Literal component inspection,
+ReparsePoint classification, bounded link traversal and the PowerShell5.1 Target
+fallback are technical mechanics. Hardlinks remain ordinary files. The concrete
+divergence counterexample is in-root symbolic links: the generator may collect
+them, while the validator's contract gate rejects reparse evidence. Containment,
+regular-file and admission policy therefore stay with callers. Tests cover
+external targets, relative link chains, bracketed paths, hardlinks, and injected
+missing-ResolveLinkTarget capability. The fallback test does not claim native
+WindowsPowerShell5.1 execution. No policy mode, dependency or new CLI is added.
+
+Independent heldout execution at `f6767ae3` passed raw 1 MiB streams, eight argv
+atoms, nonzero status, start-error redaction, deadline/direct-child cleanup, real
+Git wrapper calls, binary key handling, two-hop relative directory links and
+hardlinks. See `shared-helpers-independent-review.json` for exact source hashes
+and `evidence/shared-helpers-heldout.txt` for output. The missing-method fallback
+was simulated on Linux; this does not establish native Windows PowerShell 5.1
+behavior. Full raw output buffers remain uncapped, and descendant cleanup after
+an already-exited parent is not promised. Newly extracted helper stability rests
+on preserved caller contracts and these controls, not longevity.

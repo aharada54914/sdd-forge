@@ -363,7 +363,8 @@ function Get-PersistedAdrPassPaths {
   foreach ($entry in $precheck.adr_inputs) { $entry.path }
 }
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
-  return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
+  return ($Left -is [string] -and $Right -is [string] -and
+    [string]::Equals($Left, $Right, [StringComparison]::Ordinal))
 }
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- the same recipe as
 # check-workflow-state.ps1 Get-NormalizedHash for the task stage (canonical
@@ -392,6 +393,11 @@ function Test-TasksStatusesMixed([string]$Path) {
     if ($m.Success) { [void]$values.Add($m.Groups[1].Value) }
   }
   return $values.Count -gt 1
+}
+function Test-JsonIntegerEquals([object]$Value, [int64]$Expected) {
+  return (($Value -is [int32] -or $Value -is [int64] -or
+      $Value -is [System.Numerics.BigInteger] -or $Value -is [double]) -and
+    $Value -eq $Expected)
 }
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')
@@ -681,7 +687,7 @@ function Require-Pass(
     if (-not (Test-OrdinalEqual $reviewerA.run_id $data.reviewer_a_run_id) -or -not (Test-OrdinalEqual $reviewerB.run_id $data.reviewer_b_run_id) -or -not (Test-OrdinalEqual $reviewerA.host_session_id $data.reviewer_a_host_session_id) -or -not (Test-OrdinalEqual $reviewerB.host_session_id $data.reviewer_b_host_session_id)) { Fail 'persisted spec verdict and contract reviewer identities contradict each other' }
   } elseif (-not (Test-OrdinalEqual $contract.run_id $data.run_id)) { Fail "persisted $Stage verdict and contract run IDs contradict each other" }
 }
-if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
+if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*\z') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
@@ -706,17 +712,22 @@ if ($VerifyInputs) {
   foreach ($path in @($requirements, $acceptance, $tasks)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "review input is missing or substituted: $path" }
   }
-  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json -NoEnumerate
+  $requiredKeys = @('schema', 'feature', 'attempt', 'round', 'requirements_sha256', 'acceptance_sha256', 'tasks_sha256')
+  if ($precheck -isnot [System.Management.Automation.PSCustomObject] -or
+      @($requiredKeys | Where-Object { $_ -cnotin @($precheck.PSObject.Properties.Name) }).Count -gt 0) {
+    Fail 'precheck must be an object with canonical core fields'
+  }
   # WFI-025: verify the task plan against the digest FORM the precheck
   # declared. A normalized record tolerates the lifecycle flips it exists to
   # absorb; a body edit still changes the normalized digest and fails here.
   $tasksVerifyHash = (Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower()
   $declaredForm = 'raw'
-  if ($null -ne $precheck.psobject.Properties['tasks_sha256_form']) { $declaredForm = [string]$precheck.tasks_sha256_form }
+  if ($null -ne $precheck.psobject.Properties['tasks_sha256_form'] -and $precheck.tasks_sha256_form -is [string]) { $declaredForm = $precheck.tasks_sha256_form }
   if ($declaredForm -ceq 'normalized') { $tasksVerifyHash = Get-TasksNormalizedHash $tasks }
   if (-not (Test-OrdinalEqual $precheck.schema 'task-review-precheck/v1') -or
       -not (Test-OrdinalEqual $precheck.feature $Feature) -or
-      [int64]$precheck.attempt -ne [int64]$Attempt -or [int64]$precheck.round -ne [int64]$Round -or
+      -not (Test-JsonIntegerEquals $precheck.attempt $Attempt) -or -not (Test-JsonIntegerEquals $precheck.round $Round) -or
       -not (Test-OrdinalEqual $precheck.tasks_sha256 $tasksVerifyHash) -or
       -not (Test-OrdinalEqual $precheck.requirements_sha256 ((Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower())) -or
       -not (Test-OrdinalEqual $precheck.acceptance_sha256 ((Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()))) {
@@ -732,7 +743,7 @@ if ($VerifyInputs) {
     if (-not (Test-OrdinalEqual $precheck.traceability_sha256 ((Get-FileHash -LiteralPath $traceability -Algorithm SHA256).Hash.ToLower()))) { Fail 'traceability review input changed after precheck' }
     & (Join-Path $PSScriptRoot 'validate-layer-traceability.ps1') -Path $traceability -RequirementsPath $requirements
     $boundNames = @($precheck.layer_sha256.psobject.Properties.Name)
-    if ($boundNames.Count -ne $layerNames.Count -or @($layerNames | Where-Object { $_ -notin $boundNames }).Count -gt 0) { Fail 'precheck layer manifest is incomplete' }
+    if ($boundNames.Count -ne $layerNames.Count -or @($layerNames | Where-Object { $_ -cnotin $boundNames }).Count -gt 0) { Fail 'precheck layer manifest is incomplete' }
     foreach ($name in $layerNames) {
       $path = Get-ReviewInputSource $root "specs/$Feature/$name" $fixedSources
       if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "layer review input is missing or substituted: $path" }
@@ -777,18 +788,18 @@ if ($fullProfile) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" }
   }
 }
-$specStatus = (Select-String -LiteralPath $requirements -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim(); $implStatus = (Select-String -LiteralPath $design -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
-if ($specStatus -ne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }; if ($implStatus -ne 'Passed') { Fail 'design.md must declare Impl-Review-Status: Passed' }
+$specStatus = (Select-String -LiteralPath $requirements -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim(); $implStatus = (Select-String -LiteralPath $design -CaseSensitive -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
+if ($specStatus -cne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }; if ($implStatus -cne 'Passed') { Fail 'design.md must declare Impl-Review-Status: Passed' }
 $edges = @(); $nodes = @(); $current = ''; $expectBlockers = $false
 foreach ($line in Get-Content -LiteralPath $tasks) {
-  if ($line -match '^##\s+(T-[0-9]{3})(\s|$)') { if ($expectBlockers) { Fail "$current Blockers value is missing" }; $current=$Matches[1]; $nodes += $current; $expectBlockers=$false; continue }
-  if ($current -and $line -match '^Blockers:\s*(.*)$') {
-    $value = $Matches[1].Trim(); if (-not $value -or $value -eq 'None') { $expectBlockers=$false; continue }
-    foreach ($target in $value.Split(',')) { if ($target.Trim() -notmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} }
+  if ($line -cmatch '^##\s+(T-[0-9]{3})(\s|$)') { if ($expectBlockers) { Fail "$current Blockers value is missing" }; $current=$Matches[1]; $nodes += $current; $expectBlockers=$false; continue }
+  if ($current -and $line -cmatch '^Blockers:\s*(.*)$') {
+    $value = $Matches[1].Trim(); if (-not $value -or $value -ceq 'None') { $expectBlockers=$false; continue }
+    foreach ($target in $value.Split(',')) { if ($target.Trim() -cnotmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} }
     $expectBlockers=$false; continue
   }
-  if ($line -match '^###\s+Blockers\s*$') { $expectBlockers=$true; continue }
-  if ($expectBlockers -and $line.Trim()) { if ($line.Trim() -ne 'None') { foreach ($target in $line.Split(',')) { if ($target.Trim() -notmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} } }; $expectBlockers=$false }
+  if ($line -cmatch '^###\s+Blockers\s*$') { $expectBlockers=$true; continue }
+  if ($expectBlockers -and $line.Trim()) { if ($line.Trim() -cne 'None') { foreach ($target in $line.Split(',')) { if ($target.Trim() -cnotmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} } }; $expectBlockers=$false }
 }
 if ($expectBlockers) { Fail "$current Blockers value is missing" }
 $adjacency=@{}; foreach($node in $nodes){ $adjacency[$node]=[Collections.Generic.List[string]]::new() }

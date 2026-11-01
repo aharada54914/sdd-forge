@@ -128,7 +128,9 @@ function Remove-TemporarySnapshot([string]$Path) {
 }
 
 try {
-  $data = Get-Content -Raw -LiteralPath $Manifest | ConvertFrom-Json
+  $raw = Get-Content -Raw -LiteralPath $Manifest
+  if ($raw.TrimStart() -notmatch '^\{') { Fail JSON 'manifest must be an object' }
+  $data = $raw | ConvertFrom-Json
 } catch {
   Fail JSON $_.Exception.Message
 }

@@ -24,7 +24,7 @@ printf 'ran\n' > ran.txt
     $raw = & $Python.Source $Runner --summary (Join-Path $Work 'capability-summary.json') --enforcement required --repo-root $Work --runtime powershell
     if ($LASTEXITCODE -ne 0) { throw 'PowerShell child was reported as failed' }
     $result = $raw | ConvertFrom-Json
-    if ($result.verdict -ne 'PASS' -or $result.checks[0].exit_code -ne 0) { throw 'unexpected pass payload' }
+    if ($result.verdict -cne 'PASS' -or $result.checks[0].exit_code -ne 0) { throw 'unexpected pass payload' }
     if ($result.checks[0].stdout.Trim() -ne 'child-stdout' -or $result.checks[0].stderr.Trim() -ne 'child-stderr') { throw 'stdout/stderr were not captured separately' }
     if (-not (Test-Path (Join-Path $Work 'ran.txt'))) { throw 'child sentinel was not written' }
     Write-Output 'ok: PowerShell child execution captures output and exit status'
@@ -38,7 +38,7 @@ printf 'ran\n' > ran.txt
     $raw = & $Python.Source $Runner --enforcement none --repo-root $Work --runtime powershell --check emit-proof --check missing --output $evidence
     if ($LASTEXITCODE -eq 0) { throw 'missing check was waived' }
     $result = Get-Content -Raw -LiteralPath $evidence | ConvertFrom-Json
-    if ($result.verdict -ne 'FAIL' -or $result.failed_check -ne 'missing' -or $result.checks.Count -ne 1) { throw 'failure lost prior execution evidence' }
+    if ($result.verdict -cne 'FAIL' -or $result.failed_check -ne 'missing' -or $result.checks.Count -ne 1) { throw 'failure lost prior execution evidence' }
     Write-Output 'ok: discovery failure preserves completed evidence'
     Write-Output 'Results: 3 passed, 0 failed'
 } finally {

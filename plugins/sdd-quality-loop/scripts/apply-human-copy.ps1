@@ -165,9 +165,9 @@ function Get-Sha256OrAbsent([string]$Path) {
     $attrs = $null
     try {
         $attrs = [System.IO.File]::GetAttributes($Path)
-    } catch {
-        # Nothing occupies this path at all -- the ONE case that is a
-        # genuine, first-class observation of absence.
+    } catch [System.IO.FileNotFoundException] {
+        return 'ABSENT'
+    } catch [System.IO.DirectoryNotFoundException] {
         return 'ABSENT'
     }
     $isReparse = ([int]$attrs -band [int][System.IO.FileAttributes]::ReparsePoint) -ne 0
@@ -340,8 +340,8 @@ function Read-Manifest([string]$Path) {
     # here rather than attempting a raw-byte, LF-only re-parse (which
     # would risk silently corrupting a genuinely CRLF-terminated
     # manifest by leaving a spurious trailing CR attached to every
-    # target path). This check runs BEFORE Get-Content's own line-array
-    # parse below, because Get-Content ALSO independently splits a bare
+    # target path). This check runs BEFORE the LF-only line split
+    # below. The former Get-Content reader independently split a bare
     # CR as its own line boundary -- verified empirically: on a manifest
     # whose second target path contains an embedded CR, Get-Content
     # produces an EXTRA, malformed "line" and this function would
@@ -349,11 +349,15 @@ function Read-Manifest([string]$Path) {
     # MANIFEST_INVALID rather than the correctly-categorized
     # UNSUPPORTED_PATH_CHARACTER the .sh twin's own whole-file
     # pre-check (parse_manifest) reports for the identical input.
-    $rawForCrCheck = Get-Content -LiteralPath $Path -Raw -Encoding utf8
+    try {
+        $rawForCrCheck = [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false, $true))
+    } catch {
+        Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest cannot be read as strict UTF-8: $Path"
+    }
     if ($null -ne $rawForCrCheck -and $rawForCrCheck.Contains("`r")) {
         Write-Denial $ExitUnsupportedPathCharacter 'UNSUPPORTED_PATH_CHARACTER' "manifest file contains a literal carriage return (CR), which cannot be safely distinguished from a CRLF line terminator by either runtime; rejected in both runtimes (sh and ps1) to avoid a silent capability divergence: $Path"
     }
-    $lines = @(Get-Content -LiteralPath $Path -Encoding utf8)
+    $lines = @($rawForCrCheck.Split([char]10))
     if ($lines.Count -eq 0 -or ($lines.Count -eq 1 -and [string]::IsNullOrEmpty($lines[0]))) {
         Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest file is empty: $Path"
     }
@@ -372,7 +376,7 @@ function Read-Manifest([string]$Path) {
         if ($hash -cnotmatch '^[0-9a-f]{64}$' -or [string]::IsNullOrEmpty($target)) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest line $lineNo is not '<64-hex-lowercase>  <path>': $Path"
         }
-        if ($target.StartsWith('/') -or $target.Contains('..')) {
+        if ([IO.Path]::IsPathRooted($target) -or $target.StartsWith('/') -or $target.Contains('..')) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest line $lineNo target is not a normalized repo-relative path: $target"
         }
         # UNSUPPORTED_PATH_CHARACTER (quality-gate seq0359): rejected in
@@ -551,6 +555,7 @@ function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFi
         }
         return $null
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
+    if (-not $r.Ok -or -not $r.Value) { throw 'pre-transaction-backup-unavailable' }
     if ($r.Ok -and $r.Value) {
         Copy-Item -LiteralPath $r.Value -Destination $DestFile -Force
         # Capture the live target's PRE-transaction permission bits onto
@@ -789,20 +794,21 @@ function Get-JournalTargets([string]$JournalFile) {
     # IDENTICALLY to a shape violation, never as "no journal".
     if (-not (Test-Path -LiteralPath $JournalFile -PathType Leaf)) { return $null }
     try {
-        $raw = Get-Content -LiteralPath $JournalFile -Raw -Encoding utf8
+        $raw = [IO.File]::ReadAllText($JournalFile, [Text.UTF8Encoding]::new($false, $true))
         if ([string]::IsNullOrWhiteSpace($raw)) { return $null }
         $obj = $raw | ConvertFrom-Json -ErrorAction Stop
     } catch {
         return $null
     }
-    if ($null -eq $obj.PSObject.Properties['targets']) { return $null }
+    if ($null -eq $obj.PSObject.Properties['targets'] -or $obj.targets -isnot [array]) { return $null }
     $targets = @($obj.targets)
     if ($targets.Count -eq 0) { return $null }
     foreach ($t in $targets) {
         if ($null -eq $t.PSObject.Properties['live_path'] -or $null -eq $t.PSObject.Properties['pre_hash'] -or $null -eq $t.PSObject.Properties['post_hash']) {
             return $null
         }
-        if ([string]::IsNullOrEmpty($t.live_path) -or [string]::IsNullOrEmpty($t.pre_hash) -or [string]::IsNullOrEmpty($t.post_hash)) {
+        if ($t.live_path -isnot [string] -or $t.pre_hash -isnot [string] -or $t.post_hash -isnot [string] -or
+            [string]::IsNullOrEmpty($t.live_path) -or [string]::IsNullOrEmpty($t.pre_hash) -or [string]::IsNullOrEmpty($t.post_hash)) {
             return $null
         }
     }
@@ -916,9 +922,25 @@ function Complete-RecoveredBatch([string]$Jf, [string]$BatchDirAbs) {
 
 function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
     $stagingRoot = Join-Path $RepoRootAbs 'sdd/.staging'
-    if (-not (Test-Path -LiteralPath $stagingRoot -PathType Container)) { return 0 }
-    Get-ChildItem -LiteralPath $stagingRoot -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+    foreach ($parent in @((Join-Path $RepoRootAbs 'sdd'), $stagingRoot)) {
+        try {
+            $attributes = [System.IO.File]::GetAttributes($parent)
+            if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -or
+                -not ($attributes -band [System.IO.FileAttributes]::Directory)) {
+                throw 'recovery parent is linked or not a directory'
+            }
+            Get-ChildItem -LiteralPath $parent -ErrorAction Stop | Out-Null
+        } catch [System.IO.FileNotFoundException] { return 0 }
+          catch [System.IO.DirectoryNotFoundException] { return 0 }
+          catch { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "cannot inspect recovery directory '$parent'; journal state is undetermined" }
+    }
+    $batches = @(Get-ChildItem -LiteralPath $stagingRoot -Directory -ErrorAction Stop)
+    $batches | ForEach-Object {
         $batchDirAbs = $_.FullName
+        try {
+            if (Test-ReparsePoint $batchDirAbs) { throw 'linked recovery batch' }
+            Get-ChildItem -LiteralPath $batchDirAbs -ErrorAction Stop | Out-Null
+        } catch { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "cannot inspect recovery batch '$batchDirAbs'; journal state is undetermined" }
         $jf = Join-Path $batchDirAbs 'TRANSACTION.json'
         if (-not (Test-Path -LiteralPath $jf -PathType Leaf)) { return }
 
@@ -1041,7 +1063,13 @@ foreach ($entry in $manifestEntries) {
             Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
             Write-Denial $ExitDuplicateBasenameInBatch 'DUPLICATE_BASENAME_IN_BATCH' "manifest target '$relPath' would reuse the pre-transaction backup slot 'pre/$base' already occupied by an earlier target in this batch (this filesystem treats the two basenames as the same name); the backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
         }
-        Backup-PreBytes $RepoRootAbs $relPath $slot
+        try {
+            Backup-PreBytes $RepoRootAbs $relPath $slot
+            if ((Get-Sha256Hex $slot) -cne $preHash) { throw 'pre-transaction-backup-hash-mismatch' }
+        } catch {
+            Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Denial $ExitLiveProbeFailed 'LIVE_PROBE_FAILED' "could not preserve the pre-transaction bytes and mode of target '$relPath'; refusing to publish batch $BatchNonce"
+        }
     }
     $targetsForJournal.Add([ordered]@{ Path = $relPath; PreHash = $preHash; Hash = $hash })
     $appliedPaths.Add($relPath)

@@ -44,7 +44,7 @@ $riskSurface = @{}
 $seenIds = @{}
 $foundFilter = $false
 
-$lines = Get-Content -Encoding Utf8 $TasksPath
+$lines = Get-Content -Encoding Utf8 -LiteralPath $TasksPath
 
 foreach ($line in $lines) {
     if ($line -cmatch '^##\s+(T-[0-9]+)') {
@@ -88,7 +88,7 @@ $allTasks = @($seenIds.Keys) | Sort-Object
 
 foreach ($task in $allTasks) {
     # If filter provided, skip non-matching tasks
-    if ($TaskId -ne "" -and $task -ne $TaskId) {
+    if ($TaskId -ne "" -and $task -cne $TaskId) {
         continue
     }
     if ($TaskId -ne "") { $foundFilter = $true }

@@ -28,7 +28,7 @@ pattern_ci='not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary st
 out_cs="$(grep -rEn --binary-files=without-match \
   --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bin \
   --exclude-dir=obj --exclude-dir=dist \
-  -e "$pattern_cs" "$@")"
+  -e "$pattern_cs" -- "$@")"
 rc_cs=$?
 if [ "$rc_cs" -ge 2 ]; then
   echo "check-placeholders: FATAL grep error (exit $rc_cs) scanning the case-sensitive markers." >&2
@@ -39,7 +39,7 @@ fi
 out_ci="$(grep -rEin --binary-files=without-match \
   --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bin \
   --exclude-dir=obj --exclude-dir=dist \
-  -e "$pattern_ci" "$@")"
+  -e "$pattern_ci" -- "$@")"
 rc_ci=$?
 if [ "$rc_ci" -ge 2 ]; then
   echo "check-placeholders: FATAL grep error (exit $rc_ci) scanning the case-insensitive markers." >&2
@@ -47,7 +47,10 @@ if [ "$rc_ci" -ge 2 ]; then
   echo "check-placeholders: a path above could not be scanned; failing closed instead of reporting a false pass." >&2
   exit "$rc_ci"
 fi
-out="$(printf '%s\n%s\n' "$out_cs" "$out_ci" | grep -v '^$' | sort -u)"
+out="$(printf '%s\n%s\n' "$out_cs" "$out_ci" | grep -v '^$' | sort -u)" || {
+  echo 'check-placeholders: FATAL cannot aggregate scan findings.' >&2
+  exit 2
+}
 
 if [ -n "$out" ]; then
   count="$(printf '%s\n' "$out" | wc -l | tr -d ' ')"

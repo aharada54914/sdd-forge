@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # install.tests.sh — bash port of install.tests.ps1
 # Run from any directory. Uses --source-directory so no network is needed.
 set -euo pipefail
@@ -190,7 +191,7 @@ make_fake_commands() {
         if [[ "$cmd" == "gh" ]]; then
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "gh \$*" >> "${log_path}"
+echo "gh \$*" >> $(shell_literal "$log_path")
 if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
     printf '%s\n' "fake-gh-token"
     exit 0
@@ -200,14 +201,14 @@ SHIM
         elif [[ -n "$fail_pattern" ]]; then
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "${cmd} \$*" >> "${log_path}"
-echo "\$*" | grep -qF "${fail_pattern}" && exit 9
+echo "${cmd} \$*" >> $(shell_literal "$log_path")
+echo "\$*" | grep -qF $(shell_literal "$fail_pattern") && exit 9
 exit 0
 SHIM
         else
             cat > "$shim" <<SHIM
 #!/bin/sh
-echo "${cmd} \$*" >> "${log_path}"
+echo "${cmd} \$*" >> $(shell_literal "$log_path")
 exit 0
 SHIM
         fi
@@ -268,7 +269,7 @@ make_fake_remote_fetcher() {
 
     cat > "${bin_dir}/gh" <<SHIM
 #!/bin/sh
-echo "gh \$*" >> "${log_path}"
+echo "gh \$*" >> $(shell_literal "$log_path")
 if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
     printf '%s\n' "fake-gh-token"
     exit 0
@@ -279,7 +280,7 @@ SHIM
 
     cat > "${bin_dir}/curl" <<SHIM
 #!/bin/sh
-echo "curl \$*" >> "${log_path}"
+echo "curl \$*" >> $(shell_literal "$log_path")
 config=""
 case "\$*" in
     *"--config -"*) config="\$(cat)" ;;
@@ -313,7 +314,7 @@ output=""
             ;;
     esac
 done
-cp "${archive_path}" "\$output"
+cp $(shell_literal "$archive_path") "\$output"
 exit 0
 SHIM
     chmod +x "${bin_dir}/curl"
@@ -542,6 +543,8 @@ invoke_remote_installer_scenario() {
     fi
     if ! grep -qF "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$expected_ref" "$command_log"; then
         fail "authenticated remote install did not use the GitHub API archive URL"
+        printf '  expected URL ref: %s\n' "$expected_ref" >&2
+        grep -F 'https://api.github.com/repos/' "$command_log" >&2 || true
         remote_ok=0
     fi
     if grep -qF "raw.githubusercontent.com" "$command_log" || grep -qF "codeload.github.com" "$command_log"; then
@@ -880,6 +883,35 @@ if ! echo "$_k3_output" | grep -q "not Git-tracked"; then
 fi
 rm -rf "$_k3_root"
 [[ $_k3_ok -eq 1 ]] && ok "untracked required release file is rejected before deployment"
+
+# Lock environment values must never become executable arithmetic expressions.
+_lock_input_root="$(mktemp -d)"
+for _lock_name in SDD_INSTALL_LOCK_TIMEOUT SDD_INSTALL_LOCK_STALE; do
+    # Literal command substitution is the hostile data under test.
+    # shellcheck disable=SC2016
+    for _lock_value in 'BASH_VERSINFO[$(touch "'"${_lock_input_root}/executed"'" )]' -1 1.5 2147483648 999999999999999999999999; do
+        _lock_input_rc=0
+        _lock_input_out="$(env "${_lock_name}=${_lock_value}" "$BASH" "$INSTALLER" \
+            --source-directory "$SOURCE_FIXTURE" --install-root "${_lock_input_root}/installed" \
+            --target FilesOnly --skip-agent-install --skip-mcp 2>&1)" || _lock_input_rc=$?
+        if [[ $_lock_input_rc -ne 0 && ! -e "${_lock_input_root}/executed" && ! -e "${_lock_input_root}/installed" ]] &&
+            [[ "$_lock_input_out" == *"$_lock_name must be decimal seconds"* ]]; then
+            ok "$_lock_name rejects nondecimal or overflowing arithmetic data"
+        else
+            fail "$_lock_name accepted unsafe lock input: $_lock_value"
+        fi
+    done
+done
+_lock_input_rc=0
+SDD_INSTALL_LOCK_TIMEOUT=00008 SDD_INSTALL_LOCK_STALE=00000 "$BASH" "$INSTALLER" \
+    --source-directory "$SOURCE_FIXTURE" --install-root "${_lock_input_root}/installed" \
+    --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _lock_input_rc=$?
+if [[ $_lock_input_rc -eq 0 && -d "${_lock_input_root}/installed" ]]; then
+    ok "lock settings accept zero and leading-zero decimal seconds"
+else
+    fail "lock settings rejected valid decimal seconds"
+fi
+rm -rf "$_lock_input_root"
 
 # ---------------------------------------------------------------------------
 # Scenario (l): concurrent-lock — pre-created lock with live pid blocks install

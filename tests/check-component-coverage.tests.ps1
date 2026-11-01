@@ -40,7 +40,7 @@ if ($obj.state -eq "not-applicable (disabled-legacy)" -and $obj.manifest_status 
 } else {
     Fail "TEST-026.1: expected disabled-legacy/not-consulted, got state=$($obj.state) manifest_status=$($obj.manifest_status)"
 }
-if ($obj.fail_conditions.Count -eq 0 -and $obj.schema -eq "check-component-coverage-verdict/v1") {
+if ($obj.fail_conditions.Count -eq 0 -and $obj.schema -ceq "check-component-coverage-verdict/v1") {
     Ok "TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record"
 } else {
     Fail "TEST-027.1: expected fail_conditions empty and correct schema"
@@ -66,7 +66,7 @@ if ($r.ExitCode -eq 2) { Ok "TEST-028.2: -FacetManifest omitted entirely is also
 Write-Output "=== TEST-029: -Diagnose never Gate-invoked ==="
 $r = Invoke-Diagnose (Join-Path $fixtures "config-advisory.yaml") (Join-Path $fixtures "changed-paths-fail1.txt")
 $obj = $r.Output | ConvertFrom-Json
-if ($obj.schema -eq "resolve-component-paths-diagnose/v1") {
+if ($obj.schema -ceq "resolve-component-paths-diagnose/v1") {
     Ok "TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema"
 } else {
     Fail "TEST-029.1: expected resolve-component-paths-diagnose/v1, got $($obj.schema)"
@@ -186,7 +186,7 @@ $realSha = (Get-FileHash -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-
 function Test-Producer {
     param([string]$Label, [string]$Output)
     $obj = $Output | ConvertFrom-Json
-    if ($obj.schema -eq "check-component-coverage-verdict/v1" -and $obj.check_id -eq "check-component-coverage" -and $obj.producer.sha256 -eq $realSha) {
+    if ($obj.schema -ceq "check-component-coverage-verdict/v1" -and $obj.check_id -ceq "check-component-coverage" -and $obj.producer.sha256 -eq $realSha) {
         Ok "TEST-054 ($Label): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script"
     } else {
         Fail "TEST-054 ($Label): schema=$($obj.schema) check_id=$($obj.check_id) sha=$($obj.producer.sha256) real=$realSha"

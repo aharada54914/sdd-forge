@@ -149,6 +149,46 @@ Status: Done
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-good.json"
     Assert-ExitCode "check-contract passing" (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
 
+    # Native JSON boundary controls: singleton arrays are not protocol scalars.
+    foreach ($case in @('schema-array','task-array','evidence-array','id-array','waiver-array','wrongcase-id','wrongcase-mode','wrongcase-field','null-required')) {
+        $boundary = Get-Content -Raw -LiteralPath 'contract-good.json' | ConvertFrom-Json
+        switch ($case) {
+            'schema-array' { $boundary | Add-Member schema @('verification-contract/v2') -Force }
+            'task-array' { $boundary.task_id = @($boundary.task_id) }
+            'evidence-array' { $boundary.checks[0].evidence = @('ev.log') }
+            'id-array' { $boundary.checks[0].id = @($boundary.checks[0].id) }
+            'waiver-array' { $boundary.checks[0] | Add-Member waiver_reason @('waiver') -Force }
+            'wrongcase-id' { $boundary.checks[0].id = $boundary.checks[0].id.ToUpperInvariant() }
+            'wrongcase-mode' { $boundary | Add-Member cross_model 'LEGACY' -Force }
+            'wrongcase-field' {
+                $value = $boundary.checks[0].required
+                $boundary.checks[0].PSObject.Properties.Remove('required')
+                $boundary.checks[0] | Add-Member Required $value
+            }
+            'null-required' { $boundary.checks[0].required = $null }
+        }
+        $boundary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath 'contract-boundary.json'
+        Assert-ExitCode "check-contract rejects $case" (Invoke-Gate 'check-contract.ps1' @('contract-boundary.json','-RepoRoot','.')) 1
+    }
+
+    $producerHash = Get-Sha256Hex (Join-Path $scriptsDir 'check-component-coverage.py')
+    foreach ($case in @('valid','array','upper','root-array','wrong-key')) {
+        $producerRecord = @{ producer = @{ sha256 = $producerHash } }
+        switch ($case) {
+            'array' { $producerRecord.producer.sha256 = @($producerHash) }
+            'upper' { $producerRecord.producer.sha256 = $producerHash.ToUpperInvariant() }
+            'wrong-key' { $producerRecord = @{ Producer = @{ sha256 = $producerHash } } }
+        }
+        $recordJson = $producerRecord | ConvertTo-Json -Depth 10
+        if ($case -ceq 'root-array') { $recordJson = '[' + $recordJson + ']' }
+        [IO.File]::WriteAllText((Join-Path $workDir 'producer-boundary.json'), $recordJson)
+        $boundary = Get-Content -Raw -LiteralPath 'contract-good.json' | ConvertFrom-Json
+        $boundary.checks += [pscustomobject]@{id='check-component-coverage';required=$true;passes=$true;evidence='producer-boundary.json'}
+        $boundary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath 'contract-boundary.json'
+        $expected = if ($case -ceq 'valid') { 0 } else { 1 }
+        Assert-ExitCode "check-contract producer $case" (Invoke-Gate 'check-contract.ps1' @('contract-boundary.json','-RepoRoot','.')) $expected
+    }
+
     # --- WFI-046 per-check execution record (design.md section 2) ---
     # The rule shipped in the python master only; every malformed shape passed
     # on this runtime while failing on POSIX, and neither suite had a fixture
@@ -1639,6 +1679,29 @@ Status: Planned
     $t005_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-1.json"
     Assert-ExitCode "T-005.1: valid traceability (req+acs+tests, no evidence) passes" (Invoke-Gate "check-traceability.ps1" @("traceability-t005-1.json", "-RepoRoot", ".")) 0
 
+    foreach ($mutation in @(
+        @{ name='feature array'; field='feature'; value=@('test-feature'); top=$true },
+        @{ name='missing req'; field='req'; value=$null },
+        @{ name='req array'; field='req'; value=@('REQ-001') },
+        @{ name='numeric acs'; field='acs'; value=@(7) },
+        @{ name='object tests'; field='tests'; value=@(@{id='TEST-001'}) },
+        @{ name='numeric evidence'; field='evidence'; value=@(7) }
+    )) {
+        $trace = Get-Content -Raw 'traceability-t005-1.json' | ConvertFrom-Json
+        if ($mutation.ContainsKey('top')) { $trace.($mutation.field) = $mutation.value }
+        else { $trace.links[0] | Add-Member -NotePropertyName $mutation.field -NotePropertyValue $mutation.value -Force }
+        $trace | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 'traceability-shape.json'
+        Assert-ExitCode "traceability rejects $($mutation.name)" (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 1
+    }
+    $traceJson = Get-Content -Raw 'traceability-t005-1.json'
+    "[$traceJson]" | Set-Content -Encoding Utf8 'traceability-shape.json'
+    Assert-ExitCode 'traceability rejects singleton array envelope' (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 1
+    $trace = $traceJson | ConvertFrom-Json
+    $trace.links[0].acs = @('', 'AC-001')
+    $trace.links[0] | Add-Member -NotePropertyName evidence -NotePropertyValue @($null, '')
+    $trace | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 'traceability-shape.json'
+    Assert-ExitCode 'traceability preserves optional blank evidence and mixed blank identifiers' (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 0
+
     # Test: T-005.2 - empty acs array → exit 1 ("has no acceptance criteria")
     $t005_2 = @{
         feature = "test-feature"
@@ -1831,6 +1894,24 @@ Quality gate report for T-099.
 
     $checkLegacyExit = Invoke-Gate "check-evidence-bundle.ps1" @($legacyBundle, "-RepoRoot", "$t006Repo")
     Assert-ExitCode "T-006.ps.1c: check-evidence-bundle passes on legacy bundle (no risk field)" $checkLegacyExit 0
+
+    $legacyBundleJson = Get-Content -Raw -LiteralPath $legacyBundle
+    "[$legacyBundleJson]" | Set-Content -Encoding Utf8 -LiteralPath $legacyBundle
+    Assert-ExitCode 'evidence bundle rejects singleton array envelope' (Invoke-Gate 'check-evidence-bundle.ps1' @($legacyBundle, '-RepoRoot', $t006Repo)) 1
+    [IO.File]::WriteAllText($legacyBundle, $legacyBundleJson)
+    $legacyContractPath = "$t006Repo/specs/test-feature/verification/T-099-legacy.contract.json"
+    $legacyContractJson = Get-Content -Raw -LiteralPath $legacyContractPath
+    "[$legacyContractJson]" | Set-Content -Encoding Utf8 -LiteralPath $legacyContractPath
+    $arrayContractBundle = $legacyBundleJson | ConvertFrom-Json
+    foreach ($artifact in $arrayContractBundle.artifacts) {
+        if ($artifact.path -ceq 'specs/test-feature/verification/T-099-legacy.contract.json') {
+            $artifact.sha256 = (Get-FileHash -LiteralPath $legacyContractPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    }
+    $arrayContractBundle | ConvertTo-Json -Depth 8 | Set-Content -Encoding Utf8 -LiteralPath $legacyBundle
+    Assert-ExitCode 'evidence bundle rejects singleton array contract with matching artifact digest' (Invoke-Gate 'check-evidence-bundle.ps1' @($legacyBundle, '-RepoRoot', $t006Repo)) 1
+    [IO.File]::WriteAllText($legacyContractPath, $legacyContractJson)
+    [IO.File]::WriteAllText($legacyBundle, $legacyBundleJson)
 
     # Test: T-006.ps.2 - provenance-field presence is asserted on the HIGH-risk bundle
     # (relocated below, after T-006.ps.3b). A legacy/no-risk bundle legitimately carries

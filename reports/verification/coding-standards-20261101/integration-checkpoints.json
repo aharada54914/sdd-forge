@@ -1,0 +1,57 @@
+{
+  "schema": "coding-standards-integration-checkpoints/v1",
+  "not_final_acceptance": true,
+  "checks": [
+    {
+      "source_commit": "4b0981ea",
+      "suite": "tests/check-component-coverage.tests.ps1",
+      "result": "passed",
+      "passed": 53,
+      "failed": 0,
+      "context": "After exactly bound applied component mirror refresh and frozen research successor update. Prior52/1 failed provenance receipt remains in owner evidence."
+    },
+    {
+      "source_commit": "f8164285",
+      "suite": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
+      "result": "passed",
+      "passed": 324,
+      "failed": 0,
+      "skipped": 0,
+      "runtime": "PowerShell7.6.7/Linux with paired Bash controls",
+      "context": "Pre-hardlink-classification-fix full suite: typed root/schema/date, regular symlink and FIFO controls. Later e180f03d changes regular-file classification; subsequent focused controls below and final native CI cover that delta."
+    },
+    {
+      "source_commit": "555cfd47",
+      "suite": "tests/model-freshness-check.tests.sh",
+      "result": "passed",
+      "passed": 43,
+      "failed": 0,
+      "context": "Actual entrypoint with native failing tools and captured issue API adapter; no remote writes."
+    },
+    {
+      "source_commit": "97a361e3",
+      "suite": "tests/coding_standards.py scan --mode all",
+      "result": "native checks complete",
+      "selected": 877,
+      "inspected": 876,
+      "intentional_bad_fixture": 1,
+      "finding_count": 0,
+      "manual_review": "not determined by native scanner; separate source-bound census remains authoritative"
+    },
+    {
+      "source_commit": "e180f03d",
+      "suite": "tests/sdd-domain/contract-v2-schema.Tests.ps1 (regular link and FIFO focused controls)",
+      "result": "passed",
+      "passed": 2,
+      "failed": 0,
+      "context": "Actual focused Pester execution after ReparsePoint hardlink correction; not a repeated full-suite result."
+    },
+    {
+      "source_commit": "ef66ebf5",
+      "suite": "tests/scripts.tests.ps1",
+      "result": "passed",
+      "exit_code": 0,
+      "context": "Integrated script gate suite completed with Script gate tests passed. This is not the entire PowerShell catalog."
+    }
+  ]
+}
