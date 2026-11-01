@@ -15,6 +15,7 @@ import { dirname } from "node:path";
 import {
   extractOwnFailureMessages,
   findRepoRoot,
+  historicalGoldenRoot,
   fixturePathFor,
   runCheckTaskState,
   shellReportsFileNotFound,
@@ -33,21 +34,25 @@ const GOLDEN_FEATURES = [
 ] as const;
 
 function main(): void {
-  const repoRoot = findRepoRoot();
+  const fixtureRoot = historicalGoldenRoot(findRepoRoot());
+  const repoRoot = fixtureRoot.path;
+  try {
+    for (const feature of GOLDEN_FEATURES) {
+      const { exitCode, combinedOutput } = runCheckTaskState(repoRoot, feature);
+      const fixture: RecordedFixture = {
+        feature,
+        exitCode,
+        fileNotFound: shellReportsFileNotFound(combinedOutput),
+        ownFailureMessages: extractOwnFailureMessages(combinedOutput),
+      };
 
-  for (const feature of GOLDEN_FEATURES) {
-    const { exitCode, combinedOutput } = runCheckTaskState(repoRoot, feature);
-    const fixture: RecordedFixture = {
-      feature,
-      exitCode,
-      fileNotFound: shellReportsFileNotFound(combinedOutput),
-      ownFailureMessages: extractOwnFailureMessages(combinedOutput),
-    };
-
-    const outPath = fixturePathFor(feature);
-    mkdirSync(dirname(outPath), { recursive: true });
-    writeFileSync(outPath, `${JSON.stringify(fixture, null, 2)}\n`, "utf-8");
-    process.stdout.write(`Recorded ${feature} -> ${outPath} (exit ${exitCode})\n`);
+      const outPath = fixturePathFor(feature);
+      mkdirSync(dirname(outPath), { recursive: true });
+      writeFileSync(outPath, `${JSON.stringify(fixture, null, 2)}\n`, "utf-8");
+      process.stdout.write(`Recorded ${feature} -> ${outPath} (exit ${exitCode})\n`);
+    }
+  } finally {
+    fixtureRoot.cleanup();
   }
 }
 

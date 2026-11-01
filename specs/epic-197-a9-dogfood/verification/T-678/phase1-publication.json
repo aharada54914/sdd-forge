@@ -1,0 +1,39 @@
+{
+  "schema": "a9-phase1-publication-observation/v1",
+  "signing_run_url": "https://github.com/aharada54914/sdd-forge/actions/runs/41258114242",
+  "run_attempt": 1,
+  "workflow_commit": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+  "issuer_commit": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+  "artifact_id": 13064051600,
+  "artifact_sha256": "1aba0634b0e00c89cb9e040487a9da3a5c86c166ea2ab0fa4f8b1de9cbb7e8c5",
+  "candidate_raw_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+  "owner_environment_approval": {
+    "state": "approved",
+    "user": "aharada54914",
+    "environment_id": 25908952754,
+    "comment": "おk"
+  },
+  "validator_observation": "2026-11-01T00:48:19.8088394Z VALID",
+  "key_custody": "Owner reported environment secret setup; key used only by protected CI signer/validator. Agent did not obtain key bytes. This is not an audit of the owner password manager.",
+  "agent_browser_session": "Signed out after configuring environment protections; no deployment approval was delegated to it.",
+  "publication": {
+    "started_at": "2026-11-01T00:50:40.264708+00:00",
+    "finished_at": "2026-11-01T00:50:41.983341+00:00",
+    "exit_code": 0,
+    "source_run": 41258114242,
+    "authentic_owner_environment_approval_observed": true,
+    "hmac_validated_by_protected_ci": true,
+    "local_hmac_authentication_performed": false,
+    "manifest": [
+      "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a  sdd/project-context.yaml",
+      "566db70f27b64f3ffcc5925f04c98d3cff6fa75857485bfe7756a8c7a8401c15  sdd/approver-registry.yaml",
+      "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a  sdd/.approved-context/project-context.approved.yaml",
+      "2cbdbda5e15ddd9ebc743283f373b81d066223bf42204a81320dab41d721c169  sdd/project-context.approval.json"
+    ]
+  },
+  "limits": [
+    "Publication observed on activation work branch; merge and authentic final-head advisory check still required",
+    "Local manifest/hash verification is not independent HMAC authentication",
+    "Release interval and promotion decision remain unexecuted"
+  ]
+}

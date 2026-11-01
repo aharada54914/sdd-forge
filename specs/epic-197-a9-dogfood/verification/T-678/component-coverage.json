@@ -1,0 +1,57 @@
+{
+  "check_id": "check-component-coverage",
+  "fail_conditions": [
+    {
+      "detail": {
+        "unowned_paths": []
+      },
+      "id": "Fail-1",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "missing_exclusive_owners": []
+      },
+      "id": "Fail-2",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "overlap_paths": []
+      },
+      "id": "Fail-3",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "missing_bounded_shared_owners": []
+      },
+      "id": "Fail-4",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "excluded_match_paths": []
+      },
+      "id": "Fail-5",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "status": "not-applicable (provider-bindings absent)"
+      },
+      "id": "Fail-6",
+      "triggered": false
+    }
+  ],
+  "manifest_status": "present",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+  },
+  "schema": "check-component-coverage-verdict/v1",
+  "state": "advisory",
+  "warnings": [
+    "Fail-6: sdd/provider-bindings.yaml absent; recorded N/A"
+  ]
+}

@@ -6,7 +6,8 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,9 +40,31 @@ export function findRepoRoot(): string {
   throw new Error(`Could not locate sdd-forge repo root above ${thisDir}`);
 }
 
+/** The recorded golden corpus predates Context activation. Both implementations
+ * read this same isolated input tree; the live repository is never modified.
+ * Contract-policy enforcement is tested separately, not claimed as parser parity.
+ */
+export function historicalGoldenRoot(repoRoot: string): { path: string; cleanup: () => void } {
+  const path = mkdtempSync(join(tmpdir(), "sdd-golden-"));
+  try {
+    for (const directory of ["specs", "reports", "plugins", "contracts"]) {
+      cpSync(join(repoRoot, directory), join(path, directory), { recursive: true });
+    }
+    // Preserve the real read-only commit graph for evidence ancestry checks.
+    const gitDir = execFileSync("git", ["rev-parse", "--absolute-git-dir"], {
+      cwd: repoRoot, encoding: "utf-8",
+    }).trim();
+    writeFileSync(join(path, ".git"), `gitdir: ${gitDir}\n`);
+    return { path, cleanup: () => rmSync(path, { recursive: true, force: true }) };
+  } catch (error) {
+    rmSync(path, { recursive: true, force: true });
+    throw error;
+  }
+}
+
 /**
- * Runs check-task-state.sh against a real feature's tasks.md inside the
- * actual repository (read-only; the script itself never writes anything).
+ * Runs check-task-state.sh against a feature's tasks.md in the supplied
+ * repository or isolated golden tree (read-only).
  * The tasks.md argument is passed as a repo-root-relative path (matching
  * what `parseTaskState` is called with in the comparison tests below), since
  * check-task-state.sh echoes that argument verbatim into its failure/report

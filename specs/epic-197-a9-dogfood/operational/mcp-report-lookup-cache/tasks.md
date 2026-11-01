@@ -22,9 +22,12 @@ under an active Context.
   acceptance remains separate until its own real cycle is complete.
 
 ### Blockers
-Owner approval is recorded in approval-provenance.json. The delegated cloud
-signature does not meet isolated-key custody. Live publication, advisory execution
-and operational review remain pending; committed inputs alone do not complete them.
+Owner approval is recorded in approval-provenance.json. Protected CI run
+41258114242 issued and validated the actual Phase-1 signature after owner review;
+the original delegated cloud signature is not used for this publication.
+Final-head advisory CI association, operational review and the actual release
+interval remain pending. This task remains Planned until its Done conditions
+are observed.
 
 ### Approval provenance
 The owner approved delegated cloud operation in the development conversation

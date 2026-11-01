@@ -1782,7 +1782,7 @@ finally {
 
 if ($Lane -in @('all', 'context')) {
 # T-003 context-presence invariant: FilesOnly output is byte-identical whether
-# an otherwise identical source fixture has project-context.yaml or not.
+# the same tracked payload has an untracked local project-context.yaml or not.
 $t003Absent = build_fixture absent absent disabled-legacy valid none
 $t003Present = build_fixture present absent advisory valid none
 try {
@@ -1792,8 +1792,20 @@ try {
     $t003PresentInstall = Join-Path $t003Present 'installed'
     New-TrackedFixture -Source $installerSourceRoot -Destination $t003AbsentSource
     New-TrackedFixture -Source $installerSourceRoot -Destination $t003PresentSource
+    # The development repository may now track its own live Context. Normalize
+    # only these disposable sources before adding the local/untracked variant.
+    foreach ($source in @($t003AbsentSource, $t003PresentSource)) {
+        & git -C $source rm -q -f --ignore-unmatch -- sdd/project-context.yaml
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to normalize T-003 source Context' }
+        if (Test-Path -LiteralPath (Join-Path $source 'sdd/project-context.yaml')) {
+            throw 'T-003 absent source unexpectedly contains project-context.yaml'
+        }
+    }
     New-Item -ItemType Directory -Path (Join-Path $t003PresentSource 'sdd') -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $t003Present 'sdd/project-context.yaml') -Destination (Join-Path $t003PresentSource 'sdd/project-context.yaml')
+    if (@(& git -C $t003PresentSource ls-files -- sdd/project-context.yaml).Count -ne 0) {
+        throw 'T-003 local Context must not change the tracked payload'
+    }
     & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003AbsentSource -InstallRoot $t003AbsentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
     & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003PresentSource -InstallRoot $t003PresentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
     if ($env:T003_MUTATE_CONTEXT_INVARIANT -ceq 'install-ps1') {

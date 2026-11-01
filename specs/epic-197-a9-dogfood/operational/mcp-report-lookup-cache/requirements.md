@@ -17,13 +17,16 @@ report-reuse cases. The same fullsuite execution is referenced as unit, acceptan
 and regression evidence; it is one run. Actual typecheck, build and production
 audit also passed. Raw records are retained under verification/T-678/.
 
-## Not yet established
+## Operational progress
 The owner authorized this prospective task and registry/Context candidate in the
-development conversation. Genuine isolated-key Context approval/publication,
-actual advisory observation and real release-cycle acceptance have not occurred. These are
-prospective acceptance work; they are not retroactively attributed to the code
-recovery. Runtime source binding relies on the preserved commit/file comparison
-and the original execution record; no clean-commit test certificate is invented.
+development conversation. Protected CI run 41258114242 subsequently issued and
+validated the exact candidate after the actual owner environment review. Its
+four-file publication was applied transactionally on this activation branch;
+see ../../verification/T-678/phase1-publication.json. The agent did not obtain
+the new environment signing key. Final-head advisory CI association and the real
+release interval remain pending. These events are not retroactively attributed
+to code recovery. Historical source binding and execution records remain unchanged;
+no new clean-commit fullsuite certificate is invented.
 
 ## Current approval and evidence scope
 Owner authorization is transcribed in approval-provenance.json. The agent records
