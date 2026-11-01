@@ -1,0 +1,51 @@
+{
+  "schema": "coding-standards-independent-delta-review/v1",
+  "revision_reviewed": "4a0125cb",
+  "files": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "sha256": "1adba1ec7bec60d5cc24aa6d3e729bdba8c8fbb9b176c8cd3bf848b5f7b70acc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "sha256": "0e8d43d3557fedca0066cf5da06e078c8c8862ced92b99aacdc0ea6177241d3c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "sha256": "7e44a1c350fd65340ab3a9a78ca3d2c0a48ca5439402400ab9972e39d7b20b75"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "sha256": "10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370"
+    },
+    {
+      "path": "tests/cross-model.tests.sh",
+      "sha256": "1d09087bac149aeed955cc528c72ba6e8cdff86160aa2a8de1c2edef88f72759"
+    },
+    {
+      "path": "tests/review-contract-foundation.tests.sh",
+      "sha256": "86c77f659715e1fba774f4952844c34e07ced607d3f33b50ef5bb07af39313b6"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/root-context-review.json",
+      "sha256": "67653082c8f64bf46231a85360731292366b9216ab3a4226076d6653be7b7e8d"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+      "sha256": "5f568c4779fd8854e1fb9ea8b15f881d3b94352a52af908f6a9f11e72fceb53c"
+    }
+  ],
+  "provider_io_review": "No defect in the selected IO correction: missing values return2; scratch creation, prompt redirection/read and combined input assembly fail before the external CLI. && preserves the first read/write failure; EXIT cleanup remains installed. Existing argument vectors, timeouts and verdict handling are unchanged. The regression observes both exit2 and zero CLI invocations, not merely a failed final verdict.",
+  "terminal_leaf_review": "Explicit terminal . and .. rejection prevents the demonstrated lexical prefix bypass in both runtimes. Existing valid child roots are unchanged.",
+  "finding": {
+    "id": "INDEP-ROOT-PS-PARENT-LINK",
+    "rule": "CS-009",
+    "state": "reported-to-owner",
+    "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+    "flow": "Resolve-Path on a symlinked ancestor preserves lexical path; prefix check admits reports/link/child when reports/link points outside repository. Leaf LinkType check sees a normal child directory.",
+    "reproduction": "Isolated temp repository with actual4a scripts, reports/link -> external directory, child directory in external target and valid utf8-contract.json. Bash returns1 report-root escape; PowerShell returns0 canonical PASS. No live repository paths mutated.",
+    "expected": "Resolve ancestor links physically or reject reparse/symlink components before accepting containment.",
+    "owner": "root; fix pending at the time of this independent record"
+  },
+  "approval": "Provider IO delta and terminal-leaf correction reviewed; complete PowerShell containment approval withheld until confirmed ancestor-link finding is repaired."
+}
