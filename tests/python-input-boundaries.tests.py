@@ -2,6 +2,7 @@
 """Public contract diagnostics for malformed JSON and evidence paths."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -39,6 +40,78 @@ class InputBoundaryTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertIn('JSON parse error', result.stdout)
             self.assertNotIn('Traceback', result.stderr)
+
+    @unittest.skipUnless(os.name == 'posix' and os.geteuid() != 0,
+                         'real permission boundary requires an unprivileged POSIX process')
+    def test_unreadable_stop_marker_parent_denies(self):
+        guard = SCRIPTS / 'sdd-hook-guard.py'
+        payload = json.dumps({'tool_name': 'Read', 'tool_input': {'file_path': 'readme.md'}})
+        with tempfile.TemporaryDirectory() as directory:
+            closed = Path(directory) / 'closed'
+            closed.mkdir(mode=0)
+            try:
+                environment = dict(os.environ, CLAUDE_PROJECT_DIR=str(closed))
+                result = subprocess.run([sys.executable, str(guard), '--emit', 'copilot'],
+                                        input=payload, capture_output=True, text=True,
+                                        encoding='utf-8', env=environment, timeout=10, check=False)
+                self.assertEqual(result.returncode, 0)
+                decision = json.loads(result.stdout)
+                self.assertEqual(decision['permissionDecision'], 'deny')
+                self.assertIn('unable to inspect AGENT_STOP', decision['permissionDecisionReason'])
+            finally:
+                closed.chmod(0o700)
+            for marker in (None, 'directory', 'file'):
+                stop = closed / 'AGENT_STOP'
+                if marker == 'directory':
+                    stop.mkdir()
+                elif marker == 'file':
+                    stop.rmdir()
+                    stop.write_text('stop', encoding='utf-8')
+                result = subprocess.run([sys.executable, str(guard), '--emit', 'copilot'],
+                                        input=payload, capture_output=True, text=True,
+                                        encoding='utf-8', env=environment, timeout=10, check=False)
+                self.assertEqual(json.loads(result.stdout)['permissionDecision'],
+                                 'deny' if marker == 'file' else 'allow')
+
+    def test_launcher_preserves_utf8_under_ascii_locale(self):
+        source = ROOT / 'plugins/sdd-review-loop/scripts/launch-impl-review.py'
+        program = """import importlib.util, pathlib, sys
+spec = importlib.util.spec_from_file_location('launch', sys.argv[1])
+launch = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launch)
+root = pathlib.Path(sys.argv[2])
+command = [sys.executable, '-c',
+           "import sys;sys.stdout.buffer.write(bytes.fromhex('e697a5e69cace8aa9e'))"]
+launch.run(root, command, root / 'output')
+assert (root / 'output').read_bytes() == bytes.fromhex('e697a5e69cace8aa9e')
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            environment = dict(os.environ, LC_ALL='C', PYTHONUTF8='0', PYTHONCOERCECLOCALE='0')
+            result = subprocess.run([sys.executable, '-c', program, str(source), directory],
+                                    env=environment, capture_output=True, timeout=10, check=False)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_registry_rejects_invalid_shapes_before_checks_or_generation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            registry = root / 'contracts/capability-registry.json'
+            registry.parent.mkdir()
+            cases = ({'gates': [{'id': []}]}, {'gates': None},
+                     {'capabilities': [{'id': 'c', 'gate_ids': 'oops'}]},
+                     {'capabilities': [{'id': 'c', 'gate_ids': [[]]}]})
+            for value in cases:
+                with self.subTest(value=value):
+                    value['schema'] = 'capability-registry/v1'
+                    registry.write_text(json.dumps(value), encoding='utf-8')
+                    for script, arguments in (
+                            ('validate-capability-registry.py', ['--registry', str(registry)]),
+                            ('generate-gate-capabilities.py', [])):
+                        result = subprocess.run([sys.executable, str(SCRIPTS / script),
+                                                 '--repo-root', str(root), *arguments],
+                                                capture_output=True, timeout=10, check=False)
+                        self.assertEqual(result.returncode, 1, (script, result.stdout, result.stderr))
+                        self.assertNotIn(b'Traceback', result.stderr)
+                        self.assertFalse((root / 'plugins').exists())
 
     def test_paths_do_not_coerce_external_values(self):
         with tempfile.TemporaryDirectory() as directory:
