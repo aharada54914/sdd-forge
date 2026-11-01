@@ -8,7 +8,6 @@ import subprocess
 import sys
 import tempfile
 import unittest
-import shutil
 import uuid
 
 REPO = Path(__file__).resolve().parents[1]

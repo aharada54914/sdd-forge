@@ -74,7 +74,8 @@ class OverrideTests(unittest.TestCase):
         for name in ("scope", "characteristic", "value", "rationale"):
             doc = context()
             del doc["components"][0]["characteristic_overrides"][0][name]
-            with self.subTest(missing=name): self.assert_rejected(doc)
+            with self.subTest(missing=name):
+                self.assert_rejected(doc)
         doc = context()
         doc["components"][0]["characteristic_overrides"][0]["extra"] = True
         self.assert_rejected(doc)
@@ -86,7 +87,8 @@ class OverrideTests(unittest.TestCase):
                              ("scope", "mcp/*"), ("scope", "mcp/bad\x00name"), ("rationale", ""), ("rationale", "two\nlines"), ("rationale", "trailing\n")]:
             doc = context()
             doc["components"][0]["characteristic_overrides"][0][field] = value
-            with self.subTest(field=field, value=value): self.assert_rejected(doc)
+            with self.subTest(field=field, value=value):
+                self.assert_rejected(doc)
         doc = context()
         doc["shared_paths"][0]["characteristic_overrides"][0]["value"] = False
         self.assert_rejected(doc)
@@ -99,7 +101,8 @@ class OverrideTests(unittest.TestCase):
     def test_shared_override_requires_cross_cutting_owner_and_exact_scope(self):
         for change in ("scope", "bounded"):
             doc = context()
-            if change == "scope": doc["shared_paths"][0]["characteristic_overrides"][0]["scope"] = "elsewhere/**"
+            if change == "scope":
+                doc["shared_paths"][0]["characteristic_overrides"][0]["scope"] = "elsewhere/**"
             else:
                 del doc["shared_paths"][0]["classification"]
                 doc["shared_paths"][0]["components"] = ["mcp"]
@@ -111,7 +114,8 @@ class OverrideTests(unittest.TestCase):
             override = doc["components"][0].pop("characteristic_overrides")
             target = doc if location == "top" else doc["workflow"] if location == "workflow" else doc["components"][0].setdefault(location, {})
             target["characteristic_overrides"] = override
-            with self.subTest(location=location): self.assert_rejected(doc)
+            with self.subTest(location=location):
+                self.assert_rejected(doc)
 
 
 class CandidatePackTests(unittest.TestCase):
@@ -149,11 +153,13 @@ class CandidatePackTests(unittest.TestCase):
         for index in range(9):
             changed = copy.deepcopy(doc)
             del changed["components"][index]
-            with self.subTest(missing=index): self.assertTrue(checker.validate(changed, tracked)[0])
+            with self.subTest(missing=index):
+                self.assertTrue(checker.validate(changed, tracked)[0])
         for field in ("artifact_kinds", "runtime_classes", "distribution_channels", "data_classification"):
             changed = copy.deepcopy(doc)
             changed["components"][0][field] = []
-            with self.subTest(field=field): self.assertTrue(checker.validate(changed, tracked)[0])
+            with self.subTest(field=field):
+                self.assertTrue(checker.validate(changed, tracked)[0])
         changed = copy.deepcopy(doc)
         changed["components"][0]["paths"]["include"] = ["**"]
         self.assertTrue(checker.validate(changed, tracked)[0])
@@ -171,7 +177,8 @@ class CandidatePackTests(unittest.TestCase):
                                ("unknown", set()), ("PLUGIN_PACKAGE", set()), ("MCP_SERVER", set()), ("INSTALLER_SCRIPT", set())]:
             actual = {name for name in ("developer-tooling", "cli-library")
                       if PREDICATE.run_evaluate(caps[name]["trigger"], {"artifact_kinds": [kind]})["result"]}
-            with self.subTest(kind=kind): self.assertEqual(actual, expected)
+            with self.subTest(kind=kind):
+                self.assertEqual(actual, expected)
         for name in ("developer-tooling", "cli-library"):
             cap = caps[name]
             self.assertEqual(cap["gate_ids"], [])
@@ -464,7 +471,8 @@ class PromotionPreflightTests(unittest.TestCase):
         for field in ("full_context_revision", "ownership_digest", "registry_digest"):
             self.evidence = copy.deepcopy(original)
             self.evidence["context_binding"][field] = "sha256:" + "0" * 64
-            with self.subTest(field=field): self.assertTrue(self.check())
+            with self.subTest(field=field):
+                self.assertTrue(self.check())
         self.evidence = original
         self.evidence["resolver"]["version"] = "stale"
         self.assertTrue(self.check())
@@ -488,7 +496,8 @@ class PromotionPreflightTests(unittest.TestCase):
         for field, value in (("required_facets", []), ("feature", "another-feature"), ("capabilities", [])):
             self.manifest = copy.deepcopy(original)
             self.manifest[field] = value
-            with self.subTest(field=field): self.assertTrue(self.check())
+            with self.subTest(field=field):
+                self.assertTrue(self.check())
 
     def test_release_roster_must_cover_exact_git_commits(self):
         for mutate in (lambda c: c.update(pull_requests=[]),
@@ -508,7 +517,8 @@ class PromotionPreflightTests(unittest.TestCase):
                                  ("conclusion", "failure"), ("conclusion", "skipped")):
                 self.cycle = copy.deepcopy(original)
                 self.cycle["pull_requests"][0]["check_runs"][index][field] = value
-                with self.subTest(index=index, field=field, value=value): self.assertTrue(self.check())
+                with self.subTest(index=index, field=field, value=value):
+                    self.assertTrue(self.check())
             self.cycle = copy.deepcopy(original)
             self.cycle["pull_requests"][0]["check_runs"].pop(index)
             self.assertTrue(self.check())
@@ -527,7 +537,8 @@ class PromotionPreflightTests(unittest.TestCase):
     def test_missing_or_malformed_evidence_fails_closed(self):
         for value in ({}, None, [], {"schema": "a9-release-cycle/v1"}):
             self.cycle = value
-            with self.subTest(value=value): self.assertTrue(self.check())
+            with self.subTest(value=value):
+                self.assertTrue(self.check())
 
 
 class PromotionGitBoundaryTests(unittest.TestCase):
@@ -549,9 +560,11 @@ class PromotionGitBoundaryTests(unittest.TestCase):
             with patch.object(checker, "ROOT", root):
                 self.assertEqual(checker.release_commits(cycle), [head])
                 git("tag", "-f", "synthetic-release", base)
-                with self.assertRaises(ValueError): checker.release_commits(cycle)
+                with self.assertRaises(ValueError):
+                    checker.release_commits(cycle)
                 cycle["head_sha"] = "--help"
-                with self.assertRaises(ValueError): checker.release_commits(cycle)
+                with self.assertRaises(ValueError):
+                    checker.release_commits(cycle)
 
     def test_reads_real_resolver_json_in_yaml_and_rejects_corrupt_objects(self):
         spec = importlib.util.spec_from_file_location("a9_reader", ROOT / "scripts/validate-a9-candidate.py")
@@ -565,7 +578,8 @@ class PromotionGitBoundaryTests(unittest.TestCase):
             path = Path(directory) / "artifact.yaml"
             for content in ('{"schema":"first","schema":"second"}', '{"schema": invalid}'):
                 path.write_text(content)
-                with self.subTest(content=content), self.assertRaises(ValueError): checker.read_document(path)
+                with self.subTest(content=content), self.assertRaises(ValueError):
+                    checker.read_document(path)
 
     def test_cli_missing_or_duplicate_documents_reject_without_activation(self):
         command = [sys.executable, str(ROOT / "scripts/validate-a9-candidate.py")]
