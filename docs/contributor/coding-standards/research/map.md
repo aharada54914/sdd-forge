@@ -42,3 +42,16 @@ CLM-001 would change with contrary model/setting evidence and cannot be generali
 ## Standalone metadata placement
 
 These records are contributor research, not a newly bootstrapped SDD feature. The existing validator accepts `--file docs/contributor/coding-standards/research/records/research-evidence.json` without `--repo-root` and validates the same Source/Claim shape and consistency. Repository-mode admission requires `specs/<feature>/research/records/research-evidence.json`; this standalone record is deliberately not admitted as a Full/Lite research gate input. No directory registration, task approval, fake Passed stage or validator relaxation is introduced. If a future approved feature uses this evidence, its owner must create the correctly located revision-bound records and original-verification inputs through the existing contract.
+
+## Language API supplement (round 1)
+
+The initial ten sources motivate failure categories; they do not document every destination API. Six additional official/reference bodies were inspected to close that specific support gap. The selected-source budget was explicitly expanded from ten to sixteen, within the existing maximum fifty; no new empirical AI-frequency claim is added.
+
+| Source | Body observation and edition | Rule |
+| --- | --- | --- |
+| [SRC-011: Python re.escape](https://docs.python.org/3/library/re.html) | Python 3.15.2 page; checked 2026-11-01. Pattern literal escaping; expressly not the replacement-string escaping API. | CS-007 |
+| [SRC-012: Python JSON encoding](https://docs.python.org/3/library/json.html) | Python 3.15.2 page; checked 2026-11-01. json.dumps preserves JSON quoting; external parse resource limits still apply. | CS-004 |
+| [SRC-013: Python urllib.parse](https://docs.python.org/3/library/urllib.parse.html) | Python 3.15.2 page; checked 2026-11-01. urlencode encodes query keys/values independently; parsing alone does not validate a destination. | CS-008 |
+| [SRC-014: MDN Node.textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) | Last modified 2025-10-28; checked 2026-11-01. textContent is the text API; innerHTML invokes markup parsing and can expose XSS. | CS-006 |
+| [SRC-015: PowerShell comparison operators](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.5) | View PowerShell 7.5; last updated 2026-07-02; checked 2026-11-01. String operators default case-insensitive; c-prefixed variants request case sensitivity. Does not establish cmdlet defaults. | CS-025 |
+| [SRC-016: PowerShell character encoding](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding?view=powershell-7.5) | View PowerShell 7.5; last updated 2024-01-19; checked 2026-11-01. Windows PowerShell output defaults vary; UTF8 implies BOM there, unlike PowerShell 6+. Script-source requirements differ from JSON output. | CS-026 |

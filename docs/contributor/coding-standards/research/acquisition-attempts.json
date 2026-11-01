@@ -99,6 +99,66 @@
         "status": "proxy-adapter-required"
       },
       "attempted_at": "2026-11-01T04:43:35Z"
+    },
+    {
+      "source_id": "SRC-011",
+      "command": "research-acquire.py --source-id SRC-011 --url https://docs.python.org/3/library/re.html --allow-host docs.python.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
+    },
+    {
+      "source_id": "SRC-012",
+      "command": "research-acquire.py --source-id SRC-012 --url https://docs.python.org/3/library/json.html --allow-host docs.python.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
+    },
+    {
+      "source_id": "SRC-013",
+      "command": "research-acquire.py --source-id SRC-013 --url https://docs.python.org/3/library/urllib.parse.html --allow-host docs.python.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
+    },
+    {
+      "source_id": "SRC-014",
+      "command": "research-acquire.py --source-id SRC-014 --url https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent --allow-host developer.mozilla.org",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
+    },
+    {
+      "source_id": "SRC-015",
+      "command": "research-acquire.py --source-id SRC-015 --url https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.5 --allow-host learn.microsoft.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
+    },
+    {
+      "source_id": "SRC-016",
+      "command": "research-acquire.py --source-id SRC-016 --url https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding?view=powershell-7.5 --allow-host learn.microsoft.com",
+      "exit_code": 1,
+      "result": {
+        "schema": "research-acquisition/v1",
+        "status": "proxy-adapter-required"
+      },
+      "attempted_at": "2026-11-01T04:47:26Z"
     }
   ]
 }

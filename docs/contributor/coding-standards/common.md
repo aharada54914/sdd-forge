@@ -80,7 +80,7 @@ db.execute("SELECT * FROM item WHERE name = ?", (name,))
 - Severity: major. Detection: data-flow. Tool mapping: Ruff/ESLint syntax checks only.
 - Fix and reason: Use json/jq --arg, ConvertTo-Json or an existing YAML serializer; validate the consumer schema.
 - Exception / normal control: Literal fixture documents and fixed schemas are valid; serializers do not establish schema correctness.
-- Evidence: SRC-003. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-012. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
@@ -127,7 +127,7 @@ run: printf '%s\n' "$TITLE"
 - Severity: critical. Detection: data-flow. Tool mapping: ESLint no-unsanitized if installed; context review.
 - Fix and reason: Use text nodes or the template engine escape API; validate URL attributes separately.
 - Exception / normal control: Reviewed trusted static markup is normal; sanitizers require a documented allowed language.
-- Evidence: SRC-003. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-014. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
@@ -150,7 +150,7 @@ node.textContent = userText
 - Severity: major. Detection: data-flow. Tool mapping: Context review; regex tools do not infer intent.
 - Fix and reason: Use literal matching first; escape only the literal component and bound deliberately accepted regex execution.
 - Exception / normal control: A documented regex input is intentionally syntax, not a literal; allowlisting or execution limits remain necessary.
-- Evidence: SRC-009. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-011. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
@@ -173,7 +173,7 @@ re.search(re.escape(user_text), value)
 - Severity: critical. Detection: data-flow. Tool mapping: Context review; transport tests.
 - Fix and reason: Use the standard URL/query APIs; validate scheme, host and redirects at the transport boundary.
 - Exception / normal control: A whole URL must not be escaped as a query component; a fixed documented endpoint is normal.
-- Evidence: SRC-003. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-013. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
@@ -566,7 +566,7 @@ retry_transient_idempotent_request(max_attempts=3)
 - Severity: major. Detection: context. Tool mapping: PowerShell structural checks plus mis-cased negatives.
 - Fix and reason: Match the producer contract exactly, including PowerShell operators, switch, Select-String and collection/filter APIs.
 - Exception / normal control: Human-facing case-insensitive search is normal; filesystem case behavior must be exercised on the applicable host.
-- Evidence: SRC-010. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-015. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
@@ -589,7 +589,7 @@ $status -ceq "PASS"
 - Severity: major. Detection: context. Tool mapping: Cross-runtime fixture and native OS test.
 - Fix and reason: Follow the existing UTF-8/BOM/newline contract and strict consumer; preserve byte hashes of frozen evidence.
 - Exception / normal control: A BOM required by a specific external format is legitimate; PS 5.1 and PS 7 defaults differ.
-- Evidence: SRC-010. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
+- Evidence: SRC-016. Owner: #688 shell/CI; #689 Python; #690 TS/JS.
 
 Bad (intentional non-executable counterexample):
 
