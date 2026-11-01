@@ -26,6 +26,7 @@
 #             fails for any reason writes NO verdict file.
 param()
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
 $TaskId      = ""
 $Feature     = ""
@@ -156,7 +157,7 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath "gemini" `
-                -ArgumentList "--model", $Model, "-p", $promptText `
+                -ArgumentList (ConvertTo-SddNativeArgumentString @("--model", $Model, "-p", $promptText)) `
                 -RedirectStandardInput  $stdinBundleFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `

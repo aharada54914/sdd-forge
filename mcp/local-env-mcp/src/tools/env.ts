@@ -73,7 +73,7 @@ export interface ToolProbeOptions {
 }
 
 /** The 14 allowlist names as a readonly tuple, for the zod enum. */
-const CLI_NAME_VALUES = ALLOWLIST.map((e) => e.name) as [CliName, ...CliName[]];
+const CLI_NAME_VALUES = ALLOWLIST.map((e) => e.name);
 
 /**
  * Strict input schema for `get_toolchain_versions`. `names` is an optional
@@ -144,7 +144,7 @@ function selectEntries(names: readonly CliName[] | undefined): typeof ALLOWLIST[
  * envelope BEFORE any probe runs.
  */
 export async function getToolchainVersions(
-  input: ToolchainVersionsInput,
+  input: unknown,
   options: ToolProbeOptions = {},
 ): Promise<Result<ToolchainVersionsData>> {
   const parsed = toolchainInput.safeParse(input);

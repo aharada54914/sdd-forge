@@ -323,7 +323,7 @@ remove_mcp_json_keys() {
 const fs = require("fs");
 const [file, topKey, ...names] = process.argv.slice(1);
 let text = "";
-try { text = fs.readFileSync(file, "utf8"); } catch (err) { process.exit(0); }
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { process.exit(err.code === "ENOENT" ? 0 : 1); }
 if (text.trim() === "") process.exit(0);
 let root;
 try { root = JSON.parse(text); } catch (err) { process.exit(3); }
@@ -337,8 +337,8 @@ for (const name of names) {
 }
 const out = JSON.stringify(root, null, 2) + "\n";
 const tmp = file + ".sdd-forge.tmp";
-fs.writeFileSync(tmp, out);
-fs.renameSync(tmp, file);
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 ' "$config_file" "$top_key" "${MCP_SELECTION[@]}" || rc=$?
     if [[ $rc -eq 3 ]]; then
         echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP unregistration was skipped and the file was left unmodified. Fix or remove the file manually." >&2

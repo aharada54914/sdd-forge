@@ -131,7 +131,7 @@ test("invalid input (extra field) is rejected with invalid-input before any GitH
   const { fetchImpl, calls } = fakeFetch({ workflow_runs: [] });
 
   const result = await listWorkflowRuns(
-    { owner: "acme", repo: "widgets", method: "POST" } as never,
+    { owner: "acme", repo: "widgets", method: "POST" },
     { env: TOKEN_ENV, fetchImpl },
   );
 

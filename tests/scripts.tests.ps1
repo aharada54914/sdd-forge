@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $scriptsDir = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts"
 $templatesDir = Join-Path $repositoryRoot "plugins/sdd-quality-loop/templates"
-$workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-script-tests-" + [guid]::NewGuid())
+$workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd script tests " + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $workDir | Out-Null
 
 function Invoke-Gate {

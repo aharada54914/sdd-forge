@@ -230,6 +230,28 @@ Approval: Draft
     "stop" | Set-Content -Encoding Utf8 (Join-Path $ksDir "AGENT_STOP")
     Assert "ps: kill-switch present -> 2" ((Invoke-KillSwitchPs $ksDir) -eq 2)
 
+    # Real permission failure: optional absent roots still allow, unreadable
+    # marker locations deny. POSIX chmod cannot model Windows ACLs or root.
+    if ([Environment]::OSVersion.Platform -eq [PlatformID]::Unix -and (& id -u) -ne '0') {
+        $unreadable = Join-Path $workDir 'unreadable-marker'
+        New-Item -ItemType Directory -Path $unreadable | Out-Null
+        Set-Content -LiteralPath (Join-Path $unreadable 'AGENT_STOP') -Value 'stop'
+        try {
+            $env:CLAUDE_PROJECT_DIR = Join-Path $workDir 'optional-absent-root'
+            Assert 'ps: missing optional marker root remains absent' ((Invoke-KillSwitchPs $workDir) -eq 0)
+            $env:CLAUDE_PROJECT_DIR = $unreadable
+            & chmod 000 $unreadable
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot construct unreadable marker fixture' }
+            Assert 'ps: unreadable stop-marker directory denies standalone hook' ((Invoke-KillSwitchPs $workDir) -eq 2)
+            $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"git status"}}' 'copilot'
+            $decision = $r.Out | ConvertFrom-Json
+            Assert 'ps: marker inspection error preserves Copilot deny envelope' ($r.Code -eq 0 -and $decision.permissionDecision -eq 'deny' -and $decision.permissionDecisionReason -match 'cannot inspect')
+        } finally {
+            & chmod 700 $unreadable
+            Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+        }
+    } else { Write-Host 'SKIP: real POSIX marker EACCES requires an unprivileged POSIX host' }
+
     # --- POSIX dispatcher via bash+python3 when available ---
     $bash = Get-Command bash -ErrorAction SilentlyContinue
     $py = Get-Command python3 -ErrorAction SilentlyContinue

@@ -56,7 +56,7 @@ test("evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-
       name: "evidence_get_bundle",
       arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
 
     assert.equal((envelope as { ok: boolean }).ok, true);
@@ -94,7 +94,7 @@ test("evidence_get_bundle: synthetic, echoes signature value without verifying i
       name: "evidence_get_bundle",
       arguments: { feature: "demo", taskId: "T-009" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (envelope as { ok: true; data: { bundle: { signature?: unknown } } }).data;
@@ -112,7 +112,7 @@ test("evidence_get_bundle: not-found for a task with no evidence.json", async ()
       name: "evidence_get_bundle",
       arguments: { feature: "demo", taskId: "T-002" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope));
     assert.equal((envelope as { ok: boolean }).ok, false);
     assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "not-found");
@@ -129,7 +129,7 @@ test("evidence_get_bundle: invalid-input for a malformed taskId", async () => {
       name: "evidence_get_bundle",
       arguments: { feature: "demo", taskId: "not-a-task-id" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope));
     assert.equal((envelope as { ok: boolean }).ok, false);
     assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "invalid-input");
@@ -151,7 +151,7 @@ test("evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts
       name: "evidence_validate_paths",
       arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -194,7 +194,7 @@ test("evidence_validate_paths: synthetic, flags a traversal artifact path as uns
       name: "evidence_validate_paths",
       arguments: { feature: "demo", taskId: "T-020" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -245,7 +245,7 @@ async function callFindMissing(fixture: EvidenceToolsFixture, taskId: string): P
     name: "evidence_find_missing",
     arguments: { feature: "demo", taskId },
   });
-  const envelope = parseEnvelope(result as never);
+  const envelope = parseEnvelope(result);
   assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
   assert.equal((envelope as { ok: boolean }).ok, true);
   return (envelope as { ok: true; data: EvidenceMissingShape }).data;
@@ -335,7 +335,7 @@ test("evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has noth
       name: "evidence_find_missing",
       arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -365,7 +365,7 @@ test("evidence_find_missing: synthetic Done task with a fully valid bundle has n
       name: "evidence_find_missing",
       arguments: { feature: "demo", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -409,7 +409,7 @@ test("evidence_find_missing: synthetic, a task with no verification artifacts ha
       name: "evidence_find_missing",
       arguments: { feature: "demo", taskId: "T-002" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -462,7 +462,7 @@ test("evidence_find_missing: synthetic, a task whose quality-gate report lacks V
       name: "evidence_find_missing",
       arguments: { feature: "demo", taskId: "T-030" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -762,7 +762,7 @@ test("evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's 
       name: "evidence_summarize_contract_checks",
       arguments: { feature: "sdd-forge-refactor", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -794,7 +794,7 @@ test("evidence_summarize_contract_checks: synthetic, converts waiverReason and r
       name: "evidence_summarize_contract_checks",
       arguments: { feature: "demo", taskId: "T-001" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -819,7 +819,7 @@ test("evidence_summarize_contract_checks: cannot-parse for a malformed contract.
       name: "evidence_summarize_contract_checks",
       arguments: { feature: "demo", taskId: "T-040" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, false);
     assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "cannot-parse");
@@ -841,7 +841,7 @@ test("evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.
       name: "evidence_compare_to_traceability",
       arguments: { feature: "sdd-forge-mcp" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -876,7 +876,7 @@ test("evidence_compare_to_traceability: synthetic, flags a REQ -> Task row refer
       name: "evidence_compare_to_traceability",
       arguments: { feature: "demo" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -932,7 +932,7 @@ test("evidence_compare_to_traceability: synthetic, flags a contract requirementI
       name: "evidence_compare_to_traceability",
       arguments: { feature: "demo" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, true);
     const data = (
@@ -968,7 +968,7 @@ test("evidence_compare_to_traceability: not-found when traceability.md does not 
       name: "evidence_compare_to_traceability",
       arguments: { feature: "no-such-feature" },
     });
-    const envelope = parseEnvelope(result as never);
+    const envelope = parseEnvelope(result);
     assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
     assert.equal((envelope as { ok: boolean }).ok, false);
     assert.equal((envelope as { ok: false; error: { code: string } }).error.code, "not-found");
@@ -1187,7 +1187,7 @@ async function callCompare(fixture: { client: Client }): Promise<TraceabilityCom
     name: "evidence_compare_to_traceability",
     arguments: { feature: "demo" },
   });
-  const envelope = parseEnvelope(result as never);
+  const envelope = parseEnvelope(result);
   assert.ok(getEnvelopeValidator()(envelope), JSON.stringify(getEnvelopeValidator().errors));
   assert.equal((envelope as { ok: boolean }).ok, true);
   return (envelope as { ok: true; data: TraceabilityComparisonResponse }).data;
@@ -1328,7 +1328,7 @@ test("every evidence tool rejects a malformed feature argument as invalid-input"
         name,
         arguments: { feature: "../escape", taskId: "T-001" },
       });
-      const envelope = parseEnvelope(result as never);
+      const envelope = parseEnvelope(result);
       assert.ok(getEnvelopeValidator()(envelope), `${name}: ${JSON.stringify(getEnvelopeValidator().errors)}`);
       assert.equal((envelope as { ok: boolean }).ok, false, `${name} should reject ../escape`);
       assert.equal(
@@ -1342,7 +1342,7 @@ test("every evidence tool rejects a malformed feature argument as invalid-input"
       name: "evidence_compare_to_traceability",
       arguments: { feature: "../escape" },
     });
-    const compareEnvelope = parseEnvelope(compareResult as never);
+    const compareEnvelope = parseEnvelope(compareResult);
     assert.ok(getEnvelopeValidator()(compareEnvelope));
     assert.equal((compareEnvelope as { ok: boolean }).ok, false);
     assert.equal((compareEnvelope as { ok: false; error: { code: string } }).error.code, "invalid-input");

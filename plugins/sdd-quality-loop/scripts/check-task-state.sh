@@ -46,6 +46,16 @@ BEGIN {
 # Strip a trailing CR so a CRLF-encoded tasks.md parses identically to LF (cross-platform parity).
 { sub(/\r$/, "") }
 function fail(msg) { print " - " msg; failures++ }
+# awk system()/getline commands require shell syntax. Quote each data atom;
+# do not interpolate a path or Markdown task id as shell/Python source.
+function shell_arg(value,    i, char, quoted) {
+  quoted = "\047"
+  for (i = 1; i <= length(value); i++) {
+    char = substr(value, i, 1)
+    quoted = quoted (char == "\047" ? "\047\\\047\047" : char)
+  }
+  return quoted "\047"
+}
 function approver_id(s,   rest) {
   if (s ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/) {
     rest = s
@@ -112,39 +122,39 @@ function finish() {
     contract_path = tasks_dir "/verification/" task ".contract.json"
 
     # Check bundle existence and validity
-    cmd = "test -f \"" bundle_path "\" && echo yes || echo no"
+    cmd = "test -f " shell_arg(bundle_path) " && echo yes || echo no"
     cmd | getline exists; close(cmd)
     if (exists != "yes") fail(task " is Done but verification/" task ".evidence.json does not exist in " tasks_dir)
     else {
-      cmd2 = "sh \"" ENVIRON["SCRIPT_DIR"] "/check-evidence-bundle.sh\" \"" bundle_path "\" \"" ENVIRON["REPO_ROOT"] "\""
+      cmd2 = "sh " shell_arg(ENVIRON["SCRIPT_DIR"] "/check-evidence-bundle.sh") " " shell_arg(bundle_path) " " shell_arg(ENVIRON["REPO_ROOT"])
       status_code = system(cmd2)
       if (status_code != 0) fail(task " evidence bundle failed validation: " bundle_path)
     }
 
     # Check contract existence and validity
-    cmd = "test -f \"" contract_path "\" && echo yes || echo no"
+    cmd = "test -f " shell_arg(contract_path) " && echo yes || echo no"
     cmd | getline contract_exists; close(cmd)
     if (contract_exists != "yes") fail(task " is Done but verification/" task ".contract.json does not exist in " tasks_dir)
     else {
       # Validate contract is non-empty regular file
-      cmd = "test -s \"" contract_path "\" && echo yes || echo no"
+      cmd = "test -s " shell_arg(contract_path) " && echo yes || echo no"
       cmd | getline contract_nonempty; close(cmd)
       if (contract_nonempty != "yes") fail(task " is Done but verification/" task ".contract.json is empty in " tasks_dir)
       else {
         # Validate contract has matching task_id using python3 if available, else grep
         if (PYTHON_CMD != "") {
-          cmd3 = PYTHON_CMD " -c \"import json,sys; c=json.load(open(\\\"" contract_path "\\\")); sys.exit(0 if c.get(\\\"task_id\\\") == \\\"" task "\\\" else 1)\" 2>/dev/null"
+          cmd3 = PYTHON_CMD " -c " shell_arg("import json,sys; c=json.load(open(sys.argv[1])); sys.exit(0 if c.get(\"task_id\") == sys.argv[2] else 1)") " " shell_arg(contract_path) " " shell_arg(task) " 2>/dev/null"
           if (system(cmd3) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id")
         } else {
           # Fallback to grep for task_id match without python3
-          grep_cmd = "grep -F \"\\\"task_id\\\"\" \"" contract_path "\" | grep -F \"\\\"" task "\\\"\" >/dev/null 2>&1"
+          grep_cmd = "grep -F -- " shell_arg("\"task_id\"") " " shell_arg(contract_path) " | grep -F -- " shell_arg("\"" task "\"") " >/dev/null 2>&1"
           if (system(grep_cmd) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id (or invalid JSON)")
         }
       }
     }
     # Check contract risk for Done tasks
     if (PYTHON_CMD != "") {
-      py_risk_cmd = PYTHON_CMD " -c \"import json; c=json.load(open(\\\"" contract_path "\\\")); r=c.get(\\\"risk\\\"); print(r if r is not None else \\\"\\\")\" 2>/dev/null"
+      py_risk_cmd = PYTHON_CMD " -c " shell_arg("import json,sys; c=json.load(open(sys.argv[1])); r=c.get(\"risk\"); print(r if r is not None else \"\")") " " shell_arg(contract_path) " 2>/dev/null"
       py_risk_cmd | getline raw_risk; close(py_risk_cmd)
       contract_risk = tolower(raw_risk)
       gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
@@ -155,7 +165,7 @@ function finish() {
       }
     } else {
       raw_risk = ""
-      grep_risk_cmd = "grep -E \"^[[:space:]]*\\\"risk\\\"[[:space:]]*:[[:space:]]*\\\"[^\\\"]+\\\"\" \"" contract_path "\" | sed -n \"1s/.*:[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p\" | tr \"[:upper:]\" \"[:lower:]\""
+      grep_risk_cmd = "grep -E \"^[[:space:]]*\\\"risk\\\"[[:space:]]*:[[:space:]]*\\\"[^\\\"]+\\\"\" " shell_arg(contract_path) " | sed -n \"1s/.*:[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p\" | tr \"[:upper:]\" \"[:lower:]\""
       grep_risk_cmd | getline raw_risk; close(grep_risk_cmd)
       contract_risk = raw_risk
       gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
@@ -172,7 +182,7 @@ function finish() {
   }
   if (status == "Implementation Complete") {
     # C-07: word-boundary match to prevent T-001 matching T-0010
-    cmd = "grep -rlw \047" task "\047 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
+    cmd = "grep -rlw -- " shell_arg(task) " " shell_arg(ENVIRON["IMPL_REPORTS"]) " 2>/dev/null | head -1"
     cmd | getline impl_report; close(cmd)
     if (impl_report == "") fail(task " is Implementation Complete but no implementation report in " ENVIRON["IMPL_REPORTS"] " mentions it")
     impl_report = ""

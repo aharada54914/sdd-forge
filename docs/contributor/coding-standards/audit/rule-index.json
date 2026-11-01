@@ -1,0 +1,330 @@
+{
+  "schema": "coding-standards-rule-index/v1",
+  "rules": [
+    {
+      "id": "CS-001",
+      "title": "Shell source is not a data channel",
+      "languages": [
+        "bash",
+        "powershell",
+        "python",
+        "javascript"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-001"
+    },
+    {
+      "id": "CS-002",
+      "title": "Keep embedded programs literal",
+      "languages": [
+        "bash",
+        "powershell",
+        "python",
+        "javascript"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-002"
+    },
+    {
+      "id": "CS-003",
+      "title": "Bind SQL data",
+      "languages": [
+        "python",
+        "typescript",
+        "javascript",
+        "powershell"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-003"
+    },
+    {
+      "id": "CS-004",
+      "title": "Serialize structured values",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-004"
+    },
+    {
+      "id": "CS-005",
+      "title": "Pass Actions expressions through data",
+      "languages": [
+        "workflow",
+        "bash",
+        "powershell"
+      ],
+      "detection": "machine",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-005"
+    },
+    {
+      "id": "CS-006",
+      "title": "Escape for the HTML destination",
+      "languages": [
+        "python",
+        "typescript",
+        "javascript"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-006"
+    },
+    {
+      "id": "CS-007",
+      "title": "Separate regex syntax and literals",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-007"
+    },
+    {
+      "id": "CS-008",
+      "title": "Encode URL components independently",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-008"
+    },
+    {
+      "id": "CS-009",
+      "title": "Preserve path and option boundaries",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-009"
+    },
+    {
+      "id": "CS-010",
+      "title": "Keep secrets out of code and logs",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-010"
+    },
+    {
+      "id": "CS-011",
+      "title": "Name policy constants at their owner",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-011"
+    },
+    {
+      "id": "CS-012",
+      "title": "Make state ownership visible",
+      "languages": [
+        "all"
+      ],
+      "detection": "machine",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-012"
+    },
+    {
+      "id": "CS-013",
+      "title": "Reuse infrastructure with a stable contract",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-013"
+    },
+    {
+      "id": "CS-014",
+      "title": "Keep parser and validation ownership explicit",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-014"
+    },
+    {
+      "id": "CS-015",
+      "title": "Separate independently changing responsibilities",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "minor",
+      "document": "docs/contributor/coding-standards/common.md#cs-015"
+    },
+    {
+      "id": "CS-016",
+      "title": "Do not add speculative interfaces",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-016"
+    },
+    {
+      "id": "CS-017",
+      "title": "Remove abandoned paths without hiding failure",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-017"
+    },
+    {
+      "id": "CS-018",
+      "title": "Preserve exception meaning",
+      "languages": [
+        "all"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-018"
+    },
+    {
+      "id": "CS-019",
+      "title": "Propagate process and pipeline status",
+      "languages": [
+        "bash",
+        "powershell",
+        "python",
+        "typescript",
+        "javascript"
+      ],
+      "detection": "data-flow",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-019"
+    },
+    {
+      "id": "CS-020",
+      "title": "Validate Python boundaries before narrowing",
+      "languages": [
+        "python"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-020"
+    },
+    {
+      "id": "CS-021",
+      "title": "Narrow TypeScript unknown honestly",
+      "languages": [
+        "typescript",
+        "javascript"
+      ],
+      "detection": "machine",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-021"
+    },
+    {
+      "id": "CS-022",
+      "title": "Own every asynchronous lifetime",
+      "languages": [
+        "python",
+        "typescript",
+        "javascript",
+        "powershell"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-022"
+    },
+    {
+      "id": "CS-023",
+      "title": "Bound external work and cleanup",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-023"
+    },
+    {
+      "id": "CS-024",
+      "title": "Retry only a justified operation",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-024"
+    },
+    {
+      "id": "CS-025",
+      "title": "Compare protocol tokens with required case",
+      "languages": [
+        "bash",
+        "powershell",
+        "python",
+        "typescript",
+        "javascript"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-025"
+    },
+    {
+      "id": "CS-026",
+      "title": "Pin encoding at producer and consumer",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-026"
+    },
+    {
+      "id": "CS-027",
+      "title": "Implement the input domain, not fixture names",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-027"
+    },
+    {
+      "id": "CS-028",
+      "title": "Keep the oracle independent",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "major",
+      "document": "docs/contributor/coding-standards/common.md#cs-028"
+    },
+    {
+      "id": "CS-029",
+      "title": "Label evidence by the boundary actually run",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-029"
+    },
+    {
+      "id": "CS-030",
+      "title": "Do not weaken acceptance to get green",
+      "languages": [
+        "all"
+      ],
+      "detection": "context",
+      "severity": "critical",
+      "document": "docs/contributor/coding-standards/common.md#cs-030"
+    }
+  ]
+}
