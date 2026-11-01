@@ -352,12 +352,16 @@ get_github_auth_token() {
 
 # Encode one GitHub route value without adding a bootstrap runtime dependency.
 url_path_value() {
-    local LC_ALL=C value="$1" encoded="" char i
+    local LC_ALL=C value="$1" encoded="" char byte i
     for ((i=0; i<${#value}; i++)); do
         char="${value:i:1}"
         case "$char" in
             [a-zA-Z0-9.~_-]) encoded+="$char" ;;
-            *) printf -v encoded '%s%%%02X' "$encoded" "'$char" ;;
+            *)
+                # Bash 3.2 reports high bytes as signed character values.
+                printf -v byte '%d' "'$char"
+                printf -v encoded '%s%%%02X' "$encoded" "$((byte & 255))"
+                ;;
         esac
     done
     printf '%s' "$encoded"

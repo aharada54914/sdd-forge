@@ -542,6 +542,8 @@ invoke_remote_installer_scenario() {
     fi
     if ! grep -qF "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$expected_ref" "$command_log"; then
         fail "authenticated remote install did not use the GitHub API archive URL"
+        printf '  expected URL ref: %s\n' "$expected_ref" >&2
+        grep -F 'https://api.github.com/repos/' "$command_log" >&2 || true
         remote_ok=0
     fi
     if grep -qF "raw.githubusercontent.com" "$command_log" || grep -qF "codeload.github.com" "$command_log"; then
