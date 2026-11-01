@@ -4,6 +4,11 @@
  * under specs/ that this task's golden set covers (sdd-forge-mcp itself is
  * excluded — its own tasks.md is still moving during this implementation).
  *
+ * These historical fixtures model a repository before Context activation.
+ * Both live implementations read an isolated copy with no Context/sidecar.
+ * Full current contract enforcement is outside the parser contract and is
+ * checked separately below; this is not full parity under active policies.
+ *
  * Two comparison modes:
  *  - `describe("live shell comparison")`: only runs on POSIX platforms (this
  *    repo's dev/CI environment) and shells out to check-task-state.sh live.
@@ -15,13 +20,14 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { realpathSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { parseTaskState } from "../../src/parsers/tasks.js";
 import type { SddRoot } from "../../src/root.js";
 import {
   environmentDependentBundleFailures,
   extractOwnFailureMessages,
   findRepoRoot,
+  historicalGoldenRoot,
   loadRecordedFixture,
   runCheckTaskState,
   shellReportsFileNotFound,
@@ -98,7 +104,9 @@ test("live shell comparison: parseTaskState matches check-task-state.sh for ever
     return;
   }
 
-  const repoRoot = findRepoRoot();
+  const fixture = historicalGoldenRoot(findRepoRoot());
+  t.after(fixture.cleanup);
+  const repoRoot = fixture.path;
   const root = makeRepoRoot(repoRoot);
 
   for (const feature of GOLDEN_FEATURES) {
@@ -141,8 +149,10 @@ test("live shell comparison: parseTaskState matches check-task-state.sh for ever
   }
 });
 
-test("recorded fixture comparison: parseTaskState matches the committed golden fixtures", () => {
-  const repoRoot = findRepoRoot();
+test("recorded fixture comparison: parseTaskState matches the committed golden fixtures", (t) => {
+  const fixture = historicalGoldenRoot(findRepoRoot());
+  t.after(fixture.cleanup);
+  const repoRoot = fixture.path;
   const root = makeRepoRoot(repoRoot);
 
   for (const feature of GOLDEN_FEATURES) {
@@ -163,4 +173,26 @@ test("recorded fixture comparison: parseTaskState matches the committed golden f
       fixture.ownFailureMessages,
     );
   }
+});
+
+// Active Context changes the shell contract policy, which the read-only parser
+// explicitly does not reimplement. Keep that refusal visible instead of masking it.
+test("active Context still rejects historical high-risk contracts without coverage", (t) => {
+  if (process.platform === "win32") {
+    t.skip("POSIX shell policy check");
+    return;
+  }
+  const repository = findRepoRoot();
+  const fixture = historicalGoldenRoot(repository);
+  t.after(fixture.cleanup);
+  assert.equal(existsSync(`${fixture.path}/sdd/project-context.yaml`), false);
+  assert.equal(existsSync(`${fixture.path}/sdd/project-context.approval.json`), false);
+  const originalContext = readFileSync(`${repository}/sdd/project-context.yaml`);
+  mkdirSync(`${fixture.path}/sdd`);
+  cpSync(`${repository}/sdd/project-context.yaml`, `${fixture.path}/sdd/project-context.yaml`);
+  const result = runCheckTaskState(fixture.path, "bootstrap-interviewer-enhancement");
+  assert.deepEqual(readFileSync(`${repository}/sdd/project-context.yaml`), originalContext);
+  assert.equal(result.exitCode, 1);
+  assert.match(result.combinedOutput, /requires check 'check-component-coverage' present and required:true \(missing\)/);
+  assert.ok(extractOwnFailureMessages(result.combinedOutput).some(message => message.startsWith("T-004 evidence bundle failed validation:")));
 });
