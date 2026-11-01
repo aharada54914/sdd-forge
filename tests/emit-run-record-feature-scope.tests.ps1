@@ -153,6 +153,21 @@ VERDICT: PASS
         AssertEq $recordT002.metrics.gate_reports.blocked 1 "feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded)"
     }
 
+    New-Item -ItemType Directory -Path (Join-Path $work 'specs/feat-case') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $work 'specs/feat-case/tasks.md'), "## T-001`nStatus: Done`n## T-002`nStatus: done`n")
+    [IO.File]::WriteAllText((Join-Path $work 'reports/quality-gate/case[ab].md'), "Task: T-001`nFeature: feat-case`nVERDICT: PASS`n")
+    [IO.File]::WriteAllText((Join-Path $work 'reports/quality-gate/casea.md'), "Task: T-001`nFeature: another-feature`nVERDICT: BLOCKED`n")
+    foreach ($n in 1..2) {
+        [IO.File]::WriteAllText((Join-Path $work "reports/quality-gate/case-upper-$n.md"), "Task: T-002`nFeature: FEAT-CASE`nVERDICT: BLOCKED`n")
+    }
+    Push-Location $work
+    try { & pwsh -NoProfile -File $script -Feature feat-case | Out-Null } finally { Pop-Location }
+    $caseOutput = Get-ChildItem -LiteralPath (Join-Path $work 'reports/runs') -Filter 'RUN-*-feat-case.json' | Select-Object -First 1
+    $caseRecord = Get-Content -Raw -LiteralPath $caseOutput.FullName | ConvertFrom-Json
+    AssertEq $caseRecord.metrics.tasks.done 1 'status token case is exact'
+    AssertEq $caseRecord.metrics.gate_reports.total 1 'literal report is counted and case-distinct feature reports excluded'
+    AssertEq $caseRecord.metrics.gate_reports.blocked 0 'case-distinct reports cannot add blocked metrics'
+
     # ========================================================================
     # T-004 (#153): sdd-run-record/v2 effort attribution + degradation lock
     # (REQ-004; AC-021..026, AC-051; security-spec.md B4). Each scenario uses

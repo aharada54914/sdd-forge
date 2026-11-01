@@ -908,7 +908,7 @@ function Invoke-Validation {
     $size = -1
     try {
         $item = Get-Item -LiteralPath $ContractPath -Force
-        if ([IO.Path]::DirectorySeparatorChar -ne '\' -and $item.LinkType) {
+        if ([IO.Path]::DirectorySeparatorChar -ne '\' -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
             $target = $item.ResolveLinkTarget($true)
             $item = Get-Item -LiteralPath $target.FullName -Force
         }

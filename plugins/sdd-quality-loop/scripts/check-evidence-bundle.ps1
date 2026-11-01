@@ -7,6 +7,8 @@ param(
     [string]$RepoRoot = "."
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/evidence-key.ps1')
+. (Join-Path $PSScriptRoot 'lib/evidence-path.ps1')
 
 if (-not (Test-Path -LiteralPath $BundlePath)) {
     Write-Error "Evidence bundle file not found: $BundlePath"
@@ -55,7 +57,7 @@ function Resolve-RepositoryPath {
         [Parameter(Mandatory)][string]$Label
     )
 
-    $rootPath = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+    $rootPath = (Resolve-SddEvidenceFilesystemPath (Resolve-Path -LiteralPath $RepoRoot).Path).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
     $normalized = Resolve-RepoRelativePath -Value $RelativePath -Label $Label
     if (-not $normalized) {
         return $null
@@ -77,6 +79,16 @@ function Resolve-RepositoryPath {
         Add-Failure "$Label missing: $RelativePath"
         return $null
     }
+    try { $resolved = Resolve-SddEvidenceFilesystemPath $resolved }
+    catch {
+        Add-Failure "$Label could not be resolved: $RelativePath"
+        return $null
+    }
+    if (-not $resolved.StartsWith($rootPath + $sep, [StringComparison]::Ordinal)) {
+        Add-Failure "$Label escapes repo root: $RelativePath"
+        return $null
+    }
+    $normalized = $resolved.Substring($rootPath.Length).TrimStart($sep, '/').Replace('\', '/')
     if ((Get-Item -LiteralPath $resolved).PSIsContainer) {
         Add-Failure "$Label is not a regular file: $RelativePath"
         return $null
@@ -93,65 +105,6 @@ function Get-Sha256 {
 }
 
 # --- Signing verification helpers (T-007a) ---
-
-function Resolve-EvidenceKey {
-    $envKey = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY")
-    if (-not [string]::IsNullOrWhiteSpace($envKey)) {
-        return @{ key = [System.Text.Encoding]::UTF8.GetBytes($envKey); ref = "env:SDD_EVIDENCE_KEY" }
-    }
-    $envKeyFile = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY_FILE")
-    if (-not [string]::IsNullOrWhiteSpace($envKeyFile)) {
-        try {
-            $raw = [System.IO.File]::ReadAllBytes($envKeyFile)
-            # Strip BOM (0xEF 0xBB 0xBF)
-            if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
-                $raw = $raw[3..($raw.Length-1)]
-            }
-            # Strip trailing whitespace
-            $raw = [System.Linq.Enumerable]::Reverse(
-                [System.Linq.Enumerable]::SkipWhile(
-                    [System.Linq.Enumerable]::Reverse($raw),
-                    { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
-                )
-            ).ToArray()
-            if ($raw.Length -gt 0) {
-                return @{ key = $raw; ref = "file:$envKeyFile" }
-            }
-        } catch {
-            return $null
-        }
-    }
-    # NB: do not name this $home — $HOME is a read-only automatic variable in
-    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
-    $userHome = $env:HOME
-    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
-    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
-        # Windows PowerShell 5.1 accepts only Path and ChildPath for Join-Path.
-        $keyPath = Join-Path (Join-Path $userHome ".sdd") "evidence-key"
-        if (Test-Path -LiteralPath $keyPath) {
-            try {
-                $raw = [System.IO.File]::ReadAllBytes($keyPath)
-                # Strip BOM
-                if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
-                    $raw = $raw[3..($raw.Length-1)]
-                }
-                # Strip trailing whitespace
-                $raw = [System.Linq.Enumerable]::Reverse(
-                    [System.Linq.Enumerable]::SkipWhile(
-                        [System.Linq.Enumerable]::Reverse($raw),
-                        { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
-                    )
-                ).ToArray()
-                if ($raw.Length -gt 0) {
-                    return @{ key = $raw; ref = "file:~/.sdd/evidence-key" }
-                }
-            } catch {
-                return $null
-            }
-        }
-    }
-    return $null
-}
 
 function Get-EvidenceCanonical {
     param([Parameter(Mandatory)]$Bundle)
@@ -228,7 +181,7 @@ $contractInfo = Resolve-RepositoryPath -RelativePath ([string]$verificationContr
 
 $qualityText = $null
 if ($qualityInfo) {
-    $qualityText = Get-Content -Raw -Encoding Utf8 $qualityInfo.Resolved
+    $qualityText = Get-Content -Raw -Encoding Utf8 -LiteralPath $qualityInfo.Resolved
     if ($qualityText -notmatch "(?m)^Task ID:\s*$([regex]::Escape($taskId))\s*$") {
         Add-Failure "quality_report missing Task ID: $taskId"
     }
@@ -296,7 +249,7 @@ if ($contractInfo) {
     }
 }
 
-$requiredArtifacts = @{}
+$requiredArtifacts = [hashtable]::new([StringComparer]::Ordinal)
 if ($qualityInfo) { $requiredArtifacts[$qualityInfo.Normalized] = "quality_report" }
 if ($contractInfo) { $requiredArtifacts[$contractInfo.Normalized] = "verification_contract" }
 
@@ -318,7 +271,7 @@ if ($contract) {
     }
 }
 
-$artifactIndex = @{}
+$artifactIndex = [hashtable]::new([StringComparer]::Ordinal)
 foreach ($artifact in @($artifacts)) {
     if ($artifact -isnot [PSCustomObject]) {
         Add-Failure 'artifact entries must be objects'
@@ -362,7 +315,7 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
     if (-not $gitExe) {
         Add-Failure "git is not available; cannot verify git_commit binding"
     } else {
-        $absRoot = (Resolve-Path $RepoRoot).Path
+        $absRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
         try {
             # Verify commit exists
             & $gitExe.Source -C $absRoot cat-file -e "${gitCommitStr}^{commit}" 2>$null
