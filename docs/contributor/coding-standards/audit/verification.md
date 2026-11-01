@@ -109,3 +109,20 @@ embedded installer programs; the owner's durable summary covers four affected
 install/uninstall bodies, 12 actual baseline failures and 12 passing corrected
 controls. File suffix alone did not define the language audit scope. No claim
 of whole-population context review is added.
+
+## Native argv, AWK and template follow-up
+
+Imported PS-030–032 and SH-030–031 from shell handoff `a3241e56`, checking
+all five original hashes against `82b53695` and repaired hashes against the
+integrated files. The central ledger now has 93 records including DOC-001.
+
+DOC-001 was independently reproduced during template review: an untouched Lite
+quality report admitted an Approved/Done T-001 through the actual state consumer.
+The new existing-suite control gave 23 passed/1 failed before repair and
+24 passed/0 failed afterward. The default is now FAIL with NOT_RUN check labels;
+the explicit completed PASS normal control still succeeds. This does not claim
+that a report alone proves live project execution or full Lite acceptance.
+
+Mirror check found eight already integrated stale manifest entries unrelated to
+the template/parity test; integration owns their existing synchronizer update.
+Pending mirrors were left intact.
