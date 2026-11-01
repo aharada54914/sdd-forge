@@ -134,7 +134,7 @@
     },
     {
       "path": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
-      "sha256": "06aa7f4f9e206a4baba4bb3a5e081347f65a655c94857550a781722b92b2a482"
+      "sha256": "73d2b66ceaec082a66ad0a0742b85052fa47cfb64bdb8e34df19d89bcdfd7f24"
     },
     {
       "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/build.execution.json",
