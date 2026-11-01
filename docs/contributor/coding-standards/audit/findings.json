@@ -2819,6 +2819,58 @@
       ],
       "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
       "reuse": null
+    },
+    {
+      "finding_id": "DOC-007",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.sh",
+      "line": 149,
+      "source_sha256": "d359ccc18dde5d42c9e0504ee35f57ed4871af0bf9778c2a5d5037f613de038e",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "Bash30pass/1fail aggregate before,31pass/0fail after;11 negative cases and valid-extension normal control",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-008",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 155,
+      "source_sha256": "0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "PowerShell43pass/6fail before,49pass/0fail after; malformed role enums and target types rejected",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
     }
   ]
 }
