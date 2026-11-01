@@ -135,6 +135,8 @@ def load_registry(path):
     for model in data["models"]:
         require_fields(model, ("name", "canonical_tier", "effort_control"))
         require_string(model["name"], "model name")
+        if re.search(r"[\x00-\x1f\x7f]", model["name"]):
+            die("model name must be a single-line token without control characters")
         require_string(model["canonical_tier"], "canonical_tier")
         if not isinstance(model["effort_control"], dict):
             die("effort_control must be an object")

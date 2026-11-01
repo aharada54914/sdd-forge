@@ -507,9 +507,11 @@ Body text unaffected.
     }
 
     # Actual parser controls: PowerShell must not coerce arrays or key casing.
-    foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array','effort-newline','effort-unknown','tier-array')) {
+    foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array','effort-newline','effort-unknown','tier-array','model-newline','model-control')) {
         $bad = [System.IO.File]::ReadAllText($realRegistry) | ConvertFrom-Json
         switch ($variant) {
+            'model-newline' { $bad.models[0].name += "`nINJECTED = true" }
+            'model-control' { $bad.models[0].name += [char]0 }
             'schema-array' { $bad.schema = @($bad.schema) }
             'schema-case' { $value = $bad.schema; $bad.PSObject.Properties.Remove('schema'); $bad | Add-Member NoteProperty Schema $value }
             'models-object' { $bad.models = $bad.models[0] }
