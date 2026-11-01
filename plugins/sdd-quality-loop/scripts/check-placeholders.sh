@@ -47,7 +47,10 @@ if [ "$rc_ci" -ge 2 ]; then
   echo "check-placeholders: a path above could not be scanned; failing closed instead of reporting a false pass." >&2
   exit "$rc_ci"
 fi
-out="$(printf '%s\n%s\n' "$out_cs" "$out_ci" | grep -v '^$' | sort -u)"
+out="$(printf '%s\n%s\n' "$out_cs" "$out_ci" | grep -v '^$' | sort -u)" || {
+  echo 'check-placeholders: FATAL cannot aggregate scan findings.' >&2
+  exit 2
+}
 
 if [ -n "$out" ]; then
   count="$(printf '%s\n' "$out" | wc -l | tr -d ' ')"

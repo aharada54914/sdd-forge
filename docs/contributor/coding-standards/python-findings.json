@@ -1431,6 +1431,28 @@
       ],
       "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
       "reuse": null
+    },
+    {
+      "finding_id": "PY-066",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 133,
+      "source_sha256": "508e9275a82640f45b39a696a2bf4a94402aa2dc75e06fdf8dff16d4147b465f",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree and require successful show; NUL-frame paths and classify UTF-8 failure.",
+      "reuse": null
     }
   ]
 }

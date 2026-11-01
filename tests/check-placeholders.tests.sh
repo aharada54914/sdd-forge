@@ -127,6 +127,22 @@ else
     fail "CP-005: expected findings exit 1, got ${CP_EXIT}: ${CP_OUTPUT}"
 fi
 
+# A genuine sort failure cannot discard known findings and report a pass.
+mkdir "$WORK/sort-error"
+cat >"$WORK/sort-error/sort" <<'SORT_ERROR'
+#!/bin/sh
+exec "$REAL_SORT" --invalid-aggregation-control
+SORT_ERROR
+chmod +x "$WORK/sort-error/sort"
+real_sort=$(command -v sort)
+CP_EXIT=0
+CP_OUTPUT="$(PATH="$WORK/sort-error:$PATH" REAL_SORT="$real_sort" sh "$SC" "$WORK/option-path/normal.txt" 2>&1)" || CP_EXIT=$?
+if [ "$CP_EXIT" -eq 2 ] && [[ "$CP_OUTPUT" != *'scan passed'* ]]; then
+    ok 'CP-006: real aggregation tool error fails closed'
+else
+    fail "CP-006: expected tool error2, got ${CP_EXIT}: ${CP_OUTPUT}"
+fi
+
 # Summary
 # ============================================================================
 

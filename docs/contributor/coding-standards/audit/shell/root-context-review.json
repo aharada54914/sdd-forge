@@ -182,6 +182,21 @@
       "path": "scripts/bump-version.sh",
       "sha256": "4999f5d1c1dd143570548d0913e2c16c2e2bc27c166f7da736199a1649180b47",
       "review": "Reviewed digit-only version interpolation, existing-version lookup, changelog and loop tests before edits, managed-file list and stale-reference reporting. Contributor GNU sed utility, not claimed portable BSD sed. Actual release execution belongs separate explicit release task."
+    },
+    {
+      "path": ".github/scripts/check-model-freshness.sh",
+      "sha256": "cb57a65fcc190026cb9d801bc1e2da983e3f8f1e67624eb763981615603b4e18",
+      "review": "Read complete 281-line baseline and current pipeline delta: Ubuntu scheduled consumer, 15s curl, source fixture transport, conservative allowlisted token heuristic, registry read-only names, dedup issue search and create/comment branches. Found fetch-cat, token filter and GitHub search status losses; all repaired with actual entrypoint failure controls. Fetch unavailability remains documented fail-soft and creates explicit tracking notice; filter/search errors deny writes. No source text execution or raw fetched body publication; no registry writes. Workflow10minute budget owns entire external job lifetime."
+    },
+    {
+      "path": ".github/scripts/self-improvement-pr-guard.sh",
+      "sha256": "523e3479ba067fbe9feaa665531d2f4bb07ea9503273471fd036032d86cdccf6",
+      "review": "Read complete source and consuming workflow: fixed denylist controls enforcement surfaces, literal case patterns accept data only, count/list all violations, CRLF input deliberate. Missing/empty paths file is explicitly vacuous pass; upstream gh/jq failures now separately rejected by workflow pipefail. Existing denied-list semantics retained rather than silently extending approval policy."
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "sha256": "3c5825b605465564a8f2f7c6a3aa4a915b2ce68853a09b68a9bc16effb85f450",
+      "review": "Read complete1017-line baseline and callers/tests: strict JSON lexical scanner, 10MiB pre-read ceiling, UTF8/BOM, v2 root/schema dispatch, exact ordinal property lookup, typed structural validation then referential integrity, six semantic indexes and single diagnostic accumulator. Preserved deliberately v1-outside-authority optional context subtree and permissive extension keys, Python JSON nonfinite/duplicate-key parser parity and known case-variant-key parser limitation. Fixed singleton root/schema admission and native timestamp-looking string coercion via capability-checked DateKind. No network/commands/writes; PS5.1 syntax retained. No claim of native PS5.1 execution; DateKind control records older host capability limitation. Follow-up: native FIFO input rejected via managed UnixStat; regular symlink follows checked target. Older Unix hosts without UnixStat are not certified; native Linux7.6.7 and existing Windows5.1-compatible syntax are distinct claims."
     }
   ],
   "rule_applicability": [

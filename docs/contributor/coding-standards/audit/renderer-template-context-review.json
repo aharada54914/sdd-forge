@@ -1,0 +1,37 @@
+{
+  "schema": "coding-standards-renderer-template-context-review/v1",
+  "revision": "a88b9cc1ab9b1acd7fd6ac89f91397ffa583ffae",
+  "method": "Whole source read, traced input-to-rendering/status flow and disposable-target/interactive-input controls. Explicit wrapper errors, exact types/enum fields, native literal paths and check-only versus write behavior assessed. No asynchronous service/retry/SQL/HTML operation; subprocess ownership and process statuses remain explicit.",
+  "entries": [
+    {
+      "path": "render-agent-frontmatter.sh",
+      "source_sha256": "a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434",
+      "state": "reviewed",
+      "judgment": "Renderer reads exact consumed registry fields/types, finite role enums and target bool/kind before rendering; unrelated extension data preserved. Protected targets route to staging; Check only compares. Root Python heredoc literal, argv transport explicit. PowerShell provider probes literal. SHA utility disposed and UTF8 producers explicit. Output template transforms remain narrow two-format ownership, not a new generic rendering abstraction. Actual Bash31/0 and PowerShell49/0, with retained baseline red logs and unchanged live protected hashes.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ]
+    },
+    {
+      "path": "render-agent-frontmatter.ps1",
+      "source_sha256": "98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9",
+      "state": "reviewed",
+      "judgment": "Renderer reads exact consumed registry fields/types, finite role enums and target bool/kind before rendering; unrelated extension data preserved. Protected targets route to staging; Check only compares. Root Python heredoc literal, argv transport explicit. PowerShell provider probes literal. SHA utility disposed and UTF8 producers explicit. Output template transforms remain narrow two-format ownership, not a new generic rendering abstraction. Actual Bash31/0 and PowerShell49/0, with retained baseline red logs and unchanged live protected hashes.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "reports/verification/coding-standards-renderer-20261101/"
+      ]
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "source_sha256": "8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849",
+      "state": "reviewed",
+      "judgment": "HITL template validates bounded iteration count, EOF and CHECK0/1/error status before success. Existing actual shell25/0+PS twin16/0 after red controls; no unavailable observation becomes green.",
+      "evidence": [
+        "docs/contributor/coding-standards/audit/findings.json",
+        "tests/hitl-wfi-terminal.tests.sh"
+      ]
+    }
+  ]
+}

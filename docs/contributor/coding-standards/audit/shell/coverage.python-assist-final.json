@@ -1,0 +1,127 @@
+{
+  "schema": "powershell-contextual-assist/v3",
+  "baseline_commit": "53d2c51ac13041ceede54640c26aa5c9b6260dc5",
+  "method": "python-assist-final-review.md",
+  "files": [
+    {
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+      "source_sha256": "fc8e8d3dc6c5da8eeecbd752059cd59fc361f96d9f6f0ba5b3aeebf605f55706",
+      "lines": 312,
+      "result": "complete gate/body contextual review",
+      "findings": [
+        "PS-AUX-015",
+        "PS-AUX-017"
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+      "source_sha256": "16c5a876d3bb735b47ea57fa86fb1ac7c0f3d9f0bc6c825586bf6ed892def906",
+      "lines": 254,
+      "result": "complete gate/body contextual review",
+      "findings": [
+        "PS-AUX-016",
+        "PS-AUX-018",
+        "PS-AUX-019"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1",
+      "source_sha256": "c21af8599a4bf64c92ac40418bf1555d21ae816c679787f27b2424c4a4cc4846",
+      "lines": 148,
+      "result": "complete gate/body contextual review",
+      "findings": [
+        "PS-AUX-020"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "source_sha256": "ce345c9497c44b0967cfc815a2e7d727c3ca6e0e27dad36efa5a0e4c948416ca",
+      "lines": 176,
+      "result": "complete gate/body contextual review",
+      "findings": [
+        "PY-066"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "source_sha256": "834f36a6f63db2e2d27ba47d5da3fa7f08d0322ff03af160411537c57c4272f7",
+      "lines": 367,
+      "result": "complete gate/body contextual review",
+      "findings": [
+        "PS-AUX-021",
+        "PS-AUX-022",
+        "PS-AUX-023"
+      ]
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
+      "source_sha256": "7af6f2e22c85fcd73fd48e60973b3d12b261d1633c30e8ad86c4a4458e8834c8",
+      "lines": 194,
+      "result": "seven exact-token fullmatch replacements; full review and paired tests owned by terminal agent",
+      "findings": []
+    }
+  ],
+  "consumers": [
+    {
+      "path": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "21cc9977bea4a46b4216fdebc71df9b07f1534f68465d7df83cfffeb80c5dcb1"
+    },
+    {
+      "path": "tests/criterion-freeze.tests.sh",
+      "source_sha256": "4e2086b4ba7cc21111fccd2754f6d8b60f4283f30bfd8f2f8d8542acf811e728"
+    },
+    {
+      "path": "tests/check-component-coverage.tests.ps1",
+      "source_sha256": "05ef2a79031a7551ad56a60523c2d5f711bc1d8fb6bba117bd4113711e0d7340"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/domain-precheck-red.log",
+      "sha256": "4a4c5e210942d1612e57ce4d3649083cace4b7cfa5a777d10bf61863c6cd14b6"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/domain-precheck-green.log",
+      "sha256": "f8636717a524f96a008f9273e9889ec1e0689f21063f957e6236cc7635b08641"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/domain-precheck-integer-red.log",
+      "sha256": "4708ce504b52503fe2d6136a5c2092d170ec41d337a2e251e5677a0e30f6231b"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/domain-precheck-full-green.log",
+      "sha256": "ff43a87d5a3b0c4af152d1d36129315ac6637a57796d7a835f454d3710817513"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/criterion-show-red.log",
+      "sha256": "a6a66d3b0553a58c51b24874a04a0f3a11e3298f8ed7babbba9b0c4ea5671ed1"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/criterion-show-green.log",
+      "sha256": "3ed0edfe8329d5ff9c262f730cab92ac702c25df8b1e741e0991573463eea67c"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/component-coverage-red.log",
+      "sha256": "8c6a375af51467914ada9bae7530f0baa9b95f00c7b2084d94345d5002178062"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/component-coverage-green.log",
+      "sha256": "e3e114d6efb9e6e541dbcb1e9c0f0104e9be40a5e33942e3618904ebab84abdb"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/domain-criterion-component-analysis.log",
+      "sha256": "67ec5bc74db80f6fa5afb01305fd4bef443d5d7115c2be8caea455d630494853"
+    }
+  ],
+  "remaining": [
+    "Component TEST-036.4 provenance assertion remains failing until root active/frozen successor reconciliation; actual full-suite failure preserved.",
+    "No native Windows/macOS proof or frozen mirror synchronization."
+  ],
+  "terminal_validation": {
+    "owner_commit": "50318199",
+    "suite": "tests/agent-model-routing.tests.ps1",
+    "result": "passed, including actual Bash invocation for both newline mutations",
+    "evidence": "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-after.txt",
+    "source_sha256": "7af6f2e22c85fcd73fd48e60973b3d12b261d1633c30e8ad86c4a4458e8834c8"
+  }
+}

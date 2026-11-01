@@ -304,22 +304,27 @@ verify_implementation_binding() {
     (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length))
   ' "$implementation_manifest" >/dev/null 2>&1 ||
     fail IDENTITY 'implementation manifest task/run/session/inputs is invalid'
+  local pinned_paths implementation_report_text
+  pinned_paths=$(jq -r '.allowed_inputs[].path' "$implementation_manifest") ||
+    fail IDENTITY 'implementation manifest input enumeration failed'
+  implementation_report_text=$(read_implementation_report) ||
+    fail IDENTITY 'implementation report could not be read'
   while IFS= read -r pinned; do
     [[ "$pinned" =~ ^[A-Za-z0-9.] ]] && is_canonical_path "$pinned" ||
       fail IDENTITY 'implementation manifest input path is invalid'
-  done < <(jq -r '.allowed_inputs[].path' "$implementation_manifest")
+  done <<< "$pinned_paths"
   implementation_run=$(jq -r '.run_id' "$implementation_manifest")
   implementation_session=$(jq -r '.session_id' "$implementation_manifest")
-  [[ "$(grep -c '^Run ID: ' <(read_implementation_report) || true)" -eq 1 &&
-     "$(grep -c '^- \*\*Run ID\*\*: ' <(read_implementation_report) || true)" -eq 1 &&
-     "$(grep -c '^- \*\*Session ID\*\*: ' <(read_implementation_report) || true)" -eq 1 &&
-     "$(grep -Fxc -- "Run ID: $implementation_run" <(read_implementation_report) || true)" -eq 1 &&
-     "$(grep -Fxc -- "- **Run ID**: $implementation_run" <(read_implementation_report) || true)" -eq 1 &&
-     "$(grep -Fxc -- "- **Session ID**: $implementation_session" <(read_implementation_report) || true)" -eq 1 ]] ||
+  [[ "$(grep -c '^Run ID: ' <<< "$implementation_report_text" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Run ID\*\*: ' <<< "$implementation_report_text" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Session ID\*\*: ' <<< "$implementation_report_text" || true)" -eq 1 &&
+     "$(grep -Fxc -- "Run ID: $implementation_run" <<< "$implementation_report_text" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Run ID**: $implementation_run" <<< "$implementation_report_text" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Session ID**: $implementation_session" <<< "$implementation_report_text" || true)" -eq 1 ]] ||
     fail IDENTITY 'implementation report run/session does not match its manifest'
   manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
-  citation_line=$(grep '^Input manifest:' <(read_implementation_report) || true)
-  [[ "$(grep -c '^Input manifest:' <(read_implementation_report) || true)" -eq 1 &&
+  citation_line=$(grep '^Input manifest:' <<< "$implementation_report_text" || true)
+  [[ "$(grep -c '^Input manifest:' <<< "$implementation_report_text" || true)" -eq 1 &&
      ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
        "$citation_line" == "$manifest_citation. "* ) ]] ||
     python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest" --verify-manifest-citation >/dev/null ||
@@ -327,7 +332,7 @@ verify_implementation_binding() {
 }
 
 implementation_input_is_declared() {
-  local path=$1 expected_hash=$2 declaration absolute component current pinned
+  local path=$1 expected_hash=$2 declaration absolute component current pinned pinned_paths
   [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
   declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
   jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
@@ -352,9 +357,11 @@ implementation_input_is_declared() {
     (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
     any(.allowed_inputs[]; .path == $p and .sha256 == $h)
   ' "$absolute" >/dev/null 2>&1 || return 1
+  pinned_paths=$(jq -r '.allowed_inputs[].path' "$absolute") ||
+    fail IDENTITY 'implementation manifest input enumeration failed'
   while IFS= read -r pinned; do
     is_canonical_path "$pinned" || return 1
-  done < <(jq -r '.allowed_inputs[].path' "$absolute")
+  done <<< "$pinned_paths"
 }
 
 conditional_inputs_json=''
@@ -649,6 +656,18 @@ jq -e '
 
 expected_sequence=1
 expected_previous=''
+ledger_rows=$(jq -r '.records[] | [
+  .sequence,
+  .stage,
+  .role,
+  .run_id,
+  .host_session_id,
+  (if .previous_record_sha256 == "" then "-" else .previous_record_sha256 end),
+  .record_sha256,
+  (.scratch_declaration_sha256 // "-"),
+  (.allowed_inputs_sha256 // "-")
+] | @tsv' "$ledger" | tr -d '\r') ||
+  fail IDENTITY 'canonical identity ledger enumeration failed'
 while IFS=$'\t' read -r record_sequence record_stage record_role record_run record_session record_previous record_hash record_binding record_inputs; do
   [[ "$record_previous" == - ]] && record_previous=''
   [[ "$record_sequence" -eq "$expected_sequence" && "$record_previous" == "$expected_previous" ]] ||
@@ -665,17 +684,7 @@ while IFS=$'\t' read -r record_sequence record_stage record_role record_run reco
     fail IDENTITY 'canonical identity ledger record hash is invalid'
   expected_previous=$record_hash
   expected_sequence=$((expected_sequence + 1))
-done < <(jq -r '.records[] | [
-  .sequence,
-  .stage,
-  .role,
-  .run_id,
-  .host_session_id,
-  (if .previous_record_sha256 == "" then "-" else .previous_record_sha256 end),
-  .record_sha256,
-  (.scratch_declaration_sha256 // "-"),
-  (.allowed_inputs_sha256 // "-")
-] | @tsv' "$ledger" | tr -d '\r')
+done <<< "$ledger_rows"
 
 # A manifest describes either an identity not yet in the ledger (a
 # reservation) or an identity whose record is already persisted (a
@@ -820,23 +829,27 @@ fi
 implementation_report_path=''
 if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
   implementation_report_count=0
+  implementation_paths=$(jq -r '.allowed_input_manifest[].path' "$manifest" | tr -d '\r') ||
+    fail PATH 'implementation report inventory could not be read'
   while IFS= read -r candidate_report; do
     if [[ "$candidate_report" == "reports/implementation/$feature/$task_id.md" ]]; then
       implementation_report_path=$candidate_report
       implementation_report_count=$((implementation_report_count + 1))
     fi
-  done < <(jq -r '.allowed_input_manifest[].path' "$manifest" | tr -d '\r')
+  done <<< "$implementation_paths"
   [[ "$implementation_report_count" -eq 1 ]] ||
     fail PATH 'sdd-evaluator requires the current task implementation report'
+  implementation_report_text=$(read_implementation_report) ||
+    fail PATH 'implementation report could not be read'
   [[ $(sed -n '/^- \*\*Scratch Root\*\*: /p' "$repository_root/$implementation_report_path" |
     LC_ALL=C tr -d '\11\12\15\40-\176\200-\377' | LC_ALL=C wc -c) -eq 0 ]] ||
     fail PATH 'implementation Scratch Root contains forbidden control bytes'
-  [[ "$(read_implementation_report | sed -n '1p')" == "# Implementation Report: $task_id" ]] ||
+  [[ "$(sed -n '1p' <<< "$implementation_report_text")" == "# Implementation Report: $task_id" ]] ||
     fail PATH 'sdd-evaluator implementation report heading does not match task ID'
-  grep -Fxq -- "- Task ID: $task_id" <(read_implementation_report) ||
+  grep -Fxq -- "- Task ID: $task_id" <<< "$implementation_report_text" ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
   if [[ -n "$scratch_root" ]]; then
-    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .*$' <(read_implementation_report) || true)
+    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .*$' <<< "$implementation_report_text" || true)
     [[ "$implementation_scratch_count" -eq 1 ]] ||
       fail PATH 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
     implementation_scratch_root=$(read_implementation_report | sed -n 's/^- \*\*Scratch Root\*\*: //p')
@@ -1012,6 +1025,10 @@ read_precheck_content() {
   fi
 }
 
+input_rows=$(jq -r --arg stage "$stage" '.allowed_input_manifest |
+  (if $stage == "impl" then sort_by(.path | startswith("docs/adr/")) else . end) |
+  .[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r') ||
+  fail CONTRACT 'input manifest enumeration failed'
 while IFS=$'\t' read -r path expected_hash; do
   is_canonical_path "$path" ||
     fail PATH "$role contains a non-canonical repository-relative path: $path"
@@ -1122,9 +1139,7 @@ while IFS=$'\t' read -r path expected_hash; do
       fail HASH "$role hash mismatch: $path"
     fi
   fi
-done < <(jq -r --arg stage "$stage" '.allowed_input_manifest |
-  (if $stage == "impl" then sort_by(.path | startswith("docs/adr/")) else . end) |
-  .[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
+done <<< "$input_rows"
 if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
   # An omitted ADR list must not bypass validation of an explicit extension.
   verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
@@ -1160,15 +1175,7 @@ if [[ -n "$precheck_rel" ]]; then
   fi
 
   if [[ "$stage" == impl || ( -f "$precheck_abs" && ! -L "$precheck_abs" ) ]]; then
-    while IFS=$'\t' read -r pinned_path pinned_hash; do
-      [[ -n "$pinned_path" ]] || continue
-      manifest_hash=$(jq -r --arg p "$pinned_path" '
-        .allowed_input_manifest[] | select(.path == $p) | .sha256
-      ' "$manifest" | tr -d '\r' | head -1)
-      [[ -n "$manifest_hash" ]] || continue
-      [[ "$manifest_hash" == "$pinned_hash" ]] ||
-        fail ROUND "manifest freezes $pinned_path at a hash this round's precheck did not pin: the document changed mid-round"
-    done < <(read_precheck_content | jq -r --arg f "$feature" '
+    precheck_rows=$(read_precheck_content | jq -r --arg f "$feature" '
       [ {p: ("specs/" + $f + "/requirements.md"),     h: .requirements_sha256},
         {p: ("specs/" + $f + "/acceptance-tests.md"), h: .acceptance_sha256},
         {p: ("specs/" + $f + "/design.md"),           h: .design_sha256},
@@ -1178,7 +1185,17 @@ if [[ -n "$precheck_rel" ]]; then
       | .[]
       | select((.h | type) == "string" and (.h | test("^[0-9a-f]{64}$")))
       | [.p, .h] | @tsv
-    ' | tr -d '\r')
+    ' | tr -d '\r') ||
+      fail ROUND 'precheck input pin enumeration failed'
+    while IFS=$'\t' read -r pinned_path pinned_hash; do
+      [[ -n "$pinned_path" ]] || continue
+      manifest_hash=$(jq -r --arg p "$pinned_path" '
+        .allowed_input_manifest[] | select(.path == $p) | .sha256
+      ' "$manifest" | tr -d '\r' | head -1)
+      [[ -n "$manifest_hash" ]] || continue
+      [[ "$manifest_hash" == "$pinned_hash" ]] ||
+        fail ROUND "manifest freezes $pinned_path at a hash this round's precheck did not pin: the document changed mid-round"
+    done <<< "$precheck_rows"
   fi
 fi
 

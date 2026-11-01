@@ -1970,5 +1970,60 @@ else
   fail "self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1"
 fi
 
+# Recovery inventory inspection is mandatory even when no new batch is supplied.
+if python3 - "$ROOT" <<'PY_RECOVERY_IO'
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+if os.name == 'nt':
+    print('SKIP: POSIX recovery-directory permissions unavailable on Windows')
+    sys.exit(0)
+source = Path(sys.argv[1]) / 'plugins/sdd-quality-loop/scripts'
+commands = [('sh', ['sh', str(source / 'apply-human-copy.sh')])]
+if shutil.which('pwsh'):
+    commands.append(('pwsh', [shutil.which('pwsh'), '-NoProfile', '-File', str(source / 'apply-human-copy.ps1')]))
+else:
+    print('SKIP: recovery permission PowerShell twin unavailable')
+def unprivileged():
+    if os.getuid() == 0:
+        os.setgroups([])
+        os.setgid(1000)
+        os.setuid(1000)
+for runtime, command in commands:
+    for denied in ('sdd', 'sdd/.staging', 'sdd/.staging/batch'):
+        with tempfile.TemporaryDirectory(prefix='recovery IO ') as tmp:
+            root = Path(tmp)
+            batch = root / 'sdd/.staging/batch'
+            batch.mkdir(parents=True)
+            journal = batch / 'TRANSACTION.json'
+            journal.write_text(json.dumps(dict(schema='sdd-human-copy-transaction/v1', nonce='batch',
+                status='in-progress', targets=[dict(live_path='missing.txt', pre_hash='ABSENT', post_hash='a'*64)])), encoding='utf-8')
+            if os.getuid() == 0:
+                for path in [root, *root.rglob('*')]:
+                    os.chown(path, 1000, 1000)
+            blocked = root / denied
+            mode = blocked.stat().st_mode & 0o777
+            blocked.chmod(0)
+            try:
+                result = subprocess.run(command, cwd=root, preexec_fn=unprivileged, capture_output=True, text=True, timeout=15)
+                assert result.returncode == 17 and 'RECOVERY_FAILED' in result.stdout, (runtime, denied, result)
+            finally:
+                blocked.chmod(mode)
+            assert journal.exists(), (runtime, denied, 'journal discarded')
+            recovered = subprocess.run(command, cwd=root, preexec_fn=unprivileged, capture_output=True, text=True, timeout=15)
+            assert recovered.returncode == 0 and not journal.exists(), (runtime, denied, recovered)
+            print('PASS recovery IO:', runtime, denied, 'denied then recovered')
+PY_RECOVERY_IO
+then
+  pass 'recovery directory inspection cannot masquerade as no journals'
+else
+  fail 'recovery directory inspection cannot masquerade as no journals'
+fi
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

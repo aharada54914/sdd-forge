@@ -1,0 +1,5 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+normal_exit=1 injected_producer_failure_exit=0 hit=yes
+REVIEW_CONTEXT_HASH: spec-reviewer-a hash mismatch: specs/rcb/requirements.md
+REVIEW_CONTEXT_OK 99c32cc59e66744c96f1b3522206186dbd257926c74283dc855b06041575be1e sequence=2 previous_record_sha256=3ae04ffe0aff1712f5ece07ef435dda47e774e9d9f25b15fc79c859c0d48a864 pre_append_tip_sequence=1 identity_unique=yes
