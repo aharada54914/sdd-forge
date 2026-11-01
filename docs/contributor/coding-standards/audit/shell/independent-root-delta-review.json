@@ -40,12 +40,78 @@
   "finding": {
     "id": "INDEP-ROOT-PS-PARENT-LINK",
     "rule": "CS-009",
-    "state": "reported-to-owner",
+    "state": "fixed-and-independently-verified",
     "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
     "flow": "Resolve-Path on a symlinked ancestor preserves lexical path; prefix check admits reports/link/child when reports/link points outside repository. Leaf LinkType check sees a normal child directory.",
     "reproduction": "Isolated temp repository with actual4a scripts, reports/link -> external directory, child directory in external target and valid utf8-contract.json. Bash returns1 report-root escape; PowerShell returns0 canonical PASS. No live repository paths mutated.",
     "expected": "Resolve ancestor links physically or reject reparse/symlink components before accepting containment.",
-    "owner": "root; fix pending at the time of this independent record"
+    "owner": "root; fix pending at the time of this independent record",
+    "fix_revision": "b9cadc72",
+    "resolution": "Physically resolve ancestor links before containment, reject a linked reports root, and preserve internal ancestor links. Resolution recurses through actual DirectoryInfo ancestors and link targets;64bound counts link hops only.",
+    "verification": [
+      {
+        "case": "outside-parent",
+        "runtime": "sh",
+        "exit": 1,
+        "accepted": false
+      },
+      {
+        "case": "outside-parent",
+        "runtime": "ps1",
+        "exit": 1,
+        "accepted": false
+      },
+      {
+        "case": "inside-parent",
+        "runtime": "sh",
+        "exit": 0,
+        "accepted": true
+      },
+      {
+        "case": "inside-parent",
+        "runtime": "ps1",
+        "exit": 0,
+        "accepted": true
+      },
+      {
+        "case": "outside-reports-root",
+        "runtime": "sh",
+        "exit": 1,
+        "accepted": false
+      },
+      {
+        "case": "outside-reports-root",
+        "runtime": "ps1",
+        "exit": 1,
+        "accepted": false
+      },
+      {
+        "case": "ordinary-missing-child",
+        "runtime": "sh",
+        "exit": 0,
+        "accepted": true
+      },
+      {
+        "case": "ordinary-missing-child",
+        "runtime": "ps1",
+        "exit": 0,
+        "accepted": true
+      }
+    ]
   },
-  "approval": "Provider IO delta and terminal-leaf correction reviewed; complete PowerShell containment approval withheld until confirmed ancestor-link finding is repaired."
+  "approval": "Selected provider IO and terminal/ancestor containment changes accepted after independent8case native twin replay. Other production policies retain their own scope records.",
+  "final_sources": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "sha256": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "sha256": "7e44a1c350fd65340ab3a9a78ca3d2c0a48ca5439402400ab9972e39d7b20b75"
+    },
+    {
+      "path": "tests/review-contract-foundation.tests.sh",
+      "sha256": "2e3b9bbe1065d11a5d33e954d887dd1ec6fd0c4abcd7665b7b44ed78abedc61c"
+    }
+  ]
 }
