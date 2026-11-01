@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/guard-stop-inspection.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/mcp-diagnostics-sharing.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/python-input-boundaries.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/coding-standards.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
@@ -822,6 +823,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/guard-stop-inspection.tests.py",
       "tests/mcp-diagnostics-sharing.tests.py",
       "tests/python-input-boundaries.tests.py",
       "tests/benchmark-gates.tests.py",

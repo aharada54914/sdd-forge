@@ -14,7 +14,8 @@ from verification import unique_object
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = {'.sh': 'bash', '.bash': 'bash', '.ps1': 'powershell', '.psm1': 'powershell',
-             '.py': 'python', '.ts': 'typescript', '.tsx': 'typescript', '.js': 'javascript',
+             '.py': 'python', '.ts': 'typescript', '.tsx': 'typescript', '.mts': 'typescript',
+             '.cts': 'typescript', '.js': 'javascript', '.jsx': 'javascript',
              '.mjs': 'javascript', '.cjs': 'javascript', '.json': 'json', '.yml': 'yaml',
              '.yaml': 'yaml', '.md': 'markdown'}
 FENCES = {'sh': 'bash', 'shell': 'bash', 'bash': 'bash', 'ps1': 'powershell',
@@ -41,9 +42,20 @@ def classify(path, raw):
                         if token in first), 'unknown-shebang')
         surfaces.add(matched)
     if language == 'markdown':
-        for label in re.findall(r'^\s*```([^\s`]*)[^\n]*$', text, re.M):
-            if label:
-                surfaces.add('embedded:' + FENCES.get(label.lower(), 'unknown'))
+        # Fence routing only: native checks never parse these excerpts as programs.
+        fence = None
+        for line in text.splitlines():
+            match = re.fullmatch(r'[ \t]*(`{3,}|~{3,})([^\r\n]*)', line)
+            if not match:
+                continue
+            marker, info = match.groups()
+            if fence is not None:
+                if marker[0] == fence[0] and len(marker) >= len(fence) and not info.strip():
+                    fence = None
+                continue
+            fence = marker
+            label = info.strip().split()[0].lower() if info.strip() else ''
+            surfaces.add('embedded:' + FENCES.get(label, 'unknown'))
     if path.startswith('.github/workflows/'):
         surfaces.add('workflow')
     if 'human-copy' in parts or 'human-copy-candidate' in parts:
@@ -120,7 +132,7 @@ def load_tools(root):
 
 
 def invoke(command, root, *, stdin=None):
-    result = subprocess.run(command, cwd=root, input=stdin, text=True, capture_output=True, timeout=120)
+    result = subprocess.run(command, cwd=root, input=stdin, encoding='utf-8', errors='strict', capture_output=True, timeout=120)
     if result.returncode not in (0, 1):
         raise ValueError('native tool execution failed: ' + command[0])
     return result
@@ -151,6 +163,7 @@ def scan(root, mode, base, language):
               'revision': population['base_commit'], 'status': 'complete',
               'population_count': len(population['entries']), 'selected_count': len(selected),
               'inspected_count': 0, 'excluded': [], 'findings': [], 'tools': [],
+              'sources': [{key: row[key] for key in ('path', 'git_blob', 'source_sha256')} for row in selected],
               'manual_review': 'unknown', 'manual_unreviewed_count': len(population['entries']),
               'outside_native_selection_count': len(rows) - len(selected), 'finding_count': None}
     for lang in sorted(languages):
@@ -233,6 +246,11 @@ def scan(root, mode, base, language):
         result['inspected_count'] += len(files)
         result['tools'].append({'language': lang, 'status': 'executed', 'version': version,
                                 'target_count': len(files)})
+    for row in selected:
+        path = root / row['path']
+        if (path.is_symlink() or not path.resolve().is_relative_to(root)
+                or hashlib.sha256(path.read_bytes()).hexdigest() != row['source_sha256']):
+            raise ValueError('source changed during native scan: ' + repr(row['path']))
     for finding in result['findings']:
         finding['reference'] = 'docs/contributor/coding-standards/common.md#' + finding['rule_id'].lower()
     result['finding_count'] = len(result['findings'])
