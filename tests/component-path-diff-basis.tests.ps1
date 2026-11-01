@@ -527,6 +527,40 @@ if ($tabExitCode -ne 0 -and $tabOut -match "spaces, not tabs") {
     Fail "DEFECT-002.1: expected a non-zero exit and a 'spaces, not tabs' diagnostic, got exit=$tabExitCode out=$tabOut"
 }
 
+# Real executable status failures must not become a stable empty fingerprint.
+if ([IO.Path]::DirectorySeparatorChar -eq '/') {
+    $fakeBin = Join-Path $work 'fake-git'
+    New-Item -ItemType Directory -Path $fakeBin | Out-Null
+    $fakeGit = Join-Path $fakeBin 'git'
+    [IO.File]::WriteAllText($fakeGit, "#!/bin/sh`nexit 7`n", [Text.UTF8Encoding]::new($false))
+    & chmod +x $fakeGit
+    $savedPath = $env:PATH
+    try {
+        $env:PATH = "$fakeBin`:$savedPath"
+        $caught = $false
+        try { $null = Get-RepoFingerprint -RepoRoot $work } catch [GitDiffError] { $caught = $true }
+        if ($caught) { Ok 'failed git status is not a stable fingerprint' }
+        else { Fail 'failed git status was accepted as a fingerprint' }
+        $env:SDD_GIT_TEST_PID = Join-Path $work 'sleeping-git.pid'
+        $sleepingGit = '#!/bin/sh' + "`n" + 'echo $$ > "$SDD_GIT_TEST_PID"' + "`nexec sleep 60`n"
+        [IO.File]::WriteAllText($fakeGit, $sleepingGit, [Text.UTF8Encoding]::new($false))
+        $timer = [Diagnostics.Stopwatch]::StartNew()
+        $timedOut = $false
+        try { $null = Invoke-GitRaw -RepoRoot $work -GitArgs @('status') }
+        catch [GitDiffError] { $timedOut = $_.Exception.Message -match 'deadline' }
+        $childId = [int][IO.File]::ReadAllText($env:SDD_GIT_TEST_PID)
+        $stillRunning = Get-Process -Id $childId -ErrorAction SilentlyContinue
+        if ($timedOut -and $timer.Elapsed.TotalSeconds -lt 40 -and -not $stillRunning) {
+            Ok 'real Git deadline terminates the direct child and returns a classified failure'
+        } else {
+            if ($stillRunning) { Stop-Process -Id $childId -Force -ErrorAction SilentlyContinue }
+            Fail "Git deadline/lifecycle failed: timeout=$timedOut seconds=$($timer.Elapsed.TotalSeconds) child=$childId"
+        }
+        Remove-Item Env:SDD_GIT_TEST_PID
+
+    } finally { $env:PATH = $savedPath }
+} else { Skip 'real POSIX fake git executable needs POSIX host' }
+
 # ============================================================================
 # Registration self-check
 # ============================================================================
