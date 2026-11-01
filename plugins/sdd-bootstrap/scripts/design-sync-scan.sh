@@ -62,6 +62,7 @@ if [ "$#" -gt 1 ]; then
 fi
 
 target_dir="$1"
+case "$target_dir" in -*) target_dir="./$target_dir" ;; esac
 
 if [ ! -d "$target_dir" ]; then
   echo "design-sync-scan: target directory not found: $target_dir" >&2
@@ -74,12 +75,27 @@ fi
 # outside the scan entirely -- no finding, no block, even with matching
 # content.
 # ---------------------------------------------------------------------------
-files_list="$(mktemp)"
-findings_list="$(mktemp)"
-cleanup() { rm -f "$files_list" "$findings_list"; }
-trap cleanup EXIT
-
-find "$target_dir" -type f -iname '*.html' 2>/dev/null | sort > "$files_list"
+scan_error() {
+  echo "design-sync-scan: $*" >&2
+  exit 2
+}
+scan_work="$(mktemp -d)" || scan_error 'cannot create scan workspace'
+files_list="$scan_work/files"
+findings_list="$scan_work/findings"
+matches_list="$scan_work/matches"
+cleanup() { rm -rf "$scan_work"; }
+trap cleanup 0
+: > "$findings_list" || scan_error 'cannot initialize findings'
+# Separate commands preserve enumeration failures on POSIX shells without pipefail.
+# Newlines cannot be represented by this line-based scanner; reject explicitly.
+find "$target_dir" -type f -iname '*.html' -exec sh -c '
+  for path do
+    case "$path" in *"
+"*) exit 1 ;; esac
+    printf "%s\n" "$path" || exit 1
+  done
+' sh {} + > "$scan_work/unsorted" 2>/dev/null || scan_error 'cannot enumerate target directory'
+sort "$scan_work/unsorted" > "$files_list" || scan_error 'cannot sort selected files'
 
 # Fail closed: every selected file must be readable before scanning begins
 # (AC-007 branch 4) -- an unreadable file is a tool error, not silently
@@ -123,15 +139,14 @@ pii_pattern_p1='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
 pii_pattern_p2='(^|[^0-9])\+[1-9][0-9]{7,14}([^0-9]|$)'
 
 # emit_finding: append one TAB-separated finding record. A file append is
-# used (rather than a shell variable) so this is safe to call from inside
-# a `grep | while read` pipeline subshell.
+# used to retain findings across pattern scans until all tools complete.
 tab="$(printf '\t')"
 emit_finding() {
-  printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" >> "$findings_list"
+  printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" >> "$findings_list" || scan_error 'cannot record finding'
 }
 
 is_reserved_domain() {
-  domain_lc="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  domain_lc="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" || scan_error 'cannot normalize domain'
   case "$domain_lc" in
     example.com|example.net|example.org|*.test|*.example|*.invalid|*.localhost)
       return 0
@@ -151,34 +166,29 @@ is_reserved_domain() {
 #                   domains/TLDs per matched address, and redact what is
 #                   emitted (a bracket-expression regex cannot express
 #                   "except these specific domains" directly)
-#   Findings still flow through emit_finding's temp-file append: every
-#   reader below is a `grep | while read` pipeline subshell, so a shell
-#   variable could not carry them out.
+#   Read captured matches only after grep completed; exit 1 means no match,
+#   while every other nonzero status means the scan failed, not a clean file.
 scan_pattern() {
   sp_category="$1"; sp_flags="$2"; sp_pattern="$3"; sp_display="$4"; sp_file="$5"
-  case "$sp_display" in
-    match)
-      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | while IFS=: read -r lineno match; do
-        [ -z "$lineno" ] && continue
-        emit_finding "$sp_category" "$sp_file" "$lineno" "$match"
-      done
-      ;;
-    redact)
-      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | cut -d: -f1 | while IFS= read -r lineno; do
-        [ -z "$lineno" ] && continue
-        emit_finding "$sp_category" "$sp_file" "$lineno" "[REDACTED]"
-      done
-      ;;
-    email-filter)
-      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | while IFS=: read -r lineno match; do
-        [ -z "$lineno" ] && continue
+  sp_status=0
+  grep "$sp_flags" -e "$sp_pattern" -- "$sp_file" > "$matches_list" 2>/dev/null || sp_status=$?
+  case "$sp_status" in
+    0|1) ;;
+    *) scan_error 'pattern scan did not complete' ;;
+  esac
+  while IFS=: read -r lineno match; do
+    [ -z "$lineno" ] && continue
+    case "$sp_display" in
+      match) emit_finding "$sp_category" "$sp_file" "$lineno" "$match" ;;
+      redact) emit_finding "$sp_category" "$sp_file" "$lineno" "[REDACTED]" ;;
+      email-filter)
         domain="${match#*@}"
         if ! is_reserved_domain "$domain"; then
           emit_finding "$sp_category" "$sp_file" "$lineno" "[REDACTED]"
         fi
-      done
-      ;;
-  esac
+        ;;
+    esac
+  done < "$matches_list"
 }
 
 # The detection table: category, grep flags, pattern, display mode. The six
@@ -197,7 +207,8 @@ done < "$files_list"
 # ---------------------------------------------------------------------------
 # Exit-code decision and report (AC-005, AC-006, AC-012, AC-013, AC-014).
 # ---------------------------------------------------------------------------
-count="$(wc -l < "$findings_list" | tr -d ' ')"
+count="$(wc -l < "$findings_list")" || scan_error 'cannot count findings'
+count="$(printf '%s' "$count" | tr -d '[:space:]')" || scan_error 'cannot normalize count'
 
 if [ "$count" -eq 0 ]; then
   echo "Design-Sync Scan passed (0 findings)."

@@ -100,6 +100,18 @@ else
 fi
 
 # ============================================================================
+# CP-005: literal filenames cannot inject grep exclusion options.
+mkdir -p "${WORK}/option-path"
+printf 'TODO\n' > "${WORK}/option-path/--exclude=*"
+printf 'TODO\n' > "${WORK}/option-path/normal.txt"
+CP_EXIT=0
+CP_OUTPUT="$(cd "${WORK}/option-path" && sh "$SC" '--exclude=*' normal.txt 2>&1)" || CP_EXIT=$?
+if [ "$CP_EXIT" -eq 1 ]; then
+    ok 'CP-005: leading-hyphen filename cannot suppress placeholder findings'
+else
+    fail "CP-005: expected findings exit 1, got ${CP_EXIT}: ${CP_OUTPUT}"
+fi
+
 # Summary
 # ============================================================================
 
