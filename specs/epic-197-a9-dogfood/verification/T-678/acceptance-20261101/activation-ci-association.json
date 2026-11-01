@@ -1,0 +1,20 @@
+{
+  "schema": "a9-ci-observation-association/v1",
+  "pr": 693,
+  "run_id": 41259991000,
+  "run_attempt": 1,
+  "job_id": 124711982020,
+  "check_run_id": 124711982020,
+  "check_name": "capability-mode Gate",
+  "base_sha": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+  "head_sha": "0bd756bf4734c4ad46ccb46ddfdb4452112021dd",
+  "ci_observation_sha256": "sha256:5234dcc1ae19fed2c6d1a72762f9101e10dfe6e9fc82eeb5b45e6fa26670bb0f",
+  "association": "Local genuine collector digest equals authentic CI safe-summary digest; raw API and CI log preserved separately. Digest is a derived association, not a GitHub check API field.",
+  "ci_log_sha256": "5d9e110383143ff0a355b3a1906b2e40ee5be5e2cf9022a5638db9326ca45123",
+  "authorization_checked": false,
+  "run_url": "https://github.com/aharada54914/sdd-forge/actions/runs/41259991000",
+  "merge_commit": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+  "head_tree": "c2fbed49b0de6f9a798d463d050ef080933e2b2c",
+  "merge_tree": "c2fbed49b0de6f9a798d463d050ef080933e2b2c",
+  "scope": "Authentic activation PR association; not future acceptance PR or release-interval observation"
+}

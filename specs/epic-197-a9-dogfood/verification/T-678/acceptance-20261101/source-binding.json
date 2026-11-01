@@ -1,0 +1,17 @@
+{
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "tracked_tree_clean_at_start": true,
+  "untracked_draft_documents_present": true,
+  "sha256": {
+    "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d",
+    "mcp/sdd-forge-mcp/src/parsers/task-validation.ts": "7997a80a1d5265696ac318d4052958f926c30ca103c080726d11be2adc681250",
+    "mcp/sdd-forge-mcp/src/parsers/tasks.ts": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1",
+    "mcp/sdd-forge-mcp/src/tools/core.ts": "6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb",
+    "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351",
+    "mcp/sdd-forge-mcp/package-lock.json": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "mcp/sdd-forge-mcp/dist/index.js": "76526b9f59c67c3a09031acf2414643cfa06e8a537f4967469892c1d964ed178"
+  },
+  "node_version": "v24.19.0",
+  "npm_version": "11.9.0",
+  "scope": "Real execution on this source; source remains runtime-equivalent through version/document/evidence changes until rechecked."
+}

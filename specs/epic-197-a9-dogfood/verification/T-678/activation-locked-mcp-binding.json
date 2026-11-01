@@ -1,0 +1,15 @@
+{
+  "schema": "a9-real-mcp-execution-binding/v1",
+  "head": "db19516b93620a20821cae3a261fe2e59e62cb76",
+  "started_at": "2026-11-01T01:09:27.170Z",
+  "finished_at": "2026-11-01T01:09:28.742Z",
+  "record_sha256": "408c079da419904efd13e65d4b1d5f19553c8d07379cd92b3956b94e2c00aa81",
+  "lockfile_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "bundle_sha256": "76526b9f59c67c3a09031acf2414643cfa06e8a537f4967469892c1d964ed178",
+  "built_bundle_equals_committed_bundle": true,
+  "npm_ci_exit_code": 0,
+  "build_exit_code": 0,
+  "observation_exit_code": 0,
+  "worktree_unchanged_during_requests": true,
+  "scope": "real activation-era operation; not post-release interval proof"
+}

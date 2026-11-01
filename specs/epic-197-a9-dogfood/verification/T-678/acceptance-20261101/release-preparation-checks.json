@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-11-01T02:06:46.477540+00:00",
+  "version": "1.19.1",
+  "bump": {
+    "command": "bash scripts/bump-version.sh 1.19.1",
+    "exit_code": 0,
+    "mandatory_loop_suites": "executed by existing bump script before mutations",
+    "log": "version-bump.log",
+    "sha256": "be9dc6fb5ce8f05acff0bbe2daea300e5ba84ce68b65f278309140341ae6f1a9"
+  },
+  "parity": {
+    "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/repository-release-validation.tests.sh",
+    "exit_code": 0,
+    "passed": 8,
+    "log": "release-parity.log",
+    "sha256": "ea26647a6beca9a7ad09fd2102c5009e8f225d1db183a95cc098c0a42b360c1e",
+    "scope": "Captured version-preparation tree before final Done metadata; not final-head whole-repository CI"
+  },
+  "execution_start_finish_not_separately_recorded": true,
+  "release_published": false
+}

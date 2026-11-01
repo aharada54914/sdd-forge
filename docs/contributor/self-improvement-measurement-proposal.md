@@ -3,7 +3,7 @@
 Status: Approved & Implemented (v1.7.0) / 作成日: 2026-07-02 / 承認: 2026-07-02（人間）
 対象: workflow-retrospective → wfi-audit-cycle → WFI 適用 → 検証 のループ
 
-実装状況（v1.7.0）:
+実装状況（v1.7.0）は次のとおり。
 
 | 提案 | 状態 | 実装物 |
 |---|---|---|
@@ -15,7 +15,7 @@ Status: Approved & Implemented (v1.7.0) / 作成日: 2026-07-02 / 承認: 2026-0
 | 自動化⑥ バージョン同期 | 実装済み | `scripts/bump-version.sh` |
 | 自動化④⑤・golden CI | 未実装 | 将来の WFI として起票可能 |
 
-本書は 3 部構成:
+本書は次の 3 部で構成する。
 
 1. 効果測定の 2026 年ベストプラクティス調査結果と、sdd-forge への実装案
 2. 自己改善の対象分類（現行 2 分類の拡張案）
@@ -46,7 +46,7 @@ Status: Approved & Implemented (v1.7.0) / 作成日: 2026-07-02 / 承認: 2026-0
 Result 追記（Verified / Needs-Followup / Rejected）、「Comparison With Previous
 Retrospective」15+ 指標、reports/ からの読み取り専用メトリクス収集。
 
-足りないもの（調査結果とのギャップ、優先順）:
+足りないものを優先順に示す（調査結果とのギャップ）。
 
 1. **交絡メタデータ付きの機械可読ランレコードがない** — モデル ID・プラグイン
    バージョン・適用中 WFI 一覧を毎ランで記録しないと、いかなる帰属分析も後から
@@ -65,7 +65,7 @@ Retrospective」15+ 指標、reports/ からの読み取り専用メトリクス
 #### Phase A — ランレコード（小、最優先）
 
 `workflow-retrospective` 実行時（または ship の COMPLETION_CHECK 時）に
-`reports/runs/RUN-<timestamp>.json` を生成する:
+`reports/runs/RUN-<timestamp>.json` を生成する。
 
 ```json
 {
@@ -93,7 +93,7 @@ Retrospective」15+ 指標、reports/ からの読み取り専用メトリクス
 
 #### Phase B — WFI 検証の拘束力強化（小）
 
-現行の検証計画を「事前登録」として拘束的にする:
+現行の検証計画に「事前登録」としての拘束力を持たせる。
 
 - WFI テンプレートに必須フィールド追加: `Target-Metric`（ランレコードのキー名で指定）、
   `Expected-Direction`、`Horizon`（例: 「次の 5 ラン以内」）、`Rollback-Plan`
@@ -156,7 +156,7 @@ Retrospective」15+ 指標、reports/ からの読み取り専用メトリクス
 ### 2.2 調査結果: 公開分類法
 
 自己進化エージェントの主要 survey（[2507.21046](https://arxiv.org/abs/2507.21046),
-[2508.07407](https://arxiv.org/abs/2508.07407)）はほぼ 4 軸に収束:
+[2508.07407](https://arxiv.org/abs/2508.07407)）の分類は、ほぼ 4 軸に収束している。
 **Models / Context (Prompt + Memory) / Tools / Architecture**。
 これに実践知として **評価系そのもの**（DGM の metric-hacking 対策）と
 **人間プロセス**（survey には無い。HITL 設計固有の拡張）を加えるのが 2026 実務の形。

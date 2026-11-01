@@ -1,0 +1,24 @@
+{
+  "label": "lint",
+  "argv": [
+    "git",
+    "diff",
+    "--cached",
+    "--check",
+    "--",
+    ".",
+    ":!specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/*.stdout",
+    ":!specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/*.stderr"
+  ],
+  "cwd": "/workspace/scratch/678-acceptance-draft",
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "working_changes": "actual staged acceptance/version changes present",
+  "started_at": "2026-11-01T02:03:35.586317Z",
+  "finished_at": "2026-11-01T02:03:35.596288Z",
+  "exit_code": 0,
+  "stdout_path": "lint.stdout",
+  "stderr_path": "lint.stderr",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Actual acceptance preparation; raw process outputs excluded from whitespace lint to preserve their bytes"
+}

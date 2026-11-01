@@ -1,6 +1,6 @@
 # SDD Forge アーキテクチャ概要
 
-SDD Forge は、Claude Code / Codex CLI / GitHub Copilot CLI の 3 つの CLI ホスト上で同一の仕様駆動開発（SDD）ワークフローを動かすためのプラグインスイートです。本書はリポジトリ全体を1枚で俯瞰するための入口であり、プラグイン・スキル・エージェント・フック・決定論的スクリプト・MCP サーバーがどう噛み合っているかを説明します。
+SDD Forge は Claude Code / Codex CLI / GitHub Copilot CLI の 3 つの CLI ホスト上で同一の仕様駆動開発（SDD）ワークフローを動かすためのプラグインスイートです。本書はリポジトリ全体を1枚で俯瞰するための入口であり、プラグイン・スキル・エージェント・フック・決定論的スクリプト・MCP サーバーがどう噛み合っているかを説明します。
 
 個々のスキル仕様は [skill-reference.md](../skill-reference.md)、運用手順は [workflow-guide.md](../workflow-guide.md)、プラグイン間の正準契約は [PLUGIN-CONTRACTS.md](../../PLUGIN-CONTRACTS.md) を参照してください。
 
@@ -91,7 +91,7 @@ flowchart TD
 |---|---|---|---|---|---|
 | `sdd-bootstrap` | 仕様化フェーズ。調査・インタビュー・仕様生成・タスク生成をルーティングし、デザインシステム同期ループも持つ | 5 | 1（`investigator`）+ Copilot ツイン 1 | 2 | なし |
 | `sdd-ship` | 実装・品質保証フェーズのエントリ。`implement-tasks` → `quality-gate`（または `lite-gate`）→ `workflow-retrospective` を順に呼ぶだけの **純粋オーケストレータ** | 1 | 0 | 0 | なし |
-| `sdd-review-loop` | spec / impl / task の 3 レビューゲート。**レビュアー 6 体**（各ステージ A/B の 2 体編成）を抱え、ブラインドレビュー × 最大 3 ラウンドを回す | 3 | 6 | 5 | なし |
+| `sdd-review-loop` | spec / impl / task の 3 レビューゲート。**レビュアー 6 体**（各ステージ A/B の 2 体編成）で、ブラインドレビューを最大 3 ラウンド実施する | 3 | 6 | 5 | なし |
 | `sdd-implementation` | 承認済みタスクの実装レーン。単発実装・一括実装・バグ診断・視覚検証 | 4 | 0 | 5 | なし |
 | `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 37 | **あり（3ホスト分）** |
 | `sdd-lite` | 社内・部署内アプリ向けの軽量トラック（要件/設計/タスクの 3 ファイル + 軽量ゲート） | 2 | 0 | 2 | なし |
@@ -101,16 +101,16 @@ flowchart TD
 
 合計: スキル **26**、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
 
-構造的に押さえておくべき非対称性:
+押さえておくべきプラグインごとの構造の違い:
 
 - **`sdd-ship` は agents / scripts / hooks / templates を一切持たない。** スキル 1 個（`ship`）だけの純粋オーケストレータであり、実行能力はすべて他プラグインへ委譲します。トラック解決とハンドシェイク以外のロジックをここに実装しないことが設計上の約束です。
 - **フックを持つのは `sdd-quality-loop` だけ。** リポジトリ全体で `hooks/` ディレクトリを持つプラグインは 1 つしかなく、そこに `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の 3 ホスト分が同居します。したがって「フックによる強制」は常にこのプラグインが提供している、と読んで構いません。
 - **決定論的スクリプトも `sdd-quality-loop` に偏在する**（37 / 全体の大半）。他プラグインのスクリプトは precheck・構造チェックなどレーン固有の前処理が中心です。
-- **`sdd-review-loop` はレビュアー 6 体を抱える唯一のプラグイン。** `spec-reviewer-a/b`、`impl-reviewer-a/b`、`task-reviewer-a/b` が 2 体ずつのブラインド編成を作ります。
+- **`sdd-review-loop` はレビュアー 6 体を持つ唯一のプラグイン。** `spec-reviewer-a/b`、`impl-reviewer-a/b`、`task-reviewer-a/b` が 2 体ずつのブラインド編成を作ります。
 
 ### スキルの可視性
 
-入口 6 スキルが `disable-model-invocation: true` を持ち、モデルが勝手に起動することはありません（人間のタイプが起点）。内部スキルは `user-invocable: false` でメニューに現れず、`disable-model-invocation: false` で ship / bootstrap の委譲からのみ起動されます（WFI-054）。**ユーザーに見える公開コマンドは次の 6 つだけ**です。
+入口 6 スキルが `disable-model-invocation: true` を持ち、モデルが勝手に起動することはありません（人間による入力が起点）。内部スキルは `user-invocable: false` でメニューに現れず、`disable-model-invocation: false` で ship / bootstrap の委譲からのみ起動されます（WFI-054）。**ユーザーに見える公開コマンドは次の 6 つだけ**です。
 
 | 公開コマンド | 役割 |
 |---|---|
@@ -159,7 +159,7 @@ SDD Forge の「エージェントに勝手をさせない」仕組みは、性�
 
 ### (a) PreToolUse フック — 実行前に止める
 
-`sdd-quality-loop/hooks/` の 3 ファイルが、ツール呼び出しの**直前**にガードを差し込みます。**防ぐ内容は 3 ホストで同一ですが、結線の形はホストごとに違います。**
+`sdd-quality-loop/hooks/` の 3 ファイルがツール呼び出しの**直前**にガードを実行します。**防ぐ内容は 3 ホストで同一ですが、結線の形はホストごとに違います。**
 
 差し込まれる検査:
 
@@ -176,7 +176,7 @@ SDD Forge の「エージェントに勝手をさせない」仕組みは、性�
 | `hooks.json`（Codex CLI） | `PreToolUse` に **2 本** | 同上の 2 本を `kill-switch.sh` / `sdd-hook-guard.sh --emit exit`（Windows は `command_windows` の `.ps1`）で実行 |
 | `copilot-hooks.json`（Copilot CLI） | `preToolUse` に **1 本のみ** | `matcher` フィールド自体を持たず（＝全ツール対象）、`sdd-hook-guard.sh --emit copilot` だけを呼ぶ。キルスイッチの独立エントリは無い |
 
-Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd-hook-guard` はどのランタイムでも「① キルスイッチ ② 承認ガード ③ エージェントロールガード」の 3 検査を自分の中で順に走らせる設計で（`sdd-hook-guard.py` の docstring がこれを正準として明記）、Claude / Codex 側の `kill-switch` エントリは全ツールを対象にした前段の重ねがけです。逆に言うと、上の matcher 表が当てはまるのは `claude-hooks.json` と `hooks.json` の 2 ファイルだけで、Copilot 版へそのまま一般化してはいけません。
+Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd-hook-guard` はどのランタイムでも「① キルスイッチ ② 承認ガード ③ エージェントロールガード」の 3 検査を内部で順に実行する設計です。`sdd-hook-guard.py` の docstring がこれを正準として明記しています。Claude / Codex 側の `kill-switch` エントリは全ツールを対象にした前段の重ねがけです。逆に言うと、上の matcher 表が当てはまるのは `claude-hooks.json` と `hooks.json` の 2 ファイルだけで、Copilot 版へそのまま一般化してはいけません。
 
 3 ホスト分の定義が必要な理由は §3 のとおりです。フックは**層防御であって最終防衛線ではありません**。Copilot CLI ではサブエージェント内でフックが発火しない既知の不具合があるなど、環境依存で無効化されうるためです。
 
@@ -186,7 +186,7 @@ Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd
 
 `check-workflow-state` / `check-task-state` / `check-contract` / `check-traceability` / `check-evidence-bundle` / `check-risk` / `check-placeholders` / `check-component-coverage` / `check-design-system` / `check-domain-conformance`
 
-これらは LLM の判断を経由しません。同じ入力に対して常に同じ verdict を返し、フックと違って「エージェントが動いていない環境」（CI、人間の手動実行）でも同じ結論になります。だからこそ、フックが効かない環境ではこれらを手で回せば同じ不変条件を確認できます。
+これらは LLM の判断を経由しません。同じ入力に対して常に同じ verdict を返し、フックと違って「エージェントが動いていない環境」（CI、人間の手動実行）でも同じ結論になります。だからこそ、フックが効かない環境ではこれらを手動で実行すれば同じ不変条件を確認できます。
 
 ### (c) レビューゲート — 内容の妥当性を人と AI で審査する
 
@@ -209,7 +209,7 @@ Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd
 
 ### (A) hook-guard による書込み禁止 — 強制チェーン自体を守る
 
-守る対象は、**強制の仕組みそのもの**です。エージェントが自分を縛っているコードを書き換えられたら、他のすべてのガードが意味を失います。
+守る対象は**強制の仕組みそのもの**です。エージェントが自らの操作を制限するコードを書き換えられたら、他のすべてのガードが意味を失います。
 
 正準リストは [`plugins/sdd-quality-loop/references/guard-invariants.json`](../../plugins/sdd-quality-loop/references/guard-invariants.json) の `protected_gate_suffixes`（80 エントリ）と `protected_gate_plugin_json_suffixes`（3 エントリ）で、ここから `generate-guard-invariants.py` が sh / ps1 / js / py の 4 実装へ同じ定数を生成します（`scripts/generated/`）。含まれるものの例:
 
@@ -262,7 +262,7 @@ Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd
 | `impl` | `Impl-Review-Status:` → `Pending` |
 | `task` | `Task-Review-Status:` → `Pending`、`Approval:` → `Draft`、`Status:` → `Planned`、`Second Approval:` 行の削除 |
 
-つまりライフサイクル遷移（Pending → Passed、Draft → Approved、Planned → In Progress → Done）は吸収されますが、本文を 1 バイトでも書き換えれば正規化後のハッシュが一致せず、`check-workflow-state` が落ちます。再レビュー用の追加の正準形（`rereview_normalized_hash()`）も同様に、ライフサイクルフィールドだけを別の一様な値へ書き戻すもので、本文の編集を吸収することはありません。
+つまりライフサイクル遷移（Pending → Passed、Draft → Approved、Planned → In Progress → Done）は吸収されますが、本文を 1 バイトでも書き換えれば正規化後のハッシュが一致せず、`check-workflow-state` が失敗します。再レビュー用の追加の正準形（`rereview_normalized_hash()`）も同様に、ライフサイクルフィールドだけを別の一様な値へ書き戻すもので、本文の編集を吸収することはありません。
 
 **凍結後に正当な更新が必要になったら**、凍結されていない **addendum** に書きます。
 
@@ -327,10 +327,10 @@ flowchart LR
 
 各ディレクトリの役割:
 
-- **`specs/<feature>/`** — 仕様そのもの。現在 38 フィーチャーが存在します。フィーチャーの登録状況は `specs/workflow-state-registry.json` が `profile`（`full` / `lite` / `legacy`）とともに保持し、`contracts/workflow-state-registry.schema.json` が形状を検証します。`specs/` 直下に未登録のディレクトリがあれば `check-workflow-state` が落ちます。
+- **`specs/<feature>/`** — 仕様そのもの。現在 38 フィーチャーが存在します。フィーチャーの登録状況は `specs/workflow-state-registry.json` が `profile`（`full` / `lite` / `legacy`）とともに保持し、`contracts/workflow-state-registry.schema.json` が形状を検証します。`specs/` 直下に未登録のディレクトリがあれば `check-workflow-state` が失敗します。
 - **`reports/`** — 証跡。`spec-review/` `impl-review/` `task-review/`（レビュー契約）、`implementation/<task-id>.md`（実装レポート）、`quality-gate/<timestamp>-<task-id>.md`（品質ゲート結果）、`runs/`（run レコード）、`retrospective/`、`review-context/`、`notes/`。
 - **`docs/review-tickets/*.yml`** — 品質ゲートが Done をブロックした指摘。`/sdd-quality-loop:fix-by-review-ticket` が人間による再開点になります。
-- **`docs/workflow-improvements/`** — ワークフロー自体の改善提案（WFI）。`workflow-retrospective` が Draft を起こし、`wfi-audit-cycle` が 2 サイクルの独立監査で Human-Pending へ移し、承認は人間だけが行えます（WFI 承認ガードは **sudo でも解除されません**）。
+- **`docs/workflow-improvements/`** — ワークフロー自体の改善提案（WFI）。`workflow-retrospective` が Draft を作成し、`wfi-audit-cycle` が 2 サイクルの独立監査で Human-Pending へ移し、承認は人間だけが行えます（WFI 承認ガードは **sudo でも解除されません**）。
 
 横断的な正準の置き場所（`AGENTS.md`「Source Artifact Locations」より）:
 

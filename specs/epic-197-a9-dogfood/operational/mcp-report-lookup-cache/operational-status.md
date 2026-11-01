@@ -1,6 +1,6 @@
 # Operational status for Issue 678
 
-T-678 is Approved / Planned. It is the prospective acceptance work originally
+T-678 is Approved / Done after independent final review and actual task-state validation. It is the prospective acceptance work originally
 reviewed as packet T-001; relocation.json retains the identity/path mapping.
 No retrospective specification-first development or TDD is claimed.
 
@@ -45,13 +45,35 @@ The heading remains preparation until a genuine Release is published after
 exact-commit CI succeeds. Historical 309/310-test execution records, hashes and
 source bindings are unchanged; they are not relabeled as executions of v1.21.0.
 
-## Acceptance still required
+The planned interval endpoint is v1.21.1. Its synchronized version surfaces and
+release-preparation checks are preparation only; original v1.19.1 preparation
+outputs remain unchanged as historical records. Neither version preparation
+completes a release interval or authorizes a claim of enforcement promotion.
 
-Merge the signed activation and obtain genuine final-head capability-mode Gate
-execution. Keep full observations private, retain the original CI digest/check
-association, and reconstruct only from the exact trusted tooling and committed
-inputs. A matching private reconstruction is not a new historical CI invocation.
-Complete operational review before marking T-678 Done.
+## Actual acceptance progress
+
+PR #693 merged the signed activation. Its required CI and capability-mode Gate
+passed, and its merge tree matches the tested final head. The public association
+in ../../verification/T-678/acceptance-20261101/activation-ci-association.json
+binds the original check and collector digest; full API/log/observation exports
+remain private. Hash consistency is not independent HMAC authentication.
+
+Fresh execution on tracked-clean a811f6a8 used npm ci, typecheck, build, the full
+310-test suite (zero skips) and production audit (zero vulnerabilities). Actual
+stdio MCP calls on the real repository returned three successful envelopes,
+including 11 passing sdd-forge-mcp tasks and zero failures, without changing the
+worktree. Source/lock/command/time/output bindings are recorded under
+../../verification/T-678/acceptance-20261101/.
+
+This is genuine pre-bootstrap task acceptance work. The earlier plan to defer
+execution until after bootstrap publication was scheduling, not an additional
+T-678 Done condition. Independent reviewer /root/recover_two returned PASS for REQ-001–004 and this
+actual acceptance. The existing generator produced the medium-risk evidence
+bundle from the real review and final contract; the existing task-state checker
+validated Done. See reports/quality-gate/epic-197-a9-dogfood-T-678-final.md and the
+byte-identical nested contract/evidence bundle beside the operational task.
+
+## Parent release acceptance still required
 
 Publish a genuine bootstrap Release after exact-commit CI succeeds, then observe
 real PR work between that start boundary and a final published Release. Every
@@ -75,3 +97,15 @@ Pester installation failure passed on one same-head retry. These are preparation
 observations, not invented live advisory findings. Owner key enrollment and
 actual protected-job review were required admission steps; no human-only timing
 measurement is claimed from CI queue durations.
+
+## 公開証拠の参照先
+
+独立レビュー原文の `/workspace/` は実行当時の所在を示します。GitHub上では
+[独立レビュー](../../../../reports/quality-gate/epic-197-a9-dogfood-T-678-final.md)、
+[原文と公開版の対応](../../verification/T-678/acceptance-20261101/independent-review-provenance.json)、
+[実行コマンド・時刻・終了コード](../../verification/T-678/acceptance-20261101/executions.json)、
+[310テストの実出力](../../verification/T-678/acceptance-20261101/fullsuite.stdout)、
+[ソース・依存ロックのハッシュ](../../verification/T-678/acceptance-20261101/source-binding.json)、
+[実MCP操作の公開要約](../../verification/T-678/acceptance-20261101/real-mcp-summary.json)、
+[PR #693のCI対応記録](../../verification/T-678/acceptance-20261101/activation-ci-association.json)
+を参照できます。生のMCP応答・advisory観測・APIログは非公開で保持しています。

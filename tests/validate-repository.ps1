@@ -28,13 +28,13 @@ if ($LASTEXITCODE -ne 0) {
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
 $expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.21.0"
-    "sdd-implementation" = "1.21.0"
-    "sdd-quality-loop"   = "1.21.0"
-    "sdd-lite"           = "1.21.0"
-    "sdd-review-loop"    = "1.21.0"
-    "sdd-ship"           = "1.21.0"
-    "sdd-domain"         = "1.21.0"
+    "sdd-bootstrap"      = "1.21.1"
+    "sdd-implementation" = "1.21.1"
+    "sdd-quality-loop"   = "1.21.1"
+    "sdd-lite"           = "1.21.1"
+    "sdd-review-loop"    = "1.21.1"
+    "sdd-ship"           = "1.21.1"
+    "sdd-domain"         = "1.21.1"
 }
 $releasePlugins = $expectedPlugins
 
@@ -52,14 +52,14 @@ $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md"
 $readmeCurrentRelease = $readmeLines |
     Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
     Select-Object -First 1
-if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.21\.0(?:\s|$)") {
-    throw "README.md current release must be v1.21.0."
+if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.21\.1(?:\s|$)") {
+    throw "README.md current release must be v1.21.1."
 }
 
 $changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.21\.0(?:\s|$)")
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.21\.1(?:\s|$)")
 if ($currentReleaseHeadings.Count -ne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.21.0 release heading."
+    throw "CHANGELOG.md must contain exactly one v1.21.1 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"

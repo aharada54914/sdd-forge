@@ -1,0 +1,22 @@
+{
+  "label": "placeholder-scan",
+  "argv": [
+    "sh",
+    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+    "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+    "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+    "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+    "mcp/sdd-forge-mcp/src/tools/core.ts"
+  ],
+  "cwd": "/workspace/scratch/678-acceptance-draft",
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "working_changes": "actual staged acceptance/version changes present",
+  "started_at": "2026-11-01T02:03:35.596600Z",
+  "finished_at": "2026-11-01T02:03:35.601485Z",
+  "exit_code": 0,
+  "stdout_path": "placeholder-scan.stdout",
+  "stderr_path": "placeholder-scan.stderr",
+  "stdout_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Actual acceptance preparation; raw process outputs excluded from whitespace lint to preserve their bytes"
+}

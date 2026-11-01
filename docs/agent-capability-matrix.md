@@ -97,7 +97,7 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced 
 - `.codex/agents/sdd-panelist-gemini.toml` (developer_instructions 必須)
 - `plugins/sdd-quality-loop/agents/panelist-gemini.md`
 
-> **Note — Claude panelist:** Claude は常在ベースラインパネリストとして Agent ツール経由で起動される（別途 `.codex` toml 不要）。出力形式は上記 2 者と同一（`vendor: "anthropic"`、`blind:true`）。verdict は助言的信号であり、`sdd-evaluator` の `review_verdict` とは独立して保持される（マージ・上書き不可）。
+> **Note — Claude panelist:** Claude は常在ベースラインパネリストとして Agent ツール経由で起動される。別途 `.codex` toml は不要。出力形式は上記 2 者と同一（`vendor: "anthropic"`、`blind:true`）。verdict は助言的信号であり、`sdd-evaluator` の `review_verdict` とは独立して保持される（マージ・上書き不可）。
 
 ---
 

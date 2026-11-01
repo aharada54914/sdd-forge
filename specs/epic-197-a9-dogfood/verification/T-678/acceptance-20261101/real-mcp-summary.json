@@ -1,0 +1,36 @@
+{
+  "schema": "a9-real-mcp-acceptance-observation/v1",
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "started_at": "2026-11-01T02:00:49.497Z",
+  "finished_at": "2026-11-01T02:00:50.940Z",
+  "raw_record_sha256": "753011c829e93312e9c73fec0125848bb35cde37efda33710c5dd43e270ca728",
+  "scope": "Actual pre-bootstrap acceptance execution, not post-release interval evidence",
+  "requests": [
+    {
+      "tool": "list_active_specs",
+      "arguments": {},
+      "envelope_ok": true,
+      "spec_count": 48
+    },
+    {
+      "tool": "get_task_state",
+      "arguments": {
+        "feature": "sdd-forge-mcp"
+      },
+      "envelope_ok": true,
+      "verdict": "pass",
+      "tasks": 11,
+      "failures": 0
+    },
+    {
+      "tool": "list_active_specs",
+      "arguments": {},
+      "envelope_ok": true,
+      "spec_count": 48
+    }
+  ],
+  "worktree_unchanged": true,
+  "dependencies": "npm ci completed successfully immediately before build and observation",
+  "lockfile_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "built_bundle_sha256": "76526b9f59c67c3a09031acf2414643cfa06e8a537f4967469892c1d964ed178"
+}

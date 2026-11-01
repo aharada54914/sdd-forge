@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.21.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.21.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
@@ -119,9 +119,9 @@ flowchart LR
 
 ### MCP サーバー
 
-MCP サーバーが提供する情報は SDD ワークフローに対して常に **助言的（advisory）** です。エージェントは各 tool の応答を判断材料として利用しますが、それによって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きを自動的に進めたり、その判定を上書きしたりすることはありません。SDD ワークフローの決定権は常にファイルベースの手続き側にあり、MCP はそれを補助する情報源にとどまります。
+MCP サーバーが提供する情報は SDD ワークフローに対して常に **助言的（advisory）** です。エージェントは各 tool の応答を判断材料として利用します。ただし、その応答によって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きを自動的に進めたり、判定を上書きしたりすることはありません。SDD ワークフローの決定権は常にファイルベースの手続き側にあり、MCP はそれを補助する情報源にとどまります。
 
-また、この read-only な助言層としての位置づけを維持するため、write tool（状態を変更・作成・進行させる tool）をこれらの MCP サーバーに追加しない方針を継続しています。以下の `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` はいずれも読み取り専用の tool のみを登録しており、将来の機能拡張であってもこの方針は変わりません。
+この read-only な助言層としての位置づけを維持するため、write tool（状態を変更・作成・進行させる tool）をこれらの MCP サーバーに追加しない方針を継続しています。以下の `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` はいずれも読み取り専用の tool のみを登録しており、将来の機能拡張であってもこの方針は変わりません。
 
 #### sdd-forge-mcp
 
@@ -133,11 +133,11 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root <プロジェクト>
 ```
 
-画面は127.0.0.1のみに待ち受け、停止は Ctrl+C です。URLには実行ごとに変わるアクセス用の値が含まれるため共有しないでください。更新ボタンは同じ読取処理を再実行し、画面からコマンドや承認を実行しません。リモート端末への公開機能ではありません。通常のMCP起動に `--status-ui` は不要です。
+127.0.0.1でのみ待ち受けます。Ctrl+C で停止します。URLには実行ごとに変わるアクセス用の値が含まれるため共有しないでください。更新ボタンは同じ読取処理を再実行し、画面からコマンドや承認を実行しません。リモート端末への公開機能ではありません。通常のMCP起動に `--status-ui` は不要です。
 
 #### local-env-mcp
 
-`local-env-mcp` は、ローカル開発環境の情報を読み取るための **read-only** MCP サーバーです。実行機能を一切持たず、以下の 3 つの構造化 JSON ツールで環境情報を提供します:
+`local-env-mcp` は、ローカル開発環境の情報を読み取るための **read-only** MCP サーバーです。実行機能を一切持たず、次の 3 つの構造化 JSON ツールで環境情報を提供します。
 
 - `get_os_info`: プラットフォーム・CPU・メモリ・OS バージョン・Node.js ランタイムバージョン
 - `get_toolchain_versions`: コンパイル時に固定された 14 種の CLI（node/npm/pnpm/yarn/bun/deno/git/gh/python3/go/rustc/cargo/java/docker）のバージョン一括取得
@@ -149,7 +149,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 #### ci-mcp
 
-`ci-mcp` は、GitHub Actions の CI 状態（ワークフロー実行・ジョブ・ジョブログ・成果物メタデータ）を読み取るための **read-only** MCP サーバーです。write API・write ツールは一切持たず、GitHub REST API へは `https://api.github.com` 固定ホストへの GET リクエストのみ発行します（サブプロセス実行なし）。以下の 5 ツールを提供します:
+`ci-mcp` は、GitHub Actions の CI 状態（ワークフロー実行・ジョブ・ジョブログ・成果物メタデータ）を読み取るための **read-only** MCP サーバーです。write API・write ツールは一切持たず、GitHub REST API には固定ホスト `https://api.github.com` への GET リクエストのみ発行します。サブプロセスは実行しません。提供するツールは次の 5 つです。
 
 - `list_workflow_runs`: ワークフロー実行一覧（branch/status/event/perPage 絞り込み対応）
 - `get_workflow_run`: 単一ワークフロー実行の詳細
@@ -157,11 +157,11 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 - `list_run_artifacts`: 成果物メタデータ一覧（バイナリ本体は返さない）
 - `get_job_log`: ジョブのプレーンテキストログ（256 KiB 末尾優先 truncate 付き）
 
-**セキュリティ境界**: write 機能なし（GET 専用・ホスト固定で書き換え不可）・トークンは環境変数からのみ読み取り応答/ログに非出力・`git`/`gh` などの exec なし・上流エラーは決定論的に正規化し本文を転載しない。
+**セキュリティ境界**: write 機能はありません。GET 専用でホストは固定されており、書き換えはできません。トークンは環境変数からのみ読み取り、応答やログには出力しません。`git`/`gh` などの exec は行わず、上流エラーは決定論的に正規化し、本文を転載しません。
 
 **トークン設定**: 実行時に read-only の GitHub PAT が必要です。`CI_MCP_GITHUB_TOKEN`（優先）→ `GH_READONLY_TOKEN` → `GITHUB_TOKEN` の順に最初に非空の値を採用します。installer はトークン値を一切保存・生成しません。詳細・`CI_MCP_REPO` の使い方・各クライアントへの自動/手動登録手順は [USERGUIDE.md](USERGUIDE.md#ci-mcp) を参照してください。
 
-導入オプション（詳細と トラブルシュート）は [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
+導入オプションの詳細とトラブルシュートは [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
 
 ## インストール
 
@@ -190,7 +190,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 ./install.ps1 -SkipMcp
 ```
 
-主なオプション（`.sh` / `.ps1` 共通、PowerShell は `-CamelCase`）:
+主なオプションは次のとおりです。`.sh` / `.ps1` で共通ですが、PowerShell では `-CamelCase` で指定します。
 
 | オプション | 説明 |
 |---|---|
@@ -207,7 +207,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 `--plugins` に指定できる名前は次の 7 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain`。
 
-**依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます（自動追加された分は警告として表示されます）。
+**依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます。自動追加された分は警告として表示されます。
 
 | 指定したプラグイン | 自動的に追加される依存 |
 |---|---|
@@ -246,7 +246,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 ./uninstall.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-ship
 ```
 
-主なオプション（`.sh` / `.ps1` 共通、PowerShell は `-CamelCase`）:
+主なオプションは次のとおりです。`.sh` / `.ps1` で共通ですが、PowerShell では `-CamelCase` で指定します。
 
 | オプション | 説明 |
 |---|---|
@@ -260,7 +260,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
 | `--skip-mcp-uninstall` | MCP の実体削除・登録解除をスキップ |
 
-登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は marketplace を削除しません（marketplace を消すと、そこからインストールされた他のプラグインも巻き添えで消えるため）。
+登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は、そこからインストールされた他のプラグインも削除されることを防ぐため、marketplace を削除しません。
 
 ## プロジェクト固有のスキル
 
@@ -274,7 +274,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 
 - **仕様レビューループ (`spec-review-loop`)**: requirements.md と acceptance-tests.md に対して `spec-reviewer-a/b` が独立してレビューし、`Spec-Review-Status: Passed` になるまで実装方針レビューを開始させません。
 - **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
-- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
+- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係のサイクル検出と、Blockers の正準形式の検証を含みます。
 - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
 - **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・概念モデル・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、v2 モデルでは feature の Concept Test で提案と人間判断を記録してから、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。インストーラで `--plugins sdd-domain`（PowerShell: `-Plugins sdd-domain`）を明示指定すると導入できます。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
@@ -286,7 +286,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 - **sudoモード**: 有効な署名付きトークンにより、*承認待ち*（タスク承認・`accepted` 差分・定型サインオフ）を期限付きで自動通過。判断フォーク・critical 二者承認・AGENT_STOP・決定論的ゲートは維持する。現行ホストのチャット／slash 自動発行は未対応で、agent は明示呼出後もトークンを操作できない。人間による手順と対応範囲は [`/sdd-sudo` スキル](plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md) を参照。
 - **リスク適応ゲート**: タスクごとに `Risk:` 階層 (`low / medium / high / critical`) を設定し、階層に比例した決定論的ゲートセットを強制します。新ゲート `check-risk`（階層と `Risk Rationale` を検証）・`check-traceability`（REQ→AC→TEST→証跡チェーンを検証）を追加。`check-contract` は階層最小セットの superset 強制（Pass 4）と TDD Red→Green 証跡（Pass 5）を実施。高/critical はプロベナンス付き evidence bundle を必須とし、critical は HMAC-SHA256 署名 + クリーンツリー強制。非コード (`stack: shell/docs/spec`) リポジトリでは compile 系チェックを理由付きで waive 可能。正準対応表: [`risk-gate-matrix.md`](plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
 - **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
-- **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズ診断規律を回し、軽量トラックへの入口を兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
+- **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズの診断手順を実行し、軽量トラックの開始手順も兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
 
 ## ドキュメントマップ
 

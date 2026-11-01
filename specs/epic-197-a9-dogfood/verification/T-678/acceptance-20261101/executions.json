@@ -1,0 +1,95 @@
+[
+  {
+    "label": "install",
+    "argv": [
+      "npm",
+      "ci"
+    ],
+    "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+    "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+    "started_at": "2026-11-01T02:00:22.787885Z",
+    "finished_at": "2026-11-01T02:00:27.411246Z",
+    "exit_code": 0,
+    "stdout_path": "install.stdout",
+    "stderr_path": "install.stderr",
+    "stdout_sha256": "cc147604701d1f49de774516b96c6df17649cd1fbb162de6ceff38921b42210f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+  },
+  {
+    "label": "typecheck",
+    "argv": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+    "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+    "started_at": "2026-11-01T02:00:27.411833Z",
+    "finished_at": "2026-11-01T02:00:27.675635Z",
+    "exit_code": 0,
+    "stdout_path": "typecheck.stdout",
+    "stderr_path": "typecheck.stderr",
+    "stdout_sha256": "c3fb6b341c1dd8055671bf668496cf9c991cb9a51baba33c6863595b0d05dd4c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+  },
+  {
+    "label": "build",
+    "argv": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+    "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+    "started_at": "2026-11-01T02:00:27.676141Z",
+    "finished_at": "2026-11-01T02:00:27.813171Z",
+    "exit_code": 0,
+    "stdout_path": "build.stdout",
+    "stderr_path": "build.stderr",
+    "stdout_sha256": "a56895355b2526ada6a8d51836a6ede03f11e71040d39b826b5bec87892ff090",
+    "stderr_sha256": "1d8ed2c134a4e6ff559870859e8bc473b7bd64e93a1115260321d85a26f73734",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+  },
+  {
+    "label": "fullsuite",
+    "argv": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+    "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+    "started_at": "2026-11-01T02:00:27.813602Z",
+    "finished_at": "2026-11-01T02:00:42.028269Z",
+    "exit_code": 0,
+    "stdout_path": "fullsuite.stdout",
+    "stderr_path": "fullsuite.stderr",
+    "stdout_sha256": "9a387352eceec5a16f0382fae2473de9d39d25941b359fb36a2c2980a250bf23",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+  },
+  {
+    "label": "production-audit",
+    "argv": [
+      "npm",
+      "audit",
+      "--omit=dev"
+    ],
+    "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+    "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+    "started_at": "2026-11-01T02:00:42.028716Z",
+    "finished_at": "2026-11-01T02:00:42.497138Z",
+    "exit_code": 0,
+    "stdout_path": "production-audit.stdout",
+    "stderr_path": "production-audit.stderr",
+    "stdout_sha256": "6d8c5c8f3d7684adb070417bd608d01ae90aa3dc26a65af03ffda4955f38d9a3",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+    "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+  }
+]

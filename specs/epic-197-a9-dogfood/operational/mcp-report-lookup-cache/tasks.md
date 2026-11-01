@@ -2,7 +2,7 @@
 
 ## T-678 Review and accept the recovered MCP report cache under advisory operation
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: medium
 
 ### Scope
@@ -21,13 +21,16 @@ under an active Context.
 - Actual failures, recovery and approval waits are recorded; the parent release
   acceptance remains separate until its own real cycle is complete.
 
-### Blockers
+### Completion evidence
 Owner approval is recorded in approval-provenance.json. Protected CI run
 41258114242 issued and validated the actual Phase-1 signature after owner review;
 the original delegated cloud signature is not used for this publication.
-Final-head advisory CI association, operational review and the actual release
-interval remain pending. This task remains Planned until its Done conditions
-are observed.
+PR #693 provided the authentic final-head advisory association and passing required
+CI; its merge tree matches the tested head. Actual pre-bootstrap acceptance checks
+and stdio operations are recorded separately. Independent reviewer /root/recover_two returned PASS for REQ-001–004 and actual
+active-Context acceptance. The real evidence bundle and task-state checker validate
+this Done transition. The parent release interval remains separate from this task
+completion.
 
 ### Approval provenance
 The owner approved delegated cloud operation in the development conversation

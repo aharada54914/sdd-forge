@@ -14,7 +14,7 @@
 **対応：**
 1. `tasks.md` を確認し、対象タスクの `Approval` が `Approved` になっているか確認
 2. 人間だけがタスクを `Approved` に変更できます。エージェントは自動承認できません
-3. タスク状態が `Blocked` の場合、`Blockers` セクションの内容を確認し、解決されているかどうか確認してください
+3. タスク状態が `Blocked` の場合、`Blockers` セクションに記載された問題が解決されているか確認してください
 
 ### quality-gate が開始されない
 
@@ -43,11 +43,11 @@
 **対応：**
 1. 生成された品質レポート (`reports/quality-gate/` 内のファイル) を確認
 2. レビューチケット (`docs/review-tickets/*.yml`) に `critical` または `major` 指摘がないか確認
-3. `check-contract` の実行結果を確認：
+3. `check-contract` の実行結果を確認します。
    ```bash
    sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/<feature>/verification/<task-id>.contract.json
    ```
-4. `check-evidence-bundle` の実行結果を確認：
+4. `check-evidence-bundle` の実行結果を確認します。
    ```bash
    sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh specs/<feature>/verification/<task-id>.evidence.json
    ```
@@ -57,11 +57,11 @@
 
 **症状：** リスク適応層の新ゲートでタスクが止まる。
 
-- **`check-risk` FAIL** — タスクに `Risk:` (`low/medium/high/critical`) が無い/無効、`Risk Rationale:` が空、または `high`/`critical` で `Required Workflow: tdd` が未宣言。tasks.md にこれらを追記して再実行。
-- **`check-contract`「risk medium requires check 'acceptance-tests' …」** — contract の `required:true` セットが階層最小セットを満たしていない。[`risk-gate-matrix.md`](../plugins/sdd-quality-loop/references/risk-gate-matrix.md) に従い不足チェックを追加するか、コンパイルツールチェーンの無い shell/Markdown/JSON リポジトリなら contract に `"stack": "shell"`（または `docs`/`spec`）を設定して `lint`/`typecheck`/`build` を理由付きで waive する。テスト/トレーサビリティ系チェックは stack では免除されない。
-- **`check-contract`「… needs non-empty red_evidence / green_evidence」** — `required_workflow: tdd` のテストチェックに Red→Green 証跡が無い。失敗→成功のログを保存し `red_evidence`/`green_evidence` に実在パスを指定する。
-- **`check-traceability` FAIL** — `traceability.json` の link に `req`/`acs`/`tests` が欠落、または `require-evidence` モードで証跡ファイルが未列挙/不在。チェーンを補完し証跡パスを実在ファイルに向ける。
-- **`check-evidence-bundle`（critical）が署名/dirty で FAIL** — critical バンドルは外部署名鍵 (`SDD_EVIDENCE_KEY` / `~/.sdd/evidence-key`) とクリーンツリーが必須。鍵を設定し、未コミット変更を解消してから生成する。
+- **`check-risk` FAIL**： タスクに `Risk:` (`low/medium/high/critical`) が無い/無効、`Risk Rationale:` が空、または `high`/`critical` で `Required Workflow: tdd` が未宣言。tasks.md にこれらを追記して再実行。
+- **`check-contract`「risk medium requires check 'acceptance-tests' …」**： contract の `required:true` セットが階層最小セットを満たしていない。[`risk-gate-matrix.md`](../plugins/sdd-quality-loop/references/risk-gate-matrix.md) に従い不足チェックを追加するか、コンパイルツールチェーンの無い shell/Markdown/JSON リポジトリなら contract に `"stack": "shell"`（または `docs`/`spec`）を設定して `lint`/`typecheck`/`build` を理由付きで waive する。テスト/トレーサビリティ系チェックは stack では免除されない。
+- **`check-contract`「… needs non-empty red_evidence / green_evidence」**： `required_workflow: tdd` のテストチェックに Red→Green 証跡が無い。失敗→成功のログを保存し `red_evidence`/`green_evidence` に実在パスを指定する。
+- **`check-traceability` FAIL**： `traceability.json` の link に `req`/`acs`/`tests` が欠落、または `require-evidence` モードで証跡ファイルが未列挙/不在。チェーンを補完し証跡パスを実在ファイルに向ける。
+- **`check-evidence-bundle`（critical）が署名/dirty で FAIL**： critical バンドルは外部署名鍵 (`SDD_EVIDENCE_KEY` / `~/.sdd/evidence-key`) とクリーンツリーが必須。鍵を設定し、未コミット変更を解消してから生成する。
 
 ### check-placeholders が正当なコードを誤検出する（brownfield）
 
@@ -74,7 +74,7 @@
 - これはゲートの欠陥ではなく仕様です。正当なケースを通すには、検証契約の `placeholder-scan` チェックを `"required": false` ＋ 非空の `waiver_reason` に設定し（Default-FAIL ルール準拠）、**かつ** quality-gate レポートに人間の accept を記録してください。`check-contract` はレポートを読まず、`passes: false` の必須チェックを失敗扱いにするため、契約側の `required: false`＋`waiver_reason` が実際にゲートを解除します。
 - `check-placeholders` 自体は渡されたパス（ファイル/ディレクトリ）を再帰的に走査し、Git 差分での絞り込みはしません。**変更ファイルのみを渡すのは呼び出し側（quality-gate）の責任**です（ディレクトリ全体を渡すと既存マーカーも検出されます）。
 - スキャン自体を緩めてプロンプトを回避しないでください。
-- 無関係な既存マーカーは、その変更をタスク範囲外として切り出す（別タスク化）ことも検討してください。
+- 無関係な既存マーカーはその変更をタスク範囲外として切り出す（別タスク化）ことも検討してください。
 
 ### UI検証ができない
 
@@ -96,11 +96,11 @@
 - SDD 必須構造が整備されていない
 
 **対応：**
-1. `sdd-adopt` スキルを実行：
+1. `sdd-adopt` スキルを実行します。
    ```txt
    Use the sdd-adopt skill.
    ```
-2. `sdd-adopt` がリポジトリ構造をスキャフォールドし、`AGENTS.md` などの必須ファイル・ディレクトリを作成します
+2. `sdd-adopt` がリポジトリ構造を整備し、`AGENTS.md` などの必須ファイル・ディレクトリを作成します
 3. その後、`implement-task` / `quality-gate` を再度実行してください
 
 ### ADR が `specs/<feature>/adr/` にある
@@ -196,7 +196,7 @@ Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は
 Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御です。旧 `plugin_hooks` の切替を稼働・非発火の証拠には使いません。Copilot CLI 1.0.98 では親・サブエージェント双方の稼働を実測しており、どちらも実 canary の結果で判断します。
 
 **代替手段：**
-1. hook が無効な場合、手動で `check-task-state`、`check-contract`、`check-evidence-bundle` を実行して同じ不変条件を確認してください：
+1. hook が無効な場合、手動で `check-task-state`、`check-contract`、`check-evidence-bundle` を実行して同じ不変条件を確認してください。
    ```bash
    sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/<feature>/tasks.md
    sh plugins/sdd-quality-loop/scripts/check-contract.sh specs/<feature>/verification/<task-id>.contract.json
@@ -245,11 +245,11 @@ Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御
 - `CLAUDE_PROJECT_DIR` 環境変数とカレントディレクトリが一致していない可能性
 
 **対応：**
-1. `SDD_SUDO` ファイルがプロジェクトルートに存在するか確認：
+1. `SDD_SUDO` ファイルがプロジェクトルートに存在するか確認します。
    ```bash
    ls -la SDD_SUDO
    ```
-2. ファイルの内容を確認し、`expires-epoch` が現在時刻より大きいか確認：
+2. ファイルを開き、`expires-epoch` が現在時刻より大きいか確認します。
    ```bash
    cat SDD_SUDO
    date +%s      # 現在の Unix time
@@ -259,7 +259,7 @@ Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御
 
 ### 無効化し忘れが心配
 
-**症状：** sudoモードを有効化した後、その後の作業で無効化し忘れないか不安。
+**症状：** sudoモードを有効化した後、作業中に無効化し忘れないか不安。
 
 **安心設定：**
 
@@ -268,12 +268,12 @@ Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御
    - その後は Approval ガードが再度有効になります
    - ファイル削除は自動で行われません（手動削除可能）
 
-2. **即座に無効化**:
+2. **即座に無効化**
    ```txt
    /sdd-sudo off         # コマンドで即座に無効化
    ```
 
-3. **手動削除**:
+3. **手動削除**
    ```bash
    rm SDD_SUDO           # Bash
    ```

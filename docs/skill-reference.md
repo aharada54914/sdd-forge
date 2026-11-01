@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれるスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれるスキルの詳細リファレンスです。`plugins/` 外の単独スキル1件、[`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)も扱います。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -36,7 +36,9 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。
+
+ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -110,7 +112,7 @@ Use the ship skill for specs/<feature>/tasks.md
 
 解決は「① 物理的存在（ファイルシステム検査のみ） → ② 承認の妥当性（`validate-approval-sidecar` が PASS） → ③ 優先順位」の3ステップをこの順で行い、**順序そのものが契約**です（①②をまとめると ADR-0023 が塞いだ fail-open が復活します）。
 
-`--full` / `--lite` / AGENTS.md の `spec_profile: lite` を優先順に評価する旧来の挙動は、`COMPATIBILITY_FALLBACK`、すなわち **Project Context が物理的に不在のケース（C1）に限られます**。`--full` 時の `acceptance-tests.md` / `traceability.md` の存在確認も、この C1 フォールバック時の挙動です。
+`--full` / `--lite` / AGENTS.md の `spec_profile: lite` を優先順に評価する旧来の挙動は `COMPATIBILITY_FALLBACK`、すなわち **Project Context が物理的に不在のケース（C1）に限られます**。`--full` 時の `acceptance-tests.md` / `traceability.md` の存在確認も、この C1 フォールバック時の挙動です。
 
 正準は [`PLUGIN-CONTRACTS.md` の Track Detection 節](../PLUGIN-CONTRACTS.md#track-detection-adr-0023)（HTML センチネル `<!-- sdd:track-selection-contract v1 -->` で囲まれた機械検査対象の6ケース表 C1–C6）と [workflow-guide.md「トラック選択契約（ADR-0023）」](workflow-guide.md#トラック選択契約adr-0023)です。**6ケース表はこのファイルに複製せず、必ず正準を参照してください。**
 
@@ -190,7 +192,7 @@ SDD 品質ゲートの独立的な懐疑的評価者。`Implementation Complete`
 
 1. 実装レポートを主張として扱う。すべての主張をコード・テスト・コマンド出力で自ら検証
 2. タスク必須テストを再実行（可能なら）し、実出力を読む
-3. 完了詐称を狩る：placeholder ページ・ハードコード sample data・generic fallback・skipped / trivially-true テスト・commented-out チェック
+3. 完了詐称を検出する：placeholder ページ・ハードコード sample data・generic fallback・skipped / trivially-true テスト・commented-out チェック
 4. 実装と各受け入れ基準・各参照要件・契約・ADR を照合。scope creep は発見
 5. refactor / bugfix で baseline-behavior.md BL 項目が存在すれば、それと比較
 6. デフォルトで懐疑的。「たぶん動く」は NEEDS_WORK（PASS ではない）
@@ -217,7 +219,7 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 
 ### レビュー / 監査 / パネリスト エージェント（12体）
 
-エージェント定義は `plugins/*/agents/*.md` にあり、上記2体と合わせて全 **14体** です。残る12体は、以下の a/b ペア構造とパネル構造を取ります。
+エージェント定義は `plugins/*/agents/*.md` にあり、上記2体と合わせて全 **14体** です。残る12体は以下の a/b ペア構造とパネル構造を取ります。
 
 | エージェント名 | 所属プラグイン | モデル | 役割 | 起動元スキル |
 |---|---|---|---|---|
@@ -307,11 +309,11 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 ### スクリプト一覧（`plugins/` 配下 52本）
 
-ワークフローが呼び出す決定論的スクリプトは、**`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+ワークフローが呼び出す決定論的スクリプトは **`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
 
 この 52本には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
 
-**ゲート系（`check-*`、13本）** — 判定を返し、失敗時に exit 1 でフェイルクローズします。
+**ゲート系（`check-*`、13本）**： 判定を返し、失敗時に exit 1 でフェイルクローズします。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
@@ -345,7 +347,7 @@ Claude Code のハンドシェイクでは、`--emit-challenge` が返す
 実行記録には環境情報が含まれるため、公開リポジトリには追加しません。
 この形式検証だけで署名済み実ホスト証明が成立するわけではありません。
 
-**生成系（`generate-*`、5本）** — 成果物・証跡・派生ファイルを決定論的に生成します。
+**生成系（`generate-*`、5本）**： 成果物・証跡・派生ファイルを決定論的に生成します。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
@@ -355,7 +357,7 @@ Claude Code のハンドシェイクでは、`--emit-challenge` が返す
 | `generate-guard-invariants` | py | `references/guard-invariants.json` から、各ランタイム native なガード不変条件モジュール (`generated/guard-invariants.generated.{sh,ps1,js}` / `guard_invariants.py`) をレンダリング |
 | `generate-registry-digest` | sh / ps1 / py / js | Capability Registry の選択フラグメントの正準ダイジェストを生成（NFC 正規化・RFC 8785・ハッシュ化は canonicalize-sdd-yaml へ委譲） |
 
-固定レビュー承認の発行例（従来形式の引数・動作は維持）:
+固定レビュー承認の発行例（従来形式の引数・動作は維持）
 
 ```sh
 python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
@@ -371,7 +373,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 部分出力を公開しません。固定形式には `--content` や `--second-approver` などの
 従来形式専用引数を渡せません。発行だけでは承認の適用・タスク状態変更は行いません。
 
-**検証系（`validate-*`、5本）** — 契約・マニフェスト・入力の妥当性を独立に再検証します。
+**検証系（`validate-*`、5本）**： 契約・マニフェスト・入力の妥当性を独立に再検証します。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
@@ -381,7 +383,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `validate-review-context-set` | sh / ps1 | レビュアー / 評価者の起動を時系列で1件ずつ検証（`--reserve` で予約）。コンテキスト独立性の強制点 |
 | `validate_path` | py | 共有パス検証ユーティリティ（`validate_evidence_path()`）。現在 import しているのは `check-contract.py` のみ。import 失敗時、呼び出し側は exit 1 でフェイルクローズしなければならない |
 
-フックは、同じ配布の `validate-approval-sidecar.py`、`validate-capability-registry.py`、
+フックは同じ配布の `validate-approval-sidecar.py`、`validate-capability-registry.py`、
 `canonicalize-sdd-yaml.py` の公開引数契約を確認し、保護ファイルを読み取り入力として
 渡す直接の `python` / `python3` 呼び出しを許可します。共有の
 `readonly-input-contracts.json` が入力引数と通常モードを定義します。
@@ -389,7 +391,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 保護先へのリダイレクトや後続の書き込みは引き続き拒否します。
 予約・発行・適用を行うCLIを一律に読み取り専用とは扱いません。
 
-**解決・正規化系（6本）** — 判定を返さず、正規化された事実や候補集合を返します。
+**解決・正規化系（6本）**： 判定を返さず、正規化された事実や候補集合を返します。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
@@ -400,7 +402,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `detect-panel` | sh / ps1 | 利用可能な非 Anthropic パネリスト CLI を検出し、slug を改行区切りで列挙 |
 | `registry_discovery` | py | Registry 探索契約の共有ヘルパモジュール。パッケージ同梱コピー優先のフェイルクローズ解決順を実装 |
 
-**運用・強制系（8本）** — フック・停止・公開・記録・外部パネリスト実行を担います。
+**運用・強制系（8本）**： フック・停止・公開・記録・外部パネリスト実行を担います。
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
@@ -682,7 +684,7 @@ sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh <path-to-evidence.j
 
 **目的**
 
-Placeholder・stub・generic-fallback 実装を検出。エージェントが完了を詐称する際に使用するパターンを狩る。
+Placeholder・stub・generic-fallback 実装を検出。エージェントが完了を詐称する際に使用するパターンを検出する。
 
 **使用法**
 

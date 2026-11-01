@@ -1,0 +1,9 @@
+{
+  "reviewer": "/root/recover_two",
+  "source": "/workspace/scratch/678-final-independent-quality.md",
+  "source_sha256": "41e3ce7cc65d21e4748b6663cc4ecc3faa93f450ccf987440ffece9a676fd353",
+  "published_report": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
+  "published_sha256": "06aa7f4f9e206a4baba4bb3a5e081347f65a655c94857550a781722b92b2a482",
+  "format_adaptation": "Only Verdict label uppercased to VERDICT for existing validator; review wording and verdict unchanged.",
+  "scope": "REQ001\u2013004 plus actual active-Context acceptance; parent release interval not complete"
+}

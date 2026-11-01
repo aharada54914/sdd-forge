@@ -1,11 +1,11 @@
 # SDD Forge リファレンス — MCP サーバーとエージェントモデルルーティング
 
-本書は SDD Forge の 2 つの領域についての**詳細リファレンス（正準）**です。
+本書は SDD Forge の次の 2 つの領域を扱う詳細リファレンス（正準）です。
 
 - **MCP サーバー 3 種**（`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`）の導入・登録・ツール仕様・セキュリティ境界・エラーコード・ロールバック手順
 - **エージェントモデルルーティング**（`select-agent-model` の `--effort-policy`）の既定挙動
 
-MCP サーバーについては、[README.md](README.md) の「MCP サーバー」節が3サーバーの概要を、[docs/architecture/overview.md](docs/architecture/overview.md) の §6 がアーキテクチャ全体における位置づけを扱っており、どちらも導入オプション・トークン設定・登録手順といった詳細は本書へリンクしています。本書はそのリンク先として、全ツールの入出力・エラーコード・フェイルセーフ挙動・ロールバック手順までを収めています。
+3サーバーの概要は [README.md](README.md) の「MCP サーバー」節で、アーキテクチャ全体における位置づけは [docs/architecture/overview.md](docs/architecture/overview.md) の §6 で説明しています。どちらも導入オプション・トークン設定・登録手順の詳細は本書へリンクしています。本書は全ツールの入出力・エラーコード・フェイルセーフ挙動・ロールバック手順までを収めています。
 
 SDD のワークフロー手順・Skill の選び方・トラブルシューティングは別ドキュメントに分割済みで、対応表は末尾の [旧ユーザーガイドからの移行先](#旧ユーザーガイドからの移行先) にまとめてあります。**SDD の使い方を初めて学ぶ方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
@@ -15,7 +15,7 @@ SDD のワークフロー手順・Skill の選び方・トラブルシューテ�
 
 ## エージェントモデルルーティング — Effort Policy
 
-`select-agent-model` の `--effort-policy` は、T-007 (Issue #155,
+`select-agent-model` の `--effort-policy` は T-007 (Issue #155,
 epic-159-pillar-c Phase 2) 以降、既定値が `matrix` になった
 (`risk_effort_matrix` に基づくリスク連動 effort 選択 + escalation bump +
 `supported_efforts` へのクランプ)。Phase 1 (T-001..T-006) の既定であった
@@ -53,7 +53,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 `install.sh` / `install.ps1` は既定で以下を行います。
 
 - `INSTALL_ROOT/mcp/sdd-forge-mcp/`（`dist/index.js` + `package.json`）へ配置
-- Claude Code へユーザースコープで登録:
+- Claude Code へユーザースコープで登録
   ```bash
   claude mcp add sdd-forge-mcp --scope user -- node <INSTALL_ROOT>/mcp/sdd-forge-mcp/dist/index.js
   ```
@@ -61,7 +61,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - Cursor を使う場合、`~/.cursor/mcp.json` の `mcpServers` キーに自動登録
 - VS Code を使う場合、ユーザープロファイルの `mcp.json` の `servers` キーに自動登録
 
-導入オプション:
+導入オプション
 
 | オプション | 効果 |
 |---|---|
@@ -125,7 +125,7 @@ MCP サーバーがどのリポジトリを SDD ルートとして扱うかは�
 
 **stderr ログの読み方**: MCP プロトコル準拠のため `stdout` は JSON-RPC 専用で、診断ログはすべて `stderr` に出力されます。起動時に解決した root とその出所（`cli`/`env`/`cwd`）、各 tool 呼び出しの要求内容（tool 名・対象パス）、拒否理由、エラーが記録されます。ファイル内容や環境変数の値はログに出力されません。
 
-**エラーコードの意味**（`Result<T>` 応答の `error.code`）:
+**エラーコードの意味**（`Result<T>` 応答の `error.code`）
 
 | コード | 意味 |
 |---|---|
@@ -165,7 +165,7 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 自動登録対象: `~/.cursor/mcp.json`
 
-登録形式:
+登録形式
 ```json
 {
   "mcpServers": {
@@ -179,12 +179,12 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 ##### VS Code（ユーザープロファイル）
 
-自動登録対象（OS 別パス）:
+自動登録対象（OS 別パス）
 - **macOS**: `~/Library/Application Support/Code/User/mcp.json`
 - **Linux**: `~/.config/Code/User/mcp.json`
 - **Windows**: `%APPDATA%\Code\User\mcp.json`
 
-登録形式:
+登録形式
 ```json
 {
   "servers": {
@@ -201,14 +201,14 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 自動登録がスキップされた場合や、後から登録したい場合は、上記の JSON スニペットを対応するクライアントの設定ファイルに手動で追加してください。
 
-**重要**: 既存の他エントリは保持・上書きしないでください。登録解除時も同様に該当のエントリのみを削除してください。
+**重要**: 既存の他エントリは保持し、上書きしないでください。登録解除時も同様に該当のエントリのみを削除してください。
 
 #### フェイルセーフ挙動
 
-- クライアント設定ディレクトリが存在しない場合（クライアント未導入）: その クライアントのみ登録をスキップし、他のクライアントの登録は継続します
+- クライアント設定ディレクトリが存在しない場合（クライアント未導入）: そのクライアントのみ登録をスキップし、他のクライアントの登録は継続します
 - 設定ファイルが壊れた JSON の場合: 上書きしない（データ破壊を防止）。エラー通知を表示し、該当クライアントの登録のみ中断します
 
-**ロールバック手順**:
+**ロールバック手順**
 
 1. `./uninstall.sh --mcp sdd-forge-mcp,local-env-mcp,ci-mcp`（または `--skip-mcp-uninstall` を付けずに通常のフル uninstall。`--mcp` 省略時は 3 件すべてが対象）を実行すると、Claude / Codex / Cursor / VS Code への登録解除と配置済みファイルの削除が行われます
    - 登録解除時は、installer が管理するエントリ（`sdd-forge-mcp`・`local-env-mcp`・`ci-mcp`）のみを削除し、他のユーザー定義エントリは無傷です
@@ -243,7 +243,7 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 #### トークン設定
 
-`ci-mcp` の実行には read-only スコープの GitHub PAT（Personal Access Token）が必要です。以下の優先順位で最初に非空の環境変数値を採用します（OQ-004）:
+`ci-mcp` の実行には read-only スコープの GitHub PAT（Personal Access Token）が必要です。以下の優先順位で最初に非空の環境変数値を採用します（OQ-004）
 
 1. `CI_MCP_GITHUB_TOKEN`（推奨・ci-mcp 専用）
 2. `GH_READONLY_TOKEN`（read-only 用途で共有する場合）
@@ -253,7 +253,7 @@ installer はトークン値を一切生成・保存しません。MCP クライ
 
 #### 対象リポジトリの指定（`CI_MCP_REPO`）
 
-各ツールは以下の優先順位で対象リポジトリ（owner/repo）を解決します（OQ-001）:
+各ツールは以下の優先順位で対象リポジトリ（owner/repo）を解決します（OQ-001）
 
 1. ツール引数 `owner` と `repo` を**両方**明示指定した場合はそれを使用（片方のみの指定は `invalid-input`。`CI_MCP_REPO` へのフォールバックはしません）
 2. 明示引数が両方とも未指定の場合、環境変数 `CI_MCP_REPO` を `owner/repo` 形式で解釈
@@ -279,7 +279,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 
 自動登録対象: `~/.cursor/mcp.json`
 
-登録形式:
+登録形式
 ```json
 {
   "mcpServers": {
@@ -293,12 +293,12 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 
 ##### VS Code（ユーザープロファイル）
 
-自動登録対象（OS 別パス）:
+自動登録対象（OS 別パス）
 - **macOS**: `~/Library/Application Support/Code/User/mcp.json`
 - **Linux**: `~/.config/Code/User/mcp.json`
 - **Windows**: `%APPDATA%\Code\User\mcp.json`
 
-登録形式:
+登録形式
 ```json
 {
   "servers": {
@@ -317,7 +317,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 
 自動登録がスキップされた場合や、後から登録したい場合は、上記の JSON スニペット / コマンドを対応するクライアントの設定ファイルに手動で追加してください。
 
-**重要**: 既存の他エントリは保持・上書きしないでください。登録解除時も同様に該当のエントリのみを削除してください。
+**重要**: 既存の他エントリは保持し、上書きしないでください。登録解除時も同様に該当のエントリのみを削除してください。
 
 #### フェイルセーフ挙動
 
@@ -325,7 +325,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 - 設定ファイルが壊れた JSON の場合: 上書きしない（データ破壊を防止）。エラー通知を表示し、該当クライアントの登録のみ中断します
 - Node.js が PATH 上にない、または 22.19.0 未満の場合: MCP サーバーの配置・登録のみが警告付きでスキップされます（plugin 本体のインストールは継続します）
 
-**ロールバック手順**:
+**ロールバック手順**
 
 1. `./uninstall.sh --mcp ci-mcp`（または通常のフル uninstall）を実行すると、Claude / Codex / Cursor / VS Code への登録解除と配置済みファイルの削除が行われます
    - 登録解除時は、installer が管理する `ci-mcp` エントリのみを削除し、他のユーザー定義エントリは無傷です
