@@ -119,6 +119,7 @@ if ($PSBoundParameters.ContainsKey('CapabilityReasons')) {
         $fragmentBytes = [IO.File]::ReadAllBytes($CapabilityReasons)
         $fragmentUtf8 = New-Object System.Text.UTF8Encoding($false, $true)
         $fragmentText = $fragmentUtf8.GetString($fragmentBytes)
+        if ($fragmentText.TrimStart() -notmatch '^\{') { Write-FragmentInvalid }
         $fragment = $fragmentText | ConvertFrom-Json -ErrorAction Stop
         if ($null -eq $fragment -or $null -eq $fragment.PSObject.Properties['capabilities']) {
             Write-FragmentInvalid

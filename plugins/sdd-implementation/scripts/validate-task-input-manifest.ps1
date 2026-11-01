@@ -13,6 +13,7 @@ function Fail([string]$Code, [string]$Message) {
 function Read-Manifest([string]$Path) {
   try {
     $raw = Get-Content -Raw -LiteralPath $Path
+    if ($raw.TrimStart() -notmatch '^\{') { Fail JSON 'manifest must be an object' }
     if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
       $raw | ConvertFrom-Json -DateKind String
     } else {
@@ -98,6 +99,7 @@ function Read-ReloadEvidence($Data, [bool]$BindManifest = $true) {
   if ($actualEvidenceHash -cne $Data.handoff_reload_evidence_hash) { Fail HANDOFF 'fallback evidence artifact hash mismatch' }
   try {
     $raw = [Text.UTF8Encoding]::new($false, $true).GetString($payload)
+    if ($raw.TrimStart() -notmatch '^\{') { Fail HANDOFF 'fallback evidence must be an object' }
     if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
       $evidence = $raw | ConvertFrom-Json -DateKind String
     } else {

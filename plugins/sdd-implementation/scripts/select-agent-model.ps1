@@ -175,21 +175,25 @@ if ($CandidatesFile) {
     $candidateData = Get-Content -Raw -LiteralPath $CandidatesFile |
       ConvertFrom-Json -NoEnumerate -DateKind String
     if ($candidateData -isnot [Array]) { throw 'candidate-root' }
-    $schema = [string]$capabilities.schema
+    if ($capabilities -isnot [System.Management.Automation.PSCustomObject] -or $capabilities.schema -isnot [string] -or $capabilities.models -isnot [Array]) { throw 'registry-shape' }
+    $schema = $capabilities.schema
     if ($schema -ceq 'agent-model-capabilities/v1') {
       # EXISTING, byte-unmodified v1 path (AC-006): only the emitted
       # object shape below is widened (two trailing fields that always
       # mirror Effort, never observed by v1 output).
       $registered = @{}
       foreach ($model in @($capabilities.models)) {
+        if ($model -isnot [System.Management.Automation.PSCustomObject] -or $model.name -isnot [string] -or $model.canonical_tier -isnot [string]) { throw 'model-shape' }
         if (-not $tierRank.ContainsKey([string]$model.canonical_tier)) { throw 'tier' }
         $registered[[string]$model.name] = $model
       }
       $parsed = foreach ($item in @($candidateData)) {
-        $name = [string]$item.name
+        if ($item -isnot [System.Management.Automation.PSCustomObject] -or $item.name -isnot [string]) { throw 'candidate-shape' }
+        $name = $item.name
         if (-not $registered.ContainsKey($name)) { throw 'model' }
         $definition = $registered[$name]
-        $effort = [string]$item.effort
+        if ($item.effort -isnot [string]) { throw 'candidate-effort' }
+        $effort = $item.effort
         if ($effort -cnotin @($definition.efforts) -or $item.available -isnot [bool]) {
           throw 'candidate'
         }
@@ -246,6 +250,7 @@ if ($CandidatesFile) {
       $registered = [System.Collections.Generic.Dictionary[string,object]]::new(
         [System.StringComparer]::Ordinal)
       foreach ($model in @($capabilities.models)) {
+        if ($model -isnot [System.Management.Automation.PSCustomObject] -or $model.name -isnot [string] -or $model.canonical_tier -isnot [string]) { throw 'model-shape' }
         if ($RecognizedTiers -cnotcontains [string]$model.canonical_tier) { continue }
         $supported = $model.supported_efforts
         if ($supported -isnot [Array] -or @($supported).Count -eq 0 -or
@@ -254,13 +259,14 @@ if ($CandidatesFile) {
             }).Count -gt 0) {
           throw 'supported-efforts'
         }
-        $defaultEffort = [string]$model.default_effort
+        if ($model.default_effort -isnot [string]) { throw 'default-effort' }
+        $defaultEffort = $model.default_effort
         if ($defaultEffort -cnotin @($supported)) { throw 'default-effort' }
         $control = $model.effort_control
         if ($control -isnot [System.Management.Automation.PSCustomObject]) { throw 'effort-control' }
         foreach ($hostKey in @('claude-code','codex-cli')) {
           if ((Test-HasProperty $control $hostKey) -and
-              ([string]$control.$hostKey) -cnotin @('flag','frontmatter','none')) {
+              ($control.$hostKey -isnot [string] -or $control.$hostKey -cnotin @('flag','frontmatter','none'))) {
             throw 'effort-control-value'
           }
         }
@@ -272,11 +278,11 @@ if ($CandidatesFile) {
         $roleEntry = $roleDefaults.$Role
         if ($roleEntry -is [System.Management.Automation.PSCustomObject]) {
           if ((Test-HasProperty $roleEntry 'minimum_tier') -and
-              ($RecognizedTiers -ccontains [string]$roleEntry.minimum_tier)) {
+              ($roleEntry.minimum_tier -is [string] -and $RecognizedTiers -ccontains $roleEntry.minimum_tier)) {
             $roleMinTier = [string]$roleEntry.minimum_tier
           }
           if ((Test-HasProperty $roleEntry 'default_effort') -and
-              ([string]$roleEntry.default_effort) -cin $EffortValues) {
+              ($roleEntry.default_effort -is [string] -and $roleEntry.default_effort -cin $EffortValues)) {
             $roleDefaultEffort = [string]$roleEntry.default_effort
           }
         }
@@ -286,7 +292,8 @@ if ($CandidatesFile) {
         if ($RecognizedTiers -cnotcontains $MinimumTier) { throw 'minimum-tier' }
       }
       $parsed = foreach ($item in @($candidateData)) {
-        $name = [string]$item.name
+        if ($item -isnot [System.Management.Automation.PSCustomObject] -or $item.name -isnot [string]) { throw 'candidate-shape' }
+        $name = $item.name
         if (-not $registered.ContainsKey($name)) { throw 'model' }
         $definition = $registered[$name]
         $supported = @($definition.supported_efforts)
@@ -294,7 +301,8 @@ if ($CandidatesFile) {
         $cost = Convert-CandidateCost $item.cost
         $declaredEffort = $null
         if ((Test-HasProperty $item 'effort') -and $null -ne $item.effort) {
-          $declaredEffort = [string]$item.effort
+          if ($item.effort -isnot [string]) { throw 'candidate-effort' }
+          $declaredEffort = $item.effort
           if ($declaredEffort -cnotin $supported) { throw 'candidate-effort' }
         }
         $sortEffort = if ($null -ne $declaredEffort) { $declaredEffort } else { '' }
