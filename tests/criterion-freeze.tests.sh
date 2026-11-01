@@ -257,21 +257,20 @@ write_tasks "$REPO/specs/error-case/tasks.md" Passed 'Changed criterion' ' ' Pla
 printf 'mixed change\n' >> "$REPO/src/app.txt"
 git -C "$REPO" add -A
 git -C "$REPO" commit -qm 'fixture: mixed change for Git read failure'
-export CRITERION_REAL_GIT
-CRITERION_REAL_GIT="$(command -v git)"
-mkdir -p "$WORK/fake-bin"
-cat > "$WORK/fake-bin/git" <<'GIT'
-#!/bin/sh
-for atom do
-  if [ "$atom" = show ]; then
-    printf 'fixture object storage read failure\n' >&2
-    exit 91
+# Remove only the two disposable fixture blobs, retaining commit/tree metadata.
+# Both native Windows and POSIX Git now encounter an actual object-read error;
+# no POSIX executable shim needs to be selected by Windows child processes.
+before_blob="$(git -C "$REPO" rev-parse 'HEAD^:specs/error-case/tasks.md')"
+after_blob="$(git -C "$REPO" rev-parse 'HEAD:specs/error-case/tasks.md')"
+for blob in "$before_blob" "$after_blob"; do
+  object="$REPO/.git/objects/${blob:0:2}/${blob:2}"
+  if [ ! -f "$object" ]; then
+    bad 'CF.11 fixture must expose its newly created loose object'
+    exit 1
   fi
+  rm -f -- "$object"
 done
-exec "$CRITERION_REAL_GIT" "$@"
-GIT
-chmod +x "$WORK/fake-bin/git"
-PATH="$WORK/fake-bin:$PATH" expect_case 'CF.11: Git show infrastructure failure fails closed' HEAD 2 'failed'
+expect_case 'CF.11: Git show infrastructure failure fails closed' HEAD 2 'failed'
 
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
