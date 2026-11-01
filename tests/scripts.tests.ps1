@@ -1639,6 +1639,29 @@ Status: Planned
     $t005_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-1.json"
     Assert-ExitCode "T-005.1: valid traceability (req+acs+tests, no evidence) passes" (Invoke-Gate "check-traceability.ps1" @("traceability-t005-1.json", "-RepoRoot", ".")) 0
 
+    foreach ($mutation in @(
+        @{ name='feature array'; field='feature'; value=@('test-feature'); top=$true },
+        @{ name='missing req'; field='req'; value=$null },
+        @{ name='req array'; field='req'; value=@('REQ-001') },
+        @{ name='numeric acs'; field='acs'; value=@(7) },
+        @{ name='object tests'; field='tests'; value=@(@{id='TEST-001'}) },
+        @{ name='numeric evidence'; field='evidence'; value=@(7) }
+    )) {
+        $trace = Get-Content -Raw 'traceability-t005-1.json' | ConvertFrom-Json
+        if ($mutation.ContainsKey('top')) { $trace.($mutation.field) = $mutation.value }
+        else { $trace.links[0] | Add-Member -NotePropertyName $mutation.field -NotePropertyValue $mutation.value -Force }
+        $trace | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 'traceability-shape.json'
+        Assert-ExitCode "traceability rejects $($mutation.name)" (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 1
+    }
+    $traceJson = Get-Content -Raw 'traceability-t005-1.json'
+    "[$traceJson]" | Set-Content -Encoding Utf8 'traceability-shape.json'
+    Assert-ExitCode 'traceability rejects singleton array envelope' (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 1
+    $trace = $traceJson | ConvertFrom-Json
+    $trace.links[0].acs = @('', 'AC-001')
+    $trace.links[0] | Add-Member -NotePropertyName evidence -NotePropertyValue @($null, '')
+    $trace | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 'traceability-shape.json'
+    Assert-ExitCode 'traceability preserves optional blank evidence and mixed blank identifiers' (Invoke-Gate 'check-traceability.ps1' @('traceability-shape.json', '-RepoRoot', '.')) 0
+
     # Test: T-005.2 - empty acs array → exit 1 ("has no acceptance criteria")
     $t005_2 = @{
         feature = "test-feature"
@@ -1831,6 +1854,24 @@ Quality gate report for T-099.
 
     $checkLegacyExit = Invoke-Gate "check-evidence-bundle.ps1" @($legacyBundle, "-RepoRoot", "$t006Repo")
     Assert-ExitCode "T-006.ps.1c: check-evidence-bundle passes on legacy bundle (no risk field)" $checkLegacyExit 0
+
+    $legacyBundleJson = Get-Content -Raw -LiteralPath $legacyBundle
+    "[$legacyBundleJson]" | Set-Content -Encoding Utf8 -LiteralPath $legacyBundle
+    Assert-ExitCode 'evidence bundle rejects singleton array envelope' (Invoke-Gate 'check-evidence-bundle.ps1' @($legacyBundle, '-RepoRoot', $t006Repo)) 1
+    [IO.File]::WriteAllText($legacyBundle, $legacyBundleJson)
+    $legacyContractPath = "$t006Repo/specs/test-feature/verification/T-099-legacy.contract.json"
+    $legacyContractJson = Get-Content -Raw -LiteralPath $legacyContractPath
+    "[$legacyContractJson]" | Set-Content -Encoding Utf8 -LiteralPath $legacyContractPath
+    $arrayContractBundle = $legacyBundleJson | ConvertFrom-Json
+    foreach ($artifact in $arrayContractBundle.artifacts) {
+        if ($artifact.path -ceq 'specs/test-feature/verification/T-099-legacy.contract.json') {
+            $artifact.sha256 = (Get-FileHash -LiteralPath $legacyContractPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    }
+    $arrayContractBundle | ConvertTo-Json -Depth 8 | Set-Content -Encoding Utf8 -LiteralPath $legacyBundle
+    Assert-ExitCode 'evidence bundle rejects singleton array contract with matching artifact digest' (Invoke-Gate 'check-evidence-bundle.ps1' @($legacyBundle, '-RepoRoot', $t006Repo)) 1
+    [IO.File]::WriteAllText($legacyContractPath, $legacyContractJson)
+    [IO.File]::WriteAllText($legacyBundle, $legacyBundleJson)
 
     # Test: T-006.ps.2 - provenance-field presence is asserted on the HIGH-risk bundle
     # (relocated below, after T-006.ps.3b). A legacy/no-risk bundle legitimately carries

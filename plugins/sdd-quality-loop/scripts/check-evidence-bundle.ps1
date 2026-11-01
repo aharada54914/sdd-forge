@@ -189,7 +189,12 @@ function Get-EvidenceCanonical {
     return $lines -join "`n"
 }
 
-$bundle = Get-Content -Raw -Encoding Utf8 $BundlePath | ConvertFrom-Json
+$bundleJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $BundlePath
+$bundle = $bundleJson | ConvertFrom-Json
+if ($bundleJson.TrimStart() -notmatch '^\{' -or $bundle -isnot [PSCustomObject]) {
+    [Console]::Error.WriteLine('check-evidence-bundle: bundle must be a JSON object')
+    exit 1
+}
 $taskId = ([string]$bundle.task_id).Trim()
 $bundleFeature = ([string]$bundle.feature).Trim()
 $qualityReport = $bundle.quality_report
@@ -241,7 +246,12 @@ if ($contractInfo) {
         Add-Failure "verification_contract must point to a contract JSON file: $verificationContract"
     }
     try {
-        $contract = Get-Content -Raw -Encoding Utf8 $contractInfo.Resolved | ConvertFrom-Json
+        $contractJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $contractInfo.Resolved
+        $contract = $contractJson | ConvertFrom-Json
+        if ($contractJson.TrimStart() -notmatch '^\{' -or $contract -isnot [PSCustomObject]) {
+            $contract = $null
+            throw 'verification_contract must be a JSON object'
+        }
     } catch {
         Add-Failure "verification_contract could not be parsed as JSON: $verificationContract"
     }
@@ -291,7 +301,14 @@ if ($qualityInfo) { $requiredArtifacts[$qualityInfo.Normalized] = "quality_repor
 if ($contractInfo) { $requiredArtifacts[$contractInfo.Normalized] = "verification_contract" }
 
 if ($contract) {
+    if ($contract.checks -isnot [array]) {
+        Add-Failure 'verification_contract checks must be an array'
+    }
     foreach ($check in @($contract.checks)) {
+        if ($check -isnot [PSCustomObject]) {
+            Add-Failure 'verification_contract check entries must be objects'
+            continue
+        }
         if ([bool]$check.passes) {
             $evidenceInfo = Resolve-RepositoryPath -RelativePath ([string]$check.evidence) -Label "passing evidence for check '$($check.id)'"
             if ($evidenceInfo) {
@@ -303,6 +320,10 @@ if ($contract) {
 
 $artifactIndex = @{}
 foreach ($artifact in @($artifacts)) {
+    if ($artifact -isnot [PSCustomObject]) {
+        Add-Failure 'artifact entries must be objects'
+        continue
+    }
     $artifactPath = [string]$artifact.path
     $artifactSha = ([string]$artifact.sha256).Trim().ToLowerInvariant()
     $artifactInfo = Resolve-RepositoryPath -RelativePath $artifactPath -Label "artifact path"

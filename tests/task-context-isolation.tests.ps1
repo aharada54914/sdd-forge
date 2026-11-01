@@ -328,6 +328,12 @@ try {
   $wrongReason | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/wrong-fallback-reason.json') -Encoding utf8
   Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Manifest (Join-Path $work 'manifests/wrong-fallback-reason.json') }
 
+  $arrayManifest = Join-Path $work 'manifests/array-envelope.json'
+  $objectManifest = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-1.json')
+  [IO.File]::WriteAllText($arrayManifest, "[$objectManifest]")
+  Expect-Diagnostic TASK_INPUT_JSON { & $validator -Manifest $arrayManifest }
+  Expect-Diagnostic TASK_INPUT_JSON { & $snapshot -Manifest $arrayManifest -RepoRoot $repo -SnapshotRoot (Join-Path $work 'snapshots/array-envelope') }
+
   $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
   $bad.task_id = 'T-999'
   $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-task.json') -Encoding utf8
