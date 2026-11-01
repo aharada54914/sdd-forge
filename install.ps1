@@ -556,8 +556,12 @@ function Download-AuthenticatedArchive {
         [Parameter(Mandatory)][string]$ArchivePath
     )
 
+    if ($RepositoryName -cnotmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
+        throw 'Repository must be owner/repo.'
+    }
     $token = Get-GitHubAuthToken
-    $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$RefName"
+    $encodedRef = [Uri]::EscapeDataString($RefName)
+    $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$encodedRef"
     Write-Host "Downloading authenticated archive from $downloadUrl"
     Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
 }
