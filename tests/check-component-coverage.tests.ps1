@@ -559,6 +559,32 @@ if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/check-component-coverag
     Fail "check-component-coverage missing from run-all.sh/.ps1 registration"
 }
 
+$boundaryRoot = Join-Path ([IO.Path]::GetTempPath()) ('component-boundaries-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $boundaryRoot | Out-Null
+try {
+    $boundaryManifest = Join-Path $boundaryRoot 'manifest.json'
+    foreach ($payload in @('{"affected_components":"desktop"}', '{"affected_components":[12]}', '{"affected_components":[null]}', '[{"affected_components":["desktop"]}]')) {
+        [IO.File]::WriteAllText($boundaryManifest, $payload)
+        $r = Invoke-Gate (Join-Path $fixtures 'config-required.yaml') $boundaryManifest (Join-Path $fixtures 'changed-paths-clean.txt') $null
+        if ($r.ExitCode -eq 2) { Ok "malformed affected-components remains hard error: $payload" }
+        else { Fail "malformed affected-components admitted: exit=$($r.ExitCode) $payload $($r.Output)" }
+    }
+    $boundaryConfig = Join-Path $boundaryRoot 'config.yaml'
+    [IO.File]::WriteAllText($boundaryConfig, "workflow:`n  capability_enforcement:`n    - required`ncomponents: []`n")
+    $r = Invoke-Gate $boundaryConfig $null (Join-Path $fixtures 'changed-paths-clean.txt') $null
+    if ($r.ExitCode -eq 0 -and ($r.Output | ConvertFrom-Json).state -ceq 'not-applicable (disabled-legacy)') { Ok 'non-string enforcement preserves invalid-value legacy policy' }
+    else { Fail "non-string enforcement was coerced: $($r.Output)" }
+    [IO.File]::WriteAllText($boundaryConfig, "workflow:`n  capability_enforcement: required`ncomponents:`n  - id: A`n    paths:`n      include:`n        - 'upper/**'`n  - id: a`n    paths:`n      include:`n        - 'lower/**'`n")
+    $boundaryPaths = Join-Path $boundaryRoot 'paths.txt'
+    [IO.File]::WriteAllText($boundaryPaths, "upper/file`nlower/file`n")
+    [IO.File]::WriteAllText($boundaryManifest, '{"affected_components":["A","a"]}')
+    $boundaryBindings = Join-Path $boundaryRoot 'bindings.json'
+    [IO.File]::WriteAllText($boundaryBindings, '{"bindings":[{"adapter_paths":["lower/**"],"provider_binding_ids":["A"]}]}')
+    $r = Invoke-Gate $boundaryConfig $boundaryManifest $boundaryPaths $boundaryBindings
+    if ($r.ExitCode -eq 0 -and -not (($r.Output | ConvertFrom-Json).fail_conditions | Where-Object { $_.id -ceq 'Fail-6' }).triggered) { Ok 'coverage provider join preserves A/a identity' }
+    else { Fail "coverage provider join conflates case: $($r.Output)" }
+} finally { Remove-Item -LiteralPath $boundaryRoot -Recurse -Force }
+
 # ============================================================================
 # Summary
 # ============================================================================
