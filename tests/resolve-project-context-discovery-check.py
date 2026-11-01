@@ -50,7 +50,6 @@ likewise stubbed for the identical git-independence reason (Epic A3's own,
 out-of-scope concern)."""
 
 import importlib.util
-import json
 import os
 from pathlib import Path
 import shutil

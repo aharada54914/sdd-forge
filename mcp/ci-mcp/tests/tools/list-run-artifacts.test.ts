@@ -110,7 +110,7 @@ test("AC-005: no binary content field is ever present in the response", async ()
 
   assert.ok(isOk(result));
   if (isOk(result)) {
-    const artifact = result.data.artifacts[0] as unknown as Record<string, unknown>;
+    const artifact = result.data.artifacts[0];
     assert.equal("content" in artifact, false);
     assert.equal("data" in artifact, false);
     assert.equal("archive_download_url" in artifact, false);
@@ -120,7 +120,7 @@ test("AC-005: no binary content field is ever present in the response", async ()
 test("runId is required: missing runId is rejected with invalid-input", async () => {
   const { fetchImpl, calls } = fakeFetch({ artifacts: [] });
 
-  const result = await listRunArtifacts({ owner: "acme", repo: "widgets" } as never, {
+  const result = await listRunArtifacts({ owner: "acme", repo: "widgets" }, {
     env: TOKEN_ENV,
     fetchImpl,
   });

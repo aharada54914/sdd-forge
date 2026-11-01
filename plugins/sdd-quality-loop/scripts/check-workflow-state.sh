@@ -1356,8 +1356,8 @@ validate_passed_stage() {
   local snapshot_dir='' verified_adr_bindings='[]'
   local contract_identity="$root/attempt-$best_attempt/round-$best_round/${stage}-review-contract.json"
   [[ -n "$best" ]] || diagnostic "$feature" stage-provenance "$stage PASS has no integrated verdict"
-  local contract="$(dirname "$best")/${stage}-review-contract.json"
-  local round_dir="$(dirname "$best")"
+  local round_dir="${best%/*}"
+  local contract="$round_dir/${stage}-review-contract.json"
   local reviewer_a="$round_dir/reviewer-a.json"
   local reviewer_b="$round_dir/reviewer-b.json"
   local summary="$round_dir/integrated-summary.json"

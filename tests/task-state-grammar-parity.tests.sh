@@ -212,6 +212,44 @@ check_verdict_case "verdict-key-lower" "verdict: PASS" "T-001" 1
 # Mis-cased task id in the report: the report no longer mentions the task.
 check_verdict_case "task-id-lower" "VERDICT: PASS" "t-001" 1
 
+# Exercise awk's real subprocess boundary with hostile path data. The Full
+# and Lite policies stay separate; both must transport values literally.
+if python3 - "$FULL_SH" "$LITE_SH" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    odd = root / 'quote\'" $` \\ 日本語\n$(touch SENTINEL)'
+    odd.mkdir()
+    tasks = odd / 'tasks.md'
+    reports = odd / 'reports'
+    reports.mkdir()
+    (reports / 'impl.md').write_text('T-001\n')
+    tasks.write_text('## T-001\nApproval: Approved\nStatus: Implementation Complete\n')
+    for script in sys.argv[1:]:
+        result = subprocess.run(['sh', script, str(tasks), str(reports), str(reports), str(root)],
+            cwd=root, capture_output=True, text=True, timeout=10)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert not (root / 'SENTINEL').exists(), 'path data was executed'
+    tasks.write_text('## T-001\nApproval: Approved\nStatus: Done\nRisk: low\n')
+    (odd / 'verification').mkdir()
+    (odd / 'verification/T-001.contract.json').write_text(json.dumps({'task_id': 'T-001', 'risk': 'low'}))
+    result = subprocess.run(['sh', sys.argv[1], str(tasks), str(reports), str(reports), str(root)],
+        cwd=root, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 1, 'absent evidence must still fail closed'
+    assert 'mismatched task_id' not in result.stdout, result.stdout
+    assert not (root / 'SENTINEL').exists()
+PY
+then
+    ok 'Full/Lite task-state subprocesses preserve path data and reject absent evidence'
+else
+    fail 'task-state subprocess data boundary regression'
+fi
+
 echo ""
 echo "task-state-grammar-parity.tests.sh: ${PASS} passed, ${FAIL} failed"
 [ "$FAIL" -eq 0 ] || exit 1

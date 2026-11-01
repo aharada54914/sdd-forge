@@ -79,7 +79,7 @@ function New-Verdict {
         consent      = $consentObj
     }
 
-    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $Path
+    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 -LiteralPath $Path
 }
 
 function Get-MonotonicMilliseconds {
@@ -228,6 +228,7 @@ def receipt(name, value):
 receipt('STUB_START_FILE', now())
 receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', ''))
 receipt('STUB_CALLED_FILE', 'called')
+receipt('STUB_ARGV_FILE', json.dumps(sys.argv[1:]))
 receipt('STUB_PID_FILE', os.getpid())
 sys.stdin.read()
 if os.environ.get('STUB_MODE') == 'hang':
@@ -1080,6 +1081,71 @@ $panelistRunners = @(
     } else {
         Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
     }
+
+    # Capture actual native argv, rather than accepting a stub's mere exit.
+    . (Join-Path $scriptsDir 'lib/native-arguments.ps1')
+    $argvProgram = Join-Path $workDir 'capture argv.py'
+    'import json,sys; open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(sys.argv[2:]))' |
+        Set-Content -LiteralPath $argvProgram -Encoding utf8
+    $argvReceipt = Join-Path $workDir 'native argv.json'
+    $atoms = @('', 'space value', 'quote"value', "single'value", 'trailing\', 'back\"quote', "line`nnext", '$`-value')
+    $captureProcess = Start-Process -FilePath $python.Source -ArgumentList (
+        ConvertTo-SddNativeArgumentString (@($argvProgram, $argvReceipt) + $atoms)) -Wait -PassThru -NoNewWindow
+    $receivedAtoms = @(Get-Content -Raw -LiteralPath $argvReceipt | ConvertFrom-Json)
+    if ($captureProcess.ExitCode -eq 0 -and
+        (($receivedAtoms | ConvertTo-Json -Compress) -ceq ($atoms | ConvertTo-Json -Compress))) {
+        Ok 'native argument encoder preserves empty, quotes, backslashes and newlines'
+    } else { Fail 'native argument encoder changed argv data' }
+    $spacedTemp = Join-Path $workDir 'temporary directory with spaces'
+    New-Item -ItemType Directory -Path $spacedTemp | Out-Null
+    foreach ($runner in $panelistRunners) {
+        $receipt = Join-Path $workDir ($runner.Name + '-argv.json')
+        Invoke-PanelistRunner -Runner $runner -SpecRoot (Join-Path $workDir ($runner.Name + '-argv')) `
+            -TimeoutMode set -TimeoutValue '10' -StubEnvironment @{
+                STUB_ARGV_FILE = $receipt; TMPDIR = $spacedTemp; TEMP = $spacedTemp; TMP = $spacedTemp
+            }
+        $actual = @(Get-Content -Raw -LiteralPath $receipt | ConvertFrom-Json)
+        if ($runner.Name -eq 'gemini') {
+            $promptAst = [Management.Automation.Language.Parser]::ParseFile($runner.Path, [ref]$null, [ref]$null)
+            $prompt = @($promptAst.FindAll({ param($node)
+                $node -is [Management.Automation.Language.StringConstantExpressionAst] -and
+                $node.StringConstantType -eq 'SingleQuotedHereString'
+            }, $true))[0].Value
+            if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and $actual[3] -ceq $prompt) {
+                Ok 'Gemini receives complete multiline prompt as exactly one argument'
+            } else { Fail 'Gemini prompt argument is split or changed' }
+        } else {
+            $cwdIndex = [Array]::IndexOf($actual, '-C')
+            if ($script:panelistExit -eq 0 -and $cwdIndex -ge 0 -and
+                $actual[$cwdIndex + 1].StartsWith($spacedTemp) -and $actual[-1] -ceq '-') {
+                Ok 'Codex receives scratch directory with spaces as one argument'
+            } else { Fail 'Codex scratch directory argument is split or changed' }
+        }
+    }
+
+    # Exact boolean/string types and verdict casing match the Bash gate.
+    $parityFeature = 'literal[brackets]'
+    $parityDir = Join-Path $workDir "specs/$parityFeature/verification"
+    $parityA = Join-Path $parityDir 'T-002.panelist-anthropic.verdict.json'
+    $parityB = Join-Path $parityDir 'T-002.panelist-openai.verdict.json'
+    New-Verdict -Path $parityA -Vendor anthropic
+    New-Verdict -Path $parityB -Vendor openai
+    $parityArgs = @('--task', 'T-002', '--feature', $parityFeature, '--spec-root', (Join-Path $workDir 'specs'))
+    Assert-ExitCode 'literal brackets in feature path' (Invoke-CrossModel -Arguments $parityArgs) 0
+    foreach ($case in @(
+        @{ field = 'blind'; value = 'true'; expected = 2 },
+        @{ field = 'blind'; value = 1; expected = 2 },
+        @{ field = 'vendor'; value = 123; expected = 2 },
+        @{ field = 'verdict'; value = 'pass'; expected = 1 }
+    )) {
+        $document = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
+        $document.($case.field) = $case.value
+        $json = $document | ConvertTo-Json -Depth 5
+        [IO.File]::WriteAllText($parityB, $json)
+        Assert-ExitCode "reject noncanonical $($case.field) $($case.value)" (Invoke-CrossModel -Arguments $parityArgs) $case.expected
+        New-Verdict -Path $parityB -Vendor openai
+    }
+    Assert-ExitCode 'lowercase evaluator diverges' (Invoke-CrossModel -Arguments ($parityArgs + @('--evaluator', 'pass'))) 1
 
     # ============================================================================
     # Summary

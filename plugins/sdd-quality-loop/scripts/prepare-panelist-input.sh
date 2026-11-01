@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Collection layer: prepare sanitized panelist input bundle with consent gate.
 # Usage:
 #   prepare-panelist-input.sh --task T-NNN --feature <f> --input <path|dir>
@@ -392,11 +392,9 @@ _ppi_resolve_row_under_root() {
 
     _rr_current="${_rr_root%/}"
     _rr_escaped=0
-    _rr_old_ifs="$IFS"
-    IFS='/'
-    set -- $_rr_row_path
-    IFS="$_rr_old_ifs"
-    for _rr_component in "$@"; do
+    local -a _rr_components
+    IFS=/ read -r -d '' -a _rr_components < <(printf '%s\0' "$_rr_row_path")
+    for _rr_component in "${_rr_components[@]}"; do
         _rr_current="${_rr_current}/${_rr_component}"
         if [ -L "$_rr_current" ]; then
             _rr_escaped=1

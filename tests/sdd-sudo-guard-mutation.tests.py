@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """WFI-061 mutation checks for the narrowed shell target predicate."""
 import importlib.util
-import re
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]

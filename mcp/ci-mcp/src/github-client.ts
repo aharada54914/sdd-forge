@@ -61,7 +61,7 @@ export interface GithubHttpResponse {
 /** Fetch-shaped function github-client calls. Only ever invoked with `method: "GET"`. */
 export type GithubFetch = (
   url: string,
-  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
+  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>>; readonly signal: AbortSignal },
 ) => Promise<GithubHttpResponse>;
 
 export interface GithubGetRequest {
@@ -72,6 +72,8 @@ export interface GithubGetRequest {
    * host, scheme, or unescaped path separator.
    */
   pathSegments: readonly string[];
+  /** Optional caller cancellation; the transport also enforces its own deadline. */
+  signal?: AbortSignal;
   /** Optional query-string parameters. `undefined` values are omitted. */
   searchParams?: Readonly<Record<string, string | number | boolean | undefined>>;
   /** Read-only GitHub token. When provided, sent as `Authorization: Bearer <token>` only — never logged or echoed. */
@@ -97,28 +99,25 @@ function buildGithubUrl(
   return url.toString();
 }
 
-const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
+const REQUEST_TIMEOUT_MS = 30_000;
 
-/**
- * Issues a single GET request against the GitHub Actions REST API and
- * resolves to either `{ ok: true, data }` (the parsed JSON body) or a
- * normalized error envelope (REQ-006). The upstream response body is
- * discarded on every error path — it is never attached to the returned
- * envelope.
- */
-export async function githubGet<T>(
+/** Provider transport only: body interpretation and endpoint policy stay with callers. */
+async function requestGithub<Response extends Pick<GithubHttpResponse, "status" | "headers">>(
   request: GithubGetRequest,
-  fetchImpl: GithubFetch = defaultFetch,
-): Promise<GithubGetOutcome<T>> {
+  accept: string,
+  fetchImpl: (url: string, init: Parameters<GithubFetch>[1]) => Promise<Response>,
+): Promise<GithubGetOutcome<Response>> {
   const url = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers: Record<string, string> = { accept: "application/vnd.github+json" };
+  const headers: Record<string, string> = { accept };
   if (request.token !== undefined && request.token.length > 0) {
     headers.authorization = `Bearer ${request.token}`;
   }
 
-  let response: GithubHttpResponse;
+  let response: Response;
   try {
-    response = await fetchImpl(url, { method: "GET", headers });
+    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = request.signal === undefined ? deadline : AbortSignal.any([request.signal, deadline]);
+    response = await fetchImpl(url, { method: "GET", headers, signal });
   } catch (error) {
     return normalizeNetworkError(error);
   }
@@ -131,8 +130,28 @@ export async function githubGet<T>(
     return normalized;
   }
 
+  return { ok: true, data: response };
+}
+
+const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
+
+/**
+ * Issues a single GET request against the GitHub Actions REST API and
+ * resolves to either `{ ok: true, data }` (the parsed JSON body) or a
+ * normalized error envelope (REQ-006). The upstream response body is
+ * discarded on every error path — it is never attached to the returned
+ * envelope.
+ */
+export async function githubGet(
+  request: GithubGetRequest,
+  fetchImpl: GithubFetch = defaultFetch,
+): Promise<GithubGetOutcome<unknown>> {
+  const result = await requestGithub(request, "application/vnd.github+json", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
+
   try {
-    const data = (await response.json()) as T;
+    const data: unknown = await response.json();
     return { ok: true, data };
   } catch {
     return err("upstream-error", "Failed to parse the GitHub API response body.");
@@ -279,7 +298,7 @@ export async function readBoundedTail(
 /** Fetch-shaped function `githubGetText` calls. Only ever invoked with `method: "GET"`. */
 export type GithubTextFetch = (
   url: string,
-  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
+  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>>; readonly signal: AbortSignal },
 ) => Promise<GithubTextHttpResponse>;
 
 export type GithubGetTextOutcome =
@@ -319,26 +338,9 @@ export async function githubGetText(
   request: GithubGetRequest,
   fetchImpl: GithubTextFetch = defaultTextFetch,
 ): Promise<GithubGetTextOutcome> {
-  const url = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers: Record<string, string> = { accept: "text/plain" };
-  if (request.token !== undefined && request.token.length > 0) {
-    headers.authorization = `Bearer ${request.token}`;
-  }
-
-  let response: GithubTextHttpResponse;
-  try {
-    response = await fetchImpl(url, { method: "GET", headers });
-  } catch (error) {
-    return normalizeNetworkError(error);
-  }
-
-  const normalized = normalizeUpstreamResponse({
-    status: response.status,
-    getHeader: (name) => response.headers.get(name),
-  });
-  if (normalized !== undefined) {
-    return normalized;
-  }
+  const result = await requestGithub(request, "text/plain", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
 
   try {
     if (response.body != null) {
