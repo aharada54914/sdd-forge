@@ -1139,9 +1139,10 @@ $panelistRunners = @(
                 $node.StringConstantType -eq 'SingleQuotedHereString'
             }, $true))[0].Value
             $expectedStdin = $prompt + "`n`n## Sanitized Input Bundle`n`n" + (Get-Content -Raw -Encoding Utf8 -LiteralPath $script:panelistInput)
-            # Start-Process redirects the file through WriteLine, adding one
-            # native transport terminator after its otherwise unchanged text.
-            $expectedStdin += [Environment]::NewLine
+            # Start-Process on Unix copies through WriteLine; Windows uses
+            # the input file handle directly. Keep the complete body exact
+            # and account only for that measured Unix transport terminator.
+            if (-not $IsWindows) { $expectedStdin += [Environment]::NewLine }
             $expectedBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($expectedStdin))
             $actualBase64 = Get-Content -Raw -LiteralPath $stdinReceipt
             if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and
