@@ -93,14 +93,14 @@ function Invoke-CapturedCommand {
     try {
         & $Command @Arguments > $outFile 2> $errFile
         $exitCode = $LASTEXITCODE
-        $stdout = (Get-Content -Path $outFile -Raw -ErrorAction SilentlyContinue)
-        $stderr = (Get-Content -Path $errFile -Raw -ErrorAction SilentlyContinue)
+        $stdout = (Get-Content -LiteralPath $outFile -Raw -ErrorAction SilentlyContinue)
+        $stderr = (Get-Content -LiteralPath $errFile -Raw -ErrorAction SilentlyContinue)
         if ($stdout) { Write-Host $stdout.TrimEnd() }
         if ($stderr) { [Console]::Error.WriteLine($stderr.TrimEnd()) }
         return @{ ExitCode = $exitCode; Output = "$stdout`n$stderr" }
     }
     finally {
-        Remove-Item -Path $outFile, $errFile -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $outFile, $errFile -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -246,7 +246,7 @@ function Install-CodexAgents {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
     $agentSourceDir = Join-Path (Join-Path $InstallRootPath ".codex") "agents"
-    if (-not (Test-Path $agentSourceDir)) {
+    if (-not (Test-Path -LiteralPath $agentSourceDir)) {
         Write-Warning "No .codex/agents directory found in install root. Codex agent install skipped."
         return
     }
@@ -255,16 +255,16 @@ function Install-CodexAgents {
         # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
         $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
         $agentDestDir = Join-Path $codexHome "agents"
-        if (-not (Test-Path $agentDestDir)) {
+        if (-not (Test-Path -LiteralPath $agentDestDir)) {
             New-Item -ItemType Directory -Path $agentDestDir -Force | Out-Null
         }
-        foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "sdd-*.toml")) {
+        foreach ($tomlFile in (Get-ChildItem -LiteralPath $agentSourceDir -Filter "sdd-*.toml")) {
             $destFile = Join-Path $agentDestDir $tomlFile.Name
-            Copy-Item -Path $tomlFile.FullName -Destination $destFile -Force
+            Copy-Item -LiteralPath $tomlFile.FullName -Destination $destFile -Force
         }
         # Scan destination for malformed agent role files (warning only; do not modify or delete).
-        foreach ($tomlFile in (Get-ChildItem -Path $agentDestDir -Filter "*.toml")) {
-            $content = Get-Content -Path $tomlFile.FullName -Raw
+        foreach ($tomlFile in (Get-ChildItem -LiteralPath $agentDestDir -Filter "*.toml")) {
+            $content = Get-Content -LiteralPath $tomlFile.FullName -Raw
             if (-not ($content -match '(?m)^\s*developer_instructions\s*=')) {
                 Write-Warning "Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): $($tomlFile.FullName). Add a developer_instructions entry or delete the file."
             }
@@ -321,15 +321,17 @@ function Install-McpServerPayloads {
         $srcDist = Join-Path $srcDir "dist"
         $srcIndex = Join-Path $srcDist "index.js"
         $srcPackageJson = Join-Path $srcDir "package.json"
-        if (-not (Test-Path $srcIndex) -or -not (Test-Path $srcPackageJson)) {
+        if (-not (Test-Path -LiteralPath $srcIndex) -or -not (Test-Path -LiteralPath $srcPackageJson)) {
             Write-Warning "MCP server '$name' payload (dist/index.js, package.json) was not found under mcp/$name. Skipping placement."
             continue
         }
         $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $name
         $destDist = Join-Path $destDir "dist"
         New-Item -ItemType Directory -Path $destDist -Force | Out-Null
-        Copy-Item -Path (Join-Path $srcDist "*") -Destination $destDist -Recurse -Force
-        Copy-Item -Path $srcPackageJson -Destination (Join-Path $destDir "package.json") -Force
+        foreach ($distEntry in (Get-ChildItem -LiteralPath $srcDist -Force)) {
+            Copy-Item -LiteralPath $distEntry.FullName -Destination $destDist -Recurse -Force
+        }
+        Copy-Item -LiteralPath $srcPackageJson -Destination (Join-Path $destDir "package.json") -Force
     }
 }
 
@@ -342,7 +344,7 @@ function Register-ClaudeMcp {
     }
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
-        if (-not (Test-Path $entryPoint)) { continue }
+        if (-not (Test-Path -LiteralPath $entryPoint)) { continue }
         Invoke-IdempotentPluginCommand "MCP server '$name'" "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
     }
 }
@@ -352,16 +354,16 @@ function Register-CodexMcp {
 
     $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
     $configToml = Join-Path $codexHome "config.toml"
-    if (-not (Test-Path $configToml)) {
+    if (-not (Test-Path -LiteralPath $configToml)) {
         Write-Warning "$configToml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)."
         return
     }
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
-        if (-not (Test-Path $entryPoint)) { continue }
+        if (-not (Test-Path -LiteralPath $entryPoint)) { continue }
         $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
         $markerEnd = "# <<< $name <<<"
-        $existingLines = @(Get-Content -Path $configToml)
+        $existingLines = @(Get-Content -LiteralPath $configToml)
         $filtered = [System.Collections.Generic.List[string]]::new()
         $skip = $false
         foreach ($line in $existingLines) {
@@ -376,7 +378,7 @@ function Register-CodexMcp {
         $filtered.Add('command = "node"')
         $filtered.Add("args = [`"$entryPointToml`"]")
         $filtered.Add($markerEnd)
-        Set-Content -Path $configToml -Value $filtered
+        Set-Content -LiteralPath $configToml -Value $filtered
     }
 }
 
@@ -401,7 +403,7 @@ function Update-McpJson {
     $pairs = [System.Collections.Generic.List[string]]::new()
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
-        if (-not (Test-Path $entryPoint)) { continue }
+        if (-not (Test-Path -LiteralPath $entryPoint)) { continue }
         # Normalise to forward slashes so the stored args match install.sh and
         # are portable across the client's platform expectations.
         $pairs.Add($name)
@@ -454,7 +456,7 @@ function Register-CursorMcp {
     param([Parameter(Mandatory)][string]$InstallRootPath)
 
     $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
-    if (-not (Test-Path $cursorDir)) {
+    if (-not (Test-Path -LiteralPath $cursorDir)) {
         Write-Warning "$cursorDir was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory)."
         return
     }
@@ -486,7 +488,7 @@ function Register-VSCodeMcp {
     else {
         $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
     }
-    if (-not (Test-Path $vscodeUserDir)) {
+    if (-not (Test-Path -LiteralPath $vscodeUserDir)) {
         Write-Warning "$vscodeUserDir was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory)."
         return
     }
@@ -637,7 +639,7 @@ $mutexAcquired = $false
 try {
     $isLocalSource = -not [string]::IsNullOrWhiteSpace($SourceDirectory)
     if ($SourceDirectory) {
-        $sourceRoot = (Resolve-Path $SourceDirectory).Path
+        $sourceRoot = (Resolve-Path -LiteralPath $SourceDirectory).Path
         if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
             throw "SourceDirectory must be the root of a Git worktree so only tracked files can be installed (git was not found)."
         }
@@ -660,8 +662,8 @@ try {
             throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
         }
 
-        $sourceRoot = Get-ChildItem -Path $temporaryRoot -Directory |
-            Where-Object { Test-Path (Join-Path $_.FullName ".agents/plugins/marketplace.json") } |
+        $sourceRoot = Get-ChildItem -LiteralPath $temporaryRoot -Directory |
+            Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName ".agents/plugins/marketplace.json") } |
             Select-Object -First 1 -ExpandProperty FullName
         if (-not $sourceRoot) {
             throw "The downloaded archive does not contain an SDD plugin marketplace."
@@ -669,7 +671,7 @@ try {
     }
 
     foreach ($relativePath in (Get-RequiredPaths)) {
-        if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
+        if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot $relativePath))) {
             throw "Required file is missing: $relativePath"
         }
     }
@@ -688,13 +690,13 @@ try {
 
     # Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
     $agentSourceDir = Join-Path (Join-Path $sourceRoot ".codex") "agents"
-    if (Test-Path $agentSourceDir) {
-        foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "sdd-*.toml")) {
+    if (Test-Path -LiteralPath $agentSourceDir) {
+        foreach ($tomlFile in (Get-ChildItem -LiteralPath $agentSourceDir -Filter "sdd-*.toml")) {
             $bytes = [System.IO.File]::ReadAllBytes($tomlFile.FullName)
             if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
                 throw "Malformed Codex agent role file (must define developer_instructions, no BOM): $($tomlFile.Name)"
             }
-            $content = Get-Content -Path $tomlFile.FullName -Raw
+            $content = Get-Content -LiteralPath $tomlFile.FullName -Raw
             if (-not ($content -match '(?m)^name\s*=')) {
                 throw "Malformed Codex agent role file (must define developer_instructions, no BOM): $($tomlFile.Name)"
             }
@@ -714,7 +716,7 @@ try {
     }
 
     $installParent = Split-Path -Parent $InstallRoot
-    if (-not (Test-Path $installParent)) {
+    if (-not (Test-Path -LiteralPath $installParent)) {
         New-Item -ItemType Directory -Path $installParent -Force | Out-Null
     }
 
@@ -789,20 +791,20 @@ try {
         # untracked state. Preserve its complete layout, excluding .git and
         # mcp/ (MCP payload placement is handled exclusively by
         # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 22.19.0).
-        foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
-            Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+        foreach ($entry in (Get-ChildItem -LiteralPath $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
+            Copy-Item -LiteralPath $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
         }
     }
 
-    if (Test-Path $InstallRoot) {
+    if (Test-Path -LiteralPath $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
-        Move-Item -Path $InstallRoot -Destination $backupRoot
+        Move-Item -LiteralPath $InstallRoot -Destination $backupRoot
     }
-    Move-Item -Path $stagingRoot -Destination $InstallRoot
+    Move-Item -LiteralPath $stagingRoot -Destination $InstallRoot
     $stagingRoot = $null
     $newInstallPlaced = $true
 
-    $resolvedInstallRoot = (Resolve-Path $InstallRoot).Path
+    $resolvedInstallRoot = (Resolve-Path -LiteralPath $InstallRoot).Path
 
     # MCP placement mirrors plugin file placement: it happens regardless of
     # -Target and is controlled only by -SkipMcp / -Mcp.
@@ -829,8 +831,8 @@ try {
 
     Write-InstallSummary $resolvedInstallRoot
 
-    if ($backupRoot -and (Test-Path $backupRoot)) {
-        Remove-Item -Path $backupRoot -Recurse -Force
+    if ($backupRoot -and (Test-Path -LiteralPath $backupRoot)) {
+        Remove-Item -LiteralPath $backupRoot -Recurse -Force
         $backupRoot = $null
     }
 }
@@ -843,9 +845,9 @@ catch {
     # the tree stays at the new version and a re-run retries registration,
     # which is now idempotent (Invoke-IdempotentPluginCommand).
     if ($registrationStarted) {
-        if ($backupRoot -and (Test-Path $backupRoot)) {
+        if ($backupRoot -and (Test-Path -LiteralPath $backupRoot)) {
             try {
-                Remove-Item -Path $backupRoot -Recurse -Force
+                Remove-Item -LiteralPath $backupRoot -Recurse -Force
                 $backupRoot = $null
             }
             catch {
@@ -857,10 +859,10 @@ catch {
     }
     # Rollback is best-effort: wrap each destructive step so that a locked file
     # or other Windows error does not prevent the restore from being attempted.
-    if ($backupRoot -and (Test-Path $backupRoot)) {
+    if ($backupRoot -and (Test-Path -LiteralPath $backupRoot)) {
         try {
-            if (Test-Path $InstallRoot) {
-                Remove-Item -Path $InstallRoot -Recurse -Force -ErrorAction SilentlyContinue
+            if (Test-Path -LiteralPath $InstallRoot) {
+                Remove-Item -LiteralPath $InstallRoot -Recurse -Force -ErrorAction SilentlyContinue
             }
         }
         catch {
@@ -869,12 +871,12 @@ catch {
         # Only restore when the failed install is fully gone: Move-Item into a
         # still-existing directory would nest the backup INSIDE it and lose the
         # recovery location.
-        if (Test-Path $InstallRoot) {
+        if (Test-Path -LiteralPath $InstallRoot) {
             Write-Warning "CRITICAL: failed install could not be removed from '$InstallRoot' (locked files?). Your previous installation is preserved at: $backupRoot"
         }
         else {
             try {
-                Move-Item -Path $backupRoot -Destination $InstallRoot
+                Move-Item -LiteralPath $backupRoot -Destination $InstallRoot
                 $backupRoot = $null
             }
             catch {
@@ -882,9 +884,9 @@ catch {
             }
         }
     }
-    elseif ($newInstallPlaced -and (Test-Path $InstallRoot)) {
+    elseif ($newInstallPlaced -and (Test-Path -LiteralPath $InstallRoot)) {
         try {
-            Remove-Item -Path $InstallRoot -Recurse -Force
+            Remove-Item -LiteralPath $InstallRoot -Recurse -Force
         }
         catch {
             Write-Warning "Could not remove incomplete install at '$InstallRoot': $_"
@@ -893,11 +895,11 @@ catch {
     throw
 }
 finally {
-    if ($stagingRoot -and (Test-Path $stagingRoot)) {
-        Remove-Item -Path $stagingRoot -Recurse -Force
+    if ($stagingRoot -and (Test-Path -LiteralPath $stagingRoot)) {
+        Remove-Item -LiteralPath $stagingRoot -Recurse -Force
     }
-    if ($temporaryRoot -and (Test-Path $temporaryRoot)) {
-        Remove-Item -Path $temporaryRoot -Recurse -Force
+    if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
+        Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
     }
     # Release the exclusive mutex if we acquired it.
     if ($mutexAcquired -and $mutex) {
