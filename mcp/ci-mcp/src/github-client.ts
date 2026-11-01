@@ -257,7 +257,8 @@ export async function readBoundedTail(
         retainedBytes = 0;
       }
 
-      chunks.push(incoming);
+      // Own retained bytes: a small view can otherwise pin an arbitrarily large upstream buffer.
+      chunks.push(new Uint8Array(incoming));
       retainedBytes += incoming.byteLength;
 
       // Byte-level front trim: shrink or drop the oldest chunk(s) until the

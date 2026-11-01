@@ -451,7 +451,9 @@ function Test-KillSwitch {
                     $gitRootFound = $current
                     break
                 }
-            } catch { }
+            } catch {
+                Emit-Decision "deny" "SDD kill switch: cannot inspect stop-marker path; tool use denied."
+            }
             $parent = Split-Path -Parent $current
             if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
             $current = $parent
@@ -463,7 +465,9 @@ function Test-KillSwitch {
     foreach ($base in $bases) {
         try {
             if (Test-Path -LiteralPath (Join-Path $base "AGENT_STOP") -PathType Leaf) { return $true }
-        } catch { }
+        } catch {
+                Emit-Decision "deny" "SDD kill switch: cannot inspect stop-marker path; tool use denied."
+            }
     }
     return $false
 }
@@ -1458,7 +1462,7 @@ function Test-ImplReviewVerdictExists {
                         try {
                             $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
                             $verdict = $content | ConvertFrom-Json
-                            if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
+                            if ($verdict.verdict -is [string] -and ($verdict.verdict -ceq "PASS" -or $verdict.verdict -ceq "PASS-with-warnings")) { return $true }
                         } catch { }
                     }
                 }
@@ -1871,11 +1875,11 @@ function Test-ShellTargetsSddSudo {
             }
             for ($i = 0; $i -lt $plain.Count; $i++) {
                 $base = Get-ShellTokenBasename $plain[$i]
-                $args = @($plain | Select-Object -Skip ($i + 1) | Where-Object { -not $_.StartsWith('-') })
+                $commandArguments = @($plain | Select-Object -Skip ($i + 1) | Where-Object { -not $_.StartsWith('-') })
                 if ($ShellWriteArgCmds -contains $base -or $ShellPsWriteCmds -contains $base) {
-                    if (@($args | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
+                    if (@($commandArguments | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
                 } elseif ($ShellWriteDestCmds -contains $base) {
-                    if ($args.Count -ge 2 -and (Test-TargetPathIsSddSudo $args[-1])) { return $true }
+                    if ($commandArguments.Count -ge 2 -and (Test-TargetPathIsSddSudo $commandArguments[-1])) { return $true }
                 } elseif ($ShellIndirectCmds -contains $base) {
                     if (@($plain | Select-Object -Skip ($i + 1) | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
                 }

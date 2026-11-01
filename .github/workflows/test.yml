@@ -178,6 +178,9 @@ jobs:
       - name: Test traceability freeze normalization
         shell: bash
         run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Test POSIX kill-switch permission failures
+        shell: bash
+        run: python3 tests/verification.py --suite tests/kill-switch-inspection.tests.sh --run
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Prepare private research-store fixture parent

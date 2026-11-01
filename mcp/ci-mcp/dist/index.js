@@ -36877,7 +36877,7 @@ async function readBoundedTail(stream, capBytes, marginBytes) {
         chunks.length = 0;
         retainedBytes = 0;
       }
-      chunks.push(incoming);
+      chunks.push(new Uint8Array(incoming));
       retainedBytes += incoming.byteLength;
       while (retainedBytes > threshold && chunks.length > 0) {
         const oldest = chunks[0];

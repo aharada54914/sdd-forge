@@ -813,6 +813,70 @@
       ],
       "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
       "reuse": null
+    },
+    {
+      "finding_id": "PY-038",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "line": 96,
+      "source_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+      "flow": {
+        "input": "missing working directory passed to execute",
+        "transformation": "allocate status pipe then Popen raises FileNotFoundError",
+        "sink": "read FD remains open"
+      },
+      "impact": "Repeated failed child startup leaks file descriptors in the caller process.",
+      "reproduction": "New lifecycle test ran before implementation edit: actual missing cwd; fd inventory extra4; FAILED exit1.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/project-skill-lifecycle.tests.py:Lifecycle.test_failed_process_start_releases_status_pipe",
+        "reports/verification/coding-standards-python-20261101/context-review.json"
+      ],
+      "resolution": "Close read descriptor before reraising any startup exception; existing finally closes write descriptor. Successful process ownership and diagnostic semantics preserved.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-039",
+      "rule_id": "CS-020",
+      "path": ".github/scripts/check-context-signing-environment.py",
+      "line": 33,
+      "source_sha256": "bf61380f4acf630c9243f7f9ef177100a40332c6d5f65e1ab63f0c328fbdd729",
+      "flow": {
+        "input": "external API JSON",
+        "transformation": "admission validator",
+        "sink": ".github/scripts/check-context-signing-environment.py"
+      },
+      "impact": "Malformed external API shapes escape stable failure classification; booleans masquerade as branch counts and integer flags as booleans.",
+      "reproduction": "Before edit new case raised9 AttributeErrors; independent calls accepted total_count=True and numeric0/1 branch policy.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/context-signing-environment.tests.py:7 pass"
+      ],
+      "resolution": "Validate each consumed object/list at external API boundary and compare int/bool fields by exact types, without widening catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-040",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1063,
+      "source_sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26",
+      "flow": {
+        "input": "child git status failure",
+        "transformation": "snapshot fingerprint",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "Failed git status was hashed as empty status and treated as a stable repository fingerprint.",
+      "reproduction": "Actual temporary git executable returned known-head for rev-parse, status exited7; pre-fix GitDiffError-not-raised test failed.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/python-input-boundaries.tests.py:6 pass; bash tests/component-path-diff-basis.tests.sh:18 pass"
+      ],
+      "resolution": "Check status return code before hashing and raise existing GitDiffError with child diagnostic.",
+      "reuse": null
     }
   ]
 }

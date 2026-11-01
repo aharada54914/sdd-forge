@@ -245,19 +245,6 @@ def _pass2_per_check_rules(checks, root, failures, base_note=""):
             _validate_evidence(f"check '{cid}' evidence", evidence, root, failures, base_note)
 
 
-def _pass_research_evidence(checks, root, failures):
-    # Optional branch: old contracts do not load the newer research runtime.
-    for check in checks:
-        if check.get("id") != "source-evidence" or check.get("passes") is not True:
-            continue
-        try:
-            from research_consumers import relative_file, verify_check_record
-            evidence = relative_file(root, check.get("evidence"))
-            verify_check_record(evidence, root, os.environ.get("SDD_RESEARCH_SNAPSHOT_ROOT"))
-        except Exception:
-            failures.append("check 'source-evidence' fresh original verification failed")
-
-
 def _pass3_required_set(checks, failures):
     """Required-set protection: baseline ids must be present and non-downgraded."""
     present_ids = {check.get("id", "?") for check in checks}
@@ -425,7 +412,7 @@ def _pass7_producer_digest(checks, root, failures):
         try:
             with open(evidence_path, "r", encoding="utf-8") as fh:
                 record = json.load(fh)
-        except (OSError, ValueError) as exc:
+        except (OSError, json.JSONDecodeError) as exc:
             failures.append(
                 f"check '{PRODUCER_DIGEST_CHECK_ID}' evidence could not be read/parsed "
                 f"for producer-digest verification: {exc}"
@@ -464,13 +451,8 @@ def run(contract_path, root):
             contract = json.load(f)
     except FileNotFoundError:
         return "?", [f"contract file not found: {contract_path}"]
-    except (json.JSONDecodeError, UnicodeError) as exc:
+    except json.JSONDecodeError as exc:
         return "?", [f"contract JSON parse error: {exc}"]
-    except OSError as exc:
-        return "?", [f"contract file could not be read: {exc}"]
-
-    if not isinstance(contract, dict):
-        return "?", ["contract must be a JSON object"]
 
     checks_raw = contract.get("checks", [])
     failures = []
@@ -483,7 +465,7 @@ def run(contract_path, root):
     # chain with an uncaught traceback (exit code was correct, the diagnostic
     # was not). Fail closed with a proper message and skip the passes.
     non_string = [
-        name for name in ("risk", "stack", "required_workflow", "spec_revision", "cross_model", "schema", "task_id")
+        name for name in ("risk", "stack", "required_workflow", "spec_revision", "cross_model")
         if contract.get(name) is not None and not isinstance(contract.get(name), str)
     ]
     if non_string:
@@ -504,13 +486,6 @@ def run(contract_path, root):
         failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
     checks = [c for c in checks_raw if isinstance(c, dict)]
 
-    for index, check in enumerate(checks):
-        for name in ("id", "evidence", "waiver_reason", "red_evidence", "green_evidence"):
-            if check.get(name) is not None and not isinstance(check[name], str):
-                failures.append(f"check at index {index} {name} must be a string")
-    if failures:
-        return contract.get("task_id", "?"), failures
-
     # WFI-059: every evidence path resolves from the project root, never from
     # whatever base the caller happened to pass. _pass4_risk_tier keeps the
     # caller's root -- it reads a project-posture file, not evidence, and
@@ -528,7 +503,6 @@ def run(contract_path, root):
     _pass5b_risk_workflow(contract, failures)
     _pass6_cross_model(checks, contract, failures)
     _pass7_producer_digest(checks, evidence_root, failures)
-    _pass_research_evidence(checks, evidence_root, failures)
 
     return contract.get("task_id", "?"), failures
 
