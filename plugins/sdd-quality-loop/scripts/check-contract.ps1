@@ -23,7 +23,13 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
     exit 1
 }
 $contractRaw = Get-Content -Raw -Encoding Utf8 -LiteralPath $ContractPath
-$contract = $contractRaw | ConvertFrom-Json -NoEnumerate
+# PS5.1 lacks -NoEnumerate; reject a non-object JSON root before its
+# pipeline can unwrap a singleton array. ConvertFrom-Json still owns parsing.
+if (-not $contractRaw.TrimStart().StartsWith('{', [StringComparison]::Ordinal)) {
+    Write-Output 'Verification contract FAILED: contract must be a JSON object'
+    exit 1
+}
+$contract = $contractRaw | ConvertFrom-Json
 
 # Validate JSON shapes before PowerShell member enumeration or string casts.
 function Stop-InvalidContract([string]$Message) {
@@ -656,7 +662,11 @@ foreach ($check in $contract.checks) {
         continue
     }
     try {
-        $record = Get-Content -Raw -LiteralPath $evidencePath -Encoding utf8 | ConvertFrom-Json -NoEnumerate
+        $recordRaw = Get-Content -Raw -LiteralPath $evidencePath -Encoding utf8
+        if (-not $recordRaw.TrimStart().StartsWith('{', [StringComparison]::Ordinal)) {
+            throw 'producer evidence must be a JSON object'
+        }
+        $record = $recordRaw | ConvertFrom-Json
     } catch {
         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be parsed as JSON for producer-digest verification: $evidence"
         continue

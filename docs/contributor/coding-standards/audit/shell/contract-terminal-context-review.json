@@ -7,8 +7,8 @@
     {
       "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
       "before_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
-      "sha256": "ae1482a00fbfae511320d42d0519b735e8bdd8c207c019d20b995fad73c7c082",
-      "lines": 694,
+      "sha256": "e06855b7f57b584e1cf66f0a54612f30fb5791a7ca8ea1bc575236ce90187668",
+      "lines": 704,
       "review": "Complete production module with caller/twin contracts"
     },
     {
@@ -168,7 +168,8 @@
   "validation": {
     "terminal": "Full tests/agent-model-routing.tests.ps1 exit0, including14newnegative controls; old PS module accepts all14 same controls. Two trailing-newline cases also invoke actual Bash twin and reject after Python-owner fullmatch repair.",
     "contract": "Full tests/scripts.tests.ps1 final run exit0, including9newshape/case controls and5producer controls. Independent8case shape probe and6case literal-path/producer probe pass.",
-    "limitations": "Actual Linux PowerShell7 only in this record; parent owns all3OS host/CI evidence."
+    "limitations": "Actual Linux PowerShell7 only in this record; parent owns all3OS host/CI evidence.",
+    "compatibility_followup": "After replacing contract NoEnumerate with raw object-root guards, all8shape and6literal/producer native cases pass; valid inputs0, malformed inputs1."
   },
   "paired_bash_dependency": {
     "path": "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
@@ -181,6 +182,8 @@
     "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-before.txt",
     "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-literal-producer.txt",
     "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-after.txt",
-    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-before.txt"
-  ]
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/terminal-before.txt",
+    "docs/contributor/coding-standards/audit/shell/contract-terminal-evidence/contract-compatible.txt"
+  ],
+  "compatibility": "check-contract.ps1 preserves its explicit Windows PowerShell5.1 API contract: raw leading object delimiter guard prevents singleton-array unwrapping before original ConvertFrom-Json. No -NoEnumerate introduced there. Terminal resume already used modern -DateKind String. Actual PS5.1 host is not available here; this record claims API/context review and native PS7 replay only."
 }
