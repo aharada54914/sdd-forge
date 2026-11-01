@@ -345,5 +345,26 @@ else
     fail "explicit Lite PASS still satisfies task-state consumer"
 fi
 
+# Parse with the same pinned YAML dependency used by repository workflow checks.
+if node - "$REPO_ROOT" <<'JS'
+const fs = require('node:fs');
+const cp = require('node:child_process');
+const root = process.argv[2];
+const yaml = require(root + '/mcp/sdd-forge-mcp/node_modules/js-yaml');
+const base = root + '/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/';
+for (const name of ['ci-github.template.yml', 'ci-gitlab.template.yml']) {
+  const doc = yaml.load(fs.readFileSync(base + name, 'utf8'));
+  const commands = name.includes('github') ? [doc.jobs.verify.steps.at(-1).run] : doc.verify.script;
+  if (!commands.every(value => typeof value === 'string')) throw new Error(name + ': command must be text');
+  const result = cp.spawnSync('bash', ['-c', commands.join('\n')], {encoding: 'utf8', timeout: 10000});
+  if (result.error || result.status !== 1) throw new Error(name + ': unconfigured CI must fail');
+}
+JS
+then
+    ok "CI templates parse as commands and fail before project configuration"
+else
+    fail "CI templates parse as commands and fail before project configuration"
+fi
+
 printf '\ntemplate-validator-parity.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 [[ "$FAIL_COUNT" -eq 0 ]]
