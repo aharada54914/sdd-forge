@@ -3033,16 +3033,22 @@ Describe "Domain contract regular-file input" {
 }
 
 Describe "Domain contract linked regular-file compatibility" {
-    It "preserves regular-file symlink input" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command ln -ErrorAction SilentlyContinue)) {
+    It "preserves regular-file symlink and hardlink inputs" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command ln -ErrorAction SilentlyContinue)) {
         $fixture = New-EphemeralContractFile -Content $rtBaseContractJson
         $link = $fixture + '.link'
+        $hardlink = $fixture + '.hardlink'
+        & ln $fixture $hardlink
+        $LASTEXITCODE | Should Be 0
         & ln -s $fixture $link
         $LASTEXITCODE | Should Be 0
         try {
-            (Invoke-ValidatorPs1 -ContractPath $link).ExitCode | Should Be 0
-            (Invoke-ValidatorSh -ContractPath $link).ExitCode | Should Be 0
+            foreach ($path in @($link, $hardlink)) {
+                (Invoke-ValidatorPs1 -ContractPath $path).ExitCode | Should Be 0
+                (Invoke-ValidatorSh -ContractPath $path).ExitCode | Should Be 0
+            }
         } finally {
             Remove-EphemeralPath -Path $link
+            Remove-EphemeralPath -Path $hardlink
             Remove-EphemeralPath -Path $fixture
         }
     }
