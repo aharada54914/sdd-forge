@@ -237,7 +237,7 @@ function Test-Test13Manifest([string]$StagePath) {
     if ($lines.Count -ne $test13Targets.Count) { return $false }
     $seen = @{}
     foreach ($line in $lines) {
-        if ($line -notmatch '^([0-9a-f]{64})  (.+)$') { return $false }
+        if ($line -cnotmatch '^([0-9a-f]{64})  (.+)$') { return $false }
         $digest = $matches[1]
         $target = $matches[2]
         if ($seen.ContainsKey($target) -or -not ($test13Targets -contains $target)) { return $false }

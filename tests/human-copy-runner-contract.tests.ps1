@@ -82,7 +82,7 @@ $RequiredScenarioNames = @(
     'ancestor_symlink_escape',
     'nested_proposed'
 )
-if ($FixtureCatalog.schema -eq 'epic-194-human-copy-fixtures/v1') {
+if ($FixtureCatalog.schema -ceq 'epic-194-human-copy-fixtures/v1') {
     Ok 'TEST-000a: fixture catalog schema is recognized'
 } else {
     Bad "TEST-000a: fixture catalog schema should be epic-194-human-copy-fixtures/v1, got $($FixtureCatalog.schema)"
