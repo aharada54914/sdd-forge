@@ -1,0 +1,19 @@
+{
+  "method": "Same binary file and expected byte[] oracle; before executes AST-extracted actual private function, after dot-sources shared helper. Component test, not full public CLI.",
+  "runs": [
+    {
+      "state": "before",
+      "source_sha256": "1d756504c04afab5c7db3f10d33a3ff7b79cbb6cbc62dead39c9ed5d1e68a81d",
+      "exit_code": 1,
+      "stdout": "FAIL: valid key file not returned as exact normalized binary bytes\n",
+      "stderr": ""
+    },
+    {
+      "state": "after",
+      "source_sha256": "c70407538d394a40a5b73e9b4f117f509a7661077a57c7e9203193b6b9321eb6",
+      "exit_code": 0,
+      "stdout": "PASS: same valid file returned as exact normalized binary bytes\n",
+      "stderr": ""
+    }
+  ]
+}
