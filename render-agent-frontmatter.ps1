@@ -129,6 +129,9 @@ function Get-Registry([string]$Path) {
     foreach ($model in $data.models) {
         Assert-Fields $model @('name', 'canonical_tier', 'effort_control')
         Assert-String $model.name 'model name'
+        if ($model.name -match '[\x00-\x1f\x7f]') {
+            throw 'RENDER_ERROR: model name must be a single-line token without control characters'
+        }
         Assert-String $model.canonical_tier 'canonical_tier'
         if ($model.effort_control -isnot [pscustomobject]) { throw 'RENDER_ERROR: effort_control must be an object' }
         foreach ($field in $model.effort_control.PSObject.Properties) { Assert-String $field.Value $field.Name }
