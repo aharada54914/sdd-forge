@@ -1479,7 +1479,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory]
+    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory, coding-standards]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1533,6 +1533,10 @@ jobs:
             echo "cli-hook-enforcement job failed"
             exit 1
           fi
+          if [ "${{ needs.coding-standards.result }}" != "success" ]; then
+            echo "coding-standards job failed"
+            exit 1
+          fi
           if [ "${{ needs.posix-regression.result }}" != "success" ]; then
             echo "posix-regression job failed"
             exit 1
@@ -1580,3 +1584,30 @@ jobs:
       - name: "[deterministic] Test panelist-input consent gate"
         shell: pwsh
         run: ./tests/prepare-panelist.tests.ps1
+
+  coding-standards:
+    name: complete coding standards audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.19.0"
+      - name: Install locked TypeScript compiler
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: Install pinned native analyzers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/coding-standards"
+          "$RUNNER_TEMP/coding-standards/bin/pip" install -r tests/coding-standards/requirements.txt
+          printf '%s\n' "$RUNNER_TEMP/coding-standards/bin" >> "$GITHUB_PATH"
+      - name: Install pinned PowerShell analyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -ErrorAction Stop
+      - name: Run native controls and complete tracked-source audit
+        shell: bash
+        run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
