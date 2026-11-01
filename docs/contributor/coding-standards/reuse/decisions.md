@@ -52,7 +52,7 @@ existing launcher. Feature response interpretation remains at the call site.
 ## R-001 implementation and reuse example
 
 Canonical mechanism: `mcp/shared/diagnostics-core.ts`; update package copies with
-`python3 scripts/sync-mcp-diagnostics.py`, verify without writes with `--check`.
+`python3 mcp/shared/sync-diagnostics.py`, verify without writes with `--check`.
 The generated header identifies the owner. This is build-time copying into two
 independently compilable packages; no deployed repository-relative import or new
 runtime dependency is introduced. Existing human-copy classifier cannot perform
