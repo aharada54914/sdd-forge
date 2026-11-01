@@ -2128,6 +2128,29 @@
       ],
       "resolution": "Read key inside fixed Python program from documented env/file/home sources; keep message on stdin and fail on missing/empty key. No real token or credential was generated.",
       "reuse": null
+    },
+    {
+      "finding_id": "DOC-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "line": 25,
+      "source_sha256": "e05b3aad1e94b07ad102c1200c2e458400e5c0be6082aa79a3b8f3ceff2ce840",
+      "flow": {
+        "input": "Unfilled CHECK, tool failure, invalid iteration count or closed manual stdin",
+        "transformation": "All nonzero CHECK outcomes/failed reads treated as absence; invalid loop bound skips loop",
+        "sink": "green observations and final exit0"
+      },
+      "impact": "The shipped human feedback template can claim no reproduced symptom without executing a valid check or receiving the manual observation.",
+      "reproduction": "Existing HITL suite extended with actual unfilled/tool-error/iteration/input controls: baseline16 passed/9 failed, fixed25 passed/0 failed. Existing reproduce-on-iteration3 returns1 and genuine absence1 from CHECK completes5iterations exit0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hitl-wfi-terminal.tests.sh: actual fixture copy with exported CHECK and actual five Enter inputs, failure controls (missing/2/127), invalid caps, stdinEOF.",
+        "tests/hitl-wfi-terminal.tests.ps1:16passed/0failed on LinuxPowerShell7.6.7/Bash5.2.37.",
+        "Repaired source sha256=8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849"
+      ],
+      "resolution": "Separate CHECK0=reproduced,1=absent,>1=unavailable; reject invalid/overflow bounds and EOF with exit2. Correct reversed status comment; preserve interactive bounded loop and existing red/green behavior.",
+      "reuse": null
     }
   ]
 }
