@@ -1276,12 +1276,15 @@ function Get-ReadonlyInputIndices {
         $process = New-Object System.Diagnostics.Process
         $process.StartInfo = $start
         if (-not $process.Start()) { return @() }
+        $clock = [Diagnostics.Stopwatch]::StartNew()
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
-        $process.StandardInput.Write((@{ tokens = @($Tokens); directories = @($Directories) } | ConvertTo-Json -Depth 10 -Compress))
+        $inputWrite = $process.StandardInput.WriteAsync((@{ tokens = @($Tokens); directories = @($Directories) } | ConvertTo-Json -Depth 10 -Compress))
+        if (-not $inputWrite.Wait([Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         $process.StandardInput.Close()
-        if (-not $process.WaitForExit(3000)) { $process.Kill(); return @() }
+        if (-not $process.WaitForExit([Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         if ($process.ExitCode -ne 0) { return @() }
+        if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout, $stderr), [Math]::Max(0, 3000 - [int]$clock.ElapsedMilliseconds))) { return @() }
         $rawResult = $stdout.GetAwaiter().GetResult()
         if ($rawResult -notmatch '^\s*\[') { return @() }
         $indices = @($rawResult | ConvertFrom-Json -ErrorAction Stop)
@@ -1290,7 +1293,17 @@ function Get-ReadonlyInputIndices {
         }
         return $indices
     } catch { return @() }
-    finally { if ($null -ne $process) { $process.Dispose() } }
+    finally {
+        if ($null -ne $process) {
+            try {
+                if (-not $process.HasExited) {
+                    try { $process.Kill($true) } catch { $process.Kill() }
+                    [void]$process.WaitForExit(3000)
+                }
+            } catch { } # Classification remains conservative on runtime failure.
+            finally { $process.Dispose() }
+        }
+    }
 }
 
 function Test-CommandReferencesProtectedPath {
