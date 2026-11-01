@@ -4,7 +4,7 @@
 
 ## フル・レビュー連鎖
 
-Phase 1 の成果物は、次の順序で三つの**独立した**レビューを通過します。各
+Phase 1 の成果物は次の順序で三つの**独立した**レビューを通過します。各
 stage は別の reviewer A/B 定義と fresh context を使い、他 stage の raw report
 を読めません。
 
@@ -20,7 +20,7 @@ flowchart LR
 `spec-review-loop` が `Spec-Review-Status: Passed` を書く唯一の機構です。
 その有効な PASS contract がなければ `impl-review-loop` は開始せず、同様に
 `task-review-loop` は implementation-policy review の有効な PASS を要求します。
-この前提が崩れた仕様変更では、三段階を順に再実行してください。
+仕様変更でこの前提が満たされなくなった場合は、三段階を順に再実行してください。
 
 ## 4. 異常系・例外フロー
 
@@ -343,7 +343,7 @@ review_cycles: <実施済みサイクル数>
 
 **▶ 入り方（最短3ステップ）**
 
-1. CLI で `/sdd-sudo` と入力（既定 8h。`/sdd-sudo 4h` などで時間指定）— これだけで有効化。
+1. CLI で `/sdd-sudo` と入力（既定 8h。`/sdd-sudo 4h` などで時間指定）。これだけで有効化。
 2. そのまま作業。承認待ちが自動通過し、各所に `(sudo <時刻>)` の監査マークが残る。
 3. 終わったら `/sdd-sudo off`（`/sdd-sudo status` で残り時間確認）。期限が来れば自動失効。
 
@@ -443,7 +443,7 @@ review_cycles: <実施済みサイクル数>
 
 ### 計測指標
 
-`workflow-retrospective` が `reports/implementation/`、`reports/quality-gate/`、`docs/review-tickets/` を read-only で集計:
+`workflow-retrospective` が `reports/implementation/`、`reports/quality-gate/`、`docs/review-tickets/` を read-only で集計します。
 
 | 指標 | 計算方法 | 意味 |
 |---|---|---|
@@ -455,7 +455,7 @@ review_cycles: <実施済みサイクル数>
 
 ### Friction 検出条件
 
-以下のパターンが複数タスクにわたって繰り返される場合、friction として記録:
+以下のパターンが複数タスクにわたって繰り返される場合、friction として記録します。
 
 1. **同種チケットの反復**
    - 例: 「キャンセル手数料計算」関連指摘が T-001, T-002, T-003 で各 1 件以上
@@ -496,7 +496,7 @@ review_cycles: <実施済みサイクル数>
    **Mechanism: model-routing の WFI を起票する前に — 能力リフレッシュ
    チェックリスト**
 
-   `Mechanism: model-routing` の WFI を Draft する前に、以下を確認する:
+   `Mechanism: model-routing` の WFI を Draft する前に、以下を確認する。
 
    - 参照する正典ソース: Anthropic 公式 docs（models overview）/ Anthropic
      blog、OpenAI developers docs（Codex）/ OpenAI blog、各 CLI（Claude Code /
@@ -508,7 +508,7 @@ review_cycles: <実施済みサイクル数>
      ないか `workflow-improvement` ラベルの open issue を確認し、無ければ手
      動で issue を起票する。手動起票する issue のタイトルには必ず
      `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
-     定用マーカーが同一文字列であることが必須 — 無いと次回の D2 定期実行が
+     定用マーカーが同一文字列であることが必須。無いと次回の D2 定期実行が
      同じ乖離を重複起票する）
 
 3. **人間が Approved に変更**
@@ -529,7 +529,7 @@ review_cycles: <実施済みサイクル数>
 
 **改善例**
 
-仕様変更が頻発している場合:
+仕様変更が頻発している場合は、次のような改善が考えられます。
 - タスク粒度を細分化 (1 タスク = 1 API endpoint など)
 - Question bank (よくある質問リスト) を `CLAUDE.md` に追加
 - Interviewer への明確な role/constraint を AGENTS.md に記述
@@ -551,7 +551,7 @@ sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ
 | workflow-retrospective (WFI) | SDD **プロセス**の摩擦 | プロジェクト側ワークフローファイルのみ (`AGENTS.md` / `CLAUDE.md` / `specs/` テンプレート等。`plugins/` 内は禁止) |
 | ローカル Codex の週次セルフ改善監査 | リポジトリという**プロダクト** | 原則は調査と改善提案。既に人間承認済みの明確なタスクのみ、予算内で1件を必要なゲートに従ってローカル適用 (下記の不可侵領域を除く) |
 
-競合は、このリポジトリ自身を SDD でドッグフーディングした場合 (両ループが同じリポジトリに作用する場合) にのみ発生します。
+競合はこのリポジトリ自身を SDD でドッグフーディングした場合 (両ループが同じリポジトリに作用する場合) にのみ発生します。
 
 **調停ルール**
 
@@ -640,7 +640,7 @@ project-root/
 ## 7. リスク適応ゲート (risk-adaptive)
 
 各タスクは `Risk:` 階層 (`low | medium | high | critical`) を持ち、その階層が
-「どの決定論的ゲートを必須とするか」を駆動します。正準対応表は
+「どの決定論的ゲートを必須とするか」を決めます。正準対応表は
 [`risk-gate-matrix.md`](../../plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
 階層が上がるほど必須セットは厳しくなり、下位階層の必須セットを包含します
 (非ダウングレード superset 則)。
@@ -695,7 +695,7 @@ absent / `""` / `code` は従来挙動 (compile 系も必須) で、完全な後
 
 ## Branch protection & merge queue
 
-GitHub 上の `main` ブランチは以下の保護ルールでガード されています。本ルールセットは`.github/rulesets/main.json`で定義され、GitHub API 経由で適用されます。
+GitHub 上の `main` ブランチは以下の保護ルールでガードされています。本ルールセットは`.github/rulesets/main.json`で定義され、GitHub API 経由で適用されます。
 
 ### 保護ルール
 
@@ -716,7 +716,7 @@ GitHub 上の `main` ブランチは以下の保護ルールでガード され�
 
 ### 設定の適用
 
-ローカル環境で `.github/rulesets/main.json` を更新した後、以下で GitHub に反映:
+ローカル環境で `.github/rulesets/main.json` を更新した後、以下の手順で GitHub に反映します。
 
 ```bash
 # gh CLI で自動適用 (管理者権限が必要、Team/Enterprise プランが必須)

@@ -300,7 +300,7 @@ Phase 1（仕様・設計）のさらに前段、Issue受領の直後に位置�
 Issue受領 → investigate-codebase（任意） → sdd-bootstrap Phase 1 ...
 ```
 
-sdd-domain は機能単位ではなくプロジェクト単位で運用します。一度承認された `domain/` は、以後すべての機能の Phase 1 生成に対して下流同期の入力になります。
+sdd-domain は機能単位ではなくプロジェクト単位で運用します。一度承認された `domain/` は以後すべての機能の Phase 1 生成に対して下流同期の入力になります。
 
 ### 7ステップフロー
 
@@ -374,9 +374,9 @@ workflow:
 
 解決は次の 3 ステップを**この順で**行います。順序そのものが契約であり、ステップ 1 と 2 をまとめて「使える Project Context があるか」の 1 つの判定にしてはいけません。まとめてしまうと、検証を失敗させられる攻撃者が旧来のフラグ優先挙動を取り戻せてしまいます（ADR-0023 が塞いだ fail-open）。
 
-1. **物理的存在** — `sdd/project-context.yaml` がディスク上に存在するか。ファイルシステムの検査のみで判定し、バリデータの結果でこれを代用しない。
-2. **承認の妥当性** — 存在する場合のみ、`validate-approval-sidecar`（REQ-005）が PASS することを確認する。PASS するまで中身は一切信用しない。
-3. **優先順位** — 「存在し、かつ妥当」な Project Context だけが ADR-0023 の規則に到達する。
+1. **物理的存在**： `sdd/project-context.yaml` がディスク上に存在するか。ファイルシステムの検査のみで判定し、バリデータの結果でこれを代用しない。
+2. **承認の妥当性**： 存在する場合のみ、`validate-approval-sidecar`（REQ-005）が PASS することを確認する。PASS するまで中身は一切信用しない。
+3. **優先順位**： 「存在し、かつ妥当」な Project Context だけが ADR-0023 の規則に到達する。
 
 ### 6 ケースの解決表
 
@@ -389,12 +389,12 @@ workflow:
 | C5 | 存在し妥当、`spec_profile: full` | `--lite` | `ERROR_STOP` |
 | C6 | 存在し妥当、`spec_profile: full` | `--full` | `NO_OP_FULL` |
 
-- `PROMOTE_FULL`（C3） — フラグが宣言済みプロファイルより厳格なので、`full` として実行する。エラーにはならない。
-- `NO_OP_LITE` / `NO_OP_FULL`（C4 / C6） — フラグが宣言済みプロファイルと一致しているので、そのプロファイルのトラックをそのまま実行する。
+- `PROMOTE_FULL`（C3）： フラグが宣言済みプロファイルより厳格なので、`full` として実行する。エラーにはならない。
+- `NO_OP_LITE` / `NO_OP_FULL`（C4 / C6）： フラグが宣言済みプロファイルと一致しているので、そのプロファイルのトラックをそのまま実行する。
 
 ### Project Context が無い場合の互換フォールバック
 
-**C1 のときだけ** `COMPATIBILITY_FALLBACK` に到達します。挙動は ADR-0023 以前の契約と完全に同じで、先に一致したものが勝ちます。
+**C1 のときだけ** `COMPATIBILITY_FALLBACK` に到達します。挙動は ADR-0023 以前の契約と完全に同じで、先に一致した条件を採用します。
 
 | 優先度 | 条件 | 結果 |
 |---|---|---|
@@ -403,11 +403,11 @@ workflow:
 | 3 | `AGENTS.md` のいずれかの行に `spec_profile: lite` がある | **lite** トラック |
 | 4 | いずれにも該当しない | **フル**トラック（既定） |
 
-選択されたトラックは、最初のタスクを開始する**前**に必ず出力されます（例: `[sdd-ship] Track: lite (--lite override)`）。意図と違うトラックが選ばれた場合は Ctrl-C で中断し、正しいフラグを付けて再実行してください。
+選択されたトラックは最初のタスクを開始する**前**に必ず出力されます（例: `[sdd-ship] Track: lite (--lite override)`）。意図と違うトラックが選ばれた場合は Ctrl-C で中断し、正しいフラグを付けて再実行してください。
 
 ### `--lite` が `spec_profile` と矛盾する場合（`ERROR_STOP`）
 
-C5 — Project Context が存在し妥当で `spec_profile: full` を宣言しているのに `--lite` が渡された場合、これは宣言済みプロファイルを**緩める**方向の指定なので、`ERROR_STOP` として停止します。
+C5：Project Context が存在し妥当で `spec_profile: full` を宣言しているのに `--lite` が渡された場合、これは宣言済みプロファイルを**緩める**方向の指定なので、`ERROR_STOP` として停止します。
 
 - どのタスクも開始せずに停止する。
 - 次のメッセージを出力する: `[sdd-ship] ERROR_STOP: --lite cannot downgrade a Project Context declaring spec_profile: full. Re-run without --lite.`

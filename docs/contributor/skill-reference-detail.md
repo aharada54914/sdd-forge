@@ -182,7 +182,7 @@ fresh context を使い、他 stage の raw report を読むことはできま�
 
 **目的**
 
-ハードなバグ・リグレッション・フレーキーテスト・性能退行に対する実行規律です。フル SDD（3レビューループ）を通す前に、再現→計装→根本原因→最小修正の5フェーズで診断し、`task-reviewer-b` の `BUGFIX-DIAGNOSTIC-PATH` チェックが要求する証跡（tight な reproduction command、最小化したケース、根本原因、回帰テスト）を供給します。1行修正にフルフローを強制するのは過剰であり、`diagnose` は軽量トラック（lite-spec）への入口を兼ねます。
+難しいバグ・リグレッション・フレーキーテスト・性能退行を診断するための実行規律です。フル SDD（3レビューループ）を通す前に、再現→計装→根本原因→最小修正の5フェーズで診断し、`task-reviewer-b` の `BUGFIX-DIAGNOSTIC-PATH` チェックが要求する証跡（問題を絞り込んだ reproduction command、最小化したケース、根本原因、回帰テスト）を提供します。1行修正にフルフローを強制するのは過剰であり、`diagnose` は軽量トラック（lite-spec）への入口を兼ねます。
 
 **呼び出し例**
 
@@ -196,7 +196,7 @@ Use the diagnose skill. Symptom: <...>
 
 **前提条件**
 
-`AGENTS.md` を読む。リポジトリに `CONTEXT.md` や対象モジュールの ADR があれば、着手前に読んでメンタルモデルを構築する。`diagnose` は read-mostly: 失敗するテスト/ハーネスとタグ付きの一時プローブは追加してよいが、実際の修正は人間承認後に `implement-task` が行う。
+`AGENTS.md` を読む。リポジトリに `CONTEXT.md` や対象モジュールの ADR があれば、着手前に読んで構造や設計を把握する。`diagnose` は read-mostly: 失敗するテスト/ハーネスとタグ付きの一時プローブは追加してよいが、実際の修正は人間承認後に `implement-task` が行う。
 
 **5フェーズ**
 
@@ -264,7 +264,7 @@ Use the implement-task skill for specs/reservation/tasks.md#T-001
 
 **停止・Blocked になる条件**
 
-以下の場合、タスクを `Blocked` に設定し、ブロッカーを記録して停止：
+以下の場合、タスクを `Blocked` に設定し、ブロッカーを記録して停止。
 
 - 要件・設計が曖昧
 - 要件・アーキテクチャ・認証・認可・API破壊的変更の決定が必要
@@ -323,7 +323,7 @@ Use the implement-tasks skill for specs/<feature>/tasks.md
 
 **全完了チェックと quality-gate 自動移行**
 
-`Approval: Approved` の全タスクが `Implementation Complete` または `Done` になった時点で:
+`Approval: Approved` の全タスクが `Implementation Complete` または `Done` になった時点で、次を実行する。
 
 1. 完了タスク一覧をユーザーに報告
 2. **`quality-gate` を自動起動** し、`tasks.md` の順に全タスクを処理
@@ -332,7 +332,7 @@ Use the implement-tasks skill for specs/<feature>/tasks.md
 
 **停止・Blocked になる条件**
 
-`implement-task` と同一: 要件曖昧・アーキテクチャ決定必要・無関係変更の競合・テスト実行不可・スコープ超過。Blocked になったタスクを記録してバッチ全体を停止。再開は本スキルを再実行すれば、最初の選択可能タスクから自動的に再開する。
+`implement-task` と同一: 要件曖昧・アーキテクチャ決定必要・無関係変更の競合・テスト実行不可・スコープ超過。Blocked になったタスクを記録してバッチ全体を停止。本スキルを再実行すると、最初の選択可能タスクから自動的に再開する。
 
 **人間の関与ポイント**
 
@@ -385,7 +385,7 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 
 **Done 判定条件**
 
-以下をすべて満たす場合のみ `Done` に設定。それ以外は `Blocked` または `Implementation Complete` を保持：
+以下をすべて満たす場合のみ `Done` に設定。それ以外は `Blocked` または `Implementation Complete` を保持。
 
 - `check-contract` が成功（すべての必須契約チェックが真で、証拠ファイル存在）
 - 受け入れ基準にテストがある
@@ -469,13 +469,13 @@ Use the workflow-retrospective skill for specs/reservation/
 
 **処理の流れ**
 
-1. 以下を読み取り専用で収集（修正しない）：
+1. 以下を読み取り専用で収集（修正しない）。
    - `reports/implementation/` — タスク サイクルごとのレポート
    - `reports/quality-gate/` — quality-gate 実行ごとのレポート
    - `docs/review-tickets/` — 機能全体の review-ticket
    - `git log --oneline` — 機能パスにスコープした commit 履歴
 
-2. 各タスクについて以下を導出：
+2. 各タスクについて以下を導出。
    - **QG Cycles**: そのタスクの quality-gate レポート数
    - **Blocked Count**: 各レポート間の `Blocked` 決定数
    - **Tickets**: severity 別 (critical / major / minor) の review-ticket 数
@@ -484,16 +484,16 @@ Use the workflow-retrospective skill for specs/reservation/
 
 3. `reports/retrospective/<timestamp>.md` を `templates/retrospective-report.template.md` から生成
 
-4. 摩擦を特定。以下パターンが2タスク以上で繰り返されたら Flag：
+4. 摩擦を特定。以下パターンが2タスク以上で繰り返されたら Flag。
    - 同じ `type` の review-ticket が繰り返される
    - ある段階で `Blocked` が複数発生
    - チケット type の自動修正率が 50 % 未満
 
-5. 各特定された摩擦について、`docs/workflow-improvements/WFI-NNN.md` を `templates/workflow-improvement.template.md` から作成。`status: Draft` で。NNN は既存最大から incrementして付与（なければ 001）
+5. 特定した摩擦ごとに、`docs/workflow-improvements/WFI-NNN.md` を `templates/workflow-improvement.template.md` から作成。`status: Draft` にする。NNN は既存の最大値に 1 を加えて付与（なければ 001）
 
 6. 人間が WFI の `status` を `Approved` に設定するまで待機。適用は人間 Approved 後。retrospective レポートの「Proposed Improvements」に保留中WFI参照を記録
 
-7. 承認された改善を適用。変更対象はプロジェクト側ファイルのみ：
+7. 承認された改善を適用。変更対象は以下のプロジェクト側ファイルのみ。
    - `AGENTS.md` または `CLAUDE.md` (プロジェクトルート)
    - `specs/` template ファイル・タスク分割ガイドライン
    - タスク粒度ガイダンス文書
@@ -634,7 +634,7 @@ Use the cross-model-verify skill for specs/cross-model-verification/tasks.md#T-0
 
 **目的**
 
-社内・部署内アプリ向けの軽量仕様を作ります（`sdd-lite` プラグイン）。`sdd-bootstrap-interviewer` の縮約版で、要件・設計・タスクの3ファイルのみを生成し、traceability・ADR・受け入れテストの厳密記述は任意とします。アプリのコードは実装しません。低ステークスの社内開発向け。より高い厳格さが要るなら `sdd-bootstrap-interviewer` に切り替えます。
+社内・部署内アプリ向けの軽量仕様を作ります（`sdd-lite` プラグイン）。`sdd-bootstrap-interviewer` の縮約版で、要件・設計・タスクの3ファイルのみを生成し、traceability・ADR・受け入れテストの厳密記述は任意とします。アプリのコードは実装しません。失敗時の影響が小さい社内開発向け。より高い厳格さが要るなら `sdd-bootstrap-interviewer` に切り替えます。
 
 **呼び出し例**
 
