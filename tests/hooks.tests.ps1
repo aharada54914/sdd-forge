@@ -883,6 +883,11 @@ Approval: Draft
     Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"PASS"}' -NoNewline
     Assert "wfi016: outside CWD + file_path git-root walk + PASS verdict -> allow" ((Invoke-GuardPsAt $wfiPayload $wfiOutside) -eq 0)
 
+    foreach ($invalidVerdict in @('{"verdict":"pass"}', '{"verdict":"pass-with-warnings"}', '{"verdict":["PASS"]}')) {
+        Set-Content -LiteralPath $wfiVerdict -Value $invalidVerdict -NoNewline
+        Assert "wfi016: noncanonical verdict $invalidVerdict -> deny" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 2)
+    }
+
     Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"FAIL"}' -NoNewline
     Assert "wfi016: outside CWD + FAIL verdict -> deny" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 2)
 

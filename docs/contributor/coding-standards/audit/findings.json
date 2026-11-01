@@ -1865,6 +1865,246 @@
       ],
       "resolution": "28ecd8ce end options before tag, put clobber before terminator, use --version= for SBOM CLI.",
       "reuse": null
+    },
+    {
+      "finding_id": "TS690-012",
+      "rule_id": "CS-018",
+      "path": "install.sh",
+      "line": 542,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Existing client JSON read fails EACCES",
+        "transformation": "catch-all substitutes empty object",
+        "sink": "atomic replacement of existing configuration"
+      },
+      "impact": "Unrelated client configuration can be destroyed after an unreadable file is treated as missing.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Ignore only ENOENT for creation; preserve and report every other read failure. Uninstall distinguishes read failure from absent file.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-013",
+      "rule_id": "CS-009",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Pre-existing predictable .sdd-forge.tmp file or symlink",
+        "transformation": "non-exclusive write follows and truncates existing temp target",
+        "sink": "configuration temporary file"
+      },
+      "impact": "Can overwrite unrelated files before rename, or race another writer.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Use exclusive wx creation; never unlink a temp file not created by this operation; cleanup own temp after rename failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-014",
+      "rule_id": "CS-010",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Client config may contain credential-bearing unrelated entries",
+        "transformation": "replacement file gets default mode derived from permissive umask",
+        "sink": "user client JSON on disk"
+      },
+      "impact": "On umask022 previously private configuration becomes world-readable.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Create temporary config with explicit0600 permissions; atomic rename keeps those permissions on POSIX.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-030",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "line": 247,
+      "source_sha256": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1",
+      "flow": {
+        "input": "Codex scratch path",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "native CLI argv"
+      },
+      "impact": "Space-containing scratch path split into multiple arguments",
+      "reproduction": "Exact captured argv: baseline runner fails path atom check; fixed runner passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1\", \"sha256\": \"a3d5bf4377ed120239e480d78b3ea206a40ef469b2f299547a35cd85123e924b\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Use shared native command-line quoting helper; unchanged timeout/file redirect semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-031",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 158,
+      "source_sha256": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932",
+      "flow": {
+        "input": "Fixed multiline JSON prompt",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "Gemini -p argv"
+      },
+      "impact": "Complete prompt split into many arguments and loses embedded quotes",
+      "reproduction": "Exact captured argv: baseline runner fails prompt atom check; fixed receives exactly4 arguments and exact source prompt as arg4.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1\", \"sha256\": \"b0ea695e119922c7924a796269d69936d855df818080e6aae748f0df251900bb\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Same shared native argument quoting; native .exe/POSIX command boundary, not a cmd.exe interpreter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-032",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "line": 347,
+      "source_sha256": "0f9b32251f645f0aa51684007c5489cc34597b5976e07c6c1d2da93a890b7582",
+      "flow": {
+        "input": "Repository path",
+        "transformation": "Start-Process -ArgumentList flattens path with spaces",
+        "sink": "git -C"
+      },
+      "impact": "Valid evidence rejected when repository path contains spaces",
+      "reproduction": "Actual native launch against a fresh repository whose path contains spaces: baseline Start-Process exit128 (cannot change to /tmp/git); direct call exit0. Existing Script gate suite passes after moving entire workspace fixture to sdd script tests <uuid>.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scripts.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1\", \"sha256\": \"56e5137ed388534ace485f6b4a668ce0aca00d60b1c25d60666b444c5ed0a3c1\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Direct PowerShell call operator and explicit LASTEXITCODE checks.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-030",
+      "rule_id": "CS-002",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "line": 116,
+      "source_sha256": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d",
+      "flow": {
+        "input": "tasks/report/repository paths and Markdown task id",
+        "transformation": "awk dynamic shell commands and Python-source interpolation",
+        "sink": "system()/getline and Python -c"
+      },
+      "impact": "User data can execute shell code",
+      "reproduction": "Baseline valid Implementation Complete fixture with report path reports$(touch SENTINEL): exit1 and sentinel=True. Fixed hostile quote/backslash/newline/Japanese path succeeds, no sentinel; missing evidence still fails.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-task-state.sh\", \"sha256\": \"ec2697933b3154e8e21a87d932dea0cb9c2dff10d26fe269c429a8557eb86646\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Quote each shell data atom; use fixed Python code and argv for contract path/task id.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-031",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+      "line": 67,
+      "source_sha256": "5cbb235b2a14123bab3cc44fdac09f1cd421fcdb341e59d34721a63f8ce79d2e",
+      "flow": {
+        "input": "Implementation/quality report path and Markdown task id",
+        "transformation": "awk builds shell command with unescaped data",
+        "sink": "grep subprocess"
+      },
+      "impact": "User report path can execute command substitution",
+      "reproduction": "Same report-path sentinel baseline exit1 and sentinel=True; fixed hostile path Implementation Complete succeeds without execution.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-lite/scripts/check-task-state-lite.sh\", \"sha256\": \"1b75fc690f22525a4c563e0f4af5bb824b743e8c65da6e5d6124a87b252b03d4\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Quote shell data atom in owned Lite AWK policy; Full and Lite requirements remain separate.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-001",
+      "rule_id": "CS-030",
+      "path": "plugins/sdd-lite/templates/quality-report-lite.md",
+      "line": 4,
+      "source_sha256": "21068274d1b3b0977f6ec0cc0d0f5999c025a152e09c053061afc70b728e25c8",
+      "flow": {
+        "input": "Untouched distributed quality-report-lite.md",
+        "transformation": "Default VERDICT: PASS and T-001 word match",
+        "sink": "check-task-state-lite.sh Done admission"
+      },
+      "impact": "An unfilled report can certify Done without an actual quality verdict.",
+      "reproduction": "Isolated Approved/Done T-001 with minimal implementation mention and untouched quality template: exit 0. Added actual consumer regression fails before fix (23 passed/1 failed), passes after fix (24 passed/0 failed).",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/template-validator-parity.tests.sh; Linux Bash 5.2.37 and system sh; baseline negative and repaired negative/normal controls executed.",
+        "Repaired template sha256=fbb10eeb476ab532f241acc532c570dcc1dbbbdaa46342eaa14dadfa149fb8b1"
+      ],
+      "resolution": "Default report verdict FAIL and unexecuted check labels NOT_RUN; preserve existing explicit PASS consumer contract.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-002",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml",
+      "line": 7,
+      "source_sha256": "30e103e639fa894a616dfcf524ee81cf11c267ba568ddeb50b31d9b2cc3f3aa9",
+      "flow": {
+        "input": "Literal shell echo containing colon-space in GitLab script item",
+        "transformation": "Unquoted YAML plain scalar parsed as mapping, despite inner shell quotes",
+        "sink": "GitLab CI script command list"
+      },
+      "impact": "Distributed CI template is not a list of command strings and fails configuration validation before the intended fail-closed placeholder command.",
+      "reproduction": "Pinned js-yaml parses first script item as object. Existing parity test actual baseline24 passed/1 failed; fixed25 passed/0 failed, both CI placeholder bodies exit1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/template-validator-parity.tests.sh: pinned js-yaml 5.5.0 parser plus real bash execution; Node24.19.0 Linux.",
+        "Repaired template sha256=e27e86de7be79691a6187a8f65861ab5662f7a642a2ef2bc6390ca4ebfe1aaa0"
+      ],
+      "resolution": "Use YAML literal block for echo command; preserves shell quoting and intentional exit1 until configured.",
+      "reuse": null
     }
   ]
 }

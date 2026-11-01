@@ -398,16 +398,16 @@ expect_verdict base-old.json lite-eligibility-change-new.json stale semantic-out
 # skipped, not the comparison logic itself.
 schema_field_check="$(python3 -c "
 import importlib.util, json, copy, sys
-spec = importlib.util.spec_from_file_location('cfms', '$COMPARATOR')
+spec = importlib.util.spec_from_file_location('cfms', sys.argv[1])
 cfms = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cfms)
-base = json.load(open('$FIXTURES/base-old.json'))
+base = json.load(open(sys.argv[2]))
 new = copy.deepcopy(base)
 new['schema'] = 'sdd-facet-manifest/v2'
 weakening = {'projection': 'not-weakened', 'registry': 'not-weakened', 'ownership': 'not-weakened'}
 status, reason = cfms.classify(base, new, weakening, 'minor')
 print('OK' if (status, reason) == ('stale', 'semantic-output-changed') else 'FAIL status=%r reason=%r' % (status, reason))
-")"
+" "$COMPARATOR" "$FIXTURES/base-old.json")"
 if [ "$schema_field_check" = "OK" ]; then
   ok "Major-2 lock: 'schema' is a compared semantic-output field (classify() unit check, schema's own const keyword forbids a real fixture pair)"
 else

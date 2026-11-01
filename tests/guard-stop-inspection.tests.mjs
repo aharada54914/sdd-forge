@@ -87,3 +87,25 @@ test('Copilot gets a structured deny when stop-marker inspection fails', () => {
     }
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+for (const mode of ['exit', 'copilot']) {
+  test(`hook stdin error fails closed through ${mode} public entry`, () => {
+    const preload = `const {PassThrough}=require('node:stream'); const input=new PassThrough(); Object.defineProperty(process,'stdin',{value:input}); require(process.argv[1]); process.nextTick(()=>input.destroy(new Error('injected stdin error')));`;
+    const env = { ...process.env };
+    delete env.PAYLOAD;
+    const result = spawnSync(process.execPath, ['-e', preload, join(scripts, 'sdd-hook-guard.js'), '--emit', mode], {
+      env, encoding: 'utf8', timeout: 5000,
+    });
+    assert.equal(result.error, undefined);
+    if (mode === 'copilot') {
+      assert.equal(result.status, 0);
+      const decision = JSON.parse(result.stdout);
+      assert.equal(decision.permissionDecision, 'deny');
+      assert.match(decision.permissionDecisionReason, /unable to read the hook payload/);
+    } else {
+      assert.equal(result.status, 2, result.stderr);
+      assert.equal(result.stdout, '');
+      assert.match(result.stderr, /unable to read the hook payload/);
+    }
+  });
+}
