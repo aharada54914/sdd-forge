@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # uninstall.tests.sh — bash port of uninstall.tests.ps1
 # Exercises uninstall.sh without network or real CLIs by stubbing codex/claude/
 # copilot with logging shims and simulating an installed layout.
@@ -28,7 +29,7 @@ make_fake_commands() {
         local shim="${bin_dir}/${cmd}"
         cat > "$shim" <<SHIM
 #!/bin/sh
-echo "${cmd} \$*" >> "${log_path}"
+echo "${cmd} \$*" >> $(shell_literal "$log_path")
 exit 0
 SHIM
         chmod +x "$shim"
@@ -317,7 +318,7 @@ key = "value"
 # >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
 [mcp_servers.sdd-forge-mcp]
 command = "node"
-args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+args = [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/sdd-forge-mcp/dist/index.js")]
 # <<< sdd-forge-mcp <<<
 TOML
 }
@@ -468,19 +469,19 @@ key = "value"
 # >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
 [mcp_servers.sdd-forge-mcp]
 command = "node"
-args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+args = [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/sdd-forge-mcp/dist/index.js")]
 # <<< sdd-forge-mcp <<<
 
 # >>> local-env-mcp (managed by sdd-forge installer; do not edit by hand) >>>
 [mcp_servers.local-env-mcp]
 command = "node"
-args = ["${install_root}/mcp/local-env-mcp/dist/index.js"]
+args = [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/local-env-mcp/dist/index.js")]
 # <<< local-env-mcp <<<
 
 # >>> ci-mcp (managed by sdd-forge installer; do not edit by hand) >>>
 [mcp_servers.ci-mcp]
 command = "node"
-args = ["${install_root}/mcp/ci-mcp/dist/index.js"]
+args = [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/ci-mcp/dist/index.js")]
 # <<< ci-mcp <<<
 TOML
     # Cursor mcp.json: three managed keys + a user-defined key + unknown top key.
@@ -488,9 +489,9 @@ TOML
     cat > "${cursor_dir}/mcp.json" <<JSON
 {
   "mcpServers": {
-    "sdd-forge-mcp": { "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
-    "local-env-mcp": { "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
-    "ci-mcp": { "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
+    "sdd-forge-mcp": { "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/sdd-forge-mcp/dist/index.js")] },
+    "local-env-mcp": { "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/local-env-mcp/dist/index.js")] },
+    "ci-mcp": { "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/ci-mcp/dist/index.js")] },
     "my-server": { "command": "node", "args": ["/home/user/my-server.js"] }
   },
   "telemetry": { "enabled": false }
@@ -501,9 +502,9 @@ JSON
     cat > "${vscode_dir}/mcp.json" <<JSON
 {
   "servers": {
-    "sdd-forge-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
-    "local-env-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
-    "ci-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
+    "sdd-forge-mcp": { "type": "stdio", "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/sdd-forge-mcp/dist/index.js")] },
+    "local-env-mcp": { "type": "stdio", "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/local-env-mcp/dist/index.js")] },
+    "ci-mcp": { "type": "stdio", "command": "node", "args": [$(node -e 'process.stdout.write(JSON.stringify(process.argv[1]))' "${install_root}/mcp/ci-mcp/dist/index.js")] },
     "my-server": { "type": "stdio", "command": "node", "args": ["/home/user/my-server.js"] }
   },
   "inputs": []

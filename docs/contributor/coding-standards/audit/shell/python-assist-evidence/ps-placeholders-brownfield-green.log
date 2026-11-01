@@ -1,0 +1,20 @@
+=== TEST-007: canonical brownfield seed existence + three documented categories ===
+ok: TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker
+ok: TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker
+ok: TEST-007.3 (AC-007): specs/brownfield-seed-demo/tasks.md is bootstrap-complete (header/Task-Review-Status/T-NNN block with Status,Risk,Risk Rationale,Required Workflow/Blockers section)
+ok: TEST-007.4 (AC-007): specs/brownfield-seed-demo/tasks.md carries no unresolved {{...}} template placeholder
+=== TEST-008: marker-free CHANGED_FILES.txt subset passes (Case A) ===
+ok: TEST-008.1 (AC-008): CHANGED_FILES.txt manifest exists
+ok: TEST-008.2 (AC-008): check-placeholders.ps1 invoked with only the marker-free changed-files subset exits 0
+ok: TEST-008.3 (AC-008, negative self-check): CHANGED_FILES.txt lists neither marker-bearing file
+=== TEST-009: full seed directory fails with BOTH pre-existing markers (Case B) ===
+ok: TEST-009.1 (AC-009): check-placeholders.ps1 invoked with the full seed directory exits 1
+ok: TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding
+ok: TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding
+ok: TEST-009.4 (AC-009, negative self-check): the marker-free service.py does not appear in the findings
+ok: TEST-009.5 (AC-009, negative self-check): the marker-free tasks.md does not appear in the findings
+=== Self-registration: run-all.sh / run-all.ps1 / test.yml ===
+ok: REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml
+ok: REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml
+
+check-placeholders-brownfield.tests.ps1: 14 passed, 0 failed

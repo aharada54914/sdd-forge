@@ -38,14 +38,19 @@ require_evidence = os.environ.get("REQUIRE_EVIDENCE", "") == "require-evidence"
 try:
     with open(traceability_path, encoding="utf-8") as f:
         traceability = json.load(f)
-except json.JSONDecodeError:
+except (OSError, ValueError):
     print("check-traceability: invalid JSON", file=sys.stderr)
     sys.exit(1)
 
 failures = []
 
+if not isinstance(traceability, dict):
+    print("Traceability check FAILED:\n - traceability must be an object")
+    sys.exit(1)
+
 # Validate structure
-feature = (traceability.get("feature") or "").strip()
+feature_value = traceability.get("feature")
+feature = feature_value.strip() if isinstance(feature_value, str) else ""
 if not feature:
     failures.append("missing feature")
 
@@ -60,19 +65,24 @@ if not isinstance(links, list) or len(links) == 0:
 
 # Validate each link
 for i, link in enumerate(links):
-    req = (link.get("req") or "").strip()
+    if not isinstance(link, dict):
+        failures.append(f"link {i} must be an object")
+        continue
+    req_value = link.get("req")
+    req = req_value.strip() if isinstance(req_value, str) else ""
     if not req:
         req = f"link {i}"
+        failures.append(f"{req} requires a nonempty req string")
 
     # Check acs
     acs = link.get("acs", [])
-    if not isinstance(acs, list) or len(acs) == 0 or not any((str(ac or "").strip()) for ac in acs):
+    if not isinstance(acs, list) or len(acs) == 0 or not all(isinstance(ac, str) for ac in acs) or not any(ac.strip() for ac in acs):
         failures.append(f"{req} has no acceptance criteria (acs)")
         continue
 
     # Check tests
     tests = link.get("tests", [])
-    if not isinstance(tests, list) or len(tests) == 0 or not any((str(t or "").strip()) for t in tests):
+    if not isinstance(tests, list) or len(tests) == 0 or not all(isinstance(t, str) for t in tests) or not any(t.strip() for t in tests):
         failures.append(f"{req} has no tests")
         continue
 
@@ -93,6 +103,9 @@ for i, link in enumerate(links):
             continue
 
         for ev_file in evidence:
+            if ev_file is not None and not isinstance(ev_file, str):
+                failures.append(f"{req} evidence must contain strings")
+                continue
             ev_path = (ev_file or "").strip()
             if not ev_path:
                 continue

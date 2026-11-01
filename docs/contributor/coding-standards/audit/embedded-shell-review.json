@@ -2,7 +2,7 @@
   "schema": "coding-standards-embedded-shell-review/v1",
   "revision": "79c0c9683cf396e9ef3523591910100ba6fb525b",
   "method": "Inspected all 83 active labelled shell blocks across 27 paths, including indented fences, and the surrounding consumer purpose; inspected 76 historical proposal blocks separately. Bash/PowerShell syntax checks executed for 41 concrete blocks; 42 authoring synopses are not unchanged programs. Additional unlabelled/text CLI-like blocks were inspected as synopsis. This is bounded embedded-shell coverage, not every prose claim or invoked implementation.",
-  "rule_applicability": "CS-004/005/007/010/015/016/017/022/023/024/025/030 assessed where commands handle inputs, credentials, processes or results. Remaining naming, typing, import, callback, HTML/SQL, dependency and reuse rules apply to generated/current program bodies rather than a reference CLI synopsis; no blanket whole-file compliance inferred.",
+  "rule_applicability": "Input-to-shell and literal embedded programs (CS-001/002), structured serialization, credential handling, child process/result handling and bounded work are assessed where a block implements those operations. A fixed CLI synopsis delegates implementation to separately reviewed current sources. SQL/HTML destination, retry, callback, type/import and resource ownership rules are not applicable where the excerpt contains no such operation. No blanket whole-file compliance is inferred.",
   "actual_regression_evidence": [
     "tests/sdd-sudo-guard-mutation.tests.py",
     "tests/hitl-wfi-terminal.tests.sh",

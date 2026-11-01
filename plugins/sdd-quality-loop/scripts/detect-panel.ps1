@@ -41,11 +41,37 @@ $found = [System.Collections.Generic.List[string]]::new()
 # cheap liveness probe (never invokes a model); a codex that only resolves
 # to the codex-sync wrapper is treated as unavailable.
 function Test-CliVersion([string]$Exe) {
+    $process = $null
     try {
-        & $Exe --version *> $null
-        return ($LASTEXITCODE -eq 0)
+        $info = [Diagnostics.ProcessStartInfo]::new()
+        $info.FileName = $Exe
+        $info.Arguments = '--version'
+        if ([IO.Path]::DirectorySeparatorChar -eq '\' -and [IO.Path]::GetExtension($Exe) -in @('.cmd', '.bat')) {
+            # Expand the executable path once as data, inside quotes. A literal
+            # percent in an installed path must not become cmd variable syntax.
+            $info.FileName = $env:ComSpec
+            $info.EnvironmentVariables['SDD_DETECT_EXECUTABLE'] = $Exe
+            $info.Arguments = '/d /s /c ""%SDD_DETECT_EXECUTABLE%" --version"'
+        }
+        $info.UseShellExecute = $false
+        $info.RedirectStandardOutput = $true
+        $info.RedirectStandardError = $true
+        $process = [Diagnostics.Process]::Start($info)
+        $stdout = $process.StandardOutput.BaseStream.CopyToAsync([IO.Stream]::Null)
+        $stderr = $process.StandardError.BaseStream.CopyToAsync([IO.Stream]::Null)
+        if (-not $process.WaitForExit(5000)) { return $false }
+        return ($process.ExitCode -eq 0)
     } catch {
         return $false
+    } finally {
+        if ($process) {
+            try {
+                if (-not $process.HasExited) {
+                    try { $process.Kill($true) } catch { $process.Kill() }
+                    $process.WaitForExit()
+                }
+            } finally { $process.Dispose() }
+        }
     }
 }
 

@@ -28,7 +28,7 @@ Every current file is assessed under these families; absence is based on complet
 | CS-025, CS-026 | Contract enum/token comparisons retain required case (status, conclusion, approval, ticket IDs); hook case normalization is explicitly shell command/path matching policy. Files are read/written with UTF-8, byte operations use Buffer/Uint8Array, CRLF handling belongs to parsers, and log truncation advances to a UTF-8 boundary. Canonicalizer uses fatal UTF-8 decoding and rejects lossy YAML numbers/cycles. |
 | CS-027, CS-028, CS-029, CS-030 | Production logic contains no fixture-name branches. Tests use independent contract schemas, actual stdio/HTTP/entry calls, path/symlink cases and preserved historical shell comparisons. Golden recording does not rewrite expectations during test execution. R009's WeakRef oracle is independent of the reader's counter. Linux pwsh is labeled as such; permission injection, VM DOM and mock Fetch are not claimed as native host proof. No type setting, test expectation, suppression, or required check was weakened to pass. |
 
-CS-005 (Actions expression interpolation) and CS-020 (PowerShell semantics) have no TS/JS-language applicability; their shell/workflow hosts remain covered by their owner lanes. These are explicit non-applicability decisions, not unknowns.
+CS-005 (Actions expression interpolation) and CS-020 (Python boundary handling) have no TS/JS-language applicability; their shell/workflow/Python hosts remain covered by their owner lanes. These are explicit non-applicability decisions, not unknowns.
 
 ## Subsystem judgments
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -75,8 +76,7 @@ cp -R "$ROOT/reports/spec-review/workflow-state-integrity" "$FULL/reports/spec-r
 cp -R "$ROOT/reports/impl-review/workflow-state-integrity" "$FULL/reports/impl-review/"
 cp -R "$ROOT/reports/task-review/workflow-state-integrity" "$FULL/reports/task-review/"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$ROOT#$FULL#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$ROOT" "$FULL"
 done < <(find "$FULL/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 jq '{schema_version, migration_baseline_commit,

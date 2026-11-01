@@ -79,7 +79,7 @@ function Test-DomainContract {
                 if ($null -eq (Get-PropSafe $context $field)) { $errors.Add("contexts[].$field is required") }
             }
             $contextName = Get-PropSafe $context "name"
-            if ($null -ne $contextName -and $contextName -notmatch '^[a-z][a-z0-9-]*$') {
+            if ($null -ne $contextName -and $contextName -cnotmatch '^[a-z][a-z0-9-]*$') {
                 $errors.Add("contexts[].name must be kebab-case")
             }
             foreach ($term in @(Get-PropSafe $context "terms")) {

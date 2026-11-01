@@ -1,0 +1,35 @@
+{
+  "scope": "Current invocation and ledger JSON boundaries; all six Bash jq enumeration consumers and implementation-report producer status. Contextual targeted review, not proof of every line or all external helpers.",
+  "baseline": "e0c8f4c2",
+  "sources": {
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "61d077d838cacdc922e345630751b1b97eadb8c99657f0ad8340f2d27d90c8aa",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "b79e05f1ce3af52125d41e8928d7a31ed8853aef6f9f6e4684bec6cd9ae30926",
+    "tests/review-context-boundary.tests.sh": "795a0cd4d8181f4b14eead09879430815fd6f415e93584e7db715c4c6ec90bc6",
+    "tests/review-context-anchors.tests.py": "6ef1de26540897c5999f13d9ce427b6b2d8c3f41926238b9abda35563adadb29"
+  },
+  "consumer_contract": "Current file-manifest invocation v2 uses scalar exact strings; canonical ledger v1 is an object. Reserve may append only after path/hash/identity checks. Historical persisted identity verification retains its existing ledger-hash and input completeness exceptions.",
+  "findings": [
+    {
+      "id": "RCB-SCALAR",
+      "before": "Six singleton-array fields passed PowerShell and failed Bash; valid control passed both.",
+      "after": "Both reject all six; durable test covers six fields times six JSON kinds plus manifest root, ledger root, ledger schema; 39 negatives per runtime assert unchanged ledger."
+    },
+    {
+      "id": "RCB-PRODUCER",
+      "before": "Actual input bytes modified after pin. Normal Bash rejected HASH; injected exit73 only at final jq input enumeration returned REVIEW_CONTEXT_OK, exit0.",
+      "after": "Captures and checks producer status before iteration; injected exit73 rejected CONTRACT, ledger unchanged. Five other equivalent enumeration sites repaired contextually; not individually fault injected."
+    }
+  ],
+  "validation": [
+    {
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/review-context-boundary.tests.sh",
+      "exit": 0,
+      "evidence": "review-context-evidence/review-context-full-after.txt",
+      "includes": "Existing reservation/verification, merge/rechain, domain binding, investigation runtime and regular/hardlink/symlink completeness matrix; new78 negatives plus real producer fault."
+    }
+  ],
+  "limits": [
+    "Native Linux PowerShell7.6.7 and Bash; Windows CI owned by integration. Documentary anchors updated to relocated checks; anchors are not the behavioral oracle.",
+    "Fault injection uses real jq for all earlier validation and fails only the final producer; malformed JSON probes use actual public commands."
+  ]
+}

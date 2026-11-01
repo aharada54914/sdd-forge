@@ -11,17 +11,33 @@ param(
     [string]$RepoRoot = "."
 )
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
 function Invoke-Git {
     param([string[]]$GitArgs, [switch]$AllowFail)
-    $out = & git -C $RepoRoot @GitArgs 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        if ($AllowFail) { return $null }
-        [Console]::Error.WriteLine(
-            "check-criterion-freeze: git $($GitArgs -join ' ') failed: $out")
+    try { $result = Invoke-SddGitRaw -RepoRoot $RepoRoot -GitArgs $GitArgs }
+    catch {
+        [Console]::Error.WriteLine("check-criterion-freeze: git inspection failed: $($_.Exception.Message)")
         exit 2
     }
-    return ($out -join "`n")
+    if ($result.ExitCode -ne 0) {
+        if ($AllowFail) { return $null }
+        $errorText = [Text.Encoding]::UTF8.GetString($result.Stderr).Trim()
+        [Console]::Error.WriteLine("check-criterion-freeze: git $($GitArgs -join ' ') failed: $errorText")
+        exit 2
+    }
+    try { return [regex]::Replace([Text.UTF8Encoding]::new($false, $true).GetString($result.Stdout), '\r?\n\z', '') }
+    catch {
+        [Console]::Error.WriteLine('check-criterion-freeze: git output is not valid UTF-8')
+        exit 2
+    }
+}
+
+function Get-GitFile {
+    param([string]$Revision, [string]$Path)
+    $listed = Invoke-Git -GitArgs @('--literal-pathspecs', 'ls-tree', '-z', '--name-only', $Revision, '--', $Path)
+    if (-not $listed) { return $null }
+    return Invoke-Git -GitArgs @('show', "${Revision}:${Path}")
 }
 
 function ConvertTo-NormalizedLines {
@@ -76,7 +92,7 @@ if ($parents.Count -lt 2) {
 $parent = $parents[1]
 
 # Inspect both rename endpoints so reviewed source deletions cannot disappear.
-$changed = @((Invoke-Git -GitArgs @("diff", "--no-renames", "--name-only", $parent, $Commit)) -split "`n" |
+$changed = @((Invoke-Git -GitArgs @("diff", "--no-renames", "--name-only", "-z", $parent, $Commit)) -split "`0" |
     Where-Object { $_ -ne "" })
 if ($changed.Count -eq 0) {
     Write-Output "check-criterion-freeze: $short changes no files"
@@ -97,8 +113,8 @@ if ($tasksFiles.Count -eq 0) {
 
 $violations = New-Object System.Collections.Generic.List[object]
 foreach ($path in $tasksFiles) {
-    $after = Invoke-Git -GitArgs @("show", "${Commit}:${path}") -AllowFail
-    $before = Invoke-Git -GitArgs @("show", "${parent}:${path}") -AllowFail
+    $after = Get-GitFile -Revision $Commit -Path $path
+    $before = Get-GitFile -Revision $parent -Path $path
     if ($null -eq $before) { continue } # newly added: no prior criterion prose
     if ($null -eq $after) { $after = "" } # deletion still changes reviewed prose
     $frozenMark = '(?m)^Task-Review-Status:[ \t]*Passed[ \t]*\r?$'

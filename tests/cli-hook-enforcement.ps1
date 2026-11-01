@@ -25,9 +25,8 @@ New-Item -ItemType Directory -Path $work -Force | Out-Null
 try {
     $tasks = Join-Path $work 'tasks.md'
     Set-Content -Path $tasks -Encoding Utf8NoBOM -Value "## T-001`nApproval: Draft`nStatus: Planned"
-    $tasksFwd    = ($tasks -replace '\\', '/')
-    $selfApprove = '{"tool_name":"Edit","tool_input":{"file_path":"' + $tasksFwd + '","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
-    $benign      = '{"tool_name":"Edit","tool_input":{"file_path":"' + ($work -replace '\\', '/') + '/src.js","old_string":"a","new_string":"b"}}'
+    $selfApprove = @{tool_name='Edit'; tool_input=@{file_path=$tasks; old_string='Approval: Draft'; new_string='Approval: Approved'}} | ConvertTo-Json -Depth 4 -Compress
+    $benign = @{tool_name='Edit'; tool_input=@{file_path=(Join-Path $work 'src.js'); old_string='a'; new_string='b'}} | ConvertTo-Json -Depth 4 -Compress
 
     # --- which CLIs are actually installed on this runner (informational) ---
     foreach ($cli in 'claude', 'codex', 'copilot') {
@@ -117,7 +116,7 @@ try {
         else { bad "$label expected matching config state and exit 2, got state=$stateMatches exit=$directExit" }
     }
 
-    $copilotSubagentSelfApprove = '{"tool_name":"Edit","tool_input":{"file_path":"' + $tasksFwd + '","old_string":"Approval: Draft","new_string":"Approval: Approved"},"synthetic_context_indicator":"subagent"}'
+    $copilotSubagentSelfApprove = @{tool_name='Edit'; tool_input=@{file_path=$tasks; old_string='Approval: Draft'; new_string='Approval: Approved'}; synthetic_context_indicator='subagent'} | ConvertTo-Json -Depth 4 -Compress
     $subagentIndicatorMatches = (($copilotSubagentSelfApprove | ConvertFrom-Json).synthetic_context_indicator -ceq 'subagent')
     $subagentJson = ($copilotSubagentSelfApprove | & pwsh -NoProfile -File $ps1 -Emit copilot | Out-String)
     $subagentLabel = 'TEST-012 synthetic config/guard-contract regression (not a live-host observation): Copilot subagent indicator plus direct guard self-approval denial'

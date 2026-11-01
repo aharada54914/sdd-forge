@@ -1,0 +1,6 @@
+Exception: /workspace/scratch/standards-685/typescript/tests/ownership-digest.tests.ps1:29
+Line |
+  29 |  … TEXITCODE -ne 0) { throw "resolver failed ($LASTEXITCODE): $output" }
+     |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | resolver failed (1): .:
+     | /tmp/ownership-digest-1b327208cb3c425191a3937f615efda0/matcher/resolve-component-paths.ps1:1012 Line | 1012 |  . (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')      |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      | The term      | '/tmp/ownership-digest-1b327208cb3c425191a3937f615efda0/matcher/lib/native-arguments.ps1' is not recognized as a name of a cmdlet, function, script file, or executable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.

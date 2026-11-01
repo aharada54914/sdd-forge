@@ -83,6 +83,7 @@ consent_kind="human-flag"
 _panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
 
 while [ $# -gt 0 ]; do
+    [ $# -ge 2 ] || { printf 'run-panelist-gpt: missing value for %s\n' "$1" >&2; exit 2; }
     case "$1" in
         --task)      task_id="$2";      shift 2 ;;
         --feature)   feature="$2";      shift 2 ;;
@@ -188,7 +189,9 @@ fi
 
 # ── Prepare scratch and output paths ────────────────────────────────────────
 
-_scratch="$(mktemp -d)"
+_scratch="$(mktemp -d)" || {
+    printf 'run-panelist-gpt: cannot create scratch directory\n' >&2; exit 2
+}
 trap 'rm -rf "$_scratch"' EXIT
 
 out_dir="${spec_root}/${feature}/verification"
@@ -208,7 +211,7 @@ unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 # ── Build the panelist prompt ────────────────────────────────────────────────
 
 _prompt_file="${_scratch}/prompt.txt"
-cat > "$_prompt_file" << 'PROMPT_EOF'
+if ! cat > "$_prompt_file" << 'PROMPT_EOF'
 You are an independent panelist reviewing a software implementation. You are
 running BLIND: you have not seen any other panelist's verdict, the primary
 evaluator's verdict, or any prior review feedback on this task.
@@ -253,6 +256,9 @@ Rules:
 - Do not include any text outside the JSON object.
 - Do not wrap the JSON object in a Markdown code fence.
 PROMPT_EOF
+then
+    printf 'run-panelist-gpt: cannot write panelist prompt\n' >&2; exit 2
+fi
 
 # ── Invoke codex CLI in isolated scratch ─────────────────────────────────────
 # Pass the prompt and input bundle to codex via stdin concatenation, through
@@ -265,11 +271,13 @@ PROMPT_EOF
 # Trailing `-` makes the "read the prompt from stdin" contract explicit.
 
 _combined="${_scratch}/combined.txt"
-{
-    cat "$_prompt_file"
-    printf '\n\n## Sanitized Input Bundle\n\n'
+if ! {
+    cat "$_prompt_file" &&
+    printf '\n\n## Sanitized Input Bundle\n\n' &&
     cat "$input_path"
-} > "$_combined"
+} > "$_combined"; then
+    printf 'run-panelist-gpt: cannot assemble complete input bundle\n' >&2; exit 2
+fi
 
 # Keep the argv vector separate from its human-readable diagnostic.
 set -- exec

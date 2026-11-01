@@ -3,6 +3,7 @@ param(
     [string]$CandidatePath,
     [switch]$CaptureGolden
 )
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -157,14 +158,10 @@ function New-Contract([string]$Root, [string]$FieldName, [string]$CaseName, [All
     return $contractPath
 }
 
-function Quote-Argument([string]$Value) {
-    return '"' + $Value.Replace('"', '\"') + '"'
-}
-
 function Invoke-Contract([string]$ScriptPath, [string]$ContractPath, [string]$RepoRoot) {
     $info = New-Object System.Diagnostics.ProcessStartInfo
     $info.FileName = Join-Path $PSHOME "powershell.exe"
-    $info.Arguments = "-NoProfile -ExecutionPolicy Bypass -File $(Quote-Argument $ScriptPath) $(Quote-Argument $ContractPath) -RepoRoot $(Quote-Argument $RepoRoot)"
+    $info.Arguments = ConvertTo-SddNativeArgumentString @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ScriptPath, $ContractPath, '-RepoRoot', $RepoRoot)
     $info.UseShellExecute = $false
     $info.CreateNoWindow = $true
     $info.RedirectStandardOutput = $true

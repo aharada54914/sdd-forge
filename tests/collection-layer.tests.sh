@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # collection-layer.tests.sh — offline tests for T-005 collection layer scripts
 # Tests detect-panel graceful-degrade and runner presence/format.
 # No real CLI invocations; no network access.
@@ -426,8 +427,8 @@ CL016_STDIN="${WORK}/cl016-stdin.txt"
 ZERO_DIGEST_CL="$(printf '0%.0s' $(seq 1 64))"
 cat > "${CL016_BIN}/gemini" <<STUBEOF
 #!/bin/sh
-printf '%s\n' "\$@" > "${CL016_ARGV}"
-cat > "${CL016_STDIN}"
+printf '%s\n' "\$@" > $(shell_literal "$CL016_ARGV")
+cat > $(shell_literal "$CL016_STDIN")
 printf '%s\n' '{"schema":"cross-model-verdict/v1","task_id":"T-016","feature":"feat","vendor":"google","model":"stub","verdict":"PASS","findings":[],"blind":true,"input_digest":"${ZERO_DIGEST_CL}","consent":{"kind":"human-flag","ref":"stub"}}'
 exit 0
 STUBEOF
@@ -760,6 +761,13 @@ if [ ! -f "${WORK}/cl023/specs/feat/verification/T-023.panelist-openai.verdict.j
     ok "CL-023c: no verdict file is written for malformed JSON"
 else
     fail "CL-023c: a verdict file was written despite malformed JSON"
+fi
+
+# A version probe is external work even though it never invokes a model.
+if python3 "$REPO_ROOT/tests/lib/detect-panel-probe.py" "$SCRIPTS_DIR/detect-panel.sh" "$BASH"; then
+    ok "detect-panel version success/failure/deadline and child cleanup"
+else
+    fail "detect-panel version deadline regression"
 fi
 
 # ============================================================================

@@ -1,0 +1,15 @@
+{
+  "schema": "coding-standards-public-entry-review/v1",
+  "source_revision": "f15a038c",
+  "driver": {
+    "path": "reports/verification/coding-standards-mcp-public-20261101/verify.mjs",
+    "sha256": "277f171cc2c7a04225724c943ba8ed10b85a218edd62b129491cdca982a9e0f3",
+    "review": "Complete driver review: fixed package and tool allowlists; private mkdtemp fixture; library stdio transport with explicit argv/no shell; credentials cleared; each request timeout 10 seconds; actual protocol response and filesystem assertions; finally closes transport and removes private root. Local SDK client dependency only, isolated server distributions have no node_modules. Generated temporary fixture contains no user data. Evidence output is caller-selected local path; default /tmp. No product behavior changed."
+  },
+  "commands": [
+    "npm run build && npm run typecheck (in each of mcp/sdd-forge-mcp, mcp/local-env-mcp, mcp/ci-mcp)",
+    "node reports/verification/coding-standards-mcp-public-20261101/verify.mjs /tmp/public-mcp-smoke-results.json"
+  ],
+  "validation": "All three build/typecheck commands exit 0; actual stdio driver exits 0. Results preserve actual runtime responses. CI call verifies public auth-missing boundary; it does not claim remote GitHub retrieval. Existing native diagnostics/buffer/real-FS coverage remains in docs/contributor/coding-standards/reuse/independent-review.json.",
+  "results": "reports/verification/coding-standards-mcp-public-20261101/results.json"
+}

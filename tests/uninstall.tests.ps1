@@ -766,4 +766,23 @@ try {
 }
 
 Write-Host ""
+# A bracketed installation path must not select a similarly named neighbor.
+$literalRoot = Join-Path ([IO.Path]::GetTempPath()) ('sdd-uninstall-literal-' + [guid]::NewGuid())
+$literalInstall = Join-Path $literalRoot 'pack[ab]'
+$literalNeighbor = Join-Path $literalRoot 'packa'
+try {
+    [IO.Directory]::CreateDirectory($literalInstall) | Out-Null
+    [IO.Directory]::CreateDirectory($literalNeighbor) | Out-Null
+    [IO.File]::WriteAllText((Join-Path $literalInstall 'owned.marker'), 'owned bytes')
+    [IO.File]::WriteAllText((Join-Path $literalNeighbor 'neighbor.marker'), 'neighbor bytes')
+    & $uninstaller -InstallRoot $literalInstall -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *> $null
+    if ([IO.Directory]::Exists($literalInstall) -or
+        [IO.File]::ReadAllText((Join-Path $literalNeighbor 'neighbor.marker')) -cne 'neighbor bytes') {
+        throw 'uninstall did not remove only the literal bracketed target'
+    }
+    Write-Host 'ok: bracketed uninstall removes its exact target and preserves the neighboring tree'
+} finally {
+    if (Test-Path -LiteralPath $literalRoot) { Remove-Item -LiteralPath $literalRoot -Recurse -Force }
+}
+
 Write-Host "uninstall.tests.ps1: all scenarios passed."

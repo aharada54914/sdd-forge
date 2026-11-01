@@ -1,0 +1,2 @@
+spec-review-precheck: complete. Output written to /workspace/scratch/standards-685/reuse/reports/spec-review/spec-review-fixture-4619-1945189/attempt-1/round-1/
+spec-prior-root control=0 singleton-root=0

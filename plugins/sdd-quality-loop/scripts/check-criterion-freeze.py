@@ -37,7 +37,7 @@ def git(*args, allow_fail=False):
             encoding="utf-8",
             timeout=30,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
+    except (OSError, UnicodeError, subprocess.TimeoutExpired) as exc:
         sys.stderr.write("check-criterion-freeze: git inspection failed: %s\n" % type(exc).__name__)
         sys.exit(2)
     if proc.returncode != 0:
@@ -49,6 +49,14 @@ def git(*args, allow_fail=False):
         )
         sys.exit(2)
     return proc.stdout
+
+
+def git_file(revision, path):
+    # A successful empty tree lookup means absence; a failed object read is an error.
+    listed = git("--literal-pathspecs", "ls-tree", "-z", "--name-only", revision, "--", path)
+    if not listed:
+        return None
+    return git("show", "%s:%s" % (revision, path))
 
 
 def normalize(text):
@@ -110,8 +118,8 @@ def main():
     parent = parents[1]  # first parent: a merge is judged against its base
 
     # Inspect both rename endpoints so reviewed source deletions cannot disappear.
-    changed = [p for p in (git("diff", "--no-renames", "--name-only", parent, COMMIT) or
-                           "").splitlines() if p]
+    changed = [p for p in (git("diff", "--no-renames", "--name-only", "-z", parent, COMMIT) or
+                           "").split("\0") if p]
     if not changed:
         print("check-criterion-freeze: %s changes no files" % short)
         return 0
@@ -130,8 +138,8 @@ def main():
 
     violations = []
     for path in tasks_files:
-        after = git("show", "%s:%s" % (COMMIT, path), allow_fail=True)
-        before = git("show", "%s:%s" % (parent, path), allow_fail=True)
+        after = git_file(COMMIT, path)
+        before = git_file(parent, path)
         if before is None:
             continue  # newly added: no prior criterion prose to compare
         after = after or ""  # deleting reviewed prose is still a criterion change

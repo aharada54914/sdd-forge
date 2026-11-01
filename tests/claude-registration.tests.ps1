@@ -63,7 +63,7 @@ function New-GitShim {
             # available without re-exposing a separately installed Claude CLI.
             'PATH="/usr/bin:/bin:$PATH"'
             'export PATH'
-            ('exec "{0}" "$@"' -f $realGit)
+            ("exec '" + $realGit.Replace("'", "'\''") + "' " + '"$@"')
         ) | Set-Content -Path $commandPath -Encoding Utf8NoBOM
         & chmod +x $commandPath
     }
