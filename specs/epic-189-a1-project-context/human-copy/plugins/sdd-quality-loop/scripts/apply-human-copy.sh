@@ -1419,12 +1419,19 @@ recover_all() {
   recovery_crash_stage=${2:-}
   recovered=0
   RECOVERED=0
-  if [ ! -d sdd/.staging ]; then
-    RECOVERED=0
-    return 0
-  fi
+  for recovery_parent in sdd sdd/.staging; do
+    if [ ! -e "$recovery_parent" ] && [ ! -L "$recovery_parent" ]; then return 0; fi
+    if [ -L "$recovery_parent" ] || [ ! -d "$recovery_parent" ] ||
+       [ ! -r "$recovery_parent" ] || [ ! -x "$recovery_parent" ] ||
+       ! find "$recovery_parent" ! -path "$recovery_parent" -prune -print >/dev/null; then
+      die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED "cannot inspect recovery directory '$recovery_parent'; journal state is undetermined"
+    fi
+  done
   for batch_dir in sdd/.staging/*/; do
     [ -d "$batch_dir" ] || continue
+    if [ -L "${batch_dir%/}" ] || [ ! -r "$batch_dir" ] || [ ! -x "$batch_dir" ]; then
+      die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED "cannot inspect recovery batch '$batch_dir'; journal state is undetermined"
+    fi
     jf="${batch_dir}TRANSACTION.json"
     [ -f "$jf" ] || continue
     batch_dir_abs=$(cd -- "$batch_dir" && pwd -P)
