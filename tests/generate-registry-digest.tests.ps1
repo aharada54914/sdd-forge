@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 # Acceptance-first PowerShell twin for T-005 (REQ-004; TEST-023/024/032).
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -38,7 +39,7 @@ function Invoke-Generator([string[]]$Arguments) {
   $stdout = Join-Path $workDir 'stdout'
   $stderr = Join-Path $workDir 'stderr'
   $powerShell = (Get-Process -Id $PID).Path
-  $process = Start-Process -FilePath $powerShell -ArgumentList (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $scriptDir 'generate-registry-digest.ps1')) + $Arguments) -Wait -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+  $process = Start-Process -FilePath $powerShell -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @((@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $scriptDir 'generate-registry-digest.ps1')) + $Arguments))) -Wait -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
   return [PSCustomObject]@{
     Rc = $process.ExitCode
     Out = ((Get-Content -LiteralPath $stdout -Raw -ErrorAction SilentlyContinue) -replace '[\r\n]', '')
@@ -131,10 +132,10 @@ print("PASS" if all(x in text for x in required) and not any(x in text for x in 
   $jsBytes = Join-Path $workDir 'js.bytes'
   $psBytes = Join-Path $workDir 'ps.bytes'
   $sink = Join-Path $workDir 'parity.stderr'
-  $shProcess = Start-Process -FilePath bash -ArgumentList @((Join-Path $scriptDir 'generate-registry-digest.sh'), '--capability-ids', 'cap-alpha') -Wait -PassThru -RedirectStandardOutput $shBytes -RedirectStandardError $sink
-  $jsProcess = Start-Process -FilePath node -ArgumentList @((Join-Path $scriptDir 'generate-registry-digest.js'), '--capability-ids', 'cap-alpha') -Wait -PassThru -RedirectStandardOutput $jsBytes -RedirectStandardError $sink
+  $shProcess = Start-Process -FilePath bash -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @(@((Join-Path $scriptDir 'generate-registry-digest.sh'), '--capability-ids', 'cap-alpha'))) -Wait -PassThru -RedirectStandardOutput $shBytes -RedirectStandardError $sink
+  $jsProcess = Start-Process -FilePath node -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @(@((Join-Path $scriptDir 'generate-registry-digest.js'), '--capability-ids', 'cap-alpha'))) -Wait -PassThru -RedirectStandardOutput $jsBytes -RedirectStandardError $sink
   $powerShell = (Get-Process -Id $PID).Path
-  $psProcess = Start-Process -FilePath $powerShell -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $scriptDir 'generate-registry-digest.ps1'), '--capability-ids', 'cap-alpha') -Wait -PassThru -RedirectStandardOutput $psBytes -RedirectStandardError $sink
+  $psProcess = Start-Process -FilePath $powerShell -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @(@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $scriptDir 'generate-registry-digest.ps1'), '--capability-ids', 'cap-alpha'))) -Wait -PassThru -RedirectStandardOutput $psBytes -RedirectStandardError $sink
   $shRaw = [IO.File]::ReadAllBytes($shBytes)
   $jsRaw = [IO.File]::ReadAllBytes($jsBytes)
   $psRaw = [IO.File]::ReadAllBytes($psBytes)

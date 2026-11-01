@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # task-plan-binding-durability.tests.sh — WFI-025: a task-stage provenance
 # binding made over a MIXED-status task plan survives lifecycle transitions.
 #
@@ -352,7 +353,7 @@ make_ws_fixture() {
   cp -R "$ROOT/reports/impl-review/workflow-state-integrity" "$target/reports/impl-review/"
   cp -R "$ROOT/reports/task-review/workflow-state-integrity" "$target/reports/task-review/"
   while IFS= read -r evidence; do
-    sed -i.bak "s#$ROOT#$target#g" "$evidence"; rm -f "$evidence.bak"
+    replace_file_literal "$evidence" "$ROOT" "$target"
   done < <(find "$target/reports" -type f \
     \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
   # Force the full profile and drop any legacy grandfathering, as

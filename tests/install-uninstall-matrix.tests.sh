@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # REQ-002 install/uninstall matrix (AC-007..011, AC-024).
 # A local macOS run covers all four cells; the staged CI step covers the same
 # driver on the existing three OS jobs. FilesOnly is intentionally out of
@@ -24,6 +25,19 @@ case "$TARGET" in ""|All|Codex|Claude|Copilot) ;; *) echo "invalid --target: $TA
 ok() { PASS=$((PASS + 1)); echo "ok: $*"; }
 fail() { FAIL=$((FAIL + 1)); echo "not ok: $*" >&2; }
 
+# Exercise the generated /bin/sh boundary, including characters that must stay data.
+for literal_value in '' '日本語 with spaces' "apostrophe' and \"quote" '$(`printf injected`) \ trailing' $'line\nbreak'; do
+    literal_source="$(shell_literal "$literal_value")"
+    literal_actual="$(sh -c "printf '%s.' $literal_source")"
+    [[ "$literal_actual" == "$literal_value." ]] || fail "generated fixture shell literal changed its value"
+done
+
+literal_file="$(mktemp)"
+printf '%s' '/tmp/repo[ab]#&/repo[ab]' > "$literal_file"
+replace_file_literal "$literal_file" '/tmp/repo[ab]#&' '/tmp/new&[x]#'
+[[ "$(cat "$literal_file")" == '/tmp/new&[x]#/repo[ab]' ]] || fail "fixture replacement interpreted path metacharacters"
+rm -f -- "$literal_file"
+
 json_manifest() {
     local root="$1"
     python3 - "$root" <<'PY'
@@ -47,7 +61,7 @@ make_fake_cli() {
     for command in codex claude copilot gh; do
         cat > "${bin_dir}/${command}" <<EOF
 #!/bin/sh
-printf '%s %s\\n' '${command}' "\$*" >> '${log}'
+printf '%s %s\\n' '${command}' "\$*" >> $(shell_literal "$log")
 exit 0
 EOF
         chmod +x "${bin_dir}/${command}"

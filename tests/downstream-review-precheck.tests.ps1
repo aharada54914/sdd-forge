@@ -406,7 +406,9 @@ try {
   $psExe = (Get-Process -Id $PID).Path
   $implPrecheckPath = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
   function Invoke-AcRun {
-    $command = "try { & '$implPrecheckPath' -Feature '$feature' -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
+    $scriptLiteral = "'" + $implPrecheckPath.Replace("'", "''") + "'"
+    $featureLiteral = "'" + $feature.Replace("'", "''") + "'"
+    $command = "try { & $scriptLiteral -Feature $featureLiteral -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
     $lines = & $psExe -NoProfile -Command $command 2>&1 | ForEach-Object { $_.ToString() }
     return ($lines -join "`n")
   }

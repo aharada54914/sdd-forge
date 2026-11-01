@@ -562,13 +562,9 @@ Approval: Draft
         try { $okAllowPy = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "allow") } catch { }
         Assert "py: copilot allow -> JSON allow, exit 0" ($r.Code -eq 0 -and $okAllowPy)
 
-        # TTY-no-hang: run with </dev/null (stdin redirected, not a TTY) - should allow
-        if ($bash2) {
-            $ttyResult = $null
-            $ttyResult = & bash -c ("python3 '" + (Join-Path $scriptsDir "sdd-hook-guard.py").Replace("'","'\\''") + "' < /dev/null; echo $?") 2>$null
-            # Should exit 0 (allow)
-            Assert "py: TTY guard with empty stdin does not hang -> allow" ($ttyResult -match "^0$" -or ($LASTEXITCODE -eq 0))
-        }
+        # Closed, empty stdin is malformed input, not a TTY or a successful tool call.
+        $emptyInput = Invoke-GuardPy ''
+        Assert "py: empty stdin fails closed with actual guard status" ($emptyInput.Code -eq 2 -and [string]::IsNullOrEmpty($emptyInput.Out))
 
         # 4f. Assert js and py --emit copilot outputs are byte-identical for both allow and deny
         if ($node) {

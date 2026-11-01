@@ -6,6 +6,7 @@ param(
     [string]$Lane = 'all'
 )
 
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $pwshPath = (Get-Command pwsh -ErrorAction Stop).Source
@@ -88,7 +89,7 @@ try {
         $stderr = "$logRoot-$name.err"
         $logs[$name] = @{ stdout = $stdout; stderr = $stderr }
         $processes[$name] = Start-Process -FilePath $pwshPath `
-            -ArgumentList @('-NoProfile', '-NonInteractive', '-File', $PSCommandPath, '-Lane', $name) `
+            -ArgumentList (ConvertTo-SddNativeArgumentString @('-NoProfile', '-NonInteractive', '-File', $PSCommandPath, '-Lane', $name)) `
             -WorkingDirectory $repoRoot `
             -RedirectStandardOutput $stdout `
             -RedirectStandardError $stderr `

@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 # Cross-script parity and installed-layout invocation harness -- PowerShell
 # twin (T-007, REQ-006; TEST-031/AC-031, TEST-033/AC-033).
 #
@@ -265,7 +266,7 @@ function Invoke-Wrapper {
     'js' { $fileName = $nodeExe; $argumentList = @((Join-Path $ScriptsDir "$Base.js")) + $Arguments }
     default { throw "unknown wrapper kind: $Kind" }
   }
-  $process = Start-Process -FilePath $fileName -ArgumentList $argumentList -Wait -PassThru `
+  $process = Start-Process -FilePath $fileName -ArgumentList (ConvertTo-SddNativeArgumentString -Arguments @($argumentList)) -Wait -PassThru `
     -RedirectStandardOutput $OutFile -RedirectStandardError "$OutFile.err"
   Set-Content -LiteralPath "$OutFile.rc" -Value ([string]$process.ExitCode) -NoNewline
 }

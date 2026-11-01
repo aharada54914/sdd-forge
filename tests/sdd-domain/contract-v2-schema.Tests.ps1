@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
@@ -235,10 +236,10 @@ function Invoke-CapturedProcess {
     # Deliberately NOT Start-Process: the assertions below depend on stdout
     # being empty and on stderr being exactly one line, so both streams must be
     # captured verbatim and independently.
-    param([string]$FilePath, [string]$ArgumentString)
+    param([string]$FilePath, [string[]]$ArgumentList)
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $FilePath
-    $startInfo.Arguments = $ArgumentString
+    $startInfo.Arguments = ConvertTo-SddNativeArgumentString $ArgumentList
     $startInfo.UseShellExecute = $false
     $startInfo.RedirectStandardOutput = $true
     $startInfo.RedirectStandardError = $true
@@ -263,20 +264,20 @@ function Invoke-CapturedProcess {
 function Invoke-ValidatorPs1 {
     # $ContractPath omitted entirely reproduces the missing-argument case.
     param([string]$ContractPath)
-    $arguments = '-NoProfile -NonInteractive -File "{0}"' -f $validatorPs1Path
+    $arguments = @('-NoProfile', '-NonInteractive', '-File', $validatorPs1Path)
     if ($PSBoundParameters.ContainsKey("ContractPath")) {
-        $arguments = '-NoProfile -NonInteractive -File "{0}" "{1}"' -f $validatorPs1Path, $ContractPath
+        $arguments += $ContractPath
     }
-    return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentString $arguments
+    return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList $arguments
 }
 
 function Invoke-ValidatorSh {
     param([string]$ContractPath)
-    $arguments = '"{0}"' -f $validatorShPath
+    $arguments = @($validatorShPath)
     if ($PSBoundParameters.ContainsKey("ContractPath")) {
-        $arguments = '"{0}" "{1}"' -f $validatorShPath, $ContractPath
+        $arguments += $ContractPath
     }
-    return Invoke-CapturedProcess -FilePath $bashCommand.Source -ArgumentString $arguments
+    return Invoke-CapturedProcess -FilePath $bashCommand.Source -ArgumentList $arguments
 }
 
 function Get-StdErrViolationLines {
@@ -2104,16 +2105,17 @@ function Invoke-V1SuiteRun {
     # already-running Pester session, so the v1 run's state cannot leak into
     # or be affected by this suite's own Run phase.
     $runnerPath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-t005-v1runner-" + [guid]::NewGuid().ToString("N") + ".ps1")
-    $runnerBody = @"
-`$ErrorActionPreference = 'Stop'
+    $runnerBody = @'
+param([string]$SuitePath)
+$ErrorActionPreference = 'Stop'
 Import-Module Pester -RequiredVersion 4.10.1
-`$result = Invoke-Pester -Script '$v1SuiteTestsPath' -PassThru -Show None
-Write-Output ('RESULT ' + `$result.PassedCount + ' ' + `$result.FailedCount)
-"@
+$result = Invoke-Pester -Script $SuitePath -PassThru -Show None
+Write-Output ('RESULT ' + $result.PassedCount + ' ' + $result.FailedCount)
+'@
     [System.IO.File]::WriteAllText($runnerPath, $runnerBody, (New-Object System.Text.UTF8Encoding($false)))
     try {
-        $arguments = '-NoProfile -NonInteractive -File "{0}"' -f $runnerPath
-        return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentString $arguments
+        $arguments = @('-NoProfile', '-NonInteractive', '-File', $runnerPath, '-SuitePath', $v1SuiteTestsPath)
+        return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList $arguments
     } finally {
         Remove-EphemeralPath -Path $runnerPath
     }

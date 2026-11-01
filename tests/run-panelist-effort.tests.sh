@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # Suite: run-panelist-effort (T-006, #152) -- REQ-006/REQ-008 share --
 # AC-035..040, AC-052.
 #
@@ -89,9 +90,9 @@ MARKER_FILE="$TMP/codex-invoked.marker"
 STUB_JSON='{"schema":"cross-model-verdict/v1","task_id":"stub","feature":"stub","vendor":"openai","model":"stub","verdict":"PASS","findings":[],"blind":true,"input_digest":"'"$ZERO_DIGEST"'","consent":{"kind":"human-flag","ref":"stub"}}'
 cat > "$STUB_BIN/codex" <<STUBEOF
 #!/bin/sh
-printf '%s\n' "\$@" > "$ARGV_FILE"
-: > "$MARKER_FILE"
-printf '%s\n' '$STUB_JSON'
+printf '%s\n' "\$@" > $(shell_literal "$ARGV_FILE")
+: > $(shell_literal "$MARKER_FILE")
+printf '%s\n' $(shell_literal "$STUB_JSON")
 exit 0
 STUBEOF
 chmod +x "$STUB_BIN/codex"

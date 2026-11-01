@@ -1828,6 +1828,48 @@ try {
 
 }
 
+# Filesystem paths containing wildcard syntax remain literal across backup,
+# placement failure, restoration, successful upgrade and uninstall.
+$literalRoot = Join-Path ([IO.Path]::GetTempPath()) ('sdd-literal-' + [guid]::NewGuid())
+$literalInstall = Join-Path $literalRoot 'pack[ab]'
+$literalNeighbor = Join-Path $literalRoot 'packa'
+try {
+    [IO.Directory]::CreateDirectory($literalInstall) | Out-Null
+    [IO.Directory]::CreateDirectory($literalNeighbor) | Out-Null
+    [IO.File]::WriteAllText((Join-Path $literalInstall 'old.marker'), 'old bytes')
+    [IO.File]::WriteAllText((Join-Path $literalNeighbor 'neighbor.marker'), 'neighbor bytes')
+    function Move-Item {
+        [CmdletBinding()]
+        param([string]$Path, [string]$LiteralPath, [string]$Destination, [switch]$Force)
+        $source = if ($PSBoundParameters.ContainsKey('LiteralPath')) { $LiteralPath } else { $Path }
+        if ((Split-Path -Leaf $source) -like 'sdd-plugins-staging-*') { throw 'injected placement failure' }
+        Microsoft.PowerShell.Management\Move-Item @PSBoundParameters
+    }
+    $failed = $false
+    try {
+        & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $literalInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *> $null
+    } catch {
+        $failed = $_.ToString().Contains('injected placement failure')
+    } finally { Remove-Item Function:Move-Item }
+    if (-not $failed -or [IO.File]::ReadAllText((Join-Path $literalInstall 'old.marker')) -cne 'old bytes' -or
+        [IO.File]::ReadAllText((Join-Path $literalNeighbor 'neighbor.marker')) -cne 'neighbor bytes') {
+        throw 'literal install rollback did not preserve the old tree and neighboring tree'
+    }
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $literalInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *> $null
+    if (-not [IO.File]::Exists((Join-Path $literalInstall 'README.md')) -or
+        [IO.File]::Exists((Join-Path $literalInstall 'old.marker')) -or
+        [IO.File]::ReadAllText((Join-Path $literalNeighbor 'neighbor.marker')) -cne 'neighbor bytes') {
+        throw 'literal install placement did not replace only its exact target'
+    }
+    if (@(Get-ChildItem -LiteralPath $literalRoot -Directory | Where-Object Name -like 'sdd-plugins-backup-*').Count -ne 0) {
+        throw 'literal install left a superseded backup'
+    }
+    Write-Host 'ok: bracketed install path preserves neighbors through rollback and upgrade'
+} finally {
+    Remove-Item Function:Move-Item -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $literalRoot) { Remove-Item -LiteralPath $literalRoot -Recurse -Force }
+}
+
 Write-Host "Installer integration tests passed."
 
 if (Test-Path $installerSourceRoot) {

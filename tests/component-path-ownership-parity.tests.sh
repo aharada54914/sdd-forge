@@ -360,7 +360,7 @@ while IFS= read -r release_surface; do
     version_mutation=1
   fi
 done < <(find "$ROOT/plugins" -type f \( -path '*/.claude-plugin/plugin.json' -o -path '*/.codex-plugin/plugin.json' -o -path '*/.plugin/plugin.json' \) -print \
-  | sed "s#^$ROOT/##"; printf '%s\n' .claude-plugin/marketplace.json .agents/plugins/marketplace.json README.md tests/validate-repository.ps1 tests/repository-release-validation.tests.sh)
+  | while IFS= read -r path; do printf '%s\n' "${path#"$ROOT"/}"; done; printf '%s\n' .claude-plugin/marketplace.json .agents/plugins/marketplace.json README.md tests/validate-repository.ps1 tests/repository-release-validation.tests.sh)
 release_sync=1
 shipped_version="$(sed -n 's/.*"sdd-ship"[[:space:]]*=[[:space:]]*"\([0-9.]*\)".*/\1/p' "$ROOT/tests/validate-repository.ps1" | head -1)"
 [[ -n "$shipped_version" ]] || release_sync=0

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -27,8 +28,7 @@ make_full_fixture() {
   cp -R "$ROOT/reports/impl-review/workflow-state-integrity" "$target/reports/impl-review/"
   cp -R "$ROOT/reports/task-review/workflow-state-integrity" "$target/reports/task-review/"
   while IFS= read -r evidence; do
-    sed -i.bak "s#$ROOT#$target#g" "$evidence"
-    rm "$evidence.bak"
+    replace_file_literal "$evidence" "$ROOT" "$target"
   done < <(find "$target/reports" -type f \
     \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
   # Force a "full" profile for the isolated fixture regardless of the real
@@ -238,8 +238,7 @@ expect_valid "$valid"
 
 relocated="$(make_full_fixture sdd-forge)"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$relocated#/opt/ci-agent/sdd-forge#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$relocated" "/opt/ci-agent/sdd-forge"
 done < <(find "$relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 expect_valid "$relocated"
@@ -259,8 +258,7 @@ expect_valid "$windows_relocated"
 mixed_relocated="$(make_full_fixture mixed-relocated)"
 contract="$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$mixed_relocated#/opt/ci-agent/mixed-relocated#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$mixed_relocated" "/opt/ci-agent/mixed-relocated"
 done < <(find "$mixed_relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 jq '

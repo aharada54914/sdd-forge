@@ -34,7 +34,7 @@
   ],
   "out_of_language_rules": {
     "CS-005": "GitHub Actions expressions belong to workflow/shell lane, no Actions expression interpolation in these TS/JS entrypoints",
-    "CS-020": "PowerShell-specific behavior belongs to shell/PowerShell lane"
+    "CS-020": "Python-specific boundary handling belongs to the Python lane; embedded Python bodies are inventoried and reviewed by the shell/Python owners"
   },
   "native_file_count": 143,
   "ast_sites_examined": 9591,
