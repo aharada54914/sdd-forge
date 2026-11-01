@@ -419,8 +419,8 @@ import hashlib
 import json
 import re
 from pathlib import Path
-repo = Path('${REPO_ROOT}')
-manifest = Path('${HC_MANIFEST_191}')
+repo = Path(sys.argv[1])
+manifest = Path(sys.argv[2])
 import importlib.util
 import sys
 sys.dont_write_bytecode = True
@@ -442,7 +442,7 @@ evolved_paths = {
 tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
 t006 = tasks.split('## T-006', 1)[1]
 declared_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
-live = json.load(open('${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json'))
+live = json.load(open(sys.argv[3]))
 new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
        'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
        'plugins/sdd-quality-loop/scripts/check-component-coverage.sh')
@@ -476,7 +476,7 @@ for line in manifest.read_text().splitlines():
     if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
         raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
-"; then
+" "${REPO_ROOT}" "${HC_MANIFEST_191}" "${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json"; then
   ok "TEST-036.4: T-004's registrations and frozen candidates verify; live protected rows match their predecessor or an exactly bound current candidate"
 else
   fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"

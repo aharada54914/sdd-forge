@@ -1,0 +1,100 @@
+{
+  "schema": "coding-standards-native-host-summary/v1",
+  "scope": "Linux native discovery, invocation, owner-result reading for isolated generated project skill; not full application approval or all-host OS coverage",
+  "results": [
+    {
+      "host": "codex",
+      "source_commit": "adc6576d5adfa0a69d887c64cf8f8f396a773bf8",
+      "source_sha256": {
+        "plugins/sdd-bootstrap/scripts/project-skill.py": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+        "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+      },
+      "host_exit_code": 0,
+      "elapsed_seconds": 11.839769858008367,
+      "discovery": "native skills/list",
+      "owner_schema": "project-verification-observation/v3",
+      "owner_outcome": "passed",
+      "owner_exit_code": 0,
+      "actual_marker_read": true,
+      "independent_cross_environment_validation": "rejected: runtime-changed",
+      "fixture_removed": true,
+      "post_cleanup_discovery": "skill absent in native discovery",
+      "private_evidence_sha256": {
+        "protocol.json": "38046e2a4159db4e4243a37e661b6fde68a7e008bf97b220e37b993eb87fd549",
+        "result.json": "15f88d9518ca6118e69d6adabd1410a394ea24ff236af6707fc153292e312240",
+        "transcript.jsonl": "7cefea2b7bd03ed30fe3a903071b753796acadb596c04ab686d7b1542f7ec16f",
+        "smoke.json": "008e81a9fe12509accf568b132712077f325033d6ebf6a3fea76a40ed19ed70f"
+      },
+      "reported_usage": {
+        "input_tokens": 69856,
+        "cached_input_tokens": 57728,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 317,
+        "reasoning_output_tokens": 0
+      },
+      "reported_total_cost_usd": "unknown; not emitted",
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
+    },
+    {
+      "host": "copilot",
+      "source_commit": "adc6576d5adfa0a69d887c64cf8f8f396a773bf8",
+      "source_sha256": {
+        "plugins/sdd-bootstrap/scripts/project-skill.py": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+        "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+      },
+      "host_exit_code": 0,
+      "elapsed_seconds": 16.50339489900216,
+      "discovery": "native skill list",
+      "owner_schema": "project-verification-observation/v3",
+      "owner_outcome": "passed",
+      "owner_exit_code": 0,
+      "actual_marker_read": true,
+      "independent_cross_environment_validation": "rejected: runtime-changed",
+      "fixture_removed": true,
+      "post_cleanup_discovery": "skill absent in native discovery",
+      "private_evidence_sha256": {
+        "protocol.json": "8534c5b2a787b81988a4652286a6e09a75240b95b03bdccabcb42840c15b65e8",
+        "result.json": "84c6fbcea1fce6534065e3e2e33f9b06c5b5b9802eb45c0bab6ad3f00609d3e1",
+        "native.stdout.txt": "9cec2bb642e8530884bf13b5fddef052cdbae7652c9a3ef6a427d315edd4c060",
+        "smoke.json": "9c2632976c71ca3c71da1e805bf71ce18dfa72227b0f36f75a4c1c0ab2bb2ba4"
+      },
+      "reported_usage": "unknown; not emitted by CLI",
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
+    },
+    {
+      "host": "claude",
+      "source_commit": "adc6576d5adfa0a69d887c64cf8f8f396a773bf8",
+      "source_sha256": {
+        "plugins/sdd-bootstrap/scripts/project-skill.py": "b819937a8fd4bc059bc65ac6cbc947ef7fc5ca104d733a7221165ad70b8e787c",
+        "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+      },
+      "host_exit_code": 0,
+      "elapsed_seconds": 12.985992582995095,
+      "discovery": "actual Skill tool invocation in native transcript",
+      "owner_schema": "project-verification-observation/v3",
+      "owner_outcome": "passed",
+      "owner_exit_code": 0,
+      "actual_marker_read": true,
+      "independent_cross_environment_validation": "rejected: runtime-changed",
+      "fixture_removed": true,
+      "post_cleanup_discovery": "not executed; filesystem removal only",
+      "private_evidence_sha256": {
+        "protocol.json": "94737cca45de52945ccac8d59a6ed6bc34485e310a7f77944a8b3e1746f54342",
+        "result.json": "0c14583b47f9b1ec074a25d2383231bbd102c171eb6bc6c7e5eab78ae5b27f9e",
+        "native.stdout.txt": "d311ed07b804252ce5d8440055b3cbb32f60f08e09b5e6d35964c193f06704b5",
+        "smoke.json": "851332be65b450f6fa7ae6166769194603092639111cb5b9742aa340d36d8537"
+      },
+      "reported_usage": {
+        "input_tokens": 12,
+        "cache_creation_input_tokens": 16943,
+        "cache_read_input_tokens": 70229,
+        "output_tokens": 810
+      },
+      "reported_total_cost_usd": 0.0829189,
+      "usage_comparison_limit": "Different host-selected models and accounting; not a controlled cost comparison."
+    }
+  ],
+  "codex_harness_exit": 1,
+  "codex_harness_exit_reason": "After successful native execution, independent validation rejected changed runtime environment; native success and collector rejection are separate.",
+  "raw_transcripts": "Private task-local records, not published"
+}

@@ -72,6 +72,7 @@ class _MainDigests:
         return subprocess.run(
             ["git", "-C", self.root, "rev-parse", "--verify", "--quiet", "origin/main"],
             capture_output=True,
+            timeout=30,
         ).returncode == 0
 
     def get(self, rel):
@@ -79,6 +80,7 @@ class _MainDigests:
             result = subprocess.run(
                 ["git", "-C", self.root, "show", f"origin/main:{rel}"],
                 capture_output=True,
+                timeout=30,
             )
             self._cache[rel] = (hashlib.sha256(result.stdout).hexdigest()
                                 if result.returncode == 0 else None)
@@ -258,4 +260,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    try:
+        sys.exit(main(sys.argv))
+    except subprocess.TimeoutExpired:
+        print("mirror inspection: git exceeded the 30-second deadline; no classification available", file=sys.stderr)
+        sys.exit(3)

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location('sync_mcp_diagnostics', ROOT / 'scripts/sync-mcp-diagnostics.py')
+SPEC = importlib.util.spec_from_file_location('sync_mcp_diagnostics', ROOT / 'mcp/shared/sync-diagnostics.py')
 assert SPEC is not None and SPEC.loader is not None
 sync = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(sync)

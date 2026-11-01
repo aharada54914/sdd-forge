@@ -171,8 +171,9 @@ expect_invalid "schema-invalid-const.json" "schema const" "/schema: expected con
 # sub-field anywhere.
 expect_valid "rekeyed-two-component-non-slug-id.json" "TEST-015"
 rekey_check="$(python3 -c "
+import sys
 import json
-d = json.load(open('$FIXTURES/rekeyed-two-component-non-slug-id.json'))
+d = json.load(open(sys.argv[1]))
 comps = d['components']
 keys = sorted(comps.keys())
 ok = (
@@ -182,7 +183,7 @@ ok = (
     and 'id' not in comps['Desktop/App']
 )
 print('OK' if ok else 'FAIL keys=%r' % (keys,))
-")"
+" "$FIXTURES/rekeyed-two-component-non-slug-id.json")"
 if [ "$rekey_check" = "OK" ]; then
   ok "TEST-015: components re-keys to exactly two id-valued keys (incl. non-slug 'Desktop/App'), no 'id' sub-field"
 else
@@ -193,11 +194,12 @@ fi
 # re-keys to components: {} / shared_paths: [] ("B8").
 expect_valid "source-omission-empty-valid.json" "TEST-015 (B8 source-omission)"
 omission_check="$(python3 -c "
+import sys
 import json
-d = json.load(open('$FIXTURES/source-omission-empty-valid.json'))
+d = json.load(open(sys.argv[1]))
 ok = d['components'] == {} and d['shared_paths'] == []
 print('OK' if ok else 'FAIL components=%r shared_paths=%r' % (d.get('components'), d.get('shared_paths')))
-")"
+" "$FIXTURES/source-omission-empty-valid.json")"
 if [ "$omission_check" = "OK" ]; then
   ok "TEST-015 (B8): source-omission fixture materializes components: {} / shared_paths: []"
 else
@@ -209,6 +211,7 @@ fi
 # own example, requirements.md:722/769) resolves against the AC-015-shaped
 # fixture to a real value.
 pointer_resolution="$(python3 -c "
+import sys
 import json
 def resolve(doc, pointer):
     if pointer == '':
@@ -221,10 +224,10 @@ def resolve(doc, pointer):
         else:
             node = node[token]
     return node
-d = json.load(open('$FIXTURES/rekeyed-two-component-non-slug-id.json'))
+d = json.load(open(sys.argv[1]))
 value = resolve(d, '/components/desktop-client/artifact_kinds')
 print(json.dumps(value))
-")"
+" "$FIXTURES/rekeyed-two-component-non-slug-id.json")"
 if [ "$pointer_resolution" = '["executable", "installer"]' ]; then
   ok "TEST-016: /components/desktop-client/artifact_kinds resolves to a real value ($pointer_resolution)"
 else

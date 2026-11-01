@@ -79,10 +79,10 @@ if (Test-Path -LiteralPath $ReportsDir -PathType Container) {
     $taskPattern = "(?m)^(Task ID|Task):[ \t]*$escapedTask[ \t]*$" +
         "|(?m)^#[ \t]+Quality Gate Report:?[ \t]*$escapedTask([^0-9]|$)"
     $featurePattern = "(?m)^Feature:\s*" + [regex]::Escape($Feature) + "\s*$"
-    $taskMatches = @(Get-ChildItem -LiteralPath $ReportsDir -File -Recurse -ErrorAction SilentlyContinue |
+    $taskMatches = @(Get-ChildItem -LiteralPath $ReportsDir -File -Recurse -ErrorAction Stop |
         Where-Object { Select-String -LiteralPath $_.FullName -Pattern $taskPattern -CaseSensitive -Quiet })
     $count = @($taskMatches | Where-Object {
-        (Get-Content -Raw -Encoding Utf8 -LiteralPath $_.FullName) -match $featurePattern
+        (Get-Content -Raw -Encoding Utf8 -LiteralPath $_.FullName) -cmatch $featurePattern
     }).Count
 }
 

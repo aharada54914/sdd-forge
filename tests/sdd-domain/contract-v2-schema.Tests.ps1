@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot '../../plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
@@ -235,48 +236,53 @@ function Invoke-CapturedProcess {
     # Deliberately NOT Start-Process: the assertions below depend on stdout
     # being empty and on stderr being exactly one line, so both streams must be
     # captured verbatim and independently.
-    param([string]$FilePath, [string]$ArgumentString)
+    param([string]$FilePath, [string[]]$ArgumentList, [int]$TimeoutMilliseconds = 120000)
     $startInfo = New-Object System.Diagnostics.ProcessStartInfo
     $startInfo.FileName = $FilePath
-    $startInfo.Arguments = $ArgumentString
+    $startInfo.Arguments = ConvertTo-SddNativeArgumentString $ArgumentList
     $startInfo.UseShellExecute = $false
     $startInfo.RedirectStandardOutput = $true
     $startInfo.RedirectStandardError = $true
     $startInfo.CreateNoWindow = $true
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $startInfo
+    try {
     [void]$process.Start()
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
     $stderrTask = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
+    if (-not $process.WaitForExit($TimeoutMilliseconds)) {
+        $process.Kill()
+        $process.WaitForExit()
+        throw 'Domain validator exceeded the test process deadline'
+    }
     $stdout = $stdoutTask.Result
     $stderr = $stderrTask.Result
     $exitCode = $process.ExitCode
-    $process.Dispose()
     return New-Object PSObject -Property @{
         ExitCode = $exitCode
         StdOut   = $stdout
         StdErr   = $stderr
     }
+    } finally { $process.Dispose() }
 }
 
 function Invoke-ValidatorPs1 {
     # $ContractPath omitted entirely reproduces the missing-argument case.
     param([string]$ContractPath)
-    $arguments = '-NoProfile -NonInteractive -File "{0}"' -f $validatorPs1Path
+    $arguments = @('-NoProfile', '-NonInteractive', '-File', $validatorPs1Path)
     if ($PSBoundParameters.ContainsKey("ContractPath")) {
-        $arguments = '-NoProfile -NonInteractive -File "{0}" "{1}"' -f $validatorPs1Path, $ContractPath
+        $arguments += $ContractPath
     }
-    return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentString $arguments
+    return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList $arguments
 }
 
 function Invoke-ValidatorSh {
     param([string]$ContractPath)
-    $arguments = '"{0}"' -f $validatorShPath
+    $arguments = @($validatorShPath)
     if ($PSBoundParameters.ContainsKey("ContractPath")) {
-        $arguments = '"{0}" "{1}"' -f $validatorShPath, $ContractPath
+        $arguments += $ContractPath
     }
-    return Invoke-CapturedProcess -FilePath $bashCommand.Source -ArgumentString $arguments
+    return Invoke-CapturedProcess -FilePath $bashCommand.Source -ArgumentList $arguments
 }
 
 function Get-StdErrViolationLines {
@@ -2104,16 +2110,17 @@ function Invoke-V1SuiteRun {
     # already-running Pester session, so the v1 run's state cannot leak into
     # or be affected by this suite's own Run phase.
     $runnerPath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-t005-v1runner-" + [guid]::NewGuid().ToString("N") + ".ps1")
-    $runnerBody = @"
-`$ErrorActionPreference = 'Stop'
+    $runnerBody = @'
+param([string]$SuitePath)
+$ErrorActionPreference = 'Stop'
 Import-Module Pester -RequiredVersion 4.10.1
-`$result = Invoke-Pester -Script '$v1SuiteTestsPath' -PassThru -Show None
-Write-Output ('RESULT ' + `$result.PassedCount + ' ' + `$result.FailedCount)
-"@
+$result = Invoke-Pester -Script $SuitePath -PassThru -Show None
+Write-Output ('RESULT ' + $result.PassedCount + ' ' + $result.FailedCount)
+'@
     [System.IO.File]::WriteAllText($runnerPath, $runnerBody, (New-Object System.Text.UTF8Encoding($false)))
     try {
-        $arguments = '-NoProfile -NonInteractive -File "{0}"' -f $runnerPath
-        return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentString $arguments
+        $arguments = @('-NoProfile', '-NonInteractive', '-File', $runnerPath, '-SuitePath', $v1SuiteTestsPath)
+        return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList $arguments
     } finally {
         Remove-EphemeralPath -Path $runnerPath
     }
@@ -2975,6 +2982,68 @@ Describe "RT-20260819-002 the adjudicated ConvertFrom-Json key-casing class stay
     It "the fixtures in this ticket's own corpus are NOT in that class -- none carries two spellings of one key" {
         foreach ($caseKeyCase in $caseKeyParityCases) {
             { ConvertFrom-Json -InputObject $caseKeyCase.Json } | Should Not Throw
+        }
+    }
+}
+
+Describe "Domain v2 scalar and root envelopes" {
+    It "rejects singleton root arrays without unwrapping the contract" {
+        $fixture = New-EphemeralContractFile -Content ('[' + $rtBaseContractJson + ']')
+        try {
+            Assert-FailClosed (Invoke-ValidatorPs1 -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+            Assert-FailClosed (Invoke-ValidatorSh -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+    It "rejects singleton schema arrays without unwrapping their value" {
+        $body = $rtBaseContractJson -replace '"schema"\s*:\s*"domain-contract/v2"', '"schema":["domain-contract/v2"]'
+        $fixture = New-EphemeralContractFile -Content $body
+        try {
+            Assert-FailClosed (Invoke-ValidatorPs1 -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+            Assert-FailClosed (Invoke-ValidatorSh -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain v2 literal JSON string values" {
+    It "keeps an ISO-looking definition as string data when the host supports DateKind" {
+        if (-not (Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+            Set-TestInconclusive 'This host has no DateKind string-preservation option; legacy parser behavior is not certified by this control.'
+            return
+        }
+        $body = $rtBaseContractJson -replace '"definition"\s*:\s*"[^"\r\n]*"', '"definition":"2026-11-01T00:00:00Z"'
+        $fixture = New-EphemeralContractFile -Content $body
+        try {
+            (Invoke-ValidatorPs1 -ContractPath $fixture).ExitCode | Should Be 0
+            (Invoke-ValidatorSh -ContractPath $fixture).ExitCode | Should Be 0
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain contract regular-file input" {
+    It "rejects a POSIX FIFO before opening it" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command mkfifo -ErrorAction SilentlyContinue)) {
+        $fixture = New-EphemeralContractFile -Content ''
+        Remove-Item -LiteralPath $fixture
+        & mkfifo $fixture
+        $LASTEXITCODE | Should Be 0
+        try {
+            $result = Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentList @('-NoProfile', '-NonInteractive', '-File', $validatorPs1Path, $fixture) -TimeoutMilliseconds 5000
+            Assert-FailClosed $result 'V2-INPUT-NOT-FILE'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain contract linked regular-file compatibility" {
+    It "preserves regular-file symlink input" -Skip:([IO.Path]::DirectorySeparatorChar -eq '\' -or -not (Get-Command ln -ErrorAction SilentlyContinue)) {
+        $fixture = New-EphemeralContractFile -Content $rtBaseContractJson
+        $link = $fixture + '.link'
+        & ln -s $fixture $link
+        $LASTEXITCODE | Should Be 0
+        try {
+            (Invoke-ValidatorPs1 -ContractPath $link).ExitCode | Should Be 0
+            (Invoke-ValidatorSh -ContractPath $link).ExitCode | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $link
+            Remove-EphemeralPath -Path $fixture
         }
     }
 }

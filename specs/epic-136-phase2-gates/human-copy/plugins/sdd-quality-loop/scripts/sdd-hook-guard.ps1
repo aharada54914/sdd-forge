@@ -518,7 +518,7 @@ function Resolve-ProjectRoot {
 function Get-SudoFields {
     param([string]$Content)
     # Parse key: value lines into a hashtable (values stripped).
-    $fields = @{}
+    $fields = [hashtable]::new([StringComparer]::Ordinal)
     foreach ($rawLine in ($Content -split "`n")) {
         $line = $rawLine -replace "`r$", ""
         $colonIdx = $line.IndexOf(":")
@@ -605,6 +605,7 @@ function Test-SudoActive {
         $flag = Join-Path $sudoRoot "SDD_SUDO"
         # Check if path exists and is a file (not symlink).
         if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { return $false }
+        if ((Get-Item -LiteralPath $flag -Force).LinkType) { return $false }
         $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $flag
 
         $fields = Get-SudoFields $content
@@ -633,7 +634,7 @@ function Test-SudoActive {
         } catch {
             try { $actualRepo = [System.IO.Path]::GetFullPath($sudoRoot) } catch { return $false }
         }
-        if ($fields["repo"] -ne $actualRepo) { return $false }
+        if ($fields["repo"] -cne $actualRepo) { return $false }
 
         # Key resolution and HMAC verification
         $keyBytes = Resolve-SudoKey
@@ -1462,7 +1463,7 @@ function Test-ImplReviewVerdictExists {
                         try {
                             $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
                             $verdict = $content | ConvertFrom-Json
-                            if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
+                            if ($verdict.verdict -is [string] -and ($verdict.verdict -ceq "PASS" -or $verdict.verdict -ceq "PASS-with-warnings")) { return $true }
                         } catch { }
                     }
                 }

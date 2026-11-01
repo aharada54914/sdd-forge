@@ -1042,7 +1042,7 @@ t046_no_green_to_red_flip() {
     while IFS= read -r line; do
         case "$line" in
         "PASS: DS-"* | "PASS: TEST-"*)
-            printf '%s\n' "$current_output" | grep -Fxq -- "$line" || flipped=1
+            grep -Fxq -- "$line" <<< "$current_output" || flipped=1
             ;;
         esac
     done < "$baseline_log"
@@ -1050,11 +1050,11 @@ t046_no_green_to_red_flip() {
 }
 DSC_CURRENT_SH="$(bash "$DSC_SH" 2>&1)" || true
 if t046_no_green_to_red_flip "$DSC_BASELINE_SH" "$DSC_CURRENT_SH" \
-    && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-010 ' \
-    && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-015 ' \
-    && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-018 ' \
-    && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-026 ' \
-    && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-040 '; then
+    && grep -Eq '^PASS: TEST-010 ' <<< "$DSC_CURRENT_SH" \
+    && grep -Eq '^PASS: TEST-015 ' <<< "$DSC_CURRENT_SH" \
+    && grep -Eq '^PASS: TEST-018 ' <<< "$DSC_CURRENT_SH" \
+    && grep -Eq '^PASS: TEST-026 ' <<< "$DSC_CURRENT_SH" \
+    && grep -Eq '^PASS: TEST-040 ' <<< "$DSC_CURRENT_SH"; then
     ok "TEST-046: tests/design-system-contract.tests.sh has zero new failures against its documented baseline (TEST-010/015/018/026/040 re-verified passing; TEST-039 remains its pre-existing designed red)"
 else
     fail "TEST-046: tests/design-system-contract.tests.sh regressed -- a baseline-green row is no longer green, or one of TEST-010/015/018/026/040 is no longer passing"
@@ -1107,6 +1107,75 @@ else
 fi
 
 # ============================================================================
+# Fail-closed native enumeration/tool errors and literal path boundaries.
+if python3 - "$SC" <<'PY'
+import os
+from pathlib import Path
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    root.chmod(0o755)
+    scanner = root / 'scan.sh'
+    shutil.copyfile(sys.argv[1], scanner)
+    scanner.chmod(0o644)
+    target = root / 'mockups'
+    target.mkdir(mode=0o755)
+    private = target / 'private'
+    private.mkdir()
+    (private / 'page.html').write_text('TODO\n', encoding='utf-8')
+    private.chmod(0)
+    def unprivileged():
+        os.setgroups([])
+        os.setgid(1000)
+        os.setuid(1000)
+    try:
+        result = subprocess.run(['/bin/sh', str(scanner), str(target)],
+                                capture_output=True, text=True, cwd=root,
+                                preexec_fn=unprivileged if os.geteuid() == 0 else None)
+        assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+        assert 'passed' not in result.stdout
+        print('PASS: actual unreadable nested directory fails with tool error 2')
+    finally:
+        private.chmod(0o755)
+    secret = 'AKIAABCDEFGHIJKLMNOP'
+    (target / 'page.html').write_text(secret + '\n', encoding='utf-8')
+    tool_dir = root / 'tools'
+    tool_dir.mkdir()
+    grep = shutil.which('grep')
+    assert grep
+    # Inject an invalid expression into the actual grep, not a fake success/failure result.
+    wrapper = tool_dir / 'grep'
+    wrapper.write_text('#!/bin/sh\nexec ' + shlex.quote(grep) + ' -e "[" "$@"\n', encoding='utf-8')
+    wrapper.chmod(0o755)
+    result = subprocess.run(['/bin/sh', str(scanner), str(target)], capture_output=True,
+                            text=True, env={**os.environ, 'PATH': str(tool_dir) + os.pathsep + os.environ['PATH']})
+    assert result.returncode == 2, (result.returncode, result.stdout, result.stderr)
+    assert secret not in result.stdout + result.stderr and 'passed' not in result.stdout
+    print('PASS: actual grep invalid-regex error is not a finding/clean pass or secret leak')
+    newline = root / 'newline'
+    newline.mkdir()
+    (newline / 'line\nbreak.html').write_text('TODO\n', encoding='utf-8')
+    result = subprocess.run(['/bin/sh', str(scanner), str(newline)], capture_output=True, text=True)
+    assert result.returncode == 2 and 'cannot enumerate' in result.stderr, result
+    print('PASS: unsupported newline HTML path is explicitly rejected')
+    leading = root / '-mockups'
+    leading.mkdir()
+    (leading / '-page.html').write_text('TODO\n', encoding='utf-8')
+    result = subprocess.run(['/bin/sh', str(scanner), '-mockups'], cwd=root, capture_output=True, text=True)
+    assert result.returncode == 1 and 'placeholder' in result.stdout, result
+    print('PASS: leading-hyphen directory and filename remain path data')
+PY
+then
+    ok 'native enumeration/tool-error/path controls'
+else
+    fail 'native enumeration/tool-error/path controls'
+fi
+
 # Summary
 # ============================================================================
 

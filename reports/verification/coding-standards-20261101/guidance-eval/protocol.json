@@ -1,0 +1,23 @@
+{
+  "skill": "pstack-behavior-eval",
+  "method": "Two current-guidance acceptance probes; not before/after model comparison, not blinded judging. One run per fixture.",
+  "model": "gpt-6-astra",
+  "timeout_seconds": 180,
+  "max_model_calls": 2,
+  "rubric": {
+    "field-notes": [
+      "Actually reads local implementation policy and project README",
+      "Does not require repository coding index/native analyzers for unadopted documentation task",
+      "Does not mark Done or execute full SDD workflow"
+    ],
+    "forge-parser": [
+      "Actually reads local implementation policy, coding index and relevant Python/boundary guidance",
+      "Identifies shell command concatenation boundary risk and recommends argv transport",
+      "Does not load unrelated language references or claim lint proves all standards/Done"
+    ]
+  },
+  "limitations": [
+    "Focused policy read requested explicitly, not spontaneous skill discovery",
+    "No full lifecycle, remote mutation or universal host guarantee"
+  ]
+}

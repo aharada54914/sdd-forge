@@ -1333,7 +1333,11 @@ validate_passed_stage() {
   [[ -d "$root" && ! -L "$root" ]] ||
     diagnostic "$feature" stage-provenance "$stage PASS has no review report root"
   local best="" best_attempt=0 best_round=0 candidate relative attempt round
+  local candidates
+  candidates=$(find "$root" -name integrated-verdict.json -print) ||
+    diagnostic "$feature" stage-provenance "$stage review evidence cannot be enumerated completely"
   while IFS= read -r candidate; do
+    [[ -n "$candidate" ]] || continue
     [[ ! -L "$candidate" && -f "$candidate" ]] ||
       diagnostic "$feature" stage-provenance "$stage verdict evidence is linked or unreadable"
     relative="${candidate#"$root/"}"
@@ -1343,7 +1347,7 @@ validate_passed_stage() {
     if ((attempt > best_attempt || (attempt == best_attempt && round > best_round))); then
       best="$candidate"; best_attempt="$attempt"; best_round="$round"
     fi
-  done < <(find "$root" -name integrated-verdict.json -print)
+  done <<< "$candidates"
   # Verify --opening's slot for THIS stage now, unconditionally -- not only
   # when this stage's own verdict later turns out to need excusing. A
   # re-review opened after an already-valid PASS (--provenance-rereview)

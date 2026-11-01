@@ -1,0 +1,14 @@
+BASELINE_ACCEPTED: root-array
+BASELINE_ACCEPTED: schema-array
+BASELINE_ACCEPTED: diagnosis-path-array
+BASELINE_ACCEPTED: blocked-path-array
+BASELINE_ACCEPTED: blocked-schema-array
+BASELINE_ACCEPTED: blocked-task-array
+BASELINE_ACCEPTED: blocked-tier-array
+BASELINE_ACCEPTED: blocked-reason-array
+BASELINE_ACCEPTED: blocked-hash-array
+BASELINE_ACCEPTED: blocked-time-lowercase
+BASELINE_ACCEPTED: blocked-time-newline
+BASELINE_ACCEPTED: blocked-hash-newline
+BASELINE_ACCEPTED: approval-lowercase
+BASELINE_ACCEPTED: status-lowercase

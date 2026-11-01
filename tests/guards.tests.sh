@@ -13,7 +13,7 @@ ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
 fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
 
 # Create a temp workdir and clean it up on exit.
-WORK="$(mktemp -d)"
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/sdd guards '''.XXXXXXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 
 # ---------------------------------------------------------------------------
@@ -67,11 +67,12 @@ ${issued}
 ${expires}"
     local sig
     sig="$(python3 -c "
+import sys, os
 import hmac, hashlib
-key = '${SDD_SUDO_KEY}'.encode('utf-8')
-canonical = '''${canonical}'''
+key = os.environ['SDD_SUDO_KEY'].encode('utf-8')
+canonical = sys.argv[1]
 print(hmac.new(key, canonical.encode('utf-8'), hashlib.sha256).hexdigest())
-")"
+" "$canonical")"
     cat > "${dir}/SDD_SUDO" <<EOF
 enabled-by: human via /sdd-sudo
 enabled-at: 2026-06-13T00:00:00Z
@@ -487,10 +488,10 @@ write_sudo_flag "$SIGNED_BADSIG_DIR" "$SIGNED_EPOCH"
 # Overwrite sig field with garbage
 python3 -c "
 import re, sys
-content = open('${SIGNED_BADSIG_DIR}/SDD_SUDO').read()
+content = open(sys.argv[1]).read()
 content = re.sub(r'(?m)^sig:.*$', 'sig: 0000000000000000000000000000000000000000000000000000000000000000', content)
-open('${SIGNED_BADSIG_DIR}/SDD_SUDO', 'w').write(content)
-"
+open(sys.argv[1], 'w').write(content)
+" "${SIGNED_BADSIG_DIR}/SDD_SUDO"
 
 BADSIG_SH_CODE=0
 (cd "$SIGNED_BADSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADSIG_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || BADSIG_SH_CODE=$?
@@ -521,8 +522,9 @@ write_sudo_flag "$SIGNED_BADREPO_DIR" "$SIGNED_EPOCH"
 # and sig matches that wrong repo (so only the repo-binding check catches it).
 WRONG_REPO="/nonexistent/other/project"
 python3 -c "
+import sys, os
 import hmac, hashlib, re
-content = open('${SIGNED_BADREPO_DIR}/SDD_SUDO').read()
+content = open(sys.argv[1]).read()
 # Parse fields
 fields = {}
 for line in content.splitlines():
@@ -531,9 +533,9 @@ for line in content.splitlines():
         k, _, v = line.partition(':')
         fields[k.strip()] = v.strip()
 # Replace repo with wrong path
-fields['repo'] = '${WRONG_REPO}'
+fields['repo'] = sys.argv[2]
 # Re-sign with wrong repo (so sig is valid for wrong repo, but repo != actual)
-key = '${SDD_SUDO_KEY}'.encode('utf-8')
+key = os.environ['SDD_SUDO_KEY'].encode('utf-8')
 canonical = '\n'.join([fields['issuer'], fields['nonce'], fields['repo'],
                        str(int(fields['issued-epoch'])), str(int(fields['expires-epoch']))])
 sig = hmac.new(key, canonical.encode('utf-8'), hashlib.sha256).hexdigest()
@@ -550,8 +552,8 @@ lines_out = [
     'duration: 1h',
     'sig: ' + sig,
 ]
-open('${SIGNED_BADREPO_DIR}/SDD_SUDO', 'w').write('\n'.join(lines_out) + '\n')
-"
+open(sys.argv[1], 'w').write('\n'.join(lines_out) + '\n')
+" "${SIGNED_BADREPO_DIR}/SDD_SUDO" "$WRONG_REPO"
 
 BADREPO_SH_CODE=0
 (cd "$SIGNED_BADREPO_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADREPO_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || BADREPO_SH_CODE=$?
@@ -577,10 +579,11 @@ SIGNED_EPOCH=$(( $(date +%s) + 3600 ))
 write_sudo_flag "$SIGNED_NOSIG_DIR" "$SIGNED_EPOCH"
 # Remove sig field entirely
 python3 -c "
-content = open('${SIGNED_NOSIG_DIR}/SDD_SUDO').read()
+import sys
+content = open(sys.argv[1]).read()
 lines = [l for l in content.splitlines() if not l.startswith('sig:')]
-open('${SIGNED_NOSIG_DIR}/SDD_SUDO', 'w').write('\n'.join(lines) + '\n')
-"
+open(sys.argv[1], 'w').write('\n'.join(lines) + '\n')
+" "${SIGNED_NOSIG_DIR}/SDD_SUDO"
 
 NOSIG_SH_CODE=0
 (cd "$SIGNED_NOSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_NOSIG_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || NOSIG_SH_CODE=$?

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # cross-model.tests.sh — tests for check-cross-model.sh (AC-002..004)
 # Style: mirrors gates.tests.sh (ok/fail counters, mktemp fixtures, exits 1 on failure)
 set -euo pipefail
@@ -417,7 +418,7 @@ printf '# sanitized test bundle\n' > "$PANELIST_INPUT"
 # supplies _bw_deadline; later calls record when the expiry check is reached.
 cat > "${PANELIST_STUBS}/date" <<EOF
 #!/bin/sh
-_clock_now=\$("$PANELIST_REAL_DATE" "\$@")
+_clock_now=\$($(shell_literal "$PANELIST_REAL_DATE") "\$@")
 if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
     if [ ! -f "\$STUB_DEADLINE_FILE" ]; then
         printf '%s\n' "\$(( (_clock_now + SDD_PANELIST_TIMEOUT + 1) * 1000 ))" > "\$STUB_DEADLINE_FILE"
@@ -435,7 +436,7 @@ if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
                         break
                     fi
                 fi
-                if [ "\$("$PANELIST_REAL_DATE" +%s)" -ge "\$_receipt_limit" ]; then
+                if [ "\$($(shell_literal "$PANELIST_REAL_DATE") +%s)" -ge "\$_receipt_limit" ]; then
                     printf 'test observer: no real supervisor status within bound\n' >&2
                     # Return the observed clock so production enforces expiry;
                     # missing recheck-status still makes the fixture fail.
@@ -459,7 +460,7 @@ case "\${3:-}" in
         fi
         sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
 esac
-exec "$PANELIST_REAL_PYTHON" "\$@"
+exec $(shell_literal "$PANELIST_REAL_PYTHON") "\$@"
 EOF
 chmod +x "${PANELIST_STUBS}/date" "${PANELIST_STUBS}/python3"
 
@@ -1210,6 +1211,31 @@ then
     ok 'cross-model CLI values remain data and missing values fail with tool-error exit'
 else
     fail 'cross-model CLI data transport regression'
+fi
+
+if python3 - "$REPO_ROOT" <<'PYPROVIDER'
+import pathlib,tempfile,subprocess,os,json
+import sys
+root=pathlib.Path(sys.argv[1]); rows=[]
+for vendor,cli in [('gpt','codex'),('gemini','gemini')]:
+ with tempfile.TemporaryDirectory() as d:
+  p=pathlib.Path(d); b=p/'bin'; b.mkdir(); inp=p/'input'; inp.write_text('bundle'); marker=p/'invoked'
+  (b/cli).write_text('#!/bin/sh\ntouch "$PROBE_MARKER"\nexit 1\n'); (b/cli).chmod(0o755)
+  (b/'cat').write_text('#!/bin/sh\nfor x do if [ "$x" = "$PROBE_INPUT" ]; then /bin/cat /nonexistent-provider-probe; exit 1; fi; done\nexec /bin/cat "$@"\n'); (b/'cat').chmod(0o755)
+  env=dict(os.environ,PATH=str(b)+':'+os.environ['PATH'],PROBE_MARKER=str(marker),PROBE_INPUT=str(inp),SDD_PANELIST_CODEX_CMD=str(b/cli))
+  script=str(root/f'plugins/sdd-quality-loop/scripts/run-panelist-{vendor}.sh')
+  r=subprocess.run(['sh',script,'--task','T-001','--feature','demo','--input',str(inp),'--spec-root',str(p/'specs')],env=env,capture_output=True,text=True,timeout=10)
+  assert r.returncode == 2 and not marker.exists(), (vendor, r.returncode, r.stderr)
+  try:
+   r=subprocess.run(['sh',script,'--task'],capture_output=True,timeout=5)
+   assert r.returncode == 2, (vendor, r.returncode)
+  except subprocess.TimeoutExpired: raise AssertionError(vendor + ': missing argument hung')
+
+PYPROVIDER
+then
+    ok 'provider input read failure stops before any external CLI invocation'
+else
+    fail 'provider input read failure invoked external CLI or hid tool error'
 fi
 
 # ============================================================================

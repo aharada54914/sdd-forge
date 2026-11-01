@@ -921,11 +921,11 @@ fi
 _has_sig=0
 python3 -c "
 import json, sys
-b = json.load(open('${bundle_e}'))
+b = json.load(open(sys.argv[1]))
 sig = b.get('signature', {})
 assert sig.get('alg') == 'hmac-sha256', 'missing hmac-sha256 signature'
 assert sig.get('value'), 'empty signature value'
-" 2>/dev/null && _has_sig=1 || true
+" "${bundle_e}" 2>/dev/null && _has_sig=1 || true
 if [ "$_has_sig" -eq 1 ]; then
     ok "E.1b: signed bundle contains hmac-sha256 signature field"
 else

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 # loop-escalation.tests.sh — quality-gate escalation chain + template<->gate
 # parity EXTENSION (T-004 / Issue #144 / epic-159-pillar-a REQ-004).
 #
@@ -855,7 +856,7 @@ SPY_LOG="${SPY_DIR}/invocations.log"
 : > "$SPY_LOG"
 cat > "${SPY_DIR}/resolve-project-context.sh" <<SPYEOF
 #!/usr/bin/env bash
-printf '%s\n' "\$*" >> "${SPY_LOG}"
+printf '%s\n' "\$*" >> $(shell_literal "$SPY_LOG")
 exit 0
 SPYEOF
 chmod +x "${SPY_DIR}/resolve-project-context.sh"

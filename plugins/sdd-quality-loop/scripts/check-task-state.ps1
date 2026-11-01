@@ -44,7 +44,7 @@ $second = @{}
 $blockers = @{}
 $seenIds = @{}
 
-$lines = Get-Content -Encoding Utf8 $TasksPath
+$lines = Get-Content -Encoding Utf8 -LiteralPath $TasksPath
 $inBlockers = $false
 
 foreach ($line in $lines) {
@@ -99,7 +99,7 @@ function Get-ApproverId([string]$s) {
 }
 
 # Directory of the tasks file (for verification contract lookup)
-$tasksDir = Split-Path -Parent (Resolve-Path $TasksPath)
+$tasksDir = Split-Path -Parent (Resolve-Path -LiteralPath $TasksPath)
 
 $allTasks = @($seenIds.Keys) | Sort-Object
 foreach ($task in $allTasks) {
@@ -151,7 +151,7 @@ foreach ($task in $allTasks) {
                 $failures += "$task is Done but verification/$task.contract.json is empty in $tasksDir"
             } else {
                 try {
-                    $contract = Get-Content -Raw -Encoding Utf8 $contractPath | ConvertFrom-Json
+                    $contract = Get-Content -Raw -Encoding Utf8 -LiteralPath $contractPath | ConvertFrom-Json
                     if ($contract.task_id -ne $task) {
                         $failures += "$task is Done but verification/$task.contract.json has mismatched task_id"
                     }
@@ -201,8 +201,8 @@ foreach ($task in $allTasks) {
         # C-07: word-boundary match to prevent T-001 matching T-0010 (parity with grep -w in .sh)
         $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
         if (Test-Path -LiteralPath $ImplReportsDir) {
-            $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -CaseSensitive -Quiet })
+            $hasImplReport = [bool](Get-ChildItem -LiteralPath $ImplReportsDir -File -Recurse |
+                Where-Object { Select-String -LiteralPath $_.FullName -Pattern $taskWordPattern -CaseSensitive -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"

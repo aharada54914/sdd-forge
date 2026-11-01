@@ -1405,6 +1405,85 @@ if ($IsWindows) {
     }
 }
 
+if ($IsWindows) {
+    $F = New-FixtureDir
+    $rootedTarget = [IO.Path]::GetPathRoot($F).Replace('\', '/') + '__sdd_invalid_rooted_target__/file.txt'
+    $manifest = Join-Path $F 'stage/MANIFEST.sha256'
+    [IO.File]::WriteAllText($manifest, ('a' * 64) + "  $rootedTarget`n", [Text.UTF8Encoding]::new($false))
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', $manifest)
+    if ($r.ExitCode -eq 13 -and (Get-CategoryOf $r.StdoutPath) -ceq 'MANIFEST_INVALID') {
+        Test-Pass 'native Windows drive-rooted manifest path is rejected before source traversal'
+    } else {
+        Test-Fail 'native Windows drive-rooted manifest path is rejected before source traversal' "exit=$($r.ExitCode)"
+    }
+} else {
+    Write-Output 'SKIP: native Windows drive-rooted path semantics require Windows'
+}
+
+# Invalid UTF-8 must not redirect a manifest path onto U+FFFD's real file.
+$F = New-FixtureDir
+$replacementName = ([char]0xfffd).ToString() + '.txt'
+Write-FixtureFile (Join-Path $F "stage/$replacementName") 'candidate'
+$hash = Get-Sha256Hex (Join-Path $F "stage/$replacementName")
+$manifest = Join-Path $F 'stage/MANIFEST.sha256'
+[byte[]]$badBytes = [Text.Encoding]::ASCII.GetBytes("$hash  ") + [byte[]]@(255) + [Text.Encoding]::ASCII.GetBytes(".txt`n")
+[IO.File]::WriteAllBytes($manifest, $badBytes)
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', $manifest)
+if ($r.ExitCode -eq 13 -and -not (Test-Path -LiteralPath (Join-Path $F "repo/$replacementName"))) {
+    Test-Pass 'invalid UTF-8 manifest cannot publish a replacement-character path'
+} else {
+    Test-Fail 'invalid UTF-8 manifest cannot publish a replacement-character path' "exit=$($r.ExitCode)"
+}
+
+# targets[] is an array of string records, not a scalar coerced into one.
+foreach ($invalidTargets in @(
+    '{"live_path":"missing.txt","pre_hash":"ABSENT","post_hash":"ABSENT"}',
+    '[{"live_path":123,"pre_hash":"ABSENT","post_hash":"ABSENT"}]',
+    '[{"live_path":"missing.txt","pre_hash":["ABSENT"],"post_hash":"ABSENT"}]'
+)) {
+    $F = New-FixtureDir
+    $journal = Join-Path $F 'repo/sdd/.staging/badbatch/TRANSACTION.json'
+    [IO.Directory]::CreateDirectory((Split-Path -Parent $journal)) | Out-Null
+    [IO.File]::WriteAllText($journal, '{"schema":"sdd-human-copy-transaction/v1","targets":' + $invalidTargets + '}', [Text.UTF8Encoding]::new($false))
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    if ($r.ExitCode -eq 14 -and (Test-Path -LiteralPath $journal)) {
+        Test-Pass 'journal target type mismatch is denied and retained'
+    } else {
+        Test-Fail 'journal target type mismatch is denied and retained' "exit=$($r.ExitCode)"
+    }
+}
+
+# Corrupt a real completed backup copy before the publisher can commit.
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/file.txt') 'old-live'
+Write-FixtureFile (Join-Path $F 'stage/file.txt') 'new-candidate'
+$manifest = Join-Path $F 'stage/MANIFEST.sha256'
+$hash = Get-Sha256Hex (Join-Path $F 'stage/file.txt')
+[IO.File]::WriteAllText($manifest, "$hash  file.txt`n", [Text.UTF8Encoding]::new($false))
+$wrapper = Join-Path $F 'corrupt-backup.ps1'
+@'
+param([string]$ApplyScript, [string]$Stage, [string]$ManifestPath)
+function Copy-Item {
+    [CmdletBinding()]
+    param([string]$LiteralPath, [string]$Destination, [switch]$Force)
+    Microsoft.PowerShell.Management\Copy-Item -LiteralPath $LiteralPath -Destination $Destination -Force:$Force
+    if ((Split-Path -Leaf $Destination) -ceq 'file.txt') {
+        [IO.File]::WriteAllBytes($Destination, [byte[]]@())
+    }
+}
+& $ApplyScript -StagingDir $Stage -Manifest $ManifestPath
+exit $LASTEXITCODE
+'@ | Set-Content -LiteralPath $wrapper -Encoding utf8
+$r = Invoke-ChildProcess -Exe $PowerShellExe -WorkingDirectory (Join-Path $F 'repo') `
+    -ArgList @('-NoProfile', '-File', $wrapper, $ApplyPs1, (Join-Path $F 'stage'), $manifest)
+if ($r.ExitCode -eq 21 -and (Get-CategoryOf $r.StdoutPath) -ceq 'LIVE_PROBE_FAILED' -and
+    (Get-Content -LiteralPath (Join-Path $F 'repo/file.txt') -Raw).Trim() -ceq 'old-live' -and
+    (Test-NoStagingLitter $F)) {
+    Test-Pass 'backup corruption: denied before journal and live rename'
+} else {
+    Test-Fail 'backup corruption: denied before journal and live rename' "exit=$($r.ExitCode)"
+}
+
 # ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------

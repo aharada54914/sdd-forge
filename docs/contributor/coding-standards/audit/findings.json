@@ -1789,18 +1789,19 @@
       "line": 9,
       "source_sha256": "c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd",
       "flow": {
-        "input": "filesystem metadata",
-        "transformation": "test predicate",
-        "sink": "allow decision"
+        "input": "Optional stop-marker roots and symlink targets",
+        "transformation": "test -f converts inspection errors to absence",
+        "sink": "allow/deny decision"
       },
-      "impact": "POSIX test -f masks EACCES as absent and allows tool use",
-      "reproduction": "Unprivileged uid1000 chmod000 directory with AGENT_STOP; CLAUDE_PROJECT_DIR points at it: unchanged script exits0. Broad find fix rejected because it denied unrelated symlink/missing-root controls. Portable errno distinction unresolved.",
-      "state": "confirmed-violation",
+      "impact": "Inaccessible existing stop marker falsely permits execution",
+      "reproduction": "Real uid65534 EACCES root returned allow before repair; 15 filesystem controls pass after repair. Missing optional roots, dangling marker links, marker directories and unrelated cycles preserve allow.",
+      "state": "fixed",
       "owner_issue": 688,
       "evidence": [
-        "{\"path\": \"plugins/sdd-quality-loop/scripts/kill-switch.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd\"}"
+        "tests/kill-switch-inspection.tests.sh",
+        "Fixed in 2237e8eb; source SHA256 a0dfb0c6548d7f3720f0d1892151d72487f62db332599f1c71a26f565a059a9e"
       ],
-      "resolution": null,
+      "resolution": "Inspect accessible ancestor and exact marker separately; surface inspection failures as exit2 while preserving optional absence.",
       "reuse": null
     },
     {
@@ -2082,6 +2083,2174 @@
         "Repaired template sha256=fbb10eeb476ab532f241acc532c570dcc1dbbbdaa46342eaa14dadfa149fb8b1"
       ],
       "resolution": "Default report verdict FAIL and unexecuted check labels NOT_RUN; preserve existing explicit PASS consumer contract.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-002",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml",
+      "line": 7,
+      "source_sha256": "30e103e639fa894a616dfcf524ee81cf11c267ba568ddeb50b31d9b2cc3f3aa9",
+      "flow": {
+        "input": "Literal shell echo containing colon-space in GitLab script item",
+        "transformation": "Unquoted YAML plain scalar parsed as mapping, despite inner shell quotes",
+        "sink": "GitLab CI script command list"
+      },
+      "impact": "Distributed CI template is not a list of command strings and fails configuration validation before the intended fail-closed placeholder command.",
+      "reproduction": "Pinned js-yaml parses first script item as object. Existing parity test actual baseline24 passed/1 failed; fixed25 passed/0 failed, both CI placeholder bodies exit1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/template-validator-parity.tests.sh: pinned js-yaml 5.5.0 parser plus real bash execution; Node24.19.0 Linux.",
+        "Repaired template sha256=e27e86de7be79691a6187a8f65861ab5662f7a642a2ef2bc6390ca4ebfe1aaa0"
+      ],
+      "resolution": "Use YAML literal block for echo command; preserves shell quoting and intentional exit1 until configured.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-003",
+      "rule_id": "CS-010",
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "line": 177,
+      "source_sha256": "cabafe728d29658b6bcbdc1eccb0304b396a925c73be6c7fd0fe1b038686c8ae",
+      "flow": {
+        "input": "Human signing secret KEY",
+        "transformation": "Shell expands secret into openssl -hmac argument",
+        "sink": "OS process command-line inspection"
+      },
+      "impact": "Signing credential can be read from process arguments by observers allowed to inspect them.",
+      "reproduction": "Started real openssl dgst with fake key and blocked stdin; Linux /proc/<pid>/cmdline contained the exact fake key. Fixed documented Python program exposes no key in argv and matches independent RFC4231 HMAC vector.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/sdd-sudo-guard-mutation.tests.py: actual doc signer, three key-source precedence controls, BOM/trailing-space file normalization, two fail-closed failures, RFC4231 case2, process argv inspection.",
+        "Repaired source sha256=139a2fa06e5060d550a79a25a04491fa511fa05f63b2eaa49956ceb59b256452",
+        "PowerShell key generation now uses Create()/instance GetBytes(byte[]) and disposes RNG; actual Linux PowerShell7.6.7 produces32bytes. Native Windows PowerShell5.1 was not executed."
+      ],
+      "resolution": "Read key inside fixed Python program from documented env/file/home sources; keep message on stdin and fail on missing/empty key. No real token or credential was generated.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "line": 25,
+      "source_sha256": "e05b3aad1e94b07ad102c1200c2e458400e5c0be6082aa79a3b8f3ceff2ce840",
+      "flow": {
+        "input": "Unfilled CHECK, tool failure, invalid iteration count or closed manual stdin",
+        "transformation": "All nonzero CHECK outcomes/failed reads treated as absence; invalid loop bound skips loop",
+        "sink": "green observations and final exit0"
+      },
+      "impact": "The shipped human feedback template can claim no reproduced symptom without executing a valid check or receiving the manual observation.",
+      "reproduction": "Existing HITL suite extended with actual unfilled/tool-error/iteration/input controls: baseline16 passed/9 failed, fixed25 passed/0 failed. Existing reproduce-on-iteration3 returns1 and genuine absence1 from CHECK completes5iterations exit0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hitl-wfi-terminal.tests.sh: actual fixture copy with exported CHECK and actual five Enter inputs, failure controls (missing/2/127), invalid caps, stdinEOF.",
+        "tests/hitl-wfi-terminal.tests.ps1:16passed/0failed on LinuxPowerShell7.6.7/Bash5.2.37.",
+        "Repaired source sha256=8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849"
+      ],
+      "resolution": "Separate CHECK0=reproduced,1=absent,>1=unavailable; reject invalid/overflow bounds and EOF with exit2. Correct reversed status comment; preserve interactive bounded loop and existing red/green behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-005",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 108,
+      "source_sha256": "51c73d5e3900d7d56147e4f6e930639feec6b8aeb5b010fb1b70f0b469c67aac",
+      "flow": {
+        "input": "operator registry JSON and filesystem paths",
+        "transformation": "PowerShell property/comparison coercion and wildcard path resolution",
+        "sink": "agent frontmatter renderer configuration and target lookup"
+      },
+      "impact": "Malformed or case-altered registry tokens can be admitted as a valid rendering configuration through PowerShell coercion.",
+      "reproduction": "Real current registry copied with schema singleton array, Schema key, root singleton array, default_effort array or model name array returns exit0 before repair.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "baseline source 9a70b0ed83601b8c41143f1a5f1d5512f0ebc687",
+        "reports/verification/coding-standards-renderer-20261101/baseline.log: 35 pass / 7 fail",
+        "reports/verification/coding-standards-renderer-20261101/fixed.log: 42 pass / 0 fail",
+        "tests/render-agent-frontmatter.tests.ps1 actual Linux PowerShell subprocess controls; protected live target hashes unchanged",
+        "fixed source SHA256 0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f"
+      ],
+      "resolution": "Require exact consumed field names, root/model/role objects and actual string scalar fields before comparison; preserve unrelated extension fields.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-006",
+      "rule_id": "CS-009",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 43,
+      "source_sha256": "51c73d5e3900d7d56147e4f6e930639feec6b8aeb5b010fb1b70f0b469c67aac",
+      "flow": {
+        "input": "operator registry JSON and filesystem paths",
+        "transformation": "PowerShell property/comparison coercion and wildcard path resolution",
+        "sink": "agent frontmatter renderer configuration and target lookup"
+      },
+      "impact": "Bracket characters in operator-selected repository, registry or target paths are treated as wildcard syntax, failing or selecting a different location.",
+      "reproduction": "A disposable repo[fixture] with registry[fixture].json and targets[fixture].json fails before repair; literal path resolution now returns check summary0targets0drift.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "baseline source 9a70b0ed83601b8c41143f1a5f1d5512f0ebc687",
+        "reports/verification/coding-standards-renderer-20261101/baseline.log: 35 pass / 7 fail",
+        "reports/verification/coding-standards-renderer-20261101/fixed.log: 42 pass / 0 fail",
+        "tests/render-agent-frontmatter.tests.ps1 actual Linux PowerShell subprocess controls; protected live target hashes unchanged",
+        "fixed source SHA256 0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f"
+      ],
+      "resolution": "Use LiteralPath for Resolve-Path and Test-Path probes; retain System.IO literal reads/writes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-038",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "line": 96,
+      "source_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+      "flow": {
+        "input": "missing working directory passed to execute",
+        "transformation": "allocate status pipe then Popen raises FileNotFoundError",
+        "sink": "read FD remains open"
+      },
+      "impact": "Repeated failed child startup leaks file descriptors in the caller process.",
+      "reproduction": "New lifecycle test ran before implementation edit: actual missing cwd; fd inventory extra4; FAILED exit1.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/project-skill-lifecycle.tests.py:Lifecycle.test_failed_process_start_releases_status_pipe",
+        "reports/verification/coding-standards-python-20261101/context-review.json"
+      ],
+      "resolution": "Close read descriptor before reraising any startup exception; existing finally closes write descriptor. Successful process ownership and diagnostic semantics preserved.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-039",
+      "rule_id": "CS-020",
+      "path": ".github/scripts/check-context-signing-environment.py",
+      "line": 33,
+      "source_sha256": "bf61380f4acf630c9243f7f9ef177100a40332c6d5f65e1ab63f0c328fbdd729",
+      "flow": {
+        "input": "external API JSON",
+        "transformation": "admission validator",
+        "sink": ".github/scripts/check-context-signing-environment.py"
+      },
+      "impact": "Malformed external API shapes escape stable failure classification; booleans masquerade as branch counts and integer flags as booleans.",
+      "reproduction": "Before edit new case raised9 AttributeErrors; independent calls accepted total_count=True and numeric0/1 branch policy.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/context-signing-environment.tests.py:7 pass"
+      ],
+      "resolution": "Validate each consumed object/list at external API boundary and compare int/bool fields by exact types, without widening catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-040",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1063,
+      "source_sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26",
+      "flow": {
+        "input": "child git status failure",
+        "transformation": "snapshot fingerprint",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "Failed git status was hashed as empty status and treated as a stable repository fingerprint.",
+      "reproduction": "Actual temporary git executable returned known-head for rev-parse, status exited7; pre-fix GitDiffError-not-raised test failed.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/python-input-boundaries.tests.py:6 pass; bash tests/component-path-diff-basis.tests.sh:18 pass"
+      ],
+      "resolution": "Check status return code before hashing and raise existing GitDiffError with child diagnostic.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-041",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 399,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+      "reproduction": "Three real CLI cases produced traceback/no schema diagnostic before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:8 pass",
+        "facet-manifest-schema:57 pass",
+        "facet-manifest-semantics:15 pass"
+      ],
+      "resolution": "Skip nonstring IDs in semantic checks; preserve full schema errors and independent valid-field semantic diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-042",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "line": 18,
+      "source_sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+        "sink": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py"
+      },
+      "impact": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+      "reproduction": "Real CLI valid control passed; dict/None/integer controls emitted tracebacks before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "supplemental-delivery-declaration:32 pass with Bash/PowerShell parity"
+      ],
+      "resolution": "Check object and consumed input-array shape before field use; no broad catch added.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-043",
+      "rule_id": "CS-023",
+      "path": "tests/t001-evaluation-preparation.tests.py",
+      "line": 69,
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+        "sink": "tests/t001-evaluation-preparation.tests.py"
+      },
+      "impact": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+      "reproduction": "Frozen T005 helper allocates scratch before supplemental validation; failure branch has no deletion. Source traced; no claimed historical live Red.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "t001-evaluation-preparation:16 pass"
+      ],
+      "resolution": "Current test consumer owns separate child temp root through TMPDIR/TMP/TEMP and unittest cleanup; frozen helper bytes untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-044",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 1,
+      "source_sha256": "202bf36c4ae02c867b315e4f5207e43d524b6ff62d507bde24f852166726ddd4",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-045",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "line": 1,
+      "source_sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-046",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "line": 1,
+      "source_sha256": "bc09ff0ffff8df1d06beae2a0fb8f5614e38d8a74f0d9cc5f21a89b219236521",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/registry_discovery.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-047",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1,
+      "source_sha256": "72afd70c63053d2418574004d22c7ee783c4d0342d67ab57dab2f7a7ec7220da",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-048",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "line": 1,
+      "source_sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-project-context.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-049",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "line": 1,
+      "source_sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-050",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "line": 1,
+      "source_sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-context-projection.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-051",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 1,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-052",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "line": 1,
+      "source_sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-053",
+      "rule_id": "CS-023",
+      "path": "scripts/human_copy_mirrors.py",
+      "line": 1,
+      "source_sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/human_copy_mirrors.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-054",
+      "rule_id": "CS-023",
+      "path": "scripts/observe-a9-advisory.py",
+      "line": 1,
+      "source_sha256": "d788e472e4d0e70b37d9ab197c7b04c3bfcaef7624d1fb9490a53eef9af1d0ab",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/observe-a9-advisory.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-055",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-candidate.py",
+      "line": 1,
+      "source_sha256": "68fb96877a53d121dc303b255b5badbb6bd1e58cfc285979c0f671a0dd425963",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-candidate.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-056",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-promotion.py",
+      "line": 1,
+      "source_sha256": "45492c515f50ef7c1b6d926d906b0c1dc4986c34e7a43aa4044c6c631843a341",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-promotion.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-057",
+      "rule_id": "CS-023",
+      "path": "tests/benchmark-gates.py",
+      "line": 1,
+      "source_sha256": "882e363034c7c6f93803751cca2dba8e04265ea812bca47f60e1837ee76a8998",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/benchmark-gates.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-058",
+      "rule_id": "CS-023",
+      "path": "tests/factory-pilot.py",
+      "line": 1,
+      "source_sha256": "e2f2eb554e937cae522b0eccafff1e2ca108191cd56421a7f3cb4490015e6f4d",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/factory-pilot.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-059",
+      "rule_id": "CS-023",
+      "path": "tests/verification-impact.py",
+      "line": 1,
+      "source_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification-impact.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-060",
+      "rule_id": "CS-023",
+      "path": "tests/verification.py",
+      "line": 1,
+      "source_sha256": "4e72b661e2b03e1eaaf20425aec0cc23da593d27272f9b5ebb4bc082d4ad441a",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-061",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 107,
+      "source_sha256": "feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d",
+      "flow": {
+        "input": "External verdict JSON object and consumed field shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-cross-model.sh"
+      },
+      "impact": "External verdict JSON object and consumed field shapes",
+      "reproduction": "Nine malformed top-level gate CLI cases failed before repair; cross-model returned consensus failure instead of tool error.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require object, exact string digest/fullmatch, nonempty string consent kind, and list-of-object findings; preserve omitted findings and consensus failure policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-062",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 160,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "External evidence bundle and nested contract/artifact JSON shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "External evidence bundle and nested contract/artifact JSON shapes",
+      "reproduction": "Malformed scalar/list/null top-level inputs raised tracebacks in actual pre-edit CLI tests.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Validate object and nested consumed arrays/objects and report existing gate failure instead of an attribute error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-063",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "line": 39,
+      "source_sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+      "flow": {
+        "input": "External feature, link, requirement, ACS/test and evidence values",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-traceability.sh"
+      },
+      "impact": "External feature, link, requirement, ACS/test and evidence values",
+      "reproduction": "Malformed top-level inputs raised tracebacks in actual pre-edit CLI tests; typed identifier regression now checks missing/numeric req, mixed collection entries and normal blank-plus-valid control.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require consumed strings and link objects; require at least one nonempty ACS/test entry while preserving blank companions and optional null evidence.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-064",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "line": 185,
+      "source_sha256": "92999f5c81fe4a7cf75c6e630427a9ff866d4973a60aa4bf4df7043ad546f448",
+      "flow": {
+        "input": "Git status nonzero result becomes an empty clean-worktree snapshot",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+      },
+      "impact": "Git status nonzero result becomes an empty clean-worktree snapshot",
+      "reproduction": "Historical HEAD replay of the new actual fake-Git CLI test returned 0 instead of expected 1; this is explicitly a post-edit baseline replay, not a pre-edit red observation.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Check status result before constructing a bundle; classify Git timeouts and OSError; do not write output on failed Git status.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-065",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 298,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "Git object/ancestor checks may invoke unbounded external work",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "Git object/ancestor checks may invoke unbounded external work",
+      "reproduction": "Source inspection of previously unbounded Git subprocess calls; existing gate suite exercises valid and failed ancestry.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-007",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.sh",
+      "line": 149,
+      "source_sha256": "d359ccc18dde5d42c9e0504ee35f57ed4871af0bf9778c2a5d5037f613de038e",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "Bash30pass/1fail aggregate before,31pass/0fail after;11 negative cases and valid-extension normal control",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-008",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 155,
+      "source_sha256": "0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "PowerShell43pass/6fail before,49pass/0fail after; malformed role enums and target types rejected",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-040",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 33,
+      "source_sha256": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Casefolded or array-valued review contract identities admitted",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/review-contract-foundation.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 ef4d4de27e2b66c501d562f59fc246fb8d5e191fd8a42bd77b6b1f1d9fad1904"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-041",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "line": 230,
+      "source_sha256": "56e5137ed388534ace485f6b4a668ce0aca00d60b1c25d60666b444c5ed0a3c1",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Lowercase quality report and array/lowercase review verdict admitted",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scripts.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 ef845237c69e63b17651bb69e8bc375b8b301580bfc0fb9e7b07f4e8ce908b3a"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-042",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 23,
+      "source_sha256": "a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Noncanonical review verdict admitted at hook decision",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hooks.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 90c6f40355a812e1b59eea5ec197e9138be7a78e87437c24adcf1be6db1f4cd5"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-40",
+      "rule_id": "CS-002",
+      "path": "tests/check-component-coverage.tests.sh",
+      "line": 303,
+      "source_sha256": "9635025959389d0aa4949cbcd06985a76e1de92acf0516fc2ae35756530f5f1a",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-component-coverage.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 41ecbb872ed65e9201026bfdee6b78e7b272eefdaa53a26372b2cabc3b6bec95"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-41",
+      "rule_id": "CS-002",
+      "path": "tests/component-path-resolver.tests.sh",
+      "line": 4,
+      "source_sha256": "4b5894b1d60b1a8e21ef885a0d4edd78c636fe6d8014ee29faab567c8522a928",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/component-path-resolver.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 7439d381fee3038a11baccf3f759413801591ec5971fe2d4e59f52104a3b5d3a"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-42",
+      "rule_id": "CS-002",
+      "path": "tests/context-projection-schema.tests.sh",
+      "line": 48,
+      "source_sha256": "d3a02a139c996c20240feb1139a0b994a5dbce0515088f6524c4832e2166e4f7",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/context-projection-schema.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 992f06dfaa30810980c543041373b47f9cb8e2053e25a025034c17e51eaefb47"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-43",
+      "rule_id": "CS-002",
+      "path": "tests/facet-manifest-staleness.tests.sh",
+      "line": 42,
+      "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/facet-manifest-staleness.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 e643131ac969d304c9cd6fd8a384894df347d07d0a37b7ea8343a32fe390ff79"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-44",
+      "rule_id": "CS-002",
+      "path": "tests/guards.tests.sh",
+      "line": 58,
+      "source_sha256": "04040c52c2a0e51f11b3c0c5a6e566b948ed1be2fe22f56125371062f220ae6c",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/guards.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 d99389cedf3b37259047235f09003c1aaf916a35438c38bd2db67f01f9e47a23"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-45",
+      "rule_id": "CS-002",
+      "path": "tests/install.tests.sh",
+      "line": 1188,
+      "source_sha256": "9a17c4beb76556ccfb2a6a3ee84a381df9d0f8918d8b8dd6445cd688abbdccf0",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 d88040bdf0b85e7404f89d19b955ba332a263e46207fb998dc0e737a1cf19322"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-46",
+      "rule_id": "CS-002",
+      "path": "tests/ownership-digest.tests.sh",
+      "line": 183,
+      "source_sha256": "b71ce7e3ec6eb086bdebbf3d861de71e8c61e1306d1630d35c3ee7b5356197c7",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/ownership-digest.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 6d870f16b1245f2cee388c847fde747e539c29e7e8d2b05acee285f75fd5806d"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-47",
+      "rule_id": "CS-002",
+      "path": "tests/scenario.tests.sh",
+      "line": 469,
+      "source_sha256": "a0dea4de0a500f064a36f32e589dd4327dbb853d87eaf420ad30e9f942ef5251",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scenario.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 f84b8efddb66c703fd182d325d620f69b3a86efe8dd5296b3270042b0d5c9dd4"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-048",
+      "rule_id": "CS-019",
+      "path": ".github/workflows/self-improvement.yml",
+      "line": 147,
+      "source_sha256": "741264b437487bb6fe1731266ec17fd66867136f8ac72654f57e1025bc518fd3",
+      "flow": {
+        "input": "GitHub CLI PR enumeration status",
+        "transformation": "Default Bash -e pipeline masks early failure",
+        "sink": "Enforcement-chain guard"
+      },
+      "impact": "Failed enumeration falsely validates empty changed-path list",
+      "reproduction": "Actual extracted workflow step: before67pass/2fail; after69pass/0fail. gh exit9 and malformed JSON now stop before guard; valid [] reaches guard. Dynamic test explicitly unsupported Bash<4 because workflow uses mapfile on Ubuntu.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/self-improvement-guard.tests.sh",
+        "Fixed in b4770dd0; source SHA256 c413e7eb07e613b1b697f933b9092a142787b7dc34c502ff1fb866ac56b81de5"
+      ],
+      "resolution": "Enable pipefail in the enforcement step; retain warning-only label behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-043",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "line": 191,
+      "source_sha256": "a3d5bf4377ed120239e480d78b3ea206a40ef469b2f299547a35cd85123e924b",
+      "flow": {
+        "input": "Panelist response JSON",
+        "transformation": "PowerShell scalar comparison and conversion",
+        "sink": "Published verdict JSON"
+      },
+      "impact": "Array or wrong-type protocol fields published as valid verdict",
+      "reproduction": "Seven native runner mutations each were accepted before repair; after14/14 rejected. Full cross-model PowerShell suite128pass/0fail.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 6c50463e; source SHA256 5dd6be4e39e7931b6ae924f99370dc54976ef7cd1fd81ec0c67a7ce85094779a"
+      ],
+      "resolution": "Require schema/verdict/digest strings and blind boolean before publication; preserve process supervision.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-044",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 113,
+      "source_sha256": "b0ea695e119922c7924a796269d69936d855df818080e6aae748f0df251900bb",
+      "flow": {
+        "input": "Panelist response JSON",
+        "transformation": "PowerShell scalar comparison and conversion",
+        "sink": "Published verdict JSON"
+      },
+      "impact": "Array or wrong-type protocol fields published as valid verdict",
+      "reproduction": "Seven native runner mutations each were accepted before repair; after14/14 rejected. Full cross-model PowerShell suite128pass/0fail.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 6c50463e; source SHA256 2c9d93d9ca161190733449a713fcfbed08dece32e0d67a38c7e3c07b1aeb9f4f"
+      ],
+      "resolution": "Require schema/verdict/digest strings and blind boolean before publication; preserve process supervision.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-049",
+      "rule_id": "CS-008",
+      "path": "install.sh",
+      "line": 163,
+      "source_sha256": "9284e7b78f7b0263f8d1eff0ba2bc1aaa4b0e56dca7b897f306854594c75bb40",
+      "flow": {
+        "input": "Unicode remote Git ref",
+        "transformation": "Bash3 signed byte character conversion",
+        "sink": "URL path component"
+      },
+      "impact": "Malformed percent escapes prevent authenticated ref downloads",
+      "reproduction": "Actual GNU Bash3.2.0 source-function reproduction emitted %FFFFFFFFFFFFFFE6 before; fixed exact UTF8 escapes match Bash5.2. Full upstream3.2.0 installer suite has unrelated existing regex syntax failure; actual macOS CI verification remains separate.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 96bc015e; source SHA256 4241738ed8f752af1e88287b434c97cda4c20f36081e79559571677e84fc6ce2"
+      ],
+      "resolution": "Mask character byte with255 before percent-formatting.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-045",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "line": 109,
+      "source_sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d",
+      "flow": {
+        "input": "Task manifest and fallback evidence JSON",
+        "transformation": "String casts and comparisons accept arrays",
+        "sink": "Manifest provenance acceptance"
+      },
+      "impact": "Malformed identity fields accepted as genuine scalar provenance",
+      "reproduction": "Array schema control admitted before repair; native task-context-isolation suite passes with seven scalar-array negatives, actual worker paths contain spaces.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-context-isolation.tests.ps1",
+        "Fixed in 83df69e3; source SHA256 5f51c2afeff87bce5f3b6468fbeca96f148e02b5ab11b5f4df87808bb3bf5962"
+      ],
+      "resolution": "Validate scalar types before exact schema/provenance comparison.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-050",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "line": 7,
+      "source_sha256": "73965bb6679ba8418a3130dc5fe236cd59a7f4c188192082ac16e2548a37a8af",
+      "flow": {
+        "input": "Design tokens JSON",
+        "transformation": "Grep envelope inference (Bash) or PowerShell unrolling/coercion",
+        "sink": "Design-system gate"
+      },
+      "impact": "Malformed or nested-decoy schemas pass; valid formatted JSON rejected by Bash",
+      "reproduction": "Bash before: formatted valid rejected, nested/malformed/multidoc/rootarray accepted. PowerShell uppercase schema admitted. After10 paired JSON controls plus missing-jq control pass; native design-system suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.sh",
+        "Fixed in 83df69e3; source SHA256 52d04f722f0e9a55d11b8bb2c8bfb3c7c44e94d32ef54bbf3dce0c36eb1c4e26"
+      ],
+      "resolution": "Use actual JSON object envelope and exact typed metadata; preserve absent-file skip and phase warning/enforcement policy.",
+      "reuse": {
+        "intent": "Validate the design-token JSON envelope consumed by the gate.",
+        "public_contract": "Missing file skips; warn phase reports findings without enforcing; enforce phase rejects invalid token metadata.",
+        "stability_evidence": "Existing Bash and PowerShell twins consume the same schema token and metadata keys.",
+        "consumer_requirements": "Bash uses the existing quality-loop jq dependency; PowerShell uses native ConvertFrom-Json.",
+        "divergence_counterexample": "ConvertFrom-Json can unroll singleton top-level arrays; jq -s preserves document count and envelope type.",
+        "decision": "Reuse existing JSON parsers with explicit per-runtime envelope validation; do not create a shared subprocess parser.",
+        "reason": "Parser APIs differ while the public gate contract remains paired; a new parser infrastructure adds no stable capability.",
+        "verification": "Paired valid formatted JSON, nested decoy, malformed JSON, multiple documents and root array controls; missing-jq explicit failure."
+      }
+    },
+    {
+      "finding_id": "PS-SHELL-046",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.ps1",
+      "line": 6,
+      "source_sha256": "cff0c77f6cc0e79d68459e190d5b8c0cf56a8cbd4ab070bfc6005edad414a7b9",
+      "flow": {
+        "input": "Design tokens JSON",
+        "transformation": "Grep envelope inference (Bash) or PowerShell unrolling/coercion",
+        "sink": "Design-system gate"
+      },
+      "impact": "Malformed or nested-decoy schemas pass; valid formatted JSON rejected by Bash",
+      "reproduction": "Bash before: formatted valid rejected, nested/malformed/multidoc/rootarray accepted. PowerShell uppercase schema admitted. After10 paired JSON controls plus missing-jq control pass; native design-system suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.ps1",
+        "Fixed in 83df69e3; source SHA256 bfb4e8f50519cc6022ad098892542c8cef7919c85f2a5489d811ac08634c0d47"
+      ],
+      "resolution": "Use actual JSON object envelope and exact typed metadata; preserve absent-file skip and phase warning/enforcement policy.",
+      "reuse": {
+        "intent": "Validate the design-token JSON envelope consumed by the gate.",
+        "public_contract": "Missing file skips; warn phase reports findings without enforcing; enforce phase rejects invalid token metadata.",
+        "stability_evidence": "Existing Bash and PowerShell twins consume the same schema token and metadata keys.",
+        "consumer_requirements": "Bash uses the existing quality-loop jq dependency; PowerShell uses native ConvertFrom-Json.",
+        "divergence_counterexample": "ConvertFrom-Json can unroll singleton top-level arrays; jq -s preserves document count and envelope type.",
+        "decision": "Reuse existing JSON parsers with explicit per-runtime envelope validation; do not create a shared subprocess parser.",
+        "reason": "Parser APIs differ while the public gate contract remains paired; a new parser infrastructure adds no stable capability.",
+        "verification": "Paired valid formatted JSON, nested decoy, malformed JSON, multiple documents and root array controls; missing-jq explicit failure."
+      }
+    },
+    {
+      "finding_id": "PS-SHELL-047",
+      "rule_id": "CS-009",
+      "path": "install.ps1",
+      "line": 5,
+      "source_sha256": "92d4062c52455afd71c0ab9571b0b82d3b3bf6c8ea609ae0fc1dd7732cf7c005",
+      "flow": {
+        "input": "User-supplied install root containing brackets",
+        "transformation": "Filesystem cmdlets interpret literal path as wildcard",
+        "sink": "Copy/move/remove filesystem mutations"
+      },
+      "impact": "Uninstall deletes matching unrelated neighbor and leaves intended literal root; install backup/replacement can target wrong directory",
+      "reproduction": "Actual uninstall pack[ab] + packa before deletes packa and leaves pack[ab]; after exacttarget deleted and neighbor bytes preserved. Installer injected placementfailure restores literal backup; successful upgrade replaces literal target and cleans backup. Existing full install PowerShell suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.ps1",
+        "Fixed in 01902a1d; source SHA256 a18c37791c5f95f7304eac5407870843a298734d811d5e228bb94ddc516c3210"
+      ],
+      "resolution": "Use LiteralPath for composed filesystem operands; retain explicit intended dist-entry enumeration and New-Item API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-048",
+      "rule_id": "CS-009",
+      "path": "uninstall.ps1",
+      "line": 3,
+      "source_sha256": "235a0d6825d6559e9ab584351b6b52da1dc79837499769e0972c19b5529419e1",
+      "flow": {
+        "input": "User-supplied install root containing brackets",
+        "transformation": "Filesystem cmdlets interpret literal path as wildcard",
+        "sink": "Copy/move/remove filesystem mutations"
+      },
+      "impact": "Uninstall deletes matching unrelated neighbor and leaves intended literal root; install backup/replacement can target wrong directory",
+      "reproduction": "Actual uninstall pack[ab] + packa before deletes packa and leaves pack[ab]; after exacttarget deleted and neighbor bytes preserved. Installer injected placementfailure restores literal backup; successful upgrade replaces literal target and cleans backup. Existing full install PowerShell suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/uninstall.tests.ps1",
+        "Fixed in 01902a1d; source SHA256 43271c0302fbe540720ba2a6f677c5e2d414113d021a2b1dc5af4ff038cedbbb"
+      ],
+      "resolution": "Use LiteralPath for composed filesystem operands; retain explicit intended dist-entry enumeration and New-Item API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-051",
+      "rule_id": "CS-001",
+      "path": "install.sh",
+      "line": 920,
+      "source_sha256": "4241738ed8f752af1e88287b434c97cda4c20f36081e79559571677e84fc6ce2",
+      "flow": {
+        "input": "SDD_INSTALL_LOCK_TIMEOUT and SDD_INSTALL_LOCK_STALE environment",
+        "transformation": "Recursive Bash arithmetic interprets array-subscript command substitution",
+        "sink": "Lock deadline/age arithmetic"
+      },
+      "impact": "Environment data executes commands during installation",
+      "reproduction": "Root actual BASH_VERSINFO[$(touch isolated-sentinel)] timeout reproduction created sentinel with installer exit0. Fixed full installer suite63pass/0fail including10 unsafe-value rejection controls and leading-zero/zero successful installation.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 6c9f066f; source SHA256 111d2ce4b79b3790e5e58985889a9dc265e408a4e6578908747c397b91a1a6ef"
+      ],
+      "resolution": "Validate decimal text and bounded range before arithmetic; strip leading zeros without interpreting them.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-001",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "line": 22,
+      "source_sha256": "4a93071e79c29c7392e10b14aefc4dfcc8124c87e413cb79399eb741a3e6807a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1"
+      },
+      "impact": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "reproduction": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath through existence, item/directory enumeration and Select-String.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+      "line": 47,
+      "source_sha256": "51cf61779f4358748d21b0c2b13cbdf86253c0d2728d2822f9d53780ce832a0a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+      },
+      "impact": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "reproduction": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Preserve literal task, contract and report paths through read, resolve, enumeration and match.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.ps1",
+      "line": 107,
+      "source_sha256": "ec51efbd03a5dfdba8d79ef72ebdb01943064b0ee11e283239bdab6cf836944e",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-lite/scripts/check-task-state-lite.ps1"
+      },
+      "impact": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "reproduction": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath for report roots, discovered files and verdict reads; preserve valid and failed report semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-004",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 82,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "reproduction": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Stop on failed enumeration; absent report root still deliberately means zero reports.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 85,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "reproduction": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use cmatch for feature identity, matching task identity and Bash behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "line": 211,
+      "source_sha256": "32aacffa4f8ba92e7a2d49cdc07d1073afef620c2e9d56f8213b008768173b81",
+      "flow": {
+        "input": "panel input files",
+        "transformation": "unchecked prompt assembly",
+        "sink": "external model CLI invocation"
+      },
+      "impact": "Both actual wrapper entrypoints invoked CLI after injected real cat failure on input; exit1 reflected downstream stub rather than refusing incomplete input.",
+      "reproduction": "Both actual wrapper entrypoints invoked CLI after injected real cat failure on input; exit1 reflected downstream stub rather than refusing incomplete input.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix4a0125cb",
+        "tests/cross-model.tests.sh: 84 passed, 0 failed",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "Related rules CS-019, CS-023",
+        "fixed plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh SHA256 1adba1ec7bec60d5cc24aa6d3e729bdba8c8fbb9b176c8cd3bf848b5f7b70acc",
+        "fixed plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh SHA256 0e8d43d3557fedca0066cf5da06e078c8c8862ced92b99aacdc0ea6177241d3c"
+      ],
+      "resolution": "Both exit2 before CLI invocation. Scratch creation, prompt write, all concatenation stages and prompt reread checked. Trailing argument explicitly rejected under sh and bash.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "line": 1,
+      "source_sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+      "flow": {
+        "input": "review contract report paths",
+        "transformation": "parent-only canonicalization",
+        "sink": "review contract PASS admission"
+      },
+      "impact": "Valid contract with reports/.. accepted and emitted PASS; parent-only canonicalization ignored terminal traversal. PS Split-Path normalizes terminal component separately.",
+      "reproduction": "Valid contract with reports/.. accepted and emitted PASS; parent-only canonicalization ignored terminal traversal. PS Split-Path normalizes terminal component separately.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix4a0125cb",
+        "tests/review-contract-foundation.tests.sh: Full suite passed including Bash+PowerShell terminal traversal negatives and CRLF/symlink provenance controls",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "Related rules CS-009, CS-027",
+        "fixed plugins/sdd-review-loop/scripts/review-contract-validate.sh SHA256 7e44a1c350fd65340ab3a9a78ca3d2c0a48ca5439402400ab9972e39d7b20b75",
+        "fixed plugins/sdd-review-loop/scripts/review-contract-validate.ps1 SHA256 10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370"
+      ],
+      "resolution": "Reject terminal dot/dotdot on raw path before emitting validation JSON. Preserve literal paths and existing parent/symlink rules.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 22,
+      "source_sha256": "10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370",
+      "flow": {
+        "input": "report path with linked ancestor",
+        "transformation": "PowerShell Resolve-Path retains linked parent text",
+        "sink": "reports directory containment admission"
+      },
+      "impact": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "reproduction": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix11371dac",
+        "tests/review-contract-foundation.tests.sh: Full suite passed; paired Bash/PowerShell outside-link rejection and internal-link acceptance.",
+        "fixed source SHA256 35b5cc2fad028d83353e5707c8b8a38ebb74b2a508e6822519cd21862cca64d0"
+      ],
+      "resolution": "Resolve each directory ancestor and link target physically, compare against physical reports root. Internal ancestor links remain accepted; cyclic/unresolvable links fail.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "line": 82,
+      "source_sha256": "cd86b9c11d472cb3e8a9855849b183c2c078873640220beb88b507e0dba0080d",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh"
+      },
+      "impact": "An unreadable HTML directory or grep error was hidden by pipelines, producing a false clean scan.",
+      "reproduction": "Real denied directory and actual invalid-regex grep controls returned0 before,2 after.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-sync-scan.tests.sh:102 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Checked find/sort/grep status before interpreting findings; reject newline filenames explicitly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 20,
+      "source_sha256": "d380f71ff0385f305f655081d537ccb4668a644f34f821564d80418cf52ac263",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Literal filename --exclude=* was parsed as a grep option and suppressed TODO findings in both files.",
+      "reproduction": "Actual leading-option filename and normal file both contain TODO: before0,after1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Add -- before filename operands in both searches.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-003",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 929,
+      "source_sha256": "93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Backup read failure was overwritten by exit0 and publication proceeded without recoverable pre-state.",
+      "reproduction": "Real cat missing-file failure during backup: before0/statusok/newlive; after21/LIVE_PROBE_FAILED/oldlive; truncated-success backup also denied.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/apply-human-copy.tests.sh:253 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Require successful backup bytes/mode and matching prehash before journal and rename.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "line": 75,
+      "source_sha256": "52d04f722f0e9a55d11b8bb2c8bfb3c7c44e94d32ef54bbf3dce0c36eb1c4e26",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-design-system.sh"
+      },
+      "impact": "Unreadable CSS was silently omitted and check-design-system printed passed.",
+      "reproduction": "Actual chmod000 CSS under uid1000: before0passed,after1. Bothwarn/error modes and designfile failures exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.sh:8 passed plus JSON/IO controls; posix-io-evidence.zip"
+      ],
+      "resolution": "Inspect actual grep exit status before cap/render; protect operands; preserve warn finding policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-005",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "line": 1346,
+      "source_sha256": "a97837ba7350be459900ed6d9f5b63ae0006488763c94e715bd8f9d9abf875d2",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+      },
+      "impact": "Unreadable newer review round was omitted and older PASS accepted; same shared predecessor pattern.",
+      "reproduction": "Actual uid1000 control0; denied attempt99/round1 before0workflow-state:ok,after1. PS twin already fails1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/workflow-state.tests.sh complete suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Capture and check complete find output in workflow and review-precheck-common before choosing latest verdict.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 731,
+      "source_sha256": "8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh"
+      },
+      "impact": "Unreadable review source became an empty successful sanitized bundle; failed output/collection also lost errors.",
+      "reproduction": "Actual chmod000 input before0 with emptydigest+outputfile; after2/nooutput. Report/tree/output permission controls and missingoption timeout exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/prepare-panelist.tests.sh:192 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check content/parser/traversal/output statuses; keep private temp files and fail missing option values.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-007",
+      "rule_id": "CS-019",
+      "path": "scripts/rollback-1.5.0.sh",
+      "line": 54,
+      "source_sha256": "6eea918fa80135ff34fa2e0aa8c9719e34ca2efcf133ddd036c6a755b1117127",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "scripts/rollback-1.5.0.sh"
+      },
+      "impact": "Git status errors appeared clean and jq producer failures skipped inventory loops, permitting false successful rollback.",
+      "reproduction": "Same real Git invalid-option and jq syntax-error controls fail beforefix tests; afterfix reject before changing bytes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.sh paired/canonical suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check Git status and capture one checked nonempty inventory for all transaction phases.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-008",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 132,
+      "source_sha256": "5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/emit-run-record.sh"
+      },
+      "impact": "Unreadable tasks emitted a successful run record with fabricated zero task metrics.",
+      "reproduction": "Actual chmod000 tasks before0/wrote/total0; after nonzero/no record. Spaced-path complete metrics positivecontrol plus unreadable task/reporttree/ticket.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/emit-run-record-feature-scope.tests.sh:56 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Normalize tasks once with checked read; distinguish grep no-match1 from error2; preserve spaces in inventories and propagate metric source failures.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-009",
+      "rule_id": "CS-004",
+      "path": "render-agent-frontmatter.sh",
+      "line": 137,
+      "source_sha256": "a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434",
+      "flow": {
+        "input": "selected registry model.name string containing control characters",
+        "transformation": "single-line generated model comment/frontmatter interpolation",
+        "sink": "agent TOML or Markdown output"
+      },
+      "impact": "A newline in model.name becomes a new TOML statement rather than remaining model data; NUL also corrupts the generated target.",
+      "reproduction": "Both actual renderer entrypoints returned0 and inserted INJECTED = true on its own line when a selected model name included newline; all writes stayed inside a disposable temporary repo.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-renderer-20261101/model-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-after.log",
+        "Bash30/1→31/0 aggregate; PowerShell49/2→51/0; newline and NUL controls added to existing suites",
+        "fixed SHA256 c68ed293631b097ad028a32e698f7aaf276c39d14070e9656140e2cb4c11eb08"
+      ],
+      "resolution": "Reject C0/DEL control characters in the single-line model field before any target write, in both implementations. Existing normal model IDs, extension fields and protected target behavior remain tested.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-010",
+      "rule_id": "CS-004",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 131,
+      "source_sha256": "98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9",
+      "flow": {
+        "input": "selected registry model.name string containing control characters",
+        "transformation": "single-line generated model comment/frontmatter interpolation",
+        "sink": "agent TOML or Markdown output"
+      },
+      "impact": "A newline in model.name becomes a new TOML statement rather than remaining model data; NUL also corrupts the generated target.",
+      "reproduction": "Both actual renderer entrypoints returned0 and inserted INJECTED = true on its own line when a selected model name included newline; all writes stayed inside a disposable temporary repo.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-renderer-20261101/model-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-after.log",
+        "Bash30/1→31/0 aggregate; PowerShell49/2→51/0; newline and NUL controls added to existing suites",
+        "fixed SHA256 0d5a7ffe22eaec3f3563ae8f1bcfb22d1bc3153914b60e246463adae116ef847"
+      ],
+      "resolution": "Reject C0/DEL control characters in the single-line model field before any target write, in both implementations. Existing normal model IDs, extension fields and protected target behavior remain tested.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-009",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 1422,
+      "source_sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Both publisher runtimes treated an unreadable recovery tree as no pending journals.",
+      "reproduction": "Real uid1000 chmod000sdd/staging/batch beforeSH0andPS0statusok; after17journalretained,permissionsrestored0andjournalcleaned.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Inspect recovery parent/batch directories and propagate listing errors instead of glob/PowerShell SilentlyContinue omission.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-010",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 1044,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "PowerShell did not verify preserved backup bytes before committing.",
+      "reproduction": "Actual CopyItem followedbyrealfiletruncation: before0newlive; after21oldlive/nojournal.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require actual backup success and prehash equality before journal; classify failure usingexisting21.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-011",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 799,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Object/scalar journal targets were coerced into valid-looking records and journal was discarded.",
+      "reproduction": "Three concrete scalarobject/numericpath/arrayprehash records eachbefore0recovered1+deletedjournal; after14retained.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require targetsarray and consumed recordfieldsstring before recoveryclassification.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-012",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 352,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Replacement decoding changed a malformedmanifestfilename to an existing U+FFFDfilename and published the wrongtarget.",
+      "reproduction": "Manifest pathliteral0xFF.txt and staged U+FFFD.txt: before0/wrongtargetcreated; after13/targetabsent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Use UTF8Encoding throwOnInvalidBytes for manifest/journal reads; parse alreadycaptured manifesttext.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-013",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 50,
+      "source_sha256": "14268ffb871ce3b17f99575db6c0c7d5e342fe058d9cf3cc467f5932b1ce9bc5",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Aggregation sorterror discarded knownTODO findings and produced falseclean output.",
+      "reproduction": "Real sortinvalidoption withactualTODO input: before0scanpassed; after2FATAL.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Check aggregation command status before accepting emptyfindings.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1076,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git status failure became a stable hash of empty stdout.",
+      "reproduction": "Actual executable exit7 accepted before repair; final diff-basis test rejects it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Check exit status before hashing snapshot.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-007",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1013,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git process and output waits had no deadline or explicit disposal.",
+      "reproduction": "Source trace plus real sleeping fake Git; final test observes deadline and child gone.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use shared bounded raw-byte helper, preserve GitDiffError and strict UTF-8/NUL parsing.",
+      "reuse": {
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
+      }
+    },
+    {
+      "finding_id": "PS-AUX-008",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 823,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Historical Git lookup could block panelist preparation indefinitely.",
+      "reproduction": "Source trace of five native Git calls; existing historical declaration, drift, missing-file and byte-hash controls exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use the same argv/raw-byte/deadline helper; hash raw historical bytes directly.",
+      "reuse": {
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
+      }
+    },
+    {
+      "finding_id": "PS-AUX-009",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 513,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Array/mapping IDs and array shared pattern/classification were coerced into valid serialized ownership fields.",
+      "reproduction": "Actual malformed YAML CLI cases returned0; initial suite73/3, additional classification replay0; final78/0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Preserve raw ID without pipeline unrolling and validate string fields before use.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-010",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1225,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Case-insensitive component join misattributed lower/file to component A.",
+      "reproduction": "Actual A/a provider-binding CLI diagnostic falsely triggered Fail-6; fixed dedicated control rejects the join.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use ordinal dictionary for component identities.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-011",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 142,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Wildcard interpretation changed consent/input/report/output path targets.",
+      "reproduction": "Initial CLI failures; direct-argv historical-source replay returned wrong sibling bytes with success. Replay is post-edit, not claimed pre-edit chronology.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use LiteralPath at each affected provider read/resolve/write boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-012",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 150,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Mis-cased human consent and signed repository identity were accepted.",
+      "reproduction": "Actual lowercase flag accepted; repository-case isolation replay accepted; final signed correct/wrong binding controls return0/1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Match human protocol and repository binding exactly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-013",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 552,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Task evidence inventory followed symbolic-link files into an externally reviewed bundle.",
+      "reproduction": "Real symlink to outside sentinel: baseline exit0 and sentinel in output; final regression excludes it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Filter symbolic-link files from evidence traversal, preserving legitimate regular-file inventory.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-014",
+      "rule_id": "CS-009",
+      "path": "tests/prepare-panelist.tests.ps1",
+      "line": 34,
+      "source_sha256": "32501f8c01484180599eb11446d86996a40c9bd829131a8412d2a08e13e4127a",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "tests/prepare-panelist.tests.ps1"
+      },
+      "impact": "Parent PowerShell native invocation expanded literal bracket args before the tested child received them.",
+      "reproduction": "After child literal fix, old test helper still emitted sibling digest while direct argv produced correct literal digest.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Existing helper uses ProcessStartInfo.ArgumentList and separately drains streams; same suite and assertions.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-004",
+      "rule_id": "CS-019",
+      "path": ".github/scripts/check-model-freshness.sh",
+      "line": 33,
+      "source_sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "flow": {
+        "input": "vendor read/search/filter results",
+        "transformation": "unchecked native status",
+        "sink": "issue publication and freshness result"
+      },
+      "impact": "Actual entrypoint: failed GitHub search created a duplicate issue; failed source cat returned success without unavailable notice; failed token filter returned success/no divergence.",
+      "reproduction": "Actual entrypoint: failed GitHub search created a duplicate issue; failed source cat returned success without unavailable notice; failed token filter returned success/no divergence.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix555cfd47",
+        "tests/model-freshness-check.tests.sh: 43 passed, 0 failed",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "fixed .github/scripts/check-model-freshness.sh SHA256 cb57a65fcc190026cb9d801bc1e2da983e3f8f1e67624eb763981615603b4e18"
+      ],
+      "resolution": "Search failure exits7 with zero writes; source read failure preserves fail-soft0 but files explicit unavailable notice; token filter failure exits1 with zero writes. grep no-match remains data, other statuses propagate.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "line": 20,
+      "source_sha256": "2de062d711ccf860a6216a4a288cf37cb62d93bf980ce998609c22c7d15ecdbc",
+      "flow": {
+        "input": "domain contract JSON root/schema and timestamp-like strings",
+        "transformation": "PowerShell JSON enumeration and automatic date conversion",
+        "sink": "domain v2 contract admission"
+      },
+      "impact": "Valid contract wrapped in singleton root array or schema wrapped in singleton array both exit0; valid timestamp-looking definition rejected by native automatic date conversion while Bash accepts.",
+      "reproduction": "Valid contract wrapped in singleton root array or schema wrapped in singleton array both exit0; valid timestamp-looking definition rejected by native automatic date conversion while Bash accepts.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix555cfd47",
+        "tests/sdd-domain/contract-v2-schema.Tests.ps1: 322 passed, 0 failed, 0 skipped on PowerShell7.6.7; paired Bash fixtures included.",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "fixed plugins/sdd-domain/scripts/validate-domain-contract.ps1 SHA256 b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b"
+      ],
+      "resolution": "Root envelope preserved and schema read through existing non-enumerating ordinal reader. Capability-checked DateKind preserves native JSON string fields, retains PS5.1 parsing syntax.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-RELEASE-COUNT",
+      "rule_id": "CS-019",
+      "path": ".github/workflows/release.yml",
+      "line": 77,
+      "source_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "flow": {
+        "input": "gh API successful workflow run count",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "Bash if [ COUNT -lt1 ] gate"
+      },
+      "impact": "Malformed null count made test return2 inside if; CI-green printed success and exited0.",
+      "reproduction": "Actual original step with mocked gh response null exits0 and prints CI green confirmed.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Actual corrected step accepts1/2 and rejects0/null/empty/text/negative/multiline; invalidSHA cases reject.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/workflows/release.yml SHA256 d3fc87b7fdb9de39ee043ef4e3c8300dc9a4aff5934b5c801c65eabae46a69e7"
+      ],
+      "resolution": "Positive decimal count regex plus exact SHA/ref-type validation.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-RELEASE-SBOM-SOURCE",
+      "rule_id": "CS-029",
+      "path": ".github/workflows/release.yml",
+      "line": 156,
+      "source_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "flow": {
+        "input": "Manual dispatch branch differs from selected tag",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "SBOM root derived from generator checkout"
+      },
+      "impact": "Tagged archive described dispatch-branch dependencies instead of published bytes.",
+      "reproduction": "Two-commit real Git fixture emits only dispatch-only-dependency.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Corrected actual workflow body emits tagged-dependency only.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/workflows/release.yml SHA256 d3fc87b7fdb9de39ee043ef4e3c8300dc9a4aff5934b5c801c65eabae46a69e7"
+      ],
+      "resolution": "Extract exact generated tarball, pass --source-root to generator, trap scratch cleanup.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-SBOM-INCOMPLETE",
+      "rule_id": "CS-018",
+      "path": ".github/scripts/generate-sbom.py",
+      "line": 57,
+      "source_sha256": "31900f6d8e672de8eaa78eab05c8dfadaa90b313595eca2e47d5673c29fa6f40",
+      "flow": {
+        "input": "Present corrupt/unreadable dependency lock or workflow source",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "catch then continue during SBOM enumeration"
+      },
+      "impact": "Release could attest incomplete dependency inventory with success status.",
+      "reproduction": "Malformed { lock produces exit0 SBOM with no dependency components.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Malformed JSON, array root and array packages map produce nonzero, fixed diagnostic and no output.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/scripts/generate-sbom.py SHA256 fb9267d25d16c3af29ad9cdfde9b6838c1a53a2646457d6fedca4d54e0ad4aef"
+      ],
+      "resolution": "Refuse present invalid/unreadable inputs; root/packages JSON must be objects; fixed diagnostic and nonzero.",
+      "reuse": null
+    },
+    {
+      "finding_id": "REUSE-001",
+      "rule_id": "CS-023",
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "line": 260,
+      "source_sha256": "2daa18df2bd52c13e3a6aba1cf6d7697331754463a12a60b3fbc6c501fa91f04",
+      "flow": {
+        "input": "large real WebStream Uint8Array upstream chunk",
+        "transformation": "bounded tail represented by a small subarray view",
+        "sink": "retained chunks array and backing allocation lifetime"
+      },
+      "impact": "Retained-byte counter stayed bounded while small views pinned16MiB upstream backing allocations, violating the claimed memory bound.",
+      "reproduction": "Independent WeakRef/GC controls use actual WebStreams and track backing allocations; both heldout cases failed before2ef9edb9 and both passed after owned-byte copying.",
+      "state": "fixed",
+      "owner_issue": 691,
+      "evidence": [
+        "fix2ef9edb9",
+        "docs/contributor/coding-standards/reuse/independent-review.json",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-before.txt:2failed",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-after.txt:2passed",
+        "mcp/ci-mcp/tests/error-paths/backing-buffer-retention.test.ts",
+        "fixed SHA256 8dd83fd63eff469d425a4c06fbac71ba2d80351deb9ed3ce5ef0b84c2c910bf9"
+      ],
+      "resolution": "Copy retained bytes into an owned Uint8Array instead of retaining a view onto the oversized source allocation. Existing logical bound and public response contract remain unchanged.",
       "reuse": null
     }
   ]

@@ -562,13 +562,9 @@ Approval: Draft
         try { $okAllowPy = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "allow") } catch { }
         Assert "py: copilot allow -> JSON allow, exit 0" ($r.Code -eq 0 -and $okAllowPy)
 
-        # TTY-no-hang: run with </dev/null (stdin redirected, not a TTY) - should allow
-        if ($bash2) {
-            $ttyResult = $null
-            $ttyResult = & bash -c ("python3 '" + (Join-Path $scriptsDir "sdd-hook-guard.py").Replace("'","'\\''") + "' < /dev/null; echo $?") 2>$null
-            # Should exit 0 (allow)
-            Assert "py: TTY guard with empty stdin does not hang -> allow" ($ttyResult -match "^0$" -or ($LASTEXITCODE -eq 0))
-        }
+        # Closed, empty stdin is malformed input, not a TTY or a successful tool call.
+        $emptyInput = Invoke-GuardPy ''
+        Assert "py: empty stdin fails closed with actual guard status" ($emptyInput.Code -eq 2 -and [string]::IsNullOrEmpty($emptyInput.Out))
 
         # 4f. Assert js and py --emit copilot outputs are byte-identical for both allow and deny
         if ($node) {
@@ -626,6 +622,35 @@ Approval: Draft
         $sudoRa = Invoke-GuardPs $sudoPayload "exit"
     } finally { Pop-Location }
     Assert "ps sudo: valid future epoch + approval increase -> allow (exit 0)" ($sudoRa.Code -eq 0)
+    $tokenPath = Join-Path $sudoDirA 'SDD_SUDO'
+    $tokenText = Get-Content -Raw -LiteralPath $tokenPath
+    [IO.File]::WriteAllText($tokenPath, $tokenText.Replace('issuer:', 'Issuer:'))
+    Push-Location $sudoDirA
+    try { $fieldCaseToken = Invoke-GuardPs $sudoPayload 'exit' } finally { Pop-Location }
+    Assert 'ps sudo: signed token field names require exact case' ($fieldCaseToken.Code -eq 2)
+    [IO.File]::WriteAllText($tokenPath, $tokenText)
+    if ($IsLinux -or $IsMacOS) {
+        # A valid token must not become authorization through a substituted link.
+        $savedFlag = Join-Path $sudoDirA 'signed-token.txt'
+        Move-Item -LiteralPath (Join-Path $sudoDirA 'SDD_SUDO') -Destination $savedFlag
+        New-Item -ItemType SymbolicLink -Path (Join-Path $sudoDirA 'SDD_SUDO') -Target $savedFlag | Out-Null
+        Push-Location $sudoDirA
+        try { $linkedToken = Invoke-GuardPs $sudoPayload 'exit' } finally { Pop-Location }
+        Assert 'ps sudo: symlinked signed token is denied' ($linkedToken.Code -eq 2)
+
+        # Exercise a case-distinct directory only where the filesystem supports it.
+        $caseUpper = Join-Path $workDir 'SudoCaseRepo'
+        $caseLower = Join-Path $workDir 'sudocaserepo'
+        New-Item -ItemType Directory -Path $caseUpper -Force | Out-Null
+        if (-not (Test-Path -LiteralPath $caseLower)) {
+            New-Item -ItemType Directory -Path $caseLower | Out-Null
+            Write-SudoFlag $caseUpper $sudoEpoch
+            Copy-Item -LiteralPath (Join-Path $caseUpper 'SDD_SUDO') -Destination (Join-Path $caseLower 'SDD_SUDO')
+            Push-Location $caseLower
+            try { $caseToken = Invoke-GuardPs $sudoPayload 'exit' } finally { Pop-Location }
+            Assert 'ps sudo: signed repo cannot replay into case-distinct sibling' ($caseToken.Code -eq 2)
+        } else { Write-Host 'SKIP: case-distinct repository token control requires a case-sensitive filesystem' }
+    } else { Write-Host 'SKIP: symlink token control requires POSIX fixture support' }
     Remove-Item -Recurse -Force $sudoDirA -ErrorAction SilentlyContinue
 
     # Test b: expired sudo (past epoch) + same payload -> DENY
@@ -882,6 +907,11 @@ Approval: Draft
 
     Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"PASS"}' -NoNewline
     Assert "wfi016: outside CWD + file_path git-root walk + PASS verdict -> allow" ((Invoke-GuardPsAt $wfiPayload $wfiOutside) -eq 0)
+
+    foreach ($invalidVerdict in @('{"verdict":"pass"}', '{"verdict":"pass-with-warnings"}', '{"verdict":["PASS"]}')) {
+        Set-Content -LiteralPath $wfiVerdict -Value $invalidVerdict -NoNewline
+        Assert "wfi016: noncanonical verdict $invalidVerdict -> deny" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 2)
+    }
 
     Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"FAIL"}' -NoNewline
     Assert "wfi016: outside CWD + FAIL verdict -> deny" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 2)

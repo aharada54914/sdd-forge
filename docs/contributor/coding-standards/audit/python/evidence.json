@@ -1,0 +1,38 @@
+[
+  {
+    "path": "docs/contributor/coding-standards/audit/python/boundaries-final.log",
+    "sha256": "129a937f84dcb6735192be816d35517da0b411f6604fed01ef0ccdb8d0b18bef"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/cross-model.log",
+    "sha256": "f8edb0121c91ca3e41afd9caf51c4a1b36444363c9594cfb7036b10a1fb396a9"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/gates.log",
+    "sha256": "2042b8bd14d9fe5a45e60a048cef171ffc5105d6dd0997261cf468af681d4974"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/mcp-helper.log",
+    "sha256": "fe008aab760eb03ccac7578e2b84665b1b50b0d7f855b17a0c7a8d039435b658"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/generator-baseline-replay.log",
+    "sha256": "f94ea4ee94e14d8bc31a94ba883a530916557d048495f7531a1fbb790ab647c4"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/drift-rerun.log",
+    "sha256": "5840bbcfc511dd7c4b7d112a0669c09e9eda13f9ec016fd113a7055a1de824dd"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/facet-schema.log",
+    "sha256": "e9f32f813e2ec9d5420b012791e177d8d82867c5ee93f7921b9f0cf95dcbd4a1"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/facet-semantics.log",
+    "sha256": "184ec72c1e42c24ba533bac18252f73607fc3efb63698b042cce18fd8fb23d03"
+  },
+  {
+    "path": "docs/contributor/coding-standards/audit/python/supplemental.log",
+    "sha256": "323145dc1f147399f1d7108a31ce18a7fe1bbb6b5a5515f583c47055d7418260"
+  }
+]

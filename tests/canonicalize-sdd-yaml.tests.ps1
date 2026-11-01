@@ -385,15 +385,15 @@ empty_list: []
   # canonicalize-sdd-yaml.py via a python3 subprocess and diffs it
   # against the documented table below -- a real, non-tautological
   # comparison that fails if the two diverge.
-  $tableScript = @"
-import importlib.util
-spec = importlib.util.spec_from_file_location('canon', r'$CanonPy')
+  $tableScript = @'
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location('canon', sys.argv[1])
 mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
     print('%s=%s' % (k, v))
-"@
-  $actualTable = (& $Py -c $tableScript | Out-String).Trim() -replace "`r`n", "`n"
+'@
+  $actualTable = (& $Py -c $tableScript $CanonPy | Out-String).Trim() -replace "`r`n", "`n"
   $expectedTable = @(
     'ALIAS_REJECTED=21',
     'ANCHOR_REJECTED=20',

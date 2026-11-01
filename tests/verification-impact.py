@@ -27,13 +27,15 @@ def changed_paths(root, base, head):
             revisions.append(subprocess.run(
                 ['git', 'rev-parse', '--verify', '--end-of-options', ref + '^{commit}'],
                 cwd=root, check=True, capture_output=True, text=True,
+                timeout=30,
             ).stdout.strip())
         result = subprocess.run(
             ['git', 'diff', '--no-renames', '--name-only', '-z', *revisions, '--'],
             cwd=root, check=True, capture_output=True,
+            timeout=30,
         )
         return set(result.stdout.decode('utf-8').split('\0')) - {''}, 'diff-available'
-    except (OSError, subprocess.CalledProcessError, UnicodeDecodeError):
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired, UnicodeDecodeError):
         return None, 'diff-unavailable'
 
 
@@ -110,8 +112,9 @@ def main():
         head = subprocess.run(
             ['git', 'rev-parse', '--verify', '--end-of-options', args.head + '^{commit}'],
             cwd=ROOT, check=True, capture_output=True, text=True,
+            timeout=30,
         ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
         head = None
     receipts = []
     for name in args.receipt:

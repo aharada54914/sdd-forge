@@ -22,8 +22,45 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
     Write-Error "Contract file not found: $ContractPath"
     exit 1
 }
-$contractRaw = Get-Content -Raw -Encoding Utf8 $ContractPath
+$contractRaw = Get-Content -Raw -Encoding Utf8 -LiteralPath $ContractPath
+# PS5.1 lacks -NoEnumerate; reject a non-object JSON root before its
+# pipeline can unwrap a singleton array. ConvertFrom-Json still owns parsing.
+if (-not $contractRaw.TrimStart().StartsWith('{', [StringComparison]::Ordinal)) {
+    Write-Output 'Verification contract FAILED: contract must be a JSON object'
+    exit 1
+}
 $contract = $contractRaw | ConvertFrom-Json
+
+# Validate JSON shapes before PowerShell member enumeration or string casts.
+function Stop-InvalidContract([string]$Message) {
+    Write-Output "Verification contract FAILED: $Message"
+    exit 1
+}
+function Assert-ContractFieldCase($Object, [string[]]$Names) {
+    foreach ($property in $Object.PSObject.Properties.Name) {
+        if ($property -in $Names -and $property -cnotin $Names) {
+            Stop-InvalidContract "invalid field casing: $property"
+        }
+    }
+}
+if ($contract -isnot [pscustomobject]) { Stop-InvalidContract 'contract must be a JSON object' }
+Assert-ContractFieldCase $contract @('checks','schema','task_id','risk','stack','required_workflow','spec_revision','cross_model')
+if ($contract.checks -isnot [array]) { Stop-InvalidContract "contract checks must be an array" }
+foreach ($field in @('schema','task_id','risk','stack','required_workflow','spec_revision','cross_model')) {
+    if ($null -ne $contract.$field -and $contract.$field -isnot [string]) {
+        Stop-InvalidContract "contract $field must be a string"
+    }
+}
+foreach ($check in $contract.checks) {
+    if ($check -isnot [pscustomobject]) { Stop-InvalidContract 'check must be a JSON object' }
+    Assert-ContractFieldCase $check @('id','required','passes','evidence','waiver_reason','red_evidence','green_evidence','command','exit_code','started_at','finished_at')
+    if ($check.id -isnot [string]) { Stop-InvalidContract 'check id must be a string' }
+    foreach ($field in @('evidence','waiver_reason','red_evidence','green_evidence')) {
+        if ($null -ne $check.$field -and $check.$field -isnot [string]) {
+            Stop-InvalidContract "check $field must be a string"
+        }
+    }
+}
 
 # Only exact-string research opt-ins use the shared runtime.
 # Never coerce malformed legacy IDs into a research opt-in.
@@ -151,7 +188,7 @@ $PROJECT_CONTEXT_REL_PATH = "sdd/project-context.yaml"
 $CAPABILITY_STATE_GATED_IDS = @("check-component-coverage")
 
 # Resolve repo root to an absolute path for traversal checks
-$absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+$absRoot = (Resolve-Path -LiteralPath $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
 # WFI-059: resolve evidence against the PROJECT root, not the caller's base.
 # checks[].evidence had two resolvers and no grammar. This gate resolved it
@@ -331,13 +368,13 @@ function Test-EvidencePath {
 }
 
 # Pass 1: duplicate id detection
-$seenIds = @{}
+$seenIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 foreach ($check in $contract.checks) {
     $id = $check.id
-    if ($seenIds.ContainsKey($id)) {
+    if ($seenIds.Contains($id)) {
         $failures += "duplicate check id '$id'"
     } else {
-        $seenIds[$id] = $true
+        [void]$seenIds.Add($id)
     }
 }
 
@@ -352,13 +389,13 @@ foreach ($check in $contract.checks) {
     # Type strictness: required and passes must be JSON boolean (not string, number, null)
     $required = $check.required
     if ($null -eq $required -or $required -isnot [bool]) {
-        $failures += "check '$id' has invalid type for required: $($required.GetType().Name) (expected bool)"
+        $failures += "check '$id' has invalid type for required: $(if ($null -eq $required) { "null" } else { $required.GetType().Name }) (expected bool)"
         continue
     }
 
     $passes = $check.passes
     if ($null -eq $passes -or $passes -isnot [bool]) {
-        $failures += "check '$id' has invalid type for passes: $($passes.GetType().Name) (expected bool)"
+        $failures += "check '$id' has invalid type for passes: $(if ($null -eq $passes) { "null" } else { $passes.GetType().Name }) (expected bool)"
         continue
     }
 
@@ -429,11 +466,11 @@ foreach ($check in $contract.checks) {
 # Pass 3: required-set protection
 $presentIds = $contract.checks | ForEach-Object { $_.id }
 foreach ($bid in $BASELINE_IDS) {
-    if ($bid -notin $presentIds) {
+    if ($bid -cnotin $presentIds) {
         $failures += "check removed from contract: '$bid' is a required baseline check id"
         continue
     }
-    $check = $contract.checks | Where-Object { $_.id -eq $bid } | Select-Object -First 1
+    $check = $contract.checks | Where-Object { $_.id -ceq $bid } | Select-Object -First 1
     if (-not [bool]$check.required) {
         $waiver = ([string]($check.waiver_reason)).Trim()
         if ([string]::IsNullOrWhiteSpace($waiver)) {
@@ -541,7 +578,7 @@ if ($requiredWorkflow -ceq "tdd") {
         $required = $check.required
 
         # Only enforce red/green for test-type checks that are required:true
-        if ($id -in $tddTestIds -and $required) {
+        if ($id -cin $tddTestIds -and $required) {
             $redEvidence = ([string]($check.red_evidence)).Trim()
             $greenEvidence = ([string]($check.green_evidence)).Trim()
 
@@ -588,18 +625,18 @@ if ($risk -cin @("high", "critical")) {
 # Enforced ONLY when the contract opts in via `cross_model`. Absent/empty/"legacy" =>
 # no enforcement (backward compatible). NOT part of the machine-form RISK_TIERS set.
 $crossModel = ([string]($contract.cross_model)).Trim()
-if ($crossModel -and $crossModel -ne "legacy") {
-    if ($crossModel -notin @("required", "waived")) {
+if ($crossModel -and $crossModel -cne "legacy") {
+    if ($crossModel -cnotin @("required", "waived")) {
         $failures += "contract cross_model is invalid: $crossModel"
     } else {
-        $cmCheck = $contract.checks | Where-Object { $_.id -eq "cross-model-verification" } | Select-Object -First 1
-        if ($crossModel -eq "required") {
+        $cmCheck = $contract.checks | Where-Object { $_.id -ceq "cross-model-verification" } | Select-Object -First 1
+        if ($crossModel -ceq "required") {
             if (-not $cmCheck) {
                 $failures += "cross_model:required needs a 'cross-model-verification' check present and required:true with evidence"
             } elseif (-not [bool]$cmCheck.required) {
                 $failures += "cross_model:required needs 'cross-model-verification' to be required:true"
             }
-        } elseif ($crossModel -eq "waived") {
+        } elseif ($crossModel -ceq "waived") {
             if (-not $cmCheck) {
                 $failures += "cross_model:waived needs a 'cross-model-verification' check present with a non-empty waiver_reason"
             } elseif ([string]::IsNullOrWhiteSpace(([string]($cmCheck.waiver_reason)).Trim())) {
@@ -615,7 +652,7 @@ if ($crossModel -and $crossModel -ne "legacy") {
 # check-component-coverage.py, recomputed independently at verification
 # time -- never trusted from the evidence record itself.
 foreach ($check in $contract.checks) {
-    if ($check.id -ne $PRODUCER_DIGEST_CHECK_ID) { continue }
+    if ($check.id -cne $PRODUCER_DIGEST_CHECK_ID) { continue }
     if (-not [bool]$check.passes) { continue }
     $evidence = ([string]($check.evidence)).Trim()
     if ([string]::IsNullOrWhiteSpace($evidence)) { continue }
@@ -625,16 +662,21 @@ foreach ($check in $contract.checks) {
         continue
     }
     try {
-        $record = Get-Content -Raw -LiteralPath $evidencePath -Encoding utf8 | ConvertFrom-Json
+        $recordRaw = Get-Content -Raw -LiteralPath $evidencePath -Encoding utf8
+        if (-not $recordRaw.TrimStart().StartsWith('{', [StringComparison]::Ordinal)) {
+            throw 'producer evidence must be a JSON object'
+        }
+        $record = $recordRaw | ConvertFrom-Json
     } catch {
         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be parsed as JSON for producer-digest verification: $evidence"
         continue
     }
     $recordedSha256 = $null
-    if ($record.PSObject.Properties.Name -contains "producer") {
+    if ($record -is [pscustomobject] -and $record.PSObject.Properties.Name -ccontains "producer" -and
+        $record.producer -is [pscustomobject] -and $record.producer.PSObject.Properties.Name -ccontains "sha256") {
         $recordedSha256 = $record.producer.sha256
     }
-    if ([string]::IsNullOrWhiteSpace([string]$recordedSha256)) {
+    if ($recordedSha256 -isnot [string] -or [string]::IsNullOrWhiteSpace($recordedSha256)) {
         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence is missing producer.sha256"
         continue
     }
@@ -645,8 +687,10 @@ foreach ($check in $contract.checks) {
     }
     $bytes = [System.IO.File]::ReadAllBytes($producerScript)
     $sha = [System.Security.Cryptography.SHA256]::Create()
-    $liveSha256 = (-join (($sha.ComputeHash($bytes)) | ForEach-Object { $_.ToString("x2") }))
-    if ([string]$recordedSha256 -ne $liveSha256) {
+    try {
+        $liveSha256 = (-join (($sha.ComputeHash($bytes)) | ForEach-Object { $_.ToString("x2") }))
+    } finally { $sha.Dispose() }
+    if ($recordedSha256 -cne $liveSha256) {
         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence producer.sha256 ($recordedSha256) does not match the live on-disk $PRODUCER_DIGEST_SCRIPT_NAME ($liveSha256)"
     }
 }

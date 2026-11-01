@@ -112,20 +112,20 @@ function Remove-CodexAgent {
     # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
     $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
     $agentDestDir = Join-Path $codexHome "agents"
-    if (-not (Test-Path $agentDestDir)) { return }
+    if (-not (Test-Path -LiteralPath $agentDestDir)) { return }
     # Remove only the role files this project installed. Prefer the manifest in
     # the install root (the source install copied from); fall back to the known
     # shipped names if the install root is already gone. A user's own role files
     # — including any sdd-* they authored themselves — are never touched.
     $shipped = @()
     $srcAgents = Join-Path (Join-Path $InstallRoot ".codex") "agents"
-    if (Test-Path $srcAgents) {
-        $shipped = @(Get-ChildItem -Path $srcAgents -Filter "sdd-*.toml" -ErrorAction SilentlyContinue | ForEach-Object { $_.Name })
+    if (Test-Path -LiteralPath $srcAgents) {
+        $shipped = @(Get-ChildItem -LiteralPath $srcAgents -Filter "sdd-*.toml" -ErrorAction SilentlyContinue | ForEach-Object { $_.Name })
     }
     if ($shipped.Count -eq 0) { $shipped = $shippedAgents }
     foreach ($name in $shipped) {
         $target = Join-Path $agentDestDir $name
-        if (Test-Path $target) { Remove-Item -Path $target -Force }
+        if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Force }
     }
 }
 
@@ -148,11 +148,11 @@ function Unregister-CodexMcp {
     if ($SkipMcpUninstall) { return }
     $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
     $configToml = Join-Path $codexHome "config.toml"
-    if (-not (Test-Path $configToml)) { return }
+    if (-not (Test-Path -LiteralPath $configToml)) { return }
     foreach ($name in $Mcp) {
         $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
         $markerEnd = "# <<< $name <<<"
-        $existingLines = @(Get-Content -Path $configToml)
+        $existingLines = @(Get-Content -LiteralPath $configToml)
         $filtered = [System.Collections.Generic.List[string]]::new()
         $skip = $false
         foreach ($line in $existingLines) {
@@ -160,7 +160,7 @@ function Unregister-CodexMcp {
             if ($line -eq $markerEnd) { $skip = $false; continue }
             if (-not $skip) { $filtered.Add($line) }
         }
-        Set-Content -Path $configToml -Value $filtered
+        Set-Content -LiteralPath $configToml -Value $filtered
     }
 }
 
@@ -169,7 +169,7 @@ function Remove-McpPayload {
     if ($KeepFiles) { return }
     foreach ($name in $Mcp) {
         $payloadDir = Join-Path (Join-Path $InstallRoot "mcp") $name
-        if (Test-Path $payloadDir) { Remove-Item -Path $payloadDir -Recurse -Force }
+        if (Test-Path -LiteralPath $payloadDir) { Remove-Item -LiteralPath $payloadDir -Recurse -Force }
     }
 }
 
@@ -204,7 +204,7 @@ function Remove-McpJsonKeys {
         [Parameter(Mandatory)][string]$TopKey
     )
     # Absent file: nothing was ever registered here — silent skip.
-    if (-not (Test-Path $ConfigFile)) { return }
+    if (-not (Test-Path -LiteralPath $ConfigFile)) { return }
 
     $nodeScript = @'
 const fs = require("fs");
@@ -245,7 +245,7 @@ function Unregister-CursorMcp {
     # a notice and never create anything. Override via SDD_CURSOR_DIR.
     if ($SkipMcpUninstall) { return }
     $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
-    if (-not (Test-Path $cursorDir)) {
+    if (-not (Test-Path -LiteralPath $cursorDir)) {
         Write-Warning "$cursorDir was not found. Cursor MCP unregistration was skipped (Cursor does not appear to be installed)."
         return
     }
@@ -274,7 +274,7 @@ function Unregister-VSCodeMcp {
     else {
         $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
     }
-    if (-not (Test-Path $vscodeUserDir)) {
+    if (-not (Test-Path -LiteralPath $vscodeUserDir)) {
         Write-Warning "$vscodeUserDir was not found. VS Code MCP unregistration was skipped (VS Code does not appear to be installed)."
         return
     }
@@ -339,8 +339,8 @@ Remove-McpPayload
 if ($KeepFiles) {
     Write-Host "Kept installed files at: $InstallRoot (-KeepFiles)."
 }
-elseif (Test-Path $InstallRoot) {
-    Remove-Item -Path $InstallRoot -Recurse -Force
+elseif (Test-Path -LiteralPath $InstallRoot) {
+    Remove-Item -LiteralPath $InstallRoot -Recurse -Force
     Write-Host "Removed installed files at: $InstallRoot."
 }
 else {

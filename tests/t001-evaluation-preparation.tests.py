@@ -1,6 +1,7 @@
 """Caller preparation preserves old reports and validates updates before delivery."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,6 +24,8 @@ class PreparationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
+        self.child_temporaries = tempfile.TemporaryDirectory(prefix='preparation-child-')
+        self.addCleanup(self.child_temporaries.cleanup)
         for name in (self.prepare, 'plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py',
                      'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'):
             self.write(name, (ROOT / name).read_bytes())
@@ -59,7 +62,9 @@ class PreparationTests(unittest.TestCase):
             raw = declaration if isinstance(declaration, bytes) else json.dumps(declaration).encode()
             self.write(self.declaration, raw)
             args += ['--supplemental', self.declaration]
-        result = subprocess.run(args, capture_output=True, text=True)
+        environment = dict(os.environ, TMPDIR=self.child_temporaries.name,
+                           TMP=self.child_temporaries.name, TEMP=self.child_temporaries.name)
+        result = subprocess.run(args, capture_output=True, text=True, env=environment)
         self.assertEqual(result.returncode == 0, expected, result.stderr)
         self.assertEqual((self.root / self.ledger).read_bytes(), self.ledger_before)
         self.assertEqual((self.root / self.report).read_bytes(), self.report_before)

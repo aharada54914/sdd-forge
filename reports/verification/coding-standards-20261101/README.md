@@ -29,3 +29,8 @@ Claude/Codex/Copilot invocation, macOS/Windows execution, project instruction
 adoption or all-rule compliance is established by this evidence. Root integration
 owns later source changes, final census, mirrors and three-OS CI evidence. Neither
 #692 nor #685 can be closed on the strength of these native checks alone.
+
+Follow-up: [two bounded Codex probes](guidance-eval/README.md) exercised actual
+conditional guidance reads. The source case read all common rules; broad model
+adherence is still not established. [Linux child-timeout observation](timeout-child.json)
+found an exited zombie, not a running descendant; other OS transports remain untested.

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -27,8 +28,7 @@ make_full_fixture() {
   cp -R "$ROOT/reports/impl-review/workflow-state-integrity" "$target/reports/impl-review/"
   cp -R "$ROOT/reports/task-review/workflow-state-integrity" "$target/reports/task-review/"
   while IFS= read -r evidence; do
-    sed -i.bak "s#$ROOT#$target#g" "$evidence"
-    rm "$evidence.bak"
+    replace_file_literal "$evidence" "$ROOT" "$target"
   done < <(find "$target/reports" -type f \
     \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
   # Force a "full" profile for the isolated fixture regardless of the real
@@ -346,8 +346,7 @@ done
 
 relocated="$(make_full_fixture sdd-forge)"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$relocated#/opt/ci-agent/sdd-forge#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$relocated" "/opt/ci-agent/sdd-forge"
 done < <(find "$relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 expect_valid "$relocated"
@@ -367,8 +366,7 @@ expect_valid "$windows_relocated"
 mixed_relocated="$(make_full_fixture mixed-relocated)"
 contract="$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 while IFS= read -r evidence; do
-  sed -i.bak "s#$mixed_relocated#/opt/ci-agent/mixed-relocated#g" "$evidence"
-  rm "$evidence.bak"
+  replace_file_literal "$evidence" "$mixed_relocated" "/opt/ci-agent/mixed-relocated"
 done < <(find "$mixed_relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 jq '
@@ -1929,3 +1927,48 @@ run_investigation_twin "$inv_task" task-stage-grows
   fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'
+
+# An inaccessible newer round cannot silently leave the older PASS selected.
+enumeration_fixture="$(make_full_fixture enumeration-denied)"
+python3 - "$CHECKER" "$enumeration_fixture" "$TMP" <<'PY_ENUMERATION'
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+checker, fixture, outer = sys.argv[1:]
+if os.name == 'nt':
+    print('SKIP: POSIX traversal permissions unavailable on Windows')
+    sys.exit(0)
+Path(outer).chmod(0o755)
+root = Path(fixture)
+command = ['bash', checker, '--registry', str(root / 'specs/workflow-state-registry.json')]
+def unprivileged():
+    if os.getuid() == 0:
+        os.setgroups([])
+        os.setgid(1000)
+        os.setuid(1000)
+control = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+assert control.returncode == 0, control
+blocked = root / 'reports/spec-review/workflow-state-integrity/attempt-99/round-1'
+blocked.mkdir(parents=True)
+(blocked / 'integrated-verdict.json').write_text('{"verdict":"BLOCKED"}', encoding='utf-8')
+blocked.chmod(0)
+try:
+    result = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: inaccessible newer review round fails closed')
+    common = Path(checker).parents[2] / 'sdd-review-loop/scripts/lib/review-precheck-common.sh'
+    harness = r'''repo_root=$1; FEATURE=workflow-state-integrity
+fail() { printf '%s\n' "$*" >&2; exit 1; }
+sha256() { shasum -a 256 "$1" | awk '{print $1}'; }
+. "$2"
+require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec '' '' '' '' ''
+'''
+    result = subprocess.run(['bash', '-c', harness, '_', str(root), str(common)],
+                            preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: predecessor review enumeration fails closed')
+finally:
+    blocked.chmod(0o755)
+PY_ENUMERATION

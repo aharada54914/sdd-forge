@@ -18,8 +18,8 @@
 # PS5.1-safe by construction. Validity is decided by the hand-written strict
 # JSON scanner below (Test-StrictJsonText), which accepts exactly what the .sh
 # twin's python3 `json.loads` accepts; ConvertFrom-Json only BUILDS the object
-# from text that scanner has already accepted, and it is called without any
-# parameter introduced after Windows PowerShell 5.1. The PS6+ JSON-schema test
+# from text that scanner has already accepted, and optional newer parameters are capability-checked so Windows PowerShell
+# 5.1 can still parse the document. The PS6+ JSON-schema test
 # cmdlet, the PS6+ hashtable output switch, .NET 5+ hex-conversion helpers,
 # ternary and null-coalescing operators, and the $IsWindows-style automatic
 # variables are all deliberately avoided, as is any external dependency,
@@ -125,16 +125,6 @@ function Test-IsJsonObject {
     if ($Value -is [System.Collections.IList]) { return $false }
     return ($Value -is [System.Management.Automation.PSCustomObject]) -or
            ($Value -is [System.Collections.IDictionary])
-}
-
-function Get-JsonProperty {
-    # Safe member read: Set-StrictMode makes dot-notation throw on a missing
-    # property, so every contract field is read through here instead.
-    param($Object, [string]$Name)
-    if ($null -eq $Object) { return $null }
-    $property = $Object.PSObject.Properties[$Name]
-    if ($null -eq $property) { return $null }
-    return $property.Value
 }
 
 function Find-ContractMember {
@@ -917,7 +907,21 @@ function Invoke-Validation {
     }
     $size = -1
     try {
-        $size = (Get-Item -LiteralPath $ContractPath -Force).Length
+        $item = Get-Item -LiteralPath $ContractPath -Force
+        if ([IO.Path]::DirectorySeparatorChar -ne '\' -and $item.LinkType) {
+            $target = $item.ResolveLinkTarget($true)
+            $item = Get-Item -LiteralPath $target.FullName -Force
+        }
+        $regular = ($item -is [IO.FileInfo]) -and -not $item.PSIsContainer -and -not ($item.Attributes -band [IO.FileAttributes]::Device)
+        if ([IO.Path]::DirectorySeparatorChar -ne '\') {
+            $unix = $item.PSObject.Properties['UnixStat']
+            $regular = $regular -and ($null -ne $unix) -and ($null -ne $unix.Value) -and ([string]$unix.Value.ItemType -ceq 'File')
+        }
+        if (-not $regular) {
+            Add-Violation 'V2-INPUT-NOT-FILE' ('input path is not a regular file: ' + (ConvertTo-SafeText $ContractPath))
+            return (Complete-Validation)
+        }
+        $size = $item.Length
     } catch {
         Add-Violation 'V2-INPUT-UNREADABLE' ("input path could not be read: " + (ConvertTo-SafeText $ContractPath))
         return (Complete-Validation)
@@ -961,7 +965,11 @@ function Invoke-Validation {
     }
     $document = $null
     try {
-        $document = ConvertFrom-Json -InputObject $text
+        $jsonOptions = @{ InputObject = $text }
+        if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+            $jsonOptions.DateKind = 'String'
+        }
+        $document = ConvertFrom-Json @jsonOptions
     } catch {
         Add-Violation 'V2-PARSE' 'input is not well-formed JSON and was not parsed further'
         return (Complete-Validation)
@@ -973,6 +981,10 @@ function Invoke-Validation {
     # line. The three non-v2-value branches use the structural rule ids
     # design.md Error Handling assigns, so T-003's structural pass inherits
     # them unchanged rather than having to restate them.
+    if ($text.TrimStart().StartsWith('[')) {
+        Add-Violation 'V2-TYPE-MISMATCH' 'root: expected object, found array'
+        return (Complete-Validation)
+    }
     if (-not (Test-IsJsonObject $document)) {
         Add-Violation 'V2-TYPE-MISMATCH' ("root: expected object, found " + (Get-JsonTypeName -Value $document -RawText $text))
         return (Complete-Validation)
@@ -981,7 +993,7 @@ function Invoke-Validation {
         Add-Violation 'V2-MISSING-KEY' 'schema: required key is absent at the contract root'
         return (Complete-Validation)
     }
-    $schemaValue = Get-JsonProperty $document 'schema'
+    $schemaValue = Get-ContractValue $document 'schema'
     if (-not ($schemaValue -is [string])) {
         Add-Violation 'V2-TYPE-MISMATCH' ("schema: expected string, found " + (Get-JsonTypeName -Value $schemaValue -RawText $null))
         return (Complete-Validation)
