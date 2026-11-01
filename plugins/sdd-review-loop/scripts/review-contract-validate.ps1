@@ -41,6 +41,7 @@ function Get-PhysicalDirectory([string]$Path, [int]$Depth = 0) {
   $physicalParent = Get-PhysicalDirectory $item.Parent.FullName $Depth
   return Join-Path $physicalParent $item.Name
 }
+if ((Get-Item -LiteralPath $reportsRoot).Attributes -band [IO.FileAttributes]::ReparsePoint) { Fail 'reports directory must not be a symlink' }
 $physicalReports = Get-PhysicalDirectory $reportsRoot
 $physicalRoot = Join-Path (Get-PhysicalDirectory $parent) $leaf
 if (-not $physicalRoot.StartsWith($physicalReports + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { Fail 'report root escapes reports directory' }

@@ -47,6 +47,14 @@ if ln -s "$outside_probe" "$link_probe/alias" 2>/dev/null; then
   if command -v pwsh >/dev/null 2>&1; then
     expect_failure pwsh -NoProfile -File "${VALIDATOR%.sh}.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$link_probe/alias/child" -Contract "${FIXTURE}"
   fi
+  fixture_repo="$outside_probe/fixture-repo"
+  mkdir -p "$fixture_repo/plugins/sdd-review-loop/scripts"
+  cp "${VALIDATOR}" "${VALIDATOR%.sh}.ps1" "$fixture_repo/plugins/sdd-review-loop/scripts/"
+  ln -s "$outside_probe" "$fixture_repo/reports"
+  expect_failure bash "$fixture_repo/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "$fixture_repo/reports/child" --contract "${FIXTURE}"
+  if command -v pwsh >/dev/null 2>&1; then
+    expect_failure pwsh -NoProfile -File "$fixture_repo/plugins/sdd-review-loop/scripts/review-contract-validate.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$fixture_repo/reports/child" -Contract "${FIXTURE}"
+  fi
   mkdir -p "$link_probe/inside/child"
   ln -s "$link_probe/inside" "$link_probe/internal"
   "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "$link_probe/internal/child" --contract "${FIXTURE}" >/dev/null

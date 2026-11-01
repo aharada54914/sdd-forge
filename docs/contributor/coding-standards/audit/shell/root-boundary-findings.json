@@ -51,12 +51,12 @@
         "plugins/sdd-review-loop/scripts/review-contract-validate.ps1"
       ],
       "before": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
-      "after": "Resolve each directory ancestor and link target physically, compare against physical reports root. Internal ancestor links remain accepted; cyclic/unresolvable links fail.",
+      "after": "Resolve each directory ancestor and link target physically, compare against physical reports root. Internal ancestor links remain accepted; cyclic/unresolvable links fail. Reject linked reports root, matching Bash physical-prefix contract.",
       "test": "tests/review-contract-foundation.tests.sh",
       "result": "Full suite passed; paired Bash/PowerShell outside-link rejection and internal-link acceptance.",
       "status": "fixed",
       "source_sha256": {
-        "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "35b5cc2fad028d83353e5707c8b8a38ebb74b2a508e6822519cd21862cca64d0"
+        "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71"
       }
     }
   ]
