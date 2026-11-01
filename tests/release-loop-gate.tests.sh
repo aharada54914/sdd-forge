@@ -292,7 +292,7 @@ fi
 printf 'ok: release-loop-gate suite passed (%d checks)\n' "$PASS"
 
 # Execute Resolve tag exactly as Actions runs it, with values bound through env.
-python3 - "$RELEASE_YML" <<'PY'
+python3 - "$RELEASE_YML" "$BASH" <<'PY'
 import os
 from pathlib import Path
 import subprocess
@@ -300,6 +300,8 @@ import sys
 import tempfile
 
 lines = Path(sys.argv[1]).read_text().splitlines()
+# The parent may be Git Bash while PATH resolves bash to WSL on Windows.
+bash = sys.argv[2]
 start = lines.index('      - name: Resolve tag')
 run = lines.index('        run: |', start) + 1
 body = []
@@ -313,7 +315,7 @@ assert '${{' not in script, 'Actions values must enter through env'
 upload_start = lines.index('      - name: Upload release assets')
 upload_run = lines.index('        run: |', upload_start) + 1
 upload_body = '\n'.join(line[10:] for line in lines[upload_run:])
-result = subprocess.run(['bash', '-c', 'gh() { printf \'%s\\0\' "$@"; };\n' + upload_body],
+result = subprocess.run([bash, '-c', 'gh() { printf \'%s\\0\' "$@"; };\n' + upload_body],
     env=dict(os.environ, TAG='--help', PKG='sdd-forge-test.tar.gz'),
     capture_output=True, timeout=10)
 assert result.returncode == 0, result.stderr
@@ -323,14 +325,14 @@ with tempfile.TemporaryDirectory() as temporary:
     root = Path(temporary)
     output = root / 'output'
     sentinel = root / 'sentinel'
-    env = dict(os.environ, INPUT_TAG='v1.2.3', GITHUB_REF_NAME='v0.0.0', GITHUB_OUTPUT=str(output))
-    result = subprocess.run(['bash', '-c', script], env=env, capture_output=True, timeout=10)
+    env = dict(os.environ, INPUT_TAG='v1.2.3', GITHUB_REF_NAME='v0.0.0', GITHUB_OUTPUT=output.as_posix())
+    result = subprocess.run([bash, '-c', script], env=env, capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr
     assert output.read_text().splitlines() == ['tag=v1.2.3', 'pkg=sdd-forge-v1.2.3.tar.gz']
     for value in ('$(touch ' + str(sentinel) + ')', 'bad"tag', 'bad\ntag', 'bad\\tag'):
         output.unlink(missing_ok=True)
         env['INPUT_TAG'] = value
-        result = subprocess.run(['bash', '-c', script], env=env, capture_output=True, timeout=10)
+        result = subprocess.run([bash, '-c', script], env=env, capture_output=True, timeout=10)
         assert result.returncode != 0
         assert not sentinel.exists()
         assert not output.exists(), 'invalid tag was emitted as workflow output'

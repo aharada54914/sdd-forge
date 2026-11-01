@@ -1881,6 +1881,32 @@ Quality gate report for T-100.
 
     $highBundleJson = Get-Content -Raw -Encoding Utf8 $highBundle | ConvertFrom-Json
 
+    $originalHighBundle = Get-Content -Raw -Encoding Utf8 $highBundle
+    foreach ($invalidVerdict in @('pass', @('PASS'))) {
+        $invalidBundle = $originalHighBundle | ConvertFrom-Json
+        $invalidBundle.review_verdict.verdict = $invalidVerdict
+        $invalidBundle | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $highBundle -Encoding utf8
+        Assert-ExitCode "high-risk bundle rejects noncanonical review verdict" (Invoke-Gate "check-evidence-bundle.ps1" @($highBundle, "-RepoRoot", "$t006Repo")) 1
+    }
+    Set-Content -LiteralPath $highBundle -Value $originalHighBundle -Encoding utf8
+
+    $qualityPath = Join-Path $t006Repo $highBundleJson.quality_report
+    $originalQuality = [IO.File]::ReadAllBytes($qualityPath)
+    try {
+        $lowercaseQuality = [Text.Encoding]::UTF8.GetString($originalQuality).Replace('VERDICT: PASS', 'VERDICT: pass')
+        [IO.File]::WriteAllText($qualityPath, $lowercaseQuality, [Text.UTF8Encoding]::new($false))
+        $invalidBundle = $originalHighBundle | ConvertFrom-Json
+        foreach ($artifact in $invalidBundle.artifacts) {
+            if ($artifact.path -ceq $invalidBundle.quality_report) { $artifact.sha256 = Get-Sha256Hex $qualityPath }
+        }
+        $invalidBundle | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $highBundle -Encoding utf8
+        Assert-ExitCode "quality report rejects lowercase pass" (Invoke-Gate "check-evidence-bundle.ps1" @($highBundle, "-RepoRoot", "$t006Repo")) 1
+        if (($script:gateOutput | Out-String) -notmatch 'quality_report missing VERDICT: PASS') { throw 'wrong lowercase quality rejection boundary' }
+    } finally {
+        [IO.File]::WriteAllBytes($qualityPath, $originalQuality)
+        Set-Content -LiteralPath $highBundle -Value $originalHighBundle -Encoding utf8
+    }
+
     # T-006.ps.2 (relocated): the high-risk generated bundle carries all provenance fields.
     if (-not $highBundleJson.risk) { throw "T-006.ps.2a: generated bundle missing 'risk' field" }
     Write-Host "ok: T-006.ps.2a: generated bundle contains 'risk' field"

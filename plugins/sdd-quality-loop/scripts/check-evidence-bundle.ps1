@@ -227,7 +227,7 @@ if ($qualityInfo) {
     if ($qualityText -notmatch "(?m)^Task ID:\s*$([regex]::Escape($taskId))\s*$") {
         Add-Failure "quality_report missing Task ID: $taskId"
     }
-    if ($qualityText -notmatch "(?m)^VERDICT:\s*PASS\s*$") {
+    if ($qualityText -cnotmatch "(?m)^VERDICT:\s*PASS\s*$") {
         Add-Failure "quality_report missing VERDICT: PASS"
     }
     if ((Split-Path -Leaf $qualityInfo.Resolved) -notmatch '\.md$') {
@@ -406,7 +406,7 @@ if (@("high", "critical") -contains $effectiveRisk) {
     $reviewVerdict = $bundle.review_verdict
     if (-not $reviewVerdict) {
         Add-Failure "high/critical bundle requires review_verdict object"
-    } elseif (([string]$reviewVerdict.verdict).Trim() -ne "PASS") {
+    } elseif ($reviewVerdict.verdict -isnot [string] -or $reviewVerdict.verdict.Trim() -cne "PASS") {
         Add-Failure "high/critical bundle requires review_verdict.verdict == PASS, got: $(if ($reviewVerdict.verdict) { $reviewVerdict.verdict } else { '(empty)' })"
     }
 }

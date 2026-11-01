@@ -1462,7 +1462,7 @@ function Test-ImplReviewVerdictExists {
                         try {
                             $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
                             $verdict = $content | ConvertFrom-Json
-                            if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
+                            if ($verdict.verdict -is [string] -and ($verdict.verdict -ceq "PASS" -or $verdict.verdict -ceq "PASS-with-warnings")) { return $true }
                         } catch { }
                     }
                 }
