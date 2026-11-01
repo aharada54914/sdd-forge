@@ -126,6 +126,11 @@ try {
   $graph = Get-Content "$taskReport/attempt-1/round-1/dependency-graph.json" -Raw | ConvertFrom-Json
   if ($graph.edges.Count -ne 1 -or $graph.edges[0].from -ne 'T-002' -or $graph.edges[0].to -ne 'T-001') { throw 'not ok: PowerShell task graph lost declared edge' }
   Remove-Item $taskReport -Recurse -Force
+  $savedTaskText = [IO.File]::ReadAllText((Join-Path $spec 'tasks.md'))
+  [IO.File]::WriteAllText((Join-Path $spec 'tasks.md'), ($savedTaskText -creplace '(?m)^T-001$', 't-001'))
+  Assert-Fails { & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 } 'task must reject lowercase blocker protocol identifier'
+  if (Test-Path $taskReport) { throw 'not ok: invalid blocker created task evidence' }
+  [IO.File]::WriteAllText((Join-Path $spec 'tasks.md'), $savedTaskText)
   $implContract = Get-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Raw | ConvertFrom-Json
   foreach ($reviewer in $implContract.reviewers) { $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest | Where-Object { $_.path -ne 'plugins/sdd-review-loop/references/reviewer-calibration.md' }) }
   $implContract | ConvertTo-Json -Depth 6 | Set-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Encoding utf8NoBOM

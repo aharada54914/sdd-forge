@@ -13,8 +13,8 @@
       "live": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
       "staged_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
-      "live_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
-      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+      "live_sha256": "e06855b7f57b584e1cf66f0a54612f30fb5791a7ca8ea1bc575236ce90187668",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Typed exact review-input and contract checks; frozen predecessor retained."
     },
     {
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
@@ -27,8 +27,8 @@
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
-      "live_sha256": "3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df",
-      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading. Coding-standards boundary validation and native variable fixes; frozen predecessor unchanged."
+      "live_sha256": "1ed4c655269d59a7d2622ee4d42771f6c3d88affc647d556c05194f1634d9654",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved. Selective interrupted-review recovery admission and saved-reference validation, preserving current research/ADR behavior; regular-file checks reject FIFO evidence before reading. Coding-standards boundary validation and native variable fixes; frozen predecessor unchanged. Typed exact review-input and contract checks; frozen predecessor retained."
     }
   ]
 }

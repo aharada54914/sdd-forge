@@ -3529,6 +3529,729 @@
       ],
       "resolution": "Reject terminal dot/dotdot on raw path before emitting validation JSON. Preserve literal paths and existing parent/symlink rules.",
       "reuse": null
+    },
+    {
+      "finding_id": "ROOT-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 22,
+      "source_sha256": "10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370",
+      "flow": {
+        "input": "report path with linked ancestor",
+        "transformation": "PowerShell Resolve-Path retains linked parent text",
+        "sink": "reports directory containment admission"
+      },
+      "impact": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "reproduction": "Independent reviewer reproduced reports/link/child resolving outside reports: Bash rejected, PowerShell emitted PASS because Resolve-Path retains linked ancestors.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix11371dac",
+        "tests/review-contract-foundation.tests.sh: Full suite passed; paired Bash/PowerShell outside-link rejection and internal-link acceptance.",
+        "fixed source SHA256 35b5cc2fad028d83353e5707c8b8a38ebb74b2a508e6822519cd21862cca64d0"
+      ],
+      "resolution": "Resolve each directory ancestor and link target physically, compare against physical reports root. Internal ancestor links remain accepted; cyclic/unresolvable links fail.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "line": 82,
+      "source_sha256": "cd86b9c11d472cb3e8a9855849b183c2c078873640220beb88b507e0dba0080d",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh"
+      },
+      "impact": "An unreadable HTML directory or grep error was hidden by pipelines, producing a false clean scan.",
+      "reproduction": "Real denied directory and actual invalid-regex grep controls returned0 before,2 after.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-sync-scan.tests.sh:102 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Checked find/sort/grep status before interpreting findings; reject newline filenames explicitly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 20,
+      "source_sha256": "d380f71ff0385f305f655081d537ccb4668a644f34f821564d80418cf52ac263",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Literal filename --exclude=* was parsed as a grep option and suppressed TODO findings in both files.",
+      "reproduction": "Actual leading-option filename and normal file both contain TODO: before0,after1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9 passed; scanner-failclosed.json"
+      ],
+      "resolution": "Add -- before filename operands in both searches.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-003",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 929,
+      "source_sha256": "93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Backup read failure was overwritten by exit0 and publication proceeded without recoverable pre-state.",
+      "reproduction": "Real cat missing-file failure during backup: before0/statusok/newlive; after21/LIVE_PROBE_FAILED/oldlive; truncated-success backup also denied.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/apply-human-copy.tests.sh:253 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Require successful backup bytes/mode and matching prehash before journal and rename.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-004",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "line": 75,
+      "source_sha256": "52d04f722f0e9a55d11b8bb2c8bfb3c7c44e94d32ef54bbf3dce0c36eb1c4e26",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-design-system.sh"
+      },
+      "impact": "Unreadable CSS was silently omitted and check-design-system printed passed.",
+      "reproduction": "Actual chmod000 CSS under uid1000: before0passed,after1. Bothwarn/error modes and designfile failures exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.sh:8 passed plus JSON/IO controls; posix-io-evidence.zip"
+      ],
+      "resolution": "Inspect actual grep exit status before cap/render; protect operands; preserve warn finding policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-005",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "line": 1346,
+      "source_sha256": "a97837ba7350be459900ed6d9f5b63ae0006488763c94e715bd8f9d9abf875d2",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+      },
+      "impact": "Unreadable newer review round was omitted and older PASS accepted; same shared predecessor pattern.",
+      "reproduction": "Actual uid1000 control0; denied attempt99/round1 before0workflow-state:ok,after1. PS twin already fails1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/workflow-state.tests.sh complete suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Capture and check complete find output in workflow and review-precheck-common before choosing latest verdict.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 731,
+      "source_sha256": "8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh"
+      },
+      "impact": "Unreadable review source became an empty successful sanitized bundle; failed output/collection also lost errors.",
+      "reproduction": "Actual chmod000 input before0 with emptydigest+outputfile; after2/nooutput. Report/tree/output permission controls and missingoption timeout exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/prepare-panelist.tests.sh:192 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check content/parser/traversal/output statuses; keep private temp files and fail missing option values.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-007",
+      "rule_id": "CS-019",
+      "path": "scripts/rollback-1.5.0.sh",
+      "line": 54,
+      "source_sha256": "6eea918fa80135ff34fa2e0aa8c9719e34ca2efcf133ddd036c6a755b1117127",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "scripts/rollback-1.5.0.sh"
+      },
+      "impact": "Git status errors appeared clean and jq producer failures skipped inventory loops, permitting false successful rollback.",
+      "reproduction": "Same real Git invalid-option and jq syntax-error controls fail beforefix tests; afterfix reject before changing bytes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.sh paired/canonical suite passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Check Git status and capture one checked nonempty inventory for all transaction phases.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-008",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 132,
+      "source_sha256": "5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc",
+      "flow": {
+        "input": "filesystem content or native tool output",
+        "transformation": "shell command capture/pipeline/iteration",
+        "sink": "plugins/sdd-quality-loop/scripts/emit-run-record.sh"
+      },
+      "impact": "Unreadable tasks emitted a successful run record with fabricated zero task metrics.",
+      "reproduction": "Actual chmod000 tasks before0/wrote/total0; after nonzero/no record. Spaced-path complete metrics positivecontrol plus unreadable task/reporttree/ticket.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/emit-run-record-feature-scope.tests.sh:56 passed; posix-io-evidence.zip"
+      ],
+      "resolution": "Normalize tasks once with checked read; distinguish grep no-match1 from error2; preserve spaces in inventories and propagate metric source failures.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-009",
+      "rule_id": "CS-004",
+      "path": "render-agent-frontmatter.sh",
+      "line": 137,
+      "source_sha256": "a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434",
+      "flow": {
+        "input": "selected registry model.name string containing control characters",
+        "transformation": "single-line generated model comment/frontmatter interpolation",
+        "sink": "agent TOML or Markdown output"
+      },
+      "impact": "A newline in model.name becomes a new TOML statement rather than remaining model data; NUL also corrupts the generated target.",
+      "reproduction": "Both actual renderer entrypoints returned0 and inserted INJECTED = true on its own line when a selected model name included newline; all writes stayed inside a disposable temporary repo.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-renderer-20261101/model-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-after.log",
+        "Bash30/1→31/0 aggregate; PowerShell49/2→51/0; newline and NUL controls added to existing suites",
+        "fixed SHA256 c68ed293631b097ad028a32e698f7aaf276c39d14070e9656140e2cb4c11eb08"
+      ],
+      "resolution": "Reject C0/DEL control characters in the single-line model field before any target write, in both implementations. Existing normal model IDs, extension fields and protected target behavior remain tested.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-010",
+      "rule_id": "CS-004",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 131,
+      "source_sha256": "98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9",
+      "flow": {
+        "input": "selected registry model.name string containing control characters",
+        "transformation": "single-line generated model comment/frontmatter interpolation",
+        "sink": "agent TOML or Markdown output"
+      },
+      "impact": "A newline in model.name becomes a new TOML statement rather than remaining model data; NUL also corrupts the generated target.",
+      "reproduction": "Both actual renderer entrypoints returned0 and inserted INJECTED = true on its own line when a selected model name included newline; all writes stayed inside a disposable temporary repo.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-renderer-20261101/model-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/model-powershell-after.log",
+        "Bash30/1→31/0 aggregate; PowerShell49/2→51/0; newline and NUL controls added to existing suites",
+        "fixed SHA256 0d5a7ffe22eaec3f3563ae8f1bcfb22d1bc3153914b60e246463adae116ef847"
+      ],
+      "resolution": "Reject C0/DEL control characters in the single-line model field before any target write, in both implementations. Existing normal model IDs, extension fields and protected target behavior remain tested.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-009",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 1422,
+      "source_sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Both publisher runtimes treated an unreadable recovery tree as no pending journals.",
+      "reproduction": "Real uid1000 chmod000sdd/staging/batch beforeSH0andPS0statusok; after17journalretained,permissionsrestored0andjournalcleaned.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Inspect recovery parent/batch directories and propagate listing errors instead of glob/PowerShell SilentlyContinue omission.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-010",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 1044,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "PowerShell did not verify preserved backup bytes before committing.",
+      "reproduction": "Actual CopyItem followedbyrealfiletruncation: before0newlive; after21oldlive/nojournal.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require actual backup success and prehash equality before journal; classify failure usingexisting21.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-011",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 799,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Object/scalar journal targets were coerced into valid-looking records and journal was discarded.",
+      "reproduction": "Three concrete scalarobject/numericpath/arrayprehash records eachbefore0recovered1+deletedjournal; after14retained.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require targetsarray and consumed recordfieldsstring before recoveryclassification.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-012",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 352,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Replacement decoding changed a malformedmanifestfilename to an existing U+FFFDfilename and published the wrongtarget.",
+      "reproduction": "Manifest pathliteral0xFF.txt and staged U+FFFD.txt: before0/wrongtargetcreated; after13/targetabsent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Use UTF8Encoding throwOnInvalidBytes for manifest/journal reads; parse alreadycaptured manifesttext.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-013",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 50,
+      "source_sha256": "14268ffb871ce3b17f99575db6c0c7d5e342fe058d9cf3cc467f5932b1ce9bc5",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Aggregation sorterror discarded knownTODO findings and produced falseclean output.",
+      "reproduction": "Real sortinvalidoption withactualTODO input: before0scanpassed; after2FATAL.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Check aggregation command status before accepting emptyfindings.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1076,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git status failure became a stable hash of empty stdout.",
+      "reproduction": "Actual executable exit7 accepted before repair; final diff-basis test rejects it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Check exit status before hashing snapshot.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-007",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1013,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git process and output waits had no deadline or explicit disposal.",
+      "reproduction": "Source trace plus real sleeping fake Git; final test observes deadline and child gone.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use shared bounded raw-byte helper, preserve GitDiffError and strict UTF-8/NUL parsing.",
+      "reuse": {
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
+      }
+    },
+    {
+      "finding_id": "PS-AUX-008",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 823,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Historical Git lookup could block panelist preparation indefinitely.",
+      "reproduction": "Source trace of five native Git calls; existing historical declaration, drift, missing-file and byte-hash controls exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use the same argv/raw-byte/deadline helper; hash raw historical bytes directly.",
+      "reuse": {
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
+      }
+    },
+    {
+      "finding_id": "PS-AUX-009",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 513,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Array/mapping IDs and array shared pattern/classification were coerced into valid serialized ownership fields.",
+      "reproduction": "Actual malformed YAML CLI cases returned0; initial suite73/3, additional classification replay0; final78/0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Preserve raw ID without pipeline unrolling and validate string fields before use.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-010",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1225,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Case-insensitive component join misattributed lower/file to component A.",
+      "reproduction": "Actual A/a provider-binding CLI diagnostic falsely triggered Fail-6; fixed dedicated control rejects the join.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use ordinal dictionary for component identities.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-011",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 142,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Wildcard interpretation changed consent/input/report/output path targets.",
+      "reproduction": "Initial CLI failures; direct-argv historical-source replay returned wrong sibling bytes with success. Replay is post-edit, not claimed pre-edit chronology.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use LiteralPath at each affected provider read/resolve/write boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-012",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 150,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Mis-cased human consent and signed repository identity were accepted.",
+      "reproduction": "Actual lowercase flag accepted; repository-case isolation replay accepted; final signed correct/wrong binding controls return0/1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Match human protocol and repository binding exactly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-013",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 552,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Task evidence inventory followed symbolic-link files into an externally reviewed bundle.",
+      "reproduction": "Real symlink to outside sentinel: baseline exit0 and sentinel in output; final regression excludes it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Filter symbolic-link files from evidence traversal, preserving legitimate regular-file inventory.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-014",
+      "rule_id": "CS-009",
+      "path": "tests/prepare-panelist.tests.ps1",
+      "line": 34,
+      "source_sha256": "32501f8c01484180599eb11446d86996a40c9bd829131a8412d2a08e13e4127a",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "tests/prepare-panelist.tests.ps1"
+      },
+      "impact": "Parent PowerShell native invocation expanded literal bracket args before the tested child received them.",
+      "reproduction": "After child literal fix, old test helper still emitted sibling digest while direct argv produced correct literal digest.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Existing helper uses ProcessStartInfo.ArgumentList and separately drains streams; same suite and assertions.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-004",
+      "rule_id": "CS-019",
+      "path": ".github/scripts/check-model-freshness.sh",
+      "line": 33,
+      "source_sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "flow": {
+        "input": "vendor read/search/filter results",
+        "transformation": "unchecked native status",
+        "sink": "issue publication and freshness result"
+      },
+      "impact": "Actual entrypoint: failed GitHub search created a duplicate issue; failed source cat returned success without unavailable notice; failed token filter returned success/no divergence.",
+      "reproduction": "Actual entrypoint: failed GitHub search created a duplicate issue; failed source cat returned success without unavailable notice; failed token filter returned success/no divergence.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix555cfd47",
+        "tests/model-freshness-check.tests.sh: 43 passed, 0 failed",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "fixed .github/scripts/check-model-freshness.sh SHA256 cb57a65fcc190026cb9d801bc1e2da983e3f8f1e67624eb763981615603b4e18"
+      ],
+      "resolution": "Search failure exits7 with zero writes; source read failure preserves fail-soft0 but files explicit unavailable notice; token filter failure exits1 with zero writes. grep no-match remains data, other statuses propagate.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+      "line": 20,
+      "source_sha256": "2de062d711ccf860a6216a4a288cf37cb62d93bf980ce998609c22c7d15ecdbc",
+      "flow": {
+        "input": "domain contract JSON root/schema and timestamp-like strings",
+        "transformation": "PowerShell JSON enumeration and automatic date conversion",
+        "sink": "domain v2 contract admission"
+      },
+      "impact": "Valid contract wrapped in singleton root array or schema wrapped in singleton array both exit0; valid timestamp-looking definition rejected by native automatic date conversion while Bash accepts.",
+      "reproduction": "Valid contract wrapped in singleton root array or schema wrapped in singleton array both exit0; valid timestamp-looking definition rejected by native automatic date conversion while Bash accepts.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix555cfd47",
+        "tests/sdd-domain/contract-v2-schema.Tests.ps1: 322 passed, 0 failed, 0 skipped on PowerShell7.6.7; paired Bash fixtures included.",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "fixed plugins/sdd-domain/scripts/validate-domain-contract.ps1 SHA256 b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b"
+      ],
+      "resolution": "Root envelope preserved and schema read through existing non-enumerating ordinal reader. Capability-checked DateKind preserves native JSON string fields, retains PS5.1 parsing syntax.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-RELEASE-COUNT",
+      "rule_id": "CS-019",
+      "path": ".github/workflows/release.yml",
+      "line": 77,
+      "source_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "flow": {
+        "input": "gh API successful workflow run count",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "Bash if [ COUNT -lt1 ] gate"
+      },
+      "impact": "Malformed null count made test return2 inside if; CI-green printed success and exited0.",
+      "reproduction": "Actual original step with mocked gh response null exits0 and prints CI green confirmed.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Actual corrected step accepts1/2 and rejects0/null/empty/text/negative/multiline; invalidSHA cases reject.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/workflows/release.yml SHA256 d3fc87b7fdb9de39ee043ef4e3c8300dc9a4aff5934b5c801c65eabae46a69e7"
+      ],
+      "resolution": "Positive decimal count regex plus exact SHA/ref-type validation.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-RELEASE-SBOM-SOURCE",
+      "rule_id": "CS-029",
+      "path": ".github/workflows/release.yml",
+      "line": 156,
+      "source_sha256": "3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9",
+      "flow": {
+        "input": "Manual dispatch branch differs from selected tag",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "SBOM root derived from generator checkout"
+      },
+      "impact": "Tagged archive described dispatch-branch dependencies instead of published bytes.",
+      "reproduction": "Two-commit real Git fixture emits only dispatch-only-dependency.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Corrected actual workflow body emits tagged-dependency only.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/workflows/release.yml SHA256 d3fc87b7fdb9de39ee043ef4e3c8300dc9a4aff5934b5c801c65eabae46a69e7"
+      ],
+      "resolution": "Extract exact generated tarball, pass --source-root to generator, trap scratch cleanup.",
+      "reuse": null
+    },
+    {
+      "finding_id": "WF-SBOM-INCOMPLETE",
+      "rule_id": "CS-018",
+      "path": ".github/scripts/generate-sbom.py",
+      "line": 57,
+      "source_sha256": "31900f6d8e672de8eaa78eab05c8dfadaa90b313595eca2e47d5673c29fa6f40",
+      "flow": {
+        "input": "Present corrupt/unreadable dependency lock or workflow source",
+        "transformation": "release source/count parsing and inventory selection",
+        "sink": "catch then continue during SBOM enumeration"
+      },
+      "impact": "Release could attest incomplete dependency inventory with success status.",
+      "reproduction": "Malformed { lock produces exit0 SBOM with no dependency components.",
+      "state": "fixed",
+      "owner_issue": 692,
+      "evidence": [
+        "fixfccb8830",
+        "Malformed JSON, array root and array packages map produce nonzero, fixed diagnostic and no output.",
+        "tests/release-loop-gate.tests.sh",
+        "docs/contributor/coding-standards/audit/release-source-delta.json",
+        "fixed .github/scripts/generate-sbom.py SHA256 fb9267d25d16c3af29ad9cdfde9b6838c1a53a2646457d6fedca4d54e0ad4aef"
+      ],
+      "resolution": "Refuse present invalid/unreadable inputs; root/packages JSON must be objects; fixed diagnostic and nonzero.",
+      "reuse": null
+    },
+    {
+      "finding_id": "REUSE-001",
+      "rule_id": "CS-023",
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "line": 260,
+      "source_sha256": "2daa18df2bd52c13e3a6aba1cf6d7697331754463a12a60b3fbc6c501fa91f04",
+      "flow": {
+        "input": "large real WebStream Uint8Array upstream chunk",
+        "transformation": "bounded tail represented by a small subarray view",
+        "sink": "retained chunks array and backing allocation lifetime"
+      },
+      "impact": "Retained-byte counter stayed bounded while small views pinned16MiB upstream backing allocations, violating the claimed memory bound.",
+      "reproduction": "Independent WeakRef/GC controls use actual WebStreams and track backing allocations; both heldout cases failed before2ef9edb9 and both passed after owned-byte copying.",
+      "state": "fixed",
+      "owner_issue": 691,
+      "evidence": [
+        "fix2ef9edb9",
+        "docs/contributor/coding-standards/reuse/independent-review.json",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-before.txt:2failed",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-after.txt:2passed",
+        "mcp/ci-mcp/tests/error-paths/backing-buffer-retention.test.ts",
+        "fixed SHA256 8dd83fd63eff469d425a4c06fbac71ba2d80351deb9ed3ce5ef0b84c2c910bf9"
+      ],
+      "resolution": "Copy retained bytes into an owned Uint8Array instead of retaining a view onto the oversized source allocation. Existing logical bound and public response contract remain unchanged.",
+      "reuse": null
     }
   ]
 }

@@ -331,39 +331,6 @@ verify_implementation_binding() {
     fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
 }
 
-implementation_input_is_declared() {
-  local path=$1 expected_hash=$2 declaration absolute component current pinned pinned_paths
-  [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
-  declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
-  jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
-    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null || return 1
-  is_canonical_path "$implementation_manifest_path" || return 1
-  absolute="$repository_root/$implementation_manifest_path"
-  current="$repository_root"
-  local -a components
-  IFS='/' read -r -a components <<< "$implementation_manifest_path"
-  for component in "${components[@]}"; do
-    current="$current/$component"
-    [[ ! -L "$current" ]] || return 1
-  done
-  [[ -f "$absolute" && ! -L "$absolute" ]] || return 1
-  [[ "$(sha256_file "$absolute")" == "$declaration" ]] || return 1
-  verify_implementation_binding
-  jq -e --arg task "$task_id" --arg p "$path" --arg h "$expected_hash" '
-    (.allowed_inputs | type == "array" and length > 0) and
-    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
-      (.path | type == "string" and (test("[\\r\\n]") | not)) and
-      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
-    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
-    any(.allowed_inputs[]; .path == $p and .sha256 == $h)
-  ' "$absolute" >/dev/null 2>&1 || return 1
-  pinned_paths=$(jq -r '.allowed_inputs[].path' "$absolute") ||
-    fail IDENTITY 'implementation manifest input enumeration failed'
-  while IFS= read -r pinned; do
-    is_canonical_path "$pinned" || return 1
-  done <<< "$pinned_paths"
-}
-
 conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
@@ -530,6 +497,10 @@ jq -e '
   .input_mode == "file-manifest" and
   .fallback_mode == "none" and
   .read_only == true and
+  (.stage | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+  (.role | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+  (.run_id | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+  (.host_session_id | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
   (.feature | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._-]*$")) and
   (.sequence | type == "number" and floor == . and . >= 2) and
   (.identity_ledger_path == "reports/review-context/identity-ledger.json") and

@@ -697,11 +697,14 @@ base = json.loads((root / 'contracts/agent-model-capabilities.v2.json').read_tex
 work = tmp / 'boundary-render'
 work.mkdir()
 target = {'role': 'sdd-evaluator', 'kind': 'codex', 'path': 'agent.toml', 'protected': False}
-cases = ['effort-array', 'effort-newline', 'effort-unknown', 'tier-array', 'models-object', 'schema-array', 'root-array', 'protected-string', 'protected-null', 'kind-unknown', 'target-root-object']
+cases = ['model-newline', 'model-control', 'effort-array', 'effort-newline', 'effort-unknown', 'tier-array', 'models-object', 'schema-array', 'root-array', 'protected-string', 'protected-null', 'kind-unknown', 'target-root-object']
 failures = []
 for case in ['valid-extension'] + cases:
     data, targets = copy.deepcopy(base), [dict(target)]
     role = data['role_defaults']['sdd-evaluator']
+    if case in ('model-newline', 'model-control'):
+        model = next(m for m in data['models'] if m['canonical_tier'] == role['minimum_tier'] and m['effort_control'].get('codex-cli') == 'flag')
+        model['name'] += '\nINJECTED = true' if case == 'model-newline' else '\x00'
     if case == 'effort-array': role['default_effort'] = ['high']
     if case == 'effort-newline': role['default_effort'] = 'high\nINJECTED'
     if case == 'effort-unknown': role['default_effort'] = 'unrecognized'

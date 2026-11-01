@@ -169,11 +169,14 @@
       ],
       "resolution": "Use shared bounded raw-byte helper, preserve GitDiffError and strict UTF-8/NUL parsing.",
       "reuse": {
-        "mechanism": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
-        "consumers": [
-          "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
-          "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
-        ]
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
       }
     },
     {
@@ -197,11 +200,14 @@
       ],
       "resolution": "Use the same argv/raw-byte/deadline helper; hash raw historical bytes directly.",
       "reuse": {
-        "mechanism": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
-        "consumers": [
-          "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
-          "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
-        ]
+        "intent": "Share bounded local Git process/stream ownership without merging resolver policy or panelist consent/declaration policy.",
+        "public_contract": "Invoke-SddGitRaw(RepoRoot,GitArgs) returns ExitCode and raw Stdout/Stderr bytes; literal argv, concurrent streams and a shared30second deadline; invocation failures throw for caller-specific mapping.",
+        "stability_evidence": "Two current production consumers and retained actual resolver/panelist regressions; source-bound review in coverage.python-assist-large.json. Long-term public API or universal native-platform stability is not claimed.",
+        "consumer_requirements": "Resolver needs strict UTF8/NUL diff parsing and GitDiffError classification; panelist needs exact historical bytes for hashing and conservative nonzero/no-history behavior. Both require non-shell argv and bounded completion.",
+        "divergence_counterexample": "Interactive credential prompts, streaming network providers or callers requiring a different timeout/retry contract cannot be silently routed through this finite local Git inspection helper.",
+        "decision": "Reuse the raw-byte Git mechanism in existing native-arguments.ps1; keep caller validation, decoding, retry and admission decisions separate.",
+        "reason": "Transport/lifecycle invariant is shared by actual consumers; feature-specific state machines and fallback meanings remain independently owned.",
+        "verification": "Actual Linux sleeping-Git direct-child deadline control plus resolver78/diff20/parity25/panelist185 and native analyzer. Tree-kill fallback and Windows5.1 behavior are explicitly not independently proven."
       }
     },
     {
