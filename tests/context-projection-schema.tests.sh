@@ -80,7 +80,7 @@ else
 fi
 
 if [ -f "$SCHEMA" ]; then
-  schema_dollar_schema="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$schema',''))" 2>/dev/null)"
+  schema_dollar_schema="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$schema',''))" "$SCHEMA" 2>/dev/null)"
 else
   schema_dollar_schema=""
 fi
@@ -91,7 +91,7 @@ else
 fi
 
 if [ -f "$SCHEMA" ]; then
-  schema_id="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$id',''))" 2>/dev/null)"
+  schema_id="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$id',''))" "$SCHEMA" 2>/dev/null)"
 else
   schema_id=""
 fi
@@ -104,12 +104,12 @@ fi
 
 # --- top-level required set --------------------------------------------------
 if [ -f "$SCHEMA" ]; then
-  required_json="$(python3 -c "import json;print(json.dumps(json.load(open('$SCHEMA')).get('required',[])))" 2>/dev/null)"
+  required_json="$(python3 -c "import sys; import json;print(json.dumps(json.load(open(sys.argv[1])).get('required',[])))" "$SCHEMA" 2>/dev/null)"
 else
   required_json=""
 fi
 expected_required_json='["schema", "source_sha256", "workflow", "components", "shared_paths"]'
-expected_required_json="$(python3 -c "import json;print(json.dumps(json.loads('$expected_required_json')))")"
+expected_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.loads(sys.argv[1])))" "$expected_required_json")"
 if [ "$required_json" = "$expected_required_json" ]; then
   ok "top-level 'required' is exactly the five-field set (AC-015)"
 else
@@ -118,12 +118,12 @@ fi
 
 # --- workflow sub-object required set ---------------------------------------
 if [ -f "$SCHEMA" ]; then
-  workflow_required_json="$(python3 -c "import json;print(json.dumps(json.load(open('$SCHEMA'))['properties']['workflow'].get('required',[])))" 2>/dev/null)"
+  workflow_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.load(open(sys.argv[1]))['properties']['workflow'].get('required',[])))" "$SCHEMA" 2>/dev/null)"
 else
   workflow_required_json=""
 fi
 expected_workflow_required='["spec_profile", "artifact_layout", "capability_enforcement"]'
-expected_workflow_required_json="$(python3 -c "import json;print(json.dumps(json.loads('$expected_workflow_required')))")"
+expected_workflow_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.loads(sys.argv[1])))" "$expected_workflow_required")"
 if [ "$workflow_required_json" = "$expected_workflow_required_json" ]; then
   ok "workflow.required is exactly the three-field set"
 else

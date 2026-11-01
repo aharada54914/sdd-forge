@@ -64,9 +64,9 @@ function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPat
     $current = $Repository
     foreach ($part in $relative.Split('/')) {
       if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
-      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
-      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
-      $current = $matches[0]
+      $matchedEntries = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matchedEntries.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matchedEntries[0]
       $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
       if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
     }
@@ -936,9 +936,9 @@ function Test-InterruptedRecovery([string]$RecordPath) {
     Assert-Recovery ($reportText.Contains('Reviewer B was not launched') -and $reportText -cnotmatch '(?m)^(?:VERDICT|Verdict|Integrated Verdict):') 'source diagnostic report'
     $ledger = Read-RecoveryJson (Get-RecoveryPath 'reports/review-context/identity-ledger.json')
     Assert-Recovery ($ledger.records -is [array]) 'ledger records'
-    $matches = @($ledger.records | Where-Object { $_.run_id -ceq $a.run_id -and $_.host_session_id -ceq $a.host_session_id })
-    Assert-Recovery ($matches.Count -eq 1) 'persisted A identity missing or duplicated'
-    $persisted = $matches[0]
+    $matchedEntries = @($ledger.records | Where-Object { $_.run_id -ceq $a.run_id -and $_.host_session_id -ceq $a.host_session_id })
+    Assert-Recovery ($matchedEntries.Count -eq 1) 'persisted A identity missing or duplicated'
+    $persisted = $matchedEntries[0]
     foreach ($key in @('sequence','stage','role','run_id','host_session_id','record_sha256')) { Assert-Recovery ($persisted[$key].GetType() -eq $a[$key].GetType() -and $persisted[$key] -ceq $a[$key]) 'persisted A identity mismatch' }
     Assert-Recovery ($persisted.allowed_inputs_sha256 -ceq (Get-RecoveryInputBinding $inv.allowed_input_manifest)) 'persisted A input binding missing or changed'
     $receipt = Get-RecoveryLines (Get-RecoveryPath "$source/reviewer-a-reservation.txt")

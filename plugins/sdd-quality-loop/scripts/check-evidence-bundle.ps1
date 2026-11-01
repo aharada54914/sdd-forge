@@ -344,13 +344,13 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
         $absRoot = (Resolve-Path $RepoRoot).Path
         try {
             # Verify commit exists
-            $r1 = Start-Process -FilePath "git" -ArgumentList @("-C", $absRoot, "cat-file", "-e", "${gitCommitStr}^{commit}") -NoNewWindow -Wait -PassThru
-            if ($r1.ExitCode -ne 0) {
+            & $gitExe.Source -C $absRoot cat-file -e "${gitCommitStr}^{commit}" 2>$null
+            if ($LASTEXITCODE -ne 0) {
                 Add-Failure "git_commit does not exist in repository: $gitCommitStr"
             } else {
                 # Verify commit is HEAD or an ancestor of HEAD
-                $r2 = Start-Process -FilePath "git" -ArgumentList @("-C", $absRoot, "merge-base", "--is-ancestor", $gitCommitStr, "HEAD") -NoNewWindow -Wait -PassThru
-                if ($r2.ExitCode -ne 0) {
+                & $gitExe.Source -C $absRoot merge-base --is-ancestor $gitCommitStr HEAD 2>$null
+                if ($LASTEXITCODE -ne 0) {
                     # Commit exists but is not an ancestor — may have been rewritten after
                     # amend/rebase. Tolerate if all artifact hashes still match (35.1).
                     $hashesOk = ($artifactIndex.Count -gt 0)

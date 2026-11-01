@@ -279,7 +279,7 @@ grep -Eq 'Feature:' "$BUNDLE_CHECK" &&
     fail "validator pin: Feature rule missing from evidence-bundle validator"
 
 # Rule 5: "Task ID: T-NNN" line (check-evidence-bundle + check-task-state Done path).
-if grep -Eq "^Task ID:[[:space:]]*$TASK_ID[[:space:]]*$" "$QG_RENDERED"; then
+if grep -Eq "^Task ID:[[:space:]]*${TASK_ID}[[:space:]]*$" "$QG_RENDERED"; then
     ok "quality-report template: Task ID line present"
 else
     fail "quality-report template: Task ID line missing"

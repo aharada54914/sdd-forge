@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # Shared helpers for the panelist collection-layer runners
 # (run-panelist-gpt.sh, run-panelist-gemini.sh). Sourced, not executed —
 # the same convention sdd-hook-guard.sh uses for its generated invariants.

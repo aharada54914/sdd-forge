@@ -23,7 +23,8 @@ trap 'rm -rf "$WORK"' EXIT
 invoke_guard_sh() {
     local payload="$1"
     local emit="${2:-exit}"
-    local outfile="${WORK}/sh-$(date +%s%N 2>/dev/null || date +%s).out"
+    local outfile
+    outfile="${WORK}/sh-$(date +%s%N 2>/dev/null || date +%s).out"
     GUARD_CODE=0
     GUARD_OUT=""
     printf '%s' "$payload" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "$emit" >"$outfile" 2>/dev/null || GUARD_CODE=$?
@@ -54,7 +55,7 @@ write_sudo_flag() {
     local expires="$2"
     local issued=$(( expires - 3600 ))  # Issued 1 hour before expiry
     local repo
-    repo="$(python3 -c "import os; print(os.path.realpath('${dir}'))")"
+    repo="$(python3 -c "import sys; import os; print(os.path.realpath(sys.argv[1]))" "${dir}")"
     local nonce
     nonce="$(python3 -c "import secrets; print(secrets.token_hex(32))")"
     local issuer="testuser@testhost"
@@ -653,7 +654,8 @@ if command -v python3 >/dev/null 2>&1; then
     invoke_py_guard() {
         local payload="$1"
         local emit="${2:-exit}"
-        local outfile="${WORK}/py-$(date +%s%N 2>/dev/null || date +%s).out"
+        local outfile
+        outfile="${WORK}/py-$(date +%s%N 2>/dev/null || date +%s).out"
         PY_CODE=0
         PY_OUT=""
         printf '%s' "$payload" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "$emit" >"$outfile" 2>/dev/null || PY_CODE=$?
@@ -811,7 +813,8 @@ if command -v node >/dev/null 2>&1; then
     invoke_node_guard() {
         local payload="$1"
         local emit="${2:-exit}"
-        local outfile="${WORK}/node-$(date +%s%N 2>/dev/null || date +%s).out"
+        local outfile
+        outfile="${WORK}/node-$(date +%s%N 2>/dev/null || date +%s).out"
         NODE_CODE=0
         NODE_OUT=""
         printf '%s' "$payload" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "$emit" >"$outfile" 2>/dev/null || NODE_CODE=$?

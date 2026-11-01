@@ -27,7 +27,6 @@ re-exported, because this overlay sits in the shared scripts directory and
 the subprocess dependencies import it too.
 """
 import os
-import sys
 
 import registry_discovery_real as _real
 

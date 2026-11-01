@@ -64,6 +64,7 @@ def resolve_git_root() -> "Path | None":
             capture_output=True,
             text=True,
             cwd=str(_module_dir()),
+            encoding="utf-8",
         )
         if result.returncode == 0:
             candidate = result.stdout.strip()

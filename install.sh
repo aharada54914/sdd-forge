@@ -350,9 +350,28 @@ get_github_auth_token() {
     printf '%s' "$token"
 }
 
+# Encode one GitHub route value without adding a bootstrap runtime dependency.
+url_path_value() {
+    local LC_ALL=C value="$1" encoded="" char i
+    for ((i=0; i<${#value}; i++)); do
+        char="${value:i:1}"
+        case "$char" in
+            [a-zA-Z0-9.~_-]) encoded+="$char" ;;
+            *) printf -v encoded '%s%%%02X' "$encoded" "'$char" ;;
+        esac
+    done
+    printf '%s' "$encoded"
+}
+
 download_authenticated_archive() {
     local archive_path="$1"
-    local archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${REF}"
+    if [[ ! "$REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+        echo "Error: --repository must be owner/repo." >&2
+        return 1
+    fi
+    local encoded_ref archive_url
+    encoded_ref="$(url_path_value "$REF")" || return 1
+    archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${encoded_ref}"
     local token
     token="$(get_github_auth_token)" || return 1
     echo "Downloading authenticated archive from ${archive_url}"

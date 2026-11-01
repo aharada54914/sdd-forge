@@ -438,7 +438,7 @@ class LaunchOrderTests(unittest.TestCase):
                     if stage == 'impl':
                         self.assertIn('specs/demo/ux-spec.md', expected)
                         self.assertIn('docs/adr/0036-example.md', expected)
-                        self.assertEqual(f'reports/impl-review/demo/attempt-1/round-1/integrated-summary.json'
+                        self.assertEqual('reports/impl-review/demo/attempt-1/round-1/integrated-summary.json'
                                          in expected, suffix == 'a')
 
 

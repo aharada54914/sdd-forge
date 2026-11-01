@@ -395,6 +395,7 @@ function Invoke-InstallerScenario {
 }
 
 function Invoke-RemoteInstallerScenario {
+    param([string]$ArchiveRef = 'main', [string]$ExpectedRef = 'main')
     $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-remote-" + [guid]::NewGuid())
     $installRoot = Join-Path $testRoot "installed"
     $fakeBin = Join-Path $testRoot "bin"
@@ -415,7 +416,7 @@ function Invoke-RemoteInstallerScenario {
         if ($Headers.Authorization -ne "Bearer fake-gh-token") {
             throw "missing GitHub auth header"
         }
-        if ($Uri -notmatch '^https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main$') {
+        if ($Uri -cne "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef") {
             throw "unexpected remote download URL: $Uri"
         }
         if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -432,7 +433,7 @@ function Invoke-RemoteInstallerScenario {
 
         $failed = $false
         try {
-            & (Join-Path $repositoryRoot "install.ps1") -InstallRoot $installRoot -Target All -Plugins $allPlugins
+            & (Join-Path $repositoryRoot "install.ps1") -InstallRoot $installRoot -Target All -Plugins $allPlugins -Ref $ArchiveRef
         }
         catch {
             $failed = $true
@@ -446,7 +447,7 @@ function Invoke-RemoteInstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        if ($log -notmatch 'Invoke-WebRequest https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main') {
+        if (-not $log.Contains("Invoke-WebRequest https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef")) {
             throw "Authenticated remote install did not use the GitHub API archive URL"
         }
         if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -785,6 +786,7 @@ finally {
 }
 
 Invoke-RemoteInstallerScenario
+Invoke-RemoteInstallerScenario -ArchiveRef 'feature/topic#fragment' -ExpectedRef 'feature%2Ftopic%23fragment'
 
 # ---------------------------------------------------------------------------
 # Lock scenario (l): concurrent install is blocked when mutex is already held

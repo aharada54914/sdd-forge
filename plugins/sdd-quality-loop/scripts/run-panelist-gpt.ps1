@@ -43,6 +43,7 @@
 # Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args/rejected value
 param()
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
 
 $TaskId      = ""
 $Feature     = ""
@@ -245,7 +246,7 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath $CodexCmd `
-                -ArgumentList $codexArgs `
+                -ArgumentList (ConvertTo-SddNativeArgumentString $codexArgs) `
                 -RedirectStandardInput  $combinedFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `

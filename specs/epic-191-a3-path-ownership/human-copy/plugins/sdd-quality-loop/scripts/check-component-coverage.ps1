@@ -217,7 +217,7 @@ function Test-FailConditions {
                 }
             }
         }
-        $matches = [System.Collections.Generic.List[object]]::new()
+        $matchedEntries = [System.Collections.Generic.List[object]]::new()
         foreach ($binding in $Bindings) {
             if ($null -eq $binding.AdapterPaths) {
                 $warnings.Add("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
@@ -240,13 +240,13 @@ function Test-FailConditions {
                     $nfcPath = ConvertTo-Nfc $path
                     foreach ($pair in $usablePatterns) {
                         if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
-                            $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
+                            $matchedEntries.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                         }
                     }
                 }
             }
         }
-        $fail6 = [ordered]@{ id = "Fail-6"; triggered = ($matches.Count -gt 0); detail = [ordered]@{ matches = @($matches) } }
+        $fail6 = [ordered]@{ id = "Fail-6"; triggered = ($matchedEntries.Count -gt 0); detail = [ordered]@{ matches = @($matchedEntries) } }
     }
 
     return @{ Conditions = @($fail1, $fail2, $fail3, $fail4, $fail5, $fail6); Warnings = @($warnings) }

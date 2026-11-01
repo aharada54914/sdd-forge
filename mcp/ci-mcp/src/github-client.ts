@@ -101,26 +101,19 @@ function buildGithubUrl(
 
 const REQUEST_TIMEOUT_MS = 30_000;
 
-const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
-
-/**
- * Issues a single GET request against the GitHub Actions REST API and
- * resolves to either `{ ok: true, data }` (the parsed JSON body) or a
- * normalized error envelope (REQ-006). The upstream response body is
- * discarded on every error path — it is never attached to the returned
- * envelope.
- */
-export async function githubGet(
+/** Provider transport only: body interpretation and endpoint policy stay with callers. */
+async function requestGithub<Response extends Pick<GithubHttpResponse, "status" | "headers">>(
   request: GithubGetRequest,
-  fetchImpl: GithubFetch = defaultFetch,
-): Promise<GithubGetOutcome<unknown>> {
+  accept: string,
+  fetchImpl: (url: string, init: Parameters<GithubFetch>[1]) => Promise<Response>,
+): Promise<GithubGetOutcome<Response>> {
   const url = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers: Record<string, string> = { accept: "application/vnd.github+json" };
+  const headers: Record<string, string> = { accept };
   if (request.token !== undefined && request.token.length > 0) {
     headers.authorization = `Bearer ${request.token}`;
   }
 
-  let response: GithubHttpResponse;
+  let response: Response;
   try {
     const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const signal = request.signal === undefined ? deadline : AbortSignal.any([request.signal, deadline]);
@@ -136,6 +129,26 @@ export async function githubGet(
   if (normalized !== undefined) {
     return normalized;
   }
+
+  return { ok: true, data: response };
+}
+
+const defaultFetch: GithubFetch = (url, init) => fetch(url, init);
+
+/**
+ * Issues a single GET request against the GitHub Actions REST API and
+ * resolves to either `{ ok: true, data }` (the parsed JSON body) or a
+ * normalized error envelope (REQ-006). The upstream response body is
+ * discarded on every error path — it is never attached to the returned
+ * envelope.
+ */
+export async function githubGet(
+  request: GithubGetRequest,
+  fetchImpl: GithubFetch = defaultFetch,
+): Promise<GithubGetOutcome<unknown>> {
+  const result = await requestGithub(request, "application/vnd.github+json", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
 
   try {
     const data: unknown = await response.json();
@@ -325,28 +338,9 @@ export async function githubGetText(
   request: GithubGetRequest,
   fetchImpl: GithubTextFetch = defaultTextFetch,
 ): Promise<GithubGetTextOutcome> {
-  const url = buildGithubUrl(request.pathSegments, request.searchParams);
-  const headers: Record<string, string> = { accept: "text/plain" };
-  if (request.token !== undefined && request.token.length > 0) {
-    headers.authorization = `Bearer ${request.token}`;
-  }
-
-  let response: GithubTextHttpResponse;
-  try {
-    const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
-    const signal = request.signal === undefined ? deadline : AbortSignal.any([request.signal, deadline]);
-    response = await fetchImpl(url, { method: "GET", headers, signal });
-  } catch (error) {
-    return normalizeNetworkError(error);
-  }
-
-  const normalized = normalizeUpstreamResponse({
-    status: response.status,
-    getHeader: (name) => response.headers.get(name),
-  });
-  if (normalized !== undefined) {
-    return normalized;
-  }
+  const result = await requestGithub(request, "text/plain", fetchImpl);
+  if (!result.ok) return result;
+  const response = result.data;
 
   try {
     if (response.body != null) {

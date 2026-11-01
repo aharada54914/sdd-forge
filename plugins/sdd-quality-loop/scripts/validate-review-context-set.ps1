@@ -1008,49 +1008,49 @@ print("true" if result.stdout else "false")
         })
     }
     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($input in $orderedInputs) {
-        if ($input -isnot [hashtable] -or -not (Test-ExactKeys $input @('path', 'sha256')) -or
-            -not (Test-CanonicalPath $input.path) -or -not $paths.Add($input.path)) {
+    foreach ($declaredInput in $orderedInputs) {
+        if ($declaredInput -isnot [hashtable] -or -not (Test-ExactKeys $declaredInput @('path', 'sha256')) -or
+            -not (Test-CanonicalPath $declaredInput.path) -or -not $paths.Add($declaredInput.path)) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a duplicate or non-canonical path"
         }
-        if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
-            Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
+        if ($declaredInput.sha256 -isnot [string] -or $declaredInput.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+            Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($declaredInput.path)"
         }
         $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$' -and
-            ($input.path -cmatch '^(domain|design-system)/' -or
-             $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
+            ($declaredInput.path -cmatch '^(domain|design-system)/' -or
+             $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
         $researchPacketPath = "specs/$($document.feature)/research/review-input.json"
-        $researchPath = $input.path
-        $researchHash = $input.sha256
+        $researchPath = $declaredInput.path
+        $researchHash = $declaredInput.sha256
         if ($null -ne $persistedMatch -and $persistedMatch.ContainsKey('allowed_inputs_sha256') -and
             @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1) {
             $researchInputs = @($inputs | Where-Object { $_.path.StartsWith('docs/adr/',[StringComparison]::Ordinal) })
         }
         $isResearchInput = $document.stage -cin @('spec','impl') -and
             $document.role -cmatch '^(spec|impl)-reviewer-[ab]$' -and
-            ($input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/research/(review-input\.json|relations\.json|records/research-evidence\.json)$') -or
-             $input.path -cmatch '^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$') -and
+            ($declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/research/(review-input\.json|relations\.json|records/research-evidence\.json)$') -or
+             $declaredInput.path -cmatch '^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$') -and
             @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1 -and
             ($null -ne $persistedMatch -or @($researchInputs | Where-Object { $_.path -ceq $researchPath -and $_.sha256 -ceq $researchHash }).Count -eq 1)
         $isAdrInput = $document.stage -ceq 'impl' -and
-            $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
+            $declaredInput.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
         if ($isAdrInput -and -not $isResearchInput -and $null -eq $verifiedAdrInputs) {
             $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes $researchInputs
         }
-        $authorized = if (@($fixedReferences | Where-Object { $_.path -ceq $input.path -and $_.sha256 -ceq $input.sha256 }).Count -eq 1) {
+        $authorized = if (@($fixedReferences | Where-Object { $_.path -ceq $declaredInput.path -and $_.sha256 -ceq $declaredInput.sha256 }).Count -eq 1) {
             $true
         } elseif ($isResearchInput) {
             if ($null -ne $persistedMatch) {
                 $persistedMatch.ContainsKey('allowed_inputs_sha256')
             } else {
-                $researchPath = $input.path
-                $researchHash = $input.sha256
+                $researchPath = $declaredInput.path
+                $researchHash = $declaredInput.sha256
                 @($conditionalInputs | Where-Object { $_.path -ceq $researchPath -and $_.sha256 -ceq $researchHash }).Count -eq 1
             }
         } elseif ($isAdrInput) {
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
-            $verifiedAdrInputs.ContainsKey($input.path) -and
-            $verifiedAdrInputs[$input.path] -ceq $input.sha256
+            $verifiedAdrInputs.ContainsKey($declaredInput.path) -and
+            $verifiedAdrInputs[$declaredInput.path] -ceq $declaredInput.sha256
         } elseif ($isConditionalInput) {
             $allowedConditionalPaths = if ($document.stage -cne 'impl') {
                 @('domain/context-map.md', 'domain/domain-contract.json')
@@ -1064,43 +1064,43 @@ print("true" if result.stdout else "false")
             if (@($inputs | Where-Object { $_.path -ceq $conceptRecordPath }).Count -eq 1) {
                 try {
                     $conceptRecord = Get-Content -Raw -LiteralPath (Join-Path $root $conceptRecordPath) | ConvertFrom-Json -AsHashtable
-                    $conceptPath = $input.path
-                    $conceptHash = $input.sha256
+                    $conceptPath = $declaredInput.path
+                    $conceptHash = $declaredInput.sha256
                     $conceptDeclared = @($conceptRecord.inputs | Where-Object { $_.path -ceq $conceptPath -and $_.sha256 -ceq $conceptHash }).Count -eq 1
                 } catch { $conceptDeclared = $false }
             }
-            if ($allowedConditionalPaths -cnotcontains $input.path -and
-                -not ($conceptDeclared -or ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$') -or
-                      $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))) {
+            if ($allowedConditionalPaths -cnotcontains $declaredInput.path -and
+                -not ($conceptDeclared -or ($document.stage -ceq 'impl' -and $declaredInput.path -cmatch '^domain/aggregates/[^/]+\.md$') -or
+                      $declaredInput.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))) {
                 $false
             } elseif ($null -ne $persistedMatch) {
                 $persistedMatch.ContainsKey('allowed_inputs_sha256')
             } else {
-                $conditionalPath = $input.path
-                $conditionalHash = $input.sha256
+                $conditionalPath = $declaredInput.path
+                $conditionalHash = $declaredInput.sha256
                 @($conditionalInputs | Where-Object { $_.path -ceq $conditionalPath -and $_.sha256 -ceq $conditionalHash }).Count -eq 1
             }
         } else {
             ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
-                $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
-                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
+                $implementationManifestPath -cne '' -and $declaredInput.path -ceq $implementationManifestPath) -or
+                (Test-AuthorizedPath $document.stage $document.role $document.feature $declaredInput.path $declaredInput.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
         }
-        if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
-            $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
+        if ($declaredInput.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
+            $declaredInput.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
             -not $authorized) {
-            Fail-ReviewContext 'PATH' "$($document.role) contains a real but role-unlisted path: $($input.path)"
+            Fail-ReviewContext 'PATH' "$($document.role) contains a real but role-unlisted path: $($declaredInput.path)"
         }
         $inputRoot = $root
-        if (@($fixedSources | Where-Object { $_.path -ceq $input.path }).Count -eq 1) {
+        if (@($fixedSources | Where-Object { $_.path -ceq $declaredInput.path }).Count -eq 1) {
             $inputRoot = [IO.Path]::GetFullPath($FixedInputSnapshot)
         }
         $inputRootPrefix = $inputRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-        $candidate = [IO.Path]::GetFullPath((Join-Path $inputRoot $input.path))
+        $candidate = [IO.Path]::GetFullPath((Join-Path $inputRoot $declaredInput.path))
         if (-not $candidate.StartsWith($inputRootPrefix, [StringComparison]::Ordinal)) {
-            Fail-ReviewContext 'PATH' "$($document.role) input escapes the repository root: $($input.path)"
+            Fail-ReviewContext 'PATH' "$($document.role) input escapes the repository root: $($declaredInput.path)"
         }
         $current = $inputRoot
-        foreach ($component in $input.path.Split('/')) {
+        foreach ($component in $declaredInput.path.Split('/')) {
             if ($document.stage -ceq 'impl') {
                 # Reject stationary case aliases; this is not atomic acquisition.
                 $exactEntry = $false
@@ -1111,7 +1111,7 @@ print("true" if result.stdout else "false")
                     }
                 }
                 if (-not $exactEntry) {
-                    Fail-ReviewContext 'PATH' "$($document.role) input has no exact-name directory entry: $($input.path)"
+                    Fail-ReviewContext 'PATH' "$($document.role) input has no exact-name directory entry: $($declaredInput.path)"
                 }
             }
             $current = Join-Path $current $component
@@ -1119,12 +1119,12 @@ print("true" if result.stdout else "false")
                 # Hardlinks are regular files, not redirected path components.
                 if (((Get-Item -LiteralPath $current -Force).Attributes -band
                     [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
-                    Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
+                    Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($declaredInput.path)"
                 }
             }
         }
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
-            Fail-ReviewContext 'PATH' "$($document.role) contains a missing or non-regular input: $($input.path)"
+            Fail-ReviewContext 'PATH' "$($document.role) contains a missing or non-regular input: $($declaredInput.path)"
         }
         if ($isAdrInput) {
             # Leaf also includes POSIX special files. Check type before opening.
@@ -1142,10 +1142,10 @@ print("true" if result.stdout else "false")
             }
         }
         $isImplPrecheck = $document.stage -ceq 'impl' -and
-            $input.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
+            $declaredInput.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
         if ($document.stage -ceq 'impl' -and
-            ($input.path -ceq "specs/$($document.feature)/design.md" -or
-             $isImplPrecheck -or ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path))) {
+            ($declaredInput.path -ceq "specs/$($document.feature)/design.md" -or
+             $isImplPrecheck -or ($null -ne $wfi025PrecheckEntry -and $declaredInput.path -ceq $wfi025PrecheckEntry.path))) {
             try {
                 $contentBytes = [IO.File]::ReadAllBytes($candidate)
                 $contentText = [Text.UTF8Encoding]::new($false, $true).GetString($contentBytes)
@@ -1153,7 +1153,7 @@ print("true" if result.stdout else "false")
             catch {
                 Fail-ReviewContext 'CONTRACT' 'implementation input cannot be read as strict UTF-8'
             }
-            if ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path) {
+            if ($null -ne $wfi025PrecheckEntry -and $declaredInput.path -ceq $wfi025PrecheckEntry.path) {
                 if ($contentText.StartsWith([string][char]0xFEFF, [StringComparison]::Ordinal)) {
                     $contentText = $contentText.Substring(1)
                 }
@@ -1167,10 +1167,10 @@ print("true" if result.stdout else "false")
                 # Do not confuse an unreadable later record with no extension.
                 Assert-ImplJsonObject $contentText
                 $implPrechecks.Add([pscustomobject]@{
-                    Path=$input.path
+                    Path=$declaredInput.path
                     Value=(ConvertFrom-Json -InputObject $contentText -AsHashtable -NoEnumerate -Depth 1024)
                 })
-            } elseif ($input.path -ceq "specs/$($document.feature)/design.md") {
+            } elseif ($declaredInput.path -ceq "specs/$($document.feature)/design.md") {
                 $implDesignBytes = $contentBytes
             }
             $hasher = [Security.Cryptography.SHA256]::Create()
@@ -1184,7 +1184,7 @@ print("true" if result.stdout else "false")
         else {
         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
         }
-        if ($actualHash -cne $input.sha256) {
+        if ($actualHash -cne $declaredInput.sha256) {
             # WFI-025: the ONE scoped exception to the raw-equality rule. A
             # task-stage manifest may declare the task plan's normalized
             # digest, but only when the same round's precheck declares
@@ -1193,7 +1193,7 @@ print("true" if result.stdout else "false")
             # binding every byte outside the lifecycle fields. Every other
             # entry keeps the strict raw requirement.
             $wfi025Applies = $false
-            if ($document.stage -ceq 'task' -and $input.path -ceq "specs/$($document.feature)/tasks.md" -and
+            if ($document.stage -ceq 'task' -and $declaredInput.path -ceq "specs/$($document.feature)/tasks.md" -and
                 $null -ne $wfi025PrecheckEntry) {
                 $wfi025PrecheckPath = Join-Path $repositoryRoot $wfi025PrecheckEntry.path
                 if (Test-Path -LiteralPath $wfi025PrecheckPath -PathType Leaf) {
@@ -1203,23 +1203,23 @@ print("true" if result.stdout else "false")
                         $wfi025Form = [string]$wfi025Precheck.tasks_sha256_form
                     }
                     if ($wfi025Form -cne 'normalized') {
-                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($declaredInput.path)"
                     }
                     $wfi025Pinned = ''
                     if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256']) {
                         $wfi025Pinned = [string]$wfi025Precheck.tasks_sha256
                     }
-                    if ($input.sha256 -cne $wfi025Pinned) {
-                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (a normalized task-plan digest must be the one this round's precheck recorded)"
+                    if ($declaredInput.sha256 -cne $wfi025Pinned) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($declaredInput.path) (a normalized task-plan digest must be the one this round's precheck recorded)"
                     }
-                    if ((Get-TasksNormalizedHash $candidate) -cne $input.sha256) {
-                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (the live task plan does not normalize to the declared digest)"
+                    if ((Get-TasksNormalizedHash $candidate) -cne $declaredInput.sha256) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($declaredInput.path) (the live task plan does not normalize to the declared digest)"
                     }
                     $wfi025Applies = $true
                 }
             }
             if (-not $wfi025Applies) {
-                Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+                Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($declaredInput.path)"
             }
         }
     }
