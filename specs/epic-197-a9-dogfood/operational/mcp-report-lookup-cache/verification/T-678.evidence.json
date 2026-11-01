@@ -6,8 +6,8 @@
   "spec_revision": "2c4d9cac1e2990705aaa83ad1d6453daae577118b9ac33c7c60348e0a7b2e811",
   "quality_report": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
   "verification_contract": "specs/epic-197-a9-dogfood/operational/mcp-report-lookup-cache/verification/T-678.contract.json",
-  "git_commit": "feb913b00ac469a97344bd24fc568b9a08db5e33",
-  "git_generated_dirty": true,
+  "git_commit": "e3d193f4773d9df1dc0e9c0607c50714520c68fa",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "linux",
     "python": "3.12.14",
