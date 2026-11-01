@@ -42,5 +42,6 @@
   "findings_resolved_before_checkpoint": [
     "Hardlinks must not enter symbolic-link API path: owner changed LinkType to ReparsePoint and added actual control.",
     "Public PowerShell5.1+ support disallows unguarded ResolveLinkTarget: owner added capability fallback; Linux simulated missing capability passes, native Windows remains CI responsibility."
-  ]
+  ],
+  "paired_key_regression": "reuse/evidence/key-paired.json"
 }
