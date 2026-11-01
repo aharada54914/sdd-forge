@@ -105,12 +105,12 @@
         "plugins/sdd-domain/scripts/validate-domain-contract.ps1"
       ],
       "before": "Actual POSIX FIFO input passed Test-Path Leaf then blocked native PowerShell ReadAllBytes; caller killed it at2s.",
-      "after": "Managed FileInfo/UnixStat regular-file check before read; regular symlink target remains accepted, FIFO and symlink-to-FIFO reject with V2-INPUT-NOT-FILE. No external validator dependency. Test process helper has deadline/reap/finally.",
+      "after": "Managed FileInfo/UnixStat regular-file check before read; regular symlink target remains accepted, FIFO and symlink-to-FIFO reject with V2-INPUT-NOT-FILE. No external validator dependency. Test process helper has deadline/reap/finally. Final compatibility follow-up uses ReparsePoint rather than LinkType so ordinary hardlinks remain valid; actual native hardlink false rejection was reproduced and corrected.",
       "test": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
-      "result": "Final stable source:324 Pester checks passed,0failed/0skipped onPowerShell7.6.7, including paired Bash compatibility and native FIFO rejection.",
+      "result": "Full pre-hardlink-follow-up suite324passed/0failed; final focused regular/FIFO and symlink/hardlink suites2passed/0failed, actual FIFO-link rejection also verified. Final cross-platform CI is separate.",
       "status": "fixed",
       "source_sha256": {
-        "plugins/sdd-domain/scripts/validate-domain-contract.ps1": "3c5825b605465564a8f2f7c6a3aa4a915b2ce68853a09b68a9bc16effb85f450"
+        "plugins/sdd-domain/scripts/validate-domain-contract.ps1": "7e3b79129a7b0081734fc16254fb6ef91f2243384d04ac3504a8b9ae2a4f34c0"
       }
     }
   ]

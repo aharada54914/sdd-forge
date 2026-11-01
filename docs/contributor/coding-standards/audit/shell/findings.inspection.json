@@ -502,6 +502,244 @@
       ],
       "resolution": "Validate decimal text and bounded range before arithmetic; strip leading zeros without interpreting them.",
       "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-052",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "line": 108,
+      "source_sha256": "6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c",
+      "flow": {
+        "input": "JSON gate payload",
+        "transformation": "PowerShell container/scalar coercion",
+        "sink": "Consensus decision"
+      },
+      "impact": "Malformed top-level and scalar structures could bypass intended diagnostics.",
+      "reproduction": "Cross-model focused18/0; paired gate controls reject malformed structures.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 1f277ef1; source SHA256 4b225ddffee720f100c403bf790b08586e01a79ae0d54204bc1e85dcdd74dd40"
+      ],
+      "resolution": "Added typed envelope, exact digest/consent and findings entry checks; absent findings remains optional.",
+      "reuse": {
+        "intent": "Validate consumed JSON shape before policy comparisons.",
+        "public_contract": "Malformed JSON cannot become valid protocol fields by runtime coercion.",
+        "stability_evidence": "Existing gate/selector schemas and real producer inputs.",
+        "consumer_requirements": "Native ConvertFrom-Json with explicit object/scalar checks.",
+        "divergence_counterexample": "PowerShell singleton arrays may unroll, unlike Python JSON roots.",
+        "decision": "Retain native parser; validate envelope and consumed types.",
+        "reason": "Runtime-specific parser boundary needs no new shared policy engine.",
+        "verification": "Cross-model focused18/0; paired gate controls reject malformed structures."
+      }
+    },
+    {
+      "finding_id": "PS-SHELL-053",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 3,
+      "source_sha256": "2c9d93d9ca161190733449a713fcfbed08dece32e0d67a38c7e3c07b1aeb9f4f",
+      "flow": {
+        "input": "Multiline model instructions",
+        "transformation": "Windows .cmd argument flattening",
+        "sink": "Gemini native invocation"
+      },
+      "impact": "Full prompt passed through -p was split or changed on native Windows CI.",
+      "reproduction": "Actual Windows CI exposed prompt mismatch; subsequent1337/1335 byte mismatch proved oracle-only trailing terminator assumption, corrected in c10d73f5.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 1f277ef1; source SHA256 6c7ff007ae883547b8d404798b688531fd9664917e85dc48f474944e130ae746"
+      ],
+      "resolution": "Send full instructions through stdin and fixed short -p; retain exact argv and body byte receipts.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-054",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+      "line": 41,
+      "source_sha256": "f676675b41a91a9fc95c9fa9115542bf6a9430a3fe1c7d404438f8723c5321b0",
+      "flow": {
+        "input": "Model registry JSON",
+        "transformation": "Unchecked root/candidate scalar coercion",
+        "sink": "Model selection"
+      },
+      "impact": "Malformed registry candidate values could be treated as legitimate model fields.",
+      "reproduction": "Seven new negative controls pass; historical branch full-suite catalog failure was separately integrated, not reported as fullpass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/agent-model-routing.tests.ps1",
+        "Fixed in b37cc481; source SHA256 70ae5cf7464aa625e67f124c89573d7dfd3427853c73e267e6ed2e7a74e89010"
+      ],
+      "resolution": "Require registry/object/candidate fields to have their actual protocol types.",
+      "reuse": {
+        "intent": "Validate consumed JSON shape before policy comparisons.",
+        "public_contract": "Malformed JSON cannot become valid protocol fields by runtime coercion.",
+        "stability_evidence": "Existing gate/selector schemas and real producer inputs.",
+        "consumer_requirements": "Native ConvertFrom-Json with explicit object/scalar checks.",
+        "divergence_counterexample": "PowerShell singleton arrays may unroll, unlike Python JSON roots.",
+        "decision": "Retain native parser; validate envelope and consumed types.",
+        "reason": "Runtime-specific parser boundary needs no new shared policy engine.",
+        "verification": "Seven new negative controls pass; historical branch full-suite catalog failure was separately integrated, not reported as fullpass."
+      }
+    },
+    {
+      "finding_id": "SH-SHELL-052",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/detect-panel.sh",
+      "line": 13,
+      "source_sha256": "7c55c1232761589c2f5de6575a060d445d4499d49009cf03e63cfd43ca273b1a",
+      "flow": {
+        "input": "Installed provider command",
+        "transformation": "Unbounded --version wait",
+        "sink": "Discovery completion"
+      },
+      "impact": "Hung executable blocks panel discovery indefinitely.",
+      "reproduction": "Real success/failure/TERM-resistant process fixtures; Bash53/0 and PowerShell60/0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/collection-layer.tests.sh",
+        "Fixed in 78a1f7e0; source SHA256 92790f27f0c915a0d9a1f9c5a4fc177c14da00096cbf2fc6386955e677bda136"
+      ],
+      "resolution": "Standalone five-second direct-child watchdog, TERM/KILL grace and reap; omit failed slug.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-055",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 518,
+      "source_sha256": "90c6f40355a812e1b59eea5ec197e9138be7a78e87437c24adcf1be6db1f4cd5",
+      "flow": {
+        "input": "Signed sudo authorization token",
+        "transformation": "Casefolded field/repository identity and link acceptance",
+        "sink": "Protected action authorization"
+      },
+      "impact": "Valid token could authorize a case-distinct repository or use alternate field spelling/symlink token.",
+      "reproduction": "Before valid control plus three false allows; after4/4 focused controls and full hooks pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hooks.tests.ps1",
+        "Fixed in 1bee7072; source SHA256 c02b662348319b85407a57df198087057185d6d3de0cdd9b59830903ef23d7d3"
+      ],
+      "resolution": "Ordinal field names, exact repository identity and non-symlink token provenance.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-056",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1",
+      "line": 95,
+      "source_sha256": "b1a8e3fa0583747a0041ee122e4511e7152b27ded2214a34fb7dcc9a7b52ac2f",
+      "flow": {
+        "input": "Evidence filesystem paths",
+        "transformation": "Lexical containment without resolving link target",
+        "sink": "Artifact publication"
+      },
+      "impact": "Generator included an evidence symlink targeting outside repository.",
+      "reproduction": "Actual baseline outside link exit0/publication; fixed outside rejection, in-root/hardlink controls and literal bracket root end-to-end pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/evidence-generation-boundary.tests.ps1",
+        "Fixed in f6767ae3; source SHA256 dd50162e42610ad85eb857f1d29328e73db29d91e602ea9c33eedcaea4a15737"
+      ],
+      "resolution": "Resolve each filesystem link component before caller containment; preserve hardlinks and legitimate in-root collection.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-057",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1",
+      "line": 311,
+      "source_sha256": "b1a8e3fa0583747a0041ee122e4511e7152b27ded2214a34fb7dcc9a7b52ac2f",
+      "flow": {
+        "input": "BOM-prefixed signing keyfile",
+        "transformation": "Broken generic LINQ Reverse/SkipWhile invocation",
+        "sink": "Required evidence signing"
+      },
+      "impact": "Valid keyfile appeared absent and critical evidence generation failed.",
+      "reproduction": "Baseline valid keyfile returned1 nonefound; BOM/tail normalization, env precedence and critical keyfile signing now pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/evidence-generation-boundary.tests.ps1",
+        "Fixed in f6767ae3; source SHA256 dd50162e42610ad85eb857f1d29328e73db29d91e602ea9c33eedcaea4a15737"
+      ],
+      "resolution": "Shared byte-index normalization and existing lookup priority for producer and consumer.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-058",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "line": 147,
+      "source_sha256": "e88ac07955691ef2350fe4e6bf92218824b08a47ea493f492af746901bb139cf",
+      "flow": {
+        "input": "Task reports and feature identity",
+        "transformation": "Casefolded protocol regex and wildcard paths",
+        "sink": "Run metrics"
+      },
+      "impact": "Case-distinct tokens and matching neighbor reports distort metrics.",
+      "reproduction": "Feature-scope suite61/0 including bracket path neighbor and case-distinct decoys.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/emit-run-record-feature-scope.tests.ps1",
+        "Fixed in f6767ae3; source SHA256 02221c6a3116cf8a590b56565c6a210f30ac8cde4fb6fdef267d286bc8671b19"
+      ],
+      "resolution": "Literal report IO and exact protocol metric tokens; preserve existing feature scope.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-059",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.ps1",
+      "line": 47,
+      "source_sha256": "22d5acfb0674d99c8fbf7075def3d4cb1bea8c129f94b7a9af710f19bc9af3bb",
+      "flow": {
+        "input": "Bracketed task path and task filter",
+        "transformation": "Wildcard file read/casefolded identity",
+        "sink": "Risk gate decision"
+      },
+      "impact": "Clean wildcard neighbor could replace intended risky task content.",
+      "reproduction": "Real risky bracket task with clean matching neighbor and lowercase Task ID negative controls pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/evidence-generation-boundary.tests.ps1",
+        "Fixed in f6767ae3; source SHA256 dc9a4ff2c07251397199adfd5337fb48e80c1808dcfe674795f21765061fe199"
+      ],
+      "resolution": "Literal task file and exact Task ID selection.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-060",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 1281,
+      "source_sha256": "c02b662348319b85407a57df198087057185d6d3de0cdd9b59830903ef23d7d3",
+      "flow": {
+        "input": "Readonly classifier subprocess",
+        "transformation": "Unbounded stdin write/stream drain and timeout cleanup",
+        "sink": "Hook completion"
+      },
+      "impact": "Process-only timeout did not bound the whole classifier exchange.",
+      "reproduction": "Source lifecycle defect established; full hooks passes after fix. No dedicated baseline hang reproduction claimed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hooks.tests.ps1",
+        "Fixed in f6767ae3; source SHA256 b9cadd0ef6ffa99b73fee62b0f0df876e819e2009c7e4cae3afaefa030736f1e"
+      ],
+      "resolution": "Shared three-second write/process/drain budget and final kill/reap/dispose.",
+      "reuse": null
     }
   ]
 }

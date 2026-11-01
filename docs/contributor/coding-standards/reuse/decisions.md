@@ -154,7 +154,7 @@ R-013 (technical infrastructure): `lib/native-arguments.ps1` now owns
 `Invoke-SddNativeRaw`, extracted from the existing `Invoke-SddGitRaw` implementation.
 The existing Git wrapper keeps its repository/argument inputs, raw stdout/stderr
 bytes, exit status, 30-second deadline and Git-prefixed error contract. Resolver,
-panelist preparation and evidence generation retain their own admission,
+panelist preparation, criterion inspection and evidence generation retain their own admission,
 provenance and optional-metadata policies. Evidence generation supplies the second
 actual executable consumer: Python's optional version probe uses a five-second
 budget and degrades to empty metadata on failure; required Git HEAD/status failure
@@ -184,23 +184,29 @@ a TERM-resistant hanging child, elapsed time and child termination. The local
 Bash suite passed 53/53 and PowerShell suite passed 60/60; native Windows/macOS
 execution remains separately recorded by CI.
 
+### Evidence key bytes and physical path resolution
 
-### Evidence byte acquisition and filesystem resolution
+R-015: `lib/evidence-key.ps1` extracts the identical acquisition mechanism from
+`generate-evidence-bundle.ps1` and `check-evidence-bundle.ps1`. Both consume the
+same environment-key, explicit-keyfile, home-keyfile priority and UTF8 BOM plus
+trailing ASCII whitespace normalization. Byte-index normalization repairs the
+existing generic LINQ invocation failure without broadening normalization to
+interior or non-ASCII bytes. Acquisition owns no cache or logging; callers retain
+critical/high-risk signing and validation policy. Sudo authorization has a
+different key contract and remains separate. Actual producer and consumer tests,
+including BOM-prefixed keyfile signing and environment precedence, supply reuse
+evidence; this new helper has no longevity claim.
 
-R-015 (technical infrastructure): `lib/evidence-key.ps1` shares key-source
-priority and byte normalization between bundle generation and validation. The
-critical-risk requirement and signature admission remain in each caller. A
-non-whitespace environment value is encoded exactly; file keys strip only a
-leading UTF-8 BOM and trailing ASCII space/tab/CR/LF. The shared implementation
-also repairs the prior LINQ overload failure for valid key files. Key bytes are
-never included in diagnostics. No cache, package or CLI option is added.
-
-`lib/evidence-path.ps1` shares existing filesystem resolution, while callers
-retain containment and regular-file policy. Generator collection of an in-root
-link and the consumer's stricter contract reparse-point rejection remain distinct.
-Hardlinks preserve their path; symbolic links resolve component-wise. The public
-PowerShell 5.1+ policy requires a bounded `Target` fallback when `ResolveLinkTarget`
-is unavailable, so the helper does not silently require .NET 6.
+R-016: `lib/evidence-path.ps1` provides existing-file physical path resolution to
+the same evidence producer and validator. Literal component inspection,
+ReparsePoint classification, bounded link traversal and the PowerShell5.1 Target
+fallback are technical mechanics. Hardlinks remain ordinary files. The concrete
+divergence counterexample is in-root symbolic links: the generator may collect
+them, while the validator's contract gate rejects reparse evidence. Containment,
+regular-file and admission policy therefore stay with callers. Tests cover
+external targets, relative link chains, bracketed paths, hardlinks, and injected
+missing-ResolveLinkTarget capability. The fallback test does not claim native
+WindowsPowerShell5.1 execution. No policy mode, dependency or new CLI is added.
 
 Independent heldout execution at `f6767ae3` passed raw 1 MiB streams, eight argv
 atoms, nonzero status, start-error redaction, deadline/direct-child cleanup, real
