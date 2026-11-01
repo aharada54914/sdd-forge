@@ -25,7 +25,7 @@ flowchart TD
     CX --> M2
     CP --> M2
 
-    subgraph plugins["plugins/ — 7 プラグイン（全て v1.15.0）"]
+    subgraph plugins["plugins/ — プラグイン群"]
         direction TB
         PB["sdd-bootstrap<br/>仕様化フェーズ"]
         PS["sdd-ship<br/>純粋オーケストレータ"]
