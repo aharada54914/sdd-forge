@@ -25,10 +25,14 @@ def exercise(source, runtime, case):
                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
         records = [first]
+        source_input = root / "specs/f/requirements.md"
+        source_input.parent.mkdir(parents=True)
+        source_input.write_bytes(b"requirement")
         implementation_path = "handoffs/fixture-task/manifest.json"
         implementation = root / implementation_path
         write_json(implementation, dict(schema="task-input-manifest/v1", task_id="T-001",
-                                       run_id="fixture-task-run", session_id="fixture-task-session"))
+                                       run_id="fixture-task-run", session_id="fixture-task-session",
+                                       allowed_inputs=[dict(path="specs/f/requirements.md", sha256=digest(b"requirement"))]))
         implementation_pin = dict(path=implementation_path, sha256=digest(implementation.read_bytes()))
         report = root / "reports/implementation/f/T-001.md"
         report.parent.mkdir(parents=True)

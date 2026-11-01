@@ -165,11 +165,17 @@ class LateStageAdmission(unittest.TestCase):
             base = []
             extra = {}
             if stage == 'quality':
+                source = self.root / 'specs/example/requirements.md'
+                source.parent.mkdir(parents=True, exist_ok=True)
+                if not source.exists():
+                    source.write_text('fixture requirement\n')
                 implementation = 'handoffs/fixture/manifest.json'
                 target = self.root / implementation
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001',
-                                                 run_id='implementation-run', session_id='implementation-session')))
+                                                 run_id='implementation-run', session_id='implementation-session',
+                                                 allowed_inputs=[dict(path='specs/example/requirements.md',
+                                                                      sha256=hashlib.sha256(source.read_bytes()).hexdigest())])))
                 pin = dict(path=implementation, sha256=hashlib.sha256(target.read_bytes()).hexdigest())
                 report = 'reports/implementation/example/T-001.md'
                 target = self.root / report

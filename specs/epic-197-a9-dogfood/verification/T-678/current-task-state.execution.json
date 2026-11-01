@@ -1,0 +1,19 @@
+{
+  "label": "current-task-state",
+  "argv": [
+    "sh",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "/workspace/scratch/678-preparation/specs/mcp-report-lookup-cache/tasks.md",
+    "/workspace/scratch/678-preparation/reports/quality-gate",
+    "/workspace/scratch/678-preparation/reports/implementation",
+    "/workspace/scratch/678-preparation"
+  ],
+  "cwd": "/workspace/scratch/678-preparation",
+  "started_at": "2026-10-31T23:19:06.646288+00:00",
+  "completed_at": "2026-10-31T23:19:06.665082+00:00",
+  "exit_code": 0,
+  "stdout_path": "current-task-state.stdout",
+  "stderr_path": "current-task-state.stderr",
+  "stdout_sha256": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

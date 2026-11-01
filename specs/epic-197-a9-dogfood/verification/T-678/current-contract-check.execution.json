@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "sh",
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "specs/mcp-report-lookup-cache/verification/T-001.contract.json",
+    "/workspace/scratch/678-preparation"
+  ],
+  "cwd": "/workspace/scratch/678-preparation",
+  "started_at": "2026-10-31T23:19:37.276485+00:00",
+  "completed_at": "2026-10-31T23:19:37.306688+00:00",
+  "exit_code": 0,
+  "stdout_path": "current-contract-check.stdout",
+  "stderr_path": "current-contract-check.stderr",
+  "stdout_sha256": "226049070e0ca3c9f082bd28ae1d79f3d55e3027ff49b3673476133e7e50c773",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

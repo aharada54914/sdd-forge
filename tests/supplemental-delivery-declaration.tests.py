@@ -82,7 +82,8 @@ class AdmissionTests(unittest.TestCase):
 
     def legacy_binding(self):
         name = 'handoffs/f-T-001/manifest.json'
-        self.write(name, json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001', run_id='implementation-run', session_id='implementation-session')))
+        self.write(name, json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001', run_id='implementation-run', session_id='implementation-session',
+                                        allowed_inputs=[self.entry(self.product)])))
         pin = self.entry(name)
         self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\nRun ID: implementation-run\n- **Run ID**: implementation-run\n- **Session ID**: implementation-session\nManifest SHA-256: ' + pin['sha256'] + '\n## Outputs\n')
         self.body.update(schema='supplemental-delivery-declaration/v2', implementation_report=self.entry(self.report), implementation_manifest=pin)
@@ -94,7 +95,8 @@ class AdmissionTests(unittest.TestCase):
 
     def modern_binding(self, name='specs/f/verification/T-001/task-input-manifest.json'):
         self.write(name, json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001',
-                                        run_id='implementation-run', session_id='implementation-session')))
+                                        run_id='implementation-run', session_id='implementation-session',
+                                        allowed_inputs=[self.entry(self.product)])))
         pin = self.entry(name)
         self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\n'
                    'Run ID: implementation-run\n- **Run ID**: implementation-run\n'

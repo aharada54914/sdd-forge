@@ -296,9 +296,18 @@ verify_implementation_binding() {
   jq -e --arg task "$task_id" '
     .schema == "task-input-manifest/v1" and .task_id == $task and
     (.run_id | type == "string" and length > 0) and
-    (.session_id | type == "string" and length > 0)
+    (.session_id | type == "string" and length > 0) and
+    (.allowed_inputs | type == "array" and length > 0) and
+    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
+      (.path | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+      (.sha256 | type == "string" and length == 64 and test("^[0-9a-f]{64}$"))) and
+    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length))
   ' "$implementation_manifest" >/dev/null 2>&1 ||
-    fail IDENTITY 'implementation manifest task/run/session is invalid'
+    fail IDENTITY 'implementation manifest task/run/session/inputs is invalid'
+  while IFS= read -r pinned; do
+    [[ "$pinned" =~ ^[A-Za-z0-9.] ]] && is_canonical_path "$pinned" ||
+      fail IDENTITY 'implementation manifest input path is invalid'
+  done < <(jq -r '.allowed_inputs[].path' "$implementation_manifest")
   implementation_run=$(jq -r '.run_id' "$implementation_manifest")
   implementation_session=$(jq -r '.session_id' "$implementation_manifest")
   [[ "$(grep -c '^Run ID: ' <(read_implementation_report) || true)" -eq 1 &&

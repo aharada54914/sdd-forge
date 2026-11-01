@@ -1,0 +1,43 @@
+{
+  "historical_packet": "reports/verification/a9-operational-preparation-20261031/ready",
+  "restored_hashes_before_current_approval_edits": {
+    "specs/mcp-report-lookup-cache/requirements.md": "a14bf5b038d2b5571a78e361d8ae92cf65dbe47dc3216f1ab3a304ee7dcf7a6c",
+    "specs/mcp-report-lookup-cache/tasks.md": "6c7d3492d7c1e7869f7236c25c63b0da7a1f365337cfa43c9b706bb0baf2be53",
+    "specs/mcp-report-lookup-cache/verification/T-001.contract.json": "672596e008bf8b511e9b93ddb65fa3b2224608bbe81a1ba0dcf6fe756c556c0c",
+    "specs/mcp-report-lookup-cache/verification/T-001/build.execution.json": "b1ec0080f224cbab5e164184860d7e31a1727644ba09704744401dfc43f775a9",
+    "specs/mcp-report-lookup-cache/verification/T-001/build.stderr": "aee7cfc434d57ab7cd0e818d5933a6792bc6a71986b1809662c164553b3bcc3d",
+    "specs/mcp-report-lookup-cache/verification/T-001/build.stdout": "a56895355b2526ada6a8d51836a6ede03f11e71040d39b826b5bec87892ff090",
+    "specs/mcp-report-lookup-cache/verification/T-001/contract-check.execution.json": "25f5636301650de3d33de798d06ca058423691abfab472cab05d60300131bd3a",
+    "specs/mcp-report-lookup-cache/verification/T-001/contract-check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/contract-check.stdout": "226049070e0ca3c9f082bd28ae1d79f3d55e3027ff49b3673476133e7e50c773",
+    "specs/mcp-report-lookup-cache/verification/T-001/executions.json": "14cfeacb5aa491e042717e30c7042c6ffd4de9f0f28cddaaab86429df3c7be30",
+    "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json": "6b5337844ec3b6c37a0094201718cc9acfaf0522cc8f2cbb5810069cf90d908c",
+    "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.stdout": "f3575e0aa82d4a55f464600b97df577bfcb13ad99ce2b4c2a0a8c5786aa5b08d",
+    "specs/mcp-report-lookup-cache/verification/T-001/install.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/install.stdout": "d04a0e29cc8c06d7fd5b1938b446968ec0b0763c54e0aca45bfa5c13b12b7500",
+    "specs/mcp-report-lookup-cache/verification/T-001/lint.execution.json": "6b779267eecfa0dca5b345b7cd73100e74c17bd20c78a2965e66c158a4ec9fbf",
+    "specs/mcp-report-lookup-cache/verification/T-001/lint.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/lint.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.execution.json": "e0f629f16e0714d63aa201bff033d9160b803eaf3f32a70dfd967ef69bb38405",
+    "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.stdout": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+    "specs/mcp-report-lookup-cache/verification/T-001/preparation-executions.json": "d8ebab51991ebec9fbc7860815cff2f10da1fde3920e10f8fbb8e7340ab7933e",
+    "specs/mcp-report-lookup-cache/verification/T-001/production-audit.execution.json": "b09eae561e57d94276e74b4e74c31c8ccb5d159ac49c11fa6aa88618e695f4de",
+    "specs/mcp-report-lookup-cache/verification/T-001/production-audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/production-audit.stdout": "c6cbb8c7a97b7f902eab3bc86b735db5f8d6a0e968bff53e69f237351b946c19",
+    "specs/mcp-report-lookup-cache/verification/T-001/source-binding.json": "05bd1bdc46d640caac4e632d6c8449342718148749b9436f3c552053dce35fad",
+    "specs/mcp-report-lookup-cache/verification/T-001/task-state-check.execution.json": "936aa187f5244e3a72da40bdd9eebec59f8be27d33c8ce14f665dd92398a9aef",
+    "specs/mcp-report-lookup-cache/verification/T-001/task-state-check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/task-state-check.stdout": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459",
+    "specs/mcp-report-lookup-cache/verification/T-001/typecheck.execution.json": "dd13ff17c110eda497ef5ea07aebac97517ab54a6c34e03ce34e2cf6fc670603",
+    "specs/mcp-report-lookup-cache/verification/T-001/typecheck.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/mcp-report-lookup-cache/verification/T-001/typecheck.stdout": "c3fb6b341c1dd8055671bf668496cf9c991cb9a51baba33c6863595b0d05dd4c"
+  },
+  "edited_inputs": [
+    "requirements.md",
+    "tasks.md",
+    "verification/T-001.contract.json"
+  ],
+  "raw_execution_files_unchanged": true
+}

@@ -70,7 +70,7 @@ def source_path(repo, rel):
         fail("PATH", f"input is not a regular non-symlink file: {rel}")
     return current, info
 
-def make_read_only(root):
+def make_read_only(root, source_modes):
     directories = []
     for current, dirnames, filenames in os.walk(root):
         directories.append(current)
@@ -79,7 +79,8 @@ def make_read_only(root):
             info = os.lstat(path)
             if not stat.S_ISREG(info.st_mode):
                 fail("PATH", "snapshot contains a non-regular file")
-            os.chmod(path, 0o444, follow_symlinks=False)
+            sealed_mode = 0o444 if os.name == "nt" else 0o444 | (source_modes[path] & 0o111)
+            os.chmod(path, sealed_mode, follow_symlinks=False)
         for name in dirnames:
             path = os.path.join(current, name)
             info = os.lstat(path)
@@ -95,7 +96,8 @@ def make_read_only(root):
     for current, dirnames, filenames in os.walk(root):
         for name in filenames:
             mode = os.lstat(os.path.join(current, name)).st_mode
-            if not stat.S_ISREG(mode) or mode & 0o222:
+            expected_mode = 0o444 | (source_modes[os.path.join(current, name)] & 0o111)
+            if not stat.S_ISREG(mode) or mode & 0o222 or (os.name != "nt" and stat.S_IMODE(mode) != expected_mode):
                 fail("PATH", "snapshot file is not read-only")
         for name in dirnames:
             mode = os.lstat(os.path.join(current, name)).st_mode
@@ -104,8 +106,8 @@ def make_read_only(root):
     if os.lstat(root).st_mode & 0o222:
         fail("PATH", "snapshot root is not read-only")
 
-def wait_at_test_publication_barrier():
-    barrier = os.environ.get("SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR")
+def wait_at_test_barrier(variable):
+    barrier = os.environ.get(variable)
     if not barrier:
         return
     try:
@@ -180,6 +182,7 @@ os.makedirs(parent, exist_ok=True)
 tmp = tempfile.mkdtemp(prefix=".task-snapshot-", dir=parent)
 try:
     seen = set()
+    source_modes = {}
     for entry in inputs:
         if not isinstance(entry, dict) or set(entry) != {"path", "sha256"}:
             fail("PATH", "invalid allowed_inputs entry")
@@ -203,29 +206,31 @@ try:
             fail("PATH", f"input is not a regular non-symlink file: {rel}")
         with os.fdopen(source_fd, "rb") as src, open(target, "xb") as dst:
             opened = os.fstat(src.fileno())
-            if (opened.st_dev, opened.st_ino) != (stat_before.st_dev, stat_before.st_ino):
+            if (opened.st_dev, opened.st_ino, opened.st_mode) != (stat_before.st_dev, stat_before.st_ino, stat_before.st_mode):
                 fail("HASH", f"source changed before copy: {rel}")
             for chunk in iter(lambda: src.read(1024 * 1024), b""):
                 digest.update(chunk)
                 dst.write(chunk)
             dst.flush()
             os.fsync(dst.fileno())
+            wait_at_test_barrier("SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR")
             stat_after = os.fstat(src.fileno())
         try:
             path_after = os.lstat(source)
         except FileNotFoundError:
             fail("HASH", f"source changed during copy: {rel}")
-        if (stat_before.st_dev, stat_before.st_ino, stat_before.st_size, stat_before.st_mtime_ns) != (
-            stat_after.st_dev, stat_after.st_ino, stat_after.st_size, stat_after.st_mtime_ns
+        if (stat_before.st_dev, stat_before.st_ino, stat_before.st_size, stat_before.st_mtime_ns, stat_before.st_mode) != (
+            stat_after.st_dev, stat_after.st_ino, stat_after.st_size, stat_after.st_mtime_ns, stat_after.st_mode
         ):
             fail("HASH", f"source changed during copy: {rel}")
-        if (path_after.st_dev, path_after.st_ino) != (stat_before.st_dev, stat_before.st_ino):
+        if (path_after.st_dev, path_after.st_ino, path_after.st_mode) != (stat_before.st_dev, stat_before.st_ino, stat_before.st_mode):
             fail("HASH", f"source changed during copy: {rel}")
         actual = digest.hexdigest()
         if actual != expected:
             fail("HASH", f"source hash mismatch: {rel}")
-    make_read_only(tmp)
-    wait_at_test_publication_barrier()
+        source_modes[target] = opened.st_mode
+    make_read_only(tmp, source_modes)
+    wait_at_test_barrier("SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR")
     atomic_publish_no_replace(tmp, snapshot_root)
     parent_fd = os.open(parent, os.O_RDONLY)
     try:
