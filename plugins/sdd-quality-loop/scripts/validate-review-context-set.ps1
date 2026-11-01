@@ -94,9 +94,25 @@ function Get-Sha256Text {
     }
 }
 
+# PowerShell Leaf includes POSIX FIFOs/devices; inspect type before any read.
+function Test-RegularFile([string]$Path) {
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+    if ($item -isnot [IO.FileInfo] -or $item.PSIsContainer -or
+        ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { return $false }
+    if (-not $IsWindows) {
+        $stat = $item.PSObject.Properties['UnixStat']
+        return ($null -ne $stat -and $null -ne $stat.Value -and
+            [string]$stat.Value.ItemType -ceq 'File')
+    }
+    return $true
+}
+
 function Test-ReportBytesClean {
     param([string]$Path)
-    try { $bytes = [IO.File]::ReadAllBytes($Path) } catch { return $false }
+    try {
+        if (-not (Test-RegularFile $Path)) { return $false }
+        $bytes = [IO.File]::ReadAllBytes($Path)
+    } catch { return $false }
     foreach ($byte in $bytes) {
         if (($byte -lt 0x20 -and $byte -notin @(0x09, 0x0A, 0x0D)) -or $byte -eq 0x7F) {
             return $false
@@ -183,39 +199,6 @@ function Get-ImplementationBinding {
             }
         }
         return $implementation
-}
-
-function Test-ImplementationInput {
-    param($Document, [string]$Root, [string]$Path, [string]$Hash)
-    if ($Document.stage -cne 'quality' -or $Document.role -cne 'sdd-evaluator' -or
-        -not $Document.ContainsKey('implementation_manifest')) { return $false }
-    $declaration = $Document.implementation_manifest
-    if (@($Document.allowed_input_manifest | Where-Object {
-        $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
-    }).Count -ne 1 -or -not (Test-CanonicalPath $declaration.path)) { return $false }
-    $current = $Root
-    foreach ($component in $declaration.path.Split('/')) {
-        $current = Join-Path $current $component
-        if (-not (Test-Path -LiteralPath $current) -or
-            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
-            return $false
-        }
-    }
-    if (-not (Test-Path -LiteralPath $current -PathType Leaf) -or
-        (Get-FileHash -LiteralPath $current -Algorithm SHA256).Hash.ToLowerInvariant() -cne $declaration.sha256) {
-        return $false
-    }
-    $data = Get-ImplementationBinding
-    if ($data.allowed_inputs -isnot [array] -or $data.allowed_inputs.Count -eq 0) { return $false }
-    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    $found = $false
-    foreach ($entry in $data.allowed_inputs) {
-        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
-            -not (Test-CanonicalPath $entry.path) -or -not $seen.Add($entry.path) -or
-            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') { return $false }
-        if ($entry.path -ceq $Path -and $entry.sha256 -ceq $Hash) { $found = $true }
-    }
-    return $found
 }
 
 function Test-AuthorizedPath {
@@ -475,6 +458,7 @@ function Get-CapturedAdrBinding($Invocation, $Prechecks, [byte[]]$DesignBytes, $
 
 try {
     if (-not (Test-Path -LiteralPath $Manifest -PathType Leaf) -or
+        -not (Test-RegularFile $Manifest) -or
         $null -ne (Get-Item -LiteralPath $Manifest -Force).LinkType) {
         Fail-ReviewContext 'MANIFEST' 'manifest is missing or is not a regular file'
     }
@@ -614,6 +598,7 @@ try {
         }
     }
     if (-not (Test-Path -LiteralPath $ledger -PathType Leaf) -or
+        -not (Test-RegularFile $ledger) -or
         $null -ne (Get-Item -LiteralPath $ledger -Force).LinkType) {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger is missing or is not a regular file'
     }
@@ -674,6 +659,7 @@ try {
             $record.role -isnot [string] -or $record.role -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
             $record.run_id -isnot [string] -or $record.run_id -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
             $record.host_session_id -isnot [string] -or $record.host_session_id -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
+            $record.previous_record_sha256 -isnot [string] -or
             $record.previous_record_sha256 -cne $expectedPrevious -or
             $record.record_sha256 -isnot [string] -or $record.record_sha256 -cnotmatch '^[0-9a-f]{64}$' -or
             -not $runs.Add($record.run_id) -or -not $sessions.Add($record.host_session_id)) {
@@ -1132,20 +1118,8 @@ print("true" if result.stdout else "false")
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a missing or non-regular input: $($declaredInput.path)"
         }
-        if ($isAdrInput) {
-            # Leaf also includes POSIX special files. Check type before opening.
-            $adrItem = Get-Item -LiteralPath $candidate -Force -ErrorAction Stop
-            if ($adrItem -isnot [IO.FileInfo] -or $adrItem.PSIsContainer -or
-                ($adrItem.Attributes -band [IO.FileAttributes]::Device) -ne 0) {
-                Fail-ReviewContext 'PATH' 'ADR input is not a regular file'
-            }
-            if (-not $IsWindows) {
-                $stat = $adrItem.PSObject.Properties['UnixStat']
-                if ($null -eq $stat -or $null -eq $stat.Value -or
-                    [string]$stat.Value.ItemType -cne 'File') {
-                    Fail-ReviewContext 'PATH' 'ADR input is not a regular file'
-                }
-            }
+        if (-not (Test-RegularFile $candidate)) {
+            Fail-ReviewContext 'PATH' 'input is not a regular file'
         }
         $isImplPrecheck = $document.stage -ceq 'impl' -and
             $declaredInput.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
@@ -1203,16 +1177,17 @@ print("true" if result.stdout else "false")
                 $null -ne $wfi025PrecheckEntry) {
                 $wfi025PrecheckPath = Join-Path $repositoryRoot $wfi025PrecheckEntry.path
                 if (Test-Path -LiteralPath $wfi025PrecheckPath -PathType Leaf) {
-                    $wfi025Precheck = Get-Content -LiteralPath $wfi025PrecheckPath -Raw | ConvertFrom-Json
+                    $wfi025Precheck = Get-Content -LiteralPath $wfi025PrecheckPath -Raw | ConvertFrom-Json -NoEnumerate
+                    if ($wfi025Precheck -isnot [pscustomobject]) { Fail-ReviewContext 'HASH' 'task precheck must be an object' }
                     $wfi025Form = 'raw'
-                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256_form']) {
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256_form'] -and $wfi025Precheck.tasks_sha256_form -is [string]) {
                         $wfi025Form = [string]$wfi025Precheck.tasks_sha256_form
                     }
                     if ($wfi025Form -cne 'normalized') {
                         Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($declaredInput.path)"
                     }
                     $wfi025Pinned = ''
-                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256']) {
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256'] -and $wfi025Precheck.tasks_sha256 -is [string]) {
                         $wfi025Pinned = [string]$wfi025Precheck.tasks_sha256
                     }
                     if ($declaredInput.sha256 -cne $wfi025Pinned) {
@@ -1268,8 +1243,9 @@ print("true" if result.stdout else "false")
                 $precheck = $implPrecheckText | ConvertFrom-Json
             }
             else {
-                $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+                $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json -NoEnumerate
             }
+            if ($precheck -isnot [pscustomobject]) { Fail-ReviewContext 'ROUND' 'precheck must be an object' }
             $pinned = [ordered]@{}
             $simple = [ordered]@{
                 'requirements.md'     = 'requirements_sha256'

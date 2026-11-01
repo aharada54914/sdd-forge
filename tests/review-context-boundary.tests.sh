@@ -194,6 +194,72 @@ fi
 grep -q 'input manifest enumeration failed' "$d/injected.log" || fail 'producer failure: missing diagnostic'
 printf 'ok: final inventory producer failure rejects before reservation\n'
 
+# Ledger links and invocation identities are exact JSON strings, never cleaned text.
+for pair in "${RCB_RUNTIMES[@]}"; do
+  runtime="${pair%%:*}"; run_fn="${pair##*:}"
+  for kind in ledger-link stage-cr role-cr run_id-cr host_session_id-cr normalized-array; do
+    d="$RCB_TMP/exact-$runtime-$kind"; rcb_new_fixture "$d"
+    ledger="$d/reports/review-context/identity-ledger.json"
+    if [[ "$kind" == ledger-link ]]; then
+      jq '.records[0].previous_record_sha256=[""]' "$ledger" > "$d/tmp"; mv "$d/tmp" "$ledger"
+      jq --arg h "$(rcb_sha256_of "$ledger")" '.identity_ledger_sha256=$h' "$d/manifest.json" > "$d/tmp"
+    elif [[ "$kind" == normalized-array ]]; then
+      mkdir -p "$d/reports/task-review/rcb/attempt-1/round-1"
+      printf 'Task-Review-Status: Pending\n## T-001\nApproval: Draft\nStatus: Planned\n' > "$d/specs/rcb/tasks.md"
+      task_hash=$(rcb_sha256_of "$d/specs/rcb/tasks.md")
+      printf 'Task-Review-Status: Passed\n## T-001\nApproval: Approved\nStatus: Done\n' > "$d/specs/rcb/tasks.md"
+      precheck='reports/task-review/rcb/attempt-1/round-1/precheck-result.json'
+      jq -n --arg hash "$task_hash" '{tasks_sha256_form:["normalized"],tasks_sha256:$hash}' > "$d/$precheck"
+      jq --arg task "$task_hash" --arg pc "$precheck" --arg hash "$(rcb_sha256_of "$d/$precheck")" \
+        '.stage="task" | .role="task-reviewer-a" | .allowed_input_manifest += [{path:"specs/rcb/tasks.md",sha256:$task},{path:$pc,sha256:$hash}]' "$d/manifest.json" > "$d/tmp"
+    else
+      field="${kind%-cr}"; [[ "$field" != run ]] || field=run_id
+      jq --arg field "$field" '.[$field] += "\r"' "$d/manifest.json" > "$d/tmp"
+    fi
+    mv "$d/tmp" "$d/manifest.json"
+    if [[ "$kind" == normalized-array ]]; then
+      cp "$d/$precheck" "$d/malformed-precheck"
+      jq '.tasks_sha256_form="normalized"' "$d/$precheck" > "$d/tmp"; mv "$d/tmp" "$d/$precheck"
+      jq --arg pc "$precheck" --arg hash "$(rcb_sha256_of "$d/$precheck")" '(.allowed_input_manifest[] | select(.path==$pc) | .sha256)=$hash' "$d/manifest.json" > "$d/control.json"
+      "$run_fn" "$d/control.json" "$d" > "$d/control.log" 2>&1 || fail "normalized policy ($runtime): valid scalar rejected"
+      mv "$d/malformed-precheck" "$d/$precheck"
+    fi
+    before=$(rcb_sha256_of "$ledger")
+    if "$run_fn" "$d/manifest.json" "$d" --reserve > "$d/log" 2>&1; then
+      fail "exact value ($runtime/$kind): malformed identity or policy admitted"
+    fi
+    [[ "$(rcb_sha256_of "$ledger")" == "$before" ]] || fail 'exact value rejection changed ledger'
+  done
+  printf 'ok: ledger link, CR identities and normalized policy arrays rejected (%s)\n' "$runtime"
+done
+
+# A POSIX FIFO is a leaf but not a regular input: reject before opening it.
+if command -v mkfifo >/dev/null 2>&1 && [[ "${OS:-}" != Windows_NT ]]; then
+  for fifo_target in input manifest ledger; do
+  d="$RCB_TMP/fifo-$fifo_target"; rcb_new_fixture "$d"
+  case "$fifo_target" in
+    input) fifo_path="$d/specs/rcb/requirements.md" ;;
+    manifest) fifo_path="$d/manifest.json" ;;
+    ledger) fifo_path="$d/reports/review-context/identity-ledger.json" ;;
+  esac
+  rm "$fifo_path"; mkfifo "$fifo_path"
+  python3 - "$VALIDATOR" "$VALIDATOR_PS1" "$d" "$fifo_target" <<'PYFIFO'
+import pathlib, shutil, subprocess, sys
+bash, ps, root, target = sys.argv[1:]
+ledger = pathlib.Path(root) / 'reports/review-context/identity-ledger.json'
+before = ledger.read_bytes() if target != 'ledger' else None
+commands = [['bash', bash, root + '/manifest.json', root, '--reserve']]
+if shutil.which('pwsh'):
+    commands.append(['pwsh', '-NoProfile', '-File', ps, '-Manifest', root + '/manifest.json', '-RepositoryRoot', root, '-Reserve'])
+for command in commands:
+    result = subprocess.run(command, capture_output=True, text=True, timeout=5)
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert (ledger.read_bytes() if target != 'ledger' else None) == before, 'FIFO rejection changed ledger'
+print('ok: POSIX FIFO ' + target + ' rejected before opening in each available runtime')
+PYFIFO
+  done
+fi
+
 # Domain reviewer identities must pin their exact input set, including the
 # attempt/round precheck path. Reusing an old reservation for another round
 # must fail even when every rewritten current input hash is correct.
