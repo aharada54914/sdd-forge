@@ -40,7 +40,7 @@ Set-StrictMode -Version Latest
 if (-not $RepoRoot) {
     $RepoRoot = $PSScriptRoot
 }
-$RepoRoot = (Resolve-Path $RepoRoot).Path
+$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 
 $HumanCopyRelDir = 'specs/epic-159-pillar-c/human-copy'
 
@@ -95,14 +95,55 @@ function Join-ContentLines($Lines, [bool]$TrailingNl) {
     return $text
 }
 
+# Validate consumed fields before PowerShell comparison/cast can unwrap arrays.
+# Unconsumed extension fields remain permitted by the registry contract.
+function Assert-Fields($Value, [string[]]$Names) {
+    if ($Value -isnot [pscustomobject]) { throw 'RENDER_ERROR: expected object' }
+    foreach ($name in $Names) {
+        if (@($Value.PSObject.Properties.Name) -cnotcontains $name) {
+            throw "RENDER_ERROR: missing exact field '$name'"
+        }
+    }
+}
+function Assert-String($Value, [string]$Name) {
+    if ($Value -isnot [string] -or -not $Value) { throw "RENDER_ERROR: $Name must be a nonempty string" }
+}
+
 function Get-Registry([string]$Path) {
-    if (-not (Test-Path $Path)) {
+    if (-not (Test-Path -LiteralPath $Path)) {
         throw "RENDER_ERROR: registry not found: $Path"
     }
     $raw = [System.IO.File]::ReadAllText($Path)
     $data = $raw | ConvertFrom-Json
+    if ($raw.TrimStart() -cnotmatch '^\{' -or $data -isnot [pscustomobject]) {
+        throw 'RENDER_ERROR: registry must be an object'
+    }
+    Assert-Fields $data @('schema', 'models', 'role_defaults')
+    Assert-String $data.schema 'schema'
     if ($data.schema -cne 'agent-model-capabilities/v2') {
-        throw "RENDER_ERROR: registry schema must be agent-model-capabilities/v2, got '$($data.schema)'"
+        throw 'RENDER_ERROR: registry schema must be agent-model-capabilities/v2'
+    }
+    if ($data.models -isnot [array] -or $data.role_defaults -isnot [pscustomobject]) {
+        throw 'RENDER_ERROR: models must be an array and role_defaults an object'
+    }
+    foreach ($model in $data.models) {
+        Assert-Fields $model @('name', 'canonical_tier', 'effort_control')
+        Assert-String $model.name 'model name'
+        Assert-String $model.canonical_tier 'canonical_tier'
+        if ($model.effort_control -isnot [pscustomobject]) { throw 'RENDER_ERROR: effort_control must be an object' }
+        foreach ($field in $model.effort_control.PSObject.Properties) { Assert-String $field.Value $field.Name }
+    }
+    foreach ($role in $data.role_defaults.PSObject.Properties) {
+        Assert-Fields $role.Value @('minimum_tier', 'default_effort')
+        Assert-String $role.Value.minimum_tier 'minimum_tier'
+        Assert-String $role.Value.default_effort 'default_effort'
+        if (@($role.Value.PSObject.Properties.Name) -ccontains 'claude_frontmatter') {
+            try {
+                Assert-Fields $role.Value.claude_frontmatter @('minimum_tier', 'default_effort')
+                Assert-String $role.Value.claude_frontmatter.minimum_tier 'minimum_tier'
+                Assert-String $role.Value.claude_frontmatter.default_effort 'default_effort'
+            } catch { throw "RENDER_ERROR: invalid claude_frontmatter for role '$($role.Name)'" }
+        }
     }
     return $data
 }
@@ -252,7 +293,7 @@ function Get-Sha256OfText([string]$Text) {
 
 function Update-Manifest([string]$ManifestPath, [string]$RelPath, [string]$Sha) {
     $lines = New-Object System.Collections.Generic.List[string]
-    if (Test-Path $ManifestPath) {
+    if (Test-Path -LiteralPath $ManifestPath) {
         foreach ($l in [System.IO.File]::ReadAllLines($ManifestPath)) { $lines.Add($l) }
     }
     $replaced = $false
@@ -266,7 +307,7 @@ function Update-Manifest([string]$ManifestPath, [string]$RelPath, [string]$Sha) 
         $lines.Add("$Sha  $RelPath")
     }
     $parent = Split-Path -Parent $ManifestPath
-    if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+    if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
     $text = ([string]::Join("`n", $lines)) + "`n"
     [System.IO.File]::WriteAllText($ManifestPath, $text, (New-Object System.Text.UTF8Encoding($false)))
 }
@@ -278,7 +319,7 @@ function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$Mani
     $effort = $roleValues.Effort
 
     $realPath = Join-Path $RepoRoot $Target.Path
-    if (-not (Test-Path $realPath)) {
+    if (-not (Test-Path -LiteralPath $realPath)) {
         throw "RENDER_ERROR: target file not found: $($Target.Path)"
     }
     $current = [System.IO.File]::ReadAllText($realPath)
@@ -299,7 +340,7 @@ function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$Mani
     if ($Target.Protected) {
         $stagedPath = Resolve-WriteTargetRaw -RelPath $Target.Path -Protected $true
         $stagedParent = Split-Path -Parent $stagedPath
-        if (-not (Test-Path $stagedParent)) { New-Item -ItemType Directory -Path $stagedParent -Force | Out-Null }
+        if (-not (Test-Path -LiteralPath $stagedParent)) { New-Item -ItemType Directory -Path $stagedParent -Force | Out-Null }
         [System.IO.File]::WriteAllText($stagedPath, $computed, (New-Object System.Text.UTF8Encoding($false)))
         $sha = Get-Sha256OfText $computed
         Update-Manifest -ManifestPath $ManifestPath -RelPath $Target.Path -Sha $sha
@@ -330,7 +371,7 @@ if ($ResolveTargetRawPath) {
 
 $targets = Get-DefaultTargets
 if ($TargetsFile) {
-    $raw = [System.IO.File]::ReadAllText((Resolve-Path $TargetsFile).Path)
+    $raw = [System.IO.File]::ReadAllText((Resolve-Path -LiteralPath $TargetsFile).Path)
     $parsed = $raw | ConvertFrom-Json
     $targets = @()
     foreach ($p in $parsed) {
