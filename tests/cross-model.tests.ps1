@@ -210,6 +210,7 @@ $python = Get-Command $pythonName -ErrorAction Stop
 if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the panelist fixture' }
 $panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
 @'
+import base64
 import json
 import os
 import subprocess
@@ -230,7 +231,8 @@ receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', '
 receipt('STUB_CALLED_FILE', 'called')
 receipt('STUB_ARGV_FILE', json.dumps(sys.argv[1:]))
 receipt('STUB_PID_FILE', os.getpid())
-sys.stdin.read()
+stdin_bytes = sys.stdin.buffer.read()
+receipt('STUB_STDIN_BASE64_FILE', base64.b64encode(stdin_bytes).decode('ascii'))
 if os.environ.get('STUB_MODE') == 'hang':
     child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1124,9 +1126,10 @@ $panelistRunners = @(
     New-Item -ItemType Directory -Path $spacedTemp | Out-Null
     foreach ($runner in $panelistRunners) {
         $receipt = Join-Path $workDir ($runner.Name + '-argv.json')
+        $stdinReceipt = Join-Path $workDir ($runner.Name + '-stdin.base64')
         Invoke-PanelistRunner -Runner $runner -SpecRoot (Join-Path $workDir ($runner.Name + '-argv')) `
             -TimeoutMode set -TimeoutValue '10' -StubEnvironment @{
-                STUB_ARGV_FILE = $receipt; TMPDIR = $spacedTemp; TEMP = $spacedTemp; TMP = $spacedTemp
+                STUB_ARGV_FILE = $receipt; STUB_STDIN_BASE64_FILE = $stdinReceipt; TMPDIR = $spacedTemp; TEMP = $spacedTemp; TMP = $spacedTemp
             }
         $actual = @(Get-Content -Raw -LiteralPath $receipt | ConvertFrom-Json)
         if ($runner.Name -eq 'gemini') {
@@ -1135,9 +1138,23 @@ $panelistRunners = @(
                 $node -is [Management.Automation.Language.StringConstantExpressionAst] -and
                 $node.StringConstantType -eq 'SingleQuotedHereString'
             }, $true))[0].Value
-            if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and $actual[3] -ceq $prompt) {
-                Ok 'Gemini receives complete multiline prompt as exactly one argument'
-            } else { Fail 'Gemini prompt argument is split or changed' }
+            $expectedStdin = $prompt + "`n`n## Sanitized Input Bundle`n`n" + (Get-Content -Raw -Encoding Utf8 -LiteralPath $script:panelistInput)
+            # Start-Process redirects the file through WriteLine, adding one
+            # native transport terminator after its otherwise unchanged text.
+            $expectedStdin += [Environment]::NewLine
+            $expectedBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($expectedStdin))
+            $actualBase64 = Get-Content -Raw -LiteralPath $stdinReceipt
+            if ($script:panelistExit -eq 0 -and $actual.Count -eq 4 -and $actual[2] -ceq '-p' -and
+                $actual[3] -ceq 'Review the complete instructions and sanitized input on stdin.' -and
+                $actualBase64 -ceq $expectedBase64) {
+                Ok 'Gemini receives fixed prompt argument and exact multiline instructions plus bundle on stdin'
+            } else {
+                $receivedBytes = [Convert]::FromBase64String($actualBase64)
+                $expectedBytes = [Text.Encoding]::UTF8.GetBytes($expectedStdin)
+                $firstDifference = 0
+                while ($firstDifference -lt [Math]::Min($receivedBytes.Length, $expectedBytes.Length) -and $receivedBytes[$firstDifference] -eq $expectedBytes[$firstDifference]) { $firstDifference++ }
+                Fail "Gemini prompt argv or stdin bytes changed: exit=$script:panelistExit argc=$($actual.Count) expectedBytes=$($expectedBytes.Length) actualBytes=$($receivedBytes.Length) firstDifference=$firstDifference"
+            }
         } else {
             $cwdIndex = [Array]::IndexOf($actual, '-C')
             if ($script:panelistExit -eq 0 -and $cwdIndex -ge 0 -and
@@ -1160,7 +1177,14 @@ $panelistRunners = @(
         @{ field = 'blind'; value = 'true'; expected = 2 },
         @{ field = 'blind'; value = 1; expected = 2 },
         @{ field = 'vendor'; value = 123; expected = 2 },
-        @{ field = 'verdict'; value = 'pass'; expected = 1 }
+        @{ field = 'verdict'; value = 'pass'; expected = 1 },
+        @{ field = 'verdict'; value = @('PASS'); expected = 1 },
+        @{ field = 'input_digest'; value = @($DIGEST); expected = 2 },
+        @{ field = 'input_digest'; value = ($DIGEST + "`n"); expected = 2 },
+        @{ field = 'consent'; value = @{kind=@('human-flag')}; expected = 2 },
+        @{ field = 'findings'; value = $null; expected = 2 },
+        @{ field = 'findings'; value = @('Critical'); expected = 2 },
+        @{ field = 'findings'; value = @{severity='Critical'}; expected = 2 }
     )) {
         $document = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
         $document.($case.field) = $case.value
@@ -1169,6 +1193,14 @@ $panelistRunners = @(
         Assert-ExitCode "reject noncanonical $($case.field) $($case.value)" (Invoke-CrossModel -Arguments $parityArgs) $case.expected
         New-Verdict -Path $parityB -Vendor openai
     }
+    $validJson = Get-Content -Raw -LiteralPath $parityB
+    [IO.File]::WriteAllText($parityB, "[$validJson]")
+    Assert-ExitCode 'reject singleton array verdict envelope' (Invoke-CrossModel -Arguments $parityArgs) 2
+    New-Verdict -Path $parityB -Vendor openai
+    $withoutFindings = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
+    $withoutFindings.PSObject.Properties.Remove('findings')
+    [IO.File]::WriteAllText($parityB, ($withoutFindings | ConvertTo-Json -Depth 5))
+    Assert-ExitCode 'omitted optional findings remains supported' (Invoke-CrossModel -Arguments $parityArgs) 0
     Assert-ExitCode 'lowercase evaluator diverges' (Invoke-CrossModel -Arguments ($parityArgs + @('--evaluator', 'pass'))) 1
 
     # ============================================================================
