@@ -50,9 +50,9 @@ function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPat
     $current = $Repository
     foreach ($part in $relative.Split('/')) {
       if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
-      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
-      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
-      $current = $matches[0]
+      $matchedEntries = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matchedEntries.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matchedEntries[0]
       $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
       if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
     }
@@ -80,10 +80,10 @@ function Test-AdrBoundFilePath {
     $components = $Relative.Split('/')
     for ($index = 0; $index -lt $components.Length; $index++) {
         $component = $components[$index]
-        $matches = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
+        $matchedEntries = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
             Where-Object { [string]::Equals($_.Name, $component, [StringComparison]::Ordinal) })
-        if ($matches.Count -ne 1) { return $false }
-        $item = $matches[0]
+        if ($matchedEntries.Count -ne 1) { return $false }
+        $item = $matchedEntries[0]
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
             return $false
         }
@@ -455,11 +455,11 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
   $selected = @($resolved.inputs)
   foreach ($reviewer in $Contract.reviewers) {
     foreach ($pin in @($resolved.research_inputs)) {
-      $matches = @($reviewer.allowed_input_manifest | Where-Object {
+      $matchedEntries = @($reviewer.allowed_input_manifest | Where-Object {
         (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $pin.path })
-      if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+      if ($matchedEntries.Count -ne 1 -or ($matchedEntries[0].sha256 -cne $pin.sha256 -and
           ($pin.path -cne "specs/$FeatureName/requirements.md" -or
-           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { Fail 'incomplete research manifest' }
+           $matchedEntries[0].sha256 -cne $resolved.observed.($pin.path)))) { Fail 'incomplete research manifest' }
     }
   }
   foreach ($entry in $entries) {

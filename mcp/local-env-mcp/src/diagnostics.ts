@@ -28,7 +28,7 @@
  * field.
  */
 
-import { defaultSink, scrubKnownSecrets, type StartupInfo, type WriteSink } from "./diagnostics-core.js";
+import { defaultSink, type StartupInfo, type WriteSink } from "./diagnostics-core.js";
 export type { StartupInfo, WriteSink } from "./diagnostics-core.js";
 
 export { scrubKnownSecrets as scrubMessage } from "./diagnostics-core.js";

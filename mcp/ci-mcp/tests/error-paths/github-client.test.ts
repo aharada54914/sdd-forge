@@ -181,3 +181,31 @@ test("caller cancellation reaches fetch and yields a sanitized error", async () 
   if (!result.ok) assert.equal(result.error.code, "upstream-error");
   assert.ok(!JSON.stringify(result).includes(UPSTREAM_BODY_SECRET));
 });
+
+test("cancellation aborts an actual HTTP response body read", async () => {
+  const { createServer } = await import("node:http");
+  const { githubGetText } = await import("../../src/github-client.js");
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/plain" });
+    response.write("partial log");
+  });
+  await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address(); assert.ok(address && typeof address !== "string");
+    const controller = new AbortController();
+    let receivedHeaders = false;
+    const result = await githubGetText({ pathSegments: ["jobs", "1", "logs"], signal: controller.signal }, async (_url, init) => {
+      const response = await fetch(`http://127.0.0.1:${address.port}/`, init);
+      receivedHeaders = true;
+      setImmediate(() => controller.abort());
+      return response;
+    });
+    assert.equal(receivedHeaders, true);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.error.code, "upstream-error");
+    assert.ok(!JSON.stringify(result).includes("partial log"));
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  }
+});

@@ -275,7 +275,7 @@ def run_at_root(args, check):
         command = (['pwsh', '-NoProfile', '-File', str(publisher), '-StagingDir', str(staged),
                     '-Manifest', str(manifest)] if args.publisher_runtime == 'ps1' else
                    ['bash', str(publisher), '--staging-dir', str(staged), '--manifest', str(manifest)])
-        completed = subprocess.run(command, cwd=check.root, capture_output=True, text=True)
+        completed = subprocess.run(command, cwd=check.root, capture_output=True, text=True, encoding="utf-8")
     require(completed.returncode == 0, 'transactional publisher refused; use its existing recovery procedure')
     published = PROOF.CANON.parse_json_bytes(completed.stdout.encode())
     require(published.get('status') == 'ok' and published.get('targets') == list(TARGETS), 'publisher success/target receipt is invalid')

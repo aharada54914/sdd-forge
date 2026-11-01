@@ -582,5 +582,49 @@ missing_effort_output="$(bash "$VALIDATOR" "$VALIDATOR_FIXTURE_DIR/missing-effor
     *) fail "AC-026: unexpected diagnostic for missing Effort line: $missing_effort_output" ;;
   esac
 
+# Caller metadata must survive JSON serialization on both schema paths.
+if python3 - "$SCRIPT" "$WORK" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+script, work = sys.argv[1:]
+root = Path(work)
+feature = 'metadata-quotes'
+(root / 'specs' / feature).mkdir(parents=True)
+(root / 'specs' / feature / 'tasks.md').write_text('## T-001\nStatus: Done\n')
+value = '"single\' 日本語\n$`\\end'
+for extra in ([], ['--effort-main', value]):
+    result = subprocess.run(['sh', script, feature, '--model-main', value,
+        '--model-reviewers', value, '--plugin-version', value, '--track', value, *extra],
+        cwd=root, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr
+    record = json.loads(next((root / 'reports/runs').glob('*-' + feature + '.json')).read_text())
+    assert record['model_ids'] == {'main': value, 'reviewers': value}
+    assert record['plugin_version'] == value
+    assert record['track'] == value
+    if extra:
+        assert record['effort']['main']['effort_requested'] == value
+# An existing directory at the output path deterministically forces a write
+# failure without relying on OS permission behavior or running as root.
+date_bin = root / 'date-bin'
+date_bin.mkdir()
+(date_bin / 'date').write_text('#!/bin/sh\nprintf fixed\n')
+(date_bin / 'date').chmod(0o755)
+(root / 'reports/runs' / ('RUN-fixed-' + feature + '.json')).mkdir()
+import os
+result = subprocess.run(['sh', script, feature], cwd=root,
+    env=dict(os.environ, PATH=str(date_bin) + os.pathsep + os.environ['PATH']),
+    capture_output=True, text=True, timeout=10)
+assert result.returncode != 0
+assert 'wrote' not in result.stdout
+PY
+then
+  ok 'metadata quotes round-trip in v1/v2; failed output writes fail closed'
+else
+  fail 'metadata serialization or failed-write regression'
+fi
+
 printf '\nemit-run-record-feature-scope.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 [ "$FAIL_COUNT" -eq 0 ]

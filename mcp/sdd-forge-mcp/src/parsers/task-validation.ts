@@ -31,7 +31,7 @@ function approverId(value: string): string {
   return match?.[1] ?? "";
 }
 
-export function isApprovedShape(value: string): boolean {
+export function isApprovedShape(value: string): value is Exclude<Approval, "Draft"> {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
 
@@ -57,17 +57,17 @@ export function finishTask(
   } else if (!isApprovedShape(draft.approval) && draft.approval !== "Draft") {
     fail("approval-invalid", `${taskId} has invalid Approval: ${draft.approval}`);
   } else {
-    approval = draft.approval as Approval;
+    approval = draft.approval;
   }
   const isApproved = isApprovedShape(draft.approval);
 
   let status: Status | undefined;
   if (draft.status === "") {
     fail("status-missing", `${taskId} has no Status line`);
-  } else if (!STATUS_VALUES.includes(draft.status as Status)) {
+  } else if (!STATUS_VALUES.some(value => value === draft.status)) {
     fail("status-invalid", `${taskId} has invalid Status: ${draft.status}`);
   } else {
-    status = draft.status as Status;
+    status = STATUS_VALUES.find(value => value === draft.status);
   }
 
   if (

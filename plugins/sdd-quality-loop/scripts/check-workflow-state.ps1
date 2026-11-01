@@ -641,11 +641,11 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
     $resolved = ($output -join "`n") | ConvertFrom-Json
     foreach ($reviewer in @($Contract.reviewers)) {
         foreach ($pin in @($resolved.research_inputs)) {
-            $matches = @($reviewer.allowed_input_manifest | Where-Object {
+            $matchedEntries = @($reviewer.allowed_input_manifest | Where-Object {
                 (Get-RepositoryRelativePath $_.path $RepositoryRoot $RecordedRoot) -ceq $pin.path })
-            if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+            if ($matchedEntries.Count -ne 1 -or ($matchedEntries[0].sha256 -cne $pin.sha256 -and
           ($pin.path -cne "specs/$Feature/requirements.md" -or
-           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { throw 'incomplete research manifest' }
+           $matchedEntries[0].sha256 -cne $resolved.observed.($pin.path)))) { throw 'incomplete research manifest' }
         }
     }
     foreach ($entry in @($resolved.inputs)) { [string]$entry.path }
@@ -2413,10 +2413,10 @@ foreach ($entry in @($RegistryData.entries)) {
     if ($script:RegistryFailedFeatures.ContainsKey($feature)) { continue }
     $script:FeatureScopeActive = $true
     try {
-    $profile = [string]$entry.profile
+    $featureProfile = [string]$entry.profile
     $directory = Join-Path $SpecsRoot $feature
-    if ($profile -eq "lite") { continue }
-    if ($profile -eq "legacy") { Test-Legacy $feature $directory $entry; continue }
+    if ($featureProfile -eq "lite") { continue }
+    if ($featureProfile -eq "legacy") { Test-Legacy $feature $directory $entry; continue }
     foreach ($required in @("requirements.md", "design.md", "acceptance-tests.md")) {
         $path = Join-Path $directory $required
         if (-not (Test-Path $path -PathType Leaf) -or (Get-Item $path -Force).LinkType) {

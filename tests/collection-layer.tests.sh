@@ -272,9 +272,9 @@ for toml in \
         continue
     fi
     if grep -q "developer_instructions" "$toml"; then
-        ok "CL-011: $(basename $toml) has developer_instructions"
+        ok "CL-011: $(basename "$toml") has developer_instructions"
     else
-        fail "CL-011: $(basename $toml) missing developer_instructions"
+        fail "CL-011: $(basename "$toml") missing developer_instructions"
     fi
 done
 
@@ -325,13 +325,13 @@ for agent in \
     "${REPO_ROOT}/plugins/sdd-quality-loop/agents/panelist-gpt.md" \
     "${REPO_ROOT}/plugins/sdd-quality-loop/agents/panelist-gemini.md"; do
     if [ ! -f "$agent" ]; then
-        fail "CL-013: $(basename $agent) not found"
+        fail "CL-013: $(basename "$agent") not found"
         continue
     fi
     if grep -q "disallowedTools:.*Write" "$agent" || grep -q "disallowedTools: Write" "$agent"; then
-        ok "CL-013: $(basename $agent) has disallowedTools with Write"
+        ok "CL-013: $(basename "$agent") has disallowedTools with Write"
     else
-        fail "CL-013: $(basename $agent) missing disallowedTools: Write"
+        fail "CL-013: $(basename "$agent") missing disallowedTools: Write"
     fi
 done
 

@@ -73,4 +73,3 @@ export function scrubKnownSecrets(message: string): string {
   }
   return scrubbed;
 }
-

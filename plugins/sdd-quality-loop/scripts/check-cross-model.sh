@@ -17,6 +17,13 @@ spec_root="specs"
 # Parse arguments
 while [ $# -gt 0 ]; do
     case "$1" in
+        --task|--feature|--evaluator|--expect-digest|--spec-root)
+            if [ "$#" -lt 2 ]; then
+                echo "check-cross-model: missing value for $1" >&2
+                exit 2
+            fi ;;
+    esac
+    case "$1" in
         --task)         task_id="$2";       shift 2 ;;
         --feature)      feature="$2";       shift 2 ;;
         --evaluator)    evaluator="$2";     shift 2 ;;
@@ -40,15 +47,10 @@ if ! command -v python3 >/dev/null 2>&1; then
     exit 2
 fi
 
-python3 - <<PYEOF
+python3 - "$task_id" "$feature" "$evaluator" "$expect_digest" "$verdict_dir" "$aggregate_path" <<'PYEOF'
 import json, os, re, sys
 
-task_id      = "${task_id}"
-feature      = "${feature}"
-evaluator    = "${evaluator}"
-expect_digest = "${expect_digest}"
-verdict_dir  = "${verdict_dir}"
-aggregate_path = "${aggregate_path}"
+(task_id, feature, evaluator, expect_digest, verdict_dir, aggregate_path) = sys.argv[1:]
 
 # ── helpers ────────────────────────────────────────────────────────────────
 

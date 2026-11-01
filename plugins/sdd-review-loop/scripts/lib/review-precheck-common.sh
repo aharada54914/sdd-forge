@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Validate saved provenance only; publication eligibility is deliberately not replayed.
 validate_saved_recovery_reference() {
   python3 - "$1" "$2" <<'PY'

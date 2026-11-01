@@ -1,0 +1,2088 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PY-001",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "line": 467,
+      "source_sha256": "3a28d582133a2256cdfee060fadf8898a0d1eb9fe226e58c632739d2b3d785c9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-contract.py"
+      },
+      "impact": "Malformed JSON shapes and invalid UTF-8 escape the CLI diagnostic contract with traceback.",
+      "reproduction": "Before fix run([], schema:1, checks:[{id:[]}], checks:[{id:lint,waiver_reason:1}]) raised AttributeError/TypeError.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: 5 passed"
+      ],
+      "resolution": "Validate object and consumed string fields at boundary; classify read/decode errors without widening catch to Exception.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-002",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "line": 41,
+      "source_sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate_path.py"
+      },
+      "impact": "Numeric JSON evidence value is coerced to a filename and accepted if numeric file exists.",
+      "reproduction": "Before fix validate_evidence_path(evidence,123,root,[]) returned True for file123.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: valid quoted/newline/Japanese and invalid numeric/path controls"
+      ],
+      "resolution": "Reject nonstring values before path operations; narrow path-resolution catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-003",
+      "rule_id": "CS-020",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "line": 19,
+      "source_sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py"
+      },
+      "impact": "Intentional invalid Python must remain invalid to exercise fail-closed loader classification.",
+      "reproduction": "Ruff reports invalid-syntax; fixture name consumed by resolver block tests.",
+      "state": "justified-exception",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/resolve-project-context-block-check.py: registry-discovery-syntax-error case; independent final review required"
+      ],
+      "resolution": "Exclude this exact fixture only from syntax lint; keep resolver behavioral regression.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-004",
+      "rule_id": "CS-020",
+      "path": "tests/fixed-review-inputs.tests.py",
+      "line": 92,
+      "source_sha256": "429f39ae1c4327df629ace8375c285cde28d2d9cfeb807f441f9d7664cf90e07",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixed-review-inputs.tests.py"
+      },
+      "impact": "Shared mutable set default creates avoidable hidden state in approval test helper.",
+      "reproduction": "AST census found one mutable literal default across223 current .py files.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/fixed-review-inputs.tests.py:36 passed"
+      ],
+      "resolution": "Use immutable frozenset; caller only membership-checks registry.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-005",
+      "rule_id": "CS-017",
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "line": 8,
+      "source_sha256": "69fc11d30af9214a5c24a791b215fdec8ff6d9f2a9c490288bf1a84647b331a9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [8].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-006",
+      "rule_id": "CS-015",
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "line": 70,
+      "source_sha256": "ddafb7bf7494a4788443c1c1aba268da29ffe0fb1ccf34fc09335746f8d69420",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [70].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-007",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 94,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [94, 99, 101, 124, 138, 144, 145, 146, 147, 176, 177, 278, 427, 431].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-008",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 38,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [38, 38, 44, 45, 52, 55, 55, 59, 60, 93, 98, 100, 159, 174, 212, 228, 228, 231, 266, 266, 270, 283, 313, 320, 343, 343, 344, 355, 365, 375, 391, 391, 399, 425, 425, 443, 520, 520, 531, 531].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 40 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-009",
+      "rule_id": "CS-017",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 6,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [6].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-010",
+      "rule_id": "CS-015",
+      "path": "tests/a9-dogfood.tests.py",
+      "line": 77,
+      "source_sha256": "1879e1a3cbc0845f1bdd6f68ef522c3569e97fca8f0eb466c117ae7ce4d9146f",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-dogfood.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [77, 89, 102, 114, 152, 156, 174, 467, 491, 511, 530, 552, 554, 568].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-011",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 71,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [71, 130, 175, 200, 225, 314, 320, 325, 329, 370].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 10 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-012",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 22,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [22, 36, 62, 62, 72, 73, 81, 86, 87, 100, 116, 131, 134, 139, 139, 157, 165, 204, 205, 206, 207, 207, 214, 214, 214, 214, 219, 223, 234, 234, 236, 236, 238, 238, 240, 240, 242, 244, 246, 248, 250, 259, 264, 266, 268, 268, 268, 270, 272, 274, 275, 277, 279, 279, 279, 280, 282, 284, 290, 290, 292, 296, 297, 313, 316, 316, 318, 319, 323, 327, 332, 334, 335, 335, 337, 338, 338, 341, 342, 344, 347, 351, 351, 353, 355, 355, 359, 359, 361, 363, 363, 363, 365, 367].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 94 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-013",
+      "rule_id": "CS-015",
+      "path": "tests/a9-rollback-receipt.tests.py",
+      "line": 129,
+      "source_sha256": "88c2ac41f0e2bb011e434e66bddb49dbe8f15fbf42e0544172e7b2fad2972234",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-rollback-receipt.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [129, 169, 308, 321, 324, 330, 351, 352].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-014",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 161,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [161, 224, 225].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 3 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-015",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 223,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [223, 234].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-016",
+      "rule_id": "CS-015",
+      "path": "tests/cross-runtime-live-driver.tests.py",
+      "line": 142,
+      "source_sha256": "6377a01d5d704c467999df92ec06ed4b70dcfd9960171761267a1b566265e5e0",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/cross-runtime-live-driver.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [142, 142, 144, 144, 147, 147, 181, 182].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-017",
+      "rule_id": "CS-017",
+      "path": "tests/current-byte-capture.tests.py",
+      "line": 9,
+      "source_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/current-byte-capture.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [9].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-018",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+      "line": 30,
+      "source_sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [30].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-019",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+      "line": 18,
+      "source_sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [18].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-020",
+      "rule_id": "CS-015",
+      "path": "tests/fixtures/live-host-proof/run_cases.py",
+      "line": 84,
+      "source_sha256": "fba9a2970b6e2d25a801254cf57e822db97d8b1372411742aa5db5981fa1415b",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/live-host-proof/run_cases.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [84].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-021",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 960,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [960, 961].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-022",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 631,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F841 violation at lines [631].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F841 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-023",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-cli-check.py",
+      "line": 26,
+      "source_sha256": "fa28a7633fdf1d4b61c3a64c83643a6066cf94fca88bcf2f87063ca73a19d257",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-cli-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [26].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-024",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-discovery-check.py",
+      "line": 53,
+      "source_sha256": "0a38ddc950bb92ab2628e71c82db2cfe0b3d0ed3c4d1c57e4df4e9053bedd7c3",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-discovery-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [53].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-025",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-parity-check.py",
+      "line": 328,
+      "source_sha256": "cdfc201bce57658c574771ae520d34be4bbc3396d7967b0b00fd374723faab2e",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-parity-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [328, 329, 501, 502, 507, 513, 514, 633, 634, 640, 646, 647].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 12 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-026",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 99,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [99, 118, 145, 151, 156, 168, 172, 175, 179, 208, 212].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 11 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-027",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 183,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [183, 228, 287, 329].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 4 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-028",
+      "rule_id": "CS-017",
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "line": 4,
+      "source_sha256": "02cf929b9fcf381f39ed5d3a4d7acd851f383b6855c496b710d21101715e4326",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/sdd-sudo-guard-mutation.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [4].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-029",
+      "rule_id": "CS-017",
+      "path": "tests/task-prior-pass-receipt.tests.py",
+      "line": 11,
+      "source_sha256": "3b8a38e32b6c02828b385aed5acc65c76f860c8a7ec246865224c7063d5dcd83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-prior-pass-receipt.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [11].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-030",
+      "rule_id": "CS-015",
+      "path": "tests/task-structured-output.tests.py",
+      "line": 506,
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-structured-output.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [506].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-031",
+      "rule_id": "CS-015",
+      "path": "tests/traceability-freeze-contract.tests.py",
+      "line": 99,
+      "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/traceability-freeze-contract.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [99].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-032",
+      "rule_id": "CS-017",
+      "path": "tests/unified-launch-order.tests.py",
+      "line": 441,
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/unified-launch-order.tests.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [441].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-033",
+      "rule_id": "CS-015",
+      "path": "tests/verification-impact.tests.py",
+      "line": 10,
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/verification-impact.tests.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [10].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-034",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "line": 65,
+      "source_sha256": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-review-loop/scripts/launch-impl-review.py"
+      },
+      "impact": "Locale-dependent decoding and file text IO corrupt or reject UTF8 protocol data.",
+      "reproduction": "Real child emitting Japanese UTF8 fails UnicodeDecodeError with LC_ALL=C/PYTHONUTF8=0/PYTHONCOERCECLOCALE=0 before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_launcher_preserves_utf8_under_ascii_locale",
+        "fixed-review-launch50 passed; existing mypy7 passed"
+      ],
+      "resolution": "Pin UTF8 at current production text=True subprocess and Path text IO boundaries; binary APIs unchanged.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-035",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "line": 375,
+      "source_sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+      },
+      "impact": "Permission failure inspecting stop marker grants benign tool calls.",
+      "reproduction": "Real uid1000 process with CLAUDE_PROJECT_DIR chmod000 returned Copilot permissionDecision allow before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_unreadable_stop_marker_parent_denies; actual EACCES, absent/directory/regular controls",
+        "tests/guards.tests.sh135 passed",
+        "Python actual unprivileged Linux process, no mocked permission error; macOS/Windows unexecuted"
+      ],
+      "resolution": "Use explicit stat and preserve regular-file meaning; ENOENT/ENOTDIR absent, other OSError emits distinct inspection-error deny.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-036",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "line": 286,
+      "source_sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py"
+      },
+      "impact": "Malformed consumed registry fields raise uncontrolled TypeError before diagnostics.",
+      "reproduction": "Registry gates:[{id:[]}] raises TypeError in run().",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/validate-capability-registry.tests.sh:26 behavior checks and13 nested tests pass;2 catalog self-registration failures awaiting #687 registration"
+      ],
+      "resolution": "Validate consumed array/object/string fields before checks; preserve semantic check IDs and existing schema ownership.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-037",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "line": 78,
+      "source_sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py"
+      },
+      "impact": "Invalid gate_ids silently converted to empty list and published as valid projection.",
+      "reproduction": "build_projection({gates:[],capabilities:[{id:c,gate_ids:oops}]},digest) returns c:[] before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/generate-gate-capabilities.tests.sh:31 behavior checks pass;1 catalog self-registration failure awaiting #687 registration"
+      ],
+      "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-001",
+      "rule_id": "CS-002",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 43,
+      "source_sha256": "f3c210ef9205cec0f054388fdd5308a644b6b91c0b71eb0a28584635c2871b3e",
+      "flow": {
+        "input": "CLI task/feature/evaluator/digest/spec-root",
+        "transformation": "expanded heredoc inserts values as Python source",
+        "sink": "python3 stdin interpreter"
+      },
+      "impact": "Arbitrary Python execution; quote/newline/backslash corruption",
+      "reproduction": "Actual baseline --evaluator quote/Path.touch payload: exit2 and sentinel exists; fixed exit2 and sentinel absent. Normal odd feature path and evaluator round-trip tested.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.sh\",\"revision\":\"a62daa18\",\"sha256\":\"feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.sh\"}"
+      ],
+      "resolution": "Quoted heredoc, six argv values; explicit missing-option error exit2.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-002",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 316,
+      "source_sha256": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+      "flow": {
+        "input": "Caller model ids, feature, track, plugin version and effort strings",
+        "transformation": "unescaped JSON interpolation",
+        "sink": "reports/runs/*.json"
+      },
+      "impact": "Exit0 with malformed JSON metadata",
+      "reproduction": "Actual baseline --model-main quoted\"model: exit0 invalid JSON; fixed exit0 valid JSON. v1 golden unchanged for ordinary values.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/emit-run-record.sh\",\"revision\":\"a62daa18\",\"sha256\":\"5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/emit-run-record-feature-scope.tests.sh\"}"
+      ],
+      "resolution": "Reuse existing jq serializer for every non-enum string; explicit dependency and pre-write failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-003",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 316,
+      "source_sha256": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+      "flow": {
+        "input": "Output write failure",
+        "transformation": "final echo overrides cat status",
+        "sink": "success exit and wrote diagnostic"
+      },
+      "impact": "Caller receives success when output does not exist",
+      "reproduction": "Directory at deterministic output path via fixed date fixture: regression requires nonzero and no wrote text.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/emit-run-record.sh\",\"revision\":\"a62daa18\",\"sha256\":\"5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/emit-run-record-feature-scope.tests.sh\"}"
+      ],
+      "resolution": "Each heredoc write propagates failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-004",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 1,
+      "source_sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752",
+      "flow": {
+        "input": "Direct executable entry documented in domain review flow",
+        "transformation": "/bin/sh shebang interprets Bash process substitutions",
+        "sink": "POSIX shell parser"
+      },
+      "impact": "Executable entry fails even though bash-forced tests passed",
+      "reproduction": "sh -n baseline fails redirection at666; direct-entry regression now191 assertions pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\",\"revision\":\"a62daa18\",\"sha256\":\"8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/prepare-panelist.tests.sh\"}"
+      ],
+      "resolution": "Declare actual Bash runtime in shebang; test common entry by executable path.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-005",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 397,
+      "source_sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752",
+      "flow": {
+        "input": "Declared file path from repo output/evidence metadata",
+        "transformation": "unquoted IFS split also glob-expands path segments",
+        "sink": "symlink component walk"
+      },
+      "impact": "Glob-bearing path components can alter containment walk",
+      "reproduction": "Prepared input suite191 passes; code now NUL-terminated read array preserves all non-NUL data.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\",\"revision\":\"a62daa18\",\"sha256\":\"8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/prepare-panelist.tests.sh\"}"
+      ],
+      "resolution": "Bash array read with explicit slash delimiter and quoted iteration.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-006",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh",
+      "line": 78,
+      "source_sha256": "4a776b186b6fce40fd0fc486df43230c185898655eb4fe03040b7fab117ae6a1",
+      "flow": {
+        "input": "Bounded-Context field text",
+        "transformation": "unquoted comma splitting also glob-expands and eval creates indexed variables",
+        "sink": "context membership/relation check"
+      },
+      "impact": "Literal star context incorrectly expands working-directory files",
+      "reproduction": "New Pester literal-context runs Bash+PS actual gates alongside72 passing domain tests.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-domain-conformance.sh\",\"revision\":\"a62daa18\",\"sha256\":\"4376d8a13589581bb1bbdfc23b11b6b3a84cc2440158cf9ce7526f7e8885233f\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/sdd-domain/check-domain-conformance.Tests.ps1\"}"
+      ],
+      "resolution": "Parameter-based comma parsing and direct c1/c2 assignment; no eval.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-007",
+      "rule_id": "CS-005",
+      "path": ".github/workflows/release.yml",
+      "line": 116,
+      "source_sha256": "5ac7fcee96072d6e1e8c43979fd2924083e319b8de97ee61949cedb795e1818e",
+      "flow": {
+        "input": "workflow_dispatch tag and step output values",
+        "transformation": "Actions substitutes inside shell source",
+        "sink": "release Bash steps"
+      },
+      "impact": "Code/data boundary violation; upstream ci-green grammar mitigates production exploitability",
+      "reproduction": "Execute actual Resolve tag body with env values; normal v1.2.3 emitted, quote/newline/backslash/command substitution denied without output/sentinel.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\".github/workflows/release.yml\",\"revision\":\"a62daa18\",\"sha256\":\"7183a77abd6d4332518587cbbe3dcf508d1733ed540d0477012f79061f61eab1\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/release-loop-gate.tests.sh\"}"
+      ],
+      "resolution": "All variable release run inputs passed via env; tag grammar rechecked at output boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-001",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "line": 185,
+      "source_sha256": "f4fe0bafd95deac9e87d2dc9e0cb9bd9955502de5964712e157fba8945c2cfb2",
+      "flow": {
+        "input": "verdict/evaluator JSON strings",
+        "transformation": "case-insensitive equality",
+        "sink": "consensus PASS"
+      },
+      "impact": "Lowercase pass accepted unlike Bash contract",
+      "reproduction": "Actual native PS suite includes lowercase verdict/evaluator rejection and111 passing assertions.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.ps1\"}"
+      ],
+      "resolution": "Ordinal PASS comparisons; keep vendor case normalization intentional.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "line": 115,
+      "source_sha256": "f4fe0bafd95deac9e87d2dc9e0cb9bd9955502de5964712e157fba8945c2cfb2",
+      "flow": {
+        "input": "blind/vendor verdict JSON types",
+        "transformation": "PowerShell coercion treats string true/integer1 as true and numeric vendor as string",
+        "sink": "consensus schema validation"
+      },
+      "impact": "Malformed verdict admitted as consented blinded panel",
+      "reproduction": "Native PS controls reject blind string/number and numeric vendor exit2.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.ps1\"}"
+      ],
+      "resolution": "Require bool and string types before comparison; literal paths for bracket-bearing feature.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-003",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+      "line": 40,
+      "source_sha256": "06c3bbf762fc11aec733b1e5c54413e8ceb2e51e03c72a139947059787115ee4",
+      "flow": {
+        "input": "AGENT_STOP metadata lookup",
+        "transformation": "catch{} discards inspection exceptions",
+        "sink": "allow decision"
+      },
+      "impact": "Permission/IO lookup failure incorrectly treated as no stop marker",
+      "reproduction": "Real unprivileged chmod000 directory containing marker: fixed standalone exit2 cannot-inspect diagnostic; integrated cross-runtime regression pending.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/kill-switch.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"37aac059de76a28dfe60f63eade1102bc2dd8b3e8564ae8d6b07edb54838f51c\"}"
+      ],
+      "resolution": "Fail closed on inspection exception preserving Test-Path missing/non-leaf behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-004",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 465,
+      "source_sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c",
+      "flow": {
+        "input": "AGENT_STOP metadata lookup",
+        "transformation": "catch{} discards inspection exceptions",
+        "sink": "allow decision"
+      },
+      "impact": "Permission/IO lookup failure incorrectly treated as no stop marker",
+      "reproduction": "Real unprivileged chmod000 directory containing marker: fixed standalone exit2 cannot-inspect diagnostic; integrated cross-runtime regression pending.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c\"}"
+      ],
+      "resolution": "Fail closed on inspection exception preserving Test-Path missing/non-leaf behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-010",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 220,
+      "source_sha256": "f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-component-coverage.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-011",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 644,
+      "source_sha256": "c02d45ba955758f10c9cf6a58cfdf7ac96cf0241c163aee749a2ed33f28ba397",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-workflow-state.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-012",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1233,
+      "source_sha256": "ac2118d4104e187a51b0ae8d04d3d591201ff0caf7f0a5072b29195a13903b05",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-013",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 1874,
+      "source_sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-014",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "line": 1011,
+      "source_sha256": "1d6d36e038c2c6520162dc38513f9fda097ff3a1deaf61d65ffb773d12425c99",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"7960c5733f0b68d54d3dfdbf13955ecf5c29c2537bad05dbe9de7837c9d46ea8\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-015",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "line": 52,
+      "source_sha256": "6159fadf2a42404a06147c8ca4791560fd7bf3225f65e698c265bebcfa135bf3",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/impl-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"e61f7a400953a4290de476e77441f2661d858093147cb66b1f66faa22d1d15da\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-016",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "line": 67,
+      "source_sha256": "b0aa1540f3d82a62b7b7ecf8554d6c24100b7cfc566f91f8e3d55c7a20df5d13",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/spec-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-017",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "line": 53,
+      "source_sha256": "d256c374d57e2a9f11c81778bbad4f2a7484ccfb02ddbac48905154ff932be69",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/task-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fbf6452136b0bd636a005c06025f71d84558a75a612337df750a7a96767f7d6b\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-018",
+      "rule_id": "CS-012",
+      "path": "tests/path-lineending-regression.tests.ps1",
+      "line": 167,
+      "source_sha256": "d8e9e392a9a2078c00290897a8b6c80fa3dea4926dc1e29ec1c356da69f97f65",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/path-lineending-regression.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"92252523ea44044e64b63a98b3cb646ac0143588f94f68098f0c8c67df2c7163\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-019",
+      "rule_id": "CS-012",
+      "path": "tests/plugin-contracts-track-selection.tests.ps1",
+      "line": 271,
+      "source_sha256": "025eef7de18727d8e9224e951655701813ddfcdb6067735fc22ad9edc205a668",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/plugin-contracts-track-selection.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fae388d5de3460fbfb55b3a9205e475ce8e005f3edd6fadfa45116242fbbef93\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-020",
+      "rule_id": "CS-012",
+      "path": "tests/ship-track-selection-migration.tests.ps1",
+      "line": 344,
+      "source_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/ship-track-selection-migration.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fce94f1a13e0f29a5face2d7faadcac03724ee86c7152224eea1611e9fbbfd54\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-021",
+      "rule_id": "CS-012",
+      "path": "tests/structural-compatibility.tests.ps1",
+      "line": 122,
+      "source_sha256": "ade3456b0349ca2673b921297e2efc8fa66d96f6ed5e25a9bae43c0c6ddc1f06",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/structural-compatibility.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"ce3cf7c5db811fb4d3542ebbd6c075ac5308e2eb6383780c1145af0a84d1542d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-020",
+      "rule_id": "CS-002",
+      "path": "tests/context-projection-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/context-projection-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"d3a02a139c996c20240feb1139a0b994a5dbce0515088f6524c4832e2166e4f7\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/context-projection-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-021",
+      "rule_id": "CS-002",
+      "path": "tests/capability-summary-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "392d6724dd27f0317142922d34014b8c446031c3c07d8a65638153b1e1aee6f1",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/capability-summary-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"7443ad87e0fba542f76c29dc6d0592ae2d1e597b49ddf58fecbb6c15ef237ee9\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/capability-summary-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-022",
+      "rule_id": "CS-002",
+      "path": "tests/facet-manifest-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/facet-manifest-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"9ea28ea300f0f5967080d25f615ea042229b390b921a1577563ef25e3042362d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/facet-manifest-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-023",
+      "rule_id": "CS-002",
+      "path": "tests/gates.tests.sh",
+      "line": 1,
+      "source_sha256": "854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/gates.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"6f602d926d6a9533ae8b97225e7a9f8e9c1ae3781ebd8f0650411e068c27c8ca\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/gates.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-024",
+      "rule_id": "CS-002",
+      "path": "tests/scenario.tests.sh",
+      "line": 1,
+      "source_sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/scenario.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"a0dea4de0a500f064a36f32e589dd4327dbb853d87eaf420ad30e9f942ef5251\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/scenario.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-025",
+      "rule_id": "CS-002",
+      "path": "tests/eval.tests.sh",
+      "line": 1,
+      "source_sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/eval.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"3f63c1062dcdcac7432ba9817947e778aa7434ba4c45f2c63bca85829e0fccb1\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/eval.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-026",
+      "rule_id": "CS-002",
+      "path": "tests/cross-model.tests.sh",
+      "line": 1,
+      "source_sha256": "7691268c0021632be748ba394c3c927b2fa83ce1bfe0f318c850dada88f46adb",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/cross-model.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"144494ca55a90032cd8554c909deeadf7b6986641ea12a76101326ae41c247cd\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-027",
+      "rule_id": "CS-002",
+      "path": "tests/guards.tests.sh",
+      "line": 1,
+      "source_sha256": "24e2cec71468b681f190e40ded7c3fb3dc2114c6a538b541a0483f6118f84377",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/guards.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"04040c52c2a0e51f11b3c0c5a6e566b948ed1be2fe22f56125371062f220ae6c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/guards.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-028",
+      "rule_id": "CS-002",
+      "path": "tests/guard-parity.tests.sh",
+      "line": 1,
+      "source_sha256": "b68c8c555b661fc4edb2e1613caf80128df92a1ce88ddef6b3bfda4b341f1437",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/guard-parity.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"cf755b5bb79d6286b47065528f17950ec915f0c5cd4f415beb589016f72c072c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/guard-parity.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-001",
+      "rule_id": "CS-021",
+      "path": "mcp/ci-mcp/src/tools/actions.ts",
+      "line": 120,
+      "source_sha256": "6f2a30a4b8a64c14bc0a6b58eeb2dc4ebebeb04985b4cc3e130b1186a4f07328",
+      "flow": {
+        "input": "GitHub JSON",
+        "transformation": "unchecked generic cast and enum assertions",
+        "sink": "action mapper success envelopes"
+      },
+      "impact": "Malformed upstream data could throw or violate the public response contract.",
+      "reproduction": "Baseline82b53695: four malformed upstream regression cases all fail; current four pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/tools/upstream-shape.test.ts",
+        "Post-fix source SHA-256: 73f095612464624b19e2414e60e2f275bafa2154f1ac60d8b5f51b77730b4562",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Unknown transport JSON; Zod consumed-field validation; sanitized upstream-error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-002",
+      "rule_id": "CS-023",
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "line": 100,
+      "source_sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e",
+      "flow": {
+        "input": "GitHub network/body read",
+        "transformation": "unbounded fetch/body lifetime",
+        "sink": "pending MCP tool request"
+      },
+      "impact": "An upstream response could keep a request pending indefinitely.",
+      "reproduction": "Current actual local HTTP stream receives headers, then caller cancellation aborts body and returns sanitized upstream-error; no baseline cancellation run (would wait).",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/error-paths/github-client.test.ts",
+        "Post-fix source SHA-256: 3a6d34291576cbd2c7029fdbd82e1aa29dbdc093455cbfba6ec83b6b8afc99f7",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "30s AbortSignal deadline plus optional caller signal passed to fetch, including body read.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-003",
+      "rule_id": "CS-018",
+      "path": "mcp/ci-mcp/src/error-normalizer.ts",
+      "line": 50,
+      "source_sha256": "b1b15448efe52d4f22a8de2d73ea670370f086162da7d499f5f97e1d2e8a0e97",
+      "flow": {
+        "input": "rate-limit header 1e300",
+        "transformation": "finite Number then invalid Date.toISOString",
+        "sink": "rate-limited error conversion"
+      },
+      "impact": "Malformed finite header threw RangeError instead of returning error envelope.",
+      "reproduction": "Baseline82b53695 oversized rate-limit regression fails; current passes.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/error-paths/error-normalizer.test.ts",
+        "Post-fix source SHA-256: 7c3ae2e19b3ec3df1d6ed8c30b924506fad98026cc1dedf9aa942cd51da6aeb7",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Check Date.getTime is finite before ISO conversion.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-004",
+      "rule_id": "CS-022",
+      "path": "mcp/sdd-forge-mcp/src/status-view.ts",
+      "line": 15,
+      "source_sha256": "95745babddec65c5cf8f22dd188a3ec5f539db62904eea93f38a05216ff66d88",
+      "flow": {
+        "input": "concurrent refresh requests",
+        "transformation": "late response replaces newest options",
+        "sink": "status UI DOM"
+      },
+      "impact": "An older refresh could overwrite newer feature selection.",
+      "reproduction": "VM executes the delivered HTTP page script, resolves newer refresh before older; current retains newest result. Baseline test not rerun.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/status-view.test.ts",
+        "Post-fix source SHA-256: f7827e3b5b6818261f9baa5d98be336ea46276220cb01d3e316a5c1f5ff63f12",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use refresh generation guard; bounded local fetch signal; textContent remains the rendering boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-005",
+      "rule_id": "CS-009",
+      "path": "mcp/sdd-forge-mcp/src/root.ts",
+      "line": 23,
+      "source_sha256": "de472c935b26c3a83a9554e9755200517b3b3d13d1645abe946bbe66ef367d53",
+      "flow": {
+        "input": "unknown CLI option or missing root value",
+        "transformation": "indexOf root ignored other arguments",
+        "sink": "root selection and stdio startup"
+      },
+      "impact": "Unknown options silently selected cwd; missing value could be consumed as another option.",
+      "reproduction": "Real dist entry --unknown now exits1 with empty stdout; strict parse unit cases pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts",
+        "Post-fix source SHA-256: cc26634819f0b7cb01599a5856baf7c1a631fda3c7efbb68a3adc622d7df91e3",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use standard node:util parseArgs with known root/status-ui options and no positionals.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-006",
+      "rule_id": "CS-023",
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "line": 334,
+      "source_sha256": "6cc067c34027ff7b98d7114a230ca397e953da4bb18ca6a8ab83b1292121cc09",
+      "flow": {
+        "input": "directory symlink to ancestor",
+        "transformation": "recursive realpath walk without cycle detection",
+        "sink": "directory listing and quality-summary tool"
+      },
+      "impact": "Recursive scan could overflow stack and never return a domain result.",
+      "reproduction": "Baseline82b53695 cycle regression fails with stack recursion; current reports cycle and preserves normal aliases.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+        "Post-fix source SHA-256: 5ea3c3bde1af473d8dd1dc5ac71846f83b2b6b735e8f4cb5c7390d1a160c11bf",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Track active real directory ancestors; stop cycle with existing diagnostics; remove ancestry on return.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-007",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.js",
+      "line": 56,
+      "source_sha256": "3896e82a012b771390e20b38ec52453742ce77b81352762fbe5b67c9c742b01a",
+      "flow": {
+        "input": "AGENT_STOP stat EACCES or EIO",
+        "transformation": "catch-all interpreted inability as absent",
+        "sink": "tool authorization allow"
+      },
+      "impact": "Inspection failure could allow tool use when stop marker status was unknown.",
+      "reproduction": "Public Node entries: real POSIX inaccessible directory and injected EIO deny; absent/directory/regular controls preserve file contract; Copilot emits structured deny.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/guard-stop-inspection.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "Post-fix source SHA-256: a88706e76b52bdf147c43ab27c0c65759eab56f30a0c31a707d2f9817d733eff",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Ignore only ENOENT/ENOTDIR; other inspection errors deny with distinct inability diagnostic. Same fix in sdd-hook-guard.js.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-008",
+      "rule_id": "CS-021",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "line": 1132,
+      "source_sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a",
+      "flow": {
+        "input": "signed sudo token epoch plus trailing oops/.5/e0",
+        "transformation": "parseInt truncation before canonical HMAC",
+        "sink": "sudoActive bypass of approval guard"
+      },
+      "impact": "A malformed epoch retained a valid normalized signature and was accepted.",
+      "reproduction": "Public signed-token baseline test failed actual exit0 expected2 for oops; after fix all 9 boundary tests pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/guard-stop-inspection.tests.mjs",
+        "Post-fix source SHA-256: 518cb0fd6e224dd2523fb6b56b3d240e1be3fdd8ad6a88f275e52333286da6d2",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Complete signed decimal syntax and Number.isSafeInteger before canonicalization; preserve leading-zero/plus normalization already accepted.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-009",
+      "rule_id": "CS-021",
+      "path": "mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts",
+      "line": 57,
+      "source_sha256": "f95e5564d98c33a939dd2ba592f6bec144824090d405d2473a50f990e963eece",
+      "flow": {
+        "input": "SDK callTool return",
+        "transformation": "as never bypass at many callers",
+        "sink": "JSON test-envelope helper"
+      },
+      "impact": "Assertions hid drift in SDK response shape.",
+      "reproduction": "All affected tests compile and execute with runtime SDK CallToolResultSchema checks; current TS scan0 AnyKeyword findings.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts",
+        "mcp/sdd-forge-mcp/tests/status-view.test.ts",
+        "Post-fix source SHA-256: 96b05c8005409c53737565c36cc8b6b4782293644dda870fe4bf133054720378",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Helper accepts unknown, validates SDK schema; remove as never callers. Typed DOM mocks, direct AJV assignment, supported mock.method replace other blanket assertions.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-010",
+      "rule_id": "CS-029",
+      "path": "mcp/local-env-mcp/tests/no-secrets/server-canary.test.ts",
+      "line": 93,
+      "source_sha256": "609ceaa716e5b5dc30c2822bfb5b309388c0316400f5109264ba6ac9e7ebb742",
+      "flow": {
+        "input": "stdio tool responses",
+        "transformation": "fixed delay and null exit accepted",
+        "sink": "no-secrets evidence assertions"
+      },
+      "impact": "A killed process or incomplete tool sweep could be reported successful.",
+      "reproduction": "Actual stdio sweep now completes all5 responses/all3 tool result kinds with exit0, deadline cleanup. Current suite53pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/local-env-mcp/tests/no-secrets/server-canary.test.ts",
+        "Post-fix source SHA-256: c1ee6dccb1caf5d575250e2412fb9c1584b2e72a8b2f10fffd753e0820fecd56",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Close stdin after all responses; bound total lifetime, clear timer, require normal exit and each payload.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-011",
+      "rule_id": "CS-009",
+      "path": "tests/adversarial-review-contracts.tests.mjs",
+      "line": 7,
+      "source_sha256": "adeffdc86edc5d0eee87f1d60c438dec18660cfd0598b2c6aa2799199ff3c5f6",
+      "flow": {
+        "input": "import.meta.url containing percent-encoded spaces/Unicode",
+        "transformation": "URL.pathname used as filesystem path",
+        "sink": "contract fixture loading"
+      },
+      "impact": "Checkout paths with spaces/Unicode and Windows file URLs resolved incorrectly.",
+      "reproduction": "Contract suite passes via symlink path repo 日本語 with spaces using --preserve-symlinks-main as well as normal checkout.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/adversarial-review-contracts.tests.mjs",
+        "Post-fix source SHA-256: 58008d7d558b787c02f84a3e29a3db019afaefd026e36014f513fe18febf328e",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use fileURLToPath standard conversion.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-008",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.sh",
+      "line": 9,
+      "source_sha256": "c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd",
+      "flow": {
+        "input": "filesystem metadata",
+        "transformation": "test predicate",
+        "sink": "allow decision"
+      },
+      "impact": "POSIX test -f masks EACCES as absent and allows tool use",
+      "reproduction": "Unprivileged uid1000 chmod000 directory with AGENT_STOP; CLAUDE_PROJECT_DIR points at it: unchanged script exits0. Broad find fix rejected because it denied unrelated symlink/missing-root controls. Portable errno distinction unresolved.",
+      "state": "confirmed-violation",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/kill-switch.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd\"}"
+      ],
+      "resolution": null,
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-009",
+      "rule_id": "CS-008",
+      "path": "install.sh",
+      "line": 355,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Valid Git ref fragment delimiter truncates archive request; path value not encoded",
+      "reproduction": "Public installer test remote entry with feature/日本語#topic asserts feature%2F%E6%97%A5%E6%9C%AC%E8%AA%9E%23topic and completes install;52 assertions pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"install.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"9284e7b78f7b0263f8d1eff0ba2bc1aaa4b0e56dca7b897f306854594c75bb40\"}"
+      ],
+      "resolution": "28ecd8ce bytewise URI component encoding without bootstrap dependency; owner/repo grammar checked.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-005",
+      "rule_id": "CS-008",
+      "path": "install.ps1",
+      "line": 560,
+      "source_sha256": "7dc0b742a29a18daf85809caf8a2e92be098608a6cc1b1a29612470c9b64e056",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Valid Git ref fragment delimiter truncates archive request; path value not encoded",
+      "reproduction": "Public native PS installer core lane passes with feature/topic#fragment exact encoded URI and authenticated transport fixture.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \"install.ps1\", \"revision\": \"28ecd8ce\", \"sha256\": \"92d4062c52455afd71c0ab9571b0b82d3b3bf6c8ea609ae0fc1dd7732cf7c005\"}"
+      ],
+      "resolution": "28ecd8ce Uri.EscapeDataString plus owner/repo grammar.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-010",
+      "rule_id": "CS-009",
+      "path": ".github/workflows/release.yml",
+      "line": 170,
+      "source_sha256": "5ac7fcee96072d6e1e8c43979fd2924083e319b8de97ee61949cedb795e1818e",
+      "flow": {
+        "input": "caller Git ref/tag",
+        "transformation": "unencoded URL or option position",
+        "sink": "archive HTTP request or release CLI"
+      },
+      "impact": "Leading-hyphen tag may be parsed as gh option despite data transport",
+      "reproduction": "Actual Upload release assets shell body run with captured gh function shows release,upload,--clobber,--,--help argv prefix.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"path\": \".github/workflows/release.yml\", \"revision\": \"28ecd8ce\", \"sha256\": \"3cf814badffa6a09dd23b0cab1414a95cd350060b5076b78e21aa9e3e2f280e9\"}"
+      ],
+      "resolution": "28ecd8ce end options before tag, put clobber before terminator, use --version= for SBOM CLI.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-012",
+      "rule_id": "CS-018",
+      "path": "install.sh",
+      "line": 542,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Existing client JSON read fails EACCES",
+        "transformation": "catch-all substitutes empty object",
+        "sink": "atomic replacement of existing configuration"
+      },
+      "impact": "Unrelated client configuration can be destroyed after an unreadable file is treated as missing.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Ignore only ENOENT for creation; preserve and report every other read failure. Uninstall distinguishes read failure from absent file.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-013",
+      "rule_id": "CS-009",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Pre-existing predictable .sdd-forge.tmp file or symlink",
+        "transformation": "non-exclusive write follows and truncates existing temp target",
+        "sink": "configuration temporary file"
+      },
+      "impact": "Can overwrite unrelated files before rename, or race another writer.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Use exclusive wx creation; never unlink a temp file not created by this operation; cleanup own temp after rename failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-014",
+      "rule_id": "CS-010",
+      "path": "install.sh",
+      "line": 558,
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "flow": {
+        "input": "Client config may contain credential-bearing unrelated entries",
+        "transformation": "replacement file gets default mode derived from permissive umask",
+        "sink": "user client JSON on disk"
+      },
+      "impact": "On umask022 previously private configuration becomes world-readable.",
+      "reproduction": "Exact embedded Node bodies from install.sh/install.ps1/uninstall.sh/uninstall.ps1: baseline82b53695 12fail0pass; corrected12pass. Real POSIX EACCES, pre-existing temp collision, normal flow under explicit umask022 with unrelated keys/Unicode. Not a claim of native Windows ACL testing.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/mcp-json-boundaries.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Fix and durable language audit summary: commit6e49f016"
+      ],
+      "resolution": "Create temporary config with explicit0600 permissions; atomic rename keeps those permissions on POSIX.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-030",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "line": 247,
+      "source_sha256": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1",
+      "flow": {
+        "input": "Codex scratch path",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "native CLI argv"
+      },
+      "impact": "Space-containing scratch path split into multiple arguments",
+      "reproduction": "Exact captured argv: baseline runner fails path atom check; fixed runner passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1\", \"sha256\": \"a3d5bf4377ed120239e480d78b3ea206a40ef469b2f299547a35cd85123e924b\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Use shared native command-line quoting helper; unchanged timeout/file redirect semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-031",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 158,
+      "source_sha256": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932",
+      "flow": {
+        "input": "Fixed multiline JSON prompt",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "Gemini -p argv"
+      },
+      "impact": "Complete prompt split into many arguments and loses embedded quotes",
+      "reproduction": "Exact captured argv: baseline runner fails prompt atom check; fixed receives exactly4 arguments and exact source prompt as arg4.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1\", \"sha256\": \"b0ea695e119922c7924a796269d69936d855df818080e6aae748f0df251900bb\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Same shared native argument quoting; native .exe/POSIX command boundary, not a cmd.exe interpreter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-032",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "line": 347,
+      "source_sha256": "0f9b32251f645f0aa51684007c5489cc34597b5976e07c6c1d2da93a890b7582",
+      "flow": {
+        "input": "Repository path",
+        "transformation": "Start-Process -ArgumentList flattens path with spaces",
+        "sink": "git -C"
+      },
+      "impact": "Valid evidence rejected when repository path contains spaces",
+      "reproduction": "Actual native launch against a fresh repository whose path contains spaces: baseline Start-Process exit128 (cannot change to /tmp/git); direct call exit0. Existing Script gate suite passes after moving entire workspace fixture to sdd script tests <uuid>.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scripts.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1\", \"sha256\": \"56e5137ed388534ace485f6b4a668ce0aca00d60b1c25d60666b444c5ed0a3c1\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Direct PowerShell call operator and explicit LASTEXITCODE checks.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-030",
+      "rule_id": "CS-002",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "line": 116,
+      "source_sha256": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d",
+      "flow": {
+        "input": "tasks/report/repository paths and Markdown task id",
+        "transformation": "awk dynamic shell commands and Python-source interpolation",
+        "sink": "system()/getline and Python -c"
+      },
+      "impact": "User data can execute shell code",
+      "reproduction": "Baseline valid Implementation Complete fixture with report path reports$(touch SENTINEL): exit1 and sentinel=True. Fixed hostile quote/backslash/newline/Japanese path succeeds, no sentinel; missing evidence still fails.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-task-state.sh\", \"sha256\": \"ec2697933b3154e8e21a87d932dea0cb9c2dff10d26fe269c429a8557eb86646\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Quote each shell data atom; use fixed Python code and argv for contract path/task id.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-031",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+      "line": 67,
+      "source_sha256": "5cbb235b2a14123bab3cc44fdac09f1cd421fcdb341e59d34721a63f8ce79d2e",
+      "flow": {
+        "input": "Implementation/quality report path and Markdown task id",
+        "transformation": "awk builds shell command with unescaped data",
+        "sink": "grep subprocess"
+      },
+      "impact": "User report path can execute command substitution",
+      "reproduction": "Same report-path sentinel baseline exit1 and sentinel=True; fixed hostile path Implementation Complete succeeds without execution.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-lite/scripts/check-task-state-lite.sh\", \"sha256\": \"1b75fc690f22525a4c563e0f4af5bb824b743e8c65da6e5d6124a87b252b03d4\"}",
+        "Shell handoff a3241e56; audit/shell/summary.json records Linux runtime, executed suites and native-host limits."
+      ],
+      "resolution": "Quote shell data atom in owned Lite AWK policy; Full and Lite requirements remain separate.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-001",
+      "rule_id": "CS-030",
+      "path": "plugins/sdd-lite/templates/quality-report-lite.md",
+      "line": 4,
+      "source_sha256": "21068274d1b3b0977f6ec0cc0d0f5999c025a152e09c053061afc70b728e25c8",
+      "flow": {
+        "input": "Untouched distributed quality-report-lite.md",
+        "transformation": "Default VERDICT: PASS and T-001 word match",
+        "sink": "check-task-state-lite.sh Done admission"
+      },
+      "impact": "An unfilled report can certify Done without an actual quality verdict.",
+      "reproduction": "Isolated Approved/Done T-001 with minimal implementation mention and untouched quality template: exit 0. Added actual consumer regression fails before fix (23 passed/1 failed), passes after fix (24 passed/0 failed).",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/template-validator-parity.tests.sh; Linux Bash 5.2.37 and system sh; baseline negative and repaired negative/normal controls executed.",
+        "Repaired template sha256=fbb10eeb476ab532f241acc532c570dcc1dbbbdaa46342eaa14dadfa149fb8b1"
+      ],
+      "resolution": "Default report verdict FAIL and unexecuted check labels NOT_RUN; preserve existing explicit PASS consumer contract.",
+      "reuse": null
+    }
+  ]
+}

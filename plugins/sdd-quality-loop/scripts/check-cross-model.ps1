@@ -89,7 +89,7 @@ if (-not (Test-Path -LiteralPath $verdictDir)) {
     exit 2
 }
 
-$verdictFiles = @(Get-ChildItem -Path $verdictDir -Filter "*.verdict.json" |
+$verdictFiles = @(Get-ChildItem -LiteralPath $verdictDir -Filter "*.verdict.json" |
     Where-Object { $_.Name.StartsWith($prefix) -and $_.Name.EndsWith($suffix) } |
     Sort-Object Name)
 
@@ -105,14 +105,14 @@ $verdicts = @()
 
 foreach ($vfile in $verdictFiles) {
     try {
-        $v = Get-Content -Raw -Encoding Utf8 $vfile.FullName | ConvertFrom-Json
+        $v = Get-Content -Raw -Encoding Utf8 -LiteralPath $vfile.FullName | ConvertFrom-Json
     } catch {
         [Console]::Error.WriteLine("check-cross-model: failed to parse $($vfile.Name): $_")
         exit 2
     }
 
     # blind must be exactly $true (boolean)
-    if ($v.blind -ne $true) {
+    if (($v.blind -isnot [bool]) -or ($v.blind -ne $true)) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): blind must be true (got $($v.blind))")
         exit 2
     }
@@ -125,8 +125,8 @@ foreach ($vfile in $verdictFiles) {
     }
 
     # vendor must be non-empty string
-    $vendor = [string]($v.vendor)
-    if (-not $vendor) {
+    $vendor = $v.vendor
+    if (($vendor -isnot [string]) -or -not $vendor) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): vendor must be non-empty string")
         exit 2
     }
@@ -144,7 +144,7 @@ foreach ($vfile in $verdictFiles) {
 # ── Step 2: compute vendor diversity metrics ────────────────────────────────
 
 $allVendors      = $verdicts | ForEach-Object { [string]$_.vendor }
-$distinctVendors = $allVendors | ForEach-Object { $_.ToLower() } | Sort-Object -Unique
+$distinctVendors = $allVendors | ForEach-Object { $_.ToLowerInvariant() } | Sort-Object -Unique
 $vendorsDistinct  = $distinctVendors.Count
 $nonAnthropicCount = ($distinctVendors | Where-Object { $_ -ne "anthropic" }).Count
 
@@ -186,7 +186,7 @@ if ($ExpectDigest) {
 
 # ── Step 6: consensus check ─────────────────────────────────────────────────
 
-$allPass = ($verdicts | Where-Object { [string]$_.verdict -ne "PASS" }).Count -eq 0
+$allPass = ($verdicts | Where-Object { [string]$_.verdict -cne "PASS" }).Count -eq 0
 $anyCritical = ($verdicts | ForEach-Object {
     $v = $_
     if ($v.findings) {
@@ -209,7 +209,7 @@ if (-not $allPass -or $anyCritical) {
 
 if ($Evaluator) {
     $panelConsensus = "PASS"  # we passed step 6
-    if ($Evaluator -ne $panelConsensus) {
+    if ($Evaluator -cne $panelConsensus) {
         Write-Aggregate -Panelists $panelists -VendorsDistinct $vendorsDistinct `
             -NonAnthropicCount $nonAnthropicCount -AllPass $true -AnyCritical $false `
             -EvaluatorVerdict $Evaluator -Divergence $true -RequiresHuman $true -Result "NEEDS_HUMAN"

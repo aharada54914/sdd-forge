@@ -1,6 +1,12 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/kill-switch-inspection.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/guard-stop-inspection.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/mcp-diagnostics-sharing.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/python-input-boundaries.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/coding-standards.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
+    {"path": "tests/coding-standards-audit.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
     {"path": "tests/benchmark-gates.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/factory-workflow.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -381,7 +387,9 @@
     {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
+    "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
+      "tests/kill-switch-inspection.tests.sh",
       "tests/spec-review-interrupted-recovery.tests.sh",
       "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
@@ -817,6 +825,9 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/guard-stop-inspection.tests.py",
+      "tests/mcp-diagnostics-sharing.tests.py",
+      "tests/python-input-boundaries.tests.py",
       "tests/benchmark-gates.tests.py",
       "tests/human-copy-mirrors-classification.tests.py",
       "tests/factory-workflow.tests.py",

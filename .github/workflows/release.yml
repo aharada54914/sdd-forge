@@ -112,17 +112,24 @@ jobs:
 
       - name: Resolve tag
         id: meta
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
-          TAG="${{ github.event.inputs.tag }}"
+          set -euo pipefail
+          TAG="$INPUT_TAG"
           if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
+          case "$TAG" in
+            *[!A-Za-z0-9._-]*|'') echo "Invalid release tag" >&2; exit 1 ;;
+          esac
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "pkg=sdd-forge-${TAG}.tar.gz" >> "$GITHUB_OUTPUT"
 
       - name: Build reproducible source tarball
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.meta.outputs.tag }}"
-          PKG="${{ steps.meta.outputs.pkg }}"
           # Archive the resolved TAG's tree, not $GITHUB_SHA. On a manual
           # workflow_dispatch the run's ref (and $GITHUB_SHA) is the dispatch
           # branch, which would otherwise package unrelated branch contents
@@ -142,17 +149,21 @@ jobs:
         run: ./tests/release-host-smoke.sh
 
       - name: Generate CycloneDX SBOM
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
         run: |
           set -euo pipefail
           python3 .github/scripts/generate-sbom.py \
-            --version "${{ steps.meta.outputs.tag }}" \
+            --version="$TAG" \
             --repo "${GITHUB_REPOSITORY}" \
             --output "sdd-forge-sbom.cdx.json"
 
       - name: Publish SHA-256 checksums
+        env:
+          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
-          sha256sum "${{ steps.meta.outputs.pkg }}" "sdd-forge-sbom.cdx.json" > SHA256SUMS
+          sha256sum "$PKG" "sdd-forge-sbom.cdx.json" > SHA256SUMS
           cat SHA256SUMS
 
       - name: Attest build provenance (sigstore keyless)
@@ -165,10 +176,11 @@ jobs:
       - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
-          gh release upload "${{ steps.meta.outputs.tag }}" \
-            "${{ steps.meta.outputs.pkg }}" \
+          gh release upload --clobber -- "$TAG" \
+            "$PKG" \
             "sdd-forge-sbom.cdx.json" \
-            "SHA256SUMS" \
-            --clobber
+            "SHA256SUMS"

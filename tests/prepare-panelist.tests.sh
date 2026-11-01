@@ -22,7 +22,7 @@ trap 'rm -rf "$WORK"' EXIT
 # Usage: run_prepare [args...]  →  sets $PP_OUTPUT and $PP_EXIT
 run_prepare() {
     PP_EXIT=0
-    PP_OUTPUT=$(bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" "$@" 2>&1) || PP_EXIT=$?
+    PP_OUTPUT=$("${SCRIPTS_DIR}/prepare-panelist-input.sh" "$@" 2>&1) || PP_EXIT=$?
 }
 
 # Hermetic key for fixtures that assume NO consent. Such fixtures pass no

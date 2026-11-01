@@ -22,10 +22,10 @@ export async function makeResourcesFixture(prefix: string): Promise<CoreToolsFix
 /** Parses a single-content `ReadResourceResult`'s `contents[0].text` as JSON (the v1 envelope). */
 export function parseResourceEnvelope(result: ReadResourceResult): unknown {
   const first = result.contents[0];
-  if (first === undefined || typeof (first as { text?: unknown }).text !== "string") {
+  if (first === undefined || !("text" in first) || typeof first.text !== "string") {
     throw new Error(`Expected a text resource content block, got: ${JSON.stringify(result.contents)}`);
   }
-  return JSON.parse((first as { text: string }).text);
+  return JSON.parse(first.text);
 }
 
 export { parseEnvelope };

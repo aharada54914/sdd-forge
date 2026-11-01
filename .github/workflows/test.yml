@@ -178,6 +178,9 @@ jobs:
       - name: Test traceability freeze normalization
         shell: bash
         run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Test POSIX kill-switch permission failures
+        shell: bash
+        run: python3 tests/verification.py --suite tests/kill-switch-inspection.tests.sh --run
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Prepare private research-store fixture parent
@@ -1708,3 +1711,30 @@ jobs:
         if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/check-installed-plugin-drift.tests.ps1
+
+  coding-standards:
+    name: complete coding standards audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.19.0"
+      - name: Install locked TypeScript compiler
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: Install pinned native analyzers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/coding-standards"
+          "$RUNNER_TEMP/coding-standards/bin/pip" install -r tests/coding-standards/requirements.txt
+          printf '%s\n' "$RUNNER_TEMP/coding-standards/bin" >> "$GITHUB_PATH"
+      - name: Install pinned PowerShell analyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -ErrorAction Stop
+      - name: Run native controls and complete tracked-source audit
+        shell: bash
+        run: python3 tests/verification.py --profile coding-standards --run --receipt "$RUNNER_TEMP/coding-standards-receipt.json"
