@@ -31,3 +31,6 @@ The `<script>` strings in model-freshness/workflow scenario tests are hostile-da
 Exact embedded bodies: combined Python/Node wrapper 23 passed after the follow-up. Hook parity: 262 passed. `6e49f016` already records actual bash install/uninstall and Linux pwsh wrapper tests. No native Windows ACL execution or actual host evaluation is claimed.
 
 This follow-up traces the above concrete flows and fills embedded-surface inventory gaps. It does **not** promote every remaining test/helper/parser to a full manual file-by-rule review merely because typecheck and selected AST checks pass. The earlier population-review export's generic `state: reviewed` rows must be reconciled against substantive contextual evidence; any row without that evidence remains a coverage limitation, not an implicit PASS. New shared diagnostic and tooling files introduced in the integration tree were not present in this lane's source revision and require integration-tree coverage.
+
+
+The follow-up coverage limitation above is resolved for the merged source revision by [coverage-method.md](coverage-method.md) and its source-bound [contextual-coverage.json](contextual-coverage.json): complete native AST-site inventory, embedded-surface inventory, rule-family dispositions and contextual subsystem review. Platform limits remain explicit.
