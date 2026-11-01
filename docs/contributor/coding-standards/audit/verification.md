@@ -91,3 +91,45 @@ predicate to treat an inspection failure as absence. The actual unprivileged
 EACCES reproduction is recorded by its owner. The central ledger now has 84
 records and explicitly does **not** report zero confirmed violations. Further
 PowerShell argument-boundary findings are still being investigated by #688.
+
+The corresponding isolated negative controls also executed: interpolated JSON
+failed to parse a quote; an unescaped regex matched unrelated text; concatenated
+query data introduced a second parameter; concatenated SQLite text changed the
+query predicate while binding did not; unquoted shell text split into two
+arguments; and embedded Python source failed on an ordinary apostrophe. These
+controls used an in-memory database and local child processes, and did not
+contact providers or mutate repository data.
+
+## Embedded JavaScript handoff
+
+Added TS690-012–014 from #690 commit `6e49f016`, bringing the central ledger to
+87 records. Rechecked original installer source pins and schema. These record
+read-error fallback, temporary-file exclusive creation and permission issues in
+embedded installer programs; the owner's durable summary covers four affected
+install/uninstall bodies, 12 actual baseline failures and 12 passing corrected
+controls. File suffix alone did not define the language audit scope. No claim
+of whole-population context review is added.
+
+## Native argv, AWK and template follow-up
+
+Imported PS-030–032 and SH-030–031 from shell handoff `a3241e56`, checking
+all five original hashes against `82b53695` and repaired hashes against the
+integrated files. The central ledger now has 93 records including DOC-001.
+
+DOC-001 was independently reproduced during template review: an untouched Lite
+quality report admitted an Approved/Done T-001 through the actual state consumer.
+The new existing-suite control gave 23 passed/1 failed before repair and
+24 passed/0 failed afterward. The default is now FAIL with NOT_RUN check labels;
+the explicit completed PASS normal control still succeeds. This does not claim
+that a report alone proves live project execution or full Lite acceptance.
+
+Mirror check found eight already integrated stale manifest entries unrelated to
+the template/parity test; integration owns their existing synchronizer update.
+Pending mirrors were left intact.
+
+DOC-002: all 10 JSON and four YAML templates were parsed. GitLab's echo
+command contained colon-space inside an unquoted YAML scalar and parsed as a
+mapping. The pinned repository js-yaml parser independently reproduced this,
+with the added existing-suite control failing (24/1); a YAML literal block
+repairs it (25/0). Both CI placeholder programs were actually run and returned
+1 as intended. No remote GitLab pipeline execution is claimed.
