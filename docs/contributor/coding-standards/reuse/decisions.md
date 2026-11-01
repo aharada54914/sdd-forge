@@ -207,3 +207,13 @@ regular-file and admission policy therefore stay with callers. Tests cover
 external targets, relative link chains, bracketed paths, hardlinks, and injected
 missing-ResolveLinkTarget capability. The fallback test does not claim native
 WindowsPowerShell5.1 execution. No policy mode, dependency or new CLI is added.
+
+Independent heldout execution at `f6767ae3` passed raw 1 MiB streams, eight argv
+atoms, nonzero status, start-error redaction, deadline/direct-child cleanup, real
+Git wrapper calls, binary key handling, two-hop relative directory links and
+hardlinks. See `shared-helpers-independent-review.json` for exact source hashes
+and `evidence/shared-helpers-heldout.txt` for output. The missing-method fallback
+was simulated on Linux; this does not establish native Windows PowerShell 5.1
+behavior. Full raw output buffers remain uncapped, and descendant cleanup after
+an already-exited parent is not promised. Newly extracted helper stability rests
+on preserved caller contracts and these controls, not longevity.
