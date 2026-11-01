@@ -38,6 +38,25 @@ for unsafe_root in "${REPO_ROOT}/reports/.." "${REPO_ROOT}/reports/."; do
     expect_failure pwsh -NoProfile -File "${VALIDATOR%.sh}.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$unsafe_root" -Contract "${FIXTURE}"
   fi
 done
+# Exercise an existing child through a symlinked parent, not just a linked leaf.
+link_probe="$(mktemp -d "${REPO_ROOT}/reports/contract-link.XXXXXX")"
+outside_probe="$(mktemp -d)"
+mkdir -p "$outside_probe/child"
+if ln -s "$outside_probe" "$link_probe/alias" 2>/dev/null; then
+  expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "$link_probe/alias/child" --contract "${FIXTURE}"
+  if command -v pwsh >/dev/null 2>&1; then
+    expect_failure pwsh -NoProfile -File "${VALIDATOR%.sh}.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$link_probe/alias/child" -Contract "${FIXTURE}"
+  fi
+  mkdir -p "$link_probe/inside/child"
+  ln -s "$link_probe/inside" "$link_probe/internal"
+  "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "$link_probe/internal/child" --contract "${FIXTURE}" >/dev/null
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "${VALIDATOR%.sh}.ps1" -Feature utf8-feature -Attempt 1 -Round 2 -Stage spec -ReportRoot "$link_probe/internal/child" -Contract "${FIXTURE}" >/dev/null
+  fi
+else
+  echo 'SKIP: symlink creation unavailable for ancestor traversal control'
+fi
+rm -rf "$link_probe" "$outside_probe"
 jq '.feature = "different-feature"' "${FIXTURE}" > "${TEMP_CONTRACT}"
 expect_failure "${VALIDATOR}" --feature utf8-feature --attempt 1 --round 2 --stage spec --report-root "${REPORT_ROOT}" --contract "${TEMP_CONTRACT}"
 jq '.attempt = "1"' "${FIXTURE}" > "${TEMP_CONTRACT}"
