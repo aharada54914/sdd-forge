@@ -337,3 +337,89 @@ with tempfile.TemporaryDirectory() as temporary:
         assert not sentinel.exists()
         assert not output.exists(), 'invalid tag was emitted as workflow output'
 PY
+
+# Execute release provenance boundaries with real Git archives and SBOM generation.
+python3 - "$RELEASE_YML" "$BASH" <<'PY'
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+workflow = Path(sys.argv[1])
+lines = workflow.read_text().splitlines()
+bash = sys.argv[2]
+repo = workflow.resolve().parents[2]
+
+def body(name):
+    start = lines.index('      - name: ' + name)
+    run = lines.index('        run: |', start) + 1
+    result = []
+    for line in lines[run:]:
+        if line and not line.startswith('          '):
+            break
+        result.append(line[10:])
+    return '\n'.join(result)
+
+gate = body('Verify CI success for the release commit')
+stub = '''gh() {
+  case "$*" in
+    *git/refs/tags/*) printf '{"object":{"sha":"%s","type":"commit"}}' "$FAKE_SHA" ;;
+    *actions/workflows/*) printf '%s' "$FAKE_COUNT" ;;
+    *) return 99 ;;
+  esac
+}
+'''
+for count in ('1', '2', '0', 'null', '', 'not-a-number', '-1', '1\n2'):
+    env = dict(os.environ, INPUT_TAG='v1', GITHUB_REF_NAME='main',
+               GITHUB_REPOSITORY='owner/repo', FAKE_SHA='a' * 40, FAKE_COUNT=count)
+    result = subprocess.run([bash, '-c', stub + gate], env=env, capture_output=True, timeout=10)
+    assert (result.returncode == 0) == (count in ('1', '2')), (count, result.stdout, result.stderr)
+for sha in ('null', 'abc', 'A' * 40):
+    env.update(FAKE_SHA=sha, FAKE_COUNT='1')
+    result = subprocess.run([bash, '-c', stub + gate], env=env, capture_output=True, timeout=10)
+    assert result.returncode != 0, 'invalid release SHA was accepted'
+
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    (root / '.github/scripts').mkdir(parents=True)
+    shutil.copyfile(repo / '.github/scripts/generate-sbom.py', root / '.github/scripts/generate-sbom.py')
+    lock = root / 'mcp/example/package-lock.json'
+    lock.parent.mkdir(parents=True)
+    def write_lock(name):
+        lock.write_text(json.dumps({'packages': {'node_modules/' + name: {'version': '1.0.0'}}}))
+    def git(*args):
+        subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, timeout=10)
+    git('init', '-q')
+    git('config', 'user.name', 'Release test')
+    git('config', 'user.email', 'release-test@example.invalid')
+    write_lock('tagged-dependency')
+    git('add', '.')
+    git('commit', '-qm', 'tagged source')
+    git('tag', 'v1')
+    write_lock('dispatch-only-dependency')
+    git('add', '.')
+    git('commit', '-qm', 'different dispatch source')
+    env = dict(os.environ, TAG='v1', PKG='sdd-forge-v1.tar.gz',
+               GITHUB_REPOSITORY='owner/repo', RUNNER_TEMP=root.as_posix())
+    for step in ('Build reproducible source tarball', 'Generate CycloneDX SBOM'):
+        result = subprocess.run([bash, '-c', body(step)], cwd=root, env=env,
+                                capture_output=True, timeout=20)
+        assert result.returncode == 0, (step, result.stdout, result.stderr)
+    names = {entry['name'] for entry in json.loads((root / 'sdd-forge-sbom.cdx.json').read_text())['components']}
+    assert 'tagged-dependency' in names and 'dispatch-only-dependency' not in names, names
+    assert not list(root.glob('release-sbom.*')), 'source export scratch was not cleaned'
+    # A present corrupt lock is an error, not evidence of zero dependencies.
+    for invalid in ('{', '[]', '{"packages":[]}'):
+        lock.write_text(invalid)
+        output = root / 'invalid-sbom.json'
+        result = subprocess.run([sys.executable, str(root / '.github/scripts/generate-sbom.py'),
+                                 '--source-root', str(root), '--output', str(output)],
+                                capture_output=True, timeout=10)
+        assert result.returncode != 0 and not output.exists(), result.stderr
+        assert b'SBOM_SOURCE_INVALID' in result.stderr
+
+print('ok: release CI gate rejects malformed responses and SBOM describes the published tag bytes')
+PY

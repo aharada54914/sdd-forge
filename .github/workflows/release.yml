@@ -70,14 +70,19 @@ jobs:
           }
           SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
           TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+          case "$TYPE" in commit|tag) ;; *) echo "Invalid release ref type" >&2; exit 1 ;; esac
           if [ "$TYPE" = "tag" ]; then
             SHA="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}" --jq '.object.sha')"
+          fi
+          if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid release commit SHA" >&2
+            exit 1
           fi
           echo "Release commit for ${TAG}: ${SHA}"
           COUNT="$(gh api \
             "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=1" \
             --jq '.total_count')"
-          if [ "${COUNT}" -lt 1 ]; then
+          if [[ ! "$COUNT" =~ ^[1-9][0-9]*$ ]]; then
             echo "No successful test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
             exit 1
           fi
@@ -151,9 +156,15 @@ jobs:
       - name: Generate CycloneDX SBOM
         env:
           TAG: ${{ steps.meta.outputs.tag }}
+          PKG: ${{ steps.meta.outputs.pkg }}
         run: |
           set -euo pipefail
+          # Scan exactly the bytes being published, including manual tag dispatches.
+          snapshot=$(mktemp -d "$RUNNER_TEMP/release-sbom.XXXXXX")
+          trap 'rm -rf -- "$snapshot"' EXIT
+          tar -xzf "$PKG" -C "$snapshot"
           python3 .github/scripts/generate-sbom.py \
+            --source-root "$snapshot/sdd-forge-${TAG}" \
             --version="$TAG" \
             --repo "${GITHUB_REPOSITORY}" \
             --output "sdd-forge-sbom.cdx.json"
