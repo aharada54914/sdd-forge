@@ -99,3 +99,51 @@ body handling, no token output and exactly one transport call. Existing suites
 cover success bodies, status/rate-limit/network errors and caller cancellation.
 The helper is new and has no longevity history; adopting this narrowly identical
 provider mechanism does not certify future API stability or other HTTP clients.
+
+## Independent follow-up review (2026-11-01)
+
+The independent review of `4e3e770893919ed56e31e71c1b4a492fd0e77673`
+found a pre-existing R-009 memory defect that the counter-based tests missed.
+`subarray` bounded visible bytes but retained the original ArrayBuffer. A real
+stream containing either a 16 MiB chunk or a 32-byte view of a 16 MiB allocation
+kept that allocation alive while the reported peak was only 64 bytes. The reader
+now owns a copy of retained incoming bytes; public signatures, output order,
+byte counts and errors stay unchanged. Copy cost is bounded by the retention
+window per chunk. The byte counter measures logical retained content, not total
+heap overhead, and no claim is made about upstream producer allocations.
+
+The independent regression observes backing-buffer reachability using WeakRef
+and explicit GC in a separate Node process, while the real Web ReadableStream
+is still open. It does not trust `maxRetainedBytes` as its memory oracle or add a
+fixture-specific production path. The same new tests fail 2/2 before the fix and
+pass 2/2 after it under Node 24.19.0 on Linux. See `evidence/` for raw output and
+`independent-review.json` for source-bound review scope. Node's explicit GC and
+runtime weak-reference behavior are test prerequisites; native matrix execution
+remains integration work.
+
+The R-001/R-002 shared mechanisms retain narrow meanings and wrapper policy.
+Independent logger checks covered Unicode/regex-literal secrets, newline JSON
+framing, allowlisted fields, removal of an environment variable between calls,
+and the intentional CI/local Bearer divergence. Both rebuilt bundles started
+from isolated temporary directories with no repository-relative dependencies:
+exit 0, one startup JSON line on stderr, empty stdout. Linux build/typecheck/tests
+passed (CI 159/159 including the new regressions, local 54/54); generated-copy
+freshness tests passed 2/2. This is bounded component evidence, not final whole
+population or hosted transport acceptance.
+
+### Additional infrastructure adapters found by tracked-source search
+
+| ID / layer | Producer → consumers / ownership | Contract and stability | Counterexample and decision | Evidence |
+| --- | --- | --- | --- | --- |
+| R-010 technical GitHub metadata transport | `.github/scripts/check-context-signing-environment.py:read_api` → same module `main`, `.github/workflows/context-approval.yml`; Context signer owns admission | Fixed GitHub prefix, GH_TOKEN, JSON, 30s timeout, scoped 404-as-absence; introduced `600c7a88` in October 2026, short history | Shares provider but cannot import Node MCP into Python workflow; permission metadata and content-absence admission differ from Actions read envelopes. Reuse existing stdlib client; no new generic cross-runtime API or retry. Feature configuration checks remain separate | `tests/context-signing-environment.tests.py` 6/6; injected API metadata tests do not prove hosted environment configuration or secret custody |
+| R-011 technical vendor-source fetch | `.github/scripts/check-model-freshness.sh:fetch_source_or_unavailable` → freshness `main`, scheduled/manual workflow; model registry owner | Public source body, curl 15s, fetch failure means unavailable, explicit test source injection. `e8cdd746` introduced July 2026; `63bcb9fb` changed markup interpretation September 2026 | Research acquisition requires validated public peers and provenance; freshness uses fixed configured vendor sources and fail-soft governance. Keep existing curl transport; do not propagate research or MCP authorization policy. The shell script already shares fetch mechanics between its two vendors | Existing suite: 39 pass, 3 registration-introspection failures on this branch; transport/governance cases passed. Raw failure log preserved; final integrated catalog rerun required |
+| R-012 technical GitHub administrative client | `scripts/apply-branch-protection.sh` → authorized contributor CLI, protection tests; repository governance owner | Installed `gh api` handles credentials/provider transport; script chooses GET/PUT/POST and manual fallback. `b0cbc8a0` June 2026 fixes error-object handling, `3baadda5` August updates required check policy | MCP is GET-only and must never receive this write capability or fallback behavior. Existing gh client already supplies technical transport; keep feature orchestration separate, no auto retry or merge | `tests/apply-branch-protection.tests.sh` 13/13 with command recorder; no remote protection changes performed |
+
+Search patterns identify candidates, not violations or complete coverage. The
+tracked-source sweep included `.github` scripts as well as installers, plugins
+and MCP, and distinguished test fakes from runtime network calls. Generated
+bundles, historical reports/specs and test fixtures need the canonical census's
+separate reconciliation; excluding them from this candidate search is not an
+exception from final audit. No DB connection layer was established by this
+search. Remaining external-process and document-embedded candidates belong to
+the language/census audits, not a claim of zero unreviewed files here.

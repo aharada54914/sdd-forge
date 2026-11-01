@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "review_base": "4e3e770893919ed56e31e71c1b4a492fd0e77673",
+  "reviewer": "independent final_review agent (separate from original reuse implementation)",
+  "scope": "selected infrastructure contracts and additional adapter candidates; not whole-population acceptance",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "Linux",
+    "token_cost": "unknown"
+  },
+  "files": [
+    {
+      "path": "mcp/shared/diagnostics-core.ts",
+      "sha256": "cd23ac89c9c9f9d27e1152a5802bc45219441aa4492fff62834f1202f7d22ae8",
+      "contextual_assessment": "R-001 literal secret collection, replacement order and call-time environment; narrow mechanism reviewed"
+    },
+    {
+      "path": "mcp/ci-mcp/src/diagnostics.ts",
+      "sha256": "3b5b2c8635dca61cd8344ed919c69ef65230834fe1ad08dcfae71e7e07a1a29f",
+      "contextual_assessment": "R-001 CI Bearer policy remains wrapper-owned; event framing and allowlist reviewed"
+    },
+    {
+      "path": "mcp/local-env-mcp/src/diagnostics.ts",
+      "sha256": "4013afefeefe8aeeb13c58bbe4457ab11d97eb5b911bb78235e3410e173aa150",
+      "contextual_assessment": "R-001 local policy and unchanged public exports reviewed"
+    },
+    {
+      "path": "mcp/ci-mcp/src/diagnostics-core.ts",
+      "sha256": "5052b6b04af91290292f3ba7b4137263bae8aa902ae3a2dd4cc161498e9bb210",
+      "contextual_assessment": "R-001 generated producer/copy freshness verified"
+    },
+    {
+      "path": "mcp/local-env-mcp/src/diagnostics-core.ts",
+      "sha256": "5052b6b04af91290292f3ba7b4137263bae8aa902ae3a2dd4cc161498e9bb210",
+      "contextual_assessment": "R-001 generated producer/copy freshness verified"
+    },
+    {
+      "path": "scripts/sync-mcp-diagnostics.py",
+      "sha256": "85e96d55ce78980cedf88f13c654d4e7d44b21e8dbf53ef9c5f4a73ae26e6a94",
+      "contextual_assessment": "R-001 exact bytes and no-write check mode; no protected human-copy classification bypass"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "8dd83fd63eff469d425a4c06fbac71ba2d80351deb9ed3ce5ef0b84c2c910bf9",
+      "contextual_assessment": "R-002 fixed host/auth/deadline/status extraction reviewed; R-009 backing allocation defect fixed, public contracts retained"
+    },
+    {
+      "path": "mcp/ci-mcp/src/repo-resolve.ts",
+      "sha256": "147d8306a00b01649450b3ff90659d861df2aaec2f5fb2f103fb6c2573add143",
+      "contextual_assessment": "Repository dot segments rejected before public action calls; host/name boundary reviewed"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/error-paths/backing-buffer-retention.test.ts",
+      "sha256": "9a90211cc36a16a5d71df4762d419e440d767280b2b97254826449b83a781494",
+      "contextual_assessment": "Heldout memory oracle independent of production counter; sameconditions red/green"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/error-paths/shared-transport.test.ts",
+      "sha256": "715473eeac0f16a8edc3ffa52b8bdc5939ac185f9f64e0884d321e023c805af0",
+      "contextual_assessment": "Paired JSON/text status rejection and header differences; mock transport scope only"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/error-paths/bounded-tail-read.test.ts",
+      "sha256": "5d648c3fc0d4d727da52dee1340e274bf3a115341184cc35ae23431c3dfdb92f",
+      "contextual_assessment": "Existing counter oracle insufficient for physical retained backing allocations"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/contract/ajv-contract.test.ts",
+      "sha256": "95ceedf9e111f3d0d5a4ad010864369bc6e0fa29f4d3387a857f90a07085b40b",
+      "contextual_assessment": "Real action outputs plus injected upstream validated against independent contract schema; no live transport claim"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/contract/test-helpers.ts",
+      "sha256": "54c5e3b0029aaa00f537fca02b497a9055806d7ec197c8e0891617cf92d30616",
+      "contextual_assessment": "Actual runtime schema lookup contracts/ci-mcp-tools.v1.schema.json; not historical specs fixtures"
+    },
+    {
+      "path": ".github/scripts/check-context-signing-environment.py",
+      "sha256": "bf61380f4acf630c9243f7f9ef177100a40332c6d5f65e1ab63f0c328fbdd729",
+      "contextual_assessment": "R-010 read_api/main transport and admission split reviewed"
+    },
+    {
+      "path": ".github/scripts/check-model-freshness.sh",
+      "sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "contextual_assessment": "R-011 fetch_source_or_unavailable reviewed; not whole-script standards clearance"
+    },
+    {
+      "path": "scripts/apply-branch-protection.sh",
+      "sha256": "83ac459aa0b645758a80eded165d5d9626d0ef289600d810484872c830f64a22",
+      "contextual_assessment": "R-012 gh API request mechanics versus write orchestration reviewed"
+    }
+  ],
+  "heldout": {
+    "test": "mcp/ci-mcp/tests/error-paths/backing-buffer-retention.test.ts",
+    "before": {
+      "passed": 0,
+      "failed": 2,
+      "duration_ms": 300.640968
+    },
+    "after": {
+      "passed": 2,
+      "failed": 0,
+      "duration_ms": 228.684205
+    },
+    "same_conditions": "same Node24.19.0, compiled tests, inputs, GC iterations, host; only retained-byte ownership copy differs",
+    "interpretation": "confirms previously missed backing-buffer retention violation fixed; not benchmark or future stability proof"
+  },
+  "verification": {
+    "ci_build_typecheck": "passed",
+    "ci_tests": {
+      "passed": 159,
+      "failed": 0
+    },
+    "local_build_typecheck": "passed",
+    "local_tests": {
+      "passed": 54,
+      "failed": 0
+    },
+    "diagnostic_freshness": {
+      "passed": 2,
+      "failed": 0
+    },
+    "standalone_bundle_startup": "both pass in temporary directories",
+    "context_signer": {
+      "passed": 6,
+      "failed": 0
+    },
+    "branch_protection": {
+      "passed": 13,
+      "failed": 0
+    },
+    "model_freshness": {
+      "passed": 39,
+      "failed": 3,
+      "reason": "catalog registration introspection; integrated rerun required"
+    }
+  },
+  "limits": [
+    "No whole-population semantic clearance",
+    "No hosted network or environment configuration proof",
+    "Native Windows/macOS and other supported Node versions require integration runs",
+    "R-003 through R-008 final language changes remain delegated evidence; decisions reviewed, not falsely counted as full new source audit"
+  ]
+}
