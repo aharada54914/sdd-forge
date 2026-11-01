@@ -361,5 +361,50 @@ for phrase in '開始から8分、または40ターン' '候補に関係する�
   fi
 done
 
+if (( BASH_VERSINFO[0] < 4 )); then
+  printf 'SKIP: Ubuntu enforcement-step execution requires Bash 4+ mapfile (host Bash %s)\n' "$BASH_VERSION"
+else
+# Run the exact guard step with GitHub's unspecified-shell bash -e contract.
+# A failed gh or jq stage must not reach the guard with an empty paths file.
+enforce_script="$WORK/enforce-session-guard.sh"
+awk '
+  /^      - name: Enforce enforcement-chain guard on session PRs$/ { step=1; next }
+  step && /^        run: \|$/ { body=1; next }
+  body && /^          / { sub(/^          /, ""); print; next }
+  body && /^[[:space:]]*$/ { print; next }
+  body { exit }
+' "$TARGET_YML" > "$enforce_script"
+enforce_root="$WORK/enforce-root"
+mkdir -p "$enforce_root/.github/scripts" "$enforce_root/bin"
+cat > "$enforce_root/bin/gh" <<'MOCK_PR'
+#!/usr/bin/env bash
+case "$MOCK_PR_MODE" in
+  fail) exit 9 ;;
+  malformed) printf '{' ;;
+  *) printf '[]' ;;
+esac
+MOCK_PR
+cat > "$enforce_root/.github/scripts/self-improvement-pr-guard.sh" <<'MOCK_GUARD'
+#!/usr/bin/env bash
+printf 'reached' > "$RUNNER_TEMP/enforce-reached"
+MOCK_GUARD
+chmod +x "$enforce_root/bin/gh"
+for mode in success fail malformed; do
+  rm -f "$WORK/enforce-reached"
+  (cd "$enforce_root" && PATH="$enforce_root/bin:$PATH" RUNNER_TEMP="$WORK" \
+    GITHUB_REPOSITORY=owner/repo MOCK_PR_MODE="$mode" \
+    "$BASH" --noprofile --norc -e "$enforce_script") > "$WORK/enforce.out" 2>&1
+  enforce_code=$?
+  if [[ "$mode" == success && "$enforce_code" -eq 0 && -f "$WORK/enforce-reached" ]]; then
+    ok "CS-019: successful PR enumeration reaches the guard"
+  elif [[ "$mode" != success && "$enforce_code" -ne 0 && ! -f "$WORK/enforce-reached" ]]; then
+    ok "CS-019: $mode PR enumeration stops before the guard"
+  else
+    fail "CS-019: unexpected $mode enumeration result exit=$enforce_code"
+  fi
+done
+
+fi
+
 printf '\nTEST-010/011/014 + ISSUE-478-RECOVERY + ISSUE-559 results: %d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

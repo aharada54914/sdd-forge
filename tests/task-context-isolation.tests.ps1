@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+. (Join-Path $root 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
 $scriptDir = Join-Path $root 'plugins/sdd-implementation/scripts'
 $validator = Join-Path $scriptDir 'validate-task-input-manifest.ps1'
 $snapshot = Join-Path $scriptDir 'prepare-task-snapshot.ps1'
@@ -64,7 +65,7 @@ foreach ($required in @($validator, $snapshot, $selector)) {
   if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { Fail "missing script: $required" }
 }
 
-$work = Join-Path ([IO.Path]::GetTempPath()) ("sdd-task-context-" + [guid]::NewGuid())
+$work = Join-Path ([IO.Path]::GetTempPath()) ("sdd task context " + [guid]::NewGuid())
 try {
   $repo = Join-Path $work 'repo'
   New-Item -ItemType Directory -Path (Join-Path $repo 'specs/demo') -Force | Out-Null
@@ -145,10 +146,10 @@ try {
     $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $copyBarrier
     try {
       $pwshPath = (Get-Process -Id $PID).Path
-      $copyProcess = Start-Process -FilePath $pwshPath -ArgumentList @(
+      $copyProcess = Start-Process -FilePath $pwshPath -ArgumentList (ConvertTo-SddNativeArgumentString @(
         '-NoLogo','-NoProfile','-File',$snapshot,
         '-Manifest',$modeManifest,'-RepoRoot',$modeRepo,'-SnapshotRoot',$copySnapshot
-      ) -RedirectStandardOutput $copyOut -RedirectStandardError $copyErr -PassThru
+      )) -RedirectStandardOutput $copyOut -RedirectStandardError $copyErr -PassThru
     } finally {
       $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $oldCopyBarrier
     }
@@ -177,6 +178,17 @@ try {
   $valid = Join-Path $work 'manifests/valid.json'
   $validSnapshot = Join-Path $work 'snapshots/run-001'
   Write-Manifest $valid T-002 run-001 session-001 agent-001
+  foreach ($case in @(
+    @{field='schema'; value=@('task-input-manifest/v1'); diagnostic='TASK_INPUT_JSON'},
+    @{field='fallback_reason'; value=@(''); diagnostic='TASK_INPUT_ISOLATION'},
+    @{field='handoff_reload_evidence_hash'; value=@(''); diagnostic='TASK_INPUT_ISOLATION'}
+  )) {
+    $malformed = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+    $malformed.($case.field) = $case.value
+    $malformedPath = Join-Path $work 'manifests/non-scalar.json'
+    $malformed | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $malformedPath -Encoding utf8
+    Expect-Diagnostic $case.diagnostic { & $validator -Manifest $malformedPath }
+  }
   New-Item -ItemType Directory -Path (Join-Path $repo '.github/workflows') -Force | Out-Null
   Copy-Item -LiteralPath (Join-Path $repo 'contracts/demo.json') -Destination (Join-Path $repo '.github/workflows/test.yml')
   $dot = Join-Path $work 'manifests/dot.json'
@@ -279,6 +291,24 @@ try {
     $fallback | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $fallbackPath -Encoding utf8
   }
   & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
+  foreach ($field in @('schema', 'fallback_reason', 'session_id', 'agent_instance_id')) {
+    $badEvidence = $evidenceOriginal | ConvertFrom-Json
+    $badEvidence.$field = @($badEvidence.$field)
+    $badEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Encoding utf8
+    $badEvidenceHash = Get-Sha256 (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+    $badBatch = @()
+    foreach ($name in @('fallback-a', 'fallback-b')) {
+      $badManifest = Get-Content -Raw -LiteralPath (Join-Path $work "manifests/$name.json") | ConvertFrom-Json
+      $badManifest.handoff_reload_evidence_hash = $badEvidenceHash
+      $badManifest.allowed_inputs[-1].sha256 = $badEvidenceHash
+      $badPath = Join-Path $work "manifests/$name-nonscalar.json"
+      $badManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $badPath -Encoding utf8
+      $badBatch += $badPath
+    }
+    Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Batch $badBatch }
+  }
+  Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Value $evidenceOriginal -NoNewline -Encoding utf8
+
   $invented = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
   $invented.handoff_reload_evidence_hash = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
   $invented.allowed_inputs[-1].sha256 = $invented.handoff_reload_evidence_hash
@@ -398,10 +428,10 @@ try {
   $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR = $barrier
   try {
     $pwshPath = (Get-Process -Id $PID).Path
-    $process = Start-Process -FilePath $pwshPath -ArgumentList @(
+    $process = Start-Process -FilePath $pwshPath -ArgumentList (ConvertTo-SddNativeArgumentString @(
       '-NoLogo','-NoProfile','-File',$snapshot,
       '-Manifest',$valid,'-RepoRoot',$repo,'-SnapshotRoot',$boundarySnapshot
-    ) -RedirectStandardOutput $boundaryOut -RedirectStandardError $boundaryErr -PassThru
+    )) -RedirectStandardOutput $boundaryOut -RedirectStandardError $boundaryErr -PassThru
   } finally {
     $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR = $oldBarrier
   }

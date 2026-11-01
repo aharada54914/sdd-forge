@@ -35,12 +35,34 @@ tokens="$root/design-system/design-tokens.json"
 if [ ! -f "$tokens" ]; then
   echo "design-tokens.json missing" >> "$_f"
 else
-  grep -q '"schema": *"design-system-contract/v1"' "$tokens" || echo "design-tokens.json: meta.schema is not design-system-contract/v1" >> "$_f"
-  grep -Eq '"version": *"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"' "$tokens" || echo "design-tokens.json: meta.version is not semver" >> "$_f"
-  grep -Eq '"generated_by": *"[^"]+"' "$tokens" || echo "design-tokens.json: meta.generated_by missing" >> "$_f"
-  for group in color typography spacing; do
-    grep -q "\"$group\"" "$tokens" || echo "design-tokens.json: token group $group missing" >> "$_f"
-  done
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "check-design-system: jq is required to validate design-tokens.json" >&2
+    exit 1
+  fi
+  if jq -sr '
+    if length != 1 or (.[0] | type) != "object" then
+      ["design-tokens.json: not valid JSON object"]
+    else
+      .[0] as $document |
+      ($document.meta | if type == "object" then . else {} end) as $meta |
+      [
+        (if $meta.schema != "design-system-contract/v1" then "design-tokens.json: meta.schema is not design-system-contract/v1" else empty end),
+        (if ($meta.version | if type == "string" then test("^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$") else false end) then empty else "design-tokens.json: meta.version is not semver" end),
+        (if ($meta.generated_by | if type == "string" then length > 0 else false end) then empty else "design-tokens.json: meta.generated_by missing" end),
+        ("color", "typography", "spacing" | select($document[.] == null) | "design-tokens.json: token group " + . + " missing")
+      ]
+    end | .[]
+  ' "$tokens" >> "$_f" 2>/dev/null; then
+    :
+  else
+    jq_status=$?
+    if [ "$jq_status" -eq 4 ]; then
+      echo "design-tokens.json: not valid JSON" >> "$_f"
+    else
+      echo "check-design-system: cannot read or validate design-tokens.json" >&2
+      exit 1
+    fi
+  fi
 fi
 
 for f in "$@"; do
