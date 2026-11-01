@@ -23,13 +23,18 @@ development conversation. Protected CI run 41258114242 subsequently issued and
 validated the exact candidate after the actual owner environment review. Its
 four-file publication was applied transactionally on this activation branch;
 see ../../verification/T-678/phase1-publication.json. The agent did not obtain
-the new environment signing key. Final-head advisory CI association and the real
-release interval remain pending. These events are not retroactively attributed
+the new environment signing key. PR #693 provided the authentic final-head advisory CI association and merged
+with an identical tested tree. The parent release interval remains pending. These events are not retroactively attributed
 to code recovery. Historical source binding and execution records remain unchanged;
-no new clean-commit fullsuite certificate is invented.
+new acceptance execution is recorded separately on tracked-clean source a811f6a8,
+with the existing untracked preparation documents explicitly disclosed.
 
 ## Current approval and evidence scope
 Owner authorization is transcribed in approval-provenance.json. The agent records
 that decision; it does not claim an independently authenticated GitHub review.
 Historical raw execution records remain byte-identical to the exported packet.
-The current task-state check is separately rerun for Approved / Planned.
+The current task-state check is separately rerun for the actual task status.
+Fresh pre-bootstrap acceptance passed typecheck, build, 310 tests with zero skips,
+and production audit with zero vulnerabilities. Actual stdio MCP requests on the
+real repository returned three successful envelopes; task-state returned 11
+passing tasks and zero failures. These observations are not a post-release run.

@@ -1,6 +1,6 @@
 # Operational status for Issue 678
 
-T-678 is Approved / Planned. It is the prospective acceptance work originally
+T-678 is Approved / In Progress pending independent final review. It is the prospective acceptance work originally
 reviewed as packet T-001; relocation.json retains the identity/path mapping.
 No retrospective specification-first development or TDD is claimed.
 
@@ -36,13 +36,27 @@ The v1.19.0 bootstrap version update uses the existing bump script and its
 mandatory loop suites. Release-validation parity also passed. The version heading
 is preparation; no GitHub Release has yet been published by this change.
 
-## Acceptance still required
+## Actual acceptance progress
 
-Merge the signed activation and obtain genuine final-head capability-mode Gate
-execution. Keep full observations private, retain the original CI digest/check
-association, and reconstruct only from the exact trusted tooling and committed
-inputs. A matching private reconstruction is not a new historical CI invocation.
-Complete operational review before marking T-678 Done.
+PR #693 merged the signed activation. Its required CI and capability-mode Gate
+passed, and its merge tree matches the tested final head. The public association
+in ../../verification/T-678/acceptance-20261101/activation-ci-association.json
+binds the original check and collector digest; full API/log/observation exports
+remain private. Hash consistency is not independent HMAC authentication.
+
+Fresh execution on tracked-clean a811f6a8 used npm ci, typecheck, build, the full
+310-test suite (zero skips) and production audit (zero vulnerabilities). Actual
+stdio MCP calls on the real repository returned three successful envelopes,
+including 11 passing sdd-forge-mcp tasks and zero failures, without changing the
+worktree. Source/lock/command/time/output bindings are recorded under
+../../verification/T-678/acceptance-20261101/.
+
+This is genuine pre-bootstrap task acceptance work. The earlier plan to defer
+execution until after bootstrap publication was scheduling, not an additional
+T-678 Done condition. Independent final quality review is still pending; do not
+mark Done or manufacture a passing evidence bundle before it completes.
+
+## Parent release acceptance still required
 
 Publish a genuine bootstrap Release after exact-commit CI succeeds, then observe
 real PR work between that start boundary and a final published Release. Every

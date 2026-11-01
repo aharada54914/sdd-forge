@@ -1,0 +1,19 @@
+{
+  "label": "production-audit",
+  "argv": [
+    "npm",
+    "audit",
+    "--omit=dev"
+  ],
+  "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "started_at": "2026-11-01T02:00:42.028716Z",
+  "finished_at": "2026-11-01T02:00:42.497138Z",
+  "exit_code": 0,
+  "stdout_path": "production-audit.stdout",
+  "stderr_path": "production-audit.stderr",
+  "stdout_sha256": "6d8c5c8f3d7684adb070417bd608d01ae90aa3dc26a65af03ffda4955f38d9a3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+}

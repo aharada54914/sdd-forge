@@ -1,0 +1,19 @@
+{
+  "label": "typecheck",
+  "argv": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "/workspace/scratch/678-acceptance-draft/mcp/sdd-forge-mcp",
+  "source_commit": "a811f6a8984a73079f82082da7ea257899b027d3",
+  "started_at": "2026-11-01T02:00:27.411833Z",
+  "finished_at": "2026-11-01T02:00:27.675635Z",
+  "exit_code": 0,
+  "stdout_path": "typecheck.stdout",
+  "stderr_path": "typecheck.stderr",
+  "stdout_sha256": "c3fb6b341c1dd8055671bf668496cf9c991cb9a51baba33c6863595b0d05dd4c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "scope": "Actual pre-bootstrap-release acceptance execution; not completed release-interval evidence"
+}

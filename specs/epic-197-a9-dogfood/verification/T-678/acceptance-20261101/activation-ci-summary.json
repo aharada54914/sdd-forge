@@ -1,0 +1,16 @@
+{
+  "schema": "a9-activation-ci-summary/v1",
+  "recorded_at": "2026-11-01T02:03:03.749141+00:00",
+  "source_api_sha256": "4d6337be4e9779a42fce0bd48cd2309a595328827a8debee1c0d0d0bee569865",
+  "pr": 693,
+  "state": "MERGED",
+  "merged_at": "2026-11-01T01:42:09Z",
+  "merge_commit": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+  "head_sha": "0bd756bf4734c4ad46ccb46ddfdb4452112021dd",
+  "required_checks_conclusion": "SUCCESS",
+  "check_counts": {
+    "SKIPPED": 1,
+    "SUCCESS": 45
+  },
+  "scope": "Activation PR evidence; no acceptance-PR CI or release interval implied"
+}
