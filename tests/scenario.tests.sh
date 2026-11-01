@@ -954,9 +954,10 @@ cp "${SE}/verification/T-201.contract.json" "${SE_TAMPER}/verification/"
 cp -r "${SE}/.git" "${SE_TAMPER}/"
 
 # Tamper the bundle: flip one hex digit in the signature value
-python3 - <<PYEOF
+python3 - "${bundle_e}" "${SE_TAMPER}/verification/T-201.evidence.json" <<'PYEOF'
+import sys
 import json, pathlib
-src = pathlib.Path("${bundle_e}")
+src = pathlib.Path(sys.argv[1])
 b = json.loads(src.read_text(encoding="utf-8"))
 sig = b.get("signature", {})
 val = sig.get("value", "")
@@ -964,7 +965,7 @@ if val:
     flipped = val[:-1] + ('0' if val[-1] != '0' else '1')
     sig["value"] = flipped
     b["signature"] = sig
-dst = pathlib.Path("${SE_TAMPER}/verification/T-201.evidence.json")
+dst = pathlib.Path(sys.argv[2])
 dst.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
 PYEOF
 

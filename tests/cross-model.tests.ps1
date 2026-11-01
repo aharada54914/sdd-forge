@@ -79,7 +79,7 @@ function New-Verdict {
         consent      = $consentObj
     }
 
-    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $Path
+    $verdict | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 -LiteralPath $Path
 }
 
 function Get-MonotonicMilliseconds {
@@ -1080,6 +1080,30 @@ $panelistRunners = @(
     } else {
         Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
     }
+
+    # Exact boolean/string types and verdict casing match the Bash gate.
+    $parityFeature = 'literal[brackets]'
+    $parityDir = Join-Path $workDir "specs/$parityFeature/verification"
+    $parityA = Join-Path $parityDir 'T-002.panelist-anthropic.verdict.json'
+    $parityB = Join-Path $parityDir 'T-002.panelist-openai.verdict.json'
+    New-Verdict -Path $parityA -Vendor anthropic
+    New-Verdict -Path $parityB -Vendor openai
+    $parityArgs = @('--task', 'T-002', '--feature', $parityFeature, '--spec-root', (Join-Path $workDir 'specs'))
+    Assert-ExitCode 'literal brackets in feature path' (Invoke-CrossModel -Arguments $parityArgs) 0
+    foreach ($case in @(
+        @{ field = 'blind'; value = 'true'; expected = 2 },
+        @{ field = 'blind'; value = 1; expected = 2 },
+        @{ field = 'vendor'; value = 123; expected = 2 },
+        @{ field = 'verdict'; value = 'pass'; expected = 1 }
+    )) {
+        $document = Get-Content -Raw -LiteralPath $parityB | ConvertFrom-Json
+        $document.($case.field) = $case.value
+        $json = $document | ConvertTo-Json -Depth 5
+        [IO.File]::WriteAllText($parityB, $json)
+        Assert-ExitCode "reject noncanonical $($case.field) $($case.value)" (Invoke-CrossModel -Arguments $parityArgs) $case.expected
+        New-Verdict -Path $parityB -Vendor openai
+    }
+    Assert-ExitCode 'lowercase evaluator diverges' (Invoke-CrossModel -Arguments ($parityArgs + @('--evaluator', 'pass'))) 1
 
     # ============================================================================
     # Summary

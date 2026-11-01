@@ -433,8 +433,8 @@ if [[ "${ROUND}" -gt 1 ]]; then
   prior_contract="reports/task-review/${FEATURE}/attempt-${ATTEMPT}/round-${prior_round}/task-review-contract.json"
 
   if [[ -f "${prior_contract}" ]]; then
-    prior_tasks_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('tasks_sha256',''))" 2>/dev/null || echo "")
-    prior_traceability_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('traceability_sha256',''))" 2>/dev/null || echo "")
+    prior_tasks_sha256=$(jq -r '.tasks_sha256 // ""' "${prior_contract}") || fail "cannot read prior review contract hash"
+    prior_traceability_sha256=$(jq -r '.traceability_sha256 // ""' "${prior_contract}") || fail "cannot read prior review contract hash"
 
     # A later round must show progress on SOME reviewed artifact. tasks.md is
     # the usual target, but TRACEABILITY-SYNC findings are legitimately fixed

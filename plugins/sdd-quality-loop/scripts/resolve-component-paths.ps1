@@ -1230,7 +1230,7 @@ function Invoke-Diagnose {
                 }
             }
         }
-        $matches = [System.Collections.Generic.List[object]]::new()
+        $matchedEntries = [System.Collections.Generic.List[object]]::new()
         if ($bindings) {
             foreach ($binding in $bindings) {
                 $adapterPaths = $binding["adapter_paths"]
@@ -1257,14 +1257,14 @@ function Invoke-Diagnose {
                         $nfcPath = ConvertTo-Nfc $path
                         foreach ($pair in $usablePatterns) {
                             if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
-                                $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
+                                $matchedEntries.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                             }
                         }
                     }
                 }
             }
         }
-        $findings.Add([ordered]@{ id = "Fail-6"; triggered = ($matches.Count -gt 0); detail = [ordered]@{ matches = @($matches) } })
+        $findings.Add([ordered]@{ id = "Fail-6"; triggered = ($matchedEntries.Count -gt 0); detail = [ordered]@{ matches = @($matchedEntries) } })
     } else {
         $findings.Add([ordered]@{ id = "Fail-6"; triggered = $false; detail = [ordered]@{ status = "not-applicable (provider-bindings absent)" } })
         $warnings.Add("Fail-6: provider-bindings file absent; recorded N/A")
