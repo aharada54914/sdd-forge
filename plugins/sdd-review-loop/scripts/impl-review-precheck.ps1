@@ -49,9 +49,9 @@ function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPat
     $current = $Repository
     foreach ($part in $relative.Split('/')) {
       if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
-      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
-      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
-      $current = $matches[0]
+      $matchedEntries = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matchedEntries.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matchedEntries[0]
       $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
       if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
     }
@@ -78,10 +78,10 @@ function Test-AdrBoundFilePath {
     $components = $Relative.Split('/')
     for ($index = 0; $index -lt $components.Length; $index++) {
         $component = $components[$index]
-        $matches = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
+        $matchedEntries = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
             Where-Object { [string]::Equals($_.Name, $component, [StringComparison]::Ordinal) })
-        if ($matches.Count -ne 1) { return $false }
-        $item = $matches[0]
+        if ($matchedEntries.Count -ne 1) { return $false }
+        $item = $matchedEntries[0]
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
             return $false
         }
@@ -302,8 +302,8 @@ function Get-AdrPreviousRoundJson {
   $reviewers = @($Prior.reviewers)
   if ($reviewers.Count -ne 2) { Fail 'previous ADR review requires two reviewers' }
   foreach ($role in @('impl-reviewer-a','impl-reviewer-b')) {
-    $matches = @($reviewers | Where-Object { $_.role -is [string] -and $_.role -ceq $role })
-    if ($matches.Count -ne 1) { Fail 'previous ADR reviewer roles differ' }
+    $matchedEntries = @($reviewers | Where-Object { $_.role -is [string] -and $_.role -ceq $role })
+    if ($matchedEntries.Count -ne 1) { Fail 'previous ADR reviewer roles differ' }
     $reviewerRelative = "$relativeRoot/$($role.Substring(5)).json"
     if (-not (Test-AdrBoundFilePath $RepoRoot $reviewerRelative)) { Fail 'unsafe previous ADR reviewer output' }
     $reviewerPath = Join-Path $RepoRoot $reviewerRelative
@@ -315,13 +315,13 @@ function Get-AdrPreviousRoundJson {
     }
     foreach ($field in @('run_id','host_session_id')) {
       if ($output.$field -isnot [string] -or [string]::IsNullOrWhiteSpace($output.$field) -or
-          $matches[0].$field -isnot [string] -or $output.$field -cne $matches[0].$field) {
+          $matchedEntries[0].$field -isnot [string] -or $output.$field -cne $matchedEntries[0].$field) {
         Fail 'previous ADR reviewer output provenance mismatch'
       }
     }
     # Opening a failed round can return before workflow-state's PASS checks.
     # Bind actual reviewer output as well as the contract's claimed inputs here.
-    foreach ($source in @($matches[0], $output)) {
+    foreach ($source in @($matchedEntries[0], $output)) {
       if ($source.allowed_input_manifest -isnot [array]) { Fail 'invalid previous ADR reviewer manifest' }
       $entries = @($source.allowed_input_manifest)
       $documentPins = [ordered]@{
@@ -448,11 +448,11 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
   $selected = @($resolved.inputs)
   foreach ($reviewer in $Contract.reviewers) {
     foreach ($pin in @($resolved.research_inputs)) {
-      $matches = @($reviewer.allowed_input_manifest | Where-Object {
+      $matchedEntries = @($reviewer.allowed_input_manifest | Where-Object {
         (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $pin.path })
-      if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+      if ($matchedEntries.Count -ne 1 -or ($matchedEntries[0].sha256 -cne $pin.sha256 -and
           ($pin.path -cne "specs/$FeatureName/requirements.md" -or
-           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { Fail 'incomplete research manifest' }
+           $matchedEntries[0].sha256 -cne $resolved.observed.($pin.path)))) { Fail 'incomplete research manifest' }
     }
   }
   foreach ($entry in $entries) {

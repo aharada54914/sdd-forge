@@ -167,7 +167,7 @@ fi
 
 # Verify aggregate written with FAIL
 if [ -f "${WORK}/cm001/specs/f1/verification/T-002.cross-model.json" ]; then
-    result=$(python3 -c "import json; d=json.load(open('${WORK}/cm001/specs/f1/verification/T-002.cross-model.json')); print(d['result'])")
+    result=$(python3 -c "import sys; import json; d=json.load(open(sys.argv[1])); print(d['result'])" "${WORK}/cm001/specs/f1/verification/T-002.cross-model.json")
     if [ "$result" = "FAIL" ]; then
         ok "CM-001b: aggregate result=FAIL written"
     else
@@ -297,7 +297,7 @@ fi
 
 # Verify aggregate PASS result written
 if [ -f "${WORK}/cm010/specs/f1/verification/T-002.cross-model.json" ]; then
-    result=$(python3 -c "import json; d=json.load(open('${WORK}/cm010/specs/f1/verification/T-002.cross-model.json')); print(d['result'])")
+    result=$(python3 -c "import sys; import json; d=json.load(open(sys.argv[1])); print(d['result'])" "${WORK}/cm010/specs/f1/verification/T-002.cross-model.json")
     if [ "$result" = "PASS" ]; then
         ok "CM-010b: aggregate result=PASS written"
     else
@@ -331,8 +331,8 @@ else
     fail "CM-012: evaluator diverge should exit 1, got ${CM_EXIT}. Output: ${CM_OUTPUT}"
 fi
 if [ -f "${WORK}/cm012/specs/f1/verification/T-002.cross-model.json" ]; then
-    rh=$(python3 -c "import json; d=json.load(open('${WORK}/cm012/specs/f1/verification/T-002.cross-model.json')); print(d.get('requires_human_decision',''))")
-    res=$(python3 -c "import json; d=json.load(open('${WORK}/cm012/specs/f1/verification/T-002.cross-model.json')); print(d.get('result',''))")
+    rh=$(python3 -c "import sys; import json; d=json.load(open(sys.argv[1])); print(d.get('requires_human_decision',''))" "${WORK}/cm012/specs/f1/verification/T-002.cross-model.json")
+    res=$(python3 -c "import sys; import json; d=json.load(open(sys.argv[1])); print(d.get('result',''))" "${WORK}/cm012/specs/f1/verification/T-002.cross-model.json")
     if [ "$rh" = "True" ] && [ "$res" = "NEEDS_HUMAN" ]; then
         ok "CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true"
     else
@@ -376,9 +376,10 @@ CM_EXIT=0
 run_cross_model --task T-002 --feature f1 --spec-root "${WORK}/cm015/specs"
 agg="${WORK}/cm015/specs/f1/verification/T-002.cross-model.json"
 if [ -f "$agg" ]; then
-    valid=$(python3 - <<PYEOF
+    valid=$(python3 - "${agg}" <<'PYEOF'
+import sys
 import json, sys
-d = json.load(open('${agg}'))
+d = json.load(open(sys.argv[1]))
 required = ['schema','task_id','feature','panelists','vendors_distinct','non_anthropic_count','all_pass','any_critical','evaluator_verdict','divergence','requires_human_decision','result']
 missing = [k for k in required if k not in d]
 if missing:
@@ -674,7 +675,8 @@ run_timeout_case() {
     local marker="${case_dir}/called"
     local stub_pid_file="${case_dir}/stub.pid"
     local child_pid_file="${case_dir}/child.pid"
-    local verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
+    local verdict
+    verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
     mkdir -p "$case_dir"
 
     local started finished elapsed
@@ -820,7 +822,7 @@ CM_EXIT=0
 run_cross_model --task T-901 --feature timeout-test --spec-root "$gate_root"
 gate_aggregate="${gate_verification}/T-901.cross-model.json"
 gate_result=""
-[ -f "$gate_aggregate" ] && gate_result=$(python3 -c "import json; print(json.load(open('${gate_aggregate}'))['result'])")
+[ -f "$gate_aggregate" ] && gate_result=$(python3 -c "import sys; import json; print(json.load(open(sys.argv[1]))['result'])" "${gate_aggregate}")
 if [ "$CM_EXIT" != "0" ] && [ "$gate_result" != "PASS" ] && ! printf '%s' "$CM_OUTPUT" | grep -q 'consensus PASS'; then
     ok "TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS"
 else
@@ -1167,6 +1169,47 @@ then
     ok 'model argv is literal with and without effort; native failure is preserved'
 else
     fail 'model argv must not be split or glob-expanded'
+fi
+
+# Execute the actual wrapper with hostile data; a Python source interpolation
+# would create the sentinel before verdict discovery. Paths also exercise quoting.
+if python3 - "$SCRIPTS_DIR/check-cross-model.sh" "$WORK" <<'PY'
+import json
+import pathlib
+import subprocess
+import sys
+
+script, work = sys.argv[1:]
+root = pathlib.Path(work)
+sentinel = root / 'source-executed'
+feature = 'quotes\'" 日本語 $` \\ line\nnext'
+spec_root = root / 'specs space'
+verdict_dir = spec_root / feature / 'verification'
+verdict_dir.mkdir(parents=True)
+for vendor in ('anthropic', 'openai'):
+    (verdict_dir / f'T-002.panelist-{vendor}.verdict.json').write_text(json.dumps({
+        'blind': True, 'input_digest': 'a' * 64, 'vendor': vendor,
+        'consent': {'kind': 'human-flag'}, 'verdict': 'PASS', 'findings': [],
+    }))
+base = ['sh', script, '--task', 'T-002', '--feature', feature, '--spec-root', str(spec_root)]
+result = subprocess.run(base, capture_output=True, text=True, timeout=10)
+assert result.returncode == 0, result.stderr
+aggregate = json.loads((verdict_dir / 'T-002.cross-model.json').read_text())
+assert aggregate['feature'] == feature
+payload = '"; __import__("pathlib").Path(' + repr(str(sentinel)) + ').touch(); #'
+result = subprocess.run(base + ['--evaluator', payload], capture_output=True, text=True, timeout=10)
+assert result.returncode == 1, result.stderr
+assert not sentinel.exists(), 'CLI value executed as Python'
+aggregate = json.loads((verdict_dir / 'T-002.cross-model.json').read_text())
+assert aggregate['evaluator_verdict'] == payload
+for option in ('--task', '--feature', '--evaluator', '--expect-digest', '--spec-root'):
+    result = subprocess.run(base + [option], capture_output=True, text=True, timeout=10)
+    assert result.returncode == 2, (option, result.returncode)
+PY
+then
+    ok 'cross-model CLI values remain data and missing values fail with tool-error exit'
+else
+    fail 'cross-model CLI data transport regression'
 fi
 
 # ============================================================================

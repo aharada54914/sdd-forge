@@ -44,9 +44,10 @@ run_scan() {
 # Same, but with a caller-supplied environment prefix (TEST-069). Usage:
 # run_scan_env 'VAR=val VAR2=val2' [args...] -> sets $SCAN_EXIT/$SCAN_OUTPUT
 run_scan_env() {
-    local envspec="$1"; shift
+    local -a envspec
+    read -r -a envspec <<< "$1"; shift
     SCAN_EXIT=0
-    SCAN_OUTPUT="$(env -i PATH="$PATH" HOME="${HOME:-}" $envspec bash "$SC" "$@" </dev/null 2>&1)" || SCAN_EXIT=$?
+    SCAN_OUTPUT="$(env -i PATH="$PATH" HOME="${HOME:-}" "${envspec[@]}" bash "$SC" "$@" </dev/null 2>&1)" || SCAN_EXIT=$?
 }
 
 echo "=== design-sync-scan.tests.sh: REPO_ROOT=${REPO_ROOT} ==="
@@ -430,7 +431,8 @@ echo ""
 echo "=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ==="
 assert_secret_hit() {
     local label="$1" content="$2"
-    local d="${WORK}/secret-$(printf '%s' "$label" | tr -c 'A-Za-z0-9' '_')"
+    local d
+    d="${WORK}/secret-$(printf '%s' "$label" | tr -c 'A-Za-z0-9' '_')"
     mkdir -p "$d"
     printf '<html><body>\n%s\n</body></html>\n' "$content" > "${d}/s.html"
     run_scan "$d"
@@ -510,7 +512,8 @@ echo ""
 echo "=== TEST-024, TEST-057 - TEST-062 (AC-011): the seven RFC 2606/6761 reserved domains/TLDs do not trigger ==="
 assert_reserved_domain_clean() {
     local label="$1" email="$2"
-    local d="${WORK}/reserved-$(printf '%s' "$label" | tr -c 'A-Za-z0-9' '_')"
+    local d
+    d="${WORK}/reserved-$(printf '%s' "$label" | tr -c 'A-Za-z0-9' '_')"
     mkdir -p "$d"
     printf '<html><body>\n<p>Contact: %s</p>\n</body></html>\n' "$email" > "${d}/e.html"
     run_scan "$d"
