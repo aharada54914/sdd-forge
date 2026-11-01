@@ -10,10 +10,11 @@ param(
 $ErrorActionPreference = 'Stop'
 function Fail([string]$Message) { throw "review-contract-validate: $Message" }
 function Is-JsonInteger([object]$Value) {
-  return $Value -is [System.Int64] -or $Value -is [System.Numerics.BigInteger] -or ($Value -is [double] -and -not [double]::IsNaN($Value) -and -not [double]::IsInfinity($Value) -and [Math]::Floor($Value) -eq $Value)
+  return $Value -is [System.Int32] -or $Value -is [System.Int64] -or $Value -is [System.Numerics.BigInteger] -or ($Value -is [double] -and -not [double]::IsNaN($Value) -and -not [double]::IsInfinity($Value) -and [Math]::Floor($Value) -eq $Value)
 }
 
-if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
+if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
+if ($Stage -cnotmatch '^(spec|impl|task)$') { Fail 'stage must be spec, impl, or task' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 if (-not (Test-Path -LiteralPath $Contract -PathType Leaf)) { Fail 'contract does not exist' }
@@ -32,7 +33,7 @@ if (Test-Path -LiteralPath $ReportRoot) {
 $data = Get-Content -LiteralPath $Contract -Raw | ConvertFrom-Json
 $expectedProperties = @('attempt', 'feature', 'input_sha256', 'round', 'run_id', 'schema', 'stage', 'verdict')
 $actualProperties = @($data.PSObject.Properties.Name | Sort-Object)
-if (@(Compare-Object -ReferenceObject $expectedProperties -DifferenceObject $actualProperties).Count -ne 0 -or $data.schema -ne 'review-contract/v1' -or $data.feature -ne $Feature -or -not (Is-JsonInteger $data.attempt) -or $data.attempt.ToString() -ne $Attempt -or -not (Is-JsonInteger $data.round) -or $data.round.ToString() -ne $Round -or $data.stage -ne $Stage -or $data.input_sha256 -isnot [string] -or $data.input_sha256 -cnotmatch '^[0-9a-f]{64}$' -or $data.run_id -isnot [string] -or [string]::IsNullOrWhiteSpace($data.run_id) -or $data.verdict -ne 'PASS') { Fail 'contract identity or PASS verdict is invalid' }
+if (@(Compare-Object -CaseSensitive -ReferenceObject $expectedProperties -DifferenceObject $actualProperties).Count -ne 0 -or $data.schema -isnot [string] -or $data.schema -cne 'review-contract/v1' -or $data.feature -isnot [string] -or $data.feature -cne $Feature -or -not (Is-JsonInteger $data.attempt) -or $data.attempt.ToString() -ne $Attempt -or -not (Is-JsonInteger $data.round) -or $data.round.ToString() -ne $Round -or $data.stage -isnot [string] -or $data.stage -cne $Stage -or $data.input_sha256 -isnot [string] -or $data.input_sha256 -cnotmatch '^[0-9a-f]{64}$' -or $data.run_id -isnot [string] -or [string]::IsNullOrWhiteSpace($data.run_id) -or $data.verdict -isnot [string] -or $data.verdict -cne 'PASS') { Fail 'contract identity or PASS verdict is invalid' }
 
 # PowerShell 7.5+ may serialize BigInteger values as objects on macOS. Feature
 # and stage are already constrained to JSON-safe tokens, and attempt/round are
