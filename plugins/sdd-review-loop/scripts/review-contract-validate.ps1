@@ -27,6 +27,23 @@ $leaf = [IO.Path]::GetFileName($ReportRoot.TrimEnd([IO.Path]::DirectorySeparator
 if ($leaf -in @('.', '..')) { Fail 'report root must name a child directory' }
 $canonicalRoot = Join-Path (Resolve-Path -LiteralPath $parent).Path $leaf
 if (-not $canonicalRoot.StartsWith($reportsRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { Fail 'report root escapes reports directory' }
+# Resolve-Path preserves symlink ancestors. Follow them before containment;
+# an internal link remains valid, while a link outside reports cannot authorize it.
+function Get-PhysicalDirectory([string]$Path, [int]$Depth = 0) {
+  if ($Depth -gt 64) { Fail 'report root symlink resolution exceeded its limit' }
+  $item = Get-Item -LiteralPath $Path -Force
+  if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+    $target = $item.ResolveLinkTarget($true)
+    if ($null -eq $target) { Fail 'report root symlink target is unavailable' }
+    return Get-PhysicalDirectory $target.FullName ($Depth + 1)
+  }
+  if ($null -eq $item.Parent) { return $item.FullName }
+  $physicalParent = Get-PhysicalDirectory $item.Parent.FullName $Depth
+  return Join-Path $physicalParent $item.Name
+}
+$physicalReports = Get-PhysicalDirectory $reportsRoot
+$physicalRoot = Join-Path (Get-PhysicalDirectory $parent) $leaf
+if (-not $physicalRoot.StartsWith($physicalReports + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal)) { Fail 'report root escapes reports directory' }
 if (Test-Path -LiteralPath $ReportRoot) {
   if (-not (Test-Path -LiteralPath $ReportRoot -PathType Container)) { Fail 'report root must be a directory when it exists' }
   if ((Get-Item -LiteralPath $ReportRoot).LinkType) { Fail 'report root must not be a symlink' }
