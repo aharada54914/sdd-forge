@@ -813,6 +813,708 @@
       ],
       "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
       "reuse": null
+    },
+    {
+      "finding_id": "SH-001",
+      "rule_id": "CS-002",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 43,
+      "source_sha256": "f3c210ef9205cec0f054388fdd5308a644b6b91c0b71eb0a28584635c2871b3e",
+      "flow": {
+        "input": "CLI task/feature/evaluator/digest/spec-root",
+        "transformation": "expanded heredoc inserts values as Python source",
+        "sink": "python3 stdin interpreter"
+      },
+      "impact": "Arbitrary Python execution; quote/newline/backslash corruption",
+      "reproduction": "Actual baseline --evaluator quote/Path.touch payload: exit2 and sentinel exists; fixed exit2 and sentinel absent. Normal odd feature path and evaluator round-trip tested.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.sh\",\"revision\":\"a62daa18\",\"sha256\":\"feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.sh\"}"
+      ],
+      "resolution": "Quoted heredoc, six argv values; explicit missing-option error exit2.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-002",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 316,
+      "source_sha256": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+      "flow": {
+        "input": "Caller model ids, feature, track, plugin version and effort strings",
+        "transformation": "unescaped JSON interpolation",
+        "sink": "reports/runs/*.json"
+      },
+      "impact": "Exit0 with malformed JSON metadata",
+      "reproduction": "Actual baseline --model-main quoted\"model: exit0 invalid JSON; fixed exit0 valid JSON. v1 golden unchanged for ordinary values.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/emit-run-record.sh\",\"revision\":\"a62daa18\",\"sha256\":\"5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/emit-run-record-feature-scope.tests.sh\"}"
+      ],
+      "resolution": "Reuse existing jq serializer for every non-enum string; explicit dependency and pre-write failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-003",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "line": 316,
+      "source_sha256": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+      "flow": {
+        "input": "Output write failure",
+        "transformation": "final echo overrides cat status",
+        "sink": "success exit and wrote diagnostic"
+      },
+      "impact": "Caller receives success when output does not exist",
+      "reproduction": "Directory at deterministic output path via fixed date fixture: regression requires nonzero and no wrote text.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/emit-run-record.sh\",\"revision\":\"a62daa18\",\"sha256\":\"5c10571b485cba08fe4810686daf66a841528dccd23efb373180d837449765bc\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/emit-run-record-feature-scope.tests.sh\"}"
+      ],
+      "resolution": "Each heredoc write propagates failure.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-004",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 1,
+      "source_sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752",
+      "flow": {
+        "input": "Direct executable entry documented in domain review flow",
+        "transformation": "/bin/sh shebang interprets Bash process substitutions",
+        "sink": "POSIX shell parser"
+      },
+      "impact": "Executable entry fails even though bash-forced tests passed",
+      "reproduction": "sh -n baseline fails redirection at666; direct-entry regression now191 assertions pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\",\"revision\":\"a62daa18\",\"sha256\":\"8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/prepare-panelist.tests.sh\"}"
+      ],
+      "resolution": "Declare actual Bash runtime in shebang; test common entry by executable path.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-005",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 397,
+      "source_sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752",
+      "flow": {
+        "input": "Declared file path from repo output/evidence metadata",
+        "transformation": "unquoted IFS split also glob-expands path segments",
+        "sink": "symlink component walk"
+      },
+      "impact": "Glob-bearing path components can alter containment walk",
+      "reproduction": "Prepared input suite191 passes; code now NUL-terminated read array preserves all non-NUL data.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh\",\"revision\":\"a62daa18\",\"sha256\":\"8aecb99dd45c3e2641a2db5c5eb02c3b2cea0550b41d7453dd62a2ca9955d2f3\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/prepare-panelist.tests.sh\"}"
+      ],
+      "resolution": "Bash array read with explicit slash delimiter and quoted iteration.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-006",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh",
+      "line": 78,
+      "source_sha256": "4a776b186b6fce40fd0fc486df43230c185898655eb4fe03040b7fab117ae6a1",
+      "flow": {
+        "input": "Bounded-Context field text",
+        "transformation": "unquoted comma splitting also glob-expands and eval creates indexed variables",
+        "sink": "context membership/relation check"
+      },
+      "impact": "Literal star context incorrectly expands working-directory files",
+      "reproduction": "New Pester literal-context runs Bash+PS actual gates alongside72 passing domain tests.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-domain-conformance.sh\",\"revision\":\"a62daa18\",\"sha256\":\"4376d8a13589581bb1bbdfc23b11b6b3a84cc2440158cf9ce7526f7e8885233f\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/sdd-domain/check-domain-conformance.Tests.ps1\"}"
+      ],
+      "resolution": "Parameter-based comma parsing and direct c1/c2 assignment; no eval.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-007",
+      "rule_id": "CS-005",
+      "path": ".github/workflows/release.yml",
+      "line": 116,
+      "source_sha256": "5ac7fcee96072d6e1e8c43979fd2924083e319b8de97ee61949cedb795e1818e",
+      "flow": {
+        "input": "workflow_dispatch tag and step output values",
+        "transformation": "Actions substitutes inside shell source",
+        "sink": "release Bash steps"
+      },
+      "impact": "Code/data boundary violation; upstream ci-green grammar mitigates production exploitability",
+      "reproduction": "Execute actual Resolve tag body with env values; normal v1.2.3 emitted, quote/newline/backslash/command substitution denied without output/sentinel.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\".github/workflows/release.yml\",\"revision\":\"a62daa18\",\"sha256\":\"7183a77abd6d4332518587cbbe3dcf508d1733ed540d0477012f79061f61eab1\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/release-loop-gate.tests.sh\"}"
+      ],
+      "resolution": "All variable release run inputs passed via env; tag grammar rechecked at output boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-001",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "line": 185,
+      "source_sha256": "f4fe0bafd95deac9e87d2dc9e0cb9bd9955502de5964712e157fba8945c2cfb2",
+      "flow": {
+        "input": "verdict/evaluator JSON strings",
+        "transformation": "case-insensitive equality",
+        "sink": "consensus PASS"
+      },
+      "impact": "Lowercase pass accepted unlike Bash contract",
+      "reproduction": "Actual native PS suite includes lowercase verdict/evaluator rejection and111 passing assertions.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.ps1\"}"
+      ],
+      "resolution": "Ordinal PASS comparisons; keep vendor case normalization intentional.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "line": 115,
+      "source_sha256": "f4fe0bafd95deac9e87d2dc9e0cb9bd9955502de5964712e157fba8945c2cfb2",
+      "flow": {
+        "input": "blind/vendor verdict JSON types",
+        "transformation": "PowerShell coercion treats string true/integer1 as true and numeric vendor as string",
+        "sink": "consensus schema validation"
+      },
+      "impact": "Malformed verdict admitted as consented blinded panel",
+      "reproduction": "Native PS controls reject blind string/number and numeric vendor exit2.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-cross-model.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.ps1\"}"
+      ],
+      "resolution": "Require bool and string types before comparison; literal paths for bracket-bearing feature.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-003",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+      "line": 40,
+      "source_sha256": "06c3bbf762fc11aec733b1e5c54413e8ceb2e51e03c72a139947059787115ee4",
+      "flow": {
+        "input": "AGENT_STOP metadata lookup",
+        "transformation": "catch{} discards inspection exceptions",
+        "sink": "allow decision"
+      },
+      "impact": "Permission/IO lookup failure incorrectly treated as no stop marker",
+      "reproduction": "Real unprivileged chmod000 directory containing marker: fixed standalone exit2 cannot-inspect diagnostic; integrated cross-runtime regression pending.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/kill-switch.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"37aac059de76a28dfe60f63eade1102bc2dd8b3e8564ae8d6b07edb54838f51c\"}"
+      ],
+      "resolution": "Fail closed on inspection exception preserving Test-Path missing/non-leaf behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-004",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 465,
+      "source_sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c",
+      "flow": {
+        "input": "AGENT_STOP metadata lookup",
+        "transformation": "catch{} discards inspection exceptions",
+        "sink": "allow decision"
+      },
+      "impact": "Permission/IO lookup failure incorrectly treated as no stop marker",
+      "reproduction": "Real unprivileged chmod000 directory containing marker: fixed standalone exit2 cannot-inspect diagnostic; integrated cross-runtime regression pending.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c\"}"
+      ],
+      "resolution": "Fail closed on inspection exception preserving Test-Path missing/non-leaf behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-010",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "line": 220,
+      "source_sha256": "f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-component-coverage.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-011",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "line": 644,
+      "source_sha256": "c02d45ba955758f10c9cf6a58cfdf7ac96cf0241c163aee749a2ed33f28ba397",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/check-workflow-state.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-012",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1233,
+      "source_sha256": "ac2118d4104e187a51b0ae8d04d3d591201ff0caf7f0a5072b29195a13903b05",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-013",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 1874,
+      "source_sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-014",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "line": 1011,
+      "source_sha256": "1d6d36e038c2c6520162dc38513f9fda097ff3a1deaf61d65ffb773d12425c99",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"7960c5733f0b68d54d3dfdbf13955ecf5c29c2537bad05dbe9de7837c9d46ea8\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-015",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+      "line": 52,
+      "source_sha256": "6159fadf2a42404a06147c8ca4791560fd7bf3225f65e698c265bebcfa135bf3",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/impl-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"e61f7a400953a4290de476e77441f2661d858093147cb66b1f66faa22d1d15da\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-016",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "line": 67,
+      "source_sha256": "b0aa1540f3d82a62b7b7ecf8554d6c24100b7cfc566f91f8e3d55c7a20df5d13",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/spec-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"3a5908967eecbdd80731e2061fddd85720229c77439425f8b02317d1212fb1df\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-017",
+      "rule_id": "CS-012",
+      "path": "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
+      "line": 53,
+      "source_sha256": "d256c374d57e2a9f11c81778bbad4f2a7484ccfb02ddbac48905154ff932be69",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"plugins/sdd-review-loop/scripts/task-review-precheck.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fbf6452136b0bd636a005c06025f71d84558a75a612337df750a7a96767f7d6b\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-018",
+      "rule_id": "CS-012",
+      "path": "tests/path-lineending-regression.tests.ps1",
+      "line": 167,
+      "source_sha256": "d8e9e392a9a2078c00290897a8b6c80fa3dea4926dc1e29ec1c356da69f97f65",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/path-lineending-regression.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"92252523ea44044e64b63a98b3cb646ac0143588f94f68098f0c8c67df2c7163\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-019",
+      "rule_id": "CS-012",
+      "path": "tests/plugin-contracts-track-selection.tests.ps1",
+      "line": 271,
+      "source_sha256": "025eef7de18727d8e9224e951655701813ddfcdb6067735fc22ad9edc205a668",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/plugin-contracts-track-selection.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fae388d5de3460fbfb55b3a9205e475ce8e005f3edd6fadfa45116242fbbef93\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-020",
+      "rule_id": "CS-012",
+      "path": "tests/ship-track-selection-migration.tests.ps1",
+      "line": 344,
+      "source_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/ship-track-selection-migration.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"fce94f1a13e0f29a5face2d7faadcac03724ee86c7152224eea1611e9fbbfd54\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-021",
+      "rule_id": "CS-012",
+      "path": "tests/structural-compatibility.tests.ps1",
+      "line": 122,
+      "source_sha256": "ade3456b0349ca2673b921297e2efc8fa66d96f6ed5e25a9bae43c0c6ddc1f06",
+      "flow": {
+        "input": "local temporary list/profile/input/error variables",
+        "transformation": "assignment to PowerShell automatic names",
+        "sink": "runtime automatic-variable state"
+      },
+      "impact": "Accidental coupling to regex captures, pipeline input, args or error history",
+      "reproduction": "Pinned PSSA1.25 baseline19 diagnostics across14 files; post-fix zero selected diagnostics across all current PS files.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/structural-compatibility.tests.ps1\",\"revision\":\"a62daa18\",\"sha256\":\"ce3cf7c5db811fb4d3542ebbd6c075ac5308e2eb6383780c1145af0a84d1542d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/coding-standards/powershell.ps1\"}"
+      ],
+      "resolution": "Rename purpose-specific temporaries only; preserve actual regex $Matches and input $args.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-020",
+      "rule_id": "CS-002",
+      "path": "tests/context-projection-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/context-projection-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"d3a02a139c996c20240feb1139a0b994a5dbce0515088f6524c4832e2166e4f7\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/context-projection-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-021",
+      "rule_id": "CS-002",
+      "path": "tests/capability-summary-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "392d6724dd27f0317142922d34014b8c446031c3c07d8a65638153b1e1aee6f1",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/capability-summary-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"7443ad87e0fba542f76c29dc6d0592ae2d1e597b49ddf58fecbb6c15ef237ee9\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/capability-summary-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-022",
+      "rule_id": "CS-002",
+      "path": "tests/facet-manifest-schema.tests.sh",
+      "line": 1,
+      "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/facet-manifest-schema.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"9ea28ea300f0f5967080d25f615ea042229b390b921a1577563ef25e3042362d\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/facet-manifest-schema.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-023",
+      "rule_id": "CS-002",
+      "path": "tests/gates.tests.sh",
+      "line": 1,
+      "source_sha256": "854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/gates.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"6f602d926d6a9533ae8b97225e7a9f8e9c1ae3781ebd8f0650411e068c27c8ca\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/gates.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-024",
+      "rule_id": "CS-002",
+      "path": "tests/scenario.tests.sh",
+      "line": 1,
+      "source_sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/scenario.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"a0dea4de0a500f064a36f32e589dd4327dbb853d87eaf420ad30e9f942ef5251\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/scenario.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-025",
+      "rule_id": "CS-002",
+      "path": "tests/eval.tests.sh",
+      "line": 1,
+      "source_sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/eval.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"3f63c1062dcdcac7432ba9817947e778aa7434ba4c45f2c63bca85829e0fccb1\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/eval.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-026",
+      "rule_id": "CS-002",
+      "path": "tests/cross-model.tests.sh",
+      "line": 1,
+      "source_sha256": "7691268c0021632be748ba394c3c927b2fa83ce1bfe0f318c850dada88f46adb",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/cross-model.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"144494ca55a90032cd8554c909deeadf7b6986641ea12a76101326ae41c247cd\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/cross-model.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-027",
+      "rule_id": "CS-002",
+      "path": "tests/guards.tests.sh",
+      "line": 1,
+      "source_sha256": "24e2cec71468b681f190e40ded7c3fb3dc2114c6a538b541a0483f6118f84377",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/guards.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"04040c52c2a0e51f11b3c0c5a6e566b948ed1be2fe22f56125371062f220ae6c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/guards.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-028",
+      "rule_id": "CS-002",
+      "path": "tests/guard-parity.tests.sh",
+      "line": 1,
+      "source_sha256": "b68c8c555b661fc4edb2e1613caf80128df92a1ce88ddef6b3bfda4b341f1437",
+      "flow": {
+        "input": "Repository/temp path or fixture variable",
+        "transformation": "Python -c or expanded heredoc injects data into source",
+        "sink": "Python test helper interpreter"
+      },
+      "impact": "Quote-containing workspace/temp path breaks helper or executes source",
+      "reproduction": "Existing suites exercise fixed helper paths; new check-cross-model sentinel validates boundary mechanism. Full odd-workspace rerun not yet performed.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "{\"kind\":\"source\",\"path\":\"tests/guard-parity.tests.sh\",\"revision\":\"a62daa18\",\"sha256\":\"cf755b5bb79d6286b47065528f17950ec915f0c5cd4f415beb589016f72c072c\"}",
+        "{\"kind\":\"regression\",\"path\":\"tests/guard-parity.tests.sh\"}"
+      ],
+      "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
+      "reuse": null
     }
   ]
 }

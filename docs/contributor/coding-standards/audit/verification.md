@@ -48,3 +48,22 @@ Schema negative controls rejected unknown rule CS-999, unknown state `passed`,
 empty evidence on a fixed finding, and null resolution on a fixed finding.
 The actual handoff records pass the same schema. Native tool mappings and
 consumer-specific reuse decisions are linked to their existing owners.
+
+## Shell handoff reconciliation
+
+Imported 32 #688 concrete records from the `a62daa18` handoff into the central
+ledger (69 records including Python). Checked every original source SHA-256
+against baseline `82b53695`, and every provided repaired-source SHA-256 against
+its exact fix revision. Structured source/regression evidence is retained as
+JSON strings because the version-one finding schema defines evidence as strings;
+no fields are discarded. This is pin/metadata validation, not an independent
+rerun of the language owner's regression commands. Remaining language findings
+must still be reconciled; the whole population remains unreviewed.
+
+Six rule-example controls executed with an input containing single/double quotes,
+a newline, Japanese text, shell metacharacters, regex operators and query
+separators. JSON round-trip, regex literal full-match, URL query round-trip,
+SQLite parameter binding, a Bash argument array and a literal Python program
+receiving an environment value each preserved the intended value. These narrow
+controls substantiate the examples; they do not establish all destination rules,
+Windows batch semantics or whole-repository compliance.
