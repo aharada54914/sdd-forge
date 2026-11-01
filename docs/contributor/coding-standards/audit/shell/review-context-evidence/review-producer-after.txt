@@ -1,0 +1,5 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+normal_exit=1 injected_producer_failure_exit=1 hit=yes
+REVIEW_CONTEXT_HASH: spec-reviewer-a hash mismatch: specs/rcb/requirements.md
+REVIEW_CONTEXT_CONTRACT: input manifest enumeration failed
