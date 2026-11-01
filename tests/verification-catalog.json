@@ -1,6 +1,8 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/coding-standards.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
+    {"path": "tests/coding-standards-audit.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
     {"path": "tests/benchmark-gates.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/factory-workflow.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -381,6 +383,7 @@
     {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
+    "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
       "tests/spec-review-interrupted-recovery.tests.sh",
       "tests/benchmark-gates.tests.py",
