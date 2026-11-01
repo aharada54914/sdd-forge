@@ -1,0 +1,46 @@
+{
+  "source_revision": "537a50b2",
+  "review_method": "Verified each earlier source SHA against git history, read complete diff and enclosing fixture/assertion/production-consumer contexts; these are changed-hunk judgments joined to earlier whole-file coverage, not fresh whole-file certification.",
+  "entries": [
+    {
+      "path": "tests/model-freshness-check.tests.sh",
+      "before_commit": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "before_sha256": "cdf99531d74dee1963c95b45d382a3d988798ea7549fdc4a76069f7e26f53faa",
+      "sha256": "e342aab669c9c9f4d8120d3fd56b57f09f720378f6fc4e75a81d0f06fea32cbe",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "The added Python heredoc invokes the actual freshness Bash entrypoint in a private TemporaryDirectory with explicit argv and ten-second subprocess bound. PATH doubles intercept only gh/cat/tr; no external issue is created. Expected outcomes distinguish search failure (7, no write), source unavailable (0, unavailable issue), and filter failure (1, no write). The expected rows are literal contract outcomes, not computed from implementation output; logged issue side effects are inspected separately from exit status. Existing positive/no-diff controls remain. POSIX absolute cat/tr paths are intentional for this Bash suite; this does not establish native Windows behavior.",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+      "validation": "Independent source/diff and consumer-contract review at537a50b2; no new suite execution claimed. Root reports tests/scripts.tests.ps1 exit0 (Script gate tests passed), not every PowerShell suite; owner findings contain actual prior controls. Final native CI remains separately pending."
+    },
+    {
+      "path": "tests/required-checks-posix.tests.py",
+      "before_commit": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "before_sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5",
+      "sha256": "e97cead92f41217995d89ac8c4a9ca096ea7ccbafc7ecc249cdc881d1194f5e8",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "The sole change adds coding-standards to the explicit REQUIRED tuple. Reviewed enclosing dependency/always/no-continue-on-error assertions and actual test.yml aggregation consumer: required-checks must include the native coding-standards job. This extends the independent expected dependency list rather than reading expected values from the workflow. No process, serialization or credential behavior changed.",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/python/contextual-coverage.json",
+      "validation": "Independent source/diff and consumer-contract review at537a50b2; no new suite execution claimed. Root reports tests/scripts.tests.ps1 exit0 (Script gate tests passed), not every PowerShell suite; owner findings contain actual prior controls. Final native CI remains separately pending."
+    },
+    {
+      "path": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
+      "before_commit": "11247f37423e961b416810703351dcf7676c22d7",
+      "before_sha256": "cd0738b09811b5e9996a617860e86093e79c11d12947caa92aec2aabe7661be4",
+      "sha256": "7d064bf2c7344acf3cf6d6d52854c53bab28f066903b87e8b977bc9aab79d9e3",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Changed process helper drains stdout/stderr concurrently, adds a direct-process wait deadline and finally disposal; the five-second FIFO probe fails on timeout instead of treating a hang as rejection. Assert-FailClosed independently requires exit1, empty stdout and one typed diagnostic without stack trace. New public PS/Bash calls reject root/schema singleton arrays and accept ISO-looking definition strings on DateKind-capable hosts. Fixture schema and definition replacement patterns match actual New-StructuralFixtureJson output, including whitespace across line-ending variants. ISO control explicitly marks unsupported hosts inconclusive. FIFO negative and regular symlink/hardlink positive controls use actual filesystem objects, disposable GUID paths and cleanup; platform skips are declared. Deadline control is direct-child scope; this is not proof of arbitrary descendant-pipe lifetime bounds.",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+      "validation": "Independent source/diff and consumer-contract review at537a50b2; no new suite execution claimed. Root reports tests/scripts.tests.ps1 exit0 (Script gate tests passed), not every PowerShell suite; owner findings contain actual prior controls. Final native CI remains separately pending."
+    }
+  ],
+  "documentation_delta": {
+    "path": "docs/contributor/coding-standards/reuse/decisions.md",
+    "source_sha256": "2a0501b133995f51dfb2df1e0089e8db7ab5750cb0841615b7bae75236fde85f",
+    "state": "reviewed",
+    "review_scope": "changed_hunks",
+    "review": "Status prose distinguishes completed source-bound owner and heldout helper controls from pending final native CI. No new behavior, whole-population completion, live GitHub transport, every-tool stdio, or native WinPS5.1 certification is asserted. R006/R008 retain pending final-integration receipts until their owner provides evidence."
+  }
+}
