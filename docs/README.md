@@ -14,6 +14,7 @@ flowchart TD
     A --> A1["architecture/overview"]
     A --> A2["PLUGIN-CONTRACTS / THREAT-MODEL"]
     A --> A3["ADR"]
+    A --> A4["cloud/ — Azure・AWS"]
     C --> C1["contributor/ / AGENTS.md"]
 ```
 
@@ -42,6 +43,7 @@ flowchart TD
 | [THREAT-MODEL.md](THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [agent-capability-matrix.md](agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
 | [adr/README.md](adr/README.md) | ADR 索引と採番規約 |
+| [cloud/README.md](cloud/README.md) | クラウド開発：現行機能と設計済み・未実装の境界（[Azure](cloud/azure.md) / [AWS](cloud/aws.md)） |
 | [ai-dlc-foundation-decision-v2.md](ai-dlc-foundation-decision-v2.md) | Multi-target AI-DLC 拡張計画の決定書 |
 | [specs/sdd-lite/design.md](../specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](../plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |

@@ -264,6 +264,7 @@ flowchart LR
 | スキル・エージェントを調べる | [docs/skill-reference.md](docs/skill-reference.md) |
 | 困ったとき | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | 変更履歴・移行 | [CHANGELOG.md](CHANGELOG.md) |
+| Azure / AWS での開発 | [docs/cloud/README.md](docs/cloud/README.md)（現行機能と未実装の境界を先に確認） |
 
 ## 週次セルフ改善 (自動運用)
 
