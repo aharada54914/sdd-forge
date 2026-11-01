@@ -120,6 +120,14 @@ try {
         Assert ($LASTEXITCODE -eq 0) 'generator accepts a BOM-prefixed key file with trailing whitespace'
         $signed = Get-Content -Raw -LiteralPath $bundle | ConvertFrom-Json
         Assert ($signed.signature.alg -ceq 'hmac-sha256' -and $signed.signature.key_ref -ceq "file:$env:SDD_EVIDENCE_KEY_FILE") 'generator records key-file signing provenance'
+        Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
+        $signedConsumer = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        # This deliberately minimal critical fixture fails other provenance gates;
+        # isolate HMAC interoperability, then prove that its negative oracle fires.
+        Assert (($signedConsumer -join ' ') -notmatch 'no evidence key available|HMAC mismatch') 'consumer verifies producer signature using the same normalized key file'
+        $env:SDD_EVIDENCE_KEY = 'different-verification-key'
+        $wrongKeyConsumer = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
+        Assert ($LASTEXITCODE -ne 0 -and ($wrongKeyConsumer -join ' ') -match 'HMAC mismatch') 'consumer rejects the same signature with a different higher-priority environment key'
     } finally {
         $env:SDD_EVIDENCE_KEY = $savedKey
         $env:SDD_EVIDENCE_KEY_FILE = $savedKeyFile

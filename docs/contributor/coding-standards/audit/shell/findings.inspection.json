@@ -507,7 +507,7 @@
       "finding_id": "PS-SHELL-052",
       "rule_id": "CS-014",
       "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
-      "line": 1,
+      "line": 108,
       "source_sha256": "6bca0835c527cea9e616a043350334fc0697d00f50121f1f812e6a04a8e5805c",
       "flow": {
         "input": "JSON gate payload",
@@ -538,7 +538,7 @@
       "finding_id": "PS-SHELL-053",
       "rule_id": "CS-001",
       "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
-      "line": 1,
+      "line": 3,
       "source_sha256": "2c9d93d9ca161190733449a713fcfbed08dece32e0d67a38c7e3c07b1aeb9f4f",
       "flow": {
         "input": "Multiline model instructions",
@@ -560,7 +560,7 @@
       "finding_id": "PS-SHELL-054",
       "rule_id": "CS-014",
       "path": "plugins/sdd-implementation/scripts/select-agent-model.ps1",
-      "line": 1,
+      "line": 41,
       "source_sha256": "f676675b41a91a9fc95c9fa9115542bf6a9430a3fe1c7d404438f8723c5321b0",
       "flow": {
         "input": "Model registry JSON",
@@ -591,7 +591,7 @@
       "finding_id": "SH-SHELL-052",
       "rule_id": "CS-023",
       "path": "plugins/sdd-quality-loop/scripts/detect-panel.sh",
-      "line": 1,
+      "line": 13,
       "source_sha256": "7c55c1232761589c2f5de6575a060d445d4499d49009cf03e63cfd43ca273b1a",
       "flow": {
         "input": "Installed provider command",
@@ -613,7 +613,7 @@
       "finding_id": "PS-SHELL-055",
       "rule_id": "CS-025",
       "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
-      "line": 1,
+      "line": 518,
       "source_sha256": "90c6f40355a812e1b59eea5ec197e9138be7a78e87437c24adcf1be6db1f4cd5",
       "flow": {
         "input": "Signed sudo authorization token",
@@ -635,7 +635,7 @@
       "finding_id": "PS-SHELL-056",
       "rule_id": "CS-027",
       "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1",
-      "line": 1,
+      "line": 95,
       "source_sha256": "b1a8e3fa0583747a0041ee122e4511e7152b27ded2214a34fb7dcc9a7b52ac2f",
       "flow": {
         "input": "Evidence filesystem paths",
@@ -657,7 +657,7 @@
       "finding_id": "PS-SHELL-057",
       "rule_id": "CS-018",
       "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1",
-      "line": 1,
+      "line": 311,
       "source_sha256": "b1a8e3fa0583747a0041ee122e4511e7152b27ded2214a34fb7dcc9a7b52ac2f",
       "flow": {
         "input": "BOM-prefixed signing keyfile",
@@ -679,7 +679,7 @@
       "finding_id": "PS-SHELL-058",
       "rule_id": "CS-025",
       "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
-      "line": 1,
+      "line": 147,
       "source_sha256": "e88ac07955691ef2350fe4e6bf92218824b08a47ea493f492af746901bb139cf",
       "flow": {
         "input": "Task reports and feature identity",
@@ -701,7 +701,7 @@
       "finding_id": "PS-SHELL-059",
       "rule_id": "CS-027",
       "path": "plugins/sdd-quality-loop/scripts/check-risk.ps1",
-      "line": 1,
+      "line": 47,
       "source_sha256": "22d5acfb0674d99c8fbf7075def3d4cb1bea8c129f94b7a9af710f19bc9af3bb",
       "flow": {
         "input": "Bracketed task path and task filter",
@@ -723,7 +723,7 @@
       "finding_id": "PS-SHELL-060",
       "rule_id": "CS-023",
       "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
-      "line": 1,
+      "line": 1281,
       "source_sha256": "c02b662348319b85407a57df198087057185d6d3de0cdd9b59830903ef23d7d3",
       "flow": {
         "input": "Readonly classifier subprocess",
