@@ -12,13 +12,13 @@ $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
 if ($schema.'$id' -ne 'https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json') {
     throw "not ok: DS-001 schema `$id mismatch"
 }
-if ($schema.properties.meta.properties.schema.const -ne 'design-system-contract/v1') {
+if ($schema.properties.meta.properties.schema.const -cne 'design-system-contract/v1') {
     throw "not ok: DS-001 schema const mismatch"
 }
 Write-Host "ok: DS-001 contract schema envelope"
 
 # DS-002 tokens template conforms to the meta contract (domain assertions replicate the schema)
-if ($tokens.meta.schema -ne 'design-system-contract/v1') { throw "not ok: DS-002 meta.schema" }
+if ($tokens.meta.schema -cne 'design-system-contract/v1') { throw "not ok: DS-002 meta.schema" }
 if ($tokens.meta.version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { throw "not ok: DS-002 meta.version semver" }
 if (@('design-sync-loop','ui-ux-pro-max','manual','figma-dtcg-import') -notcontains $tokens.meta.generated_by) { throw "not ok: DS-002 meta.generated_by enum" }
 if ($tokens.meta.profile -ne 'custom') { throw "not ok: DS-002 meta.profile" }
