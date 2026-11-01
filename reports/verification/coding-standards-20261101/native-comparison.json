@@ -1,0 +1,108 @@
+{
+  "baseline": {
+    "revision": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+    "status": "violations",
+    "population_count": 11353,
+    "selected_count": 854,
+    "inspected_count": 853,
+    "finding_count": 285,
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 11353,
+    "tools": [
+      {
+        "language": "bash",
+        "status": "executed",
+        "version": "0.11.0",
+        "target_count": 273
+      },
+      {
+        "language": "javascript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 16
+      },
+      {
+        "language": "powershell",
+        "status": "executed",
+        "version": "7.6.7",
+        "target_count": 225
+      },
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 218
+      },
+      {
+        "language": "typescript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 121
+      }
+    ],
+    "rules": {
+      "SC2086": 10,
+      "SC2155": 8,
+      "PSAvoidAssignmentToAutomaticVariable": 19,
+      "F401": 9,
+      "E741": 3,
+      "E702": 144,
+      "E701": 60,
+      "F841": 1,
+      "F541": 15,
+      "E731": 6,
+      "explicit-any": 10
+    },
+    "elapsed_seconds": "unknown"
+  },
+  "current": {
+    "revision": "e72813ab658b3d9a3d79d18c0c6b8251c0b2529a",
+    "status": "complete",
+    "population_count": 11545,
+    "selected_count": 874,
+    "inspected_count": 873,
+    "finding_count": 0,
+    "manual_review": "unknown",
+    "manual_unreviewed_count": 11545,
+    "tools": [
+      {
+        "language": "bash",
+        "status": "executed",
+        "version": "0.11.0",
+        "target_count": 273
+      },
+      {
+        "language": "javascript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 19
+      },
+      {
+        "language": "powershell",
+        "status": "executed",
+        "version": "7.6.7",
+        "target_count": 227
+      },
+      {
+        "language": "python",
+        "status": "executed",
+        "version": "ruff 0.13.3",
+        "target_count": 228
+      },
+      {
+        "language": "typescript",
+        "status": "executed",
+        "version": "7.0.2",
+        "target_count": 126
+      }
+    ],
+    "rules": {},
+    "elapsed_seconds": 64.981205
+  },
+  "checker_revision": "86fc49554614fb842d937147595baa6ef66fd63c",
+  "comparison": "Same checker, tool versions, config and host; independently enumerated full tracked populations. Baseline tools/config copied untracked only; baseline product source untouched.",
+  "token_cost": "unknown",
+  "manual_review": "unknown",
+  "native_hosts": "Linux only; Claude/Codex/Copilot invocation not evaluated",
+  "timing_comparability": "Baseline duration not instrumented; no speed or cost improvement claim."
+}
