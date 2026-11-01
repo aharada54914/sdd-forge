@@ -980,6 +980,46 @@
         "bytes": 3679
       },
       "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "tests/VERIFICATION-PLAN.md",
+      "source_sha256": "1b6d976f2285b3783396d0458e5c400a1f1c9e549bbd02194fb9bf6b05c5e95c",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 4758
+      },
+      "reason": "Dated approved June verification plan. Read requirements, explicit native-host gaps and no-fabrication invariants; its planned jobs/results are not assertions that current host integration was executed. Prose contains no embedded program to lint."
+    },
+    {
+      "path": "tests/coding-standards/README.md",
+      "source_sha256": "3bf8f09de43f7edbcb3d0dc50c811d377d120f272136743fa45dc676795a77f3",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 4562
+      },
+      "reason": "Read whole native-checker guide: exact dependency versions, exit0/1/2 meanings, dirty/index distinction and explicit manual/native/platform limits agree with current checker contract. It does not promote native lint to all-rule PASS."
+    },
+    {
+      "path": "tests/shared-launch-python-requirements.txt",
+      "source_sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 26
+      },
+      "reason": "Reviewed two exact native tool pins Ruff0.13.3 and mypy1.18.2. No mutable URL, shell directive or credential. These existing installed tool dependencies are reused by the audit; they do not define product acceptance."
+    },
+    {
+      "path": "tests/shared-launch-python/pyproject.toml",
+      "source_sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 587
+      },
+      "reason": "Actual tomllib parse passed; Ruff selects E4/E7/E9/F, mypy enables check_untyped_defs and follows imports silently for seven explicit current launcher files. Every listed path exists. Historical limited launcher lint scope is not substituted for current whole-population audit."
     }
   ]
 }
