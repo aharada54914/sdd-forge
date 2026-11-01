@@ -17,6 +17,21 @@ SPEC.loader.exec_module(PATHS)
 
 
 class InputBoundaryTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == 'posix', 'POSIX executable fixture')
+    def test_failed_git_status_does_not_create_a_snapshot_fingerprint(self):
+        spec = importlib.util.spec_from_file_location('component_paths', SCRIPTS / 'resolve-component-paths.py')
+        resolver = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(resolver)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            git = root / 'git'
+            git.write_text('#!/bin/sh\ncase "$3" in\nrev-parse) printf "known-head\\n";;\nstatus) printf "status failed\\n" >&2; exit 7;;\nesac\n', encoding='utf-8')
+            git.chmod(0o700)
+            from unittest.mock import patch
+            with patch.dict(os.environ, PATH=directory + os.pathsep + os.environ.get('PATH', '')):
+                with self.assertRaisesRegex(resolver.GitDiffError, 'status failed'):
+                    resolver._capture_fingerprint(directory)
+
     def test_contract_invalid_shapes_have_failure_diagnostics(self):
         cases = [[], None, 1, {'schema': 1}, {'checks': [{'id': []}]},
                  {'checks': [{'id': 'lint', 'waiver_reason': 1}]},

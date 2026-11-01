@@ -26,18 +26,18 @@
     },
     {
       "path": "mcp/ci-mcp/src/diagnostics-core.ts",
-      "sha256": "5052b6b04af91290292f3ba7b4137263bae8aa902ae3a2dd4cc161498e9bb210",
+      "sha256": "2434097a949959910b31e4d62e506449f0cf7718fe7caeb3611ccd77419f07ec",
       "contextual_assessment": "R-001 generated producer/copy freshness verified"
     },
     {
       "path": "mcp/local-env-mcp/src/diagnostics-core.ts",
-      "sha256": "5052b6b04af91290292f3ba7b4137263bae8aa902ae3a2dd4cc161498e9bb210",
+      "sha256": "2434097a949959910b31e4d62e506449f0cf7718fe7caeb3611ccd77419f07ec",
       "contextual_assessment": "R-001 generated producer/copy freshness verified"
     },
     {
-      "path": "scripts/sync-mcp-diagnostics.py",
-      "sha256": "85e96d55ce78980cedf88f13c654d4e7d44b21e8dbf53ef9c5f4a73ae26e6a94",
-      "contextual_assessment": "R-001 exact bytes and no-write check mode; no protected human-copy classification bypass"
+      "path": "mcp/shared/sync-diagnostics.py",
+      "sha256": "2c2053e3dd9faee67b7942e423adcac99837d14e7cb5c7e119fe83bd1bf48aef",
+      "contextual_assessment": "R-001 exact bytes and no-write check mode; no protected human-copy classification bypass; mechanically relocated under existing MCP ownership, root traversal adjusted from parents[1] to parents[2]"
     },
     {
       "path": "mcp/ci-mcp/src/github-client.ts",
@@ -140,5 +140,9 @@
     "No hosted network or environment configuration proof",
     "Native Windows/macOS and other supported Node versions require integration runs",
     "R-003 through R-008 final language changes remain delegated evidence; decisions reviewed, not falsely counted as full new source audit"
-  ]
+  ],
+  "relocation_followup": {
+    "reviewer": "checks agent, mechanical relocation only; does not reattribute original independent review",
+    "reason": "Existing A9 ownership excludes root scripts additions; use established MCP scope without changing signed ownership context."
+  }
 }

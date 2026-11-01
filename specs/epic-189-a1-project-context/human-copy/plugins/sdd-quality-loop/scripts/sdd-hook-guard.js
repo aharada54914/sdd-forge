@@ -1902,12 +1902,12 @@ function parseArgs(argv) {
 function readStdin() {
   // If stdin is a TTY, treat as empty (don't hang waiting for input).
   if (process.stdin.isTTY) return Promise.resolve('');
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const chunks = [];
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', (chunk) => chunks.push(chunk));
     process.stdin.on('end', () => resolve(chunks.join('')));
-    process.stdin.on('error', () => resolve(''));
+    process.stdin.on('error', reject);
   });
 }
 
@@ -1931,7 +1931,8 @@ async function main() {
     try {
       raw = await readStdin();
     } catch (e) {
-      raw = '';
+      emitDecision('deny', 'SDD deterministic gate: unable to read the hook payload; tool use denied.', mode);
+      return;
     }
   }
 
