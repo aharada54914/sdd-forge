@@ -40,8 +40,8 @@ flowchart TD
     M2 --> plugins
 
     subgraph assets["プラグインが提供する資産"]
-        SK["スキル 26<br/>（公開コマンドは 6 のみ）"]
-        AG["エージェント 14<br/>+ Copilot ツイン 2"]
+        SK["スキル<br/>（公開コマンドは入口のみ）"]
+        AG["エージェント<br/>+ Copilot ツイン"]
         HK["フック<br/>（sdd-quality-loop のみ）"]
         SC["決定論的スクリプト<br/>check-* ゲート群"]
         TP["テンプレート /<br/>references / contracts"]
@@ -89,17 +89,39 @@ flowchart TD
 
 | プラグイン | 責務 | スキル | エージェント | スクリプト | フック |
 |---|---|---|---|---|---|
-| `sdd-bootstrap` | 仕様化フェーズ。調査・インタビュー・仕様生成・タスク生成をルーティングし、デザインシステム同期ループも持つ | 5 | 1（`investigator`）+ Copilot ツイン 1 | 2 | なし |
+| `sdd-bootstrap` | 仕様化フェーズ。調査・インタビュー・仕様生成・タスク生成をルーティングし、デザインシステム同期ループも持つ | 8 | 1（`investigator`）+ Copilot ツイン 1 | 2 | なし |
 | `sdd-ship` | 実装・品質保証フェーズのエントリ。`implement-tasks` → `quality-gate`（または `lite-gate`）→ `workflow-retrospective` を順に呼ぶだけの **純粋オーケストレータ** | 1 | 0 | 0 | なし |
 | `sdd-review-loop` | spec / impl / task の 3 レビューゲート。**レビュアー 6 体**（各ステージ A/B の 2 体編成）で、ブラインドレビューを最大 3 ラウンド実施する | 3 | 6 | 5 | なし |
 | `sdd-implementation` | 承認済みタスクの実装レーン。単発実装・一括実装・バグ診断・視覚検証 | 4 | 0 | 5 | なし |
 | `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 37 | **あり（3ホスト分）** |
 | `sdd-lite` | 社内・部署内アプリ向けの軽量トラック（要件/設計/タスクの 3 ファイル + 軽量ゲート） | 2 | 0 | 2 | なし |
-| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**明示指定で導入**、下記注記） | 5 | 2（`domain-reviewer-a/b`） | 1 | なし |
+| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**明示指定で導入**、下記注記） | 6 | 2（`domain-reviewer-a/b`） | 1 | なし |
 
 > **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` は `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録します。既定のインストールには含みません。全体アンインストールは domain を含む全 7 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
 
-合計: スキル **26**、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
+### プラグイン間の依存
+
+下の図は、インストーラ（`install.sh` / `install.ps1`）が持つ依存表を図にしたものです。矢印の元を導入すると、先も自動で登録されます（依存は固定点まで繰り返し解決されるため、間接依存も含まれます）。`sdd-implementation`・`sdd-review-loop`・`sdd-quality-loop` は他のプラグインに依存しません。
+
+```mermaid
+flowchart TD
+    SH["sdd-ship<br/>実装・品質保証の入口"]
+    LT["sdd-lite<br/>軽量トラック"]
+    DM["sdd-domain<br/>DDD 上流レーン"]
+    BS["sdd-bootstrap<br/>仕様化フェーズ"]
+    IM["sdd-implementation<br/>実装レーン"]
+    RV["sdd-review-loop<br/>3 レビューゲート"]
+    QL["sdd-quality-loop<br/>品質ゲート・強制レイヤ"]
+
+    SH --> BS & RV & IM & QL & LT
+    LT --> BS & IM & QL
+    DM --> BS & QL
+    BS --> RV
+```
+
+図の読み方: 矢印は「導入時に自動登録される」関係であり、実行時の呼び出し順ではありません。実行時の流れは [workflow-guide.md](../workflow-guide.md) の全体フロー図を参照してください。
+
+合計: スキル **30**（各プラグインの `skills/*/SKILL.md` を数えた値。`plugins/` の外にある単独スキル `skills/adversarial-review/` は含まない）、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
 
 押さえておくべきプラグインごとの構造の違い:
 
@@ -120,6 +142,27 @@ flowchart TD
 | `/sdd-implementation:diagnose` | バグ診断の独立エントリ |
 | `/sdd-quality-loop:fix-by-review-ticket` | BLOCKED 後の人間による再開点 |
 | `/sdd-quality-loop:sdd-sudo` | 人間専用の期限付きトグル |
+
+### スキル・エージェント・MCP の連携
+
+入口コマンドから内部スキル、独立エージェントまでの呼び出し関係を示します。
+
+```mermaid
+flowchart LR
+    H(["人間"]) --> E["入口コマンド<br/>bootstrap / ship / domain-model<br/>diagnose / fix-by-review-ticket / sdd-sudo"]
+    E --> I["内部スキル<br/>（入口からの委譲でのみ起動）"]
+    I --> RL["レビュー系ループ<br/>spec / impl / task / domain"]
+    I --> QG["quality-gate"]
+    I --> CM["cross-model-verify"]
+    I --> WA["wfi-audit-cycle"]
+    RL --> RA["独立レビュアー<br/>A / B の 2 体編成"]
+    QG --> EV["evaluator"]
+    CM --> PN["panelist<br/>GPT / Gemini"]
+    WA --> AU["wfi-auditor A / B"]
+    MCP["MCP サーバー<br/>read-only"] -.->|"助言のみ"| I
+```
+
+図に載せていない呼び出しもあります。`investigate-codebase` は `investigator` を、`quality-gate` は条件に応じて `panelist-gpt` も使います。実線は呼び出し、点線は助言（決定権なし）です。
 
 ---
 
@@ -156,6 +199,8 @@ flowchart TD
 ## 4. 強制レイヤ 3 段
 
 SDD Forge の「エージェントに勝手をさせない」仕組みは、性質の異なる 3 段で構成されています。単段では必ず穴が空くため、意図的に重ねてあります。
+
+信頼する側・しない側と各ガードの位置関係は [THREAT-MODEL.md の信頼境界図](../THREAT-MODEL.md#trust-boundaries) を参照してください。
 
 ### (a) PreToolUse フック — 実行前に止める
 
