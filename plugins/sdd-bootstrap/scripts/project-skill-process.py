@@ -82,7 +82,7 @@ def main():
                 if not entry.name.isdigit():
                     continue
                 try:
-                    fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                    fields = (entry / "stat").read_text(encoding="utf-8").rsplit(")", 1)[1].split()
                     if int(fields[1]) == os.getpid():
                         owned.append(int(entry.name))
                 except (OSError, ValueError, IndexError):

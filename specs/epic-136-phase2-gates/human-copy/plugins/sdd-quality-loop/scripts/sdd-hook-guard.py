@@ -184,7 +184,7 @@ def _impl_review_verdict_exists(feature, file_path=None):
         seen.add(key)
         for f in _glob.glob(os.path.join(root, rel)):
             try:
-                with open(f) as fh:
+                with open(f, encoding="utf-8") as fh:
                     data = _json.load(fh)
                 if data.get("verdict") in ("PASS", "PASS-with-warnings"):
                     return True
@@ -1642,7 +1642,7 @@ def _readonly_input_indices(tokens, directories):
             return set()
         result = subprocess.run([first, str(Path(__file__).with_name("classify-readonly-inputs.py"))],
                                 input=json.dumps({"tokens": tokens, "directories": directories}),
-                                text=True, capture_output=True, timeout=3, check=True)
+                                text=True, capture_output=True, timeout=3, check=True, encoding="utf-8")
         indices = json.loads(result.stdout)
         if not isinstance(indices, list) or any(type(i) is not int or i < 0 or i >= len(tokens)
                                                or tokens[i][0] != "word" for i in indices):
