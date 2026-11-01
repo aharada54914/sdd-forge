@@ -384,7 +384,13 @@ function Get-AdrPreviousRoundJson {
 }
 function Fail([string]$Message) { throw "impl-review-precheck: $Message" }
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
-  return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
+  return ($Left -is [string] -and $Right -is [string] -and
+    [string]::Equals($Left, $Right, [StringComparison]::Ordinal))
+}
+function Test-JsonIntegerEquals([object]$Value, [int64]$Expected) {
+  return (($Value -is [int32] -or $Value -is [int64] -or
+      $Value -is [System.Numerics.BigInteger] -or $Value -is [double]) -and
+    $Value -eq $Expected)
 }
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')
@@ -658,7 +664,7 @@ function Require-Pass(
     if (-not (Test-OrdinalEqual $reviewerA.run_id $data.reviewer_a_run_id) -or -not (Test-OrdinalEqual $reviewerB.run_id $data.reviewer_b_run_id) -or -not (Test-OrdinalEqual $reviewerA.host_session_id $data.reviewer_a_host_session_id) -or -not (Test-OrdinalEqual $reviewerB.host_session_id $data.reviewer_b_host_session_id)) { Fail 'persisted spec verdict and contract reviewer identities contradict each other' }
   } elseif (-not (Test-OrdinalEqual $contract.run_id $data.run_id)) { Fail "persisted $Stage verdict and contract run IDs contradict each other" }
 }
-if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
+if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*\z') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
@@ -687,10 +693,15 @@ if ($VerifyInputs) {
   foreach ($path in @($requirements, $design, $acceptance)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "review input is missing or substituted: $path" }
   }
-  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json -NoEnumerate
+  $requiredKeys = @('schema', 'feature', 'attempt', 'round', 'requirements_sha256', 'acceptance_sha256', 'design_sha256')
+  if ($precheck -isnot [System.Management.Automation.PSCustomObject] -or
+      @($requiredKeys | Where-Object { $_ -cnotin @($precheck.PSObject.Properties.Name) }).Count -gt 0) {
+    Fail 'precheck must be an object with canonical core fields'
+  }
   if (-not (Test-OrdinalEqual $precheck.schema 'impl-review-precheck/v1') -or
       -not (Test-OrdinalEqual $precheck.feature $Feature) -or
-      [int64]$precheck.attempt -ne [int64]$Attempt -or [int64]$precheck.round -ne [int64]$Round -or
+      -not (Test-JsonIntegerEquals $precheck.attempt $Attempt) -or -not (Test-JsonIntegerEquals $precheck.round $Round) -or
       -not (Test-OrdinalEqual $precheck.design_sha256 ((Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower())) -or
       -not (Test-OrdinalEqual $precheck.requirements_sha256 ((Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower())) -or
       -not (Test-OrdinalEqual $precheck.acceptance_sha256 ((Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()))) {
@@ -704,7 +715,7 @@ if ($VerifyInputs) {
   if ($fullProfile -or $persistedLayerProperties.Count -gt 0) {
     $boundNames = @($precheck.layer_sha256.psobject.Properties.Name)
     if ($boundNames.Count -ne $layerNames.Count -or
-        @($layerNames | Where-Object { $_ -notin $boundNames }).Count -gt 0) {
+        @($layerNames | Where-Object { $_ -cnotin $boundNames }).Count -gt 0) {
       Fail 'precheck layer manifest is incomplete'
     }
     foreach ($name in $layerNames) {
@@ -783,17 +794,17 @@ if ($ProvenanceRereview) {
   if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
 }
 foreach ($path in @($requirements, $design, $acceptance)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
-$specStatus = (Select-String -LiteralPath $requirements -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
-$implStatus = (Select-String -LiteralPath $design -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
-if ($specStatus -ne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }
+$specStatus = (Select-String -LiteralPath $requirements -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
+$implStatus = (Select-String -LiteralPath $design -CaseSensitive -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
+if ($specStatus -cne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }
 if ($ProvenanceRereview) {
   # The header stays Passed for the whole re-binding, deliberately. Flipping it
   # to Pending is not an option: check-workflow-state's task-lifecycle rule
   # requires every stage to read Passed once any task is Approved or past
   # Planned, so a Pending header on a shipped feature trades this stage's
   # contradiction for a worse one.
-  if ($implStatus -ne 'Passed') { Fail "-ProvenanceRereview requires design.md to declare Impl-Review-Status: Passed; it declares '$implStatus'. Without a prior pass there is no provenance to re-bind -- run an ordinary attempt instead." }
-} elseif ($implStatus -ne 'Pending') { Fail 'design.md must declare Impl-Review-Status: Pending' }
+  if ($implStatus -cne 'Passed') { Fail "-ProvenanceRereview requires design.md to declare Impl-Review-Status: Passed; it declares '$implStatus'. Without a prior pass there is no provenance to re-bind -- run an ordinary attempt instead." }
+} elseif ($implStatus -cne 'Pending') { Fail 'design.md must declare Impl-Review-Status: Pending' }
 if (-not (Test-AdrBoundFilePath $root "specs/$Feature/design.md")) { Fail 'unsafe design input path' }
 $designHash = (Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower(); $requirementsHash = (Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash = (Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()
 $adrInputJson = Get-AdrPrecheckInputsJson $root "specs/$Feature/design.md" $designHash
