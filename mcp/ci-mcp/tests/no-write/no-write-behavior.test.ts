@@ -58,25 +58,25 @@ interface ToolCase {
 const TOOL_CASES: ToolCase[] = [
   {
     name: "list_workflow_runs",
-    run: (extra, options) => listWorkflowRuns({ owner: "acme", repo: "widgets", ...extra } as never, options),
+    run: (extra, options) => listWorkflowRuns({ owner: "acme", repo: "widgets", ...extra }, options),
   },
   {
     name: "get_workflow_run",
     run: (extra, options) =>
-      getWorkflowRun({ owner: "acme", repo: "widgets", runId: 1, ...extra } as never, options),
+      getWorkflowRun({ owner: "acme", repo: "widgets", runId: 1, ...extra }, options),
   },
   {
     name: "list_run_jobs",
-    run: (extra, options) => listRunJobs({ owner: "acme", repo: "widgets", runId: 1, ...extra } as never, options),
+    run: (extra, options) => listRunJobs({ owner: "acme", repo: "widgets", runId: 1, ...extra }, options),
   },
   {
     name: "list_run_artifacts",
     run: (extra, options) =>
-      listRunArtifacts({ owner: "acme", repo: "widgets", runId: 1, ...extra } as never, options),
+      listRunArtifacts({ owner: "acme", repo: "widgets", runId: 1, ...extra }, options),
   },
   {
     name: "get_job_log",
-    run: (extra, options) => getJobLog({ owner: "acme", repo: "widgets", jobId: 1, ...extra } as never, options),
+    run: (extra, options) => getJobLog({ owner: "acme", repo: "widgets", jobId: 1, ...extra }, options),
   },
 ];
 

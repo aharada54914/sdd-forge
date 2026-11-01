@@ -1024,7 +1024,10 @@ def _run_git(repo_root: str, args: List[str]) -> Tuple[int, bytes, bytes]:
             ["git", "-C", repo_root] + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            timeout=30,
         )
+    except subprocess.TimeoutExpired as exc:
+        raise GitDiffError("git inspection exceeded the 30-second deadline") from exc
     except FileNotFoundError as exc:
         raise GitDiffError(f"git executable not found: {exc}") from exc
     return proc.returncode, proc.stdout, proc.stderr
@@ -1060,9 +1063,13 @@ def _capture_fingerprint(repo_root: str) -> Tuple[str, str]:
     # this collector's own multi-command sequence.
     code, out, _err = _run_git(repo_root, ["rev-parse", "HEAD"])
     head = out.decode("ascii").strip() if code == 0 else "(unborn)"
-    _code2, status_out, _err2 = _run_git(
+    status_code, status_out, status_err = _run_git(
         repo_root, ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
     )
+    if status_code != 0:
+        raise GitDiffError(
+            "cannot capture repository status: " + status_err.decode("utf-8", "replace").strip()
+        )
     import hashlib
 
     status_hash = hashlib.sha256(status_out).hexdigest()

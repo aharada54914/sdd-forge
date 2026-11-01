@@ -82,13 +82,13 @@ if [ ! -f "$RULESET_FILE" ]; then
 fi
 
 # Validate JSON
-if ! python3 -c "import json; json.load(open('$RULESET_FILE'))" 2>/dev/null; then
+if ! python3 -c "import sys; import json; json.load(open(sys.argv[1]))" "$RULESET_FILE" 2>/dev/null; then
   echo "Error: Invalid JSON in $RULESET_FILE" >&2
   exit 1
 fi
 
 # Extract ruleset name from JSON
-RULESET_NAME=$(python3 -c "import json; print(json.load(open('$RULESET_FILE')).get('name', 'Protect main branch'))")
+RULESET_NAME=$(python3 -c "import sys; import json; print(json.load(open(sys.argv[1])).get('name', 'Protect main branch'))" "$RULESET_FILE")
 
 echo "Applying branch protection ruleset '$RULESET_NAME' to ${GITHUB_REPOSITORY}..."
 

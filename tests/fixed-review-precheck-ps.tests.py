@@ -128,6 +128,29 @@ class FixedPowerShellPrechecks(unittest.TestCase):
                 report.write_text(json.dumps(record))
                 self.run_check(argv + flags, False)
 
+    def test_json_contract_kinds_are_not_coerced(self):
+        for stage in ('spec', 'impl', 'task'):
+            _, _, report, argv, flags = self.fixture(stage)
+            original = json.loads(report.read_text())
+            self.run_check(argv + flags, True)
+            mutations = [
+                ('schema', [original['schema']]), ('feature', ['example']),
+                ('requirements_sha256', [original['requirements_sha256']]),
+                ('attempt', '1'), ('round', True), ('attempt', 1.4),
+            ]
+            for field, value in mutations:
+                with self.subTest(stage=stage, field=field, value=value):
+                    changed = dict(original, **{field: value})
+                    report.write_text(json.dumps(changed))
+                    before = report.read_bytes()
+                    self.run_check(argv + flags, False)
+                    self.assertEqual(report.read_bytes(), before)
+            report.write_text(json.dumps([original]))
+            self.run_check(argv + flags, False)
+            # JSON numbers are numeric contracts, not lexical integer tokens.
+            report.write_text(json.dumps(dict(original, attempt=1.0, round=1.0)))
+            self.run_check(argv + flags, True)
+
     def test_missing_and_tampered_snapshot_inputs_rejected(self):
         for stage in ('spec', 'impl', 'task'):
             with self.subTest(stage=stage):
@@ -148,17 +171,25 @@ class FixedPowerShellPrechecks(unittest.TestCase):
                 self.run_check([arg for arg in argv if arg != '-VerifyInputs'] + flags, False)
 
     def test_normalized_task_hash_contract(self):
-        _, _, _, argv, flags = self.fixture('task', normalized=True)
+        _, _, report, argv, flags = self.fixture('task', normalized=True)
         self.run_check(argv + flags, True)
+        record = json.loads(report.read_text())
+        record['tasks_sha256_form'] = ['normalized']
+        report.write_text(json.dumps(record))
+        self.run_check(argv + flags, False)
 
     def test_layers_and_traceability_use_selected_sources(self):
         for stage in ('impl', 'task'):
             with self.subTest(stage=stage):
-                repo, _, _, argv, flags = self.fixture(stage, layers=True)
+                repo, _, report, argv, flags = self.fixture(stage, layers=True)
                 self.run_check(argv + flags, True)
                 for name in ('ux-spec.md', 'traceability.md', 'design.md'):
                     (repo / 'specs/example' / name).write_text('dirty\n')
                 self.run_check(argv + flags, True)
+                record = json.loads(report.read_text())
+                record['layer_sha256']['UX-spec.md'] = record['layer_sha256'].pop('ux-spec.md')
+                report.write_text(json.dumps(record))
+                self.run_check(argv + flags, False)
                 _, _, _, argv, flags = self.fixture(stage, layers=True, omitted='ux-spec.md')
                 self.run_check(argv + flags, False)
 

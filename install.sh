@@ -350,9 +350,32 @@ get_github_auth_token() {
     printf '%s' "$token"
 }
 
+# Encode one GitHub route value without adding a bootstrap runtime dependency.
+url_path_value() {
+    local LC_ALL=C value="$1" encoded="" char byte i
+    for ((i=0; i<${#value}; i++)); do
+        char="${value:i:1}"
+        case "$char" in
+            [a-zA-Z0-9.~_-]) encoded+="$char" ;;
+            *)
+                # Bash 3.2 reports high bytes as signed character values.
+                printf -v byte '%d' "'$char"
+                printf -v encoded '%s%%%02X' "$encoded" "$((byte & 255))"
+                ;;
+        esac
+    done
+    printf '%s' "$encoded"
+}
+
 download_authenticated_archive() {
     local archive_path="$1"
-    local archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${REF}"
+    if [[ ! "$REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+        echo "Error: --repository must be owner/repo." >&2
+        return 1
+    fi
+    local encoded_ref archive_url
+    encoded_ref="$(url_path_value "$REF")" || return 1
+    archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${encoded_ref}"
     local token
     token="$(get_github_auth_token)" || return 1
     echo "Downloading authenticated archive from ${archive_url}"
@@ -539,7 +562,7 @@ upsert_mcp_json() {
 const fs = require("fs");
 const [file, topKey, kind, ...pairs] = process.argv.slice(1);
 let text = "";
-try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { if (err.code !== "ENOENT") process.exit(1); }
 let root = {};
 if (text.trim() !== "") {
   try { root = JSON.parse(text); } catch (err) { process.exit(3); }
@@ -555,8 +578,8 @@ for (let i = 0; i + 1 < pairs.length; i += 2) {
 }
 const out = JSON.stringify(root, null, 2) + "\n";
 const tmp = file + ".sdd-forge.tmp";
-fs.writeFileSync(tmp, out);
-fs.renameSync(tmp, file);
+fs.writeFileSync(tmp, out, { flag: "wx", mode: 0o600 });
+try { fs.renameSync(tmp, file); } catch (err) { fs.unlinkSync(tmp); throw err; }
 ' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
     if [[ $rc -eq 3 ]]; then
         echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." >&2
@@ -892,8 +915,24 @@ mkdir -p "$INSTALL_PARENT"
 # lock another installer just created.
 # ---------------------------------------------------------------------------
 LOCK_DIR="${INSTALL_ROOT}.sdd-install.lock"
-_lock_timeout="${SDD_INSTALL_LOCK_TIMEOUT:-120}"
-_lock_stale="${SDD_INSTALL_LOCK_STALE:-600}"
+# Environment values are data: Bash recursively evaluates arithmetic variable
+# contents, including array subscripts. Validate before any arithmetic use.
+parse_lock_seconds() {
+    local name="$1" value="$2"
+    case "$value" in
+        ''|*[!0-9]*) echo "Error: $name must be decimal seconds in 0..2147483647." >&2; return 1 ;;
+    esac
+    while [[ ${#value} -gt 1 && "$value" == 0* ]]; do value="${value#0}"; done
+    # Compare equal-width decimal text before permitting arithmetic evaluation.
+    # shellcheck disable=SC2071
+    if [[ ${#value} -gt 10 ]] || { [[ ${#value} -eq 10 ]] && [[ "$value" > 2147483647 ]]; }; then
+        echo "Error: $name must be decimal seconds in 0..2147483647." >&2
+        return 1
+    fi
+    printf '%s' "$value"
+}
+_lock_timeout="$(parse_lock_seconds SDD_INSTALL_LOCK_TIMEOUT "${SDD_INSTALL_LOCK_TIMEOUT:-120}")" || exit 1
+_lock_stale="$(parse_lock_seconds SDD_INSTALL_LOCK_STALE "${SDD_INSTALL_LOCK_STALE:-600}")" || exit 1
 _lock_deadline=$(( $(date +%s) + _lock_timeout ))
 _lock_reclaimed=0
 

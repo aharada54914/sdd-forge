@@ -91,7 +91,8 @@ resume, re-read `tasks.md` and the report before taking any action.
    non-empty `red_evidence` and `green_evidence` for every test-type check, so
    capture both as you go rather than reconstructing them later.
 4. Run related existing regression tests.
-5. Perform a scoped self-review against the approved specification.
+5. Perform a scoped self-review against the approved specification and the
+   applicable language/boundary rules selected by `implementation-policy.md`.
 6. When the task qualifies as a UI task (the feature has
    `specs/<feature>/ux-spec.md` or `specs/<feature>/mockups/`, and the task
    scope includes UI-layer files), run the `visual-verify-loop` skill. It is

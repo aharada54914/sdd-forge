@@ -129,7 +129,7 @@ function Resolve-EffortSlot {
 }
 
 $tasksPath = "specs/$Feature/tasks.md"
-if (-not (Test-Path $tasksPath)) {
+if (-not (Test-Path -LiteralPath $tasksPath)) {
     Write-Error "emit-run-record: tasks file not found: $tasksPath"
     exit 1
 }
@@ -141,11 +141,11 @@ $out = "$outDir/RUN-$fileStamp-$Feature.json"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 # --- Task counts from tasks.md (CRLF tolerated) --------------------------
-$taskLines = (Get-Content -Encoding Utf8 $tasksPath) -replace "`r$", ""
-$taskIds = @($taskLines | Where-Object { $_ -match '^## (T-\d+)' } | ForEach-Object { $Matches[1] })
+$taskLines = (Get-Content -Encoding Utf8 -LiteralPath $tasksPath) -replace "`r$", ""
+$taskIds = @($taskLines | Where-Object { $_ -cmatch '^## (T-\d+)' } | ForEach-Object { $Matches[1] })
 $tasksTotal = $taskIds.Count
-$tasksDone = @($taskLines | Where-Object { $_ -match '^Status:\s*Done\s*$' }).Count
-$tasksBlocked = @($taskLines | Where-Object { $_ -match '^Status:\s*Blocked\s*$' }).Count
+$tasksDone = @($taskLines | Where-Object { $_ -cmatch '^Status:\s*Done\s*$' }).Count
+$tasksBlocked = @($taskLines | Where-Object { $_ -cmatch '^Status:\s*Blocked\s*$' }).Count
 
 # --- Quality-gate reports per task (scoped to this feature) ----------------
 # Task IDs (T-NNN) restart per feature, so the same bare id lives in every
@@ -160,7 +160,7 @@ $firstPassTasks = 0
 $maxGateRuns = 0
 if (Test-Path "reports/quality-gate") {
     $featureGateFiles = @(Get-ChildItem "reports/quality-gate" -File -Recurse | Where-Object {
-        (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "(?m)^Feature:\s*$([regex]::Escape($Feature))\s*$"
+        (Get-Content -Raw -Encoding Utf8 -LiteralPath $_.FullName) -cmatch "(?m)^Feature:\s*$([regex]::Escape($Feature))\s*$"
     })
     foreach ($tid in $taskIds) {
         # Canonical task identity is the template's `Task ID:` line (WFI-020).
@@ -174,14 +174,14 @@ if (Test-Path "reports/quality-gate") {
         $identityRe = "(?m)^(Task ID|Task):[ \t]*$escapedTid[ \t]*\r?$" +
             "|(?m)^#[ \t]+Quality Gate Report:?[ \t]*$escapedTid([^0-9]|$)"
         $n = @($featureGateFiles | Where-Object {
-            (Get-Content -Raw -Encoding Utf8 $_.FullName) -match $identityRe
+            (Get-Content -Raw -Encoding Utf8 -LiteralPath $_.FullName) -cmatch $identityRe
         }).Count
         $gateTotal += $n
         if ($n -gt $maxGateRuns) { $maxGateRuns = $n }
         if ($n -eq 1) { $firstPassTasks++ }
     }
     $gateBlocked = @($featureGateFiles | Where-Object {
-        (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "(?m)^VERDICT:\s*BLOCKED\s*$"
+        (Get-Content -Raw -Encoding Utf8 -LiteralPath $_.FullName) -cmatch "(?m)^VERDICT:\s*BLOCKED\s*$"
     }).Count
 }
 
@@ -195,13 +195,13 @@ $ticketsMinor = 0
 if (Test-Path "docs/review-tickets") {
     $ticketFiles = Get-ChildItem "docs/review-tickets" -File -Recurse
     foreach ($tf in $ticketFiles) {
-        $content = Get-Content -Raw -Encoding Utf8 $tf.FullName
-        if ($content -notmatch "(?m)^\s*feature:\s*$([regex]::Escape($Feature))\s*$") { continue }
+        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $tf.FullName
+        if ($content -cnotmatch "(?m)^\s*feature:\s*$([regex]::Escape($Feature))\s*$") { continue }
         # Anchor to the top-level severity field; an unanchored match would also
         # pick up the word in free-text prose (e.g. a resolution_record).
-        if ($content -match '(?m)^severity:\s*critical\s*$') { $ticketsCritical++ }
-        elseif ($content -match '(?m)^severity:\s*major\s*$') { $ticketsMajor++ }
-        elseif ($content -match '(?m)^severity:\s*minor\s*$') { $ticketsMinor++ }
+        if ($content -cmatch '(?m)^severity:\s*critical\s*$') { $ticketsCritical++ }
+        elseif ($content -cmatch '(?m)^severity:\s*major\s*$') { $ticketsMajor++ }
+        elseif ($content -cmatch '(?m)^severity:\s*minor\s*$') { $ticketsMinor++ }
     }
 }
 
@@ -210,9 +210,9 @@ $activeWfis = @()
 if (Test-Path "docs/workflow-improvements") {
     foreach ($wfi in Get-ChildItem "docs/workflow-improvements" -Filter "WFI-*.md" -File) {
         # Only bare WFI-NNN files carry status; skip audit-artifact suffixes.
-        if ($wfi.BaseName -notmatch '^WFI-\d+$') { continue }
-        $lines = (Get-Content -Encoding Utf8 $wfi.FullName) -replace "`r$", ""
-        if (@($lines | Where-Object { $_ -match '^Status:\s*Applied\s*$' }).Count -gt 0) {
+        if ($wfi.BaseName -cnotmatch '^WFI-\d+$') { continue }
+        $lines = (Get-Content -Encoding Utf8 -LiteralPath $wfi.FullName) -replace "`r$", ""
+        if (@($lines | Where-Object { $_ -cmatch '^Status:\s*Applied\s*$' }).Count -gt 0) {
             $activeWfis += $wfi.BaseName
         }
     }
@@ -279,6 +279,6 @@ if ($emitV2) {
     }
 }
 
-$record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $out
+$record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 -LiteralPath $out
 Write-Host "emit-run-record: wrote $out"
 exit 0

@@ -17,6 +17,13 @@ spec_root="specs"
 # Parse arguments
 while [ $# -gt 0 ]; do
     case "$1" in
+        --task|--feature|--evaluator|--expect-digest|--spec-root)
+            if [ "$#" -lt 2 ]; then
+                echo "check-cross-model: missing value for $1" >&2
+                exit 2
+            fi ;;
+    esac
+    case "$1" in
         --task)         task_id="$2";       shift 2 ;;
         --feature)      feature="$2";       shift 2 ;;
         --evaluator)    evaluator="$2";     shift 2 ;;
@@ -40,15 +47,10 @@ if ! command -v python3 >/dev/null 2>&1; then
     exit 2
 fi
 
-python3 - <<PYEOF
+python3 - "$task_id" "$feature" "$evaluator" "$expect_digest" "$verdict_dir" "$aggregate_path" <<'PYEOF'
 import json, os, re, sys
 
-task_id      = "${task_id}"
-feature      = "${feature}"
-evaluator    = "${evaluator}"
-expect_digest = "${expect_digest}"
-verdict_dir  = "${verdict_dir}"
-aggregate_path = "${aggregate_path}"
+(task_id, feature, evaluator, expect_digest, verdict_dir, aggregate_path) = sys.argv[1:]
 
 # ── helpers ────────────────────────────────────────────────────────────────
 
@@ -107,6 +109,10 @@ for vpath in verdict_files:
         print(f"check-cross-model: failed to parse {vpath}: {e}", file=sys.stderr)
         sys.exit(2)
 
+    if not isinstance(v, dict):
+        print(f"check-cross-model: {os.path.basename(vpath)}: verdict must be an object", file=sys.stderr)
+        sys.exit(2)
+
     # blind must be exactly true (boolean)
     if v.get("blind") is not True:
         print(f"check-cross-model: {os.path.basename(vpath)}: blind must be true (got {v.get('blind')!r})", file=sys.stderr)
@@ -114,7 +120,7 @@ for vpath in verdict_files:
 
     # input_digest must be 64-hex
     digest = v.get("input_digest", "")
-    if not HEX64.match(str(digest)):
+    if not isinstance(digest, str) or not HEX64.fullmatch(digest):
         print(f"check-cross-model: {os.path.basename(vpath)}: input_digest must be 64-hex (got {digest!r})", file=sys.stderr)
         sys.exit(2)
 
@@ -126,10 +132,15 @@ for vpath in verdict_files:
 
     # consent.kind must be present
     consent = v.get("consent")
-    if not isinstance(consent, dict) or not consent.get("kind"):
+    if (not isinstance(consent, dict) or not isinstance(consent.get("kind"), str)
+            or not consent["kind"]):
         print(f"check-cross-model: {os.path.basename(vpath)}: consent.kind is required", file=sys.stderr)
         sys.exit(2)
 
+    findings = v.get("findings", [])
+    if not isinstance(findings, list) or any(not isinstance(finding, dict) for finding in findings):
+        print(f"check-cross-model: {os.path.basename(vpath)}: findings must be an array of objects", file=sys.stderr)
+        sys.exit(2)
     verdicts.append(v)
 
 # ── Step 2: compute vendor diversity metrics ────────────────────────────────

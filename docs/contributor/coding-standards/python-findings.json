@@ -1,0 +1,1458 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PY-001",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "line": 467,
+      "source_sha256": "3a28d582133a2256cdfee060fadf8898a0d1eb9fe226e58c632739d2b3d785c9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-contract.py"
+      },
+      "impact": "Malformed JSON shapes and invalid UTF-8 escape the CLI diagnostic contract with traceback.",
+      "reproduction": "Before fix run([], schema:1, checks:[{id:[]}], checks:[{id:lint,waiver_reason:1}]) raised AttributeError/TypeError.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: 5 passed"
+      ],
+      "resolution": "Validate object and consumed string fields at boundary; classify read/decode errors without widening catch to Exception.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-002",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "line": 41,
+      "source_sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate_path.py"
+      },
+      "impact": "Numeric JSON evidence value is coerced to a filename and accepted if numeric file exists.",
+      "reproduction": "Before fix validate_evidence_path(evidence,123,root,[]) returned True for file123.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: valid quoted/newline/Japanese and invalid numeric/path controls"
+      ],
+      "resolution": "Reject nonstring values before path operations; narrow path-resolution catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-003",
+      "rule_id": "CS-020",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "line": 19,
+      "source_sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py"
+      },
+      "impact": "Intentional invalid Python must remain invalid to exercise fail-closed loader classification.",
+      "reproduction": "Ruff reports invalid-syntax; fixture name consumed by resolver block tests.",
+      "state": "justified-exception",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/resolve-project-context-block-check.py: registry-discovery-syntax-error case; independent final review required"
+      ],
+      "resolution": "Exclude this exact fixture only from syntax lint; keep resolver behavioral regression.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-004",
+      "rule_id": "CS-020",
+      "path": "tests/fixed-review-inputs.tests.py",
+      "line": 92,
+      "source_sha256": "429f39ae1c4327df629ace8375c285cde28d2d9cfeb807f441f9d7664cf90e07",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixed-review-inputs.tests.py"
+      },
+      "impact": "Shared mutable set default creates avoidable hidden state in approval test helper.",
+      "reproduction": "AST census found one mutable literal default across223 current .py files.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/fixed-review-inputs.tests.py:36 passed"
+      ],
+      "resolution": "Use immutable frozenset; caller only membership-checks registry.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-005",
+      "rule_id": "CS-017",
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "line": 8,
+      "source_sha256": "69fc11d30af9214a5c24a791b215fdec8ff6d9f2a9c490288bf1a84647b331a9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [8].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-006",
+      "rule_id": "CS-015",
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "line": 70,
+      "source_sha256": "ddafb7bf7494a4788443c1c1aba268da29ffe0fb1ccf34fc09335746f8d69420",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [70].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-007",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 94,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [94, 99, 101, 124, 138, 144, 145, 146, 147, 176, 177, 278, 427, 431].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-008",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 38,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [38, 38, 44, 45, 52, 55, 55, 59, 60, 93, 98, 100, 159, 174, 212, 228, 228, 231, 266, 266, 270, 283, 313, 320, 343, 343, 344, 355, 365, 375, 391, 391, 399, 425, 425, 443, 520, 520, 531, 531].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 40 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-009",
+      "rule_id": "CS-017",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 6,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [6].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-010",
+      "rule_id": "CS-015",
+      "path": "tests/a9-dogfood.tests.py",
+      "line": 77,
+      "source_sha256": "1879e1a3cbc0845f1bdd6f68ef522c3569e97fca8f0eb466c117ae7ce4d9146f",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-dogfood.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [77, 89, 102, 114, 152, 156, 174, 467, 491, 511, 530, 552, 554, 568].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-011",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 71,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [71, 130, 175, 200, 225, 314, 320, 325, 329, 370].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 10 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-012",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 22,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [22, 36, 62, 62, 72, 73, 81, 86, 87, 100, 116, 131, 134, 139, 139, 157, 165, 204, 205, 206, 207, 207, 214, 214, 214, 214, 219, 223, 234, 234, 236, 236, 238, 238, 240, 240, 242, 244, 246, 248, 250, 259, 264, 266, 268, 268, 268, 270, 272, 274, 275, 277, 279, 279, 279, 280, 282, 284, 290, 290, 292, 296, 297, 313, 316, 316, 318, 319, 323, 327, 332, 334, 335, 335, 337, 338, 338, 341, 342, 344, 347, 351, 351, 353, 355, 355, 359, 359, 361, 363, 363, 363, 365, 367].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 94 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-013",
+      "rule_id": "CS-015",
+      "path": "tests/a9-rollback-receipt.tests.py",
+      "line": 129,
+      "source_sha256": "88c2ac41f0e2bb011e434e66bddb49dbe8f15fbf42e0544172e7b2fad2972234",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-rollback-receipt.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [129, 169, 308, 321, 324, 330, 351, 352].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-014",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 161,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [161, 224, 225].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 3 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-015",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 223,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [223, 234].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-016",
+      "rule_id": "CS-015",
+      "path": "tests/cross-runtime-live-driver.tests.py",
+      "line": 142,
+      "source_sha256": "6377a01d5d704c467999df92ec06ed4b70dcfd9960171761267a1b566265e5e0",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/cross-runtime-live-driver.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [142, 142, 144, 144, 147, 147, 181, 182].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-017",
+      "rule_id": "CS-017",
+      "path": "tests/current-byte-capture.tests.py",
+      "line": 9,
+      "source_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/current-byte-capture.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [9].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-018",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+      "line": 30,
+      "source_sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [30].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-019",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+      "line": 18,
+      "source_sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [18].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-020",
+      "rule_id": "CS-015",
+      "path": "tests/fixtures/live-host-proof/run_cases.py",
+      "line": 84,
+      "source_sha256": "fba9a2970b6e2d25a801254cf57e822db97d8b1372411742aa5db5981fa1415b",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/live-host-proof/run_cases.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [84].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-021",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 960,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [960, 961].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-022",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 631,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F841 violation at lines [631].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F841 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-023",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-cli-check.py",
+      "line": 26,
+      "source_sha256": "fa28a7633fdf1d4b61c3a64c83643a6066cf94fca88bcf2f87063ca73a19d257",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-cli-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [26].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-024",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-discovery-check.py",
+      "line": 53,
+      "source_sha256": "0a38ddc950bb92ab2628e71c82db2cfe0b3d0ed3c4d1c57e4df4e9053bedd7c3",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-discovery-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [53].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-025",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-parity-check.py",
+      "line": 328,
+      "source_sha256": "cdfc201bce57658c574771ae520d34be4bbc3396d7967b0b00fd374723faab2e",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-parity-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [328, 329, 501, 502, 507, 513, 514, 633, 634, 640, 646, 647].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 12 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-026",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 99,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [99, 118, 145, 151, 156, 168, 172, 175, 179, 208, 212].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 11 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-027",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 183,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [183, 228, 287, 329].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 4 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-028",
+      "rule_id": "CS-017",
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "line": 4,
+      "source_sha256": "02cf929b9fcf381f39ed5d3a4d7acd851f383b6855c496b710d21101715e4326",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/sdd-sudo-guard-mutation.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [4].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-029",
+      "rule_id": "CS-017",
+      "path": "tests/task-prior-pass-receipt.tests.py",
+      "line": 11,
+      "source_sha256": "3b8a38e32b6c02828b385aed5acc65c76f860c8a7ec246865224c7063d5dcd83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-prior-pass-receipt.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [11].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-030",
+      "rule_id": "CS-015",
+      "path": "tests/task-structured-output.tests.py",
+      "line": 506,
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-structured-output.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [506].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-031",
+      "rule_id": "CS-015",
+      "path": "tests/traceability-freeze-contract.tests.py",
+      "line": 99,
+      "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/traceability-freeze-contract.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [99].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-032",
+      "rule_id": "CS-017",
+      "path": "tests/unified-launch-order.tests.py",
+      "line": 441,
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/unified-launch-order.tests.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [441].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-033",
+      "rule_id": "CS-015",
+      "path": "tests/verification-impact.tests.py",
+      "line": 10,
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/verification-impact.tests.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [10].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-034",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "line": 65,
+      "source_sha256": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-review-loop/scripts/launch-impl-review.py"
+      },
+      "impact": "Locale-dependent decoding and file text IO corrupt or reject UTF8 protocol data.",
+      "reproduction": "Real child emitting Japanese UTF8 fails UnicodeDecodeError with LC_ALL=C/PYTHONUTF8=0/PYTHONCOERCECLOCALE=0 before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_launcher_preserves_utf8_under_ascii_locale",
+        "fixed-review-launch50 passed; existing mypy7 passed"
+      ],
+      "resolution": "Pin UTF8 at current production text=True subprocess and Path text IO boundaries; binary APIs unchanged.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-035",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "line": 375,
+      "source_sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+      },
+      "impact": "Permission failure inspecting stop marker grants benign tool calls.",
+      "reproduction": "Real uid1000 process with CLAUDE_PROJECT_DIR chmod000 returned Copilot permissionDecision allow before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_unreadable_stop_marker_parent_denies; actual EACCES, absent/directory/regular controls",
+        "tests/guards.tests.sh135 passed",
+        "Python actual unprivileged Linux process, no mocked permission error; macOS/Windows unexecuted"
+      ],
+      "resolution": "Use explicit stat and preserve regular-file meaning; ENOENT/ENOTDIR absent, other OSError emits distinct inspection-error deny.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-036",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "line": 286,
+      "source_sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py"
+      },
+      "impact": "Malformed consumed registry fields raise uncontrolled TypeError before diagnostics.",
+      "reproduction": "Registry gates:[{id:[]}] raises TypeError in run().",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/validate-capability-registry.tests.sh:26 behavior checks and13 nested tests pass;2 catalog self-registration failures awaiting #687 registration"
+      ],
+      "resolution": "Validate consumed array/object/string fields before checks; preserve semantic check IDs and existing schema ownership.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-037",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "line": 78,
+      "source_sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py"
+      },
+      "impact": "Invalid gate_ids silently converted to empty list and published as valid projection.",
+      "reproduction": "build_projection({gates:[],capabilities:[{id:c,gate_ids:oops}]},digest) returns c:[] before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/generate-gate-capabilities.tests.sh:31 behavior checks pass;1 catalog self-registration failure awaiting #687 registration"
+      ],
+      "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-038",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-bootstrap/scripts/project-skill.py",
+      "line": 96,
+      "source_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+      "flow": {
+        "input": "missing working directory passed to execute",
+        "transformation": "allocate status pipe then Popen raises FileNotFoundError",
+        "sink": "read FD remains open"
+      },
+      "impact": "Repeated failed child startup leaks file descriptors in the caller process.",
+      "reproduction": "New lifecycle test ran before implementation edit: actual missing cwd; fd inventory extra4; FAILED exit1.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/project-skill-lifecycle.tests.py:Lifecycle.test_failed_process_start_releases_status_pipe",
+        "reports/verification/coding-standards-python-20261101/context-review.json"
+      ],
+      "resolution": "Close read descriptor before reraising any startup exception; existing finally closes write descriptor. Successful process ownership and diagnostic semantics preserved.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-039",
+      "rule_id": "CS-020",
+      "path": ".github/scripts/check-context-signing-environment.py",
+      "line": 33,
+      "source_sha256": "bf61380f4acf630c9243f7f9ef177100a40332c6d5f65e1ab63f0c328fbdd729",
+      "flow": {
+        "input": "external API JSON",
+        "transformation": "admission validator",
+        "sink": ".github/scripts/check-context-signing-environment.py"
+      },
+      "impact": "Malformed external API shapes escape stable failure classification; booleans masquerade as branch counts and integer flags as booleans.",
+      "reproduction": "Before edit new case raised9 AttributeErrors; independent calls accepted total_count=True and numeric0/1 branch policy.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/context-signing-environment.tests.py:7 pass"
+      ],
+      "resolution": "Validate each consumed object/list at external API boundary and compare int/bool fields by exact types, without widening catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-040",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1063,
+      "source_sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26",
+      "flow": {
+        "input": "child git status failure",
+        "transformation": "snapshot fingerprint",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "Failed git status was hashed as empty status and treated as a stable repository fingerprint.",
+      "reproduction": "Actual temporary git executable returned known-head for rev-parse, status exited7; pre-fix GitDiffError-not-raised test failed.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/python-input-boundaries.tests.py:6 pass; bash tests/component-path-diff-basis.tests.sh:18 pass"
+      ],
+      "resolution": "Check status return code before hashing and raise existing GitDiffError with child diagnostic.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-041",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 399,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "Semantic set/dict checks crash on malformed unhashable facet and gate identifiers despite prior schema diagnostics.",
+      "reproduction": "Three real CLI cases produced traceback/no schema diagnostic before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:8 pass",
+        "facet-manifest-schema:57 pass",
+        "facet-manifest-semantics:15 pass"
+      ],
+      "resolution": "Skip nonstring IDs in semantic checks; preserve full schema errors and independent valid-field semantic diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-042",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "line": 18,
+      "source_sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+        "sink": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py"
+      },
+      "impact": "Nonarray allowed_input_manifest reaches .count and escapes CLI diagnostic with AttributeError.",
+      "reproduction": "Real CLI valid control passed; dict/None/integer controls emitted tracebacks before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "supplemental-delivery-declaration:32 pass with Bash/PowerShell parity"
+      ],
+      "resolution": "Check object and consumed input-array shape before field use; no broad catch added.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-043",
+      "rule_id": "CS-023",
+      "path": "tests/t001-evaluation-preparation.tests.py",
+      "line": 69,
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+        "sink": "tests/t001-evaluation-preparation.tests.py"
+      },
+      "impact": "Failed preparation fixtures can retain child temporary scratch outside the owning test lifetime.",
+      "reproduction": "Frozen T005 helper allocates scratch before supplemental validation; failure branch has no deletion. Source traced; no claimed historical live Red.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "t001-evaluation-preparation:16 pass"
+      ],
+      "resolution": "Current test consumer owns separate child temp root through TMPDIR/TMP/TEMP and unittest cleanup; frozen helper bytes untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-044",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 1,
+      "source_sha256": "202bf36c4ae02c867b315e4f5207e43d524b6ff62d507bde24f852166726ddd4",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-045",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "line": 1,
+      "source_sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-046",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "line": 1,
+      "source_sha256": "bc09ff0ffff8df1d06beae2a0fb8f5614e38d8a74f0d9cc5f21a89b219236521",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/registry_discovery.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-047",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "line": 1,
+      "source_sha256": "72afd70c63053d2418574004d22c7ee783c4d0342d67ab57dab2f7a7ec7220da",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-048",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "line": 1,
+      "source_sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-project-context.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-049",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "line": 1,
+      "source_sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-050",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "line": 1,
+      "source_sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-context-projection.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-051",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "line": 1,
+      "source_sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-052",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "line": 1,
+      "source_sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-053",
+      "rule_id": "CS-023",
+      "path": "scripts/human_copy_mirrors.py",
+      "line": 1,
+      "source_sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/human_copy_mirrors.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-054",
+      "rule_id": "CS-023",
+      "path": "scripts/observe-a9-advisory.py",
+      "line": 1,
+      "source_sha256": "d788e472e4d0e70b37d9ab197c7b04c3bfcaef7624d1fb9490a53eef9af1d0ab",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/observe-a9-advisory.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-055",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-candidate.py",
+      "line": 1,
+      "source_sha256": "68fb96877a53d121dc303b255b5badbb6bd1e58cfc285979c0f671a0dd425963",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-candidate.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-056",
+      "rule_id": "CS-023",
+      "path": "scripts/validate-a9-promotion.py",
+      "line": 1,
+      "source_sha256": "45492c515f50ef7c1b6d926d906b0c1dc4986c34e7a43aa4044c6c631843a341",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "scripts/validate-a9-promotion.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-057",
+      "rule_id": "CS-023",
+      "path": "tests/benchmark-gates.py",
+      "line": 1,
+      "source_sha256": "882e363034c7c6f93803751cca2dba8e04265ea812bca47f60e1837ee76a8998",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/benchmark-gates.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-058",
+      "rule_id": "CS-023",
+      "path": "tests/factory-pilot.py",
+      "line": 1,
+      "source_sha256": "e2f2eb554e937cae522b0eccafff1e2ca108191cd56421a7f3cb4490015e6f4d",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/factory-pilot.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-059",
+      "rule_id": "CS-023",
+      "path": "tests/verification-impact.py",
+      "line": 1,
+      "source_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification-impact.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-060",
+      "rule_id": "CS-023",
+      "path": "tests/verification.py",
+      "line": 1,
+      "source_sha256": "4e72b661e2b03e1eaaf20425aec0cc23da593d27272f9b5ebb4bc082d4ad441a",
+      "flow": {
+        "input": "external or lifecycle boundary",
+        "transformation": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+        "sink": "tests/verification.py"
+      },
+      "impact": "External Git inspection (or pinned benchmark builder) had no subprocess deadline.",
+      "reproduction": "AST/call-path review found no timeout; Git can launch configured helpers or fetch missing objects. This is source evidence, not a fabricated pre-fix timed-out test.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python-input-boundaries:configured30s asserted, real child under shortened0.1s deadline killed/reaped and GitDiffError",
+        "Targeted consumer suites recorded in context audit; native descendants not claimed"
+      ],
+      "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-061",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 107,
+      "source_sha256": "feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d",
+      "flow": {
+        "input": "External verdict JSON object and consumed field shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-cross-model.sh"
+      },
+      "impact": "External verdict JSON object and consumed field shapes",
+      "reproduction": "Nine malformed top-level gate CLI cases failed before repair; cross-model returned consensus failure instead of tool error.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require object, exact string digest/fullmatch, nonempty string consent kind, and list-of-object findings; preserve omitted findings and consensus failure policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-062",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 160,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "External evidence bundle and nested contract/artifact JSON shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "External evidence bundle and nested contract/artifact JSON shapes",
+      "reproduction": "Malformed scalar/list/null top-level inputs raised tracebacks in actual pre-edit CLI tests.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Validate object and nested consumed arrays/objects and report existing gate failure instead of an attribute error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-063",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "line": 39,
+      "source_sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+      "flow": {
+        "input": "External feature, link, requirement, ACS/test and evidence values",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-traceability.sh"
+      },
+      "impact": "External feature, link, requirement, ACS/test and evidence values",
+      "reproduction": "Malformed top-level inputs raised tracebacks in actual pre-edit CLI tests; typed identifier regression now checks missing/numeric req, mixed collection entries and normal blank-plus-valid control.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require consumed strings and link objects; require at least one nonempty ACS/test entry while preserving blank companions and optional null evidence.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-064",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "line": 185,
+      "source_sha256": "92999f5c81fe4a7cf75c6e630427a9ff866d4973a60aa4bf4df7043ad546f448",
+      "flow": {
+        "input": "Git status nonzero result becomes an empty clean-worktree snapshot",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+      },
+      "impact": "Git status nonzero result becomes an empty clean-worktree snapshot",
+      "reproduction": "Historical HEAD replay of the new actual fake-Git CLI test returned 0 instead of expected 1; this is explicitly a post-edit baseline replay, not a pre-edit red observation.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Check status result before constructing a bundle; classify Git timeouts and OSError; do not write output on failed Git status.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-065",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 298,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "Git object/ancestor checks may invoke unbounded external work",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "Git object/ancestor checks may invoke unbounded external work",
+      "reproduction": "Source inspection of previously unbounded Git subprocess calls; existing gate suite exercises valid and failed ancestry.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-066",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "line": 133,
+      "source_sha256": "508e9275a82640f45b39a696a2bf4a94402aa2dc75e06fdf8dff16d4147b465f",
+      "flow": {
+        "input": "CLI/JSON/YAML/filesystem/Git input",
+        "transformation": "Gate parsing, identity comparison or process result handling",
+        "sink": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+      },
+      "impact": "Git show failure was treated as a missing blob, allowing mixed criterion changes.",
+      "reproduction": "Actual fake git show exit91 produced exit0 before repair; final returns2.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "coverage.python-assist-final.json",
+        "python-assist-final-review.md"
+      ],
+      "resolution": "Establish absence by checked literal ls-tree and require successful show; NUL-frame paths and classify UTF-8 failure.",
+      "reuse": null
+    }
+  ]
+}

@@ -64,9 +64,9 @@ function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPat
     $current = $Repository
     foreach ($part in $relative.Split('/')) {
       if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
-      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
-      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
-      $current = $matches[0]
+      $matchedEntries = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matchedEntries.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matchedEntries[0]
       $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
       if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
     }
@@ -83,7 +83,8 @@ function Fail([string]$Message) {
 }
 
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
-  return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
+  return ($Left -is [string] -and $Right -is [string] -and
+    [string]::Equals($Left, $Right, [StringComparison]::Ordinal))
 }
 
 function Get-Sha256File([string]$Path) {
@@ -159,7 +160,7 @@ function Test-KeysExact([object]$Obj, [string[]]$ExpectedKeys) {
 }
 
 function Test-ManifestArrayValid([object]$Manifest) {
-  if ($null -eq $Manifest) { return $false }
+  if ($Manifest -isnot [array]) { return $false }
   $arr = @($Manifest)
   if ($arr.Count -eq 0) { return $false }
   foreach ($entry in $arr) {
@@ -223,7 +224,7 @@ function Get-ManifestRecordedRoot([object]$Contract) {
 }
 
 function Test-ChecksArrayValid([object]$Checks) {
-  if ($null -eq $Checks) { return $false }
+  if ($Checks -isnot [array]) { return $false }
   $arr = @($Checks)
   if ($arr.Count -eq 0) { return $false }
   foreach ($c in $arr) {
@@ -342,7 +343,7 @@ if ($VerifyInputs) {
   if (-not (Test-RealDirectory $reportDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportDir) $reportDir)) { Fail 'round directory is missing or substituted' }
   if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Test-IsSymlink $precheckPath)) { Fail 'precheck evidence is missing or substituted' }
   Assert-SavedRecoveryReference $root $precheckPath
-  try { $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json } catch { Fail 'precheck evidence is not valid JSON' }
+  try { $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json -NoEnumerate } catch { Fail 'precheck evidence is not valid JSON' }
   $baseKeys = @('acceptance_sha256','attempt','calibration_sha256','edit_summary','feature','generated_at','input_sha256','investigation_sha256','requirements_sha256','reset','round','schema','spec_review_status_field','stage')
   if (@($precheck.PSObject.Properties.Name) -ccontains 'recovery') { $baseKeys += 'recovery' }
   if (-not (Test-KeysExact $precheck $baseKeys)) { Fail 'precheck evidence has invalid fields' }
@@ -377,7 +378,7 @@ function Test-ValidateReviewerOutput(
 ) {
   if (-not (Test-Path -LiteralPath $OutputPath -PathType Leaf) -or (Test-IsSymlink $OutputPath)) { return $false }
   $data = $null
-  try { $data = Get-Content -LiteralPath $OutputPath -Raw | ConvertFrom-Json } catch { return $false }
+  try { $data = Get-Content -LiteralPath $OutputPath -Raw | ConvertFrom-Json -NoEnumerate } catch { return $false }
   if (-not (Test-KeysExact $data @('allowed_input_manifest', 'checks', 'host_session_id', 'role', 'run_id', 'schema', 'stage', 'verdict'))) { return $false }
   if (-not (Test-OrdinalEqual $data.schema "$Role/v1")) { return $false }
   if (-not (Test-OrdinalEqual $data.stage 'spec')) { return $false }
@@ -442,7 +443,7 @@ function Test-ValidateContract(
   if (-not (Test-Path -LiteralPath $PrecheckPath -PathType Leaf) -or (Test-IsSymlink $PrecheckPath)) { return $false }
 
   $contract = $null
-  try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json } catch { return $false }
+  try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json -NoEnumerate } catch { return $false }
   $recordedRoot = Get-ManifestRecordedRoot $contract
   if ($recordedRoot -ceq '__INVALID__') { return $false }
   foreach ($reviewer in @($contract.reviewers)) {
@@ -452,7 +453,8 @@ function Test-ValidateContract(
     }
   }
   $precheck = $null
-  try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
+  try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json -NoEnumerate } catch { return $false }
+  if ($precheck -isnot [pscustomobject]) { return $false }
   $investigationPath = Get-ManifestLocalPath (Join-Path $specDir 'investigation.md') ''
   $contractManifestInvestigationHashes = @()
   foreach ($reviewer in @($contract.reviewers)) {
@@ -517,7 +519,7 @@ function Test-ValidateContract(
   $summaryPath = Join-Path $roundDir 'integrated-summary.json'
   if (-not (Test-Path -LiteralPath $summaryPath -PathType Leaf) -or (Test-IsSymlink $summaryPath)) { return $false }
   $summary = $null
-  try { $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json } catch { return $false }
+  try { $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json -NoEnumerate } catch { return $false }
   if (-not (Test-KeysExact $summary @('attempt', 'generated_at', 'reviewer_a_checks', 'reviewer_a_fail_count', 'reviewer_a_pass_count', 'reviewer_a_skip_count', 'round', 'schema'))) { return $false }
   if (-not (Test-OrdinalEqual $summary.schema 'integrated-summary/v1')) { return $false }
   if (-not (Test-JsonIntegerEquals $summary.attempt $ExpectedAttempt)) { return $false }
@@ -642,7 +644,7 @@ function Test-ValidateContract(
   if (-not (Test-ValidateReviewerOutput $reviewerAPath 'spec-reviewer-a' $expectedA $aRun $aSession $recordedRoot)) { return $false }
   if (-not (Test-ValidateReviewerOutput $reviewerBPath 'spec-reviewer-b' $expectedB $bRun $bSession $recordedRoot)) { return $false }
 
-  $reviewerAData = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
+  $reviewerAData = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json -NoEnumerate
   $reviewerAChecks = @($reviewerAData.checks)
   if ($reviewerAChecks.Count -ne $summaryChecks.Count) { return $false }
   for ($i = 0; $i -lt $reviewerAChecks.Count; $i++) {
@@ -657,7 +659,7 @@ function Test-ValidateContract(
   if (-not (Test-JsonIntegerEquals $summary.reviewer_a_pass_count $reviewerAPassCount)) { return $false }
   if (-not (Test-JsonIntegerEquals $summary.reviewer_a_skip_count $reviewerASkipCount)) { return $false }
 
-  $reviewerBData = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json
+  $reviewerBData = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json -NoEnumerate
   $reviewerBChecks = @($reviewerBData.checks)
   $allChecks = @($reviewerAChecks) + @($reviewerBChecks)
   $critical = @($allChecks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Critical' }).Count
@@ -677,7 +679,7 @@ function Test-ValidateContract(
   $integratedVerdictPath = Join-Path $roundDir 'integrated-verdict.json'
   if (-not (Test-Path -LiteralPath $integratedVerdictPath -PathType Leaf) -or (Test-IsSymlink $integratedVerdictPath)) { return $false }
   $verdictData = $null
-  try { $verdictData = Get-Content -LiteralPath $integratedVerdictPath -Raw | ConvertFrom-Json } catch { return $false }
+  try { $verdictData = Get-Content -LiteralPath $integratedVerdictPath -Raw | ConvertFrom-Json -NoEnumerate } catch { return $false }
   if (-not (Test-KeysExact $verdictData @('attempt', 'feature', 'finding_counts', 'reviewer_a_host_session_id', 'reviewer_a_run_id', 'reviewer_b_host_session_id', 'reviewer_b_run_id', 'round', 'schema', 'stage', 'verdict', 'warningCount'))) { return $false }
   if (-not (Test-OrdinalEqual $verdictData.schema 'spec-review-integrated-verdict/v1')) { return $false }
   if (-not (Test-OrdinalEqual $verdictData.stage 'spec')) { return $false }
@@ -936,9 +938,9 @@ function Test-InterruptedRecovery([string]$RecordPath) {
     Assert-Recovery ($reportText.Contains('Reviewer B was not launched') -and $reportText -cnotmatch '(?m)^(?:VERDICT|Verdict|Integrated Verdict):') 'source diagnostic report'
     $ledger = Read-RecoveryJson (Get-RecoveryPath 'reports/review-context/identity-ledger.json')
     Assert-Recovery ($ledger.records -is [array]) 'ledger records'
-    $matches = @($ledger.records | Where-Object { $_.run_id -ceq $a.run_id -and $_.host_session_id -ceq $a.host_session_id })
-    Assert-Recovery ($matches.Count -eq 1) 'persisted A identity missing or duplicated'
-    $persisted = $matches[0]
+    $matchedEntries = @($ledger.records | Where-Object { $_.run_id -ceq $a.run_id -and $_.host_session_id -ceq $a.host_session_id })
+    Assert-Recovery ($matchedEntries.Count -eq 1) 'persisted A identity missing or duplicated'
+    $persisted = $matchedEntries[0]
     foreach ($key in @('sequence','stage','role','run_id','host_session_id','record_sha256')) { Assert-Recovery ($persisted[$key].GetType() -eq $a[$key].GetType() -and $persisted[$key] -ceq $a[$key]) 'persisted A identity mismatch' }
     Assert-Recovery ($persisted.allowed_inputs_sha256 -ceq (Get-RecoveryInputBinding $inv.allowed_input_manifest)) 'persisted A input binding missing or changed'
     $receipt = Get-RecoveryLines (Get-RecoveryPath "$source/reviewer-a-reservation.txt")
@@ -986,7 +988,7 @@ if ($roundInt -gt 1) {
   if (-not (Test-ValidateContract -ContractPath $priorContract -ExpectedAttempt $attemptInt -ExpectedRound ($roundInt - 1) -ExpectedVerdict 'NEEDS_WORK' -PrecheckPath (Join-Path $priorDir 'precheck-result.json'))) {
     Fail 'prior round contract is malformed or does not require work'
   }
-  $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json
+  $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json -NoEnumerate
   $priorRequirementsSha = [string]$priorData.requirements_sha256
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
   $priorInvestigationSha = if ($null -eq $priorData.investigation_sha256) { '' } else { [string]$priorData.investigation_sha256 }
@@ -1017,7 +1019,7 @@ if ($Reset) {
   $previousContractPath = Join-Path $previousDir 'spec-review-contract.json'
   $previousVerdict = $null
   if (Test-Path -LiteralPath $previousContractPath -PathType Leaf) {
-    try { $previousVerdict = (Get-Content -LiteralPath $previousContractPath -Raw | ConvertFrom-Json).verdict } catch { $previousVerdict = $null }
+    try { $previousVerdict = (Get-Content -LiteralPath $previousContractPath -Raw | ConvertFrom-Json -NoEnumerate).verdict } catch { $previousVerdict = $null }
   }
   if (-not (Test-OrdinalEqual $previousVerdict 'PASS') -and -not (Test-OrdinalEqual $previousVerdict 'BLOCKED')) { Fail 'reset requires a terminal PASS or BLOCKED contract' }
   if (-not (Test-ValidateContract -ContractPath $previousContractPath -ExpectedAttempt ($attemptInt - 1) -ExpectedRound $previousRound -ExpectedVerdict $previousVerdict -PrecheckPath (Join-Path $previousDir 'precheck-result.json'))) {

@@ -47,14 +47,16 @@ function rateLimitResetAt(response: UpstreamResponseInfo): string | undefined {
   if (resetHeader !== null) {
     const resetEpochSeconds = Number(resetHeader);
     if (Number.isFinite(resetEpochSeconds) && resetEpochSeconds > 0) {
-      return new Date(resetEpochSeconds * 1000).toISOString();
+      const resetAt = new Date(resetEpochSeconds * 1000);
+      if (Number.isFinite(resetAt.getTime())) return resetAt.toISOString();
     }
   }
   const retryAfterHeader = response.getHeader("retry-after");
   if (retryAfterHeader !== null) {
     const retryAfterSeconds = Number(retryAfterHeader);
     if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
-      return new Date(Date.now() + retryAfterSeconds * 1000).toISOString();
+      const resetAt = new Date(Date.now() + retryAfterSeconds * 1000);
+      if (Number.isFinite(resetAt.getTime())) return resetAt.toISOString();
     }
   }
   return undefined;

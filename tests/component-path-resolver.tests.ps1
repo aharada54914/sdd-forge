@@ -1060,6 +1060,36 @@ Test-056 "5" "malformed-unclosed.yaml" $false "unsupported YAML construct"
 Test-056 "6" "malformed-unclosed.yaml" $true  "unsupported YAML construct"
 Remove-Item -Recurse -Force -LiteralPath $t056Dir -ErrorAction SilentlyContinue
 
+# Parsed YAML containers must not be coerced into string identity/pattern fields.
+$typedRoot = Join-Path ([IO.Path]::GetTempPath()) ('resolver-types-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $typedRoot | Out-Null
+try {
+    $emptyPaths = Join-Path $typedRoot 'paths.txt'
+    [IO.File]::WriteAllText($emptyPaths, '')
+    $cases = @{
+        'array-id' = "components:`n  - id:`n      - a`n    paths:`n      include:`n        - 'src/**'`n"
+        'mapping-id' = "components:`n  - id:`n      key: value`n    paths:`n      include:`n        - 'src/**'`n"
+        'array-pattern' = "components: []`nshared_paths:`n  - pattern:`n      - 'src/**'`n    classification: cross-cutting`n"
+        'array-classification' = "components: []`nshared_paths:`n  - pattern: 'src/**'`n    classification:`n      - cross-cutting`n"
+    }
+    foreach ($label in $cases.Keys) {
+        $typedConfig = Join-Path $typedRoot "$label.yaml"
+        [IO.File]::WriteAllText($typedConfig, $cases[$label])
+        $typedResult = Invoke-ResolverRaw @('-Config', $typedConfig, '-ChangedPathsFile', $emptyPaths)
+        if ($typedResult.ExitCode -ne 0 -and $typedResult.Output -match 'config error') { Ok "reject malformed string field: $label" }
+        else { Fail "accepted malformed string field: $label exit=$($typedResult.ExitCode)" }
+    }
+    $caseConfig = Join-Path $typedRoot 'case.yaml'
+    [IO.File]::WriteAllText($caseConfig, "components:`n  - id: A`n    paths:`n      include:`n        - 'upper/**'`n  - id: a`n    paths:`n      include:`n        - 'lower/**'`n")
+    [IO.File]::WriteAllText($emptyPaths, "upper/file`nlower/file`n")
+    $caseBindings = Join-Path $typedRoot 'bindings.json'
+    [IO.File]::WriteAllText($caseBindings, '{"bindings":[{"adapter_paths":["lower/**"],"provider_binding_ids":["A"]}]}')
+    $caseResult = Invoke-ResolverRaw @('-Config', $caseConfig, '-ChangedPathsFile', $emptyPaths, '-Diagnose', '-ProviderBindings', $caseBindings)
+    if ($caseResult.ExitCode -eq 0 -and -not (($caseResult.Output | ConvertFrom-Json).findings | Where-Object { $_.id -ceq 'Fail-6' }).triggered) {
+        Ok 'provider diagnosis keeps component identities ordinal'
+    } else { Fail "provider diagnosis conflated component case: $($caseResult.Output)" }
+} finally { Remove-Item -LiteralPath $typedRoot -Recurse -Force }
+
 # ============================================================================
 # Summary
 # ============================================================================

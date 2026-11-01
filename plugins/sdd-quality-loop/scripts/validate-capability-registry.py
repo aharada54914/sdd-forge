@@ -181,7 +181,7 @@ def check_h_catalog_conformance(registry: Dict[str, Any], diagnostics: List[str]
         return False
     try:
         catalog = _load_json(catalog_path)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         diagnostics.append(f"registry: unknown-upgrade-reason: cannot read catalog: {exc}")
         return False
     known = set(catalog.get("reasons", []) or [])
@@ -202,7 +202,7 @@ def check_h_catalog_conformance(registry: Dict[str, Any], diagnostics: List[str]
 def check_j_lite_check_conformance(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
     try:
         catalog = _load_json(discover_artifact("lite-check-catalog.json"))
-    except (DiscoveryError, OSError, json.JSONDecodeError):
+    except (DiscoveryError, OSError, ValueError):
         diagnostics.append("registry: unknown-lite-check: cannot locate/read/verify catalog")
         return False
     if not check_lite_check_catalog(catalog):
@@ -286,11 +286,31 @@ def run(registry_path: str, repo_root: Path) -> List[str]:
     diagnostics: List[str] = []
     try:
         registry = _load_json(Path(registry_path))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         return [f"registry: cannot read/parse registry: {exc}"]
 
     if not isinstance(registry, dict):
         return ["registry: registry document is not a JSON object"]
+
+    # These are the shapes consumed by checks below, not a second JSON Schema.
+    for collection in ("gates", "capabilities"):
+        entries = registry.get(collection, [])
+        if not isinstance(entries, list) or any(not isinstance(item, dict) for item in entries):
+            return [f"registry: invalid-input: {collection} must be an array of objects"]
+        for item in entries:
+            for field in ("id", "stage", "implementation_ref"):
+                if field in item and not isinstance(item[field], str):
+                    return [f"registry: invalid-input: {collection}.{field} must be a string"]
+            if "gate_ids" in item and (not isinstance(item["gate_ids"], list)
+                    or any(not isinstance(value, str) for value in item["gate_ids"])):
+                return [f"registry: invalid-input: {collection}.gate_ids must be an array of strings"]
+            policy = item.get("lite_policy")
+            if policy is not None and not isinstance(policy, dict):
+                return [f"registry: invalid-input: {collection}.lite_policy must be an object"]
+            if isinstance(policy, dict) and "upgrade_reasons" in policy:
+                reasons = policy["upgrade_reasons"]
+                if not isinstance(reasons, list) or any(not isinstance(value, str) for value in reasons):
+                    return ["registry: invalid-input: upgrade_reasons must be an array of strings"]
 
     check_a_gate_id_uniqueness(registry, diagnostics)
     check_b_stage_completeness(registry, repo_root, diagnostics)
@@ -301,7 +321,7 @@ def run(registry_path: str, repo_root: Path) -> List[str]:
     try:
         provider_terms = _load_provider_terms(repo_root)
         check_g_provider_name_contamination(registry, provider_terms, diagnostics)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         diagnostics.append(f"registry: provider-name-detected: cannot read provider-terms.json: {exc}")
     check_h_catalog_conformance(registry, diagnostics)
     check_i_capability_id_uniqueness(registry, diagnostics)

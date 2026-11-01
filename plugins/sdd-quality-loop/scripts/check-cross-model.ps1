@@ -89,7 +89,7 @@ if (-not (Test-Path -LiteralPath $verdictDir)) {
     exit 2
 }
 
-$verdictFiles = @(Get-ChildItem -Path $verdictDir -Filter "*.verdict.json" |
+$verdictFiles = @(Get-ChildItem -LiteralPath $verdictDir -Filter "*.verdict.json" |
     Where-Object { $_.Name.StartsWith($prefix) -and $_.Name.EndsWith($suffix) } |
     Sort-Object Name)
 
@@ -100,51 +100,61 @@ if ($verdictFiles.Count -eq 0) {
 
 # ── Step 1: parse + schema-validate each verdict ───────────────────────────
 
-$HEX64 = '^[0-9a-f]{64}$'
+$HEX64 = '\A[0-9a-f]{64}\z'
 $verdicts = @()
 
 foreach ($vfile in $verdictFiles) {
     try {
-        $v = Get-Content -Raw -Encoding Utf8 $vfile.FullName | ConvertFrom-Json
+        $json = Get-Content -Raw -Encoding Utf8 -LiteralPath $vfile.FullName
+        $v = $json | ConvertFrom-Json
+        if ($json.TrimStart() -notmatch '^\{' -or $v -isnot [PSCustomObject]) {
+            throw 'verdict must be a JSON object'
+        }
     } catch {
         [Console]::Error.WriteLine("check-cross-model: failed to parse $($vfile.Name): $_")
         exit 2
     }
 
     # blind must be exactly $true (boolean)
-    if ($v.blind -ne $true) {
+    if (($v.blind -isnot [bool]) -or ($v.blind -ne $true)) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): blind must be true (got $($v.blind))")
         exit 2
     }
 
     # input_digest must be 64-hex
-    $digest = [string]($v.input_digest)
-    if (-not ($digest -cmatch $HEX64)) {
+    $digest = $v.input_digest
+    if ($digest -isnot [string] -or -not ($digest -cmatch $HEX64)) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): input_digest must be 64-hex (got '$digest')")
         exit 2
     }
 
     # vendor must be non-empty string
-    $vendor = [string]($v.vendor)
-    if (-not $vendor) {
+    $vendor = $v.vendor
+    if (($vendor -isnot [string]) -or -not $vendor) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): vendor must be non-empty string")
         exit 2
     }
 
     # consent.kind must be present
     $consent = $v.consent
-    if ($null -eq $consent -or -not $consent.PSObject.Properties['kind'] -or -not $consent.kind) {
+    if ($consent -isnot [PSCustomObject] -or $consent.kind -isnot [string] -or -not $consent.kind) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): consent.kind is required")
         exit 2
     }
 
+    if ($v.PSObject.Properties['findings']) {
+        if ($v.findings -isnot [array] -or @($v.findings | Where-Object { $null -eq $_ -or $_.GetType() -ne [System.Management.Automation.PSCustomObject] }).Count -gt 0) {
+            [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): findings must be an array of objects")
+            exit 2
+        }
+    }
     $verdicts += $v
 }
 
 # ── Step 2: compute vendor diversity metrics ────────────────────────────────
 
 $allVendors      = $verdicts | ForEach-Object { [string]$_.vendor }
-$distinctVendors = $allVendors | ForEach-Object { $_.ToLower() } | Sort-Object -Unique
+$distinctVendors = $allVendors | ForEach-Object { $_.ToLowerInvariant() } | Sort-Object -Unique
 $vendorsDistinct  = $distinctVendors.Count
 $nonAnthropicCount = ($distinctVendors | Where-Object { $_ -ne "anthropic" }).Count
 
@@ -186,7 +196,7 @@ if ($ExpectDigest) {
 
 # ── Step 6: consensus check ─────────────────────────────────────────────────
 
-$allPass = ($verdicts | Where-Object { [string]$_.verdict -ne "PASS" }).Count -eq 0
+$allPass = ($verdicts | Where-Object { $_.verdict -isnot [string] -or $_.verdict -cne "PASS" }).Count -eq 0
 $anyCritical = ($verdicts | ForEach-Object {
     $v = $_
     if ($v.findings) {
@@ -209,7 +219,7 @@ if (-not $allPass -or $anyCritical) {
 
 if ($Evaluator) {
     $panelConsensus = "PASS"  # we passed step 6
-    if ($Evaluator -ne $panelConsensus) {
+    if ($Evaluator -cne $panelConsensus) {
         Write-Aggregate -Panelists $panelists -VendorsDistinct $vendorsDistinct `
             -NonAnthropicCount $nonAnthropicCount -AllPass $true -AnyCritical $false `
             -EvaluatorVerdict $Evaluator -Divergence $true -RequiresHuman $true -Result "NEEDS_HUMAN"

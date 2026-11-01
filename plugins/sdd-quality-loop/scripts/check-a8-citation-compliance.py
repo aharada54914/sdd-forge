@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 INV_ROW_RE = re.compile(r"^\|\s*(INV-\d{3})\s*\|")

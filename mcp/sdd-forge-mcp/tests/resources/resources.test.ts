@@ -38,7 +38,7 @@ test("sdd://active-specs matches list_active_specs exactly", async () => {
   const fixture = await makeResourcesFixture("resources-active-specs");
   try {
     const toolResult = await fixture.client.callTool({ name: "list_active_specs", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult as never);
+    const toolEnvelope = parseEnvelope(toolResult);
 
     const resourceResult = await fixture.client.readResource({ uri: "sdd://active-specs" });
     const resourceEnvelope = parseResourceEnvelope(resourceResult);
@@ -58,7 +58,7 @@ test("sdd://spec/{feature} matches get_spec_status exactly", async () => {
       name: "get_spec_status",
       arguments: { feature: "feature-a" },
     });
-    const toolEnvelope = parseEnvelope(toolResult as never);
+    const toolEnvelope = parseEnvelope(toolResult);
 
     const resourceResult = await fixture.client.readResource({ uri: "sdd://spec/feature-a" });
     const resourceEnvelope = parseResourceEnvelope(resourceResult);
@@ -77,7 +77,7 @@ test("sdd://tasks/{feature} matches get_task_state exactly", async () => {
       name: "get_task_state",
       arguments: { feature: "feature-a" },
     });
-    const toolEnvelope = parseEnvelope(toolResult as never);
+    const toolEnvelope = parseEnvelope(toolResult);
 
     const resourceResult = await fixture.client.readResource({ uri: "sdd://tasks/feature-a" });
     const resourceEnvelope = parseResourceEnvelope(resourceResult);
@@ -96,7 +96,7 @@ test("sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same
       name: "get_task_state",
       arguments: { feature: "../escape" },
     });
-    const toolEnvelope = parseEnvelope(toolResult as never) as { ok: false; error: { code: string } };
+    const toolEnvelope = parseEnvelope(toolResult) as { ok: false; error: { code: string } };
     assert.equal(toolEnvelope.ok, false);
     assert.equal(toolEnvelope.error.code, "invalid-input");
 
@@ -115,7 +115,7 @@ test("sdd://review-tickets matches list_review_tickets exactly", async () => {
   const fixture = await makeResourcesFixture("resources-review-tickets");
   try {
     const toolResult = await fixture.client.callTool({ name: "list_review_tickets", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult as never);
+    const toolEnvelope = parseEnvelope(toolResult);
 
     const resourceResult = await fixture.client.readResource({ uri: "sdd://review-tickets" });
     const resourceEnvelope = parseResourceEnvelope(resourceResult);
@@ -131,7 +131,7 @@ test("sdd://quality-reports matches get_quality_gate_summary exactly", async () 
   const fixture = await makeResourcesFixture("resources-quality-reports");
   try {
     const toolResult = await fixture.client.callTool({ name: "get_quality_gate_summary", arguments: {} });
-    const toolEnvelope = parseEnvelope(toolResult as never);
+    const toolEnvelope = parseEnvelope(toolResult);
 
     const resourceResult = await fixture.client.readResource({ uri: "sdd://quality-reports" });
     const resourceEnvelope = parseResourceEnvelope(resourceResult);

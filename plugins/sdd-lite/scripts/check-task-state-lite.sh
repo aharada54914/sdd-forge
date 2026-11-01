@@ -31,6 +31,16 @@ BEGIN { task=""; failures=0; count=0; in_blockers=0; blockers_content="" }
 # Strip trailing CR so CRLF tasks.md parses identically to LF (cross-platform parity).
 { sub(/\r$/, "") }
 function fail(msg) { print " - " msg; failures++ }
+# awk system()/getline commands require shell syntax. Quote each data atom;
+# do not interpolate a path or Markdown task id as shell/Python source.
+function shell_arg(value,    i, char, quoted) {
+  quoted = "\047"
+  for (i = 1; i <= length(value); i++) {
+    char = substr(value, i, 1)
+    quoted = quoted (char == "\047" ? "\047\\\047\047" : char)
+  }
+  return quoted "\047"
+}
 /^## T-[0-9]+/ {
   if (task != "") finish()
   newid = $2
@@ -66,16 +76,16 @@ function finish(   is_valid_approval, is_approved, cmd, impl_report, f, ok, vc, 
     fail(task " is \x27" status "\x27 without Approval: Approved")
   # Implementation report required for Implementation Complete AND Done (word-boundary match)
   if (status == "Implementation Complete" || status == "Done") {
-    cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
+    cmd = "grep -rlw -- " shell_arg(task) " " shell_arg(ENVIRON["IMPL_REPORTS"]) " 2>/dev/null | head -1"
     cmd | getline impl_report; close(cmd)
     if (impl_report == "") fail(task " is \x27" status "\x27 but no implementation report in " ENVIRON["IMPL_REPORTS"] " mentions it")
   }
   # Lite Done: require a quality-gate report mentioning the task with VERDICT: PASS
   if (status == "Done") {
     qa_found = ""
-    cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["REPORTS"] "\" 2>/dev/null"
+    cmd = "grep -rlw -- " shell_arg(task) " " shell_arg(ENVIRON["REPORTS"]) " 2>/dev/null"
     while ((cmd | getline f) > 0) {
-      vc = "grep -Eq \x27^VERDICT:[ \t]*PASS[ \t]*$\x27 \"" f "\" && echo yes || echo no"
+      vc = "grep -Eq -- " shell_arg("^VERDICT:[ \t]*PASS[ \t]*$") " " shell_arg(f) " && echo yes || echo no"
       vc | getline ok; close(vc)
       if (ok == "yes") { qa_found = f; break }
     }

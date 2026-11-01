@@ -504,13 +504,12 @@ function ConvertTo-ConfigObject {
         if ($entry -isnot [System.Collections.IDictionary]) {
             throw [ConfigError]::new("each components[] entry must be a mapping")
         }
-        $hasId = $entry.Contains("id") -and $null -ne $entry["id"]
         $hasName = $entry.Contains("name") -and $null -ne $entry["name"]
         if ($hasName) {
             throw [ConfigError]::new("legacy 'name' is not supported; use canonical component field 'id'")
         }
-        $name = if ($hasId) { $entry["id"] } else { $null }
-        if ([string]::IsNullOrEmpty($name)) {
+        $name = $entry["id"]
+        if ($name -isnot [string] -or [string]::IsNullOrEmpty($name)) {
             throw [ConfigError]::new("each component requires a non-empty 'id'")
         }
         if ($seenNames.ContainsKey($name)) {
@@ -540,7 +539,7 @@ function ConvertTo-ConfigObject {
                 throw [ConfigError]::new("each shared_paths[] entry must be a mapping")
             }
             $pattern = $entry["pattern"]
-            if ([string]::IsNullOrEmpty($pattern)) {
+            if ($pattern -isnot [string] -or [string]::IsNullOrEmpty($pattern)) {
                 throw [ConfigError]::new("each shared_paths[] entry requires a non-empty 'pattern'")
             }
             $hasComponents = $entry.Contains("components") -and $null -ne $entry["components"]
@@ -550,7 +549,7 @@ function ConvertTo-ConfigObject {
                 throw [ConfigError]::new("shared_paths entry '$pattern' must carry exactly one of 'components' (bounded) or 'classification: cross-cutting' (unbounded), never both or neither")
             }
             if ($hasClassification) {
-                if ($classification -cne "cross-cutting") {
+                if ($classification -isnot [string] -or $classification -cne "cross-cutting") {
                     throw [ConfigError]::new("shared_paths entry '$pattern' has unsupported classification '$classification' (only 'cross-cutting' is defined)")
                 }
                 $sharedPaths.Add((New-SharedPathEntryObject -PatternRaw $pattern -Components $null -Classification "cross-cutting"))
@@ -1010,34 +1009,15 @@ class GitDiffError : System.Exception {
 
 $Utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
 
+. (Join-Path $PSScriptRoot 'lib/native-arguments.ps1')
+
 function Invoke-GitRaw {
-    # Runs git as a real subprocess and returns raw bytes for stdout/stderr
-    # (never PowerShell's own text/console decoding), reading both streams
-    # concurrently via CopyToAsync to avoid a classic redirect deadlock.
     param([string]$RepoRoot, [string[]]$GitArgs)
-    $psi = [System.Diagnostics.ProcessStartInfo]::new()
-    $psi.FileName = "git"
-    [void]$psi.ArgumentList.Add("-C")
-    [void]$psi.ArgumentList.Add($RepoRoot)
-    foreach ($a in $GitArgs) { [void]$psi.ArgumentList.Add($a) }
-    $psi.RedirectStandardOutput = $true
-    $psi.RedirectStandardError = $true
-    $psi.UseShellExecute = $false
-    $proc = [System.Diagnostics.Process]::new()
-    $proc.StartInfo = $psi
     try {
-        [void]$proc.Start()
+        return Invoke-SddGitRaw -RepoRoot $RepoRoot -GitArgs $GitArgs
     } catch {
-        throw [GitDiffError]::new("git executable not found: $($_.Exception.Message)")
+        throw [GitDiffError]::new($_.Exception.Message)
     }
-    $stdoutMs = [System.IO.MemoryStream]::new()
-    $stderrMs = [System.IO.MemoryStream]::new()
-    $outTask = $proc.StandardOutput.BaseStream.CopyToAsync($stdoutMs)
-    $errTask = $proc.StandardError.BaseStream.CopyToAsync($stderrMs)
-    $outTask.Wait()
-    $errTask.Wait()
-    $proc.WaitForExit()
-    return @{ ExitCode = $proc.ExitCode; Stdout = $stdoutMs.ToArray(); Stderr = $stderrMs.ToArray() }
 }
 
 function ConvertTo-PathStrict {
@@ -1074,8 +1054,11 @@ function Get-RepoFingerprint {
     $r1 = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("rev-parse", "HEAD")
     $head = if ($r1.ExitCode -eq 0) { [System.Text.Encoding]::ASCII.GetString($r1.Stdout).Trim() } else { "(unborn)" }
     $r2 = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("status", "--porcelain=v1", "-z", "--untracked-files=all")
+    if ($r2.ExitCode -ne 0) {
+        throw [GitDiffError]::new("git status failed while capturing repository fingerprint")
+    }
     $sha = [System.Security.Cryptography.SHA256]::Create()
-    $hashBytes = $sha.ComputeHash($r2.Stdout)
+    try { $hashBytes = $sha.ComputeHash($r2.Stdout) } finally { $sha.Dispose() }
     $statusHash = -join ($hashBytes | ForEach-Object { $_.ToString("x2") })
     return @{ Head = $head; StatusHash = $statusHash }
 }
@@ -1214,14 +1197,14 @@ function Invoke-Diagnose {
 
     $warnings = [System.Collections.Generic.List[string]]::new()
     if ($ProviderBindingsPath -and (Test-Path -LiteralPath $ProviderBindingsPath -PathType Leaf)) {
-        $text = Get-Content -Raw -LiteralPath $ProviderBindingsPath
+        $text = Get-Content -Raw -Encoding utf8 -LiteralPath $ProviderBindingsPath
         try {
             $data = $text | ConvertFrom-Json -AsHashtable
         } catch {
             $data = ConvertFrom-MinimalYaml $text
         }
         $bindings = if ($data -is [System.Collections.IDictionary]) { $data["bindings"] } else { $null }
-        $exclusiveByComponent = @{}
+        $exclusiveByComponent = [System.Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
         foreach ($r in $records) {
             if ($r.classification -eq "EXCLUSIVE") {
                 foreach ($comp in $r.owning_components) {
@@ -1230,7 +1213,7 @@ function Invoke-Diagnose {
                 }
             }
         }
-        $matches = [System.Collections.Generic.List[object]]::new()
+        $matchedEntries = [System.Collections.Generic.List[object]]::new()
         if ($bindings) {
             foreach ($binding in $bindings) {
                 $adapterPaths = $binding["adapter_paths"]
@@ -1257,14 +1240,14 @@ function Invoke-Diagnose {
                         $nfcPath = ConvertTo-Nfc $path
                         foreach ($pair in $usablePatterns) {
                             if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
-                                $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
+                                $matchedEntries.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                             }
                         }
                     }
                 }
             }
         }
-        $findings.Add([ordered]@{ id = "Fail-6"; triggered = ($matches.Count -gt 0); detail = [ordered]@{ matches = @($matches) } })
+        $findings.Add([ordered]@{ id = "Fail-6"; triggered = ($matchedEntries.Count -gt 0); detail = [ordered]@{ matches = @($matchedEntries) } })
     } else {
         $findings.Add([ordered]@{ id = "Fail-6"; triggered = $false; detail = [ordered]@{ status = "not-applicable (provider-bindings absent)" } })
         $warnings.Add("Fail-6: provider-bindings file absent; recorded N/A")

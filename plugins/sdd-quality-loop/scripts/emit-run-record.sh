@@ -16,7 +16,8 @@
 # attribution analysis at small n needs numerators and denominators.
 # Metadata the repository cannot know (model ids, track) arrives as arguments;
 # everything countable is counted here, not by the calling agent.
-# Fail-closed: exit 1 when the feature's tasks.md is missing.
+# Requires jq for JSON string serialization.
+# Fail-closed: exit 1 when tasks.md, serialization, or the output write fails.
 #
 # schema: emitted "sdd-run-record/v1" (unchanged, byte-identical to every
 # pre-feature invocation) unless ANY --effort-* flag below is supplied, in
@@ -69,7 +70,19 @@ require_capability_enforcement_value() {
   esac
 }
 
+# grep no-match is normal data; an unreadable source is never a zero metric.
+metric_grep() {
+  grep "$@"
+  metric_status=$?
+  [ "$metric_status" -le 1 ] || {
+    echo 'emit-run-record: cannot inspect metric source' >&2
+    exit 2
+  }
+  return "$metric_status"
+}
+
 while [ $# -gt 0 ]; do
+  [ "$#" -ge 2 ] || { echo "emit-run-record: missing option value: $1" >&2; exit 1; }
   case "$1" in
     --track)          track="${2:-unknown}"; shift 2 ;;
     --model-main)     model_main="${2:-unknown}"; shift 2 ;;
@@ -121,22 +134,25 @@ if [ ! -f "$tasks" ]; then
   exit 1
 fi
 
-timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-file_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)" || exit 1
+file_stamp="$(date -u +%Y%m%dT%H%M%SZ)" || exit 1
 out_dir="reports/runs"
 out="${out_dir}/RUN-${file_stamp}-${feature}.json"
-mkdir -p "$out_dir"
+mkdir -p "$out_dir" || exit 1
 
 # --- Task counts from tasks.md (CRLF tolerated) --------------------------
-task_ids="$(sed 's/\r$//' "$tasks" | sed -n 's/^## \(T-[0-9][0-9]*\).*/\1/p')"
+tasks_content="$(sed 's/\r$//' "$tasks")" || exit 1
+task_ids="$(printf '%s\n' "$tasks_content" | sed -n 's/^## \(T-[0-9][0-9]*\).*/\1/p')"
 tasks_total=0
 tasks_done=0
 tasks_blocked=0
 for tid in $task_ids; do
   tasks_total=$((tasks_total + 1))
 done
-tasks_done="$(sed 's/\r$//' "$tasks" | grep -c '^Status:[ \t]*Done[ \t]*$' || true)"
-tasks_blocked="$(sed 's/\r$//' "$tasks" | grep -c '^Status:[ \t]*Blocked[ \t]*$' || true)"
+tasks_done="$(printf '%s\n' "$tasks_content" | metric_grep -c '^Status:[ \t]*Done[ \t]*$')"
+[ "$?" -le 1 ] || exit 1
+tasks_blocked="$(printf '%s\n' "$tasks_content" | metric_grep -c '^Status:[ \t]*Blocked[ \t]*$')"
+[ "$?" -le 1 ] || exit 1
 
 # --- Quality-gate reports per task (scoped to this feature) ----------------
 # Task IDs (T-NNN) restart per feature, so the same bare id lives in every
@@ -153,7 +169,8 @@ max_gate_runs=0
 # [regex]::Escape) so a feature like "v2.0" cannot match unintended lines.
 feature_re="$(printf '%s\n' "$feature" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
 if [ -d "reports/quality-gate" ]; then
-  feature_gate_files="$(grep -rlE "^Feature:[[:space:]]*${feature_re}[[:space:]]*$" reports/quality-gate 2>/dev/null || true)"
+  feature_gate_files="$(metric_grep -rlE "^Feature:[[:space:]]*${feature_re}[[:space:]]*$" reports/quality-gate)"
+  [ "$?" -le 1 ] || exit 1
   for tid in $task_ids; do
     n=0
     # Canonical task identity is the template's `Task ID:` line (WFI-020).
@@ -166,18 +183,24 @@ if [ -d "reports/quality-gate" ]; then
     tid_re="$(printf '%s\n' "$tid" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
     identity_re="^(Task ID|Task):[[:space:]]*${tid_re}[[:space:]]*\$"
     identity_re="${identity_re}|^#[[:space:]]+Quality Gate Report:?[[:space:]]*${tid_re}([^0-9]|\$)"
-    for gf in $feature_gate_files; do
-      grep -qE -e "$identity_re" "$gf" 2>/dev/null && n=$((n + 1))
-    done
+    while IFS= read -r gf; do
+      [ -n "$gf" ] || continue
+      metric_grep -E -e "$identity_re" -- "$gf" >/dev/null && n=$((n + 1))
+    done <<EOF_GATE_FILES
+$feature_gate_files
+EOF_GATE_FILES
     gate_total=$((gate_total + n))
     [ "$n" -gt "$max_gate_runs" ] && max_gate_runs="$n"
     if [ "$n" -eq 1 ]; then
       first_pass_tasks=$((first_pass_tasks + 1))
     fi
   done
-  for gf in $feature_gate_files; do
-    grep -qE '^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$' "$gf" 2>/dev/null && gate_blocked=$((gate_blocked + 1))
-  done
+  while IFS= read -r gf; do
+    [ -n "$gf" ] || continue
+    metric_grep -E '^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$' -- "$gf" >/dev/null && gate_blocked=$((gate_blocked + 1))
+  done <<EOF_GATE_FILES
+$feature_gate_files
+EOF_GATE_FILES
 fi
 
 # --- Review tickets by severity (scoped to this feature) -------------------
@@ -188,19 +211,23 @@ tickets_critical=0
 tickets_major=0
 tickets_minor=0
 if [ -d "docs/review-tickets" ]; then
-  feature_ticket_files="$(grep -rlE "^[[:space:]]*feature:[[:space:]]*${feature_re}[[:space:]]*$" docs/review-tickets 2>/dev/null || true)"
-  for tf in $feature_ticket_files; do
+  feature_ticket_files="$(metric_grep -rlE "^[[:space:]]*feature:[[:space:]]*${feature_re}[[:space:]]*$" docs/review-tickets)"
+  [ "$?" -le 1 ] || exit 1
+  while IFS= read -r tf; do
+    [ -n "$tf" ] || continue
     # Anchor to the top-level severity field (like ^Status: above); an
     # unanchored match would also pick up the word in free-text prose
     # (e.g. a resolution_record) and misclassify the ticket.
-    if grep -qE '^severity:[[:space:]]*critical[[:space:]]*$' "$tf" 2>/dev/null; then
+    if metric_grep -E '^severity:[[:space:]]*critical[[:space:]]*$' -- "$tf" >/dev/null; then
       tickets_critical=$((tickets_critical + 1))
-    elif grep -qE '^severity:[[:space:]]*major[[:space:]]*$' "$tf" 2>/dev/null; then
+    elif metric_grep -E '^severity:[[:space:]]*major[[:space:]]*$' -- "$tf" >/dev/null; then
       tickets_major=$((tickets_major + 1))
-    elif grep -qE '^severity:[[:space:]]*minor[[:space:]]*$' "$tf" 2>/dev/null; then
+    elif metric_grep -E '^severity:[[:space:]]*minor[[:space:]]*$' -- "$tf" >/dev/null; then
       tickets_minor=$((tickets_minor + 1))
     fi
-  done
+  done <<EOF_TICKET_FILES
+$feature_ticket_files
+EOF_TICKET_FILES
 fi
 
 # --- Active (Applied) WFIs --------------------------------------------------
@@ -208,7 +235,10 @@ active_wfis=""
 if [ -d "docs/workflow-improvements" ]; then
   for wfi in docs/workflow-improvements/WFI-*.md; do
     [ -f "$wfi" ] || continue
-    if sed 's/\r$//' "$wfi" | grep -q '^Status:[ \t]*Applied[ \t]*$'; then
+    wfi_content=$(sed 's/\r$//' "$wfi") || exit 1
+    applied=$(printf '%s\n' "$wfi_content" | metric_grep '^Status:[ \t]*Applied[ \t]*$')
+    [ "$?" -le 1 ] || exit 1
+    if [ -n "$applied" ]; then
       id="$(basename "$wfi" .md)"
       # Strip audit-artifact suffixes; only bare WFI-NNN files carry status.
       case "$id" in
@@ -223,6 +253,26 @@ if [ -d "docs/workflow-improvements" ]; then
   done
 fi
 
+# Serialize caller metadata before opening the record; failure must not leave
+# a successful-looking file. Keep the existing layout for ordinary v1 values.
+json_string() {
+  json_string_out="$(jq -cn --arg value "$1" '$value')" || {
+    echo "emit-run-record: jq is required to serialize metadata and exited non-zero" >&2
+    return 1
+  }
+  [ -n "$json_string_out" ] || {
+    echo "emit-run-record: jq produced no serialized metadata" >&2
+    return 1
+  }
+  printf '%s' "$json_string_out" | tr -d '\r'
+}
+run_id_json="$(json_string "${file_stamp}-${feature}")" || exit 1
+feature_json="$(json_string "$feature")" || exit 1
+track_json="$(json_string "$track")" || exit 1
+model_main_json="$(json_string "$model_main")" || exit 1
+model_reviewers_json="$(json_string "$model_reviewers")" || exit 1
+plugin_version_json="$(json_string "$plugin_version")" || exit 1
+
 if [ "$emit_v2" = "1" ]; then
   # --- Effort field-population (sdd-run-record/v2, security-spec.md B4) ----
   # Per role slot: effort_requested is recorded iff its --effort-<role> flag
@@ -233,28 +283,7 @@ if [ "$emit_v2" = "1" ]; then
   # non-vacuous effort_degraded_reason keyed on the resolved effort_control
   # value -- never on host identity (AC-051).
   json_str_or_null() {
-    if [ -z "$1" ]; then printf 'null'; else printf '"%s"' "$1"; fi
-  }
-
-  json_string() {
-    # block_id is caller-supplied rather than an enum, so let jq perform JSON
-    # escaping instead of interpolating raw bytes into the output heredoc.
-    #
-    # jq is this script's only external dependency and it is reachable on this
-    # path alone. This script has no `set -e`, so an unchecked failure here
-    # (jq absent, or any non-zero exit) would yield an empty command
-    # substitution, interpolate '  "block_id": ' into the heredoc, and still
-    # write the record and exit 0 -- silent corruption of a cross-epic shared
-    # surface. Fail closed instead; the caller propagates the status.
-    json_string_out="$(jq -cn --arg value "$1" '$value')" || {
-      echo "emit-run-record: jq is required to serialize --capability-block-id and exited non-zero (is jq installed?)" >&2
-      return 1
-    }
-    if [ -z "$json_string_out" ]; then
-      echo "emit-run-record: jq produced no output while serializing --capability-block-id" >&2
-      return 1
-    fi
-    printf '%s' "$json_string_out"
+    if [ -z "$1" ]; then printf 'null'; else json_string "$1"; fi
   }
 
   resolve_effort_slot() {
@@ -294,15 +323,15 @@ if [ "$emit_v2" = "1" ]; then
 
   resolve_effort_slot "$effort_main_set" "$effort_main" "$effort_control_main" \
     "$effort_applied_main_set" "$effort_applied_main"
-  effort_requested_main_json="$(json_str_or_null "$OUT_REQUESTED")"
-  effort_applied_main_json="$(json_str_or_null "$OUT_APPLIED")"
-  effort_degraded_reason_main_json="$(json_str_or_null "$OUT_REASON")"
+  effort_requested_main_json="$(json_str_or_null "$OUT_REQUESTED")" || exit 1
+  effort_applied_main_json="$(json_str_or_null "$OUT_APPLIED")" || exit 1
+  effort_degraded_reason_main_json="$(json_str_or_null "$OUT_REASON")" || exit 1
 
   resolve_effort_slot "$effort_reviewers_set" "$effort_reviewers" "$effort_control_reviewers" \
     "$effort_applied_reviewers_set" "$effort_applied_reviewers"
-  effort_requested_reviewers_json="$(json_str_or_null "$OUT_REQUESTED")"
-  effort_applied_reviewers_json="$(json_str_or_null "$OUT_APPLIED")"
-  effort_degraded_reason_reviewers_json="$(json_str_or_null "$OUT_REASON")"
+  effort_requested_reviewers_json="$(json_str_or_null "$OUT_REQUESTED")" || exit 1
+  effort_applied_reviewers_json="$(json_str_or_null "$OUT_APPLIED")" || exit 1
+  effort_degraded_reason_reviewers_json="$(json_str_or_null "$OUT_REASON")" || exit 1
 
   if [ "$emit_capability" = "1" ]; then
     if [ "$capability_block_id_set" = "1" ]; then
@@ -313,16 +342,16 @@ if [ "$emit_v2" = "1" ]; then
     else
       capability_block_id_json="null"
     fi
-    cat > "$out" <<EOF
+    cat > "$out" <<EOF || exit 1
 {
   "schema": "sdd-run-record/v2",
-  "run_id": "${file_stamp}-${feature}",
+  "run_id": ${run_id_json},
   "generated": "${timestamp}",
-  "feature": "${feature}",
-  "track": "${track}",
+  "feature": ${feature_json},
+  "track": ${track_json},
   "model_ids": {
-    "main": "${model_main}",
-    "reviewers": "${model_reviewers}"
+    "main": ${model_main_json},
+    "reviewers": ${model_reviewers_json}
   },
   "effort": {
     "main": {
@@ -340,7 +369,7 @@ if [ "$emit_v2" = "1" ]; then
     "enforcement": "${capability_enforcement}",
     "block_id": ${capability_block_id_json}
   },
-  "plugin_version": "${plugin_version}",
+  "plugin_version": ${plugin_version_json},
   "active_wfis": [${active_wfis}],
   "metrics": {
     "tasks": {"done": ${tasks_done}, "blocked": ${tasks_blocked}, "total": ${tasks_total}},
@@ -351,18 +380,17 @@ if [ "$emit_v2" = "1" ]; then
 }
 EOF
   else
-    # The effort-only v2 heredoc is intentionally unchanged so existing v2
-    # consumers that never supply capability flags receive identical bytes.
-    cat > "$out" <<EOF
+    # Preserve the effort-only v2 layout; values are serialized above.
+    cat > "$out" <<EOF || exit 1
 {
   "schema": "sdd-run-record/v2",
-  "run_id": "${file_stamp}-${feature}",
+  "run_id": ${run_id_json},
   "generated": "${timestamp}",
-  "feature": "${feature}",
-  "track": "${track}",
+  "feature": ${feature_json},
+  "track": ${track_json},
   "model_ids": {
-    "main": "${model_main}",
-    "reviewers": "${model_reviewers}"
+    "main": ${model_main_json},
+    "reviewers": ${model_reviewers_json}
   },
   "effort": {
     "main": {
@@ -376,7 +404,7 @@ EOF
       "effort_degraded_reason": ${effort_degraded_reason_reviewers_json}
     }
   },
-  "plugin_version": "${plugin_version}",
+  "plugin_version": ${plugin_version_json},
   "active_wfis": [${active_wfis}],
   "metrics": {
     "tasks": {"done": ${tasks_done}, "blocked": ${tasks_blocked}, "total": ${tasks_total}},
@@ -388,22 +416,19 @@ EOF
 EOF
   fi
 else
-  # v1 shape, byte-identical to every pre-feature invocation (AC-025). This
-  # heredoc is intentionally an exact, unmodified copy of the pre-T-004
-  # emission -- never touched when adding v2 fields above, so the no-flags
-  # code path can never silently drift from v1's historical byte shape.
-  cat > "$out" <<EOF
+  # Preserve the v1 shape and ordinary-value bytes (AC-025).
+  cat > "$out" <<EOF || exit 1
 {
   "schema": "sdd-run-record/v1",
-  "run_id": "${file_stamp}-${feature}",
+  "run_id": ${run_id_json},
   "generated": "${timestamp}",
-  "feature": "${feature}",
-  "track": "${track}",
+  "feature": ${feature_json},
+  "track": ${track_json},
   "model_ids": {
-    "main": "${model_main}",
-    "reviewers": "${model_reviewers}"
+    "main": ${model_main_json},
+    "reviewers": ${model_reviewers_json}
   },
-  "plugin_version": "${plugin_version}",
+  "plugin_version": ${plugin_version_json},
   "active_wfis": [${active_wfis}],
   "metrics": {
     "tasks": {"done": ${tasks_done}, "blocked": ${tasks_blocked}, "total": ${tasks_total}},

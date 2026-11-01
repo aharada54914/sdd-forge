@@ -1,0 +1,10 @@
+✔ tail reader releases oversized upstream backing allocation before EOF (82.324656ms)
+✔ tail reader releases small-view upstream backing allocation before EOF (86.782893ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 228.684205

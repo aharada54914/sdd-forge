@@ -178,7 +178,7 @@ test("AC-013: get_job_log ok envelope (truncated:true) conforms to the v1 contra
 
 test("AC-013: invalid-input error envelope (list_workflow_runs, extra field) conforms to the v1 contract", async () => {
   const result = await listWorkflowRuns(
-    { owner: "acme", repo: "widgets", action: "rerun" } as never,
+    { owner: "acme", repo: "widgets", action: "rerun" },
     { env: TOKEN_ENV, fetchImpl: fakeFetch({}) },
   );
   assert.equal(result.ok, false);

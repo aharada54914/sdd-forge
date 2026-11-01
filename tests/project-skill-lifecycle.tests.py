@@ -91,6 +91,13 @@ class Lifecycle(unittest.TestCase):
                 self.assertEqual(result, (None, b"", b"", "platform-process-ownership-unverified", False))
                 start.assert_not_called()
 
+    @unittest.skipUnless(sys.platform == "linux", "Linux process supervisor boundary")
+    def test_failed_process_start_releases_status_pipe(self):
+        before = set(os.listdir("/proc/self/fd"))
+        with self.assertRaises(FileNotFoundError):
+            A.execute([sys.executable, "-c", "pass"], self.root / "missing", 1, 128)
+        self.assertEqual(set(os.listdir("/proc/self/fd")), before)
+
     def test_changed_imported_runner_or_validator_is_not_readmitted(self):
         self.seal('print("ok")')
         with tempfile.TemporaryDirectory() as directory:

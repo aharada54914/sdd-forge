@@ -1,0 +1,244 @@
+{
+  "schema": "coding-standards-contextual-review/v1",
+  "base_commit": "ed35c74e99f4cfaac743b2461f941b08aae62650",
+  "rules": [
+    "CS-014",
+    "CS-025",
+    "CS-028",
+    "CS-029",
+    "CS-030"
+  ],
+  "scope": "Workflow checker protocol-sensitive JSON, digest, registry and lifecycle comparisons across the file; no blanket filesystem case change or import of current admission schema into historical consumers.",
+  "before_source_sha256": "5204f5207ba3fb97bbb0f2dc4bab13c081e6f1918253e84946d4d5cc6a9c8359",
+  "sources": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "sha256": "41086af992a45888342a4d4cf4d373fa69da24a91e3664dad5aeee822860202f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "a97837ba7350be459900ed6d9f5b63ae0006488763c94e715bd8f9d9abf875d2"
+    },
+    {
+      "path": "tests/workflow-state.tests.sh",
+      "sha256": "72dd61178d3eba0788438de20d9bdd65733197ed5e1aea7ab956f13ce9b78846"
+    },
+    {
+      "path": "contracts/workflow-state-registry.schema.json",
+      "sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/spec-review-contract.template.json",
+      "sha256": "b33961db0d5e7fd02261c86c23bc5b9b02b1857fa85433b239c64ff694936e60"
+    },
+    {
+      "path": "plugins/sdd-review-loop/templates/task-review-contract.template.json",
+      "sha256": "f4c2809e9b3742518965f1387a681014544b5b9939fedb380fd23c57a8a1b5fd"
+    }
+  ],
+  "comparison": {
+    "method": "Same disposable full workflow fixture constructor, mutations, Bash checker and PowerShell7.6.7; original PowerShell source from pinned base placed temporarily alongside final script to preserve PSScriptRoot. Only selected checker filename changed; temporary baseline removed.",
+    "before": [
+      {
+        "case": "control",
+        "bash_exit": 0,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-verdict-case",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-attempt-string",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-warning-null",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-run-number",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-summary-null",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-attempt-bool",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-schema-case",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "task-reviewer-round-string",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "task-summary-pass-string",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-array-root",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-hash-key",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-hash-value",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      },
+      {
+        "case": "task-hash-value",
+        "bash_exit": 1,
+        "powershell_exit": 0
+      }
+    ],
+    "after": [
+      {
+        "case": "control",
+        "bash_exit": 0,
+        "powershell_exit": 0
+      },
+      {
+        "case": "spec-verdict-case",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-attempt-string",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-warning-null",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-run-number",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-summary-null",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-attempt-bool",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-schema-case",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-reviewer-round-string",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-summary-pass-string",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-array-root",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-hash-key",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "spec-hash-value",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      },
+      {
+        "case": "task-hash-value",
+        "bash_exit": 1,
+        "powershell_exit": 1
+      }
+    ],
+    "before_false_passes": 10,
+    "after_false_passes": 0,
+    "duration": "not captured",
+    "tokens": "unknown"
+  },
+  "dispositions": [
+    {
+      "boundary": "Spec/task verdict, contract, reviewers, summary",
+      "decision": "Read UTF-8 objects without singleton-root-array unwrapping. Required consumed keys retain exact spelling; scalar strings/counts preserve JSON kinds, numeric fractions are not rounded. Stage-specific task reviewer-a and reviewer-b roles remain distinct.",
+      "oracle": "Bash jq predicates and literal producer contracts, paired malformed mutations, independent source-bound before/after."
+    },
+    {
+      "boundary": "Digest comparisons",
+      "decision": "Exact canonical lowercase producer digests. Current spec-review-precheck is_sha256 and impl precheck validators use [0-9a-f]{64}. Hash equality helpers now compare ordinal strings.",
+      "historical_exceptions": "Raw/lifecycle-normalized/rereview alternatives remain independently calculated. Plugin reference pins still use historical introducing commits. Explicit no-git not-evaluable fallback remains unchanged; uppercase spelling does not add a new bypass to that existing documented fallback."
+    },
+    {
+      "boundary": "Legacy and registry",
+      "decision": "Typed schema_version and exact lowercase feature/profile grammar; const equality distinguishes bool/string/number. Legacy noncanonical statuses are admitted only by the exact bounded migration record; current full lifecycle states are not imposed on legacy records."
+    },
+    {
+      "boundary": "Optional historical fields",
+      "decision": "Exact-key lookup when a field is consumed. Unconsumed extension fields remain permitted; positive fixture includes Design_sha256 on a spec contract. No global rejection or lowercase normalization of arbitrary JSON keys."
+    },
+    {
+      "boundary": "Host paths versus protocol names",
+      "decision": "Existing Windows/repository relocation and platform path-prefix policies retained. Ordinal canonical relative-path allowlists guard subsequent path branches. Case-distinct run IDs remain distinct valid identities; they are not OS paths."
+    },
+    {
+      "boundary": "Implementation ADR evidence",
+      "decision": "Existing Read-AdrHistoryEvidence and snapshot/member validators remain the stricter authority. No copied replacement parser or weakening of frozen evidence controls."
+    }
+  ],
+  "verification": {
+    "targeted_mutations": {
+      "negative_cases": 40,
+      "scope": "34 provenance mutations,4 registry mutations,2 lifecycle mutations plus positive controls; integrated in existing workflow suite",
+      "status": "PASS: 40 negative mutations and positive controls; final focused prefix exit 0"
+    },
+    "positive_controls": [
+      "Canonical full fixture",
+      "Case-distinct run IDs",
+      "Literal JSON attempt 1.0",
+      "Timestamp-shaped string under DateKind String on PowerShell7.6.7",
+      "Unconsumed extension field"
+    ],
+    "native_parser_and_psscriptanalyzer": {
+      "powershell": "7.6.7",
+      "analyzer": "1.25.0",
+      "findings": 0
+    },
+    "full_workflow_suite": "PASS exit 0: existing workflow-state.tests.sh complete Bash+PowerShell fixture suite, final production source. The lexical 1.0 control was subsequently strengthened to prevent jq normalization and the complete final focused prefix passed again."
+  },
+  "limits": [
+    "Native Windows/macOS and older PowerShell version evidence remain integration-owned.",
+    "One malformed Path manifest member causes Bash jq to exit before its named rule; test requires rejection in both runtimes and PowerShell stage-provenance diagnostic, not false diagnostic-parity claim.",
+    "Source-based assertions of future behavior are not a guarantee over all possible inputs."
+  ],
+  "confirmed_remaining_admission_mismatches_in_reviewed_contracts": 0
+}

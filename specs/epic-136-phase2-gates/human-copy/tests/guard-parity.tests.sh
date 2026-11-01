@@ -359,7 +359,7 @@ parity_check "approval-guard: bash echo Approval to tasks.md" 2 \
 # Token is generated with the test key and written directly (not via the guard).
 # ---------------------------------------------------------------------------
 if command -v python3 >/dev/null 2>&1; then
-    REAL_WORK=$(python3 -c "import os; print(os.path.realpath('${WORK}'))")
+    REAL_WORK=$(python3 -c "import sys; import os; print(os.path.realpath(sys.argv[1]))" "${WORK}")
     python3 - "${REAL_WORK}" >"${WORK}/SDD_SUDO" <<'PYEOF'
 import hmac, hashlib, time, sys
 
@@ -535,7 +535,7 @@ parity_check "domain-model-guard: bash echo Domain-Model-Status: Approved to con
 # the tasks.md Approval guard (Scenario 16 above).
 # ---------------------------------------------------------------------------
 if command -v python3 >/dev/null 2>&1; then
-    REAL_WORK=$(python3 -c "import os; print(os.path.realpath('${WORK}'))")
+    REAL_WORK=$(python3 -c "import sys; import os; print(os.path.realpath(sys.argv[1]))" "${WORK}")
     python3 - "${REAL_WORK}" >"${WORK}/SDD_SUDO" <<'PYEOF'
 import hmac, hashlib, time, sys
 

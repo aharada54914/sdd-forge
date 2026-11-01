@@ -1,0 +1,1025 @@
+{
+  "schema": "coding-standards-audit-artifact-role-review/v1",
+  "revision": "98b13dceaa1a386c0a39665d77c807c8086143a7",
+  "method": "Parse current generated JSON; inspect role and producer/consumer boundary of native evidence, retained output and current A9 packet support files. Metadata may be stale or partial by design; no output is promoted to a current successful run. Executable heldout.py explicitly left with checks owner.",
+  "checks": "Both Draft7 audit schemas valid; canonical157findings shape valid after import and rule index30IDs resolve to common.md. Per-record schemas beyond these were not newly validated here.",
+  "entries": [
+    {
+      "path": "docs/contributor/coding-standards/audit/asset-role-review.json",
+      "source_sha256": "d396c2a65d0a91f559831a867b4b4e3a497a4937e475e6f629cca9f97fd90173",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-asset-role-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/embedded-shell-review.json",
+      "source_sha256": "d88c7dc1424b9cb66c4010c880d07d2b8060cdb70a2371e80e6273f17e3d786c",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-embedded-shell-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/findings.json",
+      "source_sha256": "869e343aa33881babef619807bbab9e0467acdc110e286813a463799918fe388",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/fixture-role-review.json",
+      "source_sha256": "a13ca22f5f03d252ce47eaae377f70bb2a757d370ce18338e2a02c4aa9143dff",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-fixture-role-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/formal-role-review.json",
+      "source_sha256": "381b92805f6059232661b0bfcff75101b3c7a262f08ab5a12095e4a342f98c20",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-formal-role-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/guidance-role-review.json",
+      "source_sha256": "fdc4a8a3583ba714e56d2bf23675fbadebea64a36d9231bd35cc2ad385533782",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-guidance-role-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/historical-python-role-review.json",
+      "source_sha256": "7b969be86893ad2cb46bb51974c7b12aa1cd4ff473148982975e7079d91cc67c",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-historical-python-role-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/historical-shell-scope.json",
+      "source_sha256": "c9c310edc2fd9a74b07b0f2f89ee10776e6c1a8af249d2bb4611417d7b320540",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-historical-shell-scope/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/independent-config-review.json",
+      "source_sha256": "87e927c1eb76bc70471a09a728684c54a1c936a10cb71a3b085654cf9a146e13",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "independent-config-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/population-schema.json",
+      "source_sha256": "599f164f103707a86890aa89001d315173940395dae114d3d0a01ed7bac03b2c",
+      "state": "reviewed",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Actual Draft7 schema meta-validation passed. Canonical findings/baseline population positive shape validations passed; original four population negative controls reject invalid state, absent evidence, invalid hash and empty census. Schema success is not semantic audit proof."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/population.json",
+      "source_sha256": "7db153ee47a1d20cb449d8d0370dd7d4b2653e20f0cbdee6db6594af97e2261e",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-population/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/python/contextual-coverage.json",
+      "source_sha256": "acb6da0bbfed0765c5368a0938fc74f361187232ff3d89c455c1112a112c30ec",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "python-contextual-coverage/v2",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/python/evidence.json",
+      "source_sha256": "e906a58b678f437633917928ae44ccb4994b9c651e8216ba1f08b4883bc2bd92",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "list"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/python/final-checks.json",
+      "source_sha256": "fcd7b7960f456b16e1824bf6fa9ad7179dbc3d1a2bbf4a264e914f7616e42911",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "python-final-checks/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/record-role-scope.json",
+      "source_sha256": "9ab0a88de7d803a703bd5c5d8d2a121f440943435740bfc2edb5ead0fa4510d3",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-record-role-scope/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/renderer-template-context-review.json",
+      "source_sha256": "719e4907d12e4ff189ba06d0ae3ba44e8c40ecc469d2375fdb0e21f81c338e8c",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-renderer-template-context-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/rule-index.json",
+      "source_sha256": "0f8e86f483bcd6f039b52deab7df18102daeb54bb904218b80f6cb7051668440",
+      "state": "reviewed",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-rule-index/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/schema.json",
+      "source_sha256": "6fc3ad2e54b09c575fa4d993a7d73dbbf94a3d1442b5e8a0832388eddf32f8e0",
+      "state": "reviewed",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Actual Draft7 schema meta-validation passed. Canonical findings/baseline population positive shape validations passed; original four population negative controls reject invalid state, absent evidence, invalid hash and empty census. Schema success is not semantic audit proof."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/scope-review.json",
+      "source_sha256": "9dc7b46804c93343c4fe3fbd5524e842f47113bccafac917f51887191c021e20",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-scope-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/coverage.python-assist.json",
+      "source_sha256": "1504dbad6e5eeacedc896532451ccd50d9531232ddda4053839f11c321fd12b4",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "powershell-contextual-assist/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/findings.followup.json",
+      "source_sha256": "a3d32da443a03f6d63e2daebfd3543c1a7f99213a2ee1488b1c8320491079c22",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/findings.inspection.json",
+      "source_sha256": "38db36c3102c648799e5d9b420c2b9ca5f44e9ffed371171084d91f3768c1f9c",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/findings.python-assist.json",
+      "source_sha256": "d8f26c79b4e34d1251bd60d9888258d3aa1a1d4f36e787b603025a0f2cfea224",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+      "source_sha256": "33b255547459c26b52175f42d42b0d39ed121c27104db18eaf1c807be28bc41d",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-root-boundary-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/root-context-review.json",
+      "source_sha256": "140f7df4e573b9c4dfb74aca0aa6d296dca3e90a4d34db15c691c5ed2173380a",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-root-context-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/summary.json",
+      "source_sha256": "a6aaa28a95ace964f39cdbe06e330f4ccd6d5bb5510169c424cb86e2a2f49ebd",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-shell-evidence/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+      "source_sha256": "776f4cd45e5e1c7eb8a6c6f1a171e1546976bd8ae2e68ada285291e8f4c37477",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-test-shell-context/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/test-context-validation.json",
+      "source_sha256": "ff9884649c4e3bbaad41185462ac1b185cb97a4dd9829c6c0ff457401c7360ef",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-test-shell-validation/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/after.txt",
+      "source_sha256": "e01afc84c2b03b634ecfe68df813ddc0621f4e65b2239abc9a4bcac17495e9cb",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 527
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/before.txt",
+      "source_sha256": "8661899644cd1596aa98899040818cb91d7d9ea74a7c189ec5bd99b1bad011d5",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1794
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/focused.txt",
+      "source_sha256": "703ef93a4f13c6163bc09d5a3877a6b70b1316abc52536ccf2d00cab9c217925",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 69
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/workflow-provenance-evidence/full-suite.txt",
+      "source_sha256": "059a5e8ac80090e8e05d030fd3445067601ceaa3e432d7b4eaa89b17e16ca1be",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 52
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/workflow-provenance-review.json",
+      "source_sha256": "3b0c143ff944e188b6883c23bead42b76ba82ca5d542f406a778d90ac6edd494",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-contextual-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/template-review.json",
+      "source_sha256": "7ec36999005aa079eac2f2b6e21efa159266c442d7bd82f38a8f90fa27666da5",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-template-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/typescript/contextual-coverage.json",
+      "source_sha256": "4e2878edfdc1a2bcbfb188a37d4783da808981e8128ee2a78085f618b9ad2d37",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "typescript-contextual-coverage/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/python-findings.json",
+      "source_sha256": "f6b532d2f913d2a0182c63986df93d9cc539d4d3b0b307656adca8f20ae9e557",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-findings/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/research/acquisition-attempts.json",
+      "source_sha256": "f68f414175e210c5230844b53e1e9da05dc1b7d717759e04263350a229c466ea",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/research/records/research-evidence.json",
+      "source_sha256": "63ae9d106ad85b6c70669889759951aa38301d02b04ec12316c0f4315be0fc3b",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "research-evidence/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/research/relations.json",
+      "source_sha256": "8087bc6ff6c5a3d91ed1ccee57e25c592d03aaa6df6969f35e6799e66cb125cc",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "research-relations/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/research/route-attribution.json",
+      "source_sha256": "68b913665098e7eb13ce18ba14f2e12713083df97de23b5a8c88c661bdab6953",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "research-search-result/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/reuse/evidence/backing-buffer-after.txt",
+      "source_sha256": "09ddd935d37a333f3426ad2a349e98841897222bd99a5cdae520b35993f25c0d",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 292
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/reuse/evidence/backing-buffer-before.txt",
+      "source_sha256": "fac2dad957421f9f53b201167070277c6184724c68bf30bc87a2770b33eb336c",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 2904
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/reuse/evidence/model-freshness.txt",
+      "source_sha256": "4bea75d0c00e29efd34847aaaea16cf984dbd4b84ecd9263b647b07c5678624f",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 4258
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "docs/contributor/coding-standards/reuse/independent-review.json",
+      "source_sha256": "49df5ffac140bf40de82078817e23532aace925e4b0d307b5f2a1f9921064779",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/README.md",
+      "source_sha256": "0efa7251ca683d5752822f9386f347120bc95440ada571638764417197e64c2b",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 6622
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/draft/requirements.md",
+      "source_sha256": "a14bf5b038d2b5571a78e361d8ae92cf65dbe47dc3216f1ab3a304ee7dcf7a6c",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1952
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/draft/tasks.md",
+      "source_sha256": "6c7d3492d7c1e7869f7236c25c63b0da7a1f365337cfa43c9b706bb0baf2be53",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1281
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/build.stderr",
+      "source_sha256": "aee7cfc434d57ab7cd0e818d5933a6792bc6a71986b1809662c164553b3bcc3d",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 50
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/build.stdout",
+      "source_sha256": "a56895355b2526ada6a8d51836a6ede03f11e71040d39b826b5bec87892ff090",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 115
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/contract-check.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/contract-check.stdout",
+      "source_sha256": "226049070e0ca3c9f082bd28ae1d79f3d55e3027ff49b3673476133e7e50c773",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 45
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/fullsuite.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/fullsuite.stdout",
+      "source_sha256": "f3575e0aa82d4a55f464600b97df577bfcb13ad99ce2b4c2a0a8c5786aa5b08d",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 29171
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/install.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/install.stdout",
+      "source_sha256": "d04a0e29cc8c06d7fd5b1938b446968ec0b0763c54e0aca45bfa5c13b12b7500",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 26
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/lint.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/lint.stdout",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/placeholder-scan.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/placeholder-scan.stdout",
+      "source_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 25
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/production-audit.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/production-audit.stdout",
+      "source_sha256": "c6cbb8c7a97b7f902eab3bc86b735db5f8d6a0e968bff53e69f237351b946c19",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 364
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/task-state-check.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/task-state-check.stdout",
+      "source_sha256": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 39
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/typecheck.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/e/typecheck.stdout",
+      "source_sha256": "c3fb6b341c1dd8055671bf668496cf9c991cb9a51baba33c6863595b0d05dd4c",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 49
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/notes/original-readiness.md",
+      "source_sha256": "7db0b6572ce1f659ba6b05632a9f23f24d9d5220f5ea9f89e222364dc5e132d9",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 10340
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/notes/review-decisions.md",
+      "source_sha256": "acfa8c21bbab1b18af01e242734c9a35fde1c16c0dd290be707c1a312f9bd59b",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 2675
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/a9-operational-preparation-20261031/ready/phase1.stderr",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 0
+      },
+      "reason": "Currently referenced A9 packet supporting narrative or captured stdout/stderr, not an executable implementation. Pinned workflow packet/signing/configuration relationships are independently reviewed; these stored outputs are not newly executed checks. Original packet bytes preserved."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/README.md",
+      "source_sha256": "b505f7425d577e827d1f17da6d1aeb678f711631036cbd85ecf9c9ef550f8219",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 2455
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/SHA256SUMS",
+      "source_sha256": "695d6d13b1429281dab31243d79737c43714e02dbcb756b84d6692dfa5198ea4",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1330
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/context-review.json",
+      "source_sha256": "e4ba20924bbfae04ea4201d37336b473c7e19b7e2850177abd47811b0c3c78a2",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-checker-context-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/README.md",
+      "source_sha256": "b69c5b614ef0d62f7835480cc4ba210db727fe415ffb298581e7449af6554abb",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1982
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/evidence.zip",
+      "source_sha256": "95e3f8092d8ce0bc602106d67cbf3f510253bcc649a20be6bfbda9a20e750926",
+      "state": "out-of-scope",
+      "role": "captured evidence archive",
+      "structure": {
+        "zip_signature": "504b0304"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/field-notes.prompt.txt",
+      "source_sha256": "cdbd375bb0ff73a99c205be6ae22d63e35313268ecd7864f2df7f01e35fbfb7f",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 453
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/forge-parser.prompt.txt",
+      "source_sha256": "cdbd375bb0ff73a99c205be6ae22d63e35313268ecd7864f2df7f01e35fbfb7f",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 453
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/protocol.json",
+      "source_sha256": "04314397176efa2935450765ed502bc6273920cb84923eeea1752118bd73abba",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/guidance-eval/result.json",
+      "source_sha256": "44d1d43bcf0dab4256c609275cb9a210cdb22e82f42931ad53c87f5721cf0469",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/heldout.json",
+      "source_sha256": "fc274d2ed189f4732cf9bd15e9da56e1dcf2bc31f9ecd6bc5745d0b185a945db",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/native-comparison.json",
+      "source_sha256": "ce6f4beb5010a613b518a17d693d422bff1a2b08a1caedec24cd3292d73a3efc",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/native-evidence.zip",
+      "source_sha256": "b83f379a78f8c8f51ecc66bd098a4c94c9f5340d805f93b5c1906728902aaa20",
+      "state": "out-of-scope",
+      "role": "captured evidence archive",
+      "structure": {
+        "zip_signature": "504b0304"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/product-coverage.md",
+      "source_sha256": "d380be666d2a231f995796d11cdc50cb5213743d287f8d0c5e04b35ab328eda1",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 4921
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/scanner-failclosed.json",
+      "source_sha256": "92b9f859e93945eee4d73a75fc68a31e6ec13893a434b937614b21ff88d2364d",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-20261101/timeout-child.json",
+      "source_sha256": "9594caaff543126ea330e300e473769927a30320215d2896e1c2fc42a7e903bf",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-native-hosts-20261101/README.md",
+      "source_sha256": "59d27b0d634d8f939c1c00b4b71fcdf40ace72dace08ba30aa239fba2d56222b",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 1197
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-native-hosts-20261101/summary.json",
+      "source_sha256": "2dee3c33967f8422764c41d0cd5901527f2e15ea66ffa2bc133d7df6f8c03ab9",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "coding-standards-native-host-summary/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-python-20261101/context-review.json",
+      "source_sha256": "aa85eaf512ed827bc59b2871f3e41263ca227d6d5f794c6a9ce16997c662e4bb",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": "python-context-review/v1",
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-python-20261101/summary.json",
+      "source_sha256": "70405c8afc0ecf57c96db51b96536f25576eb82793cacc831677ff9af377be34",
+      "state": "out-of-scope",
+      "role": "generated audit/research metadata",
+      "structure": {
+        "schema": null,
+        "root_type": "dict"
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/baseline.log",
+      "source_sha256": "cfa6e7ffa73eb8ed2cede462c506d26037efa9e20464b9cf40451d97e880dd27",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3748
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/fixed.log",
+      "source_sha256": "7255a4f265ebfa55cd8ea75f7cbb962b4e2a3042f75339a4da8d02ab42f3b0ab",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3366
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+      "source_sha256": "973a90f33933a511a5561c70c6631e471244e88eb99abd943b3438b204b08dc9",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3520
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+      "source_sha256": "2134d247f77532928544445f2e67af646edee6145ad3dbe0757399eaa3633f21",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3655
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+      "source_sha256": "e74e39565e5ba9a04aadbf380fdd677dfc8c6fd67369bdcfabd487d880fb285d",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3596
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+      "source_sha256": "31061af40c83736c1b262565c54f5f20455f3f1fc2acee0788ae6aa4da0b1a20",
+      "state": "out-of-scope",
+      "role": "execution log, packet narrative or evidence explanation",
+      "structure": {
+        "bytes": 3679
+      },
+      "reason": "Non-program evidence artifact. Reading/parsing this record is not execution of the tool or proof of the asserted result. Exact runtime/source/limitations remain owned by the producing report and underlying current source. Source/Claim original-byte acquisition remains unavailable where marked reader-body-only/unassessed; this classification does not close that evidence gap."
+    },
+    {
+      "path": "tests/VERIFICATION-PLAN.md",
+      "source_sha256": "1b6d976f2285b3783396d0458e5c400a1f1c9e549bbd02194fb9bf6b05c5e95c",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 4758
+      },
+      "reason": "Dated approved June verification plan. Read requirements, explicit native-host gaps and no-fabrication invariants; its planned jobs/results are not assertions that current host integration was executed. Prose contains no embedded program to lint."
+    },
+    {
+      "path": "tests/coding-standards/README.md",
+      "source_sha256": "3bf8f09de43f7edbcb3d0dc50c811d377d120f272136743fa45dc676795a77f3",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 4562
+      },
+      "reason": "Read whole native-checker guide: exact dependency versions, exit0/1/2 meanings, dirty/index distinction and explicit manual/native/platform limits agree with current checker contract. It does not promote native lint to all-rule PASS."
+    },
+    {
+      "path": "tests/shared-launch-python-requirements.txt",
+      "source_sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 26
+      },
+      "reason": "Reviewed two exact native tool pins Ruff0.13.3 and mypy1.18.2. No mutable URL, shell directive or credential. These existing installed tool dependencies are reused by the audit; they do not define product acceptance."
+    },
+    {
+      "path": "tests/shared-launch-python/pyproject.toml",
+      "source_sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+      "state": "reviewed",
+      "role": "test tooling policy or documentation",
+      "structure": {
+        "bytes": 587
+      },
+      "reason": "Actual tomllib parse passed; Ruff selects E4/E7/E9/F, mypy enables check_untyped_defs and follows imports silently for seven explicit current launcher files. Every listed path exists. Historical limited launcher lint scope is not substituted for current whole-population audit."
+    }
+  ]
+}

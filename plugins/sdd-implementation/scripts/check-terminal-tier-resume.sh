@@ -98,19 +98,19 @@ if not isinstance(data, dict) or set(data) != required:
     fail("JSON", "evidence fields do not match terminal-tier-resume/v1")
 if data["schema"] != "terminal-tier-resume/v1":
     fail("JSON", "unsupported schema")
-if not isinstance(data["task_id"], str) or not TASK.match(data["task_id"]):
+if not isinstance(data["task_id"], str) or not TASK.fullmatch(data["task_id"]):
     fail("TASK", "invalid task_id")
 if data["task_id"] != expected_task:
     fail("TASK", "task_id does not match expected task")
 for field in ("blocked_task_contract_sha256", "revised_task_contract_sha256"):
-    if not isinstance(data[field], str) or not SHA.match(data[field]):
+    if not isinstance(data[field], str) or not SHA.fullmatch(data[field]):
         fail("HASH", f"invalid {field}")
 blocked_reference = data["blocked_state_reference"]
 if (not isinstance(blocked_reference, dict)
         or set(blocked_reference) != {"path", "sha256"}):
     fail("JSON", "invalid blocked_state_reference")
 if (not isinstance(blocked_reference["sha256"], str)
-        or not SHA.match(blocked_reference["sha256"])):
+        or not SHA.fullmatch(blocked_reference["sha256"])):
     fail("HASH", "invalid blocked state reference hash")
 trusted_blocked_path = safe_repo_file(blocked_reference["path"])
 if os.path.realpath(trusted_blocked_path) != os.path.realpath(blocked_state_path):
@@ -144,14 +144,14 @@ if (not isinstance(blocked["attempt_number"], int)
         or isinstance(blocked["attempt_number"], bool)
         or blocked["attempt_number"] < 2):
     fail("CONTRACT", "invalid blocked state attempt number")
-if not isinstance(blocked["blocked_at"], str) or not TIME.match(blocked["blocked_at"]):
+if not isinstance(blocked["blocked_at"], str) or not TIME.fullmatch(blocked["blocked_at"]):
     fail("CONTRACT", "invalid blocked state timestamp")
 if data["blocked_task_contract_sha256"] == data["revised_task_contract_sha256"]:
     fail("CONTRACT", "task contract was not revised after terminal blocking")
 diagnosis = data["diagnosis_reference"]
 if not isinstance(diagnosis, dict) or set(diagnosis) != {"path", "sha256"}:
     fail("JSON", "invalid diagnosis_reference")
-if not isinstance(diagnosis["sha256"], str) or not SHA.match(diagnosis["sha256"]):
+if not isinstance(diagnosis["sha256"], str) or not SHA.fullmatch(diagnosis["sha256"]):
     fail("HASH", "invalid diagnosis reference hash")
 diagnosis_path = safe_repo_file(diagnosis["path"])
 if digest(diagnosis_path) != diagnosis["sha256"]:
@@ -160,11 +160,11 @@ if digest(diagnosis_path) != diagnosis["sha256"]:
 approval = data["human_reapproval"]
 if not isinstance(approval, dict) or set(approval) != {"authority", "timestamp"}:
     fail("JSON", "invalid human_reapproval")
-if not isinstance(approval["authority"], str) or not re.match(
+if not isinstance(approval["authority"], str) or not re.fullmatch(
     r"^[A-Za-z0-9][A-Za-z0-9._:@ -]{1,127}$", approval["authority"]
 ):
     fail("APPROVAL", "invalid human reapproval authority")
-if not isinstance(approval["timestamp"], str) or not TIME.match(approval["timestamp"]):
+if not isinstance(approval["timestamp"], str) or not TIME.fullmatch(approval["timestamp"]):
     fail("APPROVAL", "invalid human reapproval timestamp")
 
 with open(tasks_path, encoding="utf-8", newline="") as handle:

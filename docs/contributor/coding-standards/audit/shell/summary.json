@@ -1,0 +1,101 @@
+{
+  "schema": "coding-standards-shell-evidence/v1",
+  "baseline_revision": "82b536954626e73b36853711b264cbf5df400d22",
+  "issue": 688,
+  "status": "incomplete",
+  "checkpoints": [
+    "a62daa18",
+    "28ecd8ce"
+  ],
+  "runtime": {
+    "os": "Linux",
+    "bash": "GNU bash, version 5.2.37(1)-release (x86_64-pc-linux-gnu)",
+    "powershell": "7.6.7",
+    "shellcheck": "0.11.0",
+    "psscriptanalyzer": "1.25.0"
+  },
+  "scope": {
+    "tracked_shell_files": 327,
+    "tracked_powershell_files": 253,
+    "current_shell_native_scan_files": 273,
+    "current_powershell_native_scan_files": 226,
+    "review_statement": "Native scans cover selected machine rules only. No claim that every current file, embedded block or fixture has received contextual review."
+  },
+  "passed_suites": {
+    "cross-model Bash": 83,
+    "cross-model PowerShell final": 114,
+    "prepare-panelist Bash": 191,
+    "emit-run-record Bash": 55,
+    "collection-layer Bash": 52,
+    "design-sync-scan Bash": 101,
+    "hook-boundary Bash": 228,
+    "guards Bash": 135,
+    "domain Pester": 72,
+    "structural-compatibility PowerShell": 132,
+    "task-state-grammar-parity Bash+PowerShell": 47,
+    "installer Bash": 52,
+    "installer PowerShell core": "passed",
+    "review-contract foundation PowerShell": "passed",
+    "workflow-state Bash+PowerShell": "passed",
+    "scripts PowerShell spaced fixture": "passed",
+    "context-projection-schema Bash": 40,
+    "capability-summary-schema Bash": 24,
+    "facet-manifest-schema Bash": 57,
+    "apply-branch-protection Bash": 13,
+    "eval Bash": 16,
+    "gates Bash final": 163,
+    "run-panelist-effort PowerShell": 28,
+    "guard-invariants Bash": 83,
+    "hooks PowerShell including real POSIX EACCES": "passed"
+  },
+  "before_after": [
+    {
+      "boundary": "cross-model shell evaluator",
+      "before": "exit2, sentinel created",
+      "after": "exit2, no sentinel"
+    },
+    {
+      "boundary": "run record metadata",
+      "before": "exit0, invalid JSON",
+      "after": "exit0, valid round-trip JSON"
+    },
+    {
+      "boundary": "PowerShell panelist native argv",
+      "before": "both exact runner argv controls fail",
+      "after": "native encoder+both runner controls pass"
+    },
+    {
+      "boundary": "Full/Lite task-state AWK",
+      "before": "both exit1 and create sentinel",
+      "after": "hostile paths remain data; both Implementation Complete pass"
+    }
+  ],
+  "open_items": [
+    "SH-008 POSIX standalone kill-switch test -f cannot distinguish EACCES from absent. Actual unprivileged reproduction exits0; broad find workaround rejected to preserve absent-root/unrelated-symlink controls.",
+    "scenario.tests.sh execution stopped at missing xxd (line534); not a pass.",
+    "check-component-coverage.tests.ps1 functional cases passed until successor publication digest drift: root must reconcile live digest for spec-review-precheck.ps1 with tests/fixtures/research-consumer-current-publication.json. Frozen staged digest untouched.",
+    "Native macOS, Windows PowerShell5.1/PS7 and real CLI-host paths were not run. Native argument encoder does not establish cmd.exe/bat invocation safety.",
+    "Whole-population contextual review and central ledger integration of findings.followup.json remain outstanding."
+  ],
+  "reuse": {
+    "native_arguments": "New pure native argument encoding helper is shared by bounded panelist process callers. It preserves each caller policy, timeout and file-redirection handling. No business operations merged.",
+    "awk_quoting": "Full/Lite policies remain separate inline AWK programs. Tiny quoting function is local to each; no extra runner/config parser introduced."
+  },
+  "native_checks": {
+    "powershell_selected": "all current PowerShell files parsed and PSSA selected rules zero diagnostics after final changes",
+    "bash_selected": "All 273 current Bash files: ShellCheck0.11.0 selected SC2086/SC2046/SC2155 returned zero findings after final changes."
+  },
+  "log_sha256": {
+    "cross-model-argv-final.log": "4c30d06bc4cb7326150769411e55846234e633cda9a15fe5af88b2faa473e5dd",
+    "task-grammar-final.log": "6e5e9648f14ad8f39fc8e34dc9913658fc6e58a9455d7d1c15dd4965ec232aa5",
+    "scripts-ps.log": "938e1aae152a3ce5a803799e70e88628625ab4d5a1eb3cf0e59b1feff29a5b35",
+    "hooks-ps-final.log": "2d8722b15a1496d5969347f0052c6571adb19e7495464a20edb9b4b80921ed07",
+    "gates-final.log": "2042b8bd14d9fe5a45e60a048cef171ffc5105d6dd0997261cf468af681d4974",
+    "invariants-final.log": "344593c05336f1e95d1ea045b45db6c0e828d0a31e156d7f05d3dac059c53f93",
+    "panelist-effort-ps.log": "6ac83ac0f56720c7c98a1d8c34d2db2e150d7584fcdf48f382c3447a998dcb45",
+    "install-sh.log": "b87122763686013282549e1540932084b418fb8e2c5799ac57a087f95bf5e6d6",
+    "install-ps.log": "01cb8d14cebb685a4af5c79b790ae2d5037ec3accde6fba01e525f0d4feb7453",
+    "shellcheck-selected-final.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "ps-final.json": "ee7a0e6c20ae44da11124e1ce7888d5a9d940da0cb46b427d533357190d6655a"
+  }
+}

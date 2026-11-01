@@ -498,7 +498,7 @@ if [[ "${ROUND}" -gt 1 ]]; then
     fi
     assert_contract_reviewer_agreement "${prior_contract}" impl
 
-    prior_design_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('design_sha256',''))" 2>/dev/null || echo "")
+    prior_design_sha256=$(jq -r '.design_sha256 // ""' "${prior_contract}") || fail "cannot read prior review contract hash"
 
     if [[ "$design_sha256" == "$prior_design_sha256" &&
           ( "$prior_adr_inputs" == null || "$prior_adr_inputs" == "$adr_inputs" ) ]]; then
@@ -510,7 +510,7 @@ if [[ "${ROUND}" -gt 1 ]]; then
     # DESIGN-REQ-DRIFT: compare requirements_sha256 against round-1 stored value
     round1_contract="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-1/impl-review-contract.json"
     if [[ -f "${round1_contract}" ]]; then
-      round1_req_sha256=$(python3 -c "import json,sys; d=json.load(open('${round1_contract}')); print(d.get('requirements_sha256',''))" 2>/dev/null || echo "")
+      round1_req_sha256=$(jq -r '.requirements_sha256 // ""' "${round1_contract}") || fail "cannot read prior review contract hash"
 
       if [[ -n "${round1_req_sha256}" ]] && [[ "${requirements_sha256}" != "${round1_req_sha256}" ]]; then
         design_req_drift=true

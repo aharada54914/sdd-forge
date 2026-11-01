@@ -250,7 +250,7 @@ def main():
         parser.error("phase2 requires baseline, registry, resolver-evidence, manifest and release-evidence")
     try:
         document = read_document(args.candidate)
-        paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode("utf-8").split("\0")
+        paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT, timeout=30).decode("utf-8").split("\0")
         tracked = [path for path in paths if path]
         errors, ownership = validate(document, tracked, args.phase)
         if args.phase == "phase2":
@@ -259,7 +259,7 @@ def main():
             errors = validate_promotion(document, read_document(args.baseline), tracked,
                 read_document(args.registry), read_document(args.resolver_evidence),
                 read_document(args.manifest), cycle, commits)
-    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         print("candidate validation failed: " + type(exc).__name__, file=sys.stderr)
         return 1
     print(json.dumps({"candidate_valid": not errors, "diagnostics": errors,

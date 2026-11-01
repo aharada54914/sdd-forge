@@ -73,23 +73,26 @@ if [ -n "$requirements_md" ]; then
       # Strip the "Bounded-Context:" label and any trailing relation
       # parenthetical, then split on comma to get one or two context names.
       bc_value=$(echo "$bc_line" | sed -E 's/^Bounded-Context: *//; s/\(.*\)$//' | sed 's/[[:space:]]*$//')
-      old_ifs="$IFS"
-      IFS=','
-      set -- $bc_value
-      IFS="$old_ifs"
       count=0
-      for raw_ctx in "$@"; do
+      c1=""; c2=""
+      while [ -n "$bc_value" ]; do
+        raw_ctx=${bc_value%%,*}
+        case "$bc_value" in
+          *,*) bc_value=${bc_value#*,} ;;
+          *) bc_value="" ;;
+        esac
         ctx=$(echo "$raw_ctx" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
         [ -z "$ctx" ] && continue
         count=$((count + 1))
         if ! context_exists "$ctx"; then
           echo "requirements.md: Bounded-Context '$ctx' not found in domain-contract.json" >> "$_f"
         fi
-        eval "ctx_$count=\"\$ctx\""
+        case "$count" in
+          1) c1="$ctx" ;;
+          2) c2="$ctx" ;;
+        esac
       done
       if [ "$count" -eq 2 ]; then
-        c1="$ctx_1"
-        c2="$ctx_2"
         if context_exists "$c1" && context_exists "$c2"; then
           relation_status=0
           relation_declared "$c1" "$c2" || relation_status=$?

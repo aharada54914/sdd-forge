@@ -618,18 +618,18 @@ if (Test-Path -LiteralPath $StagedSidecar) {
 # the SAME json.dumps(..., sort_keys=True) call, so a string comparison is
 # reliable across runtimes here, unlike PowerShell's own ConvertTo-Json
 # key-ordering).
-$embeddedVerdict = & $PythonExe -c @"
-import json
-print(json.dumps(json.load(open(r'$StagedSidecar'))['weakening_verdict'], sort_keys=True))
-"@
+$embeddedVerdict = & $PythonExe -c @'
+import json, sys
+print(json.dumps(json.load(open(sys.argv[1]))['weakening_verdict'], sort_keys=True))
+'@ $StagedSidecar
 Push-Location $Wiring
 try {
   $directResult = Invoke-Detect -ArgList @('--candidate', 'project-context.yaml')
 } finally { Pop-Location }
-$directVerdict = & $PythonExe -c @"
-import json
-print(json.dumps(json.load(open(r'$($directResult.StdoutPath)')), sort_keys=True))
-"@
+$directVerdict = & $PythonExe -c @'
+import json, sys
+print(json.dumps(json.load(open(sys.argv[1])), sort_keys=True))
+'@ $directResult.StdoutPath
 if ($embeddedVerdict -and ($embeddedVerdict -eq $directVerdict)) {
   Test-Pass 'WIRING the sidecar''s embedded weakening_verdict is EXACTLY the in-process-computed verdict'
 } else {

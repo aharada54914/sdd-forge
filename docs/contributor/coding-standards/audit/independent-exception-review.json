@@ -1,0 +1,33 @@
+{
+  "schema": "coding-standards-independent-exception-review/v1",
+  "finding": "PY-003",
+  "source_commit": "4b0981ea42951d749c31b2122ea0550551cded23",
+  "sources": [
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2"
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "sha256": "cd174f0953030aeca5e2c108353fb135132273328e2d2cd8428ea988061a99e0"
+    },
+    {
+      "path": "tests/coding-standards/tools.json",
+      "sha256": "a4e7814962339daae9224543c095e3cd270f4036087ba338d93b2ec11d4c7e09"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "e1dae831da7d73045c20a5431caf47775f8d4271f32acd9d37a7f750ceac150f"
+    }
+  ],
+  "judgment": "Exact-path/hash syntax exception justified. Fixture intentionally fails import with SyntaxError, rather than masquerading as supported executable code. Its real consumer must convert the failure to contract-discovery-failed with canonical detail and no local-path/traceback leakage. Normal real dependency publication still succeeds. No new lint or production exclusion introduced.",
+  "execution": "Imported existing tests/resolve-project-context-block-check.py harness without main. Called run_t003_case for registry-discovery-syntax-error using both sh and ps1 launchers, then run_t007_clean_publication_case with sh. Actual children and isolated Git fixtures; only syntax-error dependency deliberately substituted by existing fixture.",
+  "result": {
+    "passed": 17,
+    "failed": 0,
+    "exit_code": 0,
+    "host": "Linux; PowerShell /workspace/.tools/sdd-forge-dev/bin/pwsh"
+  },
+  "limits": "Does not establish whole-repository exception coverage or Windows/macOS behavior. Other original-current source differences remain owner-reviewed separately.",
+  "output": "PASS: registry-discovery-syntax-error: exit 1\nPASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)\nPASS: registry-discovery-syntax-error: exact Resolver Evidence\nPASS: registry-discovery-syntax-error: Resolver Evidence schema agreement\nPASS: registry-discovery-syntax-error: no partial live artifact\nPASS: registry-discovery-syntax-error: exit 1\nPASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)\nPASS: registry-discovery-syntax-error: exact Resolver Evidence\nPASS: registry-discovery-syntax-error: Resolver Evidence schema agreement\nPASS: registry-discovery-syntax-error: no partial live artifact\nPASS: clean-full-track-publication: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)\nPASS: clean-full-track-publication: exact published Facet Manifest at its live path\nPASS: clean-full-track-publication: exact published Context Projection bytes at its live path (Full track only)\nPASS: clean-full-track-publication: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative)\nPASS: clean-full-track-publication: Resolver Evidence schema agreement\nPASS: clean-full-track-publication: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)\nPASS: clean-full-track-publication: Complete deletes the journal and leaves no staging litter\nINDEPENDENT EXCEPTION CONTROL 17 0\n"
+}

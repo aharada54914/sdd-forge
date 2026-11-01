@@ -279,7 +279,7 @@ grep -Eq 'Feature:' "$BUNDLE_CHECK" &&
     fail "validator pin: Feature rule missing from evidence-bundle validator"
 
 # Rule 5: "Task ID: T-NNN" line (check-evidence-bundle + check-task-state Done path).
-if grep -Eq "^Task ID:[[:space:]]*$TASK_ID[[:space:]]*$" "$QG_RENDERED"; then
+if grep -Eq "^Task ID:[[:space:]]*${TASK_ID}[[:space:]]*$" "$QG_RENDERED"; then
     ok "quality-report template: Task ID line present"
 else
     fail "quality-report template: Task ID line missing"
@@ -324,6 +324,46 @@ if grep -Fq 'Critical:' "$GEN_BUNDLE"; then
     ok "consumer pin: severity-count parser still present in generate-evidence-bundle"
 else
     fail "consumer pin: severity-count parser missing from generate-evidence-bundle"
+fi
+
+# An untouched distributed Lite report must never certify a completed task.
+mkdir -p "$WORK/lite/qa" "$WORK/lite/impl"
+printf '# Tasks\n## T-001 Example\nApproval: Approved\nStatus: Done\n' > "$WORK/lite/tasks.md"
+printf 'Task ID: T-001\n' > "$WORK/lite/impl/T-001.md"
+cp "$REPO_ROOT/plugins/sdd-lite/templates/quality-report-lite.md" "$WORK/lite/qa/T-001.md"
+LITE_STATE="$REPO_ROOT/plugins/sdd-lite/scripts/check-task-state-lite.sh"
+if sh "$LITE_STATE" "$WORK/lite/tasks.md" "$WORK/lite/qa" "$WORK/lite/impl" "$WORK/lite" > "$WORK/lite/default.log" 2>&1; then
+    fail "untouched Lite report cannot certify Done"
+else
+    ok "untouched Lite report cannot certify Done"
+fi
+# Normal control exercises the existing state consumer, not a copied parser.
+printf 'Task ID: T-001\nVERDICT: PASS\n' > "$WORK/lite/qa/T-001.md"
+if sh "$LITE_STATE" "$WORK/lite/tasks.md" "$WORK/lite/qa" "$WORK/lite/impl" "$WORK/lite" > "$WORK/lite/completed.log" 2>&1; then
+    ok "explicit Lite PASS still satisfies task-state consumer"
+else
+    fail "explicit Lite PASS still satisfies task-state consumer"
+fi
+
+# Parse with the same pinned YAML dependency used by repository workflow checks.
+if node - "$REPO_ROOT" <<'JS'
+const fs = require('node:fs');
+const cp = require('node:child_process');
+const root = process.argv[2];
+const yaml = require(root + '/mcp/sdd-forge-mcp/node_modules/js-yaml');
+const base = root + '/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/';
+for (const name of ['ci-github.template.yml', 'ci-gitlab.template.yml']) {
+  const doc = yaml.load(fs.readFileSync(base + name, 'utf8'));
+  const commands = name.includes('github') ? [doc.jobs.verify.steps.at(-1).run] : doc.verify.script;
+  if (!commands.every(value => typeof value === 'string')) throw new Error(name + ': command must be text');
+  const result = cp.spawnSync('bash', ['-c', commands.join('\n')], {encoding: 'utf8', timeout: 10000});
+  if (result.error || result.status !== 1) throw new Error(name + ': unconfigured CI must fail');
+}
+JS
+then
+    ok "CI templates parse as commands and fail before project configuration"
+else
+    fail "CI templates parse as commands and fail before project configuration"
 fi
 
 printf '\ntemplate-validator-parity.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"

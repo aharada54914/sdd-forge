@@ -1,0 +1,95 @@
+{
+  "revision": "555cfd47",
+  "scope": "Independent patch review of ROOT-004 and ROOT-005; focused domain controls only; existing full suites not rerun",
+  "source_sha256": {
+    "plugins/sdd-domain/scripts/validate-domain-contract.ps1": "b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b",
+    ".github/scripts/check-model-freshness.sh": "cb57a65fcc190026cb9d801bc1e2da983e3f8f1e67624eb763981615603b4e18"
+  },
+  "results": [
+    {
+      "case": "valid",
+      "host": "pwsh",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "case": "valid",
+      "host": "bash",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "case": "iso-string",
+      "host": "pwsh",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "case": "iso-string",
+      "host": "bash",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "case": "BOM-space-root-array",
+      "host": "pwsh",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: root: expected object, found array"
+    },
+    {
+      "case": "BOM-space-root-array",
+      "host": "bash",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: root: expected object, found array"
+    },
+    {
+      "case": "nested-root-array",
+      "host": "pwsh",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: root: expected object, found array"
+    },
+    {
+      "case": "nested-root-array",
+      "host": "bash",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: root: expected object, found array"
+    },
+    {
+      "case": "singleton-schema",
+      "host": "pwsh",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: schema: expected string, found array"
+    },
+    {
+      "case": "singleton-schema",
+      "host": "bash",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: schema: expected string, found array"
+    },
+    {
+      "case": "empty-schema",
+      "host": "pwsh",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: schema: expected string, found array"
+    },
+    {
+      "case": "empty-schema",
+      "host": "bash",
+      "exit_code": 1,
+      "stderr": "V2-TYPE-MISMATCH: schema: expected string, found array"
+    },
+    {
+      "case": "case-schema",
+      "host": "pwsh",
+      "exit_code": 1,
+      "stderr": "V2-MISSING-KEY: schema: required key is absent at the contract root"
+    },
+    {
+      "case": "case-schema",
+      "host": "bash",
+      "exit_code": 1,
+      "stderr": "V2-MISSING-KEY: schema: required key is absent at the contract root"
+    }
+  ],
+  "freshness_assessment": "No defect found in patch: pipeline failures propagate with pipefail, grep no-match retains data semantics, failed issue search cannot reach create, source failure retains explicit unavailable policy. Existing 43-case evidence inspected, not rerun. No live GitHub writes."
+}

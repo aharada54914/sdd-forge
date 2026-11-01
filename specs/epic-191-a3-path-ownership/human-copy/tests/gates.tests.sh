@@ -625,9 +625,10 @@ printf 'lint output: OK\n' > "${H02_REPO}/specs/test-feature/verification/ev.log
 
 # --- H-02.3: bogus/foreign git_commit → FAIL ---
 # Overwrite git_commit with 40 f's (valid hex format but unknown commit)
-python3 - <<PYEOF
+python3 - "${H02_REPO}/specs/test-feature/verification/T-099.evidence.json" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["git_commit"] = "f" * 40
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -640,9 +641,10 @@ else
 fi
 
 # --- H-02.4: missing git_commit → FAIL ---
-python3 - <<PYEOF
+python3 - "${H02_REPO}/specs/test-feature/verification/T-099.evidence.json" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b.pop("git_commit", None)
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -668,11 +670,12 @@ generate_bundle_passes \
     "${H02_REPO}"
 
 # Overwrite git_commit with the first (ancestor) commit sha
-python3 - <<PYEOF
+python3 - "${H02_REPO}/specs/test-feature/verification/T-099.evidence.json" "${H02_COMMIT1}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
-b["git_commit"] = "${H02_COMMIT1}"
+b["git_commit"] = sys.argv[2]
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
 PYEOF
 if check_bundle_passes "$bundle_file" "${H02_REPO}"; then
@@ -2418,14 +2421,14 @@ else
 fi
 
 # Verify spec_revision is 64-char hex
-if python3 -c "import json, re; b=json.load(open('${high_bundle}')); assert re.fullmatch(r'[a-f0-9]{64}', b.get('spec_revision', '') or ''), 'invalid spec_revision'" 2>/dev/null; then
+if python3 -c "import sys; import json, re; b=json.load(open(sys.argv[1])); assert re.fullmatch(r'[a-f0-9]{64}', b.get('spec_revision', '') or ''), 'invalid spec_revision'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.3c: spec_revision is valid 64-char hex"
 else
     fail "T-006.3c: spec_revision is not valid 64-char hex"
 fi
 
 # Verify review_verdict.verdict is PASS
-if python3 -c "import json; b=json.load(open('${high_bundle}')); assert b.get('review_verdict', {}).get('verdict') == 'PASS', 'verdict not PASS'" 2>/dev/null; then
+if python3 -c "import sys; import json; b=json.load(open(sys.argv[1])); assert b.get('review_verdict', {}).get('verdict') == 'PASS', 'verdict not PASS'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.3d: review_verdict.verdict is PASS"
 else
     fail "T-006.3d: review_verdict.verdict is not PASS"
@@ -2444,31 +2447,31 @@ fi
 # them non-empty would assert a behavior the generator does not have.
 t006_high_contract="${T006_REPO}/specs/test-feature/verification/T-100.contract.json"
 
-if python3 -c "import json; b=json.load(open('${high_bundle}')); c=b.get('checks'); assert isinstance(c, list) and len(c) >= 1, 'checks missing, not a list, or empty'" 2>/dev/null; then
+if python3 -c "import sys; import json; b=json.load(open(sys.argv[1])); c=b.get('checks'); assert isinstance(c, list) and len(c) >= 1, 'checks missing, not a list, or empty'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.5a: generated bundle contains non-empty 'checks' telemetry"
 else
     fail "T-006.5a: generated bundle missing or empty 'checks' telemetry array"
 fi
 
-if python3 -c "import json; b=json.load(open('${high_bundle}')); c=json.load(open('${t006_high_contract}')); assert len(b.get('checks') or []) == len(c.get('checks') or []), 'telemetry entry count != contract check count'" 2>/dev/null; then
+if python3 -c "import sys; import json; b=json.load(open(sys.argv[1])); c=json.load(open(sys.argv[2])); assert len(b.get('checks') or []) == len(c.get('checks') or []), 'telemetry entry count != contract check count'" "${high_bundle}" "${t006_high_contract}" 2>/dev/null; then
     ok "T-006.5b: 'checks' telemetry has one entry per contract check"
 else
     fail "T-006.5b: 'checks' telemetry does not mirror the contract's check list"
 fi
 
-if python3 -c "import json; keys={'id','required','passes','command','exit_code','started_at','finished_at','evidence','evidence_sha256'}; b=json.load(open('${high_bundle}')); assert all(keys <= set(e) for e in (b.get('checks') or [])), 'telemetry entry missing a structural key'" 2>/dev/null; then
+if python3 -c "import sys; import json; keys={'id','required','passes','command','exit_code','started_at','finished_at','evidence','evidence_sha256'}; b=json.load(open(sys.argv[1])); assert all(keys <= set(e) for e in (b.get('checks') or [])), 'telemetry entry missing a structural key'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.5c: every 'checks' entry carries the full REQ-006 key set"
 else
     fail "T-006.5c: a 'checks' telemetry entry is missing a structural key"
 fi
 
-if python3 -c "import json, re; b=json.load(open('${high_bundle}')); h=[e for e in (b.get('checks') or []) if e.get('evidence_sha256')]; assert h, 'no computed evidence hash'; assert all(re.fullmatch(r'[a-f0-9]{64}', e['evidence_sha256']) for e in h), 'evidence_sha256 not 64-hex'" 2>/dev/null; then
+if python3 -c "import sys; import json, re; b=json.load(open(sys.argv[1])); h=[e for e in (b.get('checks') or []) if e.get('evidence_sha256')]; assert h, 'no computed evidence hash'; assert all(re.fullmatch(r'[a-f0-9]{64}', e['evidence_sha256']) for e in h), 'evidence_sha256 not 64-hex'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
 else
     fail "T-006.5d: 'checks' telemetry lacks a valid computed evidence_sha256"
 fi
 
-if python3 -c "import json; b=json.load(open('${high_bundle}')); assert (b.get('required_workflow') or '').strip(), 'required_workflow empty'" 2>/dev/null; then
+if python3 -c "import sys; import json; b=json.load(open(sys.argv[1])); assert (b.get('required_workflow') or '').strip(), 'required_workflow empty'" "${high_bundle}" 2>/dev/null; then
     ok "T-006.5e: generated bundle carries 'required_workflow'"
 else
     fail "T-006.5e: generated bundle missing 'required_workflow' provenance field"
@@ -2579,9 +2582,10 @@ else
 fi
 
 # Test: T-006.6 - bundle risk mismatched vs contract risk → check FAILS
-python3 - <<PYEOF
+python3 - "${high_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${high_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["risk"] = "low"  # hand-edit the bundle's risk to mismatch contract
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2595,18 +2599,20 @@ else
 fi
 
 # Restore high_bundle for later tests
-python3 - <<PYEOF
+python3 - "${high_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${high_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["risk"] = "high"  # restore to correct risk
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
 PYEOF
 
 # Test: T-006.7 - bundle risk EMPTIED while contract is high → check FAILS (no fail-open)
-python3 - <<PYEOF
+python3 - "${high_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${high_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["risk"] = ""  # strip the bundle risk to try to dodge provenance gating
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2620,9 +2626,10 @@ else
 fi
 
 # Restore high_bundle for later tests
-python3 - <<PYEOF
+python3 - "${high_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${high_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["risk"] = "high"  # restore to correct risk
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2722,7 +2729,7 @@ else
 fi
 
 # Verify bundle contains signature field
-if python3 -c "import json; b=json.load(open('${critical_bundle}')); assert 'signature' in b, 'no signature field'" 2>/dev/null; then
+if python3 -c "import sys; import json; b=json.load(open(sys.argv[1])); assert 'signature' in b, 'no signature field'" "${critical_bundle}" 2>/dev/null; then
     ok "T-007a.1c: critical bundle contains signature field"
 else
     fail "T-007a.1c: critical bundle missing signature field"
@@ -2735,9 +2742,10 @@ else
 fi
 
 # Test T-007a.2: critical bundle, DELETE signature field → FAIL
-python3 - <<PYEOF
+python3 - "${critical_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${critical_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b.pop("signature", None)
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2762,9 +2770,10 @@ else
 fi
 
 # Test T-007a.3: critical bundle, tamper a signed field (change git_commit) → FAIL (HMAC mismatch)
-python3 - <<PYEOF
+python3 - "${critical_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${critical_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["git_commit"] = "0" * 40  # tamper git_commit
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2799,9 +2808,10 @@ else
     fail "T-007a.X: could not regenerate critical bundle"
 fi
 
-python3 - <<PYEOF
+python3 - "${critical_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${critical_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["signature"] = {"alg": "sigstore", "value": "x", "key_ref": "sigstore"}
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2885,9 +2895,10 @@ else
 fi
 
 t201_bundle="${T007A_REPO}/specs/test-feature/verification/T-201.evidence.json"
-python3 - <<PYEOF
+python3 - "${t201_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${t201_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["signature"] = {"alg": "sigstore", "value": "x", "key_ref": "sigstore"}
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
@@ -2933,9 +2944,10 @@ fi
 export SDD_EVIDENCE_KEY="test-evidence-key-0123456789"
 
 # Test T-007a.7: critical bundle with git_generated_dirty:true → FAIL
-python3 - <<PYEOF
+python3 - "${critical_bundle}" <<'PYEOF'
+import sys
 import json, pathlib
-p = pathlib.Path("${critical_bundle}")
+p = pathlib.Path(sys.argv[1])
 b = json.loads(p.read_text(encoding="utf-8"))
 b["git_generated_dirty"] = True
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")

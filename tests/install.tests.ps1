@@ -395,6 +395,7 @@ function Invoke-InstallerScenario {
 }
 
 function Invoke-RemoteInstallerScenario {
+    param([string]$ArchiveRef = 'main', [string]$ExpectedRef = 'main')
     $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-remote-" + [guid]::NewGuid())
     $installRoot = Join-Path $testRoot "installed"
     $fakeBin = Join-Path $testRoot "bin"
@@ -415,7 +416,7 @@ function Invoke-RemoteInstallerScenario {
         if ($Headers.Authorization -ne "Bearer fake-gh-token") {
             throw "missing GitHub auth header"
         }
-        if ($Uri -notmatch '^https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main$') {
+        if ($Uri -cne "https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef") {
             throw "unexpected remote download URL: $Uri"
         }
         if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -432,7 +433,7 @@ function Invoke-RemoteInstallerScenario {
 
         $failed = $false
         try {
-            & (Join-Path $repositoryRoot "install.ps1") -InstallRoot $installRoot -Target All -Plugins $allPlugins
+            & (Join-Path $repositoryRoot "install.ps1") -InstallRoot $installRoot -Target All -Plugins $allPlugins -Ref $ArchiveRef
         }
         catch {
             $failed = $true
@@ -446,7 +447,7 @@ function Invoke-RemoteInstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        if ($log -notmatch 'Invoke-WebRequest https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main') {
+        if (-not $log.Contains("Invoke-WebRequest https://api.github.com/repos/aharada54914/sdd-forge/tarball/$ExpectedRef")) {
             throw "Authenticated remote install did not use the GitHub API archive URL"
         }
         if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -785,6 +786,7 @@ finally {
 }
 
 Invoke-RemoteInstallerScenario
+Invoke-RemoteInstallerScenario -ArchiveRef 'feature/topic#fragment' -ExpectedRef 'feature%2Ftopic%23fragment'
 
 # ---------------------------------------------------------------------------
 # Lock scenario (l): concurrent install is blocked when mutex is already held
@@ -1824,6 +1826,48 @@ try {
     foreach ($path in @($t003Absent, $t003Present)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force } }
 }
 
+}
+
+# Filesystem paths containing wildcard syntax remain literal across backup,
+# placement failure, restoration, successful upgrade and uninstall.
+$literalRoot = Join-Path ([IO.Path]::GetTempPath()) ('sdd-literal-' + [guid]::NewGuid())
+$literalInstall = Join-Path $literalRoot 'pack[ab]'
+$literalNeighbor = Join-Path $literalRoot 'packa'
+try {
+    [IO.Directory]::CreateDirectory($literalInstall) | Out-Null
+    [IO.Directory]::CreateDirectory($literalNeighbor) | Out-Null
+    [IO.File]::WriteAllText((Join-Path $literalInstall 'old.marker'), 'old bytes')
+    [IO.File]::WriteAllText((Join-Path $literalNeighbor 'neighbor.marker'), 'neighbor bytes')
+    function Move-Item {
+        [CmdletBinding()]
+        param([string]$Path, [string]$LiteralPath, [string]$Destination, [switch]$Force)
+        $source = if ($PSBoundParameters.ContainsKey('LiteralPath')) { $LiteralPath } else { $Path }
+        if ((Split-Path -Leaf $source) -like 'sdd-plugins-staging-*') { throw 'injected placement failure' }
+        Microsoft.PowerShell.Management\Move-Item @PSBoundParameters
+    }
+    $failed = $false
+    try {
+        & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $literalInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *> $null
+    } catch {
+        $failed = $_.ToString().Contains('injected placement failure')
+    } finally { Remove-Item Function:Move-Item }
+    if (-not $failed -or [IO.File]::ReadAllText((Join-Path $literalInstall 'old.marker')) -cne 'old bytes' -or
+        [IO.File]::ReadAllText((Join-Path $literalNeighbor 'neighbor.marker')) -cne 'neighbor bytes') {
+        throw 'literal install rollback did not preserve the old tree and neighboring tree'
+    }
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $installerSourceRoot -InstallRoot $literalInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *> $null
+    if (-not [IO.File]::Exists((Join-Path $literalInstall 'README.md')) -or
+        [IO.File]::Exists((Join-Path $literalInstall 'old.marker')) -or
+        [IO.File]::ReadAllText((Join-Path $literalNeighbor 'neighbor.marker')) -cne 'neighbor bytes') {
+        throw 'literal install placement did not replace only its exact target'
+    }
+    if (@(Get-ChildItem -LiteralPath $literalRoot -Directory | Where-Object Name -like 'sdd-plugins-backup-*').Count -ne 0) {
+        throw 'literal install left a superseded backup'
+    }
+    Write-Host 'ok: bracketed install path preserves neighbors through rollback and upgrade'
+} finally {
+    Remove-Item Function:Move-Item -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $literalRoot) { Remove-Item -LiteralPath $literalRoot -Recurse -Force }
 }
 
 Write-Host "Installer integration tests passed."

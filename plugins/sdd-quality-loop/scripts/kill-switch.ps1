@@ -23,7 +23,10 @@ if (-not [string]::IsNullOrEmpty($envRoot)) {
                 $gitRootFound = $current
                 break
             }
-        } catch { }
+        } catch {
+            [Console]::Error.WriteLine("SDD kill switch: cannot inspect stop-marker path; tool use denied.")
+            exit 2
+        }
         $parent = Split-Path -Parent $current
         # Stop at the filesystem root: Split-Path -Parent "/" (POSIX) and
         # "C:\" (Windows) both return an empty string, which would otherwise
@@ -43,6 +46,9 @@ foreach ($base in $bases) {
             [Console]::Error.WriteLine("[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file.")
             exit 2
         }
-    } catch { }
+    } catch {
+            [Console]::Error.WriteLine("SDD kill switch: cannot inspect stop-marker path; tool use denied.")
+            exit 2
+        }
 }
 exit 0

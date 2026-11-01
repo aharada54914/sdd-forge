@@ -41,7 +41,7 @@ flowchart LR
 
 Notes on where this story's actors and work objects appear to cluster into a
 candidate bounded context. These observations feed the Context Map stage
-(stage 4); they are not yet a final boundary decision.
+(stage 5); they are not yet a final boundary decision.
 
 ## Open Questions
 

@@ -69,13 +69,13 @@ if [ -f "$SCHEMA" ]; then
 else
   fail "contracts/capability-summary.schema.json is missing"
 fi
-schema_dollar_schema="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$schema',''))")"
+schema_dollar_schema="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$schema',''))" "$SCHEMA")"
 if [ "$schema_dollar_schema" = "http://json-schema.org/draft-07/schema#" ]; then
   ok "\$schema is draft-07"
 else
   fail "\$schema expected draft-07, got '$schema_dollar_schema'"
 fi
-schema_id="$(python3 -c "import json;print(json.load(open('$SCHEMA')).get('\$id',''))")"
+schema_id="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1])).get('\$id',''))" "$SCHEMA")"
 expected_schema_id="https://github.com/aharada54914/sdd-forge/contracts/capability-summary.schema.json"
 if [ "$schema_id" = "$expected_schema_id" ]; then
   ok "\$id exact match ($schema_id)"
@@ -84,15 +84,15 @@ else
 fi
 
 # --- TEST-012: Lite-only required-field set (AC-012) ------------------------
-required_json="$(python3 -c "import json;print(json.dumps(json.load(open('$SCHEMA')).get('required',[])))")"
+required_json="$(python3 -c "import sys; import json;print(json.dumps(json.load(open(sys.argv[1])).get('required',[])))" "$SCHEMA")"
 expected_required='["schema", "feature", "track", "capabilities", "required_lite_checks", "full_upgrade_required"]'
-expected_required_json="$(python3 -c "import json;print(json.dumps(json.loads('$expected_required')))")"
+expected_required_json="$(python3 -c "import sys; import json;print(json.dumps(json.loads(sys.argv[1])))" "$expected_required")"
 if [ "$required_json" = "$expected_required_json" ]; then
   ok "TEST-012: top-level 'required' is exactly the six-field Lite-only set"
 else
   fail "TEST-012: top-level 'required' expected $expected_required_json, got $required_json"
 fi
-track_const="$(python3 -c "import json;print(json.load(open('$SCHEMA'))['properties']['track'].get('const',''))")"
+track_const="$(python3 -c "import sys; import json;print(json.load(open(sys.argv[1]))['properties']['track'].get('const',''))" "$SCHEMA")"
 if [ "$track_const" = "lite" ]; then
   ok "TEST-012: 'track' is const 'lite' -- no full-track branch in this schema"
 else

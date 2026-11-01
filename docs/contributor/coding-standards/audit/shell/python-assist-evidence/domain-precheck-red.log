@@ -1,0 +1,128 @@
+FFFFFFFFFEF
+======================================================================
+ERROR: test_precheck_approved_fingerprint_serializes_literal_filenames (__main__.DomainFinalizerTests.test_precheck_approved_fingerprint_serializes_literal_filenames) (runtime='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 245, in test_precheck_approved_fingerprint_serializes_literal_filenames
+    fingerprint = read(f.round.parent.parent / 'last-approved-fingerprint.json')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 41, in read
+    return json.loads(path.read_bytes())
+                      ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/domain-finalizer-test-a4kvf8_r/reports/domain-review/last-approved-fingerprint.json'
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='bash', prior_hash=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-692ixyyg/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='bash', prior_hash=['0000000000000000000000000000000000000000000000000000000000000000'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-c0_ca3gs/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='bash', prior_hash='not-a-digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-qfx2k5hg/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='powershell', prior_hash=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-iyp__eli/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='powershell', prior_hash=['0000000000000000000000000000000000000000000000000000000000000000'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-yq8alvmd/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='powershell', prior_hash='not-a-digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 206, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-vjtcm3ak/reports/domain-review/attempt-1/round-2/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='powershell', reset_verdict=['PASS'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 213, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-54m_ttyb/reports/domain-review/attempt-2/round-1/
+
+
+======================================================================
+FAIL: test_precheck_rejects_malformed_prior_hash_and_reset_verdict (__main__.DomainFinalizerTests.test_precheck_rejects_malformed_prior_hash_and_reset_verdict) (runtime='powershell', reset_verdict=['BLOCKED'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 213, in test_precheck_rejects_malformed_prior_hash_and_reset_verdict
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 0 == 0 : domain-review-precheck: complete. Output written to /tmp/domain-finalizer-test-du3i55nz/reports/domain-review/attempt-2/round-1/
+
+
+======================================================================
+FAIL: test_precheck_releases_lock_after_actual_output_failure (__main__.DomainFinalizerTests.test_precheck_releases_lock_after_actual_output_failure) (runtime='powershell')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 229, in test_precheck_releases_lock_after_actual_output_failure
+    self.assertFalse((f.round.parent.parent / '.domain-review.lock').exists(), result.stderr)
+AssertionError: True is not false : New-Item: /tmp/domain-finalizer-test-zykf9cx4/plugins/sdd-domain/scripts/domain-review-precheck.ps1:284
+Line |
+ 284 |  New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Access to the path
+     | '/tmp/domain-finalizer-test-zykf9cx4/reports/domain-review/attempt-1/round-1' is denied.
+
+
+======================================================================
+FAIL: test_precheck_approved_fingerprint_serializes_literal_filenames (__main__.DomainFinalizerTests.test_precheck_approved_fingerprint_serializes_literal_filenames) (runtime='powershell')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 240, in test_precheck_approved_fingerprint_serializes_literal_filenames
+    f = Fixture(self, runtime=runtime, reserve=False, aggregate_names=names)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 106, in __init__
+    self.checked(command)
+  File "/workspace/scratch/standards-685/python/tests/domain-review-finalize.tests.py", line 115, in checked
+    self.owner.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Get-FileHash: /tmp/domain-finalizer-test-rotdb7v2/plugins/sdd-domain/scripts/domain-review-precheck.ps1:32
+Line |
+  32 |    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToL …
+     |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Could not find a part of the path
+     | '/tmp/domain-finalizer-test-rotdb7v2/domain/aggregates/back/slash.md'.
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.459s
+
+FAILED (failures=10, errors=1)

@@ -341,14 +341,14 @@ foreach ($finding in $liveFindings) {
 # ===========================================================================
 $Fx = Join-Path $Work 'fx'
 
-function New-FixtureProject([string]$Name, [string]$Profile) {
+function New-FixtureProject([string]$Name, [string]$FixtureProfile) {
     $d = Join-Path $Fx $Name
     New-Item -ItemType Directory -Path (Join-Path $d 'sdd') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $d 'fixtures') -Force | Out-Null
     $ctx = Join-Path $d 'sdd/project-context.yaml'
-    if ($Profile -eq 'NO-CONTEXT') {
+    if ($FixtureProfile -eq 'NO-CONTEXT') {
         # sdd/project-context.yaml deliberately never created.
-    } elseif ($Profile -eq 'OMIT-PROFILE') {
+    } elseif ($FixtureProfile -eq 'OMIT-PROFILE') {
         @(
             'schema: sdd-project-context/v1'
             'workflow:'
@@ -360,7 +360,7 @@ function New-FixtureProject([string]$Name, [string]$Profile) {
         @(
             'schema: sdd-project-context/v1'
             'workflow:'
-            "  spec_profile: $Profile"
+            "  spec_profile: $FixtureProfile"
             '  artifact_layout: lite-three-file'
             '  capability_enforcement: required'
         ) -join "`n" | Set-Content -LiteralPath $ctx -NoNewline -Encoding utf8

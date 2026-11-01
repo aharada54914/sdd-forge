@@ -1,0 +1,98 @@
+{
+  "schema": "powershell-contextual-assist/v1",
+  "baseline_commit": "3be560be4ab346adcd1ced5164e6b33e97843b4f",
+  "files": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "source_sha256": "3822660e7e0857f9e370fb45f63d8200bf067a517f0ef334f4551a0b73fe65ec",
+      "rules": [
+        "CS-009",
+        "CS-018",
+        "CS-025",
+        "CS-026"
+      ],
+      "method": "Read complete gate and its current dedicated regression consumer; trace path through provider APIs, matching/case and error outcome; actual native PowerShell 7.6.7 mutations, no mocked filesystem error.",
+      "result": "Confirmed findings repaired; fixed grammars, case-sensitive markers, missing-root cycle zero policy and existing exit contracts preserved."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+      "source_sha256": "77dbbf10d4344f22f872b5df55cf6b2340efd4fdecad3760d12bb2dc2b9c4562",
+      "rules": [
+        "CS-009",
+        "CS-018",
+        "CS-025",
+        "CS-026"
+      ],
+      "method": "Read complete gate and its current dedicated regression consumer; trace path through provider APIs, matching/case and error outcome; actual native PowerShell 7.6.7 mutations, no mocked filesystem error.",
+      "result": "Confirmed findings repaired; fixed grammars, case-sensitive markers, missing-root cycle zero policy and existing exit contracts preserved."
+    },
+    {
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.ps1",
+      "source_sha256": "7ec0bf6bfe92c40886666d7dd44c40c9efb13a159ed6f1a6f7e7c6f8be2fc03b",
+      "rules": [
+        "CS-009",
+        "CS-018",
+        "CS-025",
+        "CS-026"
+      ],
+      "method": "Read complete gate and its current dedicated regression consumer; trace path through provider APIs, matching/case and error outcome; actual native PowerShell 7.6.7 mutations, no mocked filesystem error.",
+      "result": "Confirmed findings repaired; fixed grammars, case-sensitive markers, missing-root cycle zero policy and existing exit contracts preserved."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "source_sha256": "18e0f451510ce207c585028e97854e7cd31c4368b3a82953fac77eb0aa338b0e",
+      "rules": [
+        "CS-009",
+        "CS-018",
+        "CS-025",
+        "CS-026"
+      ],
+      "method": "Read complete gate and its current dedicated regression consumer; trace path through provider APIs, matching/case and error outcome; actual native PowerShell 7.6.7 mutations, no mocked filesystem error.",
+      "result": "Confirmed findings repaired; fixed grammars, case-sensitive markers, missing-root cycle zero policy and existing exit contracts preserved."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-placeholders-green.log",
+      "sha256": "6a5f0d4c89660721e55323e1df1f216f19c3206deb4bec7a27e7897aeede8af7"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-task-state-red.log",
+      "sha256": "328fc47594e52efa88f6cf743415696706b77436afcfee207b9fe8c301d4bdb3"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-cycle-green.log",
+      "sha256": "46c5a97c480872843a64a1968bb621b8d8d62e47ca93c0d79fe55b253179c12f"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-task-path-red.log",
+      "sha256": "42d53dfb4a6287e4c703462b35a410d06f3ebc83c7f448bc967f1dbd8e376475"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-assist-analysis.log",
+      "sha256": "67ec5bc74db80f6fa5afb01305fd4bef443d5d7115c2be8caea455d630494853"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-placeholders-red.log",
+      "sha256": "0b6d9391e224c385363f7ff0102fcaa6d98e659fa48d8df90f659f4e3ff9a9c2"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-cycle-red.log",
+      "sha256": "cf7343ede049a8aee79974538d34abcc5d4a6e18d5dc590f98e720b1d11641cf"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-task-state-green.log",
+      "sha256": "1dc52bb2c8763d210b4defd753ba5abe42740423d64eb0dea31645abaa766727"
+    },
+    {
+      "path": "docs/contributor/coding-standards/audit/shell/python-assist-evidence/ps-placeholders-brownfield-green.log",
+      "sha256": "76ec756bb3dbde0f819e9fc4b7147dd0bfc5ed9348df997b2dd1a25284cf12d5"
+    }
+  ],
+  "limits": [
+    "Real permission denial on Linux non-root; Windows ACL behavior not separately reproduced.",
+    "Initial native analysis failed because PSScriptAnalyzer was not in module search path; configured pinned1.25.0 module run returned findings [].",
+    "Task-state red suite showed valid-path false negatives, not a reproduced sibling-report false pass; negative sibling control remains tested.",
+    "No mirror synchronization; canonical owner handles active/frozen counterpart policy."
+  ]
+}

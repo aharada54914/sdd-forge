@@ -97,7 +97,7 @@ fetch_source_or_unavailable() {
     # Test injection point set (tests/model-freshness-check.tests.sh) --
     # never a live network call from this branch (security-spec.md B4).
     if [ -f "$fixture_path" ]; then
-      cat "$fixture_path"
+      cat "$fixture_path" || return 1
       return 0
     fi
     return 1
@@ -133,7 +133,7 @@ compute_divergence() {
   local registry_file="$3"
 
   local known
-  known="$(extract_registry_tokens "$registry_file")"
+  known="$(extract_registry_tokens "$registry_file")" || return $?
 
   local candidates
   candidates="$(
@@ -141,16 +141,20 @@ compute_divergence() {
       printf '%s\n' "$anthropic_text"
       printf '%s\n' "$openai_text"
     } | extract_candidate_tokens
-  )"
+  )" || return $?
 
   [ -z "$candidates" ] && return 0
 
   local tok
   while IFS= read -r tok; do
     [ -z "$tok" ] && continue
-    if [ -z "$known" ] || ! printf '%s\n' "$known" | grep -qxF "$tok"; then
-      printf '%s\n' "$tok"
-    fi
+    local match_status=0
+    printf '%s\n' "$known" | grep -qxF "$tok" || match_status=$?
+    case "$match_status" in
+      0) ;;
+      1) printf '%s\n' "$tok" ;;
+      *) return "$match_status" ;;
+    esac
   done <<TOKENS
 $candidates
 TOKENS
@@ -161,8 +165,15 @@ TOKENS
 # Keep the full charset allowlist and digit requirement. This is a conservative
 # discovery heuristic, not a model catalog or HTML parser: numeric CSS/SVG and
 # version tokens must not generate registry-divergence issues (#298).
+# grep's no-match result is valid data; invocation/read errors remain failures.
+grep_allow_no_match() {
+  local status=0
+  grep "$@" || status=$?
+  [ "$status" -le 1 ] || return "$status"
+}
+
 extract_candidate_tokens() {
-  tr -s '[:space:]' '\n' | grep -E '^(claude-|gpt-|o[0-9])[A-Za-z0-9.-]*$' | grep -E '[0-9]' | sort -u || true
+  tr -s '[:space:]' '\n' | grep_allow_no_match -E '^(claude-|gpt-|o[0-9])[A-Za-z0-9.-]*$' | grep_allow_no_match -E '[0-9]' | sort -u
 }
 
 # extract_registry_tokens <file> -- prints each models[].name value AND its
@@ -173,7 +184,7 @@ extract_candidate_tokens() {
 extract_registry_tokens() {
   local file="$1"
   [ -f "$file" ] || return 0
-  grep -oE '"name"[[:space:]]*:[[:space:]]*"[^"]+"' "$file" \
+  grep_allow_no_match -oE '"name"[[:space:]]*:[[:space:]]*"[^"]+"' "$file" \
     | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/' \
     | while IFS= read -r n; do
         printf '%s\n' "$n"
@@ -190,8 +201,8 @@ extract_registry_tokens() {
 find_open_issue_by_marker() {
   local marker="$1"
   local out
-  out="$(gh issue list --repo "$REPO" --search "\"${marker}\" in:title" --state open --json number 2>/dev/null || true)"
-  printf '%s' "$out" | grep -oE '[0-9]+' | head -n1 || true
+  out="$(gh issue list --repo "$REPO" --search "\"${marker}\" in:title" --state open --json number 2>/dev/null)" || return $?
+  printf '%s' "$out" | grep_allow_no_match -oE '[0-9]+' | head -n1
 }
 
 # ---------------------------------------------------------------------------
@@ -217,7 +228,7 @@ file_or_dedupe_issue() {
     --unavailable)
       local vendor="$2"
       local existing
-      existing="$(find_open_issue_by_marker "$UNAVAILABLE_MARKER")"
+      existing="$(find_open_issue_by_marker "$UNAVAILABLE_MARKER")" || return $?
       if [ -n "$existing" ]; then
         gh issue comment "$existing" --repo "$REPO" --body "$(build_unavailable_body "$vendor")"
       else
@@ -227,7 +238,7 @@ file_or_dedupe_issue() {
     --divergence)
       local tokens="$2"
       local existing
-      existing="$(find_open_issue_by_marker "$DIVERGENCE_MARKER")"
+      existing="$(find_open_issue_by_marker "$DIVERGENCE_MARKER")" || return $?
       if [ -n "$existing" ]; then
         return 0
       fi

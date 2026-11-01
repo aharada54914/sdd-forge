@@ -27,9 +27,30 @@ try {
   # ConvertFrom-Json may materialize JSON integer tokens as BigInteger-like
   # objects on newer PowerShell/macOS builds. Assert the canonical numeric JSON
   # tokens from the raw protocol output, then parse string fields normally.
-  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $rawOutput -notmatch '"attempt":1(,|})' -or $rawOutput -notmatch '"round":2(,|})' -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
+  if ($output.schema -cne 'review-contract-validation/v1' -or $output.feature -cne 'utf8-feature' -or $rawOutput -notmatch '"attempt":1(,|})' -or $rawOutput -notmatch '"round":2(,|})' -or $output.stage -cne 'spec' -or $output.verdict -cne 'PASS') {
     throw "unexpected canonical output: $($output | ConvertTo-Json -Compress)"
   }
+
+  foreach ($case in @(
+    @{ Field = 'verdict'; Value = 'pass' },
+    @{ Field = 'schema'; Value = 'REVIEW-CONTRACT/v1' },
+    @{ Field = 'feature'; Value = 'UTF8-FEATURE' },
+    @{ Field = 'stage'; Value = 'SPEC' },
+    @{ Field = 'verdict'; Value = @('PASS') },
+    @{ Field = 'schema'; Value = @('review-contract/v1') },
+    @{ Field = 'feature'; Value = @('utf8-feature') },
+    @{ Field = 'stage'; Value = @('spec') }
+  )) {
+    $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
+    $inconsistent.($case.Field) = $case.Value
+    $inconsistent | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $tempContract -Encoding utf8
+    Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } "exact string $($case.Field)"
+  }
+  $caseChangedProperty = (Get-Content -LiteralPath $fixture -Raw).Replace('"verdict":', '"Verdict":')
+  Set-Content -LiteralPath $tempContract -Value $caseChangedProperty -Encoding utf8
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'exact property names'
+  Assert-Fails { & $validator -Feature 'UTF8-FEATURE' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture } 'uppercase feature argument'
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage SPEC -ReportRoot $reportRoot -Contract $fixture } 'uppercase stage argument'
 
   Assert-Fails { & $validator -Feature '../escape' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture } 'invalid feature slug'
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 0 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture } 'nonpositive attempt'

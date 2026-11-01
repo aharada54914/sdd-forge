@@ -71,16 +71,16 @@ test("AC-003: `names` enum accepts ONLY the 14 allowlist names", () => {
 });
 
 test("AC-003: out-of-enum name -> invalid-input envelope, no probe run", async () => {
-  const result = await getToolchainVersions({ names: ["rm"] as unknown as [] });
+  const result = await getToolchainVersions({ names: ["rm"] });
   assert.ok(isErr(result), "must be an error envelope");
   assert.equal(result.error.code, "invalid-input");
-  assert.equal("entries" in (result as unknown as Record<string, unknown>), false);
+  assert.equal("entries" in result, false);
   // ok-branch data (with entries) is absent => no probing occurred.
   assert.ok(!isOk(result));
 });
 
 test("AC-003: extra property -> invalid-input envelope", async () => {
-  const bad = { names: ["node"], command: "rm -rf /" } as unknown as { names: [] };
+  const bad = { names: ["node"], command: "rm -rf /" };
   const result = await getToolchainVersions(bad);
   assert.ok(isErr(result));
   assert.equal(result.error.code, "invalid-input");
@@ -93,20 +93,20 @@ test("AC-003: path/command string fields -> invalid-input envelope", async () =>
     { args: ["--exec"] },
     { cwd: "/tmp" },
   ]) {
-    const result = await getToolchainVersions(bad as unknown as { names: [] });
+    const result = await getToolchainVersions(bad);
     assert.ok(isErr(result), `input ${JSON.stringify(bad)} must be rejected`);
     assert.equal(result.error.code, "invalid-input");
   }
 });
 
 test("AC-003: `names` must be an array (a bare string is rejected)", async () => {
-  const result = await getToolchainVersions({ names: "node" } as unknown as { names: [] });
+  const result = await getToolchainVersions({ names: "node" });
   assert.ok(isErr(result));
   assert.equal(result.error.code, "invalid-input");
 });
 
 test("AC-003: invalid input never produces an entries array (no probe executed)", async () => {
-  const result = await getToolchainVersions({ names: ["nope"] } as unknown as { names: [] });
+  const result = await getToolchainVersions({ names: ["nope"] });
   assert.ok(isErr(result));
   // The only way `entries` exists is if probing ran; its absence proves the
   // invalid-input short-circuit fired before any process launch.

@@ -166,6 +166,16 @@ jq '.reviewers[0].allowed_input_manifest += [{"path":"../reports/impl-review/x/r
 mv "${tmp_contract}" "${ROUND_ONE}/spec-review-contract.json"
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
 write_contract "${ROUND_ONE}" NEEDS_WORK Major
+if command -v pwsh >/dev/null 2>&1; then
+  ps_precheck="$ROOT/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+  pwsh -NoProfile -File "$ps_precheck" -Feature "$FEATURE" -Attempt 1 -Round 2 -EditSummary 'native shape control' >/dev/null
+  rm -rf "$REPORT_ROOT/attempt-1/round-2"
+  cp "$ROUND_ONE/spec-review-contract.json" "$ROUND_ONE/contract-object.backup"
+  jq '[.]' "$ROUND_ONE/contract-object.backup" > "$ROUND_ONE/spec-review-contract.json"
+  expect_failure pwsh -NoProfile -File "$ps_precheck" -Feature "$FEATURE" -Attempt 1 -Round 2 -EditSummary 'malformed root'
+  [[ ! -e "$REPORT_ROOT/attempt-1/round-2" ]] || fail 'singleton prior contract created next-round evidence'
+  mv "$ROUND_ONE/contract-object.backup" "$ROUND_ONE/spec-review-contract.json"
+fi
 "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
 ROUND_TWO="${REPORT_ROOT}/attempt-1/round-2"
 [[ "$(jq -r .investigation_sha256 "${ROUND_TWO}/precheck-result.json")" != "${round_one_investigation_sha}" ]] || fail "investigation-only edit did not change the recorded hash"

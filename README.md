@@ -303,6 +303,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
 | [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
+| [docs/contributor/coding-standards.md](docs/contributor/coding-standards.md) | 本体の言語別規約・監査範囲。導入先には採用済み規約を適用 |
 | [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 | [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |

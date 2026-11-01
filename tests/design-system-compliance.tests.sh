@@ -70,6 +70,86 @@ printf 'color: #ff0000\n' > "$FIX/excl/design-system/design-system.md"
 out="$(sh "$CHECK_SH" "$FIX/excl" "$FIX/excl/specs/demo/design.md" "design-system/design-system.md" 2>&1)"; rc=$?
 case "$out" in *"check-design-system passed."*) pass "CDS-007 exclusions honored" ;; *) fail "CDS-007 exclusions honored ($out)" ;; esac
 
+# Parse the real JSON envelope in each available runtime, not matching text
+# from unrelated fields. A valid formatting change must remain a normal pass.
+if python3 - "$ROOT" <<'PY_BOUNDARIES'
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+repo = Path(sys.argv[1])
+runtimes = [('sh', [shutil.which('sh'), str(repo / 'plugins/sdd-quality-loop/scripts/check-design-system.sh')])]
+if shutil.which('pwsh'):
+    runtimes.append(('pwsh', [shutil.which('pwsh'), '-NoProfile', '-File', str(repo / 'plugins/sdd-quality-loop/scripts/check-design-system.ps1'), '-ProjectRoot']))
+else:
+    print('SKIP: PowerShell JSON envelope controls (pwsh unavailable)')
+valid = dict(meta=dict(schema='design-system-contract/v1', version='0.1.0', generated_by='manual'), color={}, typography={}, spacing={})
+raw = json.dumps(valid)
+decoy = dict(valid, meta=dict(valid['meta'], schema='wrong/v1'), unrelated=dict(schema='design-system-contract/v1'))
+cases = [('formatted', json.dumps(valid, separators=(',', ':\n')), 0),
+         ('nested-decoy', json.dumps(decoy), 1), ('malformed', raw + 'not-json', 1),
+         ('multiple-documents', raw + '\n' + raw, 1), ('array-root', '[' + raw + ']', 1)]
+with tempfile.TemporaryDirectory(prefix='design JSON ') as tmp:
+    root = Path(tmp)
+    (root / 'design-system').mkdir()
+    path = root / 'design-system/design-tokens.json'
+    for name, content, expected in cases:
+        path.write_text(content, encoding='utf-8')
+        for runtime, command in runtimes:
+            result = subprocess.run(command + [str(root)], env=dict(os.environ, SDD_DESIGN_SYSTEM_ENFORCE='error'), capture_output=True, text=True)
+            assert result.returncode == expected, (runtime, name, result.returncode, result.stdout, result.stderr)
+            print('PASS JSON:', runtime, name)
+    if os.name != 'nt':
+        path.write_text(raw, encoding='utf-8')
+        bin_dir = root / 'bin'
+        bin_dir.mkdir()
+        for executable in ('mktemp', 'rm'):
+            shutil.copyfile(shutil.which(executable), bin_dir / executable)
+            (bin_dir / executable).chmod(0o755)
+        result = subprocess.run(runtimes[0][1] + [str(root)], env=dict(os.environ, PATH=str(bin_dir)), capture_output=True, text=True)
+        assert result.returncode == 1 and 'jq is required' in result.stderr, (result.returncode, result.stderr)
+        print('PASS JSON: missing jq fails closed')
+        root.chmod(0o755)
+        raw_style = root / 'raw.css'
+        raw_style.write_text('a { color: #ffffff; }', encoding='utf-8')
+        design = root / 'design.md'
+        design.write_text('## Design System Compliance\nds_profile: full\n', encoding='utf-8')
+        def unprivileged():
+            if os.getuid() == 0:
+                os.setgroups([])
+                os.setgid(1000)
+                os.setuid(1000)
+        for unreadable in (raw_style, design):
+            unreadable.chmod(0)
+            try:
+                for enforce in ('warn', 'error'):
+                    result = subprocess.run(runtimes[0][1] + [str(root), str(design), str(raw_style)],
+                        env=dict(os.environ, SDD_DESIGN_SYSTEM_ENFORCE=enforce),
+                        preexec_fn=unprivileged, capture_output=True, text=True)
+                    assert result.returncode == 1 and 'passed.' not in result.stdout and 'cannot' in result.stderr, (unreadable.name, enforce, result)
+                    print('PASS IO:', unreadable.name, enforce)
+            finally:
+                unreadable.chmod(0o644)
+        # Force a genuine regex-engine error in the raw style scan.
+        import shlex
+        grep = bin_dir / 'grep'
+        grep.write_text('#!/bin/sh\nif [ "$1" = -nE ]; then exec ' + shlex.quote(shutil.which('grep')) + ' -E "[" /dev/null; fi\nexec ' + shlex.quote(shutil.which('grep')) + ' "$@"\n', encoding='utf-8')
+        grep.chmod(0o755)
+        result = subprocess.run(runtimes[0][1] + [str(root), '', str(raw_style)],
+            env=dict(os.environ, PATH=str(bin_dir) + os.pathsep + os.environ['PATH']), capture_output=True, text=True)
+        assert result.returncode == 1 and 'cannot scan' in result.stderr, result
+        print('PASS IO: actual grep regex failure')
+PY_BOUNDARIES
+then
+  pass 'JSON envelope runtime controls'
+else
+  fail 'JSON envelope runtime controls'
+fi
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

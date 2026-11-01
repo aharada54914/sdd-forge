@@ -164,11 +164,11 @@ try {
             }
             $expectedStdout = if ($row.phase -ceq 'uninstall') { "uninstalled $expectedPath" } else { "installed $expectedPath" }
             $actual = Invoke-HarnessCell $row $caseName
-            $matches = $actual.result -ceq $expectedResult -and $actual.source_bytes_sha256 -ceq $expectedSourceSha -and
+            $matchedEntries = $actual.result -ceq $expectedResult -and $actual.source_bytes_sha256 -ceq $expectedSourceSha -and
                 $actual.source_name -ceq $expectedSourceName -and $actual.resolved_path -ceq $expectedPath -and
                 $actual.copied_bytes_sha256 -ceq $expectedCopiedSha -and $actual.stdout_substring -ceq $expectedStdout -and
                 $actual.uninstall_residue -ceq '[]'
-            if ($matches) { Test-Ok "row $($row.row) $caseName fixed oracle" } else { Test-Fail "row $($row.row) $caseName oracle mismatch" }
+            if ($matchedEntries) { Test-Ok "row $($row.row) $caseName fixed oracle" } else { Test-Fail "row $($row.row) $caseName oracle mismatch" }
             $cells.Add([ordered]@{os=$row.os; separator=$row.separator; eol=$row.eol; normalization=$row.normalization; runtime_script=$row.script; phase=$row.phase; case=$caseName; result=$actual.result; oracle=[ordered]@{source_bytes_sha256=$actual.source_bytes_sha256; source_name=$actual.source_name; resolved_path=$actual.resolved_path; copied_bytes_sha256=$actual.copied_bytes_sha256; stdout_substring=$actual.stdout_substring; uninstall_residue=@()}})
         }
     }

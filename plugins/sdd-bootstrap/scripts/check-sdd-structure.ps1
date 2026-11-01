@@ -113,7 +113,7 @@ $specsPath = Join-Path $Root "specs"
 # Hoist Resolve-Path outside the foreach loop to avoid repeated syscalls.
 $absRoot = (Resolve-Path -LiteralPath $Root).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 if (Test-Path -LiteralPath $specsPath -PathType Container) {
-    $adrDirs = Get-ChildItem -Path $specsPath -Directory -ErrorAction SilentlyContinue |
+    $adrDirs = Get-ChildItem -LiteralPath $specsPath -Directory -ErrorAction SilentlyContinue |
         ForEach-Object {
             $candidate = Join-Path $_.FullName "adr"
             if (Test-Path -LiteralPath $candidate -PathType Container) { $candidate }

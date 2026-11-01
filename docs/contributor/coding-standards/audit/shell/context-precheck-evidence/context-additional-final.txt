@@ -1,0 +1,4 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+ok: ledger link, CR identities and normalized policy arrays rejected (bash)
+ok: ledger link, CR identities and normalized policy arrays rejected (pwsh)

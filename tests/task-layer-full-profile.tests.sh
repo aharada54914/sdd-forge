@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. "$(dirname "${BASH_SOURCE[0]}")/lib/shell-literal.sh"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -38,8 +39,7 @@ jq --arg feature "$FEATURE" \
 cp "$ROOT/contracts/workflow-state-registry.schema.json" "$TMP/contracts/"
 
 while IFS= read -r evidence; do
-  sed -i.bak "s#$ROOT#$TMP#g" "$evidence"
-  rm -f "$evidence.bak"
+  replace_file_literal "$evidence" "$ROOT" "$TMP"
 done < <(find "$TMP/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 

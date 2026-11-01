@@ -99,7 +99,50 @@ else
     fail "CP-004: recursive scan should exit 1, got ${CP_EXIT}. Output: ${CP_OUTPUT}"
 fi
 
+# Literal paths must never select a clean wildcard sibling instead of the target.
+if command -v pwsh >/dev/null 2>&1; then
+    printf 'TODO implement this\n' > "${WORK}/target[x].py"
+    printf 'complete = True\n' > "${WORK}/targetx.py"
+    CP_EXIT=0
+    CP_OUTPUT="$(pwsh -NoProfile -File "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-placeholders.ps1" "${WORK}/target[x].py" 2>&1)" || CP_EXIT=$?
+    if [ "$CP_EXIT" -eq 1 ] && [[ "$CP_OUTPUT" == *'Placeholder scan FAILED'* ]]; then
+        ok 'PowerShell scans the literal bracket filename, not its clean sibling'
+    else
+        fail "PowerShell literal target expected violation 1, got $CP_EXIT: $CP_OUTPUT"
+    fi
+else
+    echo 'skip: PowerShell literal filename regression (pwsh absent)'
+fi
+
 # ============================================================================
+# CP-005: literal filenames cannot inject grep exclusion options.
+mkdir -p "${WORK}/option-path"
+printf 'TODO\n' > "${WORK}/option-path/--exclude=*"
+printf 'TODO\n' > "${WORK}/option-path/normal.txt"
+CP_EXIT=0
+CP_OUTPUT="$(cd "${WORK}/option-path" && sh "$SC" '--exclude=*' normal.txt 2>&1)" || CP_EXIT=$?
+if [ "$CP_EXIT" -eq 1 ]; then
+    ok 'CP-005: leading-hyphen filename cannot suppress placeholder findings'
+else
+    fail "CP-005: expected findings exit 1, got ${CP_EXIT}: ${CP_OUTPUT}"
+fi
+
+# A genuine sort failure cannot discard known findings and report a pass.
+mkdir "$WORK/sort-error"
+cat >"$WORK/sort-error/sort" <<'SORT_ERROR'
+#!/bin/sh
+exec "$REAL_SORT" --invalid-aggregation-control
+SORT_ERROR
+chmod +x "$WORK/sort-error/sort"
+real_sort=$(command -v sort)
+CP_EXIT=0
+CP_OUTPUT="$(PATH="$WORK/sort-error:$PATH" REAL_SORT="$real_sort" sh "$SC" "$WORK/option-path/normal.txt" 2>&1)" || CP_EXIT=$?
+if [ "$CP_EXIT" -eq 2 ] && [[ "$CP_OUTPUT" != *'scan passed'* ]]; then
+    ok 'CP-006: real aggregation tool error fails closed'
+else
+    fail "CP-006: expected tool error2, got ${CP_EXIT}: ${CP_OUTPUT}"
+fi
+
 # Summary
 # ============================================================================
 

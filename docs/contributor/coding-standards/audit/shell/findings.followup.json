@@ -1,0 +1,115 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PS-030",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "line": 247,
+      "source_sha256": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1",
+      "flow": {
+        "input": "Codex scratch path",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "native CLI argv"
+      },
+      "impact": "Space-containing scratch path split into multiple arguments",
+      "reproduction": "Exact captured argv: baseline runner fails path atom check; fixed runner passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1\", \"sha256\": \"a3d5bf4377ed120239e480d78b3ea206a40ef469b2f299547a35cd85123e924b\"}"
+      ],
+      "resolution": "Use shared native command-line quoting helper; unchanged timeout/file redirect semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-031",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 158,
+      "source_sha256": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932",
+      "flow": {
+        "input": "Fixed multiline JSON prompt",
+        "transformation": "Start-Process joins argument atoms with spaces",
+        "sink": "Gemini -p argv"
+      },
+      "impact": "Complete prompt split into many arguments and loses embedded quotes",
+      "reproduction": "Exact captured argv: baseline runner fails prompt atom check; fixed receives exactly4 arguments and exact source prompt as arg4.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1\", \"sha256\": \"b0ea695e119922c7924a796269d69936d855df818080e6aae748f0df251900bb\"}"
+      ],
+      "resolution": "Same shared native argument quoting; native .exe/POSIX command boundary, not a cmd.exe interpreter.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-032",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "line": 347,
+      "source_sha256": "0f9b32251f645f0aa51684007c5489cc34597b5976e07c6c1d2da93a890b7582",
+      "flow": {
+        "input": "Repository path",
+        "transformation": "Start-Process -ArgumentList flattens path with spaces",
+        "sink": "git -C"
+      },
+      "impact": "Valid evidence rejected when repository path contains spaces",
+      "reproduction": "Actual native launch against a fresh repository whose path contains spaces: baseline Start-Process exit128 (cannot change to /tmp/git); direct call exit0. Existing Script gate suite passes after moving entire workspace fixture to sdd script tests <uuid>.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scripts.tests.ps1",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1\", \"sha256\": \"56e5137ed388534ace485f6b4a668ce0aca00d60b1c25d60666b444c5ed0a3c1\"}"
+      ],
+      "resolution": "Direct PowerShell call operator and explicit LASTEXITCODE checks.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-030",
+      "rule_id": "CS-002",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "line": 116,
+      "source_sha256": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d",
+      "flow": {
+        "input": "tasks/report/repository paths and Markdown task id",
+        "transformation": "awk dynamic shell commands and Python-source interpolation",
+        "sink": "system()/getline and Python -c"
+      },
+      "impact": "User data can execute shell code",
+      "reproduction": "Baseline valid Implementation Complete fixture with report path reports$(touch SENTINEL): exit1 and sentinel=True. Fixed hostile quote/backslash/newline/Japanese path succeeds, no sentinel; missing evidence still fails.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-quality-loop/scripts/check-task-state.sh\", \"sha256\": \"ec2697933b3154e8e21a87d932dea0cb9c2dff10d26fe269c429a8557eb86646\"}"
+      ],
+      "resolution": "Quote each shell data atom; use fixed Python code and argv for contract path/task id.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-031",
+      "rule_id": "CS-001",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+      "line": 67,
+      "source_sha256": "5cbb235b2a14123bab3cc44fdac09f1cd421fcdb341e59d34721a63f8ce79d2e",
+      "flow": {
+        "input": "Implementation/quality report path and Markdown task id",
+        "transformation": "awk builds shell command with unescaped data",
+        "sink": "grep subprocess"
+      },
+      "impact": "User report path can execute command substitution",
+      "reproduction": "Same report-path sentinel baseline exit1 and sentinel=True; fixed hostile path Implementation Complete succeeds without execution.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-state-grammar-parity.tests.sh",
+        "{\"path\": \"plugins/sdd-lite/scripts/check-task-state-lite.sh\", \"sha256\": \"1b75fc690f22525a4c563e0f4af5bb824b743e8c65da6e5d6124a87b252b03d4\"}"
+      ],
+      "resolution": "Quote shell data atom in owned Lite AWK policy; Full and Lite requirements remain separate.",
+      "reuse": null
+    }
+  ]
+}

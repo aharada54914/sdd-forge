@@ -1,0 +1,14 @@
+Historical HEAD source replay, not pre-edit chronology or a manufactured source mutation.
+F
+======================================================================
+FAIL: test_bundle_generation_rejects_failed_git_status_without_output (<run_path>.InputBoundaryTests.test_bundle_generation_rejects_failed_git_status_without_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/python-input-boundaries.tests.py", line 131, in test_bundle_generation_rejects_failed_git_status_without_output
+    self.assertEqual(result.returncode, 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.078s
+
+FAILED (failures=1)

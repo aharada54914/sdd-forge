@@ -60,6 +60,7 @@ def tracked_plugin_nodes(repo_root: Path) -> dict[str, Path]:
     result = subprocess.run(
         ["git", "-C", str(repo_root), "ls-files", "-z", "--", "plugins"],
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False,
+        timeout=30,
     )
     if result.returncode != 0:
         return relative_nodes(repo_root / "plugins")
@@ -244,7 +245,11 @@ def main() -> int:
     parser.add_argument("--install-root", required=True)
     parser.add_argument("--mode", choices=("preflight", "verify"), default="preflight")
     args = parser.parse_args()
-    report, exit_code = build_report(args.mode, Path(args.install_root))
+    try:
+        report, exit_code = build_report(args.mode, Path(args.install_root))
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print("installed-plugin-drift: repository inspection failed: " + type(exc).__name__, file=sys.stderr)
+        return 1
     json.dump(report, sys.stdout, sort_keys=True, separators=(",", ":"))
     sys.stdout.write("\n")
     return exit_code
