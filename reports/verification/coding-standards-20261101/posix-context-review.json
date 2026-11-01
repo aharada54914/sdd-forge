@@ -2,7 +2,7 @@
   "schema": "coding-standards-posix-context-review/v1",
   "reviewer": "finish_checks; same author for follow-up repairs, not blinded independent certification",
   "base_commit": "2b37b8ee",
-  "scope": "35 assigned root-posix production scripts over50 lines, plus root-requested rollback; read complete shell source and literal jq/awk programs; embedded Python semantic review separately owned by finish_python. Product AGENTS are artifacts.",
+  "scope": "35 assigned root-posix production scripts over50 lines, rollback, design-sync/placeholder scanners, and full PowerShell publisher:39 source-bound contextual records. Read complete shell/.NET/PowerShell/jq/awk flows; embedded Python body semantic review separately owned by finish_python.",
   "rule_assessments": [
     {
       "rule_id": "CS-001",
@@ -518,8 +518,8 @@
     },
     {
       "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
-      "sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36",
-      "review": "Anchored traversal rejects links/nonregular files; private batch paths and hash-pinned pre/new states support transaction recovery. Found masked cat status and ignored failed backup; fixed required successful bytes/mode and prehash verification before journal/live mutation. Existing253 tests passed, including zero-byte originals and crash recovery.",
+      "sha256": "6277d3be18b383ed086e74df72c86c7319f3a858544262f21301a895d525c82d",
+      "review": "Anchored traversal rejects links/nonregular files; private batch paths and hash-pinned pre/new states support transaction recovery. Found masked cat status and ignored failed backup; fixed required successful bytes/mode and prehash verification before journal/live mutation. Existing253 tests passed, including zero-byte originals and crash recovery. Follow-up paired recovery-root/batch permission failures formerly looked like no journals; now checked before scanning. Final Bash suite259 passed including pwsh parity and six actual permission/recovery controls.",
       "state": "reviewed",
       "rule_families_considered": [
         "CS-001",
@@ -1451,6 +1451,114 @@
         "CS-029",
         "CS-030"
       ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "sha256": "158faf13d84516e1311a20b00e3a4814c0ab4f381cbf9d2501af8f483f3e187e",
+      "review": "Read complete argument validation, selection, six-pattern matching, reserved-domain filtering, redacted finding storage and exit-precedence flow. Fixed literal here-doc shell receives filenames via argv; find/sort/grep errors checked, private temp workspace removed, newlines explicitly rejected. HTML-only extension scope andwarn humanoverride apply only completed findings; toolerror2 remains unconditional. Secret/PII values redacted; fixed patterns do not interpolate source text.102tests passed with actual permission/toolerror controls; evidence scanner-failclosed.json.",
+      "state": "reviewed",
+      "rule_families_considered": [
+        "CS-001",
+        "CS-002",
+        "CS-004",
+        "CS-005",
+        "CS-007",
+        "CS-008",
+        "CS-009",
+        "CS-010",
+        "CS-011",
+        "CS-012",
+        "CS-013",
+        "CS-014",
+        "CS-015",
+        "CS-016",
+        "CS-017",
+        "CS-018",
+        "CS-019",
+        "CS-020",
+        "CS-021",
+        "CS-022",
+        "CS-023",
+        "CS-024",
+        "CS-025",
+        "CS-026",
+        "CS-027",
+        "CS-028",
+        "CS-029",
+        "CS-030"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "sha256": "18dd1ffe849300b3547fe3c1525f36a99fb1574ff148abde8880bf5b60a77c84",
+      "review": "Read complete two-case-sensitivity fixed pattern searches, directory exclusion policy, match union and output. Paths protected by --. Existing grep>=2 failure path preserved. Further confirmed sort failure after actualTODOmatch was reported clean; checked aggregationnow exit2. No source evaluation, network/retries or credentials.10tests pass including literal --exclude=* operand and actual sortinvalidoption failure.",
+      "state": "reviewed",
+      "rule_families_considered": [
+        "CS-001",
+        "CS-002",
+        "CS-004",
+        "CS-005",
+        "CS-007",
+        "CS-008",
+        "CS-009",
+        "CS-010",
+        "CS-011",
+        "CS-012",
+        "CS-013",
+        "CS-014",
+        "CS-015",
+        "CS-016",
+        "CS-017",
+        "CS-018",
+        "CS-019",
+        "CS-020",
+        "CS-021",
+        "CS-022",
+        "CS-023",
+        "CS-024",
+        "CS-025",
+        "CS-026",
+        "CS-027",
+        "CS-028",
+        "CS-029",
+        "CS-030"
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "sha256": "52083bd11c2daab1ceeba9392e4a8b819a58506aa35c4396419613a258094a9b",
+      "review": "Read all1084 baseline lines and follow-up source: raw.NET anchored cwd/path resolution, private random batch nonce, manifest parsing, exact SHA pins, backup modes, journal publication, classification/revert/confirmation and cleanup. Actual normal/symlink/substitution/crash/mode suite168baseline and173post passed. Found recovery enumeration SilentlyContinue falselyreported no journals; actual denied sdd/staging/batch now17 then successful recovery afterpermissionsrestore. Corrupted real backup formerlypublished0; now verifies prehash andreturns21 beforejournal. Malformedtargets object/numeric/arrayfields formerlycoerced anddeletedjournal; now14 andretained. Actual0xFFmanifest redirected to U+FFFDfile before; decoder rejection now13. .NET IsPathRooted protects drive-rooted targets; nativeWindowsconditionalcontrolawaitsCI. Broad GetAttributes absencecatch narrowed to two genuine notfoundtypes. Structured output serialized with ConvertTo-Json; native paths useLiteralPath/rawNET; no dynamic source. Existing documented gaps remain explicit: FIFO type detection onUnix .NET can block, and individual path-check/write race windows lacksingle-heldsyscall guarantee; no claimtheseareclosed by currentfix.",
+      "state": "reviewed",
+      "rule_families_considered": [
+        "CS-001",
+        "CS-002",
+        "CS-004",
+        "CS-005",
+        "CS-007",
+        "CS-008",
+        "CS-009",
+        "CS-010",
+        "CS-011",
+        "CS-012",
+        "CS-013",
+        "CS-014",
+        "CS-015",
+        "CS-016",
+        "CS-017",
+        "CS-018",
+        "CS-019",
+        "CS-020",
+        "CS-021",
+        "CS-022",
+        "CS-023",
+        "CS-024",
+        "CS-025",
+        "CS-026",
+        "CS-027",
+        "CS-028",
+        "CS-029",
+        "CS-030"
+      ]
     }
   ],
   "validation": {
@@ -1460,12 +1568,16 @@
     "prepare-panelist": "192 passed,0failed",
     "rollback": "complete Bash/PowerShell success,tamper,dirty,validation,restore and canonicalrelease controls passed;2 actualtoolerror controls pass; samebefore controls fail",
     "native": "configured ShellCheck SC2086,SC2046,SC2155 clean on changed shell/test files; unconfigured full warning set has preexisting warnings and is not claimed clean",
-    "emit-run-record": "56 passed,0failed; actual unreadable task/reporttree/ticket controls plus spaced-path positive metrics"
+    "emit-run-record": "56 passed,0failed; actual unreadable task/reporttree/ticket controls plus spaced-path positive metrics",
+    "publisher-final": "Bash259/0 withpwsh available; PS173/0; sixactualPOSIX permission denial/recoverycontrols acrossbothruntimes. Windowsrootedguard conditionaltestnotexecutedonLinux; awaitsWindowsCI.",
+    "placeholders-final": "10 passed0failed; actualsort error2, baseline0 falsepass.",
+    "native-publisher": "PSScriptAnalyzer1.25.0/pwsh7.6.7 configured4rules+nativeparser0findings; configuredShellChecksubset clean."
   },
   "limits": [
     "Source hashes bind this review snapshot; root must refresh only after inspecting later source deltas.",
     "Provider and review-context-set follow-ups owned by root/final_review; this artifact does not certify their later bytes.",
     "Permission fixtures exercise POSIX only; Windows tests explicitly skip these controls, not pass them.",
-    "Native full after scan remains pending stable integrated source."
+    "Native full after scan remains pending stable integrated source.",
+    "PowerShell publisher documents existing UnixFIFO/held-syscall race limitations; thisreview records them ratherthan claiming cross-platform proof of absent races or allspecialfile behavior."
   ]
 }
