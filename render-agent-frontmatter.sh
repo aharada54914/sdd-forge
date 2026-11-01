@@ -105,13 +105,44 @@ def join_lines(lines, trailing_nl):
     return text
 
 
+def require_fields(value, fields):
+    if not isinstance(value, dict) or any(field not in value for field in fields):
+        die("expected object with exact consumed fields")
+
+
+def require_string(value, field):
+    if not isinstance(value, str) or not value:
+        die(f"{field} must be a nonempty string")
+
+
+def validate_role(entry):
+    require_fields(entry, ("minimum_tier", "default_effort"))
+    if (entry["minimum_tier"] not in ("lightweight", "standard", "strong") or
+            entry["default_effort"] not in ("low", "medium", "high", "xhigh")):
+        die("invalid role tier or effort")
+
+
 def load_registry(path):
     if not os.path.isfile(path):
         die(f"registry not found: {path}")
     with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
-    if data.get("schema") != "agent-model-capabilities/v2":
-        die(f"registry schema must be 'agent-model-capabilities/v2', got {data.get('schema')!r}")
+    require_fields(data, ("schema", "models", "role_defaults"))
+    if data["schema"] != "agent-model-capabilities/v2":
+        die("registry schema must be agent-model-capabilities/v2")
+    if not isinstance(data["models"], list) or not isinstance(data["role_defaults"], dict):
+        die("models must be an array and role_defaults an object")
+    for model in data["models"]:
+        require_fields(model, ("name", "canonical_tier", "effort_control"))
+        require_string(model["name"], "model name")
+        require_string(model["canonical_tier"], "canonical_tier")
+        if not isinstance(model["effort_control"], dict):
+            die("effort_control must be an object")
+        for key, value in model["effort_control"].items():
+            require_string(value, key)
+    for entry in data["role_defaults"].values():
+        validate_role(entry)
+        # The Claude override has its own established exact-key diagnostics.
     return data
 
 
@@ -332,6 +363,14 @@ def main():
     if targets_path:
         with open(targets_path, encoding="utf-8") as fh:
             targets = json.load(fh)
+        if not isinstance(targets, list):
+            die("targets must be an array")
+        for target in targets:
+            require_fields(target, ("role", "kind", "path", "protected"))
+            for field in ("role", "kind", "path"):
+                require_string(target[field], field)
+            if target["kind"] not in ("claude", "codex") or not isinstance(target["protected"], bool):
+                die("invalid target kind or protected boolean")
 
     if resolve_args is not None:
         role, kind, relpath = resolve_args

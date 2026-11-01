@@ -137,6 +137,10 @@ function Get-Registry([string]$Path) {
         Assert-Fields $role.Value @('minimum_tier', 'default_effort')
         Assert-String $role.Value.minimum_tier 'minimum_tier'
         Assert-String $role.Value.default_effort 'default_effort'
+        if (@('lightweight', 'standard', 'strong') -cnotcontains $role.Value.minimum_tier -or
+            @('low', 'medium', 'high', 'xhigh') -cnotcontains $role.Value.default_effort) {
+            throw 'RENDER_ERROR: invalid role tier or effort'
+        }
         if (@($role.Value.PSObject.Properties.Name) -ccontains 'claude_frontmatter') {
             try {
                 Assert-Fields $role.Value.claude_frontmatter @('minimum_tier', 'default_effort')
@@ -372,9 +376,15 @@ if ($ResolveTargetRawPath) {
 $targets = Get-DefaultTargets
 if ($TargetsFile) {
     $raw = [System.IO.File]::ReadAllText((Resolve-Path -LiteralPath $TargetsFile).Path)
+    if ($raw.TrimStart() -cnotmatch '^\[') { throw 'RENDER_ERROR: targets must be an array' }
     $parsed = $raw | ConvertFrom-Json
     $targets = @()
     foreach ($p in $parsed) {
+        Assert-Fields $p @('role', 'kind', 'path', 'protected')
+        foreach ($field in @('role', 'kind', 'path')) { Assert-String $p.$field $field }
+        if (@('claude', 'codex') -cnotcontains $p.kind -or $p.protected -isnot [bool]) {
+            throw 'RENDER_ERROR: invalid target kind or protected boolean'
+        }
         $targets += [pscustomobject]@{ Role = [string]$p.role; Kind = [string]$p.kind; Path = [string]$p.path; Protected = [bool]$p.protected }
     }
 }
