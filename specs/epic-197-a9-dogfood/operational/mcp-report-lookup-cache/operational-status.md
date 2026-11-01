@@ -32,9 +32,23 @@ final-head replay equality and authentic CI association are separate checks.
 No ownership failure was observed in that execution. Missing optional provider
 bindings were reported N/A, not represented as configured or verified.
 
-The v1.19.0 bootstrap version update uses the existing bump script and its
-mandatory loop suites. Release-validation parity also passed. The version heading
-is preparation; no GitHub Release has yet been published by this change.
+The original v1.19.0 preparation used the existing bump script and its mandatory
+loop suites; its release-validation results remain historical evidence. That tag
+already identifies an older commit, and v1.20.0 also exists. A mistaken bootstrap
+publication against the existing v1.19.0 tag was withdrawn; it is not an accepted
+operational release boundary. The replacement bootstrap target is v1.21.0, checked
+absent on the remote before preparing its version surfaces. Publication must
+recheck availability and the exact target commit, and stop on any failed check.
+
+The v1.21.0 version update uses the same bump script and mandatory loop suites.
+The heading remains preparation until a genuine Release is published after
+exact-commit CI succeeds. Historical 309/310-test execution records, hashes and
+source bindings are unchanged; they are not relabeled as executions of v1.21.0.
+
+The planned interval endpoint is v1.21.1. Its synchronized version surfaces and
+release-preparation checks are preparation only; original v1.19.1 preparation
+outputs remain unchanged as historical records. Neither version preparation
+completes a release interval or authorizes a claim of enforcement promotion.
 
 ## Actual acceptance progress
 

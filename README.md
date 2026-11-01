@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.19.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.21.1 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
 [research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。

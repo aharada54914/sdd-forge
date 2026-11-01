@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-11-01T02:35:37.564305+00:00",
+  "version": "1.21.1",
+  "scope": "Actual version-preparation checks during merge of docs/version base 05ae379b1ad9cc1ae9bea2191edb67825d974043 into acceptance head 35c0ad7e2ae3d21816afb15718eb8077f3bb8c1c; not final-head CI. Prior release-preparation-checks.json and original 1.19.1 logs remain unchanged.",
+  "execution_start_finish_not_separately_recorded": true,
+  "checks": [
+    {
+      "command": "bash scripts/bump-version.sh 1.21.1",
+      "exit_code": 0,
+      "log": "version-bump-1.21.1.log",
+      "sha256": "fb923a90540466b850beb7aed1d93c0e2ec6b9111d779c2d2df92b3f51995dbb"
+    },
+    {
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/repository-release-validation.tests.sh",
+      "exit_code": 0,
+      "log": "release-parity-1.21.1.log",
+      "sha256": "ea26647a6beca9a7ad09fd2102c5009e8f225d1db183a95cc098c0a42b360c1e"
+    },
+    {
+      "command": "sh plugins/sdd-quality-loop/scripts/check-task-state.sh <operational tasks> <quality reports> <implementation reports> <repo root>",
+      "exit_code": 0,
+      "log": "task-state-1.21.1.log",
+      "sha256": "496fd877cfb02989ac9738d30340003ef6a74132c86f67f3edaecfc58762fe5b"
+    }
+  ],
+  "mandatory_loop_suites": "Executed by existing bump script before release-surface mutations; passed",
+  "release_parity": "8/8 checks passed",
+  "contract_and_spec": "unchanged from prior accepted evidence bundle; Done recheck passed",
+  "release_published": false
+}
