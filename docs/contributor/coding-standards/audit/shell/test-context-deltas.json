@@ -1,0 +1,161 @@
+{
+  "schema": "coding-standards-test-context-deltas/v1",
+  "base": "339d0bd9",
+  "cutoff": "b9cadc72",
+  "base_review": "test-context-review.json",
+  "method": "Owner change notes plus actual source diffs/context and runtime controls; not a blind hash refresh. Later changes require their own reviewed delta. Existing source/body review remains applicable only to unchanged bytes.",
+  "files": [
+    {
+      "path": "tests/apply-human-copy.tests.sh",
+      "before_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+      "sha256": "511a8f941d67f91a83310be177892055a2d95b4049de0463fb15dcc4453852c3",
+      "diff_sha256": "a6e0d407b05798e1dccfe041bf1e825ba9ac99e1ebb2ceda0dcfed8f07e98053",
+      "review": "Native backup-read failure and truncated-read stubs return21/LIVE_PROBE_FAILED, preserve previous live bytes and suppress journal publication; fixture commands are static and values remain environment data.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/check-placeholders.tests.sh",
+      "before_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+      "sha256": "bde75d5798f854b7a7bb3259ecac6573948f6402bfb188ce6f326b153906b8ef",
+      "diff_sha256": "8da14c7b31c1e3a262b4f25f23ab2961c186547ace48681f6adfd63f8b9bebd5",
+      "review": "Literal bracket file with a clean wildcard sibling still reports dirty content; leading-hyphen path does not become grep options; native negative and diagnostic are asserted.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/cross-model.tests.ps1",
+      "before_sha256": "380e2145a5b486107cc1a22518195ae3733b83de6d46cd837168d4eafbc732a0",
+      "sha256": "6436599e6bdf5ca6c0e2ae9012e8b8afc93d598e41bb11148de236e362334f5d",
+      "diff_sha256": "9a5c61547b2e213af62682b7b222ec7b1491be67d072d6904075f81349e77e5e",
+      "review": "JSON-serialized Python-stub data and seven malformed scalar cases per provider exercise rejection with no output artifact. Previous exact-protocol fixture controls remain.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/cross-model.tests.sh",
+      "before_sha256": "dc489b46974174b31cf8ef89ab219d22beadbd17fefc7c70026fdfb46cdd3c59",
+      "sha256": "1d09087bac149aeed955cc528c72ba6e8cdff86160aa2a8de1c2edef88f72759",
+      "diff_sha256": "5ea26c095eb2511f8958c14c7ca1aba9f061f7e052f9968b1222c27884567fd4",
+      "review": "Actual provider CLI stubs prove prompt/cat failure returns2 before any CLI call and missing option values return2. Cleanup remains scoped to temporary fixtures.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/design-sync-scan.tests.sh",
+      "before_sha256": "aef94a4db6dd216970202f2d9fc74e7afcf83dc599217a644441151c6c7402e6",
+      "sha256": "4be88482bd362a85b79b3d4b0d8334f5511a291abb19896212b06803830e756c",
+      "diff_sha256": "fcc70a1b70367c2bb1026f3dda5f6abe9dfc7404684a53ba95eb12799a5588a8",
+      "review": "Here-string avoids accidental printf SIGPIPE oracle failures. Native unprivileged permission and invalid-regex controls reject scan failures without secret leakage; newline and leading-hyphen path controls exercise actual tool boundaries.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/design-system-compliance.tests.ps1",
+      "before_sha256": "bde4b7df97ba412aee8af26894de92d7670a3d04f97b24c497dd38940d463a6a",
+      "sha256": "06b7153ccbe54b6f7ea151d85450dbf475e95221530bbdd514c9f611d8d7229b",
+      "diff_sha256": "c29c9abfa4c1f5eaddee6196663a14a6b0eda266916c81d2987fe68c7153f6b3",
+      "review": "Current PowerShell host replaces unavailable hardcoded Windows executable. Schema array and wrong-case inputs assert rejection diagnostic; warning-mode policy intentionally does not require failure exit.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/design-system-compliance.tests.sh",
+      "before_sha256": "3b25720a3a25fbde7a435975d112dd949c7e5d4842e508965e2fe59e9657ee7b",
+      "sha256": "a073ccc199c6b170bf48ba62ce67f24008b023d91318db5645119ce47008560d",
+      "diff_sha256": "70d9e59568e8c7d7b2bda4e2eb679389ba70866d550fe1e1c0e92d21d4c0fac4",
+      "review": "Both runtime JSON controls cover pretty valid data, nested decoy, malformed/multiple documents and root array. Missing jq, actual permission failure in warn/error modes and invalid grep regex remain fail-closed.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/hitl-wfi-terminal.tests.sh",
+      "before_sha256": "48e137e676b7a61ecab021b7fa6ee658059a6c7246c0fde5c663f2716d20f356",
+      "sha256": "c09421760f4c3a7257e427e2a95d6dc653fdfbf2286045776e4b3f44cfe64de2",
+      "diff_sha256": "d47da29ae563c2c57f87801880e843164e933bb1a417449cab8ba39105faa0c6",
+      "review": "Streamed input preserves five newlines instead of command-substitution trimming. Missing checker/status2/status127, invalid/huge caps and closed stdin cannot become green; static exported function is a controlled finite failure injection.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "before_sha256": "bcac4e146812c176b379376633e9d9041ace36995e11dbfef27aeec2935be4b7",
+      "sha256": "a82dbf8fab391576ab2a7267c8d35633e5413b33a19066d1ce0a68b5332f1035",
+      "diff_sha256": "cb1da00919073ea494b47f5784d960b6e173f01c1b8d0e42437fe12a991195fc",
+      "review": "Lock arithmetic injection string remains literal fixture data; marker proves no evaluation, invalid/overflow limits reject before install, zero/leading-zero valid controls preserve compatibility. URL reference expectation reflects literal bytes.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/prepare-panelist.tests.sh",
+      "before_sha256": "166f25230e3300f78052603916351087f039628bb16592876e98705bd0d4d826",
+      "sha256": "5388c3910bcce766cc916249110df26cb75491e163e5bc91c100935ce892e6d1",
+      "diff_sha256": "819e76945b82b1a954928e6514c997dc549623ebb54b5087487e29f4c9c49059",
+      "review": "Actual unprivileged permission probes test input/output/report/evidence directory failures and zero published output. Valid complete input and missing-argument controls distinguish environment from gate behavior; Windows skip is explicit.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/quality-gate-cycle-limit.tests.sh",
+      "before_sha256": "6ecfb4c154fc26464acbfb4ba1b1bf20a4592e8ddb3fdfa31626068857c04446",
+      "sha256": "d2aaf771b2e7e76ef8fde2ffb54d716f3c97b55e78a7c99baa27873bf1a3b7bc",
+      "diff_sha256": "f023c40aa02edec3624e4bea4f7dbb36c444f4112f3349a8daf2d1bbcaa5e2f7",
+      "review": "Case-distinct feature directories remain distinct. Native inaccessible-directory control rejects continuation when permissions can be enforced; root capability skip is explicit.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/render-agent-frontmatter.tests.ps1",
+      "before_sha256": "aee0863cfaaf3a16fbaf6d82822442d1a03529a73cab58267b976bc54f308a6d",
+      "sha256": "4eee160a2ba6ed247c68bfe8ee7cb194e9d86f0eef79b13e0437e68cf2a9e758",
+      "diff_sha256": "7835cd36c9fcf729d4338d54f2721ac8cb02526b182b614f32ac8fee1df08568",
+      "review": "Registry/target mutations use JSON serialization and exercise consumed scalar types, exact key casing and literal bracket paths. Bad records cannot publish rendered output; valid compatibility controls remain.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/render-agent-frontmatter.tests.sh",
+      "before_sha256": "c51330aea654902585770f4775303e54457ccbb8bb4311ab375554aec23e1d7c",
+      "sha256": "c79845c07a466282e9e2cc4828d1314c274e5b963c8898e03ab40a942fa0bdee",
+      "diff_sha256": "ef069b20aadf17e8117c46741407969e0e2d9ae7e404868b73b29c3f63b0ff7c",
+      "review": "Actual Bash entry drives eleven invalid consumed-field cases and valid unknown extension; before/after marker proves invalid input does not write. Child timeout30 bounds fixture failures.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/review-contract-foundation.tests.sh",
+      "before_sha256": "af6ffa2b6af72c00b7271ac802cbda7d5197066038c67097204fdb81a27cafaa",
+      "sha256": "2e3b9bbe1065d11a5d33e954d887dd1ec6fd0c4abcd7665b7b44ed78abedc61c",
+      "diff_sha256": "74774fe810b4edd0b1e0d14fbc6ec03e2ab6bb0b2b01b1ce6a208235dbc5dbcb",
+      "review": "Paired native Bash/PowerShell controls reject terminal dot/dotdot, outside ancestor symlink and linked reports root; internal ancestor link remains positive. Independent eight-case review is in independent-root-delta-review.json.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/rollback-1.5.0.tests.sh",
+      "before_sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965",
+      "sha256": "e00607ab37b2b8f0d7a698513f4623458c083d05298b00990e98897129274f7d",
+      "diff_sha256": "67f0fd8544998c3da48af7f210fe12ccd6f571aae8ba92ca54c323407cdfed2e",
+      "review": "Static git/jq stubs inject invalid option/regex failures; full before/after snapshot must remain equal, status nonzero and ROLLBACK_OK absent.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/self-improvement-guard.tests.sh",
+      "before_sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6",
+      "sha256": "a236978defa9e565f3b9792013e06cc9408eb8a9340c1f2b370021a4348fe6bc",
+      "diff_sha256": "5f93191fae8f04fa508601fecf7dd5355974d3beacf29ab74f62aeabd6ff38e2",
+      "review": "Actual workflow run body executes under implicit GitHub bash-e. gh failure and malformed JSON cannot reach guard marker; valid data does. Bash<4 is explicit platform skip.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/task-context-isolation.tests.ps1",
+      "before_sha256": "db948c35d7ab14a977da671ea53d354bcde34ac8cd065ba15db8e7b4bfba9123",
+      "sha256": "a15106d8c843933744a674d2263afb8e74a03db243e7e7720fdb30e7bcd25e68",
+      "diff_sha256": "fe891d67f4c382af13986254c9a2da7a422b3c0054a0d4ab3a5655ab85f2f76a",
+      "review": "Existing native-argument encoder now handles both Start-Process calls and spaced work directory. Async barrier behavior retained; added manifest scalar controls use actual validators.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/task-state-grammar-parity.tests.sh",
+      "before_sha256": "854e25a818781aa42b614c159dfca0142b063bea58773ff21ea040d68c30810e",
+      "sha256": "fb3a81047a5e661740bcb2ae85e9344570945ddd7d6d62a74f8979e4a1924e80",
+      "diff_sha256": "6f0e3f9a02cfcfd13869a4185a828e268a10cf781addb1e53462eb0b39a11edb",
+      "review": "Actual native PowerShell full/lite gates use bracket directories/files with dirty/clean siblings. Literal valid path succeeds and Done cannot borrow sibling PASS.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    },
+    {
+      "path": "tests/workflow-state.tests.sh",
+      "before_sha256": "13ae0a305f018b5814512366637fd03ad657dff08bbbb6e942e5235d74330a66",
+      "sha256": "9418d16bf7805a34ac44f08991f67df9bb8eb33902fbd530b846940323876b84",
+      "diff_sha256": "8af5d34f73669f1d4aaa8dde216d5962e805bf65dbb7d52c4aef9641736c6bf0",
+      "review": "Thirty-five provenance mutations cover null counts, arrays and exact key casing; case-distinct run IDs and JSON1.0 positive controls preserve contract. Native newer-unreadable-round rejection plus helper argv harness cover operational failure; compound Bash diagnostic exception is explicit.",
+      "scope": "Changed control/fixture semantics reviewed in context of previously complete test-source review. Intentional invalid fixtures are inputs to real gates, not production behavior."
+    }
+  ]
+}

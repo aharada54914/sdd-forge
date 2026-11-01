@@ -34,7 +34,7 @@
     },
     {
       "id": "WF-RELEASE-SBOM-SOURCE",
-      "rule_id": "CS-027",
+      "rule_id": "CS-029",
       "path": ".github/workflows/release.yml",
       "state": "fixed",
       "input": "Manual dispatch branch differs from selected tag",
