@@ -1,0 +1,19 @@
+{
+  "schema": "coding-standards-context-delta/v1",
+  "files": [
+    {
+      "path": "mcp/ci-mcp/src/diagnostics-core.ts",
+      "before_sha256": "060101d85f42117286b01db68ca9d037aeec39cea37ea18523baa949dc6e5313",
+      "sha256": "2434097a949959910b31e4d62e506449f0cf7718fe7caeb3611ccd77419f07ec",
+      "review": "Only first generated provenance comment changes scripts/sync-mcp-diagnostics.py to actual owner mcp/shared/sync-diagnostics.py. Every executable byte after that line is identical to reviewed247fce71.",
+      "producer": "mcp/shared/sync-diagnostics.py"
+    },
+    {
+      "path": "mcp/local-env-mcp/src/diagnostics-core.ts",
+      "before_sha256": "060101d85f42117286b01db68ca9d037aeec39cea37ea18523baa949dc6e5313",
+      "sha256": "2434097a949959910b31e4d62e506449f0cf7718fe7caeb3611ccd77419f07ec",
+      "review": "Only first generated provenance comment changes scripts/sync-mcp-diagnostics.py to actual owner mcp/shared/sync-diagnostics.py. Every executable byte after that line is identical to reviewed247fce71.",
+      "producer": "mcp/shared/sync-diagnostics.py"
+    }
+  ]
+}
