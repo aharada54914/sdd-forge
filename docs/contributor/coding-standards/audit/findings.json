@@ -1789,18 +1789,19 @@
       "line": 9,
       "source_sha256": "c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd",
       "flow": {
-        "input": "filesystem metadata",
-        "transformation": "test predicate",
-        "sink": "allow decision"
+        "input": "Optional stop-marker roots and symlink targets",
+        "transformation": "test -f converts inspection errors to absence",
+        "sink": "allow/deny decision"
       },
-      "impact": "POSIX test -f masks EACCES as absent and allows tool use",
-      "reproduction": "Unprivileged uid1000 chmod000 directory with AGENT_STOP; CLAUDE_PROJECT_DIR points at it: unchanged script exits0. Broad find fix rejected because it denied unrelated symlink/missing-root controls. Portable errno distinction unresolved.",
-      "state": "confirmed-violation",
+      "impact": "Inaccessible existing stop marker falsely permits execution",
+      "reproduction": "Real uid65534 EACCES root returned allow before repair; 15 filesystem controls pass after repair. Missing optional roots, dangling marker links, marker directories and unrelated cycles preserve allow.",
+      "state": "fixed",
       "owner_issue": 688,
       "evidence": [
-        "{\"path\": \"plugins/sdd-quality-loop/scripts/kill-switch.sh\", \"revision\": \"28ecd8ce\", \"sha256\": \"c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd\"}"
+        "tests/kill-switch-inspection.tests.sh",
+        "Fixed in 2237e8eb; source SHA256 a0dfb0c6548d7f3720f0d1892151d72487f62db332599f1c71a26f565a059a9e"
       ],
-      "resolution": null,
+      "resolution": "Inspect accessible ancestor and exact marker separately; surface inspection failures as exit2 while preserving optional absence.",
       "reuse": null
     },
     {
@@ -2870,6 +2871,663 @@
         "fixed source SHA256 98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9"
       ],
       "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-040",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 33,
+      "source_sha256": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Casefolded or array-valued review contract identities admitted",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/review-contract-foundation.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 ef4d4de27e2b66c501d562f59fc246fb8d5e191fd8a42bd77b6b1f1d9fad1904"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-041",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "line": 230,
+      "source_sha256": "56e5137ed388534ace485f6b4a668ce0aca00d60b1c25d60666b444c5ed0a3c1",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Lowercase quality report and array/lowercase review verdict admitted",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scripts.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 ef845237c69e63b17651bb69e8bc375b8b301580bfc0fb9e7b07f4e8ce908b3a"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-042",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "line": 23,
+      "source_sha256": "a33877d8477f785e145c0d534916eaf3afa75580d8832e571c3f237e023da94c",
+      "flow": {
+        "input": "Review JSON and report protocol tokens",
+        "transformation": "Case-insensitive comparison or scalar coercion",
+        "sink": "Review authorization"
+      },
+      "impact": "Noncanonical review verdict admitted at hook decision",
+      "reproduction": "Before controls admitted lowercase/array values; foundation, hook and evidence targeted controls reject after fix. Full hooks and scripts suites passed. ",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/hooks.tests.ps1",
+        "Fixed in fb7673d8; source SHA256 90c6f40355a812e1b59eea5ec197e9138be7a78e87437c24adcf1be6db1f4cd5"
+      ],
+      "resolution": "Validate string types and compare protocol tokens with exact case.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-40",
+      "rule_id": "CS-002",
+      "path": "tests/check-component-coverage.tests.sh",
+      "line": 303,
+      "source_sha256": "9635025959389d0aa4949cbcd06985a76e1de92acf0516fc2ae35756530f5f1a",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-component-coverage.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 41ecbb872ed65e9201026bfdee6b78e7b272eefdaa53a26372b2cabc3b6bec95"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-41",
+      "rule_id": "CS-002",
+      "path": "tests/component-path-resolver.tests.sh",
+      "line": 4,
+      "source_sha256": "4b5894b1d60b1a8e21ef885a0d4edd78c636fe6d8014ee29faab567c8522a928",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/component-path-resolver.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 7439d381fee3038a11baccf3f759413801591ec5971fe2d4e59f52104a3b5d3a"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-42",
+      "rule_id": "CS-002",
+      "path": "tests/context-projection-schema.tests.sh",
+      "line": 48,
+      "source_sha256": "d3a02a139c996c20240feb1139a0b994a5dbce0515088f6524c4832e2166e4f7",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/context-projection-schema.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 992f06dfaa30810980c543041373b47f9cb8e2053e25a025034c17e51eaefb47"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-43",
+      "rule_id": "CS-002",
+      "path": "tests/facet-manifest-staleness.tests.sh",
+      "line": 42,
+      "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/facet-manifest-staleness.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 e643131ac969d304c9cd6fd8a384894df347d07d0a37b7ea8343a32fe390ff79"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-44",
+      "rule_id": "CS-002",
+      "path": "tests/guards.tests.sh",
+      "line": 58,
+      "source_sha256": "04040c52c2a0e51f11b3c0c5a6e566b948ed1be2fe22f56125371062f220ae6c",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/guards.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 d99389cedf3b37259047235f09003c1aaf916a35438c38bd2db67f01f9e47a23"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-45",
+      "rule_id": "CS-002",
+      "path": "tests/install.tests.sh",
+      "line": 1188,
+      "source_sha256": "9a17c4beb76556ccfb2a6a3ee84a381df9d0f8918d8b8dd6445cd688abbdccf0",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 d88040bdf0b85e7404f89d19b955ba332a263e46207fb998dc0e737a1cf19322"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-46",
+      "rule_id": "CS-002",
+      "path": "tests/ownership-digest.tests.sh",
+      "line": 183,
+      "source_sha256": "b71ce7e3ec6eb086bdebbf3d861de71e8c61e1306d1630d35c3ee7b5356197c7",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/ownership-digest.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 6d870f16b1245f2cee388c847fde747e539c29e7e8d2b05acee285f75fd5806d"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-47",
+      "rule_id": "CS-002",
+      "path": "tests/scenario.tests.sh",
+      "line": 469,
+      "source_sha256": "a0dea4de0a500f064a36f32e589dd4327dbb853d87eaf420ad30e9f942ef5251",
+      "flow": {
+        "input": "Fixture paths and signing data",
+        "transformation": "Interpolation into multiline Python source",
+        "sink": "Python -c parser"
+      },
+      "impact": "Apostrophes change embedded Python syntax or signed data",
+      "reproduction": "Actual guards suite in triple-apostrophe TMPDIR failed SyntaxError before repair; after135pass/0fail; install52pass/0fail. Other touched suites had known catalog-registration failures and scenario was not rerun; no full-pass claim for those.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/scenario.tests.sh",
+        "Fixed in 04cc0d6f; source SHA256 f84b8efddb66c703fd182d325d620f69b3a86efe8dd5296b3270042b0d5c9dd4"
+      ],
+      "resolution": "Keep program literal; pass fixture values in argv or environment. Guards default workspace permanently exercises hostile quotes.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-048",
+      "rule_id": "CS-019",
+      "path": ".github/workflows/self-improvement.yml",
+      "line": 147,
+      "source_sha256": "741264b437487bb6fe1731266ec17fd66867136f8ac72654f57e1025bc518fd3",
+      "flow": {
+        "input": "GitHub CLI PR enumeration status",
+        "transformation": "Default Bash -e pipeline masks early failure",
+        "sink": "Enforcement-chain guard"
+      },
+      "impact": "Failed enumeration falsely validates empty changed-path list",
+      "reproduction": "Actual extracted workflow step: before67pass/2fail; after69pass/0fail. gh exit9 and malformed JSON now stop before guard; valid [] reaches guard. Dynamic test explicitly unsupported Bash<4 because workflow uses mapfile on Ubuntu.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/self-improvement-guard.tests.sh",
+        "Fixed in b4770dd0; source SHA256 c413e7eb07e613b1b697f933b9092a142787b7dc34c502ff1fb866ac56b81de5"
+      ],
+      "resolution": "Enable pipefail in the enforcement step; retain warning-only label behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-043",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "line": 191,
+      "source_sha256": "a3d5bf4377ed120239e480d78b3ea206a40ef469b2f299547a35cd85123e924b",
+      "flow": {
+        "input": "Panelist response JSON",
+        "transformation": "PowerShell scalar comparison and conversion",
+        "sink": "Published verdict JSON"
+      },
+      "impact": "Array or wrong-type protocol fields published as valid verdict",
+      "reproduction": "Seven native runner mutations each were accepted before repair; after14/14 rejected. Full cross-model PowerShell suite128pass/0fail.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 6c50463e; source SHA256 5dd6be4e39e7931b6ae924f99370dc54976ef7cd1fd81ec0c67a7ce85094779a"
+      ],
+      "resolution": "Require schema/verdict/digest strings and blind boolean before publication; preserve process supervision.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-044",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "line": 113,
+      "source_sha256": "b0ea695e119922c7924a796269d69936d855df818080e6aae748f0df251900bb",
+      "flow": {
+        "input": "Panelist response JSON",
+        "transformation": "PowerShell scalar comparison and conversion",
+        "sink": "Published verdict JSON"
+      },
+      "impact": "Array or wrong-type protocol fields published as valid verdict",
+      "reproduction": "Seven native runner mutations each were accepted before repair; after14/14 rejected. Full cross-model PowerShell suite128pass/0fail.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/cross-model.tests.ps1",
+        "Fixed in 6c50463e; source SHA256 2c9d93d9ca161190733449a713fcfbed08dece32e0d67a38c7e3c07b1aeb9f4f"
+      ],
+      "resolution": "Require schema/verdict/digest strings and blind boolean before publication; preserve process supervision.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-049",
+      "rule_id": "CS-008",
+      "path": "install.sh",
+      "line": 163,
+      "source_sha256": "9284e7b78f7b0263f8d1eff0ba2bc1aaa4b0e56dca7b897f306854594c75bb40",
+      "flow": {
+        "input": "Unicode remote Git ref",
+        "transformation": "Bash3 signed byte character conversion",
+        "sink": "URL path component"
+      },
+      "impact": "Malformed percent escapes prevent authenticated ref downloads",
+      "reproduction": "Actual GNU Bash3.2.0 source-function reproduction emitted %FFFFFFFFFFFFFFE6 before; fixed exact UTF8 escapes match Bash5.2. Full upstream3.2.0 installer suite has unrelated existing regex syntax failure; actual macOS CI verification remains separate.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 96bc015e; source SHA256 4241738ed8f752af1e88287b434c97cda4c20f36081e79559571677e84fc6ce2"
+      ],
+      "resolution": "Mask character byte with255 before percent-formatting.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-045",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "line": 109,
+      "source_sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d",
+      "flow": {
+        "input": "Task manifest and fallback evidence JSON",
+        "transformation": "String casts and comparisons accept arrays",
+        "sink": "Manifest provenance acceptance"
+      },
+      "impact": "Malformed identity fields accepted as genuine scalar provenance",
+      "reproduction": "Array schema control admitted before repair; native task-context-isolation suite passes with seven scalar-array negatives, actual worker paths contain spaces.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/task-context-isolation.tests.ps1",
+        "Fixed in 83df69e3; source SHA256 5f51c2afeff87bce5f3b6468fbeca96f148e02b5ab11b5f4df87808bb3bf5962"
+      ],
+      "resolution": "Validate scalar types before exact schema/provenance comparison.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-050",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "line": 7,
+      "source_sha256": "73965bb6679ba8418a3130dc5fe236cd59a7f4c188192082ac16e2548a37a8af",
+      "flow": {
+        "input": "Design tokens JSON",
+        "transformation": "Grep envelope inference (Bash) or PowerShell unrolling/coercion",
+        "sink": "Design-system gate"
+      },
+      "impact": "Malformed or nested-decoy schemas pass; valid formatted JSON rejected by Bash",
+      "reproduction": "Bash before: formatted valid rejected, nested/malformed/multidoc/rootarray accepted. PowerShell uppercase schema admitted. After10 paired JSON controls plus missing-jq control pass; native design-system suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.sh",
+        "Fixed in 83df69e3; source SHA256 52d04f722f0e9a55d11b8bb2c8bfb3c7c44e94d32ef54bbf3dce0c36eb1c4e26"
+      ],
+      "resolution": "Use actual JSON object envelope and exact typed metadata; preserve absent-file skip and phase warning/enforcement policy.",
+      "reuse": {
+        "intent": "Validate the design-token JSON envelope consumed by the gate.",
+        "public_contract": "Missing file skips; warn phase reports findings without enforcing; enforce phase rejects invalid token metadata.",
+        "stability_evidence": "Existing Bash and PowerShell twins consume the same schema token and metadata keys.",
+        "consumer_requirements": "Bash uses the existing quality-loop jq dependency; PowerShell uses native ConvertFrom-Json.",
+        "divergence_counterexample": "ConvertFrom-Json can unroll singleton top-level arrays; jq -s preserves document count and envelope type.",
+        "decision": "Reuse existing JSON parsers with explicit per-runtime envelope validation; do not create a shared subprocess parser.",
+        "reason": "Parser APIs differ while the public gate contract remains paired; a new parser infrastructure adds no stable capability.",
+        "verification": "Paired valid formatted JSON, nested decoy, malformed JSON, multiple documents and root array controls; missing-jq explicit failure."
+      }
+    },
+    {
+      "finding_id": "PS-SHELL-046",
+      "rule_id": "CS-014",
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.ps1",
+      "line": 6,
+      "source_sha256": "cff0c77f6cc0e79d68459e190d5b8c0cf56a8cbd4ab070bfc6005edad414a7b9",
+      "flow": {
+        "input": "Design tokens JSON",
+        "transformation": "Grep envelope inference (Bash) or PowerShell unrolling/coercion",
+        "sink": "Design-system gate"
+      },
+      "impact": "Malformed or nested-decoy schemas pass; valid formatted JSON rejected by Bash",
+      "reproduction": "Bash before: formatted valid rejected, nested/malformed/multidoc/rootarray accepted. PowerShell uppercase schema admitted. After10 paired JSON controls plus missing-jq control pass; native design-system suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/design-system-compliance.tests.ps1",
+        "Fixed in 83df69e3; source SHA256 bfb4e8f50519cc6022ad098892542c8cef7919c85f2a5489d811ac08634c0d47"
+      ],
+      "resolution": "Use actual JSON object envelope and exact typed metadata; preserve absent-file skip and phase warning/enforcement policy.",
+      "reuse": {
+        "intent": "Validate the design-token JSON envelope consumed by the gate.",
+        "public_contract": "Missing file skips; warn phase reports findings without enforcing; enforce phase rejects invalid token metadata.",
+        "stability_evidence": "Existing Bash and PowerShell twins consume the same schema token and metadata keys.",
+        "consumer_requirements": "Bash uses the existing quality-loop jq dependency; PowerShell uses native ConvertFrom-Json.",
+        "divergence_counterexample": "ConvertFrom-Json can unroll singleton top-level arrays; jq -s preserves document count and envelope type.",
+        "decision": "Reuse existing JSON parsers with explicit per-runtime envelope validation; do not create a shared subprocess parser.",
+        "reason": "Parser APIs differ while the public gate contract remains paired; a new parser infrastructure adds no stable capability.",
+        "verification": "Paired valid formatted JSON, nested decoy, malformed JSON, multiple documents and root array controls; missing-jq explicit failure."
+      }
+    },
+    {
+      "finding_id": "PS-SHELL-047",
+      "rule_id": "CS-009",
+      "path": "install.ps1",
+      "line": 5,
+      "source_sha256": "92d4062c52455afd71c0ab9571b0b82d3b3bf6c8ea609ae0fc1dd7732cf7c005",
+      "flow": {
+        "input": "User-supplied install root containing brackets",
+        "transformation": "Filesystem cmdlets interpret literal path as wildcard",
+        "sink": "Copy/move/remove filesystem mutations"
+      },
+      "impact": "Uninstall deletes matching unrelated neighbor and leaves intended literal root; install backup/replacement can target wrong directory",
+      "reproduction": "Actual uninstall pack[ab] + packa before deletes packa and leaves pack[ab]; after exacttarget deleted and neighbor bytes preserved. Installer injected placementfailure restores literal backup; successful upgrade replaces literal target and cleans backup. Existing full install PowerShell suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.ps1",
+        "Fixed in 01902a1d; source SHA256 a18c37791c5f95f7304eac5407870843a298734d811d5e228bb94ddc516c3210"
+      ],
+      "resolution": "Use LiteralPath for composed filesystem operands; retain explicit intended dist-entry enumeration and New-Item API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-048",
+      "rule_id": "CS-009",
+      "path": "uninstall.ps1",
+      "line": 3,
+      "source_sha256": "235a0d6825d6559e9ab584351b6b52da1dc79837499769e0972c19b5529419e1",
+      "flow": {
+        "input": "User-supplied install root containing brackets",
+        "transformation": "Filesystem cmdlets interpret literal path as wildcard",
+        "sink": "Copy/move/remove filesystem mutations"
+      },
+      "impact": "Uninstall deletes matching unrelated neighbor and leaves intended literal root; install backup/replacement can target wrong directory",
+      "reproduction": "Actual uninstall pack[ab] + packa before deletes packa and leaves pack[ab]; after exacttarget deleted and neighbor bytes preserved. Installer injected placementfailure restores literal backup; successful upgrade replaces literal target and cleans backup. Existing full install PowerShell suite passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/uninstall.tests.ps1",
+        "Fixed in 01902a1d; source SHA256 43271c0302fbe540720ba2a6f677c5e2d414113d021a2b1dc5af4ff038cedbbb"
+      ],
+      "resolution": "Use LiteralPath for composed filesystem operands; retain explicit intended dist-entry enumeration and New-Item API.",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-051",
+      "rule_id": "CS-001",
+      "path": "install.sh",
+      "line": 920,
+      "source_sha256": "4241738ed8f752af1e88287b434c97cda4c20f36081e79559571677e84fc6ce2",
+      "flow": {
+        "input": "SDD_INSTALL_LOCK_TIMEOUT and SDD_INSTALL_LOCK_STALE environment",
+        "transformation": "Recursive Bash arithmetic interprets array-subscript command substitution",
+        "sink": "Lock deadline/age arithmetic"
+      },
+      "impact": "Environment data executes commands during installation",
+      "reproduction": "Root actual BASH_VERSINFO[$(touch isolated-sentinel)] timeout reproduction created sentinel with installer exit0. Fixed full installer suite63pass/0fail including10 unsafe-value rejection controls and leading-zero/zero successful installation.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "Fixed in 6c9f066f; source SHA256 111d2ce4b79b3790e5e58985889a9dc265e408a4e6578908747c397b91a1a6ef"
+      ],
+      "resolution": "Validate decimal text and bounded range before arithmetic; strip leading zeros without interpreting them.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-001",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "line": 22,
+      "source_sha256": "4a93071e79c29c7392e10b14aefc4dfcc8124c87e413cb79399eb741a3e6807a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1"
+      },
+      "impact": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "reproduction": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath through existence, item/directory enumeration and Select-String.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+      "line": 47,
+      "source_sha256": "51cf61779f4358748d21b0c2b13cbdf86253c0d2728d2822f9d53780ce832a0a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+      },
+      "impact": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "reproduction": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Preserve literal task, contract and report paths through read, resolve, enumeration and match.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.ps1",
+      "line": 107,
+      "source_sha256": "ec51efbd03a5dfdba8d79ef72ebdb01943064b0ee11e283239bdab6cf836944e",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-lite/scripts/check-task-state-lite.ps1"
+      },
+      "impact": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "reproduction": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath for report roots, discovered files and verdict reads; preserve valid and failed report semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-004",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 82,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "reproduction": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Stop on failed enumeration; absent report root still deliberately means zero reports.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 85,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "reproduction": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use cmatch for feature identity, matching task identity and Bash behavior.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "line": 211,
+      "source_sha256": "32aacffa4f8ba92e7a2d49cdc07d1073afef620c2e9d56f8213b008768173b81",
+      "flow": {
+        "input": "panel input files",
+        "transformation": "unchecked prompt assembly",
+        "sink": "external model CLI invocation"
+      },
+      "impact": "Both actual wrapper entrypoints invoked CLI after injected real cat failure on input; exit1 reflected downstream stub rather than refusing incomplete input.",
+      "reproduction": "Both actual wrapper entrypoints invoked CLI after injected real cat failure on input; exit1 reflected downstream stub rather than refusing incomplete input.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix4a0125cb",
+        "tests/cross-model.tests.sh: 84 passed, 0 failed",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "Related rules CS-019, CS-023",
+        "fixed plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh SHA256 1adba1ec7bec60d5cc24aa6d3e729bdba8c8fbb9b176c8cd3bf848b5f7b70acc",
+        "fixed plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh SHA256 0e8d43d3557fedca0066cf5da06e078c8c8862ced92b99aacdc0ea6177241d3c"
+      ],
+      "resolution": "Both exit2 before CLI invocation. Scratch creation, prompt write, all concatenation stages and prompt reread checked. Trailing argument explicitly rejected under sh and bash.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.sh",
+      "line": 1,
+      "source_sha256": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+      "flow": {
+        "input": "review contract report paths",
+        "transformation": "parent-only canonicalization",
+        "sink": "review contract PASS admission"
+      },
+      "impact": "Valid contract with reports/.. accepted and emitted PASS; parent-only canonicalization ignored terminal traversal. PS Split-Path normalizes terminal component separately.",
+      "reproduction": "Valid contract with reports/.. accepted and emitted PASS; parent-only canonicalization ignored terminal traversal. PS Split-Path normalizes terminal component separately.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix4a0125cb",
+        "tests/review-contract-foundation.tests.sh: Full suite passed including Bash+PowerShell terminal traversal negatives and CRLF/symlink provenance controls",
+        "docs/contributor/coding-standards/audit/shell/root-boundary-findings.json",
+        "Related rules CS-009, CS-027",
+        "fixed plugins/sdd-review-loop/scripts/review-contract-validate.sh SHA256 7e44a1c350fd65340ab3a9a78ca3d2c0a48ca5439402400ab9972e39d7b20b75",
+        "fixed plugins/sdd-review-loop/scripts/review-contract-validate.ps1 SHA256 10fcde77eb3777b5705906193231b3c0c89e2ec3ea8f8cbe1282f564af692370"
+      ],
+      "resolution": "Reject terminal dot/dotdot on raw path before emitting validation JSON. Preserve literal paths and existing parent/symlink rules.",
       "reuse": null
     }
   ]
