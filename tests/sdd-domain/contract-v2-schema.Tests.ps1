@@ -2980,3 +2980,36 @@ Describe "RT-20260819-002 the adjudicated ConvertFrom-Json key-casing class stay
         }
     }
 }
+
+Describe "Domain v2 scalar and root envelopes" {
+    It "rejects singleton root arrays without unwrapping the contract" {
+        $fixture = New-EphemeralContractFile -Content ('[' + $rtBaseContractJson + ']')
+        try {
+            Assert-FailClosed (Invoke-ValidatorPs1 -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+            Assert-FailClosed (Invoke-ValidatorSh -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+    It "rejects singleton schema arrays without unwrapping their value" {
+        $body = $rtBaseContractJson -replace '"schema"\s*:\s*"domain-contract/v2"', '"schema":["domain-contract/v2"]'
+        $fixture = New-EphemeralContractFile -Content $body
+        try {
+            Assert-FailClosed (Invoke-ValidatorPs1 -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+            Assert-FailClosed (Invoke-ValidatorSh -ContractPath $fixture) 'V2-TYPE-MISMATCH'
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}
+
+Describe "Domain v2 literal JSON string values" {
+    It "keeps an ISO-looking definition as string data when the host supports DateKind" {
+        if (-not (Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+            Set-TestInconclusive 'This host has no DateKind string-preservation option; legacy parser behavior is not certified by this control.'
+            return
+        }
+        $body = $rtBaseContractJson -replace '"definition"\s*:\s*"[^"\r\n]*"', '"definition":"2026-11-01T00:00:00Z"'
+        $fixture = New-EphemeralContractFile -Content $body
+        try {
+            (Invoke-ValidatorPs1 -ContractPath $fixture).ExitCode | Should Be 0
+            (Invoke-ValidatorSh -ContractPath $fixture).ExitCode | Should Be 0
+        } finally { Remove-EphemeralPath -Path $fixture }
+    }
+}

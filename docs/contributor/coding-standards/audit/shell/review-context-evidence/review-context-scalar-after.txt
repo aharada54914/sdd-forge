@@ -1,0 +1,9 @@
+ok: comment shifts accepted; 10 semantic/reference mutations rejected
+ok: 24 named anchors; original 32 semantic checks and enclosing statements verified
+control bash=0 powershell=0
+schema bash=1 powershell=1
+input_mode bash=1 powershell=1
+fallback_mode bash=1 powershell=1
+identity_ledger_path bash=1 powershell=1
+stage bash=1 powershell=1
+role bash=1 powershell=1

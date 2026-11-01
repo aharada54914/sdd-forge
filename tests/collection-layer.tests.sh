@@ -763,6 +763,13 @@ else
     fail "CL-023c: a verdict file was written despite malformed JSON"
 fi
 
+# A version probe is external work even though it never invokes a model.
+if python3 "$REPO_ROOT/tests/lib/detect-panel-probe.py" "$SCRIPTS_DIR/detect-panel.sh" "$BASH"; then
+    ok "detect-panel version success/failure/deadline and child cleanup"
+else
+    fail "detect-panel version deadline regression"
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================

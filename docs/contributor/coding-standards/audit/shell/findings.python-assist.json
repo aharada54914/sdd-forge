@@ -125,6 +125,216 @@
       ],
       "resolution": "Use cmatch for feature identity, matching task identity and Bash behavior.",
       "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-006",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1076,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git status failure became a stable hash of empty stdout.",
+      "reproduction": "Actual executable exit7 accepted before repair; final diff-basis test rejects it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Check exit status before hashing snapshot.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-007",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1013,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Git process and output waits had no deadline or explicit disposal.",
+      "reproduction": "Source trace plus real sleeping fake Git; final test observes deadline and child gone.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use shared bounded raw-byte helper, preserve GitDiffError and strict UTF-8/NUL parsing.",
+      "reuse": {
+        "mechanism": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
+        "consumers": [
+          "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+          "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+        ]
+      }
+    },
+    {
+      "finding_id": "PS-AUX-008",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 823,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Historical Git lookup could block panelist preparation indefinitely.",
+      "reproduction": "Source trace of five native Git calls; existing historical declaration, drift, missing-file and byte-hash controls exercised.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use the same argv/raw-byte/deadline helper; hash raw historical bytes directly.",
+      "reuse": {
+        "mechanism": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
+        "consumers": [
+          "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+          "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+        ]
+      }
+    },
+    {
+      "finding_id": "PS-AUX-009",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 513,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Array/mapping IDs and array shared pattern/classification were coerced into valid serialized ownership fields.",
+      "reproduction": "Actual malformed YAML CLI cases returned0; initial suite73/3, additional classification replay0; final78/0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Preserve raw ID without pipeline unrolling and validate string fields before use.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-010",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "line": 1225,
+      "source_sha256": "f2302b63018cf8781513a84d38aa41d5eaa3584e6e83d1b7604267be96fdde0c",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+      },
+      "impact": "Case-insensitive component join misattributed lower/file to component A.",
+      "reproduction": "Actual A/a provider-binding CLI diagnostic falsely triggered Fail-6; fixed dedicated control rejects the join.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use ordinal dictionary for component identities.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-011",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 142,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Wildcard interpretation changed consent/input/report/output path targets.",
+      "reproduction": "Initial CLI failures; direct-argv historical-source replay returned wrong sibling bytes with success. Replay is post-edit, not claimed pre-edit chronology.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Use LiteralPath at each affected provider read/resolve/write boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-012",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 150,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Mis-cased human consent and signed repository identity were accepted.",
+      "reproduction": "Actual lowercase flag accepted; repository-case isolation replay accepted; final signed correct/wrong binding controls return0/1.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Match human protocol and repository binding exactly.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-013",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 552,
+      "source_sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+      },
+      "impact": "Task evidence inventory followed symbolic-link files into an externally reviewed bundle.",
+      "reproduction": "Real symlink to outside sentinel: baseline exit0 and sentinel in output; final regression excludes it.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Filter symbolic-link files from evidence traversal, preserving legitimate regular-file inventory.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-014",
+      "rule_id": "CS-009",
+      "path": "tests/prepare-panelist.tests.ps1",
+      "line": 34,
+      "source_sha256": "32501f8c01484180599eb11446d86996a40c9bd829131a8412d2a08e13e4127a",
+      "flow": {
+        "input": "Config/report/path or external process result",
+        "transformation": "PowerShell parsing, matching, provider selection or process lifecycle",
+        "sink": "tests/prepare-panelist.tests.ps1"
+      },
+      "impact": "Parent PowerShell native invocation expanded literal bracket args before the tested child received them.",
+      "reproduction": "After child literal fix, old test helper still emitted sibling digest while direct argv produced correct literal digest.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "coverage.python-assist-large.json",
+        "python-assist-large-review.md"
+      ],
+      "resolution": "Existing helper uses ProcessStartInfo.ArgumentList and separately drains streams; same suite and assertions.",
+      "reuse": null
     }
   ]
 }

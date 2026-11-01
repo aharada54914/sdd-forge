@@ -518,7 +518,7 @@ function Resolve-ProjectRoot {
 function Get-SudoFields {
     param([string]$Content)
     # Parse key: value lines into a hashtable (values stripped).
-    $fields = @{}
+    $fields = [hashtable]::new([StringComparer]::Ordinal)
     foreach ($rawLine in ($Content -split "`n")) {
         $line = $rawLine -replace "`r$", ""
         $colonIdx = $line.IndexOf(":")
@@ -605,6 +605,7 @@ function Test-SudoActive {
         $flag = Join-Path $sudoRoot "SDD_SUDO"
         # Check if path exists and is a file (not symlink).
         if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { return $false }
+        if ((Get-Item -LiteralPath $flag -Force).LinkType) { return $false }
         $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $flag
 
         $fields = Get-SudoFields $content
@@ -633,7 +634,7 @@ function Test-SudoActive {
         } catch {
             try { $actualRepo = [System.IO.Path]::GetFullPath($sudoRoot) } catch { return $false }
         }
-        if ($fields["repo"] -ne $actualRepo) { return $false }
+        if ($fields["repo"] -cne $actualRepo) { return $false }
 
         # Key resolution and HMAC verification
         $keyBytes = Resolve-SudoKey

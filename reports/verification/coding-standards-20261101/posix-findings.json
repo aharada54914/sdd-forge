@@ -168,6 +168,121 @@
       ],
       "resolution": "Normalize tasks once with checked read; distinguish grep no-match1 from error2; preserve spaces in inventories and propagate metric source failures.",
       "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-009",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "line": 1422,
+      "source_sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+      },
+      "impact": "Both publisher runtimes treated an unreadable recovery tree as no pending journals.",
+      "reproduction": "Real uid1000 chmod000sdd/staging/batch beforeSH0andPS0statusok; after17journalretained,permissionsrestored0andjournalcleaned.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Inspect recovery parent/batch directories and propagate listing errors instead of glob/PowerShell SilentlyContinue omission.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-010",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 1044,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "PowerShell did not verify preserved backup bytes before committing.",
+      "reproduction": "Actual CopyItem followedbyrealfiletruncation: before0newlive; after21oldlive/nojournal.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require actual backup success and prehash equality before journal; classify failure usingexisting21.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-011",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 799,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Object/scalar journal targets were coerced into valid-looking records and journal was discarded.",
+      "reproduction": "Three concrete scalarobject/numericpath/arrayprehash records eachbefore0recovered1+deletedjournal; after14retained.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Require targetsarray and consumed recordfieldsstring before recoveryclassification.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-012",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "line": 352,
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+      },
+      "impact": "Replacement decoding changed a malformedmanifestfilename to an existing U+FFFDfilename and published the wrongtarget.",
+      "reproduction": "Manifest pathliteral0xFF.txt and staged U+FFFD.txt: before0/wrongtargetcreated; after13/targetabsent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Use UTF8Encoding throwOnInvalidBytes for manifest/journal reads; parse alreadycaptured manifesttext.",
+      "reuse": null
+    },
+    {
+      "finding_id": "CHK-SH-013",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "line": 50,
+      "source_sha256": "14268ffb871ce3b17f99575db6c0c7d5e342fe058d9cf3cc467f5932b1ce9bc5",
+      "flow": {
+        "input": "filesystem bytes,permissions or tooloutput",
+        "transformation": "publisher/scanner state classification",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.sh"
+      },
+      "impact": "Aggregation sorterror discarded knownTODO findings and produced falseclean output.",
+      "reproduction": "Real sortinvalidoption withactualTODO input: before0scanpassed; after2FATAL.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "fix c25aabfc",
+        "reports/verification/coding-standards-20261101/publisher-evidence.zip",
+        "tests/apply-human-copy.tests.sh:259 passed; tests/apply-human-copy.tests.ps1:173 passed; tests/check-placeholders.tests.sh:10 passed"
+      ],
+      "resolution": "Check aggregation command status before accepting emptyfindings.",
+      "reuse": null
     }
   ]
 }

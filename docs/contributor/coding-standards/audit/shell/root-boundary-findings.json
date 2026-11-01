@@ -58,6 +58,42 @@
       "source_sha256": {
         "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71"
       }
+    },
+    {
+      "id": "ROOT-004",
+      "rule_ids": [
+        "CS-019"
+      ],
+      "paths": [
+        ".github/scripts/check-model-freshness.sh"
+      ],
+      "before": "Actual entrypoint: failed GitHub search created a duplicate issue; failed source cat returned success without unavailable notice; failed token filter returned success/no divergence.",
+      "after": "Search failure exits7 with zero writes; source read failure preserves fail-soft0 but files explicit unavailable notice; token filter failure exits1 with zero writes. grep no-match remains data, other statuses propagate.",
+      "test": "tests/model-freshness-check.tests.sh",
+      "result": "43 passed, 0 failed",
+      "status": "fixed",
+      "source_sha256": {
+        ".github/scripts/check-model-freshness.sh": "cb57a65fcc190026cb9d801bc1e2da983e3f8f1e67624eb763981615603b4e18"
+      }
+    },
+    {
+      "id": "ROOT-005",
+      "rule_ids": [
+        "CS-014",
+        "CS-025",
+        "CS-027"
+      ],
+      "paths": [
+        "plugins/sdd-domain/scripts/validate-domain-contract.ps1"
+      ],
+      "before": "Valid contract wrapped in singleton root array or schema wrapped in singleton array both exit0; valid timestamp-looking definition rejected by native automatic date conversion while Bash accepts.",
+      "after": "Root envelope preserved and schema read through existing non-enumerating ordinal reader. Capability-checked DateKind preserves native JSON string fields, retains PS5.1 parsing syntax.",
+      "test": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
+      "result": "322 passed, 0 failed, 0 skipped on PowerShell7.6.7; paired Bash fixtures included.",
+      "status": "fixed",
+      "source_sha256": {
+        "plugins/sdd-domain/scripts/validate-domain-contract.ps1": "b040aa46e20362ed1f398b34f06458f7db57f5f6a591dee8af5d8eb36df9426b"
+      }
     }
   ]
 }
