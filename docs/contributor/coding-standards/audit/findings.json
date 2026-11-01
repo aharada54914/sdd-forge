@@ -2105,6 +2105,29 @@
       ],
       "resolution": "Use YAML literal block for echo command; preserves shell quoting and intentional exit1 until configured.",
       "reuse": null
+    },
+    {
+      "finding_id": "DOC-003",
+      "rule_id": "CS-010",
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "line": 177,
+      "source_sha256": "cabafe728d29658b6bcbdc1eccb0304b396a925c73be6c7fd0fe1b038686c8ae",
+      "flow": {
+        "input": "Human signing secret KEY",
+        "transformation": "Shell expands secret into openssl -hmac argument",
+        "sink": "OS process command-line inspection"
+      },
+      "impact": "Signing credential can be read from process arguments by observers allowed to inspect them.",
+      "reproduction": "Started real openssl dgst with fake key and blocked stdin; Linux /proc/<pid>/cmdline contained the exact fake key. Fixed documented Python program exposes no key in argv and matches independent RFC4231 HMAC vector.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/sdd-sudo-guard-mutation.tests.py: actual doc signer, three key-source precedence controls, BOM/trailing-space file normalization, two fail-closed failures, RFC4231 case2, process argv inspection.",
+        "Repaired source sha256=139a2fa06e5060d550a79a25a04491fa511fa05f63b2eaa49956ceb59b256452",
+        "PowerShell key generation now uses Create()/instance GetBytes(byte[]) and disposes RNG; actual Linux PowerShell7.6.7 produces32bytes. Native Windows PowerShell5.1 was not executed."
+      ],
+      "resolution": "Read key inside fixed Python program from documented env/file/home sources; keep message on stdin and fail on missing/empty key. No real token or credential was generated.",
+      "reuse": null
     }
   ]
 }
