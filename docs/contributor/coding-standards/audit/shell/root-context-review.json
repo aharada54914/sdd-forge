@@ -317,5 +317,22 @@
     "No claim of all possible defects absent.",
     "Historical/protected source variants require distinct consumer role records.",
     "Source changes after these hashes require a delta review."
+  ],
+  "validation": [
+    {
+      "suite": "tests/apply-branch-protection.tests.sh",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.sh",
+      "passed": 23,
+      "failed": 0
+    },
+    {
+      "suite": "tests/uninstall.tests.sh",
+      "passed": 25,
+      "failed": 0
+    }
   ]
 }
