@@ -11,6 +11,7 @@
 
 import { realpathSync, existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { parseArgs } from "node:util";
 
 export interface SddRoot {
   /** Absolute, symlink-resolved path to the project root. */
@@ -20,15 +21,14 @@ export interface SddRoot {
 }
 
 function readCliRootArg(argv: readonly string[]): string | undefined {
-  const flagIndex = argv.indexOf("--root");
-  if (flagIndex === -1) {
-    return undefined;
-  }
-  const value = argv[flagIndex + 1];
-  if (value === undefined || value.length === 0) {
-    throw new Error("--root flag requires a non-empty path argument");
-  }
-  return value;
+  const { values } = parseArgs({
+    args: [...argv],
+    options: { root: { type: "string" }, "status-ui": { type: "boolean" } },
+    strict: true,
+    allowPositionals: false,
+  });
+  if (values.root === "") throw new Error("--root flag requires a non-empty path argument");
+  return values.root;
 }
 
 /**

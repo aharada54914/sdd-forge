@@ -128,7 +128,7 @@ function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeRe
       },
       (error, stdout, stderr) => {
         if (error) {
-          const code = (error as NodeJS.ErrnoException).code;
+          const code = error.code;
           if (code === "ENOENT") {
             finish({ name: entry.name, available: false, probeError: "not-found" });
             return;
@@ -139,13 +139,13 @@ function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeRe
           }
           // execFile marks a timeout kill with `killed === true` (and/or a
           // signal). Distinguish timeout from a plain nonzero exit.
-          const killed = (error as { killed?: boolean }).killed === true;
-          const signal = (error as { signal?: string | null }).signal;
+          const killed = error.killed === true;
+          const signal = error.signal;
           if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
             finish({ name: entry.name, available: false, probeError: "timeout" });
             return;
           }
-          if (typeof (error as { code?: unknown }).code === "number") {
+          if (typeof error.code === "number") {
             finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
             return;
           }
@@ -171,8 +171,7 @@ function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeRe
       return;
     }
 
-    // Guarantee the child cannot outlive the timeout even if the callback path
-    // is delayed: force-kill shortly after the timeout window as a backstop.
+    // Spawn failures may arrive before the execFile callback.
     child.on("error", (error) => {
       const code = (error as NodeJS.ErrnoException).code;
       if (code === "ENOENT") {

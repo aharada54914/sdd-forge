@@ -110,7 +110,7 @@ test("AC-005: no binary content field is ever present in the response", async ()
 
   assert.ok(isOk(result));
   if (isOk(result)) {
-    const artifact = result.data.artifacts[0] as unknown as Record<string, unknown>;
+    const artifact = result.data.artifacts[0];
     assert.equal("content" in artifact, false);
     assert.equal("data" in artifact, false);
     assert.equal("archive_download_url" in artifact, false);

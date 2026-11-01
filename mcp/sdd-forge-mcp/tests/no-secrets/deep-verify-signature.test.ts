@@ -86,7 +86,7 @@ function withCanaryEnvironment<T>(keyFilePath: string, fn: () => T): T {
 function captureStderr<T>(fn: () => T): { value: T; stderr: string } {
   const original = process.stderr.write.bind(process.stderr);
   let stderr = "";
-  (process.stderr as unknown as { write: (chunk: unknown) => boolean }).write = (
+  process.stderr.write = (
     chunk: unknown,
   ): boolean => {
     stderr += String(chunk);
@@ -95,7 +95,7 @@ function captureStderr<T>(fn: () => T): { value: T; stderr: string } {
   try {
     return { value: fn(), stderr };
   } finally {
-    (process.stderr as unknown as { write: typeof original }).write = original;
+    process.stderr.write = original;
   }
 }
 

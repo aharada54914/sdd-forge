@@ -49,7 +49,7 @@ export function getEnvelopeValidator(): ((data: unknown) => boolean) & { errors?
   const schema = JSON.parse(readFileSync(findContractsSchemaPath(), "utf-8")) as object;
   const ajv = new Ajv2020({ strict: true });
   const validate = ajv.compile(schema);
-  cachedValidator = validate as unknown as ((data: unknown) => boolean) & { errors?: unknown };
+  cachedValidator = validate;
   return cachedValidator;
 }
 
