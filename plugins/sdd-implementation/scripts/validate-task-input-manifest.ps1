@@ -110,12 +110,12 @@ function Read-ReloadEvidence($Data, [bool]$BindManifest = $true) {
   $actualNames = @(Get-PropertyNames $evidence | Sort-Object -CaseSensitive)
   if (($actualNames -join ',') -cne ($expectedNames -join ',')) { Fail HANDOFF 'fallback evidence artifact has invalid fields' }
   if (
-    $evidence.schema -cne 'implementation-host-capability/v1' -or
+    $evidence.schema -isnot [string] -or $evidence.schema -cne 'implementation-host-capability/v1' -or
     $evidence.implementation_subagents_available -isnot [bool] -or
     $evidence.implementation_subagents_available -ne $false -or
-    $evidence.fallback_reason -cne 'host-does-not-support-implementation-subagents' -or
-    $evidence.session_id -cne $Data.session_id -or
-    $evidence.agent_instance_id -cne $Data.agent_instance_id
+    $evidence.fallback_reason -isnot [string] -or $evidence.fallback_reason -cne 'host-does-not-support-implementation-subagents' -or
+    $evidence.session_id -isnot [string] -or $evidence.session_id -cne $Data.session_id -or
+    $evidence.agent_instance_id -isnot [string] -or $evidence.agent_instance_id -cne $Data.agent_instance_id
   ) {
     Fail HANDOFF 'fallback evidence does not prove incapable-host identity'
   }
@@ -155,7 +155,7 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
       Fail JSON "missing field: $name"
     }
   }
-  if ($data.schema -cne 'task-input-manifest/v1') { Fail JSON 'unsupported schema' }
+  if ($data.schema -isnot [string] -or $data.schema -cne 'task-input-manifest/v1') { Fail JSON 'unsupported schema' }
   if ($data.task_id -isnot [string] -or $data.task_id -cnotmatch '\AT-[0-9]{3}\z') { Fail IDENTITY 'invalid task_id' }
   if ($ExpectedTask -and $data.task_id -cne $ExpectedTask) { Fail IDENTITY 'task_id does not match expected task' }
   foreach ($field in @('run_id','session_id','agent_instance_id')) {
@@ -170,9 +170,9 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
   if (-not (Test-UtcTimestamp $data.cost_estimate_timestamp)) { Fail COST 'invalid cost_estimate_timestamp' }
   if (@('fresh-agent','same-session-file-reload') -cnotcontains $data.isolation_mode) { Fail ISOLATION 'invalid isolation_mode' }
   if ($data.isolation_mode -ceq 'fresh-agent') {
-    if ($data.fallback_reason -cne '' -or $data.handoff_reload_evidence_hash -cne '') { Fail ISOLATION 'fresh-agent forbids fallback fields' }
+    if ($data.fallback_reason -isnot [string] -or $data.handoff_reload_evidence_hash -isnot [string] -or $data.fallback_reason -cne '' -or $data.handoff_reload_evidence_hash -cne '') { Fail ISOLATION 'fresh-agent forbids fallback fields' }
   } else {
-    if ($data.fallback_reason -cne 'host-does-not-support-implementation-subagents') { Fail HANDOFF 'same-session fallback requires incapable-host reason' }
+    if ($data.fallback_reason -isnot [string] -or $data.fallback_reason -cne 'host-does-not-support-implementation-subagents') { Fail HANDOFF 'same-session fallback requires incapable-host reason' }
     if ($data.handoff_reload_evidence_hash -isnot [string] -or $data.handoff_reload_evidence_hash -cnotmatch '\A[a-f0-9]{64}\z') { Fail HANDOFF 'same-session fallback requires handoff_reload_evidence_hash' }
   }
   if ($data.allowed_inputs -isnot [System.Array] -or $data.allowed_inputs.Count -eq 0) { Fail PATH 'allowed_inputs must be non-empty' }
