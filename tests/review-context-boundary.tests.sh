@@ -124,6 +124,76 @@ if command -v pwsh >/dev/null 2>&1; then
   RCB_RUNTIMES+=(pwsh:rcb_run_pwsh)
 fi
 
+# JSON string contracts must reject collection/scalar coercion before reservation.
+for pair in "${RCB_RUNTIMES[@]}"; do
+  runtime="${pair%%:*}"; run_fn="${pair##*:}"
+  for field in schema input_mode fallback_mode identity_ledger_path stage role; do
+    for kind in singleton empty null number boolean object; do
+      d="$RCB_TMP/scalar-$runtime-$field-$kind"
+      rcb_new_fixture "$d"
+      jq --arg field "$field" --arg kind "$kind" '
+        .[$field] = (if $kind == "singleton" then [.[$field]]
+          elif $kind == "empty" then [] elif $kind == "null" then null
+          elif $kind == "number" then 1 elif $kind == "boolean" then true else {} end)
+      ' "$d/manifest.json" > "$d/mutated.json"
+      ledger="$d/reports/review-context/identity-ledger.json"
+      before=$(rcb_sha256_of "$ledger")
+      if "$run_fn" "$d/mutated.json" "$d" --reserve > "$d/result.log" 2>&1; then
+        fail "scalar boundary ($runtime/$field/$kind): admitted malformed invocation"
+      fi
+      [[ "$(rcb_sha256_of "$ledger")" == "$before" ]] || fail "scalar boundary: rejection changed ledger"
+    done
+  done
+  for target in manifest ledger ledger-schema; do
+    d="$RCB_TMP/root-$runtime-$target"; rcb_new_fixture "$d"
+    ledger="$d/reports/review-context/identity-ledger.json"
+    if [[ "$target" == manifest ]]; then
+      jq '[.]' "$d/manifest.json" > "$d/rewrite.json"; mv "$d/rewrite.json" "$d/manifest.json"
+    else
+      if [[ "$target" == ledger ]]; then jq '[.]' "$ledger" > "$d/rewrite.json"
+      else jq '.schema = [.schema]' "$ledger" > "$d/rewrite.json"; fi
+      mv "$d/rewrite.json" "$ledger"
+      jq --arg hash "$(rcb_sha256_of "$ledger")" '.identity_ledger_sha256=$hash' "$d/manifest.json" > "$d/rewrite.json"
+      mv "$d/rewrite.json" "$d/manifest.json"
+    fi
+    before=$(rcb_sha256_of "$ledger")
+    if "$run_fn" "$d/manifest.json" "$d" --reserve > "$d/result.log" 2>&1; then
+      fail "root boundary ($runtime/$target): admitted malformed JSON contract"
+    fi
+    [[ "$(rcb_sha256_of "$ledger")" == "$before" ]] || fail "root boundary: rejection changed ledger"
+  done
+  printf 'ok: JSON kinds and object roots rejected before reservation (%s, 39 controls)\n' "$runtime"
+done
+
+# Inject only the final jq inventory producer failure, after normal JSON/schema
+# validation. Real pinned content is stale; the failure must not erase that input.
+d="$RCB_TMP/jq-producer"; rcb_new_fixture "$d"; mkdir "$d/bin"
+printf 'changed after manifest pin\n' > "$d/specs/rcb/requirements.md"
+if rcb_run_bash "$d/manifest.json" "$d" > "$d/normal.log" 2>&1; then
+  fail 'producer control: changed pin accepted'
+fi
+grep -q 'REVIEW_CONTEXT_HASH:' "$d/normal.log" || fail 'producer control: expected hash rejection'
+cat > "$d/bin/jq" <<'WRAPPER'
+#!/usr/bin/env bash
+for arg in "$@"; do
+  if [[ "$arg" == *'sort_by(.path | startswith("docs/adr/"))'* ]]; then
+    : > "$RCB_JQ_HIT"
+    exit 73
+  fi
+done
+exec "$RCB_REAL_JQ" "$@"
+WRAPPER
+chmod +x "$d/bin/jq"
+ledger="$d/reports/review-context/identity-ledger.json"; before=$(rcb_sha256_of "$ledger")
+if RCB_REAL_JQ="$(command -v jq)" RCB_JQ_HIT="$d/hit" PATH="$d/bin:$PATH" \
+  rcb_run_bash "$d/manifest.json" "$d" --reserve > "$d/injected.log" 2>&1; then
+  fail 'producer failure: jq exit 73 admitted stale pin'
+fi
+[[ -f "$d/hit" ]] || fail 'producer failure: injection did not reach final inventory producer'
+[[ "$(rcb_sha256_of "$ledger")" == "$before" ]] || fail 'producer failure: changed ledger'
+grep -q 'input manifest enumeration failed' "$d/injected.log" || fail 'producer failure: missing diagnostic'
+printf 'ok: final inventory producer failure rejects before reservation\n'
+
 # Domain reviewer identities must pin their exact input set, including the
 # attempt/round precheck path. Reusing an old reservation for another round
 # must fail even when every rewritten current input hash is correct.

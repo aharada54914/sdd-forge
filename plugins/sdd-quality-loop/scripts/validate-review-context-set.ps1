@@ -20,15 +20,15 @@ function Fail-ReviewContext {
 }
 
 function Test-ExactKeys {
-    param([hashtable]$Value, [string[]]$Expected)
-    if ($null -eq $Value) { return $false }
+    param([object]$Value, [string[]]$Expected)
+    if ($Value -isnot [hashtable]) { return $false }
     $actual = @($Value.Keys | Sort-Object)
     $wanted = @($Expected | Sort-Object)
     return (($actual -join "`n") -ceq ($wanted -join "`n"))
 }
 
 function Test-CanonicalPath {
-    param([string]$Path)
+    param([object]$Path)
     return (
         $Path -is [string] -and
         $Path -cmatch '^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$' -and
@@ -39,7 +39,7 @@ function Test-CanonicalPath {
 }
 
 function Test-CanonicalScratchRoot {
-    param([string]$Path)
+    param([object]$Path)
     return ($Path -is [string] -and
         ($Path -cmatch '^/([^/]+/)*[^/]+$' -or $Path -cmatch '^[A-Za-z]:/([^/]+/)*[^/]+$') -and
         $Path -cnotmatch '(^|/)\.\.?(/|$)' -and -not $Path.Contains('\') -and
@@ -140,7 +140,8 @@ function Get-ImplementationBinding {
         } catch {
             Fail-ReviewContext 'IDENTITY' 'implementation manifest is invalid JSON'
         }
-        if ($implementation.schema -cne 'task-input-manifest/v1' -or
+        if ($implementation.schema -isnot [string] -or $implementation.task_id -isnot [string] -or
+            $implementation.schema -cne 'task-input-manifest/v1' -or
             $implementation.task_id -cne $document.task_id -or
             $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
             $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
@@ -481,7 +482,7 @@ try {
         Fail-ReviewContext 'PATH' 'repository root is missing'
     }
     try {
-        $document = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+        $document = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable -NoEnumerate
     }
     catch {
         Fail-ReviewContext 'JSON' 'manifest is not valid JSON'
@@ -512,11 +513,15 @@ try {
         }
     }
     if (-not (Test-ExactKeys $document $topKeys) -or
+        $document.schema -isnot [string] -or
         $document.schema -cne 'review-context-invocation/v2' -or
+        $document.input_mode -isnot [string] -or
         $document.input_mode -cne 'file-manifest' -or
+        $document.fallback_mode -isnot [string] -or
         $document.fallback_mode -cne 'none' -or
         $document.read_only -isnot [bool] -or -not $document.read_only -or
         $document.feature -isnot [string] -or $document.feature -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$' -or
+        $document.identity_ledger_path -isnot [string] -or
         $document.identity_ledger_path -cne 'reports/review-context/identity-ledger.json' -or
         $document.identity_ledger_sha256 -isnot [string] -or $document.identity_ledger_sha256 -cnotmatch '^[0-9a-f]{64}$' -or
         $document.previous_record_sha256 -isnot [string] -or $document.previous_record_sha256 -cnotmatch '^[0-9a-f]{64}$' -or
@@ -570,7 +575,8 @@ try {
         'quality:sdd-evaluator',
         'domain:domain-reviewer-a', 'domain:domain-reviewer-b'
     )
-    if ("$($document.stage):$($document.role)" -cnotin $validPairs) {
+    if ($document.stage -isnot [string] -or $document.role -isnot [string] -or
+        "$($document.stage):$($document.role)" -cnotin $validPairs) {
         Fail-ReviewContext 'CONTRACT' 'stage and role are not an authorized invocation pair'
     }
     foreach ($identity in @($document.run_id, $document.host_session_id)) {
@@ -617,13 +623,13 @@ try {
     # branch below, which is the only place this comparison is enforced.
     $actualLedgerHash = (Get-FileHash -LiteralPath $ledger -Algorithm SHA256).Hash.ToLowerInvariant()
     try {
-        $ledgerDocument = Get-Content -LiteralPath $ledger -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+        $ledgerDocument = Get-Content -LiteralPath $ledger -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable -NoEnumerate
     }
     catch {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger is invalid JSON'
     }
     if (-not (Test-ExactKeys $ledgerDocument @('schema', 'records')) -or
-        $ledgerDocument.schema -cne 'review-identity-ledger/v1') {
+        $ledgerDocument.schema -isnot [string] -or $ledgerDocument.schema -cne 'review-identity-ledger/v1') {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger contract is invalid'
     }
     if ($ledgerDocument.records -isnot [array]) {
