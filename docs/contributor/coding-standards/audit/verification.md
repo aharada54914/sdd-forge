@@ -126,3 +126,10 @@ that a report alone proves live project execution or full Lite acceptance.
 Mirror check found eight already integrated stale manifest entries unrelated to
 the template/parity test; integration owns their existing synchronizer update.
 Pending mirrors were left intact.
+
+DOC-002: all 10 JSON and four YAML templates were parsed. GitLab's echo
+command contained colon-space inside an unquoted YAML scalar and parsed as a
+mapping. The pinned repository js-yaml parser independently reproduced this,
+with the added existing-suite control failing (24/1); a YAML literal block
+repairs it (25/0). Both CI placeholder programs were actually run and returned
+1 as intended. No remote GitLab pipeline execution is claimed.
