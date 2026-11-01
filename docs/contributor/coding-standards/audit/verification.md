@@ -9,7 +9,7 @@ verdict. Source baseline: `82b536954626e73b36853711b264cbf5df400d22`.
   byte pins, not semantic review of those files. The symlink is represented by
   target text and was not followed.
 - Validated `findings.json` against `schema.json` with the installed `jsonschema`.
-  Intake has no recorded findings yet; this is not zero observed violations.
+  The original intake had no finding records; this was not zero observed violations. Later handoffs are recorded below.
 - Checked that the rule index has exactly CS-001 through CS-030, all rule source
   references resolve to Source records, and local Markdown links exist.
 - Ran `python plugins/sdd-quality-loop/scripts/validate-research-evidence.py
@@ -32,3 +32,19 @@ reconciliation must refresh the population for added/changed tracked files and
 retain unresolved states. Tool timings, token consumption, recurrence reduction,
 and a before/after whole-repository defect count were not measured by this
 intake check and remain unknown.
+
+## Python handoff reconciliation
+
+Imported 37 concrete finding records from #689 commit `bb868407` into the central
+`findings.json`; checked each against the finding schema and recomputed every
+original source SHA-256 from baseline `82b53695`. E701/E702/E731 readability
+changes map to CS-015, and the deliberately invalid Python fixture maps to
+CS-020 with its specific resolver control. The language owner's evidence retains
+command/reproduction/fix details. This metadata reconciliation does not rerun or
+claim independent execution of those regressions, and does not change any
+population entry from unreviewed based on lint success.
+
+Schema negative controls rejected unknown rule CS-999, unknown state `passed`,
+empty evidence on a fixed finding, and null resolution on a fixed finding.
+The actual handoff records pass the same schema. Native tool mappings and
+consumer-specific reuse decisions are linked to their existing owners.

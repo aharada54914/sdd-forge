@@ -1,4 +1,818 @@
 {
   "schema": "coding-standards-findings/v1",
-  "findings": []
+  "findings": [
+    {
+      "finding_id": "PY-001",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "line": 467,
+      "source_sha256": "3a28d582133a2256cdfee060fadf8898a0d1eb9fe226e58c632739d2b3d785c9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-contract.py"
+      },
+      "impact": "Malformed JSON shapes and invalid UTF-8 escape the CLI diagnostic contract with traceback.",
+      "reproduction": "Before fix run([], schema:1, checks:[{id:[]}], checks:[{id:lint,waiver_reason:1}]) raised AttributeError/TypeError.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: 5 passed"
+      ],
+      "resolution": "Validate object and consumed string fields at boundary; classify read/decode errors without widening catch to Exception.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-002",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "line": 41,
+      "source_sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate_path.py"
+      },
+      "impact": "Numeric JSON evidence value is coerced to a filename and accepted if numeric file exists.",
+      "reproduction": "Before fix validate_evidence_path(evidence,123,root,[]) returned True for file123.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "python3 tests/python-input-boundaries.tests.py: valid quoted/newline/Japanese and invalid numeric/path controls"
+      ],
+      "resolution": "Reject nonstring values before path operations; narrow path-resolution catch.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-003",
+      "rule_id": "CS-020",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "line": 19,
+      "source_sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py"
+      },
+      "impact": "Intentional invalid Python must remain invalid to exercise fail-closed loader classification.",
+      "reproduction": "Ruff reports invalid-syntax; fixture name consumed by resolver block tests.",
+      "state": "justified-exception",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/resolve-project-context-block-check.py: registry-discovery-syntax-error case; independent final review required"
+      ],
+      "resolution": "Exclude this exact fixture only from syntax lint; keep resolver behavioral regression.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-004",
+      "rule_id": "CS-020",
+      "path": "tests/fixed-review-inputs.tests.py",
+      "line": 92,
+      "source_sha256": "429f39ae1c4327df629ace8375c285cde28d2d9cfeb807f441f9d7664cf90e07",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixed-review-inputs.tests.py"
+      },
+      "impact": "Shared mutable set default creates avoidable hidden state in approval test helper.",
+      "reproduction": "AST census found one mutable literal default across223 current .py files.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "python3 tests/fixed-review-inputs.tests.py:36 passed"
+      ],
+      "resolution": "Use immutable frozenset; caller only membership-checks registry.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-005",
+      "rule_id": "CS-017",
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "line": 8,
+      "source_sha256": "69fc11d30af9214a5c24a791b215fdec8ff6d9f2a9c490288bf1a84647b331a9",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [8].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-006",
+      "rule_id": "CS-015",
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "line": 70,
+      "source_sha256": "ddafb7bf7494a4788443c1c1aba268da29ffe0fb1ccf34fc09335746f8d69420",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [70].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-007",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 94,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [94, 99, 101, 124, 138, 144, 145, 146, 147, 176, 177, 278, 427, 431].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-008",
+      "rule_id": "CS-015",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 38,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [38, 38, 44, 45, 52, 55, 55, 59, 60, 93, 98, 100, 159, 174, 212, 228, 228, 231, 266, 266, 270, 283, 313, 320, 343, 343, 344, 355, 365, 375, 391, 391, 399, 425, 425, 443, 520, 520, 531, 531].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 40 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-009",
+      "rule_id": "CS-017",
+      "path": "tests/a9-advisory-evidence.tests.py",
+      "line": 6,
+      "source_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-advisory-evidence.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [6].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-010",
+      "rule_id": "CS-015",
+      "path": "tests/a9-dogfood.tests.py",
+      "line": 77,
+      "source_sha256": "1879e1a3cbc0845f1bdd6f68ef522c3569e97fca8f0eb466c117ae7ce4d9146f",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-dogfood.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [77, 89, 102, 114, 152, 156, 174, 467, 491, 511, 530, 552, 554, 568].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 14 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-011",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 71,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [71, 130, 175, 200, 225, 314, 320, 325, 329, 370].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 10 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-012",
+      "rule_id": "CS-015",
+      "path": "tests/a9-promotion-admission.tests.py",
+      "line": 22,
+      "source_sha256": "d838d295cdfeb1d1bb854ef09455de1c0e56e47d1f80b91cee4d0fe77899a394",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-promotion-admission.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [22, 36, 62, 62, 72, 73, 81, 86, 87, 100, 116, 131, 134, 139, 139, 157, 165, 204, 205, 206, 207, 207, 214, 214, 214, 214, 219, 223, 234, 234, 236, 236, 238, 238, 240, 240, 242, 244, 246, 248, 250, 259, 264, 266, 268, 268, 268, 270, 272, 274, 275, 277, 279, 279, 279, 280, 282, 284, 290, 290, 292, 296, 297, 313, 316, 316, 318, 319, 323, 327, 332, 334, 335, 335, 337, 338, 338, 341, 342, 344, 347, 351, 351, 353, 355, 355, 359, 359, 361, 363, 363, 363, 365, 367].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 94 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-013",
+      "rule_id": "CS-015",
+      "path": "tests/a9-rollback-receipt.tests.py",
+      "line": 129,
+      "source_sha256": "88c2ac41f0e2bb011e434e66bddb49dbe8f15fbf42e0544172e7b2fad2972234",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/a9-rollback-receipt.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [129, 169, 308, 321, 324, 330, 351, 352].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-014",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 161,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [161, 224, 225].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 3 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-015",
+      "rule_id": "CS-015",
+      "path": "tests/copilot-hook-handshake.tests.py",
+      "line": 223,
+      "source_sha256": "7a60c95429decf9e6bfcfa834a68aa3cf264de8040693134643638afac325279",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/copilot-hook-handshake.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [223, 234].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-016",
+      "rule_id": "CS-015",
+      "path": "tests/cross-runtime-live-driver.tests.py",
+      "line": 142,
+      "source_sha256": "6377a01d5d704c467999df92ec06ed4b70dcfd9960171761267a1b566265e5e0",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/cross-runtime-live-driver.tests.py"
+      },
+      "impact": "Existing Ruff E702 violation at lines [142, 142, 144, 144, 147, 147, 181, 182].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 8 E702 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-017",
+      "rule_id": "CS-017",
+      "path": "tests/current-byte-capture.tests.py",
+      "line": 9,
+      "source_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/current-byte-capture.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [9].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-018",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+      "line": 30,
+      "source_sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [30].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-019",
+      "rule_id": "CS-017",
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+      "line": 18,
+      "source_sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [18].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-020",
+      "rule_id": "CS-015",
+      "path": "tests/fixtures/live-host-proof/run_cases.py",
+      "line": 84,
+      "source_sha256": "fba9a2970b6e2d25a801254cf57e822db97d8b1372411742aa5db5981fa1415b",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/fixtures/live-host-proof/run_cases.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [84].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-021",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 960,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [960, 961].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 2 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-022",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-block-check.py",
+      "line": 631,
+      "source_sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-block-check.py"
+      },
+      "impact": "Existing Ruff F841 violation at lines [631].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F841 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-023",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-cli-check.py",
+      "line": 26,
+      "source_sha256": "fa28a7633fdf1d4b61c3a64c83643a6066cf94fca88bcf2f87063ca73a19d257",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-cli-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [26].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-024",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-discovery-check.py",
+      "line": 53,
+      "source_sha256": "0a38ddc950bb92ab2628e71c82db2cfe0b3d0ed3c4d1c57e4df4e9053bedd7c3",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-discovery-check.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [53].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-025",
+      "rule_id": "CS-017",
+      "path": "tests/resolve-project-context-parity-check.py",
+      "line": 328,
+      "source_sha256": "cdfc201bce57658c574771ae520d34be4bbc3396d7967b0b00fd374723faab2e",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/resolve-project-context-parity-check.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [328, 329, 501, 502, 507, 513, 514, 633, 634, 640, 646, 647].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 12 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-026",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 99,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E701 violation at lines [99, 118, 145, 151, 156, 168, 172, 175, 179, 208, 212].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 11 E701 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-027",
+      "rule_id": "CS-015",
+      "path": "tests/review-conditional-inputs.tests.py",
+      "line": 183,
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/review-conditional-inputs.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [183, 228, 287, 329].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 4 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-028",
+      "rule_id": "CS-017",
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "line": 4,
+      "source_sha256": "02cf929b9fcf381f39ed5d3a4d7acd851f383b6855c496b710d21101715e4326",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/sdd-sudo-guard-mutation.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [4].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-029",
+      "rule_id": "CS-017",
+      "path": "tests/task-prior-pass-receipt.tests.py",
+      "line": 11,
+      "source_sha256": "3b8a38e32b6c02828b385aed5acc65c76f860c8a7ec246865224c7063d5dcd83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-prior-pass-receipt.tests.py"
+      },
+      "impact": "Existing Ruff F401 violation at lines [11].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F401 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-030",
+      "rule_id": "CS-015",
+      "path": "tests/task-structured-output.tests.py",
+      "line": 506,
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/task-structured-output.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [506].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-031",
+      "rule_id": "CS-015",
+      "path": "tests/traceability-freeze-contract.tests.py",
+      "line": 99,
+      "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/traceability-freeze-contract.tests.py"
+      },
+      "impact": "Existing Ruff E731 violation at lines [99].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E731 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-032",
+      "rule_id": "CS-017",
+      "path": "tests/unified-launch-order.tests.py",
+      "line": 441,
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/unified-launch-order.tests.py"
+      },
+      "impact": "Existing Ruff F541 violation at lines [441].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 F541 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-033",
+      "rule_id": "CS-015",
+      "path": "tests/verification-impact.tests.py",
+      "line": 10,
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "flow": {
+        "input": "external JSON or source text",
+        "transformation": "Python parsing/validation",
+        "sink": "tests/verification-impact.tests.py"
+      },
+      "impact": "Existing Ruff E741 violation at lines [10].",
+      "reproduction": "Full E4/E7/E9/F baseline recorded 1 E741 findings in this file.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "fix 4c13e073",
+        "full active Ruff E4/E7/E9/F passes except deliberate fixture; mypy7 passes"
+      ],
+      "resolution": "Remove unused code or make statement/name/function structure explicit without suppressions; E701/E702 rewrites checked for identical AST.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-034",
+      "rule_id": "CS-026",
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "line": 65,
+      "source_sha256": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-review-loop/scripts/launch-impl-review.py"
+      },
+      "impact": "Locale-dependent decoding and file text IO corrupt or reject UTF8 protocol data.",
+      "reproduction": "Real child emitting Japanese UTF8 fails UnicodeDecodeError with LC_ALL=C/PYTHONUTF8=0/PYTHONCOERCECLOCALE=0 before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_launcher_preserves_utf8_under_ascii_locale",
+        "fixed-review-launch50 passed; existing mypy7 passed"
+      ],
+      "resolution": "Pin UTF8 at current production text=True subprocess and Path text IO boundaries; binary APIs unchanged.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-035",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "line": 375,
+      "source_sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+      },
+      "impact": "Permission failure inspecting stop marker grants benign tool calls.",
+      "reproduction": "Real uid1000 process with CLAUDE_PROJECT_DIR chmod000 returned Copilot permissionDecision allow before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_unreadable_stop_marker_parent_denies; actual EACCES, absent/directory/regular controls",
+        "tests/guards.tests.sh135 passed",
+        "Python actual unprivileged Linux process, no mocked permission error; macOS/Windows unexecuted"
+      ],
+      "resolution": "Use explicit stat and preserve regular-file meaning; ENOENT/ENOTDIR absent, other OSError emits distinct inspection-error deny.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-036",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "line": 286,
+      "source_sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py"
+      },
+      "impact": "Malformed consumed registry fields raise uncontrolled TypeError before diagnostics.",
+      "reproduction": "Registry gates:[{id:[]}] raises TypeError in run().",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/validate-capability-registry.tests.sh:26 behavior checks and13 nested tests pass;2 catalog self-registration failures awaiting #687 registration"
+      ],
+      "resolution": "Validate consumed array/object/string fields before checks; preserve semantic check IDs and existing schema ownership.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-037",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "line": 78,
+      "source_sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa",
+      "flow": {
+        "input": "runtime external data",
+        "transformation": "validation and decoding",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py"
+      },
+      "impact": "Invalid gate_ids silently converted to empty list and published as valid projection.",
+      "reproduction": "build_projection({gates:[],capabilities:[{id:c,gate_ids:oops}]},digest) returns c:[] before fix.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py:test_registry_rejects_invalid_shapes_before_checks_or_generation",
+        "tests/generate-gate-capabilities.tests.sh:31 behavior checks pass;1 catalog self-registration failure awaiting #687 registration"
+      ],
+      "resolution": "Reject invalid consumed shapes with ValueError before write; no generated output on malformed inputs.",
+      "reuse": null
+    }
+  ]
 }
