@@ -108,6 +108,7 @@ class StandardsTests(unittest.TestCase):
         self.track('case space\nname.py', 'print(undefined_name)\n')
         bad = C.scan(self.root, 'all', None, 'python')
         self.assertTrue(any(r['native_rule'] == 'F821' for r in bad['findings']))
+        self.assertEqual(C.scan(self.root, 'diff', 'HEAD', 'python')['findings'], bad['findings'])
         self.track('case space\nname.py', '''def strict(value):
     return int(value)
 

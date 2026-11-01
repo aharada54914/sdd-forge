@@ -136,6 +136,9 @@ def scan(root, mode, base, language):
         changed, status = impact.changed_paths(root, base, 'HEAD')
         if status != 'diff-available':
             raise ValueError('diff base unavailable; fetch history or run all mode')
+        # Include staged/unstaged tracked edits: daily feedback inspects current bytes too.
+        changed.update(git(root, 'diff', '--no-renames', '--name-only', '-z', 'HEAD', '--')
+                       .decode('utf-8').split('\0'))
         rows = [row for row in rows if row['path'] in changed]
     supported = {'python', 'bash', 'powershell', 'typescript', 'javascript'}
     languages = supported if language == 'all' else {language}
