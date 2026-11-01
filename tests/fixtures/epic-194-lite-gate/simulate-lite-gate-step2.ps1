@@ -14,13 +14,16 @@ $Script:BaselineChecks = @('placeholder', 'lint', 'typecheck', 'build', 'test')
 function Test-SimSummarySchema([string]$Path) {
     try {
         $content = Get-Content -LiteralPath $Path -Raw
+        if (-not $content.TrimStart().StartsWith('{')) { return $false }
         $data = $content | ConvertFrom-Json -ErrorAction Stop
+        if ($data -isnot [pscustomobject]) { return $false }
         foreach ($key in @('schema', 'feature', 'track', 'capabilities', 'required_lite_checks', 'full_upgrade_required')) {
-            if ($null -eq $data.PSObject.Properties[$key]) { return $false }
+            if ($key -cnotin $data.PSObject.Properties.Name) { return $false }
         }
-        if ($data.schema -ne 'sdd-capability-summary/v1') { return $false }
-        if ($data.track -ne 'lite') { return $false }
-        if ($data.capabilities -isnot [array] -and $data.capabilities -isnot [System.Collections.IEnumerable]) { return $false }
+        if ($data.schema -isnot [string] -or $data.schema -cne 'sdd-capability-summary/v1') { return $false }
+        if ($data.track -isnot [string] -or $data.track -cne 'lite') { return $false }
+        if ($data.capabilities -isnot [array]) { return $false }
+        if ($data.required_lite_checks -isnot [array]) { return $false }
         if ($data.full_upgrade_required -isnot [bool]) { return $false }
         return $true
     } catch {
@@ -74,7 +77,7 @@ function Invoke-LiteGateStep2Simulation([string]$SummaryPath, [string]$Enforceme
     $result = [pscustomobject]@{ Verdict = 'PASS'; Reason = ''; RanChecks = @() }
     $requiredChecks = @()
 
-    if ($Enforcement -ne 'none') {
+    if ($Enforcement -cne 'none') {
         if ([string]::IsNullOrEmpty($SummaryPath) -or -not (Test-Path -LiteralPath $SummaryPath -PathType Leaf)) {
             $result.Verdict = 'FAIL'
             $result.Reason = 'capability-summary.yaml missing under active capability_enforcement'
@@ -96,8 +99,8 @@ function Invoke-LiteGateStep2Simulation([string]$SummaryPath, [string]$Enforceme
 
     foreach ($id in $requiredChecks) {
         if ([string]::IsNullOrEmpty($id)) { continue }
-        if ($Script:BaselineChecks -contains $id) { continue }
-        if ($id -notmatch $Script:CheckIdGrammar) {
+        if ($Script:BaselineChecks -ccontains $id) { continue }
+        if ($id -isnot [string] -or $id -cnotmatch $Script:CheckIdGrammar) {
             $result.Verdict = 'FAIL'
             $result.Reason = "$id`: check-id does not match the required ^[a-z0-9][a-z0-9-]*`$ grammar"
             return $result
