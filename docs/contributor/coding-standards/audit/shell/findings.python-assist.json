@@ -1,0 +1,130 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "PS-AUX-001",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "line": 22,
+      "source_sha256": "4a93071e79c29c7392e10b14aefc4dfcc8124c87e413cb79399eb741a3e6807a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1"
+      },
+      "impact": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "reproduction": "Literal bracket filename containing TODO was interpreted as a wildcard selecting its clean sibling; actual baseline exited 0.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath through existence, item/directory enumeration and Select-String.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-002",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+      "line": 47,
+      "source_sha256": "51cf61779f4358748d21b0c2b13cbdf86253c0d2728d2822f9d53780ce832a0a",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+      },
+      "impact": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "reproduction": "Valid bracket-named report directory/file falsely failed; separate real bracket tasks input failed Resolve-Path with null Path.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Preserve literal task, contract and report paths through read, resolve, enumeration and match.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-003",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-lite/scripts/check-task-state-lite.ps1",
+      "line": 107,
+      "source_sha256": "ec51efbd03a5dfdba8d79ef72ebdb01943064b0ee11e283239bdab6cf836944e",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-lite/scripts/check-task-state-lite.ps1"
+      },
+      "impact": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "reproduction": "Valid bracket-named implementation report falsely failed; quality report enumeration had the same wildcard boundary.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use LiteralPath for report roots, discovered files and verdict reads; preserve valid and failed report semantics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-004",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 82,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "reproduction": "Actual chmod000 nested directory under readable report root yielded continue/exit0 as non-root agent.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Stop on failed enumeration; absent report root still deliberately means zero reports.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-AUX-005",
+      "rule_id": "CS-025",
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "line": 85,
+      "source_sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed",
+      "flow": {
+        "input": "Caller path or report content/filesystem result",
+        "transformation": "PowerShell provider selection or comparison",
+        "sink": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1"
+      },
+      "impact": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "reproduction": "Three reports carrying Feature: ALPHA caused request alpha to escalate despite documented case-sensitive identity.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/check-placeholders.tests.sh:9/0",
+        "tests/task-state-grammar-parity.tests.sh:52/0",
+        "tests/quality-gate-cycle-limit.tests.sh:75/0",
+        "tests/check-placeholders-brownfield.tests.ps1:14/0",
+        "docs/contributor/coding-standards/audit/shell/python-assist-evidence"
+      ],
+      "resolution": "Use cmatch for feature identity, matching task identity and Bash behavior.",
+      "reuse": null
+    }
+  ]
+}

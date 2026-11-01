@@ -926,7 +926,7 @@ backup_pre_bytes() {
     cd -- "$repo_root_abs" 2>/dev/null || exit 1
     walk_relative_dir "$SPLIT_DIR" || exit 1
     if [ -f "$SPLIT_BASE" ] && [ ! -L "$SPLIT_BASE" ]; then
-      cat -- "$SPLIT_BASE"
+      cat -- "$SPLIT_BASE" || exit 1
       exit 0
     fi
     exit 9
@@ -934,6 +934,7 @@ backup_pre_bytes() {
   found_rc=$?
   if [ "$found_rc" != 0 ]; then
     rm -f -- "$dest_file" 2>/dev/null
+    return 1
   else
     # Capture the live target's PRE-transaction permission bits onto the
     # backup, so a MIX-state rollback restores mode as well as bytes
@@ -960,8 +961,10 @@ backup_pre_bytes() {
     # with `-` regardless of $base's own leading character.
     if [ -z "$live_mode" ] || ! chmod "$live_mode" "$dest_file" 2>/dev/null; then
       rm -f -- "$dest_file" 2>/dev/null
+      return 1
     fi
   fi
+  return 0
 }
 
 # revert_one_target <repo_root_abs> <relpath> <pre_hash> <backup_file>
@@ -1583,7 +1586,16 @@ while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
       die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
         "manifest target '$relpath' would reuse the pre-transaction backup slot 'pre/$base' already occupied by an earlier target in this batch (this filesystem treats the two basenames as the same name); the backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
     fi
-    backup_pre_bytes "$REPO_ROOT_ABS" "$relpath" "$BATCH_DIR_ABS/pre/$base"
+    # A backup is a PREPARE prerequisite, including bytes matching the
+    # previously probed state; recovery must never discover a bad backup
+    # only after the first live rename has already committed.
+    if ! backup_pre_bytes "$REPO_ROOT_ABS" "$relpath" "$BATCH_DIR_ABS/pre/$base" ||
+       ! backup_hash=$(sha256_of "$BATCH_DIR_ABS/pre/$base") ||
+       [ "$backup_hash" != "$pre_hash" ]; then
+      rm -rf -- "$BATCH_DIR"
+      die "$EXIT_LIVE_PROBE_FAILED" LIVE_PROBE_FAILED \
+        "could not preserve the pre-transaction bytes and mode of target '$relpath'; refusing to publish batch $BATCH_NONCE"
+    fi
   fi
   write_target_record "$pre_hash" "$hash" "$relpath" >>"$TARGETS_FILE"
   printf '%s\n' "$relpath" >>"$LIVEPATHS_FILE"

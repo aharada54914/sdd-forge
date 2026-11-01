@@ -1927,3 +1927,48 @@ run_investigation_twin "$inv_task" task-stage-grows
   fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'
+
+# An inaccessible newer round cannot silently leave the older PASS selected.
+enumeration_fixture="$(make_full_fixture enumeration-denied)"
+python3 - "$CHECKER" "$enumeration_fixture" "$TMP" <<'PY_ENUMERATION'
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+checker, fixture, outer = sys.argv[1:]
+if os.name == 'nt':
+    print('SKIP: POSIX traversal permissions unavailable on Windows')
+    sys.exit(0)
+Path(outer).chmod(0o755)
+root = Path(fixture)
+command = ['bash', checker, '--registry', str(root / 'specs/workflow-state-registry.json')]
+def unprivileged():
+    if os.getuid() == 0:
+        os.setgroups([])
+        os.setgid(1000)
+        os.setuid(1000)
+control = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+assert control.returncode == 0, control
+blocked = root / 'reports/spec-review/workflow-state-integrity/attempt-99/round-1'
+blocked.mkdir(parents=True)
+(blocked / 'integrated-verdict.json').write_text('{"verdict":"BLOCKED"}', encoding='utf-8')
+blocked.chmod(0)
+try:
+    result = subprocess.run(command, preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: inaccessible newer review round fails closed')
+    common = Path(checker).parents[2] / 'sdd-review-loop/scripts/lib/review-precheck-common.sh'
+    harness = r'''repo_root=$1; FEATURE=workflow-state-integrity
+fail() { printf '%s\n' "$*" >&2; exit 1; }
+sha256() { shasum -a 256 "$1" | awk '{print $1}'; }
+. "$2"
+require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec '' '' '' '' ''
+'''
+    result = subprocess.run(['bash', '-c', harness, '_', str(root), str(common)],
+                            preexec_fn=unprivileged, capture_output=True, text=True)
+    assert result.returncode != 0 and 'cannot be enumerated completely' in result.stderr, result
+    print('ok: predecessor review enumeration fails closed')
+finally:
+    blocked.chmod(0o755)
+PY_ENUMERATION

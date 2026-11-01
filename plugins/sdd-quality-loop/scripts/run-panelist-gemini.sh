@@ -55,6 +55,7 @@ consent_kind="human-flag"
 _panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
 
 while [ $# -gt 0 ]; do
+    [ $# -ge 2 ] || { printf 'run-panelist-gemini: missing value for %s\n' "$1" >&2; exit 2; }
     case "$1" in
         --task)      task_id="$2";      shift 2 ;;
         --feature)   feature="$2";      shift 2 ;;
@@ -86,7 +87,9 @@ fi
 
 # ── Prepare scratch and output paths ────────────────────────────────────────
 
-_scratch="$(mktemp -d)"
+_scratch="$(mktemp -d)" || {
+    printf 'run-panelist-gemini: cannot create scratch directory\n' >&2; exit 2
+}
 trap 'rm -rf "$_scratch"' EXIT
 
 out_dir="${spec_root}/${feature}/verification"
@@ -105,7 +108,7 @@ unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 # ── Build the panelist prompt ────────────────────────────────────────────────
 
 _prompt_file="${_scratch}/prompt.txt"
-cat > "$_prompt_file" << 'PROMPT_EOF'
+if ! cat > "$_prompt_file" << 'PROMPT_EOF'
 You are an independent panelist reviewing a software implementation. You are
 running BLIND: you have not seen any other panelist's verdict, the primary
 evaluator's verdict, or any prior review feedback on this task.
@@ -146,6 +149,9 @@ Rules:
 - consent.ref: the tasks.md flag or SDD_SUDO reference from the bundle.
 - Do not include any text outside the JSON object.
 PROMPT_EOF
+then
+    printf 'run-panelist-gemini: cannot write panelist prompt\n' >&2; exit 2
+fi
 
 # ── Invoke gemini CLI in isolated scratch ────────────────────────────────────
 # The panelist instructions go through `-p/--prompt` (the CLI's documented
@@ -155,11 +161,15 @@ PROMPT_EOF
 # flag and stays with a single combined stdin blob).
 
 _stdin_bundle="${_scratch}/stdin-bundle.txt"
-{
-    printf '## Sanitized Input Bundle\n\n'
+if ! {
+    printf '## Sanitized Input Bundle\n\n' &&
     cat "$input_path"
-} > "$_stdin_bundle"
-_prompt_text="$(cat "$_prompt_file")"
+} > "$_stdin_bundle"; then
+    printf 'run-panelist-gemini: cannot assemble complete input bundle\n' >&2; exit 2
+fi
+_prompt_text="$(cat "$_prompt_file")" || {
+    printf 'run-panelist-gemini: cannot read panelist prompt\n' >&2; exit 2
+}
 
 printf 'run-panelist-gemini: invoking gemini --model %s -p <prompt> (task=%s feature=%s)\n' \
     "$model" "$task_id" "$feature" >&2

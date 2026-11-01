@@ -2704,6 +2704,173 @@
       ],
       "resolution": "Use existing30s Git admission deadline (benchmark builder uses existing300s benchmark execution budget); preserve classified failures or explicit unavailable observation; transactional publisher untouched.",
       "reuse": null
+    },
+    {
+      "finding_id": "PY-061",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "line": 107,
+      "source_sha256": "feb09f8924b34a70ee53af40a29f039b717b4996ebf43d5d12e012725b40431d",
+      "flow": {
+        "input": "External verdict JSON object and consumed field shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-cross-model.sh"
+      },
+      "impact": "External verdict JSON object and consumed field shapes",
+      "reproduction": "Nine malformed top-level gate CLI cases failed before repair; cross-model returned consensus failure instead of tool error.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require object, exact string digest/fullmatch, nonempty string consent kind, and list-of-object findings; preserve omitted findings and consensus failure policy.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-062",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 160,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "External evidence bundle and nested contract/artifact JSON shapes",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "External evidence bundle and nested contract/artifact JSON shapes",
+      "reproduction": "Malformed scalar/list/null top-level inputs raised tracebacks in actual pre-edit CLI tests.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Validate object and nested consumed arrays/objects and report existing gate failure instead of an attribute error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-063",
+      "rule_id": "CS-020",
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "line": 39,
+      "source_sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+      "flow": {
+        "input": "External feature, link, requirement, ACS/test and evidence values",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-traceability.sh"
+      },
+      "impact": "External feature, link, requirement, ACS/test and evidence values",
+      "reproduction": "Malformed top-level inputs raised tracebacks in actual pre-edit CLI tests; typed identifier regression now checks missing/numeric req, mixed collection entries and normal blank-plus-valid control.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Require consumed strings and link objects; require at least one nonempty ACS/test entry while preserving blank companions and optional null evidence.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-064",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "line": 185,
+      "source_sha256": "92999f5c81fe4a7cf75c6e630427a9ff866d4973a60aa4bf4df7043ad546f448",
+      "flow": {
+        "input": "Git status nonzero result becomes an empty clean-worktree snapshot",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+      },
+      "impact": "Git status nonzero result becomes an empty clean-worktree snapshot",
+      "reproduction": "Historical HEAD replay of the new actual fake-Git CLI test returned 0 instead of expected 1; this is explicitly a post-edit baseline replay, not a pre-edit red observation.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Check status result before constructing a bundle; classify Git timeouts and OSError; do not write output on failed Git status.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-065",
+      "rule_id": "CS-023",
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "line": 298,
+      "source_sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+      "flow": {
+        "input": "Git object/ancestor checks may invoke unbounded external work",
+        "transformation": "embedded Python validation or Git inspection",
+        "sink": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      },
+      "impact": "Git object/ancestor checks may invoke unbounded external work",
+      "reproduction": "Source inspection of previously unbounded Git subprocess calls; existing gate suite exercises valid and failed ancestry.",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/python-input-boundaries.tests.py: 11 pass",
+        "tests/cross-model.tests.sh: 83 pass",
+        "tests/gates.tests.sh: 163 pass"
+      ],
+      "resolution": "Use the existing 30-second Git inspection deadline. Direct subprocess timeout does not prove descendant-tree cleanup on every platform.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-007",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.sh",
+      "line": 149,
+      "source_sha256": "d359ccc18dde5d42c9e0504ee35f57ed4871af0bf9778c2a5d5037f613de038e",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "Bash30pass/1fail aggregate before,31pass/0fail after;11 negative cases and valid-extension normal control",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 a16ae647c1f8c9685284f3b18436bcdb777eaf1d94d48077d2f1a364e835f434"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
+    },
+    {
+      "finding_id": "DOC-008",
+      "rule_id": "CS-025",
+      "path": "render-agent-frontmatter.ps1",
+      "line": 155,
+      "source_sha256": "0771bc6300e76d7f9475e89f5dae1d3986e8aa208370e4197712954b7f62410f",
+      "flow": {
+        "input": "JSON role defaults and optional renderer target table",
+        "transformation": "truthiness, implicit casts and unvalidated enum values",
+        "sink": "frontmatter/comment rendering and protected target routing"
+      },
+      "impact": "Malformed role values can be rendered as comments/source; string or null protected flags and unknown kind can silently select a write target or format.",
+      "reproduction": "Existing suite now mutates real registry/target data and executes renderer against disposable targets. Bash admitted effort array/newline/unknown and protected string/null/unknown-kind with exit0; PowerShell admitted malformed table fields or invalid effort under Check.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "PowerShell43pass/6fail before,49pass/0fail after; malformed role enums and target types rejected",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-bash-after.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-before.log",
+        "reports/verification/coding-standards-renderer-20261101/parity-powershell-after.log",
+        "fixed source SHA256 98890699598c29857db10309055256d3c21f78690d7afb9da997200b265b66c9"
+      ],
+      "resolution": "Validate exact consumed object keys and scalar role tier/effort enums, require target array and literal boolean protected with known kind before any writes. Retain unconsumed extension fields and established override diagnostics.",
+      "reuse": null
     }
   ]
 }

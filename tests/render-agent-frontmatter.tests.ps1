@@ -507,13 +507,16 @@ Body text unaffected.
     }
 
     # Actual parser controls: PowerShell must not coerce arrays or key casing.
-    foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array')) {
+    foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array','effort-newline','effort-unknown','tier-array')) {
         $bad = [System.IO.File]::ReadAllText($realRegistry) | ConvertFrom-Json
         switch ($variant) {
             'schema-array' { $bad.schema = @($bad.schema) }
             'schema-case' { $value = $bad.schema; $bad.PSObject.Properties.Remove('schema'); $bad | Add-Member NoteProperty Schema $value }
             'models-object' { $bad.models = $bad.models[0] }
             'role-array' { $bad.role_defaults.'sdd-evaluator' = @($bad.role_defaults.'sdd-evaluator') }
+            'effort-newline' { $bad.role_defaults.'sdd-evaluator'.default_effort = "high`nINJECTED" }
+            'effort-unknown' { $bad.role_defaults.'sdd-evaluator'.default_effort = 'unrecognized' }
+            'tier-array' { $bad.role_defaults.'sdd-evaluator'.minimum_tier = @('strong') }
             'effort-array' { $bad.role_defaults.'sdd-evaluator'.default_effort = @('high') }
             'name-array' { $bad.models[0].name = @($bad.models[0].name) }
         }
@@ -524,6 +527,21 @@ Body text unaffected.
         $r = Invoke-Render @('-Check', '-RepoRoot', $root, '-Registry', $badPath)
         if ($r.ExitCode -ne 0 -and $r.Combined -match 'RENDER_ERROR') { Test-Ok "reject registry $variant" }
         else { Test-Bad "reject registry $variant (exit $($r.ExitCode))" }
+    }
+    foreach ($targetCase in @('protected-string', 'protected-null', 'kind-unknown', 'root-object')) {
+        $targetValue = [pscustomobject]@{ role = 'sdd-evaluator'; kind = 'codex'; path = '.codex/agents/sdd-evaluator.toml'; protected = $false }
+        switch ($targetCase) {
+            'protected-string' { $targetValue.protected = 'false' }
+            'protected-null' { $targetValue.protected = $null }
+            'kind-unknown' { $targetValue.kind = 'unexpected' }
+        }
+        $targetJson = ConvertTo-Json -InputObject $targetValue
+        if ($targetCase -ne 'root-object') { $targetJson = '[' + $targetJson + ']' }
+        $targetPath = Join-Path $tmp 'bad-targets.json'
+        [System.IO.File]::WriteAllText($targetPath, $targetJson)
+        $r = Invoke-Render @('-Check', '-RepoRoot', $root, '-TargetsFile', $targetPath)
+        if ($r.ExitCode -ne 0 -and $r.Combined -match 'RENDER_ERROR') { Test-Ok "reject target $targetCase" }
+        else { Test-Bad "reject target $targetCase (exit $($r.ExitCode))" }
     }
     $literalRepo = Join-Path $tmp 'repo[fixture]'
     [System.IO.Directory]::CreateDirectory($literalRepo) | Out-Null

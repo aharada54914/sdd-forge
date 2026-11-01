@@ -689,6 +689,43 @@ else
   bad "AC-019/AC-027-style: a live protected reviewer .md file CHANGED during this suite's own run"
 fi
 
+# Malformed values must fail before rendering any disposable target.
+if python3 - "$ROOT" "$TMP" <<'PY'
+import copy, json, pathlib, subprocess, sys
+root, tmp = map(pathlib.Path, sys.argv[1:])
+base = json.loads((root / 'contracts/agent-model-capabilities.v2.json').read_text())
+work = tmp / 'boundary-render'
+work.mkdir()
+target = {'role': 'sdd-evaluator', 'kind': 'codex', 'path': 'agent.toml', 'protected': False}
+cases = ['effort-array', 'effort-newline', 'effort-unknown', 'tier-array', 'models-object', 'schema-array', 'root-array', 'protected-string', 'protected-null', 'kind-unknown', 'target-root-object']
+failures = []
+for case in ['valid-extension'] + cases:
+    data, targets = copy.deepcopy(base), [dict(target)]
+    role = data['role_defaults']['sdd-evaluator']
+    if case == 'effort-array': role['default_effort'] = ['high']
+    if case == 'effort-newline': role['default_effort'] = 'high\nINJECTED'
+    if case == 'effort-unknown': role['default_effort'] = 'unrecognized'
+    if case == 'tier-array': role['minimum_tier'] = ['strong']
+    if case == 'models-object': data['models'] = data['models'][0]
+    if case == 'schema-array': data['schema'] = [data['schema']]
+    if case == 'root-array': data = [data]
+    if case == 'protected-string': targets[0]['protected'] = 'false'
+    if case == 'protected-null': targets[0]['protected'] = None
+    if case == 'kind-unknown': targets[0]['kind'] = 'unexpected'
+    if case == 'target-root-object': targets = targets[0]
+    if case == 'valid-extension': data['future_extension'] = {'opaque': ['permitted']}
+    registry, table, output = work / 'registry.json', work / 'targets.json', work / 'agent.toml'
+    registry.write_text(json.dumps(data)); table.write_text(json.dumps(targets)); output.write_text('# original\n')
+    result = subprocess.run(['bash', str(root/'render-agent-frontmatter.sh'), '--root', str(work), '--registry', str(registry), '--targets-file', str(table)], capture_output=True, text=True, timeout=30)
+    passed = result.returncode == 0 if case == 'valid-extension' else result.returncode != 0 and 'RENDER_ERROR' in result.stderr and output.read_text() == '# original\n'
+    print(f'{case}: exit={result.returncode} accepted={passed}')
+    if not passed: failures.append(case)
+if failures: raise SystemExit('boundary failures: ' + ', '.join(failures))
+PY
+then ok 'renderer rejects malformed consumed fields before write and permits extensions'
+else bad 'renderer malformed boundary controls'
+fi
+
 printf -- '---- summary: pass=%d fail=%d ----\n' "$pass" "$fail"
 if [[ "$fail" -gt 0 ]]; then
   printf 'not ok: render-agent-frontmatter suite FAILED (%d failures)\n' "$fail" >&2
