@@ -1,0 +1,168 @@
+{
+  "task_id": "T-678",
+  "feature": "epic-197-a9-dogfood",
+  "risk": "medium",
+  "required_workflow": "",
+  "spec_revision": "2c4d9cac1e2990705aaa83ad1d6453daae577118b9ac33c7c60348e0a7b2e811",
+  "quality_report": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
+  "verification_contract": "specs/epic-197-a9-dogfood/operational/mcp-report-lookup-cache/verification/T-678.contract.json",
+  "git_commit": "feb913b00ac469a97344bd24fc568b9a08db5e33",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "git diff --cached --check -- . :!specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/*.stdout :!specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/*.stderr",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:03:35.586317Z",
+      "finished_at": "2026-11-01T02:03:35.596288Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/lint.execution.json",
+      "evidence_sha256": "fe795c7cd8544a343223132b219d97f4b1a3103488f3e3b1b1f4b1c7fa284c94"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:00:27.411833Z",
+      "finished_at": "2026-11-01T02:00:27.675635Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/typecheck.execution.json",
+      "evidence_sha256": "4479c459855c6f33d29125dfbee14b90936e8a0d43d8ca678c3cbdf528ede6a0"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "npm run build",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:00:27.676141Z",
+      "finished_at": "2026-11-01T02:00:27.813171Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/build.execution.json",
+      "evidence_sha256": "f1db9eb7a55bcb563a5aa4621a123f42e8177ab16bc0aa0afa0a78cba32e9e5a"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "sh plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/sdd-forge-mcp/src/parsers/report-lookup.ts mcp/sdd-forge-mcp/src/parsers/task-validation.ts mcp/sdd-forge-mcp/src/parsers/tasks.ts mcp/sdd-forge-mcp/src/tools/core.ts",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:03:35.596600Z",
+      "finished_at": "2026-11-01T02:03:35.601485Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/placeholder-scan.execution.json",
+      "evidence_sha256": "c9ca55edd449a74e309ca394a2e1d59a03b0a0e983b205dc4b1c0dc0f8cd3111"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "sh plugins/sdd-quality-loop/scripts/check-task-state.sh /workspace/scratch/678-acceptance-draft/specs/epic-197-a9-dogfood/operational/mcp-report-lookup-cache/tasks.md /workspace/scratch/678-acceptance-draft/reports/quality-gate /workspace/scratch/678-acceptance-draft/reports/implementation /workspace/scratch/678-acceptance-draft",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:06:08.717868Z",
+      "finished_at": "2026-11-01T02:06:08.852625Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/done-task-state.execution.json",
+      "evidence_sha256": "0793ba212ca0e35e56374727cd1f600d0256207cd7649581859b08a712ff0b83"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:00:27.813602Z",
+      "finished_at": "2026-11-01T02:00:42.028269Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/fullsuite.execution.json",
+      "evidence_sha256": "b03023dafdaf398e11972c36046655aa7acf8b386e0eee1bc09905bf64bba578"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:00:27.813602Z",
+      "finished_at": "2026-11-01T02:00:42.028269Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/fullsuite.execution.json",
+      "evidence_sha256": "b03023dafdaf398e11972c36046655aa7acf8b386e0eee1bc09905bf64bba578"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:00:27.813602Z",
+      "finished_at": "2026-11-01T02:00:42.028269Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/fullsuite.execution.json",
+      "evidence_sha256": "b03023dafdaf398e11972c36046655aa7acf8b386e0eee1bc09905bf64bba578"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 plugins/sdd-quality-loop/scripts/check-component-coverage.py --config sdd/project-context.yaml --facet-manifest specs/epic-197-a9-dogfood/facet-manifest.yaml --repo-root /workspace/scratch/678-acceptance-draft --changed-paths-file /workspace/scratch/678-acceptance-run-20261101/coverage-C0-paths.txt",
+      "exit_code": 0,
+      "started_at": "2026-11-01T02:04:53.952272Z",
+      "finished_at": "2026-11-01T02:04:54.106613Z",
+      "evidence": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/component-coverage.json",
+      "evidence_sha256": "2744af5072e34443b7afd033b22c7aa4d22b7b15befcccdd93a5257470ecf3f6"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/epic-197-a9-dogfood/operational/mcp-report-lookup-cache/verification/T-678.contract.json",
+      "sha256": "c0fb9aef9aeb31c2cd245d39f25457ec0120ef95d170841f30decebeed1a8746"
+    },
+    {
+      "path": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
+      "sha256": "06aa7f4f9e206a4baba4bb3a5e081347f65a655c94857550a781722b92b2a482"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/build.execution.json",
+      "sha256": "f1db9eb7a55bcb563a5aa4621a123f42e8177ab16bc0aa0afa0a78cba32e9e5a"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/component-coverage.json",
+      "sha256": "2744af5072e34443b7afd033b22c7aa4d22b7b15befcccdd93a5257470ecf3f6"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/done-task-state.execution.json",
+      "sha256": "0793ba212ca0e35e56374727cd1f600d0256207cd7649581859b08a712ff0b83"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/fullsuite.execution.json",
+      "sha256": "b03023dafdaf398e11972c36046655aa7acf8b386e0eee1bc09905bf64bba578"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/lint.execution.json",
+      "sha256": "fe795c7cd8544a343223132b219d97f4b1a3103488f3e3b1b1f4b1c7fa284c94"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/placeholder-scan.execution.json",
+      "sha256": "c9ca55edd449a74e309ca394a2e1d59a03b0a0e983b205dc4b1c0dc0f8cd3111"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/verification/T-678/acceptance-20261101/typecheck.execution.json",
+      "sha256": "4479c459855c6f33d29125dfbee14b90936e8a0d43d8ca678c3cbdf528ede6a0"
+    }
+  ]
+}

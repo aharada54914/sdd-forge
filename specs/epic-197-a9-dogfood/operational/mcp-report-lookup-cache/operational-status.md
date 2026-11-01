@@ -1,6 +1,6 @@
 # Operational status for Issue 678
 
-T-678 is Approved / In Progress pending independent final review. It is the prospective acceptance work originally
+T-678 is Approved / Done after independent final review and actual task-state validation. It is the prospective acceptance work originally
 reviewed as packet T-001; relocation.json retains the identity/path mapping.
 No retrospective specification-first development or TDD is claimed.
 
@@ -53,8 +53,11 @@ worktree. Source/lock/command/time/output bindings are recorded under
 
 This is genuine pre-bootstrap task acceptance work. The earlier plan to defer
 execution until after bootstrap publication was scheduling, not an additional
-T-678 Done condition. Independent final quality review is still pending; do not
-mark Done or manufacture a passing evidence bundle before it completes.
+T-678 Done condition. Independent reviewer /root/recover_two returned PASS for REQ-001–004 and this
+actual acceptance. The existing generator produced the medium-risk evidence
+bundle from the real review and final contract; the existing task-state checker
+validated Done. See reports/quality-gate/epic-197-a9-dogfood-T-678-final.md and the
+byte-identical nested contract/evidence bundle beside the operational task.
 
 ## Parent release acceptance still required
 

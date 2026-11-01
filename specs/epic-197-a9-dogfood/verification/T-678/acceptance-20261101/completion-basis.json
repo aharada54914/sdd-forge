@@ -1,0 +1,18 @@
+{
+  "schema": "a9-task-completion-basis/v1",
+  "task_id": "T-678",
+  "feature": "epic-197-a9-dogfood",
+  "scope": "Prospective operational acceptance of existing recovered MCP code; parent release interval separate",
+  "done_conditions": {
+    "owner_approval": "../operational approval-provenance.json; original owner conversation",
+    "protected_signature_and_publication": "../phase1-publication.json; protected CI41258114242 and owner review",
+    "main_activation_and_actual_advisory_ci": "activation-ci-association.json and activation-ci-summary.json; PR693 merged tested tree unchanged",
+    "independent_req_001_004_review": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md; /root/recover_two PASS",
+    "actual_execution": "executions.json and real-mcp-summary.json; pre-bootstrap 310tests + real stdio",
+    "failure_recovery_and_waits": "activation-friction.json; original failures preserved",
+    "lifecycle_verification": "done-task-state.execution.json; nested byte-identical contract and generated medium-risk bundle"
+  },
+  "parent_release_interval_complete": false,
+  "promotion_performed": false,
+  "current_acceptance_pr_ci": "not yet run; distinct from actual PR693 advisory evidence"
+}
