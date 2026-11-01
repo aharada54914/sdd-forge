@@ -1,0 +1,39 @@
+{
+  "schema": "coding-standards-context-delta/v1",
+  "path": "tests/ownership-digest.tests.ps1",
+  "before_sha256": "57241c324af25cb45e33873520c85471320e449e40675d8e656a719e9e53aa41",
+  "sha256": "a73fa38dd42453e32b5be71ce213d4c911230975acf2b854ea7ae807a32b92fc",
+  "finding": "OWNERSHIP-FIXTURE-DEPENDENCY",
+  "state": "fixed",
+  "rule_id": "CS-013",
+  "actual_ci": {
+    "run": 41283733607,
+    "job": 124780781154,
+    "head": "d58d198bf7343039e01356aa1d3ebe6a4df4d040",
+    "merge_checkout": "c86f47fe14141b03f78f3e596b743dac5aa88149",
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/41283733607/job/124780781154",
+    "failure": "Windows matcher fixture copied resolve-component-paths.ps1 without its new lib/native-arguments.ps1 dependency; dot-source failed at line1012 before TEST-040F could inspect semantics."
+  },
+  "repair": "Include existing native-arguments helper in the fixture dependency list. The real shared helper is copied without modification; no stub, bypass, changed expected value or registry relaxation. Production resolver and assertions unchanged.",
+  "context": "The isolated matcher fixture intentionally modifies only version or glob semantics. All actual dependency files must accompany the copied resolver. Parent creates each destination directory; same scoped fixture cleanup remains. New copied filename is a static literal, not dynamic source or path input.",
+  "validation": [
+    {
+      "command": "T003_ONLY=TEST-040F pwsh -NoProfile -File tests/ownership-digest.tests.ps1 (before repair)",
+      "result": "exit1, same missing helper failure as actual Windows job"
+    },
+    {
+      "command": "pwsh -NoProfile -File tests/ownership-digest.tests.ps1 (after repair)",
+      "result": "exit0, 13passed0failed, native Linux PowerShell7"
+    },
+    {
+      "command": "T003_ONLY=TEST-040F T003_MUTATE_ASSERTION=TEST-040F pwsh -NoProfile -File tests/ownership-digest.tests.ps1",
+      "result": "exit1,0passed1failed; intentional collapsed semantic oracle still rejected"
+    }
+  ],
+  "limit": "Actual repaired Windows lane awaits next integration CI; local Linux reproduction/pass is not Windows PASS.",
+  "evidence": [
+    "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/after.txt",
+    "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/before.txt",
+    "docs/contributor/coding-standards/audit/shell/ownership-fixture-evidence/mutation.txt"
+  ]
+}
