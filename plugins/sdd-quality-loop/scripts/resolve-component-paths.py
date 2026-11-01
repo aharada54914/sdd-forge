@@ -1060,9 +1060,13 @@ def _capture_fingerprint(repo_root: str) -> Tuple[str, str]:
     # this collector's own multi-command sequence.
     code, out, _err = _run_git(repo_root, ["rev-parse", "HEAD"])
     head = out.decode("ascii").strip() if code == 0 else "(unborn)"
-    _code2, status_out, _err2 = _run_git(
+    status_code, status_out, status_err = _run_git(
         repo_root, ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
     )
+    if status_code != 0:
+        raise GitDiffError(
+            "cannot capture repository status: " + status_err.decode("utf-8", "replace").strip()
+        )
     import hashlib
 
     status_hash = hashlib.sha256(status_out).hexdigest()
