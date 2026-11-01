@@ -4226,6 +4226,32 @@
       ],
       "resolution": "Refuse present invalid/unreadable inputs; root/packages JSON must be objects; fixed diagnostic and nonzero.",
       "reuse": null
+    },
+    {
+      "finding_id": "REUSE-001",
+      "rule_id": "CS-023",
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "line": 260,
+      "source_sha256": "2daa18df2bd52c13e3a6aba1cf6d7697331754463a12a60b3fbc6c501fa91f04",
+      "flow": {
+        "input": "large real WebStream Uint8Array upstream chunk",
+        "transformation": "bounded tail represented by a small subarray view",
+        "sink": "retained chunks array and backing allocation lifetime"
+      },
+      "impact": "Retained-byte counter stayed bounded while small views pinned16MiB upstream backing allocations, violating the claimed memory bound.",
+      "reproduction": "Independent WeakRef/GC controls use actual WebStreams and track backing allocations; both heldout cases failed before2ef9edb9 and both passed after owned-byte copying.",
+      "state": "fixed",
+      "owner_issue": 691,
+      "evidence": [
+        "fix2ef9edb9",
+        "docs/contributor/coding-standards/reuse/independent-review.json",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-before.txt:2failed",
+        "docs/contributor/coding-standards/reuse/evidence/backing-buffer-after.txt:2passed",
+        "mcp/ci-mcp/tests/error-paths/backing-buffer-retention.test.ts",
+        "fixed SHA256 8dd83fd63eff469d425a4c06fbac71ba2d80351deb9ed3ce5ef0b84c2c910bf9"
+      ],
+      "resolution": "Copy retained bytes into an owned Uint8Array instead of retaining a view onto the oversized source allocation. Existing logical bound and public response contract remain unchanged.",
+      "reuse": null
     }
   ]
 }
