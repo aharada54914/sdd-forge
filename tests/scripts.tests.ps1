@@ -149,6 +149,46 @@ Status: Done
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-good.json"
     Assert-ExitCode "check-contract passing" (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
 
+    # Native JSON boundary controls: singleton arrays are not protocol scalars.
+    foreach ($case in @('schema-array','task-array','evidence-array','id-array','waiver-array','wrongcase-id','wrongcase-mode','wrongcase-field','null-required')) {
+        $boundary = Get-Content -Raw -LiteralPath 'contract-good.json' | ConvertFrom-Json
+        switch ($case) {
+            'schema-array' { $boundary | Add-Member schema @('verification-contract/v2') -Force }
+            'task-array' { $boundary.task_id = @($boundary.task_id) }
+            'evidence-array' { $boundary.checks[0].evidence = @('ev.log') }
+            'id-array' { $boundary.checks[0].id = @($boundary.checks[0].id) }
+            'waiver-array' { $boundary.checks[0] | Add-Member waiver_reason @('waiver') -Force }
+            'wrongcase-id' { $boundary.checks[0].id = $boundary.checks[0].id.ToUpperInvariant() }
+            'wrongcase-mode' { $boundary | Add-Member cross_model 'LEGACY' -Force }
+            'wrongcase-field' {
+                $value = $boundary.checks[0].required
+                $boundary.checks[0].PSObject.Properties.Remove('required')
+                $boundary.checks[0] | Add-Member Required $value
+            }
+            'null-required' { $boundary.checks[0].required = $null }
+        }
+        $boundary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath 'contract-boundary.json'
+        Assert-ExitCode "check-contract rejects $case" (Invoke-Gate 'check-contract.ps1' @('contract-boundary.json','-RepoRoot','.')) 1
+    }
+
+    $producerHash = Get-Sha256Hex (Join-Path $scriptsDir 'check-component-coverage.py')
+    foreach ($case in @('valid','array','upper','root-array','wrong-key')) {
+        $producerRecord = @{ producer = @{ sha256 = $producerHash } }
+        switch ($case) {
+            'array' { $producerRecord.producer.sha256 = @($producerHash) }
+            'upper' { $producerRecord.producer.sha256 = $producerHash.ToUpperInvariant() }
+            'wrong-key' { $producerRecord = @{ Producer = @{ sha256 = $producerHash } } }
+        }
+        $recordJson = $producerRecord | ConvertTo-Json -Depth 10
+        if ($case -ceq 'root-array') { $recordJson = '[' + $recordJson + ']' }
+        [IO.File]::WriteAllText((Join-Path $workDir 'producer-boundary.json'), $recordJson)
+        $boundary = Get-Content -Raw -LiteralPath 'contract-good.json' | ConvertFrom-Json
+        $boundary.checks += [pscustomobject]@{id='check-component-coverage';required=$true;passes=$true;evidence='producer-boundary.json'}
+        $boundary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath 'contract-boundary.json'
+        $expected = if ($case -ceq 'valid') { 0 } else { 1 }
+        Assert-ExitCode "check-contract producer $case" (Invoke-Gate 'check-contract.ps1' @('contract-boundary.json','-RepoRoot','.')) $expected
+    }
+
     # --- WFI-046 per-check execution record (design.md section 2) ---
     # The rule shipped in the python master only; every malformed shape passed
     # on this runtime while failing on POSIX, and neither suite had a fixture
