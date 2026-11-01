@@ -1515,6 +1515,272 @@
       ],
       "resolution": "Pass path/value as argv; quote Python heredoc delimiter.",
       "reuse": null
+    },
+    {
+      "finding_id": "TS690-001",
+      "rule_id": "CS-021",
+      "path": "mcp/ci-mcp/src/tools/actions.ts",
+      "line": 120,
+      "source_sha256": "6f2a30a4b8a64c14bc0a6b58eeb2dc4ebebeb04985b4cc3e130b1186a4f07328",
+      "flow": {
+        "input": "GitHub JSON",
+        "transformation": "unchecked generic cast and enum assertions",
+        "sink": "action mapper success envelopes"
+      },
+      "impact": "Malformed upstream data could throw or violate the public response contract.",
+      "reproduction": "Baseline82b53695: four malformed upstream regression cases all fail; current four pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/tools/upstream-shape.test.ts",
+        "Post-fix source SHA-256: 73f095612464624b19e2414e60e2f275bafa2154f1ac60d8b5f51b77730b4562",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Unknown transport JSON; Zod consumed-field validation; sanitized upstream-error.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-002",
+      "rule_id": "CS-023",
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "line": 100,
+      "source_sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e",
+      "flow": {
+        "input": "GitHub network/body read",
+        "transformation": "unbounded fetch/body lifetime",
+        "sink": "pending MCP tool request"
+      },
+      "impact": "An upstream response could keep a request pending indefinitely.",
+      "reproduction": "Current actual local HTTP stream receives headers, then caller cancellation aborts body and returns sanitized upstream-error; no baseline cancellation run (would wait).",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/error-paths/github-client.test.ts",
+        "Post-fix source SHA-256: 3a6d34291576cbd2c7029fdbd82e1aa29dbdc093455cbfba6ec83b6b8afc99f7",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "30s AbortSignal deadline plus optional caller signal passed to fetch, including body read.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-003",
+      "rule_id": "CS-018",
+      "path": "mcp/ci-mcp/src/error-normalizer.ts",
+      "line": 50,
+      "source_sha256": "b1b15448efe52d4f22a8de2d73ea670370f086162da7d499f5f97e1d2e8a0e97",
+      "flow": {
+        "input": "rate-limit header 1e300",
+        "transformation": "finite Number then invalid Date.toISOString",
+        "sink": "rate-limited error conversion"
+      },
+      "impact": "Malformed finite header threw RangeError instead of returning error envelope.",
+      "reproduction": "Baseline82b53695 oversized rate-limit regression fails; current passes.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/ci-mcp/tests/error-paths/error-normalizer.test.ts",
+        "Post-fix source SHA-256: 7c3ae2e19b3ec3df1d6ed8c30b924506fad98026cc1dedf9aa942cd51da6aeb7",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Check Date.getTime is finite before ISO conversion.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-004",
+      "rule_id": "CS-022",
+      "path": "mcp/sdd-forge-mcp/src/status-view.ts",
+      "line": 15,
+      "source_sha256": "95745babddec65c5cf8f22dd188a3ec5f539db62904eea93f38a05216ff66d88",
+      "flow": {
+        "input": "concurrent refresh requests",
+        "transformation": "late response replaces newest options",
+        "sink": "status UI DOM"
+      },
+      "impact": "An older refresh could overwrite newer feature selection.",
+      "reproduction": "VM executes the delivered HTTP page script, resolves newer refresh before older; current retains newest result. Baseline test not rerun.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/status-view.test.ts",
+        "Post-fix source SHA-256: f7827e3b5b6818261f9baa5d98be336ea46276220cb01d3e316a5c1f5ff63f12",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use refresh generation guard; bounded local fetch signal; textContent remains the rendering boundary.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-005",
+      "rule_id": "CS-009",
+      "path": "mcp/sdd-forge-mcp/src/root.ts",
+      "line": 23,
+      "source_sha256": "de472c935b26c3a83a9554e9755200517b3b3d13d1645abe946bbe66ef367d53",
+      "flow": {
+        "input": "unknown CLI option or missing root value",
+        "transformation": "indexOf root ignored other arguments",
+        "sink": "root selection and stdio startup"
+      },
+      "impact": "Unknown options silently selected cwd; missing value could be consumed as another option.",
+      "reproduction": "Real dist entry --unknown now exits1 with empty stdout; strict parse unit cases pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts",
+        "Post-fix source SHA-256: cc26634819f0b7cb01599a5856baf7c1a631fda3c7efbb68a3adc622d7df91e3",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use standard node:util parseArgs with known root/status-ui options and no positionals.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-006",
+      "rule_id": "CS-023",
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "line": 334,
+      "source_sha256": "6cc067c34027ff7b98d7114a230ca397e953da4bb18ca6a8ab83b1292121cc09",
+      "flow": {
+        "input": "directory symlink to ancestor",
+        "transformation": "recursive realpath walk without cycle detection",
+        "sink": "directory listing and quality-summary tool"
+      },
+      "impact": "Recursive scan could overflow stack and never return a domain result.",
+      "reproduction": "Baseline82b53695 cycle regression fails with stack recursion; current reports cycle and preserves normal aliases.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+        "Post-fix source SHA-256: 5ea3c3bde1af473d8dd1dc5ac71846f83b2b6b735e8f4cb5c7390d1a160c11bf",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Track active real directory ancestors; stop cycle with existing diagnostics; remove ancestry on return.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-007",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.js",
+      "line": 56,
+      "source_sha256": "3896e82a012b771390e20b38ec52453742ce77b81352762fbe5b67c9c742b01a",
+      "flow": {
+        "input": "AGENT_STOP stat EACCES or EIO",
+        "transformation": "catch-all interpreted inability as absent",
+        "sink": "tool authorization allow"
+      },
+      "impact": "Inspection failure could allow tool use when stop marker status was unknown.",
+      "reproduction": "Public Node entries: real POSIX inaccessible directory and injected EIO deny; absent/directory/regular controls preserve file contract; Copilot emits structured deny.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/guard-stop-inspection.tests.mjs",
+        "tests/guard-stop-inspection.tests.py",
+        "Post-fix source SHA-256: a88706e76b52bdf147c43ab27c0c65759eab56f30a0c31a707d2f9817d733eff",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Ignore only ENOENT/ENOTDIR; other inspection errors deny with distinct inability diagnostic. Same fix in sdd-hook-guard.js.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-008",
+      "rule_id": "CS-021",
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "line": 1132,
+      "source_sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a",
+      "flow": {
+        "input": "signed sudo token epoch plus trailing oops/.5/e0",
+        "transformation": "parseInt truncation before canonical HMAC",
+        "sink": "sudoActive bypass of approval guard"
+      },
+      "impact": "A malformed epoch retained a valid normalized signature and was accepted.",
+      "reproduction": "Public signed-token baseline test failed actual exit0 expected2 for oops; after fix all 9 boundary tests pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/guard-stop-inspection.tests.mjs",
+        "Post-fix source SHA-256: 518cb0fd6e224dd2523fb6b56b3d240e1be3fdd8ad6a88f275e52333286da6d2",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Complete signed decimal syntax and Number.isSafeInteger before canonicalization; preserve leading-zero/plus normalization already accepted.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-009",
+      "rule_id": "CS-021",
+      "path": "mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts",
+      "line": 57,
+      "source_sha256": "f95e5564d98c33a939dd2ba592f6bec144824090d405d2473a50f990e963eece",
+      "flow": {
+        "input": "SDK callTool return",
+        "transformation": "as never bypass at many callers",
+        "sink": "JSON test-envelope helper"
+      },
+      "impact": "Assertions hid drift in SDK response shape.",
+      "reproduction": "All affected tests compile and execute with runtime SDK CallToolResultSchema checks; current TS scan0 AnyKeyword findings.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts",
+        "mcp/sdd-forge-mcp/tests/status-view.test.ts",
+        "Post-fix source SHA-256: 96b05c8005409c53737565c36cc8b6b4782293644dda870fe4bf133054720378",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Helper accepts unknown, validates SDK schema; remove as never callers. Typed DOM mocks, direct AJV assignment, supported mock.method replace other blanket assertions.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-010",
+      "rule_id": "CS-029",
+      "path": "mcp/local-env-mcp/tests/no-secrets/server-canary.test.ts",
+      "line": 93,
+      "source_sha256": "609ceaa716e5b5dc30c2822bfb5b309388c0316400f5109264ba6ac9e7ebb742",
+      "flow": {
+        "input": "stdio tool responses",
+        "transformation": "fixed delay and null exit accepted",
+        "sink": "no-secrets evidence assertions"
+      },
+      "impact": "A killed process or incomplete tool sweep could be reported successful.",
+      "reproduction": "Actual stdio sweep now completes all5 responses/all3 tool result kinds with exit0, deadline cleanup. Current suite53pass.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "mcp/local-env-mcp/tests/no-secrets/server-canary.test.ts",
+        "Post-fix source SHA-256: c1ee6dccb1caf5d575250e2412fb9c1584b2e72a8b2f10fffd753e0820fecd56",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Close stdin after all responses; bound total lifetime, clear timer, require normal exit and each payload.",
+      "reuse": null
+    },
+    {
+      "finding_id": "TS690-011",
+      "rule_id": "CS-009",
+      "path": "tests/adversarial-review-contracts.tests.mjs",
+      "line": 7,
+      "source_sha256": "adeffdc86edc5d0eee87f1d60c438dec18660cfd0598b2c6aa2799199ff3c5f6",
+      "flow": {
+        "input": "import.meta.url containing percent-encoded spaces/Unicode",
+        "transformation": "URL.pathname used as filesystem path",
+        "sink": "contract fixture loading"
+      },
+      "impact": "Checkout paths with spaces/Unicode and Windows file URLs resolved incorrectly.",
+      "reproduction": "Contract suite passes via symlink path repo 日本語 with spaces using --preserve-symlinks-main as well as normal checkout.",
+      "state": "fixed",
+      "owner_issue": 690,
+      "evidence": [
+        "tests/adversarial-review-contracts.tests.mjs",
+        "Post-fix source SHA-256: 58008d7d558b787c02f84a3e29a3db019afaefd026e36014f513fe18febf328e",
+        "docs/contributor/coding-standards/audit/typescript/summary.md",
+        "Language audit summary: docs/contributor/coding-standards/audit/typescript/summary.md at 9a68aefc"
+      ],
+      "resolution": "Use fileURLToPath standard conversion.",
+      "reuse": null
     }
   ]
 }

@@ -67,3 +67,16 @@ SQLite parameter binding, a Bash argument array and a literal Python program
 receiving an environment value each preserved the intended value. These narrow
 controls substantiate the examples; they do not establish all destination rules,
 Windows batch semantics or whole-repository compliance.
+
+## TypeScript/JavaScript handoff reconciliation
+
+Imported 11 #690 records after the language owner supplied original baseline
+line numbers and SHA-256 values; verified every source hash against `82b53695`.
+Repaired source hashes remain in evidence. The language owner's durable summary
+is `audit/typescript/summary.md` at `9a68aefc`, including six actual baseline
+regression failures and the signed-epoch rejection control. Temporary log paths
+are not the final evidence destination. TS690-008 maps to CS-021 (external input
+narrowing), not parser-reuse CS-014: accepting a numeric prefix is the defect,
+and no consolidation decision is asserted. Schema and unique-ID checks pass
+for 80 central records. Record counts are grouped audit observations, not a
+normalized defect-frequency estimate or proof of whole-population closure.
