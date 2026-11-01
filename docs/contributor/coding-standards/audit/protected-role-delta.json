@@ -1,18 +1,18 @@
 {
   "schema": "coding-standards-protected-role-delta/v1",
-  "revision": "40fd6e22925c98087ddf2bb552f7000c63dd22dd",
+  "revision": "8064034e292fc2f30daba032983ff938a896d350",
   "method": "Read updated role and compare each changed mirror with its current live counterpart. Executed existing read-only mirror classifier, which recognizes exact PENDING predecessor/successor pins and preserves those bytes. No publisher or synchronization write invoked here.",
   "validation": {
     "command": "python3 scripts/sync-human-copy-mirrors.py --check",
     "exit_code": 0,
-    "result": "no stale mirrors; pending pairs explicitly left alone",
+    "result": "no stale mirrors; nothing to sync; pending variants explicitly left alone",
     "checker_sha256": "3f549e3091e2411db9bf69c1155d3f054142c9b766565593e8f7135698324a26",
     "enumerator_sha256": "1ea0e5b73661df53c1160af2d3122621d0c0702c3cae5fd2043568608c9c0d5d"
   },
   "entries": [
     {
       "path": "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
-      "source_sha256": "68d4e482a5cd52810c92d18a084b431688dea8e04253fe94a4bc193e04d2c591",
+      "source_sha256": "c99e6c480b744a2bfd49851c59f475260580502b21bff268dc92c9b57279f88c",
       "state": "out-of-scope",
       "role": "frozen input/mirror or original application manifest; not current installed entrypoint",
       "reason": "Rechecked changed provenance role after owner fixes: matching live bytes are an existing mirror, not a second independent implementation; manifests/CI candidates remain metadata or proposed input. Pending divergent generators remain AST/hash input, not executed generator. Current runtime source and current test consumers retain language-owner review obligations. Earlier historical bytes/pins remain evidence of their original snapshot, not claims that this branch never refreshed a stale mirror.",
@@ -52,7 +52,7 @@
     },
     {
       "path": "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
-      "source_sha256": "4e7daa5de561154e97b701491d1716344632cb2df88e5d3bb3ea4587ef928080",
+      "source_sha256": "dee0af467a5beee123ff38167e48860e75033cb1e56f205ac762aafcc1f15686",
       "state": "out-of-scope",
       "role": "frozen input/mirror or original application manifest; not current installed entrypoint",
       "reason": "Rechecked changed provenance role after owner fixes: matching live bytes are an existing mirror, not a second independent implementation; manifests/CI candidates remain metadata or proposed input. Pending divergent generators remain AST/hash input, not executed generator. Current runtime source and current test consumers retain language-owner review obligations. Earlier historical bytes/pins remain evidence of their original snapshot, not claims that this branch never refreshed a stale mirror.",
@@ -62,13 +62,13 @@
     },
     {
       "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
-      "source_sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36",
+      "source_sha256": "6277d3be18b383ed086e74df72c86c7319f3a858544262f21301a895d525c82d",
       "state": "out-of-scope",
       "role": "frozen input/mirror or original application manifest; not current installed entrypoint",
       "reason": "Rechecked changed provenance role after owner fixes: matching live bytes are an existing mirror, not a second independent implementation; manifests/CI candidates remain metadata or proposed input. Pending divergent generators remain AST/hash input, not executed generator. Current runtime source and current test consumers retain language-owner review obligations. Earlier historical bytes/pins remain evidence of their original snapshot, not claims that this branch never refreshed a stale mirror.",
       "live_path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
       "byte_equal_to_current_live": true,
-      "live_sha256": "32a2bafee99572ef0ea30da162659a592da14c81792bcec91bf7791a9defec36"
+      "live_sha256": "6277d3be18b383ed086e74df72c86c7319f3a858544262f21301a895d525c82d"
     },
     {
       "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
@@ -82,7 +82,7 @@
     },
     {
       "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
-      "source_sha256": "1dc2339b49bd518e039ec8fe884b2b0e911d5a4daaef45e00aa899beefd56bc3",
+      "source_sha256": "b97080bd500fbe39f040f33b6fe291b858049ee2ef0b37d237077b8ee877a3e5",
       "state": "out-of-scope",
       "role": "frozen input/mirror or original application manifest; not current installed entrypoint",
       "reason": "Rechecked changed provenance role after owner fixes: matching live bytes are an existing mirror, not a second independent implementation; manifests/CI candidates remain metadata or proposed input. Pending divergent generators remain AST/hash input, not executed generator. Current runtime source and current test consumers retain language-owner review obligations. Earlier historical bytes/pins remain evidence of their original snapshot, not claims that this branch never refreshed a stale mirror.",
@@ -92,7 +92,7 @@
     },
     {
       "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
-      "source_sha256": "db45ff97d6212cf6bbc36a293a8dbaaa2000479f35e809aec4944c4251e901db",
+      "source_sha256": "a20bcb35fe19bbf89f6543cfe944dd142f00dbd2e475847fe629bd15c501b0e5",
       "state": "out-of-scope",
       "role": "frozen input/mirror or original application manifest; not current installed entrypoint",
       "reason": "Rechecked changed provenance role after owner fixes: matching live bytes are an existing mirror, not a second independent implementation; manifests/CI candidates remain metadata or proposed input. Pending divergent generators remain AST/hash input, not executed generator. Current runtime source and current test consumers retain language-owner review obligations. Earlier historical bytes/pins remain evidence of their original snapshot, not claims that this branch never refreshed a stale mirror.",
@@ -149,6 +149,46 @@
       "live_path": "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
       "byte_equal_to_current_live": true,
       "live_sha256": "24ddafda2592aae694c9192c59b6b4ff6f2f3f59156e25098022d41f3ea10b8b"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "state": "out-of-scope",
+      "role": "historical publication input or mirrored successor, not independent installed entrypoint",
+      "reason": "Current test consumers own sandbox execution and provenance checks. This record does not assert old fixture code complies with current implementation rules. Read-only mirror classifier confirms predecessor/successor roles and preserves pending variants.",
+      "live_path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "source_sha256": "b9cadd0ef6ffa99b73fee62b0f0df876e819e2009c7e4cae3afaefa030736f1e",
+      "live_sha256": "b9cadd0ef6ffa99b73fee62b0f0df876e819e2009c7e4cae3afaefa030736f1e",
+      "byte_equal_to_current_live": true
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "state": "out-of-scope",
+      "role": "historical publication input or mirrored successor, not independent installed entrypoint",
+      "reason": "Current test consumers own sandbox execution and provenance checks. This record does not assert old fixture code complies with current implementation rules. Read-only mirror classifier confirms predecessor/successor roles and preserves pending variants.",
+      "live_path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "source_sha256": "52083bd11c2daab1ceeba9392e4a8b819a58506aa35c4396419613a258094a9b",
+      "live_sha256": "52083bd11c2daab1ceeba9392e4a8b819a58506aa35c4396419613a258094a9b",
+      "byte_equal_to_current_live": true
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "state": "out-of-scope",
+      "role": "historical publication input or mirrored successor, not independent installed entrypoint",
+      "reason": "Current test consumers own sandbox execution and provenance checks. This record does not assert old fixture code complies with current implementation rules. Read-only mirror classifier confirms predecessor/successor roles and preserves pending variants.",
+      "live_path": "MANIFEST.sha256",
+      "source_sha256": "d8f35b309594d099db4866f9d8daf513510a230e1194f4df14a94425ffa6ad38",
+      "live_sha256": null,
+      "byte_equal_to_current_live": false
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "state": "out-of-scope",
+      "role": "historical publication input or mirrored successor, not independent installed entrypoint",
+      "reason": "Current test consumers own sandbox execution and provenance checks. This record does not assert old fixture code complies with current implementation rules. Read-only mirror classifier confirms predecessor/successor roles and preserves pending variants.",
+      "live_path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "source_sha256": "834f36a6f63db2e2d27ba47d5da3fa7f08d0322ff03af160411537c57c4272f7",
+      "live_sha256": "834f36a6f63db2e2d27ba47d5da3fa7f08d0322ff03af160411537c57c4272f7",
+      "byte_equal_to_current_live": true
     }
   ]
 }

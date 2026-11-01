@@ -1720,7 +1720,7 @@ jobs:
         run: ./tests/check-installed-plugin-drift.tests.ps1
 
   coding-standards:
-    name: complete coding standards audit
+    name: native coding standards checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
