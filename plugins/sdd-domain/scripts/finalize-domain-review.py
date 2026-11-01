@@ -171,7 +171,7 @@ class Review:
             host = shutil.which('bash')
             require(host is not None, 'Bash validation runtime is unavailable')
             command = [host, str(validator), str(manifest_path), str(self.root)]
-        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True)
+        result = subprocess.run(command, cwd=self.root, capture_output=True, text=True, encoding="utf-8")
         require(result.returncode == 0 and result.stdout.startswith('REVIEW_CONTEXT_OK '),
                 'shared reservation or current-input validation failed for ' + str(role))
         require(matches[0].get('record_sha256') == result.stdout.split()[1],

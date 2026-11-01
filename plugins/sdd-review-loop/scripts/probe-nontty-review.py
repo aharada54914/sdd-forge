@@ -78,7 +78,7 @@ ledger_before = ledger.read_bytes()
 with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent) as temp:
     tmp = Path(temp)
     outside_path = tmp / 'outside.txt'
-    outside_path.write_text('Benign unadmitted diagnostic input.\n')
+    outside_path.write_text('Benign unadmitted diagnostic input.\n', encoding="utf-8")
     outside = str(outside_path.relative_to(ROOT))
     invocation = tmp / 'invocation.json'
     receipt_path = tmp / 'receipt.txt'
@@ -93,7 +93,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
             'previous_record_sha256': 'a' * 64, 'allowed_input_manifest': entries}
     if stage == 'quality':
         data.update(task_id=source_data['task_id'], scratch_root=source_data['scratch_root'])
-    invocation.write_text(json.dumps(data, indent=2))
+    invocation.write_text(json.dumps(data, indent=2), encoding="utf-8")
     invocation_relative = invocation.relative_to(ROOT).as_posix()
     read_paths = transport.diagnostic_read_paths(entries, invocation_relative)
     all_read_paths = [e['path'] for e in entries] + [invocation_relative,
@@ -106,12 +106,12 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
         read_paths = [mapped(name) for name in read_paths]
         all_read_paths = [mapped(name) for name in all_read_paths]
         outside = str(outside_path.resolve())
-    receipt_path.write_text(receipt)
+    receipt_path.write_text(receipt, encoding="utf-8")
     transport.preflight(ROOT, invocation, tmp / (session + '.jsonl'))
     policy_bytes, settings = transport.launch_policy(ROOT, invocation, receipt_path, policy_path,
                                                      fixed_inputs=fixed_inputs)
     policy_path.write_bytes(policy_bytes)
-    settings_path.write_text(json.dumps(settings))
+    settings_path.write_text(json.dumps(settings), encoding="utf-8")
     policy = json.loads(policy_bytes)
     expected_policy_paths = [str(p.resolve()) for p in
                              transport.review_read_paths(ROOT, invocation, data, fixed_inputs)]
@@ -124,7 +124,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
             ['rtk', 'proxy', 'node', str(guard), str(policy_path), policy_sha256],
             input=json.dumps({'tool_name': 'Read',
                               'tool_input': {'file_path': str(ROOT / relative)}}),
-            text=True, capture_output=True, cwd=ROOT, timeout=10)
+            text=True, capture_output=True, cwd=ROOT, timeout=10, encoding="utf-8")
         denied = relative == outside
         if (guarded.returncode != 0 or guarded.stderr or
                 (denied and 'permissionDecision":"deny' not in guarded.stdout) or
@@ -160,7 +160,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
                                       ['Read'] if fixed_inputs else control['exact_permission_rules'], settings_path,
                                       invocation, receipt_path, policy_path, fixed_inputs=fixed_inputs)
     launch_result = subprocess.run(command, input=prompt, text=True, capture_output=True,
-                            cwd=ROOT, timeout=300)
+                            cwd=ROOT, timeout=300, encoding="utf-8")
     print(json.dumps({'session': session, 'exit': launch_result.returncode,
                       'stderr_present': bool(launch_result.stderr)}), flush=True)
     if launch_result.returncode != 0:
@@ -171,7 +171,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     matches = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
     if len(matches) != 1:
         raise SystemExit('native transcript is missing or ambiguous')
-    rows = [json.loads(line) for line in matches[0].read_text().splitlines() if line.strip()]
+    rows = [json.loads(line) for line in matches[0].read_text(encoding="utf-8").splitlines() if line.strip()]
     uses = {}
     use_order = []
     results = {}
@@ -301,7 +301,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     require_json_output_completion(events, stage)
     transcript_before = matches[0].read_bytes()
     collision = subprocess.run(command, input=prompt, text=True, capture_output=True,
-                               cwd=ROOT, timeout=30)
+                               cwd=ROOT, timeout=30, encoding="utf-8")
     transport.verify_session_collision(collision, session, transcript_before, matches[0].read_bytes())
     if transport.sha(source_invocation) != source_digest or ledger.read_bytes() != ledger_before:
         raise SystemExit('source invocation or canonical ledger changed during diagnostic')

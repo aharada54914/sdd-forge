@@ -323,7 +323,7 @@ def run(args):
             publisher = SOURCE / 'plugins/sdd-quality-loop/scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
             command = (['pwsh', '-NoProfile', '-File', str(publisher), '-StagingDir', str(staged), '-Manifest', str(manifest)]
                        if args.publisher_runtime == 'ps1' else ['bash', str(publisher), '--staging-dir', str(staged), '--manifest', str(manifest)])
-            completed = subprocess.run(command, cwd=root, text=True, capture_output=True)
+            completed = subprocess.run(command, cwd=root, text=True, capture_output=True, encoding="utf-8")
         require(completed.returncode == 0, 'transactional publisher refused; use its existing recovery procedure')
         published = PROOF.CANON.parse_json_bytes(completed.stdout.encode())
         require(published.get('status') == 'ok' and published.get('targets') == list(TARGETS), 'publisher receipt differs')
