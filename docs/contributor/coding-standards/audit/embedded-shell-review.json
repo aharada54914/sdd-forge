@@ -1,0 +1,1684 @@
+{
+  "schema": "coding-standards-embedded-shell-review/v1",
+  "revision": "79c0c9683cf396e9ef3523591910100ba6fb525b",
+  "method": "Inspected all 83 active labelled shell blocks across 27 paths, including indented fences, and the surrounding consumer purpose; inspected 76 historical proposal blocks separately. Bash/PowerShell syntax checks executed for 41 concrete blocks; 42 authoring synopses are not unchanged programs. Additional unlabelled/text CLI-like blocks were inspected as synopsis. This is bounded embedded-shell coverage, not every prose claim or invoked implementation.",
+  "rule_applicability": "CS-004/005/007/010/015/016/017/022/023/024/025/030 assessed where commands handle inputs, credentials, processes or results. Remaining naming, typing, import, callback, HTML/SQL, dependency and reuse rules apply to generated/current program bodies rather than a reference CLI synopsis; no blanket whole-file compliance inferred.",
+  "actual_regression_evidence": [
+    "tests/sdd-sudo-guard-mutation.tests.py",
+    "tests/hitl-wfi-terminal.tests.sh",
+    "tests/template-validator-parity.tests.sh"
+  ],
+  "entries": [
+    {
+      "path": ".agents/skills/verify-review-reservation/SKILL.md",
+      "source_sha256": "6848213ff095ddaea1dbaf013b7165a4086393ee2b666522e5031ab8e7b1c432",
+      "judgment": "context-reviewed",
+      "context": "Fixed verification launcher with explicit external jar/evidence-directory inputs; launcher internals remain Python-owner scope.",
+      "blocks": [
+        {
+          "line": 63,
+          "language": "sh",
+          "sha256": "4facab81e2dfd512e8a4bb0111a3d356c6ef322c34f9abc79ae09484de5e7037",
+          "syntax": {
+            "path": ".agents/skills/verify-review-reservation/SKILL.md",
+            "line": 63,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "README.md",
+      "source_sha256": "7714f5d525438c5bb4782b615fd52d5842d2178f01cffc5dbe744429143e0243",
+      "judgment": "context-reviewed",
+      "context": "Installer/uninstaller commands pass fixed flags. User-selected placeholder paths are synopsis inputs; these commands intentionally mutate installation and are not assertions of successful installation.",
+      "blocks": [
+        {
+          "line": 11,
+          "language": "bash",
+          "sha256": "b1316246ace93fb2c3e0574b16c0d9b6507e6a5796b0acecaed8fff1e39bd9b3",
+          "syntax": {
+            "path": "README.md",
+            "line": 11,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 132,
+          "language": "bash",
+          "sha256": "e84a473f5fd6fa43bca5fe43b34e39e248cffc729c1594e31eeb0a1dc04720c3",
+          "syntax": {
+            "path": "README.md",
+            "line": 132,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 170,
+          "language": "bash",
+          "sha256": "6d3804d74879803629e8493cfad59ee911549c352801ab18e90b6456dc90d0ba",
+          "syntax": {
+            "path": "README.md",
+            "line": 170,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 185,
+          "language": "powershell",
+          "sha256": "911f1016083e1b17fea3c057c6047d0e7be6ba939b37e4f03db8a5b71afc46a8",
+          "syntax": {
+            "path": "README.md",
+            "line": 185,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 231,
+          "language": "bash",
+          "sha256": "916bcfd62be292c8fccfa8ba747bd9a1c6785c699ad1ce48889848f25520250e",
+          "syntax": {
+            "path": "README.md",
+            "line": 231,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 242,
+          "language": "powershell",
+          "sha256": "c2c61db99d1963def18c864f0cc4780ebffca1e1dcabaaac9e1b150ae0bfcc1f",
+          "syntax": {
+            "path": "README.md",
+            "line": 242,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "USERGUIDE.md",
+      "source_sha256": "2374e110c05049d2ad5d5fdaa49ab9fe2aa5044cc443bb5cc4b47330e6797af4",
+      "judgment": "context-reviewed",
+      "context": "MCP registration CLI synopsis identifies installation-root placeholders; no dynamic shell string renderer or credentials.",
+      "blocks": [
+        {
+          "line": 57,
+          "language": "bash",
+          "sha256": "0e86a64a4bfc71cb5e4fc8e8e20209198729eb558ba502a792ecfd2e2a2e8292",
+          "syntax": {
+            "path": "USERGUIDE.md",
+            "line": 57,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 270,
+          "language": "bash",
+          "sha256": "cf9d4937f68247cb712ceca6d9c28cbd1c5b7720fa1afa54c8bed820125a8cb6",
+          "syntax": {
+            "path": "USERGUIDE.md",
+            "line": 270,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/adr/0035-a9-bound-rollback-admission.md",
+      "source_sha256": "516dc2c2c370109304b2120a7f2719efdbe605c473158096f3708675265250bb",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 91,
+          "language": "sh",
+          "sha256": "f8ad24ee6fdaf1f8dc7b8131b9fc0b02bd834e38ee95e1d5def37eac6d80cc48",
+          "syntax": {
+            "path": "docs/adr/0035-a9-bound-rollback-admission.md",
+            "line": 91,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 138,
+          "language": "sh",
+          "sha256": "3a2c4edcfd1f730e27c246e0f63e5afa3fb1da4ac5a60aa2cd37c5380d284317",
+          "syntax": {
+            "path": "docs/adr/0035-a9-bound-rollback-admission.md",
+            "line": 138,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/ci-staging/RT-20260828-002-risk-reconciliation.md",
+      "source_sha256": "d016d21403098b7a88311300a3946e5af2878a24016e222cc6e49587a5b3350c",
+      "judgment": "context-reviewed",
+      "context": "Historical human-application instructions for a named staged patch; hash/check steps are inspection aids, not authorization or an automatic publisher. Preserve original candidate bytes and review actual current CI independently.",
+      "blocks": [
+        {
+          "line": 12,
+          "language": "sh",
+          "sha256": "46bbc3add8f844faa32fd54c5d479472190e95489a347b830f2aefc36f08d428",
+          "syntax": {
+            "path": "docs/ci-staging/RT-20260828-002-risk-reconciliation.md",
+            "line": 12,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/ci-staging/node22-runtime-baseline.md",
+      "source_sha256": "a541ddc14773d1ed5f4612a41b775d0d55b37097aa99758761be3f033746032e",
+      "judgment": "context-reviewed",
+      "context": "Historical human-application instructions for a named staged patch; hash/check steps are inspection aids, not authorization or an automatic publisher. Preserve original candidate bytes and review actual current CI independently.",
+      "blocks": [
+        {
+          "line": 17,
+          "language": "bash",
+          "sha256": "21051f4e7015faee6a51ca59a8f9d9983ff96c1ffd39fdcdcd78bdadc545561f",
+          "syntax": {
+            "path": "docs/ci-staging/node22-runtime-baseline.md",
+            "line": 17,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-029-round2-contract-suite.md",
+      "source_sha256": "2b19f4851eac67d57b34a527460eb65f5a6c9d63576feea4509b46508a4ede9b",
+      "judgment": "context-reviewed",
+      "context": "Historical human-application instructions for a named staged patch; hash/check steps are inspection aids, not authorization or an automatic publisher. Preserve original candidate bytes and review actual current CI independently.",
+      "blocks": [
+        {
+          "line": 27,
+          "language": "bash",
+          "sha256": "e191be81df4dbf0a311f42a1352ac56cb98d18914a60fb1ebd62992187d11396",
+          "syntax": {
+            "path": "docs/ci-staging/wfi-029-round2-contract-suite.md",
+            "line": 27,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/ci-staging/wfi-041-installer-idempotency-ci.md",
+      "source_sha256": "bf7e01508cf9d712eaa2f48e4caca0ac87b5be70b010f0abc58433ad4b778d31",
+      "judgment": "context-reviewed",
+      "context": "Historical human-application instructions for a named staged patch; hash/check steps are inspection aids, not authorization or an automatic publisher. Preserve original candidate bytes and review actual current CI independently.",
+      "blocks": [
+        {
+          "line": 45,
+          "language": "bash",
+          "sha256": "a276e165ac11cbc8483b33ad46f4d3da0cbce21f0739df5ce7fe77a6ae3d535b",
+          "syntax": {
+            "path": "docs/ci-staging/wfi-041-installer-idempotency-ci.md",
+            "line": 45,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/interrupted-review-recovery.md",
+      "source_sha256": "dd3777f023e1db0d8697baa135a49e7c7f0e580451b824ea5e9221b8af4410e8",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 8,
+          "language": "sh",
+          "sha256": "87a0edbef0434e096217bdb0a08877d0d6f2d7e4495291c0976e6dcb598adfe9",
+          "syntax": {
+            "path": "docs/contributor/interrupted-review-recovery.md",
+            "line": 8,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 13,
+          "language": "powershell",
+          "sha256": "48045543bd019f2a1393d34895d2e7ad454a715d18992c49b84017039cc1fb78",
+          "syntax": {
+            "path": "docs/contributor/interrupted-review-recovery.md",
+            "line": 13,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/issue-620-repository-syntax.md",
+      "source_sha256": "a4f606b06ba77a15d420dcb5b4aacaa14dba60de9274835e3cf9d383e418c9d7",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 35,
+          "language": "bash",
+          "sha256": "7b1fad33d324e3cbee87dbbab487599535b5938352e5348e3caba2f0e49b8923",
+          "syntax": {
+            "path": "docs/contributor/issue-620-repository-syntax.md",
+            "line": 35,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/optional-run-measurement.md",
+      "source_sha256": "c66e1d4abc06371f7ccaa146faff21763a68e05a0fe23fdad5319df90ad24745",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 8,
+          "language": "sh",
+          "sha256": "75794fdf276e7a8d4ea5d6d40778a2af5864b24501c2335991b3c1d5925151d7",
+          "syntax": {
+            "path": "docs/contributor/optional-run-measurement.md",
+            "line": 8,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/research-evidence-contract.md",
+      "source_sha256": "756ffbbc65e3e2863b4bb1726ad5ebd80ec09c797ef529e71ad55fb6b4345f1a",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 7,
+          "language": "sh",
+          "sha256": "e208eb13650fda9cf48193ff4435cd1a481b40c07227c9b1403d8e87d6611987",
+          "syntax": {
+            "path": "docs/contributor/research-evidence-contract.md",
+            "line": 7,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/weekly-local-codex-audit.md",
+      "source_sha256": "777f1d3166586737fc180f2175dcad5e8831d437986279177a5281604627f7ce",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 17,
+          "language": "sh",
+          "sha256": "f04d19eb0ce0347613442ca34875d62a7ad6ac02d148fd7a55659ece39cb94d6",
+          "syntax": {
+            "path": "docs/contributor/weekly-local-codex-audit.md",
+            "line": 17,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/contributor/workflow-detail.md",
+      "source_sha256": "9815474a491c2f19426f9f6bea0b0cde650be236f01559b46b8ddfe7eae89a5d",
+      "judgment": "context-reviewed",
+      "context": "Explicit stop-marker creation/removal and administrator branch-protection invocation. Presence/removal is an operator action; actual marker failure semantics are owned by hook implementation and SH-008.",
+      "blocks": [
+        {
+          "line": 313,
+          "language": "bash",
+          "sha256": "c8905dd4859100fbc34d994e8c6f76502db84ec1f262a7e81ecb007ee7dfc9f7",
+          "syntax": {
+            "path": "docs/contributor/workflow-detail.md",
+            "line": 313,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 318,
+          "language": "powershell",
+          "sha256": "09b56cc16bf521a33d7d39f0f12939cb9fba2bfc8002db56483c3ae4666aa9ea",
+          "syntax": {
+            "path": "docs/contributor/workflow-detail.md",
+            "line": 318,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 327,
+          "language": "bash",
+          "sha256": "d1b0889c9454d6f882fb0d276e88e7cf7920a4a513b38af76e8264973bfd4873",
+          "syntax": {
+            "path": "docs/contributor/workflow-detail.md",
+            "line": 327,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 330,
+          "language": "powershell",
+          "sha256": "a5158191862be6f8e9fb1e742cc572f48bb2b1069413be26250655e385867b64",
+          "syntax": {
+            "path": "docs/contributor/workflow-detail.md",
+            "line": 330,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 721,
+          "language": "bash",
+          "sha256": "b8f08e051234ce4f1ed0008f1704bbc83269140f276aa6319dbd1b539eacc92f",
+          "syntax": {
+            "path": "docs/contributor/workflow-detail.md",
+            "line": 721,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/operations/context-approval-ci.md",
+      "source_sha256": "ec5ca1412ef53ece6275945ed329651721ddd81f20497fd2eb5cc05de91d6597",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 22,
+          "language": "sh",
+          "sha256": "348847b185d71aef21745a0f36ca372d402ef81ed544a8e705aceb3b3e92f8ba",
+          "syntax": {
+            "path": "docs/operations/context-approval-ci.md",
+            "line": 22,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/skill-reference.md",
+      "source_sha256": "ae1e4b5d39c894dfd54dc87185d93bd696d9882cb83de489e117197e1ab228ac",
+      "judgment": "context-reviewed",
+      "context": "CLI reference/troubleshooting examples distinguish placeholders and optional arguments. Fixed calls inspect named project artifacts; explicit marker removal is operator-directed. Full program behavior belongs to the current invoked scripts, not this synopsis.",
+      "blocks": [
+        {
+          "line": 362,
+          "language": "sh",
+          "sha256": "bacfe38c0b940787fb37d2d06cd1f4d1a5f3817d82c3911396c3d8711a81a852",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 362,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 448,
+          "language": "bash",
+          "sha256": "f85b8987d6b0a2a71e66a405712eb72ab538f4a704024d049b3e9f063f2434db",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 448,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 453,
+          "language": "powershell",
+          "sha256": "87cba313424c26900c54534520932f0c7c9b0a13ba5f520b2545b8054fa6a9fb",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 453,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 496,
+          "language": "bash",
+          "sha256": "636fc3f4cedb98e427daa0732ae6966ff26ad1e1ac4b932dccfa692a823dbe12",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 496,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 501,
+          "language": "powershell",
+          "sha256": "103f0ae5497e436d4aa94de762c1d0936ed48fd8721b77ecc04b275b74e2b1c6",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 501,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 544,
+          "language": "bash",
+          "sha256": "60ae4e8ae1e02cfb57479d772550bd9fa385c84adf3dc63ae01d16e153b06d33",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 544,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 549,
+          "language": "powershell",
+          "sha256": "1c75c49a77eaac38f192087b2a7bb6f25e7af5fdcca03d4b090a15f1c2d9dcf8",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 549,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 592,
+          "language": "bash",
+          "sha256": "d3a5f94f5ae910400937b71b0e67a2c2d5c5beaa0e53f3c2db7b35ad491b9c92",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 592,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 597,
+          "language": "powershell",
+          "sha256": "77b2572db53fab7a82ef2c77d483e3ac26aa7081ad17d8329e9ae50987cc45db",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 597,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 623,
+          "language": "bash",
+          "sha256": "f263ca13836ea4756db1a759f1ef660a13596e7c0d96d650f0ce18da9cb6b886",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 623,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 627,
+          "language": "powershell",
+          "sha256": "d6558ff4ed1f418123ba96b8ad96a636c790c8efddd610cf9da583073d5398a1",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 627,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 646,
+          "language": "bash",
+          "sha256": "53fc1e4c789e51bfa99d64a03cf56ac3751b39761a5ad0073ee650a7c944c31e",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 646,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 650,
+          "language": "powershell",
+          "sha256": "e275ff2cc0d3829c833ff7e2f2d5154e160c0d7ff5ad50c0a4b6143e211446d0",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 650,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 673,
+          "language": "bash",
+          "sha256": "cdef64b63b29ec711339b8954c61c8b82e52bf9802977acfcbf27b554b01e2fb",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 673,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 677,
+          "language": "powershell",
+          "sha256": "102aa6c06db85c4db0cf7465556292141bc7fd2f82b05a20d8cd98f1a7262923",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 677,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 691,
+          "language": "bash",
+          "sha256": "9a06eaace2ef3a365dcbb21b7129fa37fc6bdbff5b8dd95e486df057a826c8fa",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 691,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 696,
+          "language": "powershell",
+          "sha256": "0265353fbed07cada6ec5170c114cc79a6ccb35ba4126203fe91fc8df0a45c22",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 696,
+            "language": "powershell",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 757,
+          "language": "bash",
+          "sha256": "349ff5ff6f74be177d4decee0c9da21db2f039cd78b44f7f8f2c3dc284134a73",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 757,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 779,
+          "language": "bash",
+          "sha256": "afd99fb6f612e8e49f294eedf517bf44f0e853ffe9bccc6202e59c6c5493e83b",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 779,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 807,
+          "language": "bash",
+          "sha256": "fd5ef86589a34e34e49815eb87c4e79ed43b5a340627ff1ba91bbcb6d9f5c25d",
+          "syntax": {
+            "path": "docs/skill-reference.md",
+            "line": 807,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/troubleshooting.md",
+      "source_sha256": "cd6a262b8b403355117d6346bceb5a19cbcc84076b88c5a4013f2aecc77ae6be",
+      "judgment": "context-reviewed",
+      "context": "CLI reference/troubleshooting examples distinguish placeholders and optional arguments. Fixed calls inspect named project artifacts; explicit marker removal is operator-directed. Full program behavior belongs to the current invoked scripts, not this synopsis.",
+      "blocks": [
+        {
+          "line": 47,
+          "language": "bash",
+          "sha256": "033fdb9d643ecad84fa1c476854e63947e687d4e7313ca752a9d3f2b965e4a20",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 47,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 51,
+          "language": "bash",
+          "sha256": "4f334a2fd247d073287f19f72c03f16cfeaee029f4a133752a7c073d71aae540",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 51,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 124,
+          "language": "bash",
+          "sha256": "800b7215b0385646a592bf26b8ddad556e55dcf457cb592e918f36d7e3d1a19b",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 124,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 128,
+          "language": "bash",
+          "sha256": "be8fd257462e5462bb7e4300ec61958009605939078330b271ea55ca43b52417",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 128,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 132,
+          "language": "bash",
+          "sha256": "054ea59226877a5727702483d0fcdb396784cfa3bc8cac2579183b6c74881170",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 132,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 149,
+          "language": "bash",
+          "sha256": "c1511a3d0024c1c777aa80cdee852fe01f3c8b8138473e0b1014f08981bd4831",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 149,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 153,
+          "language": "bash",
+          "sha256": "81e5cbd4108c646abf50d129e0aefb641dd2fc17287ae74c649835f9739a2504",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 153,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 200,
+          "language": "bash",
+          "sha256": "9a334fe9a51a76e1610fe016eb1108d4a43c2d0fb1c9afa7357377112746204f",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 200,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 249,
+          "language": "bash",
+          "sha256": "e2117f8bf1b46fef4733987f1fd65ea729c75f5f2c8481bec947f5579541c9b0",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 249,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 253,
+          "language": "bash",
+          "sha256": "8dfee07a1d395d1ad672abc811a094aa2dfe81d08cc15d413a2f2d620da9bc62",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 253,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 277,
+          "language": "bash",
+          "sha256": "462f669611aa329b250981e75d6f2b660dca0b3169ba5feb095578f6ddc9bfbd",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 277,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 280,
+          "language": "powershell",
+          "sha256": "6fda504fde34b5b704c8211b2630abeccd672a0f346de36f78b2e28ff94c6bd6",
+          "syntax": {
+            "path": "docs/troubleshooting.md",
+            "line": 280,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/verification.md",
+      "source_sha256": "2f66acebd7504bd9a4e30fdf7a3f47dd02d8c127ccc4e9c4ad5d627749911221",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 17,
+          "language": "sh",
+          "sha256": "3436dde639c4e3ed931cf4c77e5ee3cde862d9ac8aa0ad23b5087e2cb57d072b",
+          "syntax": {
+            "path": "docs/verification.md",
+            "line": 17,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+      "source_sha256": "dbfac9e6906914eba31b76d3e30efd9fc6e7488edded360c341e3937a95a3dc2",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 38,
+          "language": "sh",
+          "sha256": "93b8ec0b0058936f2a18bafdf74c93609df45b4631ce2217ec37475376884598",
+          "syntax": {
+            "path": "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+            "line": 38,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "source_sha256": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f",
+      "judgment": "context-reviewed",
+      "context": "Copilot initialization uses a fixed no-review prompt and empty tool allowance; session continuation restricts writes and requires actual session identifier. Finalize CLI examples are placeholders; underlying status and artifact admission are language-owner scope.",
+      "blocks": [
+        {
+          "line": 172,
+          "language": "bash",
+          "sha256": "3c091fb5398d4574560107bb89110d6b97dd88a70f4afa1b8bb1678b9a837d2b",
+          "syntax": {
+            "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+            "line": 172,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 195,
+          "language": "bash",
+          "sha256": "331e13f4c6842b8fae86f6a010ff2ebf8e71af49d4f684583469d230364e18c8",
+          "syntax": {
+            "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+            "line": 195,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 269,
+          "language": "bash",
+          "sha256": "6516ee1be255901cee7fe23eb41997d722f740c0ecd7e8fb437b80084805f71e",
+          "syntax": {
+            "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+            "line": 269,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 276,
+          "language": "bash",
+          "sha256": "9f2427d9ee5415e271e4bc740eff86da827b9165728e175d1537392706177d2e",
+          "syntax": {
+            "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+            "line": 276,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/diagnosis-report.template.md",
+      "source_sha256": "88a492b9132329b366a4cd788646382054e29b18804dce6eddfb78778e55a834",
+      "judgment": "context-reviewed",
+      "context": "One-command placeholder is an evidence field, not an executable check or a default PASS. Standalone HITL template is separately repaired in DOC-004.",
+      "blocks": [
+        {
+          "line": 8,
+          "language": "sh",
+          "sha256": "b2acd16e3f8a012059a3e324e96db619bc180ca056ef4d73a50e2d617952ec23",
+          "syntax": {
+            "path": "plugins/sdd-implementation/templates/diagnosis-report.template.md",
+            "line": 8,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "source_sha256": "73ae95edb3c6dd7b1b8e85fd1e618cb78797a7c2269f72abb11ec23933e2a1f2",
+      "judgment": "context-reviewed",
+      "context": "Panel preparation establishes max bytes and digest before runner calls; final aggregation uses expected digest. Angle-bracket arguments are explicit authoring synopsis, not runnable unchanged commands. Runner bounds and error propagation are audited in actual shell sources.",
+      "blocks": [
+        {
+          "line": 46,
+          "language": "sh",
+          "sha256": "3708a0e2239a6b43df8a315f210522963288b3a3b6e0ed03066eeb5647863b89",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 46,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 114,
+          "language": "sh",
+          "sha256": "84e6cc965da02eb76e49b60528f16c86cb79534fff9fb9c0477d5a90979ba4ce",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 114,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 143,
+          "language": "sh",
+          "sha256": "efc02ee86ca496975efe2262d34528f55580aeaf8450f674d2ff027effcd2970",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 143,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 152,
+          "language": "sh",
+          "sha256": "bc87a8913323f12c4bfc04fe66891f9fafe934dba872a8345c6878169f245075",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 152,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 166,
+          "language": "sh",
+          "sha256": "ca4c8bde3615f23e50b0d194543ec98def8184059a70c2b45adb44731e6e8938",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 166,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 178,
+          "language": "sh",
+          "sha256": "3cecd03a4227cc6766efa9343e43a9da8ab98ec531be2a917890771dcd2e66c0",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+            "line": 178,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "source_sha256": "990760c890ab560ee8c4c5cf6e52a5262830823db37c71559238ba88c20fe976",
+      "judgment": "context-reviewed",
+      "context": "Risk/model selection invokes registered selector with candidates file; subsequent codex command is explicit synopsis with live model/effort inputs. No fixed model identity becomes an authorization substitute.",
+      "blocks": [
+        {
+          "line": 186,
+          "language": "sh",
+          "sha256": "fba4fa869c67abe7bc6098f35d9c795aacd542399535d263f1dffb96ad31bd50",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+            "line": 186,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        },
+        {
+          "line": 214,
+          "language": "sh",
+          "sha256": "105be6055c6df5b76c5660f2522ed7d615b741b5864e876be94143f862c270b8",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+            "line": 214,
+            "language": "sh",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "source_sha256": "139a2fa06e5060d550a79a25a04491fa511fa05f63b2eaa49956ceb59b256452",
+      "judgment": "context-reviewed",
+      "context": "Inspected key creation and both canonical signing examples. DOC-003 removed signing key from child argv and validates environment/file precedence, normalization and missing-key failure with actual extracted program tests; PowerShell RNG uses instance API. Real token creation was not executed.",
+      "blocks": [
+        {
+          "line": 136,
+          "language": "sh",
+          "sha256": "fe6daa809dfe122e275a946eb093c0d52a2ae70a393fd152e25edb3fe193e9fa",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+            "line": 136,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 145,
+          "language": "powershell",
+          "sha256": "20fdff456a652f240170aafd289acd30dac7f96ffe46b51818906791ba7a90e3",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+            "line": 145,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 179,
+          "language": "sh",
+          "sha256": "c4008c5630a681109c4987917088a8c69b4ff1b24a08a930ab85a65b84540a56",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+            "line": 179,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 201,
+          "language": "powershell",
+          "sha256": "bf33f95035f23f6455dfae19a7c7b03a71f9d2575b3d07646dd73678d8ed2b42",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+            "line": 201,
+            "language": "powershell",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "source_sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be",
+      "judgment": "context-reviewed",
+      "context": "gh issue command is a human-filled synopsis with literal placeholder title/body, not a program substituting untrusted data into shell source. Publication requires the surrounding workflow approval; no issue sent during this audit.",
+      "blocks": [
+        {
+          "line": 223,
+          "language": "bash",
+          "sha256": "a764061f07e6aae26b47dde871f5d6b6af96111f2b41edf93735337c91911b9e",
+          "syntax": {
+            "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+            "line": 223,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "source_sha256": "81a03a91a12abfbea70798cdabf7a2defd9e938cf3397517483d7d275ef66929",
+      "judgment": "context-reviewed",
+      "context": "Inspected fixed CLI arguments and named input/output paths against the surrounding purpose. Commands delegate to existing validators, test runners or explicit operator workflows; no embedded eval, dynamic SQL/HTML, retry loop or resource-owning service. Placeholder parameters remain author input, and syntax success is not a runtime result.",
+      "blocks": [
+        {
+          "line": 37,
+          "language": "bash",
+          "sha256": "1eb98b26cdc17f864e79483be32c69160e518991e537ae871fc9712d825fed82",
+          "syntax": {
+            "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+            "line": 37,
+            "language": "bash",
+            "check": "authoring-synopsis",
+            "exit_code": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "skills/adversarial-review/SKILL.md",
+      "source_sha256": "8b2b1264c09ace346a6328435a60baabbcf54e73c8ef902f91ed3328937956c3",
+      "judgment": "context-reviewed",
+      "context": "Checker commands use evidence-checkout paths and pinned report hash. git diff command disables external diff/text conversion and quotes commit variables; pipe is a diagnostic hash example, not independently asserted successful producer validation.",
+      "blocks": [
+        {
+          "line": 86,
+          "language": "sh",
+          "sha256": "fc2b1bf3c0cb2ee4ced20b70e4e2fda118621f38362cff05e9c7c75af076bfbf",
+          "syntax": {
+            "path": "skills/adversarial-review/SKILL.md",
+            "line": 86,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 151,
+          "language": "bash",
+          "sha256": "938195eb6b59c791cf2a7cd7c8a265f9e1f9baf51332f81640cc3c7e8131fd67",
+          "syntax": {
+            "path": "skills/adversarial-review/SKILL.md",
+            "line": 151,
+            "language": "bash",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        },
+        {
+          "line": 195,
+          "language": "sh",
+          "sha256": "b32f123d9c537c367405ed75fc24aa8a086878813451400e44cf924add3d2527",
+          "syntax": {
+            "path": "skills/adversarial-review/SKILL.md",
+            "line": 195,
+            "language": "sh",
+            "check": "syntax-checked",
+            "exit_code": 0
+          }
+        }
+      ]
+    }
+  ],
+  "historical_blocks": [
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 44,
+      "body_sha256": "a4f0a64fabe7f71791529a3923045180a316cb03098127da9d46bfbae324f6b0",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 50,
+      "body_sha256": "f872fcdab0459fa207ef0e7c5c9feb918ee41c92870b5b67bd71e94f63f9f67b",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 162,
+      "body_sha256": "b3e4d7f87a2dbadcd924bd54e9c2d60cdccdc51e89460b215080f1f92456fdea",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 186,
+      "body_sha256": "aa280e945100ee7a48b4b0182a107edf88d3dad33c83bc9af34d77655443e3cc",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 276,
+      "body_sha256": "8908ae07a2fe55ddfd0345a4cb46d967139968df870a83ecacb8dedeb5d019a1",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 328,
+      "body_sha256": "f5fa7d5a2b8e61b03275c6c49566b779a032796d8863bcf7b093148ee2c3d3cf",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 375,
+      "body_sha256": "65f924a56df773002cca763b7c93891c30d026bb1d2355b5e54ca6e8f52a8079",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 425,
+      "body_sha256": "558a6d737992ec4f97e698487fd3630017c22f9b219d82c30c8dfd81972352fa",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 482,
+      "body_sha256": "ca1a0425cabbf32fdb3edaf824b7af13dcc035afa37ff5900d2b35d20b45ec58",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-02-design-iteration-lane.md",
+      "line": 493,
+      "body_sha256": "4a46f84bdc730a02cd63c8dbce5e48b703b4c42d5c6da7c9c70d51806e3d01ef",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 44,
+      "body_sha256": "3b1bccf97df1bf6d60aa055742190121822448215c583dc5560ef0be066ca9f6",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 91,
+      "body_sha256": "c9a9796cace6c34eeb4d63195e7cea6561f8ccc23d85ac8dc279ae4366bc262d",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 219,
+      "body_sha256": "3990f0a8dfa8bae95a4a755ca0fd4d8f97e7d2f1ba6f8eda1db861381a90b430",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 244,
+      "body_sha256": "f0016fbf397b2a0594871997ad0b20641e1ab874b4fb96fc48fa923d8cf765e5",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 266,
+      "body_sha256": "b22db28b5699da7dde261d2a89c7e8036d81a1a24f027652104445d6adee2d44",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 403,
+      "body_sha256": "f907f8ce1945508b33d26183d24c67457dec153d44fc4e0828a3e2b02b98e192",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 427,
+      "body_sha256": "851159d20acc96492862a75a1aec1b0b0d5a2f9620eb43feb0334d0ae12de34f",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 439,
+      "body_sha256": "94a158a492f5a1bfebfcd6d557de2fefc0f130122c0b400af24b92b0a0054406",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p0.md",
+      "line": 528,
+      "body_sha256": "e98aef504858731a1a195e4a3e01727fb192a147dc70a4eef9a1a8e2df46cead",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 41,
+      "body_sha256": "0ce9d9b5b3d89c05c6e40bd4bb69091785cfcd8fc4b3150d4418b1b5bf64195f",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 91,
+      "body_sha256": "2fc545f097a24b9842042927ee43514c2eb0ea0adb6edddf5a65230b6ab47eac",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 114,
+      "body_sha256": "602dd3873126573c522b3a638ba8a609bf14a1602a601238d2b65e0e7952891b",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 130,
+      "body_sha256": "20392092250fd25f5183716d4f3de4cdde392404a1c69d4d505b2e47a2fa5de2",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 270,
+      "body_sha256": "4dcc9d8abff29030a8c703d0b220104b41f50fbd9426f7bae3a2bc59bf9b1244",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 293,
+      "body_sha256": "da9cdbc9b7fb78c5fbdd6be866096c66ac97e8c1ba7c74be692d9138d8c04c57",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 302,
+      "body_sha256": "d2497b543d848c84c13e01a73ba36c4f820ca721ebeb4ec4fe4d7b76f0151534",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 348,
+      "body_sha256": "e14f5d17107a99242f503cf30a6e2cb51b4fdca815f9f60899849a967029dff7",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 372,
+      "body_sha256": "270a96d3dedc257baebf2825f5749987317548e450cac54d91a33a9c7f29289b",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 384,
+      "body_sha256": "0d25c3201d703d29799824826c0a026df97e65df777ad318f902c6984c60d904",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p1.md",
+      "line": 455,
+      "body_sha256": "b456ae803d152af5139a01a0cc64d468ef0b6475fdfb6ccfa0b233a120f54f87",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 41,
+      "body_sha256": "8464d7f4e95075839e0d933207213f90abc72079429149230023c417f70a917a",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 53,
+      "body_sha256": "d68a01eaa2c9268c006788c490aaac0cb0f11ddf15820b53049cebcae265e8ef",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 67,
+      "body_sha256": "52835c9475646904f7bfda05a05611b82cfa8755d5c95357ef86e934ca40c4c6",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 73,
+      "body_sha256": "114744afe7430c8582876f999ca3982399ae8a31f41b79c6a9f5579de23624a6",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 213,
+      "body_sha256": "35632f42519eb2d3f9e9320ece7e2f65950c714511e6f89dcc57b2764ada5bb2",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 237,
+      "body_sha256": "5a3d31f82ccd3e45e7167a999455521caf70a257fe864166683b61ab65583566",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 246,
+      "body_sha256": "1f3283cf2e43321da6bf853dc89af82e4ce1601b085cf68886233bee7f37a41a",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p2.md",
+      "line": 325,
+      "body_sha256": "6b10484bbc20c9b002d5351eb94dd4d41ec56ee5fb9ad59a5c9ad2d1d0a0ab6c",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 39,
+      "body_sha256": "5af0dcb01ee42f3830a840668803c15343ad8902da516e23effb668631f9e191",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 51,
+      "body_sha256": "1d113d701e0ca964a17a87c321a7ee065f01d59015f4ab9eea080d296e3941f2",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 122,
+      "body_sha256": "d8125b24cf66939e53492230273d666da42d53980294a72e59a47dabd3fd5ea2",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 145,
+      "body_sha256": "ce26a0d543b3dd8aa0daf497ccdc46b52f6711defa0a0867244fb7d5aa61c081",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 155,
+      "body_sha256": "89a48a292841495ddc674f42e867768da71881761b93235242a1d3c7e8766109",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p3.md",
+      "line": 213,
+      "body_sha256": "81fbe10e77d8f39d151bf5740e3ff60d6d1bb8891b18ecdb87c3d2fd1a1bcf1f",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 43,
+      "body_sha256": "6f2ee6c16456af2ef23587dbd93fed241b101b7e54ad9ff71b890304cce65296",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 56,
+      "body_sha256": "ab680e25e7e9180f492c2bf550ba630279bd12ecc2d67763ab9fc356b9846e75",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 179,
+      "body_sha256": "7e5c70ae97d79943359c27b95fbe18671773e15345a79a0710a45710b3fe4c78",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 203,
+      "body_sha256": "a413bbb6099be3c8702dda890572a6fdcf952c0c2764efd6ea5d70173764b3a6",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 213,
+      "body_sha256": "6822b16c963026b75f18009cb58274cb2679d3206b0e0d921094fbe49408d247",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 293,
+      "body_sha256": "2c9cc5fb45db97e7462edb66232717216726207dfebd7c4f0754bd430fa7ec54",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 318,
+      "body_sha256": "849b4e14b7802be110c59f8276d5ac4c31461095622818502283634ec4028820",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 400,
+      "body_sha256": "34d3094493280a86b715f7e546ed79d74633517fc0164b2f47d20800c3b14358",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 462,
+      "body_sha256": "ef6a95a10807e9deeac9eb8c600ce7132347ac40a030a1a9282a63166cbf9334",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 552,
+      "body_sha256": "91636a67d594b60d2ace5553dec44796ba2726fe098bfe77b18587b5bb388d60",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 648,
+      "body_sha256": "b5100554c6dd2e22b9be5fbe45acd8e353d9347daed49f2dbb1e8c2b65773052",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 673,
+      "body_sha256": "5459cf98ef5e52b9290600d098b9c69db70e78c67f894c615a6158d62d4e5c67",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 684,
+      "body_sha256": "d14a53536dd67651ba989252e5afaf1709f348d1e64668a5ffd9ce13fef7a0b5",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p4.md",
+      "line": 774,
+      "body_sha256": "2a8bd5404cc2df73a77631535e09c16c4f31004c6b8eae3134544e8604cbc5a1",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 39,
+      "body_sha256": "e347861e212f3179c2a4e782ee8b78a847a8c3392296968b9de06554723fa61d",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 45,
+      "body_sha256": "e86e249266a5fbd3d321f7f708b2642b5ec61e5de467e95df7a54f15d911d663",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 51,
+      "body_sha256": "300956a7c117d01a673290dd843c87d54e19f04370be14af0e9b13b948c7db87",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 57,
+      "body_sha256": "1d6032e4f9597ff7348b61a08951f3687e03afa59400cafa95bc218c49d82437",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 70,
+      "body_sha256": "d21e23227487f09d5a2128aa80b71b71bdc629ad11fcfd243fdd7ff95e71c5b5",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 76,
+      "body_sha256": "19e13d089a242794e55c37cd56b08c9694d6c581dcec650fa88197bd7c8c8d34",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 87,
+      "body_sha256": "6d297f2e14df85db0f4080098a8d82fb65a1210c6f4ecc0b1b7f3ca4fd0ee1da",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 113,
+      "body_sha256": "52390eaa07b7bec6d8c13e78eda9d55397f1b6473aa5f34f8506e4a8f5074300",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 123,
+      "body_sha256": "40d99d8c0da6e5bcbc53dfc32b3b57f6711a0d6740c46e320ab59aa0f0fe8051",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-unified-design-system-p5.md",
+      "line": 235,
+      "body_sha256": "b8f3389f065c4bc80f15ba05eb4ebdec9dec39577ff54e66c6a767ca04bcf273",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-v1.8.0-release.md",
+      "line": 83,
+      "body_sha256": "297e8d4685a9dbbe67a54939fbe67be8258672bb71aca9d41512156a8122ca31",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-v1.8.0-release.md",
+      "line": 200,
+      "body_sha256": "8420d8730841b3dd940e2dd96804d3b8c1aa4f059f1ff4d4eb80d02828b726b1",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-03-v1.8.0-release.md",
+      "line": 262,
+      "body_sha256": "6be6d6bce49432b31ac9cc818803a1997fd4a9998cd6c4dfe4e3ea4f85269839",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-030.md",
+      "line": 84,
+      "body_sha256": "9c1f1068c5f6e1a25f1dc247712421f16084575799f96b630a74b989c545879c",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-035.md",
+      "line": 65,
+      "body_sha256": "812d916bf16a2ec4f651929b821bce9ae578e16ee1fb6e51a8bc9e44f10efdc2",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-041.md",
+      "line": 73,
+      "body_sha256": "cf14a66a7be6bde337fb27ec2b5cd600ebe07ade97314d26f018ba3276b19994",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-051.md",
+      "line": 104,
+      "body_sha256": "e52c48e4961b0e6f11874807a5baa597cf315c199f4850b8e4b619a8332d3a9e",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    },
+    {
+      "path": "docs/workflow-improvements/WFI-052.md",
+      "line": 82,
+      "body_sha256": "a54256473ee031164491e9c25bc4e90d04083f7670b1bf25a8855fe8ae864044",
+      "reason": "Dated proposal/implementation record code excerpt; not a dispatched current runtime entrypoint. Applied/Approved/Draft workflow status is not treated as Verified."
+    }
+  ],
+  "limits": "Native syntax is only parse evidence. Operator install, uninstall, branch protection, workflow dispatch and issue publication were not executed. Historical status is not promoted to verification. Findings DOC-001 through DOC-004 carry actual before/after behavior separately."
+}

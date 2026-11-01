@@ -1,0 +1,1739 @@
+{
+  "schema": "coding-standards-historical-shell-scope/v1",
+  "revision": "507fb2ca0d8bb8c1e64cd6694ce7e09ec7ad6668",
+  "scope": "All 82 intake historical/protected .sh/.ps1 paths. Inspected role-bearing headers and current direct references; inspected registry/catalog/test dynamic consumers. Classification is bounded to registered/documented current repository use, not all possible arbitrary user invocation.",
+  "dynamic_consumers": [
+    "tests/apply-human-copy.tests.sh:1535–1536 selects staged publishers;1914 globs bundles.",
+    "tests/human-copy-runner-contract.tests.sh:25 and PowerShell twin select staged runners.",
+    "tests/phase2-guard-invariants.tests.ps1 reads/copies nested staged publishers/guards.",
+    "tests/lite-spec-capability-block.tests.{sh,ps1} execute staged risk-upgrade scripts.",
+    "tests/fixtures/research-consumer-current-publication.json binds staged check-contract/spec-precheck consumers.",
+    "tests/compatibility-byte-identical.tests.sh consumes golden data, not arbitrary verification/**/*.sh scripts."
+  ],
+  "limits": "Historical out-of-scope means preserved original evidence or a frozen test input, never semantic PASS for the old program. Current harnesses, live successors and publisher authorization remain in language-owner scope. This review does not authorize applying a historical bundle to the checkout. Reintroduction as a current runtime entrypoint requires source review.",
+  "entries": [
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/bundle-a/scripts/generated/guard-invariants.generated.ps1",
+      "source_sha256": "86b4955b3857ceb497e5712ffeb4b6ef3cb501ab362ea15a25c328b745a83102",
+      "state": "out-of-scope",
+      "reason": "Generated guard-invariant snapshot pins original generator digest in header; current generated modules are under plugins/. This draft is retained implementation evidence, not current distribution.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Generated from guard-invariants.json; schema_version=1; sha256=dbfb8cee5949941a073111b5d052f0ee14f713064ef86b3afcf03b32d48c5984",
+        "# This file is generated. Do not edit."
+      ]
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/bundle-a/scripts/generated/guard-invariants.generated.sh",
+      "source_sha256": "c15562f51d980d398379e635d8a92ae2af1a9b085d5fa2481bdd8fdfe2014886",
+      "state": "out-of-scope",
+      "reason": "Generated guard-invariant snapshot pins original generator digest in header; current generated modules are under plugins/. This draft is retained implementation evidence, not current distribution.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Generated from guard-invariants.json; schema_version=1; sha256=dbfb8cee5949941a073111b5d052f0ee14f713064ef86b3afcf03b32d48c5984",
+        "# This dispatcher provenance module intentionally exposes no decision constants."
+      ]
+    },
+    {
+      "path": "reports/verification/ci-qcd-optimization-human-apply-20260922.sh",
+      "source_sha256": "64ca2a7c6f4147dbb3515bd8555a57abbaa518f50497691b488f5c8eec67c241",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "reports/verification/issue311-ci-wiring-human-apply-20260924.sh",
+      "source_sha256": "5182cc26cf5865be56824dbaeb4789b403491b4cdf3d396110abd1d559e150a7",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Human-only apply: the SDD hook protects these runner/workflow files."
+      ]
+    },
+    {
+      "path": "reports/verification/issue311-ci-wiring-human-apply-20260925.sh",
+      "source_sha256": "17c57a9e53bbe675e1246257458f37461d068e9844f7c00400a3b46b927588e0",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Human-only apply: the SDD hook protects these runner/workflow files."
+      ]
+    },
+    {
+      "path": "reports/verification/issue311-human-apply-20260923.sh",
+      "source_sha256": "4c08c198eb9b7b6c6be61d43f7861b9ddd9bcd9db1c5ba2af8f700e969aa2cf5",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Compatibility entry point. The former script targeted an obsolete",
+        "# origin/main snapshot and a stale fixture patch. Delegate to the",
+        "# current-main atomic helper, which validates the target tip and candidate",
+        "# hashes before touching protected files."
+      ]
+    },
+    {
+      "path": "reports/verification/issue311-human-apply-main-20260923.sh",
+      "source_sha256": "0ccb34a51022b7dc74e9be959a2a301130d8e32e13947cff0e9459dbc3aa7490",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Human-authorized application for WFI-034/#311 on a fresh origin/main",
+        "# worktree. It applies only the missing new-reservation guard; it does not",
+        "# replace the current validators with an older candidate snapshot."
+      ]
+    },
+    {
+      "path": "reports/verification/issue423-cloud-inputs-20261016/originals/install.sh",
+      "source_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "state": "out-of-scope",
+      "reason": "Retained original/baseline executable bytes for a recorded comparison; current root installer/runners are separate reviewed sources. No current executable/documented invocation of this snapshot found in tracked current sources.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# install.sh — SDD plugins installer for macOS and Linux",
+        "# Mirrors install.ps1 behavior exactly.",
+        "# ---------------------------------------------------------------------------",
+        "# Defaults"
+      ]
+    },
+    {
+      "path": "reports/verification/plugin-real-task-20261031/project/scripts/check-sdd-structure.sh",
+      "source_sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6",
+      "state": "out-of-scope",
+      "reason": "Recorded real-task project fixture is an archived run output. Current plugins/scripts are separate; current verification catalog does not invoke this recorded project script.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Deterministic preflight for the repository's SDD structure.",
+        "# Usage: scripts/check-sdd-structure.sh [project-root] [feature]"
+      ]
+    },
+    {
+      "path": "reports/verification/pr381-ci-human-batch-20260911.sh",
+      "source_sha256": "ba4047d2ed1eac6989855f881e94e996812050583823369c12833f7eb8823998",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Human-run batch: preserve CI semantics, apply the reviewed candidate, sync",
+        "# only the already-applied A6 workflow mirror, and retain recovery copies."
+      ]
+    },
+    {
+      "path": "reports/verification/pr381-consent-registration-regression.ps1",
+      "source_sha256": "0eb4035bd1da9b80dd1d0b346ea5f13f9c27818829627b7bff6c9faad0f15e6b",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": []
+    },
+    {
+      "path": "reports/verification/pr381-human-stage-20260911.sh",
+      "source_sha256": "d0ebb780e2c23aed0f34a4991fe1fd5f3b794f95469d587b15ea4e82d11f6282",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Human terminal only. Stage the inspected PR381 checkpoint; do not commit/push."
+      ]
+    },
+    {
+      "path": "reports/verification/task-prior-pass-receipt-ci-wiring-human-20260924.sh",
+      "source_sha256": "9e19b66c6cde928a3486c99274b799235ca705abc2e05c9fc656c18f2cec1810",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "reports/verification/windows-ci-lane-balance-human-apply-20260922.sh",
+      "source_sha256": "af925fcdaf4dda697140689688e55544f780fcd5d78d8eb9fe08f524ce4574d1",
+      "state": "out-of-scope",
+      "reason": "Dated operator application/recovery artifact attached to its earlier task; body identifies candidate patch/expected base or explicit human-apply switch. No current registered/documented invocation found; this is not authorization to rerun/apply it.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/sweep-operator.ps1",
+      "source_sha256": "41e485cb3fbaeffa953121cc59efe5fea7ae83a00e5b94ee6706a038f500f383",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "# T-005 case-sensitivity sweep -- operator layer, .ps1 side.",
+        "# Get-SectionBetween / Get-FirstLineIndex / Get-LinesOrEmpty bodies copied",
+        "# VERBATIM from tests/design-system-contract.tests.ps1:207-214, 249-266,",
+        "# 284-289 (not modified)."
+      ]
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/sweep-operator.sh",
+      "source_sha256": "92a72e60cb36423f753d7f60da227cda1d1ae15f115c11c519fd7232eae886b3",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# T-005 case-sensitivity sweep -- operator layer, .sh side.",
+        "# section_between() body copied VERBATIM from",
+        "# tests/design-system-contract.tests.sh:179-185 (not modified)."
+      ]
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness.ps1",
+      "source_sha256": "97db42e0fd662e0bcf5b698cb3880df35feb96f8712d7f2266b0ffb2ab244274",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "# T-005 real-execution proof: replicates tests/run-all.ps1's exact loop",
+        "# mechanism ($ErrorActionPreference='Stop'; foreach ($testFile in $tests) {",
+        "# & $powerShell -NoProfile -File (Join-Path $root $testFile); if",
+        "# ($LASTEXITCODE -ne 0) { throw ... } }), scoped to the tail of the real",
+        "# array (the last two pre-existing entries plus the newly-registered"
+      ]
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness.sh",
+      "source_sha256": "ba6440b79efbacc2e4b9bff95d5a33be2f302b745dd0d008a79932afe0ddb9ba",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# T-005 real-execution proof: replicates tests/run-all.sh's exact loop",
+        "# mechanism (set -euo pipefail; for test_file in \"${tests[@]}\"; do bash",
+        "# \"$test_file\"; done), scoped to the tail of the real array (the last two",
+        "# pre-existing entries plus the newly-registered"
+      ]
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness.ps1",
+      "source_sha256": "677c5932d5538b1fa315b8a9a4ca251e61ddfc69d4213da712574d67f5d0555a",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "# T-005 verification harness: replicates tests/run-all.ps1's own per-file",
+        "# loop body (verbatim mechanism -- Write-Host header, `& $powerShell -NoProfile",
+        "# -File`, $LASTEXITCODE check, failure tracking) scoped to the array's last",
+        "# three entries, so this task's own new tail entry",
+        "# (tests/design-sync-scan.tests.ps1) is exercised under run-all's exact"
+      ]
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-005/tail-harness.sh",
+      "source_sha256": "ed93ca442416823020123ddb3b600bcc6aa6df12ac84b74fe7d4896bc25e24ac",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# T-005 verification harness: replicates tests/run-all.sh's own per-file loop",
+        "# body (verbatim mechanism -- printf header, `bash \"$test_file\"`, failure",
+        "# tracking) scoped to the array's last three entries, so this task's own new",
+        "# tail entry (tests/design-sync-scan.tests.sh) is exercised under run-all's"
+      ]
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-002/ac031-fixtures/ac031-harness.sh",
+      "source_sha256": "bd56fb29f1bbc6d2e90bbf65b2ad6ff2926c73a5597a6528f115fb059bf81032",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Standalone positive-control harness for AC-031's two fixtures",
+        "# (tasks.md T-002 Done-When, AC-031 bullet). Reproduces",
+        "# tests/design-sync-standing-consent.tests.sh's section_between,",
+        "# flatten_text and the exact TEST-055/TEST-056 conditions verbatim, so the"
+      ]
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-002/ac031-fixtures/preflight-test001-006-harness.sh",
+      "source_sha256": "2d1ec4583bcb734b0afa4b9bf483761933b19fa87eda37aa00cc5df97bc9ad8b",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Pre-flight harness reproducing TEST-001..TEST-006 verbatim from",
+        "# tests/design-sync-standing-consent.tests.sh, run against a standalone",
+        "# fixture file before editing the live AGENTS.md."
+      ]
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/test054-harness.ps1",
+      "source_sha256": "b769688f7cfc89e8189ff766763e6e1d83ba9885d0b237e5ab15351fd91b52bc",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "# T-005 verification harness -- pwsh twin of test054-harness.sh. Proves the",
+        "# staged candidate satisfies TEST-054 (AC-028) without applying it to the",
+        "# live, protected .github/workflows/test.yml.",
+        "#",
+        "# The check function below is copied verbatim from"
+      ]
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/test054-harness.sh",
+      "source_sha256": "c32a2cd616068e20c9443a2177db0aa1d38b6cce04b86f3ec96daaebd2ebc237",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# T-005 verification harness -- proves the staged candidate satisfies",
+        "# TEST-054 (AC-028) without applying it to the live, protected",
+        "# .github/workflows/test.yml (which this task's own Done-When forbids the",
+        "# agent from writing, staged or live)."
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1",
+      "source_sha256": "d01c0d70f73b1d173339845c0547d5f7dcb6628fc9e2717a97d88acaf3b0e652",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/staging/self-improvement-pr-guard.sh",
+      "source_sha256": "523e3479ba067fbe9feaa665531d2f4bb07ea9503273471fd036032d86cdccf6",
+      "state": "out-of-scope",
+      "reason": "The literal test reference is a historical COMMENT documenting an opt-in reproduction override, not the default invocation. tests/self-improvement-guard.tests.sh:24 defaults to .github/scripts/self-improvement-pr-guard.sh. Retain original staged snapshot; arbitrary explicit GUARD_SH overrides are not the registered current route.",
+      "literal_references": [
+        {
+          "path": "tests/self-improvement-guard.tests.sh",
+          "line": 13
+        }
+      ],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# self-improvement-pr-guard.sh -- deterministic pre-PR enforcement-chain guard.",
+        "#",
+        "# Usage: self-improvement-pr-guard.sh <changed-paths-file>",
+        "#"
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+      "source_sha256": "bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [
+        {
+          "path": "docs/workflow-improvements/WFI-016.md",
+          "line": 124
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+          "line": 132
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+          "line": 289
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+          "line": 9
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+          "line": 7
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+          "line": 62
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+          "line": 5
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+          "line": 23
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+          "line": 5
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+          "line": 23
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+          "line": 4
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+          "line": 22
+        },
+        {
+          "path": "tests/guard-staging-exemption.tests.sh",
+          "line": 89
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 204
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 225
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 290
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 478
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 481
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 515
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "line": 77
+        }
+      ],
+      "header_evidence": [
+        "# This bundle's staging inventory (the copy plan). 2026-08-11 human ruling on",
+        "# RT-20260811-002 (class fix): the repo-shared .github/workflows/test.yml",
+        "# snapshot is EVICTED from this bundle -- a per-epic staged snapshot of a",
+        "# repo-shared file is structurally doomed to go stale and became a deletion"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/apply-protected-files.refresh-candidate-20260814.ps1",
+      "source_sha256": "e3ac63eef4e5f64a7f272e83da653185821b9abb7de935b2108049129c1096a3",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [],
+      "header_evidence": [
+        "# This bundle's staging inventory (the copy plan). 2026-08-11 human ruling on",
+        "# RT-20260811-002 (class fix): the repo-shared .github/workflows/test.yml",
+        "# snapshot is EVICTED from this bundle -- a per-epic staged snapshot of a",
+        "# repo-shared file is structurally doomed to go stale and became a deletion"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+      "source_sha256": "f627ab50b85a2855b7a65bece51948723a5b6a3ecdfb41f0122eb90d8348ff3c",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [],
+      "header_evidence": [
+        "    # NOT positional (no Position attribute) -- deliberately named-only,",
+        "    # matching design.md API/Contract Plan's own documented CLI surface",
+        "    # `check-risk-upgrade.ps1 -Path <source-path> [-CapabilityReasons",
+        "    # <fragment-path>]`. `check-risk-upgrade.ps1 <src> <frag>` (two bare",
+        "    # positional arguments, no flag) must not silently bind <frag> to this"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+      "source_sha256": "4ffd5cd7c5b395dbd438ec6ae223b26eff691e96df89d73cc436190a6dc53c9d",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Deterministic local risk-upgrade checker. Python is used only for strict",
+        "# UTF-8 decoding and ASCII lexical handling; this script never reads remotely.",
+        "#",
+        "# epic-194-a6-lite-integration T-002 (REQ-002): extended with an optional"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "source_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout. Contract-path tests use temporary valid/invalid path cases.",
+      "literal_references": [
+        {
+          "path": "tests/phase2-contract-path-helper.tests.ps1",
+          "line": 11
+        }
+      ],
+      "header_evidence": [
+        "# Deterministic gate: verify a Default-FAIL verification contract.",
+        "# Usage: check-contract.ps1 <path-to-contract.json> [-RepoRoot <path>]",
+        "# Fails (exit 1) while any required check has passes=false, or any passing",
+        "# check has empty or missing evidence. quality-gate must run this before Done.",
+        "# Additional rules enforced:"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        },
+        {
+          "path": "tests/phase2-contract-path-helper.tests.ps1",
+          "sha256": "ece9c15615bc4a6dd4c3a5a2d1a760f6e6b93ba71d60c7708e0484b825f353d3"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "source_sha256": "90c6f40355a812e1b59eea5ec197e9138be7a78e87437c24adcf1be6db1f4cd5",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout. Signature tests supply synthetic keys/tokens in temporary directories; native Windows availability is a separate test prerequisite.",
+      "literal_references": [
+        {
+          "path": "tests/phase2-sudo-signature-static.tests.sh",
+          "line": 7
+        },
+        {
+          "path": "tests/phase2-sudo-signature.tests.ps1",
+          "line": 8
+        }
+      ],
+      "header_evidence": [],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        },
+        {
+          "path": "tests/phase2-sudo-signature.tests.ps1",
+          "sha256": "bcb7a471c2b62f776e7107c6d114603459f3a9c40942c82f897c4568c344dc7d"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "source_sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# POSIX dispatcher for the unified SDD PreToolUse guard.",
+        "# It delegates decisions to the Python or PowerShell guard beside this script."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+      "source_sha256": "bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 531
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 552
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 679
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "line": 734
+        }
+      ],
+      "header_evidence": [
+        "# This bundle's staging inventory (the copy plan). 2026-08-11 human ruling on",
+        "# RT-20260811-002 (class fix): the repo-shared .github/workflows/test.yml",
+        "# snapshot is EVICTED from this bundle -- a per-epic staged snapshot of a",
+        "# repo-shared file is structurally doomed to go stale and became a deletion"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
+      "source_sha256": "cf755b5bb79d6286b47065528f17950ec915f0c5cd4f415beb589016f72c072c",
+      "state": "out-of-scope",
+      "reason": "Frozen phase-2 bundle: invariant tests read hashes and copy publisher/guard inputs into disposable fixtures; nested runner tests invoke fixture copies, not a publication into this checkout.",
+      "literal_references": [
+        {
+          "path": "docs/workflow-improvements/WFI-016.md",
+          "line": 123
+        },
+        {
+          "path": "docs/workflow-improvements/WFI-039-auditor-a.json",
+          "line": 12
+        },
+        {
+          "path": "docs/workflow-improvements/WFI-046.md",
+          "line": 202
+        }
+      ],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# guard-parity.tests.sh — R-02: Cross-runtime behavioral parity test.",
+        "# Verifies that sdd-hook-guard.js and sdd-hook-guard.py produce IDENTICAL",
+        "# exit codes for every scenario. Any divergence is a security boundary difference.",
+        "# Requires: node (14+), python3, bash."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.ps1",
+          "sha256": "d28fdba23fd92ef83601212587acf2c3a617323468f7461c20b54e00043749de"
+        },
+        {
+          "path": "tests/phase2-guard-invariants.tests.sh",
+          "sha256": "b7e8d444406538473afab2644886ac9f3985b119ca169b76248bff10ec36f4a0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/verification/class-fix-20260814/apply-rehearsal.harness.sh",
+      "source_sha256": "d38b7264cdbfaac70aae969dafab2dcdf150f2e28c7d741a315bff549127024e",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Apply rehearsal with the REAL publisher, post-class-fix.",
+        "#",
+        "# Pass condition: NO apply path may remove any live protected path, registry",
+        "# key, or CI step. The cycle-5 rehearsal declared \"ZERO REMOVALS\" after"
+      ]
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/verification/class-fix-20260814/nonvacuity.harness.sh",
+      "source_sha256": "2e8659cd84691dff2ce27dc9051e3eb46b4deb40cd4ab2b60c3d397d6ff9377d",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Non-vacuity harness for the 2026-08-14 class lock.",
+        "#",
+        "# For every path the class lock declares evicted, re-add it in a SCRATCH copy",
+        "# two ways -- as a staged file, and as a MANIFEST.sha256 entry -- and require"
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "source_sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402",
+      "state": "out-of-scope",
+      "reason": "Historical PR229 publisher regression input. run_apply_pr229 changes cwd to a newly created fixture repo and uses synthetic stage/live/x.txt plus a fixture manifest; recovery/symlink tests inspect only that fixture. Sidecar tests use WORK/shadow229 and repo-pr229 with a synthetic key. This is execution as a test input, not active production publication.",
+      "literal_references": [
+        {
+          "path": "tests/apply-human-copy.tests.ps1",
+          "line": 1156
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "line": 1536
+        },
+        {
+          "path": "tests/generate-approval-sidecar.tests.ps1",
+          "line": 978
+        }
+      ],
+      "header_evidence": [
+        "#requires -Version 7"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/generate-approval-sidecar.tests.sh",
+          "sha256": "f96a468a3adf700224bd0b2d4ebc4510b2e07fc21c19678b03c13eaf80de362e"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.ps1",
+          "sha256": "eca94ed5a6104659c346ddeec6cdf9de22b4d6782b183924054ed4e336f6e311"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "source_sha256": "93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800",
+      "state": "out-of-scope",
+      "reason": "Historical PR229 publisher regression input. run_apply_pr229 changes cwd to a newly created fixture repo and uses synthetic stage/live/x.txt plus a fixture manifest; recovery/symlink tests inspect only that fixture. Sidecar tests use WORK/shadow229 and repo-pr229 with a synthetic key. This is execution as a test input, not active production publication.",
+      "literal_references": [
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "line": 1535
+        },
+        {
+          "path": "tests/generate-approval-sidecar.tests.sh",
+          "line": 953
+        }
+      ],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# apply-human-copy.sh (REQ-007, epic-189-a1-project-context T-007)",
+        "#",
+        "# Anchored-publisher-equivalent human-copy tool: generalizes",
+        "# docs/adr/0011-phase2-handle-relative-protected-copy.md's guarantee to a"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/generate-approval-sidecar.tests.sh",
+          "sha256": "f96a468a3adf700224bd0b2d4ebc4510b2e07fc21c19678b03c13eaf80de362e"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.ps1",
+          "sha256": "eca94ed5a6104659c346ddeec6cdf9de22b4d6782b183924054ed4e336f6e311"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "source_sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This file is generated. Do not edit."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "source_sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This dispatcher provenance module intentionally exposes no decision constants."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "source_sha256": "8a20021958d84e1ae7e5a239a2500dc73f15289158a68e905c90d3d5f317d7e1",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-012/remedy1-evidence.sh",
+      "source_sha256": "3df6609f8dc5ea2d0b342062795b7f951a0d4e911205ea592b7329effaf32f78",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# remedy1-evidence.sh -- T-012 quality-gate seq0370 remedy-1 evidence producer.",
+        "#",
+        "# Two jobs, both re-runnable from a clean checkout:",
+        "#"
+      ]
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-013/t013-evidence.sh",
+      "source_sha256": "d35a1d1eb594e062de7745f57f907ceecc0169214862a63467bb529e75708230",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# T-013 closing-audit evidence harness (epic-189-a1-project-context).",
+        "#",
+        "# Produces the measurements T-013's Done When items require:",
+        "#   A  full local suite, both lanes, run AS-IS (no patch, no skip)"
+      ]
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "source_sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This file is generated. Do not edit."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "source_sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This dispatcher provenance module intentionally exposes no decision constants."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "source_sha256": "8a0a9ac88c87d74739763cbbc0134a09692f8823fa0706c47bb5e92daca33e59",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "# check-component-coverage.ps1 — the Reverse Coverage Gate, PowerShell",
+        "# twin (REQ-004, T-004). See check-component-coverage.py for the full",
+        "# rationale; this is a full independent PowerShell port, dot-sourcing",
+        "# resolve-component-paths.ps1 (same directory) to reuse its config",
+        "# parsing, classification, and git-diff collector rather than"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "source_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
+      "state": "out-of-scope",
+      "reason": "Exact pinned predecessor of a separately reviewed live successor. research_candidate checks both hashes and intentional-change text and returns PENDING for divergence; it does not execute or apply the predecessor. Frozen bytes remain protected.",
+      "literal_references": [
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "line": 14
+        }
+      ],
+      "header_evidence": [
+        "# Deterministic gate: verify a Default-FAIL verification contract.",
+        "# Usage: check-contract.ps1 <path-to-contract.json> [-RepoRoot <path>]",
+        "# Fails (exit 1) while any required check has passes=false, or any passing",
+        "# check has empty or missing evidence. quality-gate must run this before Done.",
+        "# Additional rules enforced:"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "sha256": "abeeded2fafb029076e9a119bf3aa9e5e772d45a1b3f3bea16d13755404ded5e"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "source_sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This file is generated. Do not edit."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "source_sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Generated from guard-invariants.json; schema_version=1; sha256=eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+        "# This dispatcher provenance module intentionally exposes no decision constants."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "source_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
+      "state": "out-of-scope",
+      "reason": "Exact pinned predecessor of a separately reviewed live successor. research_candidate checks both hashes and intentional-change text and returns PENDING for divergence; it does not execute or apply the predecessor. Frozen bytes remain protected.",
+      "literal_references": [
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "line": 28
+        }
+      ],
+      "header_evidence": [
+        "# Usage: spec-review-precheck.ps1 -Feature <slug> -Attempt <n> -Round <n> [-EditSummary <text>] [-Reset]",
+        "# Full-parity PowerShell port of spec-review-precheck.sh (Issue #174,",
+        "# epic-159-pillar-a2 T-004). Validates a specification-review transition",
+        "# before any reviewer receives input or evidence is written. The",
+        "# orchestrating skill owns reviewer invocation and status mutation; this"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "sha256": "abeeded2fafb029076e9a119bf3aa9e5e772d45a1b3f3bea16d13755404ded5e"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "source_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+      "state": "out-of-scope",
+      "reason": "Exact pinned predecessor of a separately reviewed live successor. research_candidate checks both hashes and intentional-change text and returns PENDING for divergence; it does not execute or apply the predecessor. Frozen bytes remain protected.",
+      "literal_references": [
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "line": 21
+        }
+      ],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Validate a specification-review transition before any reviewer receives input",
+        "# or evidence is written. The orchestrating skill owns reviewer invocation and",
+        "# status mutation; this script owns deterministic preconditions and provenance."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/fixtures/research-consumer-current-publication.json",
+          "sha256": "abeeded2fafb029076e9a119bf3aa9e5e772d45a1b3f3bea16d13755404ded5e"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/tests/gates.tests.sh",
+      "source_sha256": "6f602d926d6a9533ae8b97225e7a9f8e9c1ae3781ebd8f0650411e068c27c8ca",
+      "state": "out-of-scope",
+      "reason": "Frozen predecessor bundle: current mirror tooling compares provenance/digests; the executable-bit catalog checks file mode without invoking payloads. No default current runtime entrypoint selects this historical path.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# gates.tests.sh — test deterministic gates (check-task-state, check-contract)",
+        "# Mirrors install.tests.sh style: ok/fail counters, exits 1 on any failure.",
+        "# Runs on Linux and macOS without pwsh."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-004/run-gates-fixture-proof.sh",
+      "source_sha256": "3aab15f27653fcdf325144e42105fcd7a3b8fd8947a5d89166c69eea6b1f11a1",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/class-fix-20260814/nonvacuity.harness.sh",
+      "source_sha256": "c40a453997effb86dbe3933e4780b548560db6455ba0bb094f1c939fc077cf22",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Non-vacuity harness for the epic-191 class lock (2026-08-14).",
+        "#",
+        "# Two corrections over the first attempt:",
+        "#  - `git clone` copies HEAD, so the uncommitted class fix was not under test."
+      ]
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+      "source_sha256": "d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656",
+      "state": "out-of-scope",
+      "reason": "Original resolver-wrapper input manifest/provenance; current CLI/block tests now select plugins/sdd-quality-loop/scripts at STAGED and install into isolated fixture repositories. The separate T-003 historical Python import does not execute these shell wrappers.",
+      "literal_references": [
+        {
+          "path": "handoffs/T-006-input-manifest.json",
+          "line": 46
+        },
+        {
+          "path": "handoffs/T-007-input-manifest.json",
+          "line": 61
+        },
+        {
+          "path": "handoffs/T-009-input-manifest.json",
+          "line": 46
+        }
+      ],
+      "header_evidence": [
+        "# Thin PowerShell dispatcher; the Python master is the sole implementation."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/resolve-project-context-block-check.py",
+          "sha256": "cd174f0953030aeca5e2c108353fb135132273328e2d2cd8428ea988061a99e0"
+        },
+        {
+          "path": "tests/resolve-project-context-cli-check.py",
+          "sha256": "36f604747b7862d734f0919f2c70ee1175920d8dc77baaec2bef0fd2a65dadd0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+      "source_sha256": "03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429",
+      "state": "out-of-scope",
+      "reason": "Original resolver-wrapper input manifest/provenance; current CLI/block tests now select plugins/sdd-quality-loop/scripts at STAGED and install into isolated fixture repositories. The separate T-003 historical Python import does not execute these shell wrappers.",
+      "literal_references": [
+        {
+          "path": "handoffs/T-006-input-manifest.json",
+          "line": 42
+        },
+        {
+          "path": "handoffs/T-007-input-manifest.json",
+          "line": 60
+        },
+        {
+          "path": "handoffs/T-009-input-manifest.json",
+          "line": 42
+        }
+      ],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Thin POSIX dispatcher; the Python master is the sole implementation."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/resolve-project-context-block-check.py",
+          "sha256": "cd174f0953030aeca5e2c108353fb135132273328e2d2cd8428ea988061a99e0"
+        },
+        {
+          "path": "tests/resolve-project-context-cli-check.py",
+          "sha256": "36f604747b7862d734f0919f2c70ee1175920d8dc77baaec2bef0fd2a65dadd0"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/drafts/apply-protected-files.ps1",
+      "source_sha256": "1f4baab3b28b36100ac0abcbf51b4f1970b1d2016b4ad45c665143642b7b3415",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "# apply-protected-files.ps1 (epic-194-a6-lite-integration, T-001 draft)",
+        "#",
+        "# Security-reviewed candidate for the protected human-copy runner. This file",
+        "# is intentionally staged outside specs/*/human-copy/: the task's protected",
+        "# destination cannot be changed by an agent. A human may copy these exact"
+      ]
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1",
+      "source_sha256": "5d72ec403b6f4c9161f23e71215d3b1f06a34f15f4c33360eb4b40eb246502f0",
+      "state": "out-of-scope",
+      "reason": "Frozen A6 contract-test input. Runner cases create temporary manifests/payloads and inspect expected rejection or fixture-only copy; lite cases construct temporary project/context fixtures and assert scenario outcomes. Source is not selected by the installed hook/runtime entrypoint.",
+      "literal_references": [
+        {
+          "path": "tests/human-copy-runner-contract.tests.ps1",
+          "line": 51
+        },
+        {
+          "path": "tests/human-copy-runner-contract.tests.sh",
+          "line": 25
+        }
+      ],
+      "header_evidence": [
+        "# apply-protected-files.ps1 (epic-194-a6-lite-integration)",
+        "#",
+        "# Feature-scoped human-copy application runner (T-001, REQ-002/REQ-005 share,",
+        "# AC-010/AC-031). Hard-anchored to this feature's own",
+        "# `specs/epic-194-a6-lite-integration/human-copy` prefix -- never the"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/human-copy-runner-contract.tests.ps1",
+          "sha256": "38c4a781c1f1aec92eee267f8e1dcc24eef54dc5b0b82fb56fc04a6f4969b5aa"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.sh",
+          "sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.ps1",
+          "sha256": "d1d8d4b3bd3a99d903ded48302775031f266ff17abb928f019510de97beccfa8"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+      "source_sha256": "f627ab50b85a2855b7a65bece51948723a5b6a3ecdfb41f0122eb90d8348ff3c",
+      "state": "out-of-scope",
+      "reason": "Frozen A6 contract-test input. Runner cases create temporary manifests/payloads and inspect expected rejection or fixture-only copy; lite cases construct temporary project/context fixtures and assert scenario outcomes. Source is not selected by the installed hook/runtime entrypoint.",
+      "literal_references": [
+        {
+          "path": "docs/review-tickets/RT-20260828-001.yml",
+          "line": 12
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.ps1",
+          "line": 14
+        }
+      ],
+      "header_evidence": [
+        "    # NOT positional (no Position attribute) -- deliberately named-only,",
+        "    # matching design.md API/Contract Plan's own documented CLI surface",
+        "    # `check-risk-upgrade.ps1 -Path <source-path> [-CapabilityReasons",
+        "    # <fragment-path>]`. `check-risk-upgrade.ps1 <src> <frag>` (two bare",
+        "    # positional arguments, no flag) must not silently bind <frag> to this"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/human-copy-runner-contract.tests.ps1",
+          "sha256": "38c4a781c1f1aec92eee267f8e1dcc24eef54dc5b0b82fb56fc04a6f4969b5aa"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.sh",
+          "sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.ps1",
+          "sha256": "d1d8d4b3bd3a99d903ded48302775031f266ff17abb928f019510de97beccfa8"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+      "source_sha256": "4ffd5cd7c5b395dbd438ec6ae223b26eff691e96df89d73cc436190a6dc53c9d",
+      "state": "out-of-scope",
+      "reason": "Frozen A6 contract-test input. Runner cases create temporary manifests/payloads and inspect expected rejection or fixture-only copy; lite cases construct temporary project/context fixtures and assert scenario outcomes. Source is not selected by the installed hook/runtime entrypoint.",
+      "literal_references": [
+        {
+          "path": "docs/review-tickets/RT-20260828-001.yml",
+          "line": 11
+        },
+        {
+          "path": "docs/review-tickets/RT-20260828-001.yml",
+          "line": 156
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.sh",
+          "line": 29
+        }
+      ],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Deterministic local risk-upgrade checker. Python is used only for strict",
+        "# UTF-8 decoding and ASCII lexical handling; this script never reads remotely.",
+        "#",
+        "# epic-194-a6-lite-integration T-002 (REQ-002): extended with an optional"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/human-copy-runner-contract.tests.ps1",
+          "sha256": "38c4a781c1f1aec92eee267f8e1dcc24eef54dc5b0b82fb56fc04a6f4969b5aa"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.sh",
+          "sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976"
+        },
+        {
+          "path": "tests/lite-spec-capability-block.tests.ps1",
+          "sha256": "d1d8d4b3bd3a99d903ded48302775031f266ff17abb928f019510de97beccfa8"
+        }
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-001/acceptance.ps1",
+      "source_sha256": "bdc02051deff80ae1c00fcdcf53884ef10b5ea3bd0360ff6831c203a84b0eeef",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": []
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-001/acceptance.sh",
+      "source_sha256": "1abedf9b084049b1d51205c9cfd2369aeecec5b5028e47e4dc64ba146f7aca14",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-002/run-all-eof-regression.sh",
+      "source_sha256": "0903cdcd3bbcbb90db22a39643b574164bcf88aa003533e543d9e4cbca6e2012",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/acceptance.sh",
+      "source_sha256": "4b7b151c689893c6ee99ba80b78da02b7e55453b09114beb1203429c7ad44909",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/baseline-mutation-proof.sh",
+      "source_sha256": "99c2179bc4c93169de7b80c8a3a6c668f40d606ec6e7a39ba0fcf02c6ff0d873",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/context-invariant-mutation-proof.sh",
+      "source_sha256": "0d6f77807dc3979b278ea43f0c5b9ce0a5ffb61deaa1d561a839478b197d055d",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/live-contract-dependency-proof.sh",
+      "source_sha256": "da3e6d0a4343cc99740c5bb91a08ae58c4d32c1e5a387764d2b94e7a15fa52ad",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/mutation-proof.sh",
+      "source_sha256": "5b6663a1c8a2afa230cb5c7674243db1192b0789129634dd116f036eacebf782",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/bump-replay-proof.sh",
+      "source_sha256": "0feb5ec1932b02c86c18fe747eb96b82406bf00814be0f7fc3de8405618aaf96",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/classifier-proof.sh",
+      "source_sha256": "981714bd669b6b9b1e7b19b2acacee6321e48d9565a1759ab1c7e0268f7c1e77",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/depth1-proof.sh",
+      "source_sha256": "fa1d1edddfb07ede7a3c14e51449d2a6a3943e30d9694ba136027de6833e65b5",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/manifest-proof.sh",
+      "source_sha256": "1e87e141915c7a6f6b9434b531366870066b6ac08a46718a606d9e4a58a56070",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh",
+      "source_sha256": "02abf06373ec856a8520445c7695adda98b3b21c903608e5a4f4a5961dd78c6d",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Optional exhaustive sharding keeps the default full run unchanged. Each shard",
+        "# still proves its isolated control is green before applying any mutations."
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/red-accounting-replay.sh",
+      "source_sha256": "397e687708c2722161e8d0fba730637b8967b67478e31b067a880cd09869c2a8",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/run-checks.sh",
+      "source_sha256": "81c6f8f59c467b77d07ae765234378743df27d34c026a42bb7c703294a5f12e6",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Re-runnable driver for the T-001/T-002/T-003 verification-artifact backfill.",
+        "#",
+        "# The three tasks were flipped to Done without a verification contract or an",
+        "# evidence bundle, so check-task-state fails for the whole feature. Backfilling"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004/run-checks.sh",
+      "source_sha256": "f9a86061c083f4e9e04651bf13980ab86813c7fa4237b75133dc9ffaf6e2fcc8",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Re-runnable driver for the T-004 quality-gate cycle-2 host checks.",
+        "#",
+        "# Cycle 1 (ledger seq0674) returned NEEDS_WORK on one Critical and two Majors.",
+        "# The implementation report is a claim; this script RE-RUNS every gate command"
+      ]
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-cycle3/T-004/run-checks.sh",
+      "source_sha256": "c6342ec96770891f1e0431be84b0401eccac36e1cf67a980353af152783867a4",
+      "state": "out-of-scope",
+      "reason": "Task/quality-cycle verification replay artifact: body names its historical task/cycle and existing source/test consumers. Current catalog owns those live suites separately; no current registered/documented invocation found for this replay.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/bin/sh",
+        "# Re-runnable driver for the T-004 quality-gate cycle-3 host checks.",
+        "#",
+        "# Cycle 1 (ledger seq0674) returned NEEDS_WORK on one Critical and two Majors.",
+        "# Cycle 2 (seq0675) returned PASS, but commit e96cfc6f landed after its evaluator"
+      ]
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.ps1",
+      "source_sha256": "20326f85c0d12156563c7017ffea124d0ecfa85851aae65b5cdccd22ff504fa7",
+      "state": "out-of-scope",
+      "reason": "Retained original/baseline executable bytes for a recorded comparison; current root installer/runners are separate reviewed sources. No current executable/documented invocation of this snapshot found in tracked current sources.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Run the local, deterministic PowerShell regression suite in CI order."
+      ]
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.sh",
+      "source_sha256": "e36368e433f7c3b82cb05512f6a118e736b5ba80e41a7767e03fe713887c6388",
+      "state": "out-of-scope",
+      "reason": "Retained original/baseline executable bytes for a recorded comparison; current root installer/runners are separate reviewed sources. No current executable/documented invocation of this snapshot found in tracked current sources.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Run the local, deterministic POSIX regression suite in CI order.",
+        "# Canonical inventory is loaded from tests/suite-inventory.posix.",
+        "# Registered resolver suites:",
+        "#   tests/resolver-evidence-schema.tests.sh"
+      ]
+    },
+    {
+      "path": "specs/second-approval-mask/human-copy/check-workflow-state.ps1",
+      "source_sha256": "2b8c5e34a5603315b112f1c8bd4841582b73b8b4e692a176d4d5c36f9a5fa222",
+      "state": "out-of-scope",
+      "reason": "Historical staged normalization patch. Current test defaults CWS_SH/CWS_PS1 to LIVE plugins paths (lines29-30), with staged versions only an explicit TDD override. Its test root is mktemp and only the fixture tasks.md is varied.",
+      "literal_references": [],
+      "header_evidence": [
+        "# Validate the repository-wide SDD workflow state. Keep rule IDs in parity with Bash.",
+        "# plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)",
+        "# evolve normally over time, but historical review evidence under reports/",
+        "# records the sha256 that was current when that evidence was produced. A",
+        "# later, legitimate edit to a reference doc must not retroactively fail every"
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/second-approval-mask.tests.sh",
+          "sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14"
+        }
+      ]
+    },
+    {
+      "path": "specs/second-approval-mask/human-copy/check-workflow-state.sh",
+      "source_sha256": "9884b6241bf50fcf0d4162de70bff1cdf7299688b46d603965c4082e0b3a41ee",
+      "state": "out-of-scope",
+      "reason": "Historical staged normalization patch. Current test defaults CWS_SH/CWS_PS1 to LIVE plugins paths (lines29-30), with staged versions only an explicit TDD override. Its test root is mktemp and only the fixture tasks.md is varied.",
+      "literal_references": [],
+      "header_evidence": [
+        "#!/usr/bin/env bash",
+        "# Validate the repository-wide SDD workflow state. Diagnostics are API-stable."
+      ],
+      "classification": "historical-test-input-or-predecessor",
+      "consumer_evidence": [
+        {
+          "path": "scripts/human_copy_mirrors.py",
+          "sha256": "2a224e724ba5d840b975d77977c34dc7bf8d04a80bca3b754afaf71e58ca53f1"
+        },
+        {
+          "path": "tests/apply-human-copy.tests.sh",
+          "sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598"
+        },
+        {
+          "path": "tests/second-approval-mask.tests.sh",
+          "sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14"
+        }
+      ]
+    }
+  ]
+}
