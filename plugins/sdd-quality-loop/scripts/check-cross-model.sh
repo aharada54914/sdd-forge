@@ -109,6 +109,10 @@ for vpath in verdict_files:
         print(f"check-cross-model: failed to parse {vpath}: {e}", file=sys.stderr)
         sys.exit(2)
 
+    if not isinstance(v, dict):
+        print(f"check-cross-model: {os.path.basename(vpath)}: verdict must be an object", file=sys.stderr)
+        sys.exit(2)
+
     # blind must be exactly true (boolean)
     if v.get("blind") is not True:
         print(f"check-cross-model: {os.path.basename(vpath)}: blind must be true (got {v.get('blind')!r})", file=sys.stderr)
@@ -116,7 +120,7 @@ for vpath in verdict_files:
 
     # input_digest must be 64-hex
     digest = v.get("input_digest", "")
-    if not HEX64.match(str(digest)):
+    if not isinstance(digest, str) or not HEX64.fullmatch(digest):
         print(f"check-cross-model: {os.path.basename(vpath)}: input_digest must be 64-hex (got {digest!r})", file=sys.stderr)
         sys.exit(2)
 
@@ -128,10 +132,15 @@ for vpath in verdict_files:
 
     # consent.kind must be present
     consent = v.get("consent")
-    if not isinstance(consent, dict) or not consent.get("kind"):
+    if (not isinstance(consent, dict) or not isinstance(consent.get("kind"), str)
+            or not consent["kind"]):
         print(f"check-cross-model: {os.path.basename(vpath)}: consent.kind is required", file=sys.stderr)
         sys.exit(2)
 
+    findings = v.get("findings", [])
+    if not isinstance(findings, list) or any(not isinstance(finding, dict) for finding in findings):
+        print(f"check-cross-model: {os.path.basename(vpath)}: findings must be an array of objects", file=sys.stderr)
+        sys.exit(2)
     verdicts.append(v)
 
 # ── Step 2: compute vendor diversity metrics ────────────────────────────────
