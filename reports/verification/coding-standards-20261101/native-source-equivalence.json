@@ -1,0 +1,17 @@
+{
+  "schema": "native-selected-source-equivalence/v1",
+  "previous_revision": "5533762d4b93c06825cdbec6dab0ca63e352fb4d",
+  "current_revision": "e1d19cf35b0ebd4037474b59f40d2585df9f4382",
+  "previous_tracked_count": 11810,
+  "current_tracked_count": 11815,
+  "selected_path_hash_pairs": 885,
+  "inspected_count": 884,
+  "equivalent": true,
+  "method": "Compare sorted exact (path,source_sha256) pairs from complete scan sources arrays, then verify selected_count,inspected_count,excluded fixture metadata and native tool/version records are equal.",
+  "sorted_pairs_json_sha256": "a6321688a901858b5d442da6052a8260104974caceb433ef56e3390e71b97cd6",
+  "evidence": [
+    "task-native-evidence.zip/check-task-5533-native.json",
+    "task-native-evidence.zip/check-task-final-native.json"
+  ],
+  "scope": "Selected native source inputs only; added documentation/audit population requires separate contextual review. Equal native inputs do not establish runtime acceptance or documentation correctness."
+}
