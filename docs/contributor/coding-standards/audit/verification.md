@@ -134,7 +134,7 @@ with the added existing-suite control failing (24/1); a YAML literal block
 repairs it (25/0). Both CI placeholder programs were actually run and returned
 1 as intended. No remote GitLab pipeline execution is claimed.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (b0c13112)
 
 Snapshot: clean `b0c131121d5b3bc9875d4424f9f46a11dc5c53c7` (2026-11-02).
 Production and executable-test source equals code freeze `bd94f864`; later
@@ -218,3 +218,61 @@ unavailable where the research records say reader-body-only/unassessed; this
 reconciliation neither reacquires them nor upgrades those claims. No historical
 report, pending mirror, task approval or external-main record was rewritten to
 manufacture acceptance.
+
+## Final source-bound reconciliation
+
+This section supersedes the prior b0c13112 snapshot after native macOS job
+125310019228 (run41455000330, headaeaf22d0) exposed ROOT-008. Previously reviewed
+bytes remain historical coverage; the actual failure disproved universal
+correctness, which the prior census did not claim.
+
+Clean snapshot `c259c73610119a5ceafad79634fd8c38918c6a03` contains 11,797 unique
+tracked entries: reviewed=1,586; fixed=1; out-of-scope=10,209;
+justified-exception=1; unreviewed=0; needs-review=0; confirmed-violation=0.
+Exact path-set equality, every Git blob's SHA-256 through `cat-file --batch`,
+nonempty terminal evidence, schema validation and lossless JSON compaction were
+repeated successfully. The canonical schema/unique-ID check now covers 246
+findings: 245 fixed and PY-003's bounded invalid-source exception. The separate
+population exception remains the intentional symlink fixture.
+
+`reports/verification/evidence-alias-cycle-20261102/context-delta.json` joins
+helper before SHA63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d
+to167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274 and test
+befored6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844
+to7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8.
+The exact former hashes already had whole-source-plus-delta review. ROOT-008's
+original helper hash was separately verified against aeaf22d0 Git bytes.
+
+The unchanged new test source fails against the old helper and passes against
+the repaired helper. Actual directory/leaf symbolic links exercise repeated
+aliases with different suffixes, modern and capability-suppressed legacy
+resolution, 64 accepted links, 65 rejected links and a true two-link cycle.
+The independent delegated reviewer read the whole helper and test delta at
+7d53b1bf and independently checked both current source and log hashes: PASS
+for this delta. Complete normalized pending paths distinguish progress from a
+cycle; repeated directory components alone do not. Existing caller containment,
+comparers, error paths, traversal bound and fixture cleanup remain unchanged.
+No duplicate execution, native WindowsPowerShell5.1 or atomic filesystem claim
+is inferred from that independent source/evidence review.
+
+The refreshed same-checker native comparison records code7d53b1bf:
+884 inspected of885 selected, zero native findings, 70.25seconds. Task baseline
+82b53695 remains856 inspected/285 findings/70.06seconds. Priorbd94 outputs are
+retained in the archive. This native result remains narrower than contextual
+coverage and does not replace final-head CI. The158 role receipts bind current
+metadata, including captured alias regression evidence and the revised scan
+comparison; stored log/JSON/ZIP inspection remains data review, not code PASS.
+
+Executable source is frozen at7d53b1bf. Between that code fix and this clean
+snapshot, changes are only the four existing native comparison artifacts
+(verification README, SHA256SUMS, native-comparison.json, task-native-evidence.zip)
+and audit findings.json/final-record-role-review.json. The derived delta after
+this snapshot is only audit population.json, README.md and verification.md.
+Their committed snapshot entries describe prior bytes; enclosing Git commits
+bind the emitted artifacts, without a self-hash fixed-point claim. Subsequent
+independent review/CI evidence remains a separately identified delta.
+
+Final required native CI must pass PR #697's exact final head; Linux paired
+controls do not retroactively make the failed macOS run pass. Earlier research
+original-byte acquisition limits, historical evidence and protected mirrors
+remain unchanged. No source-acquisition or all-platform guarantee is added.
