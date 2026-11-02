@@ -5,6 +5,16 @@
 一般的なリポジトリ概要は [README.md](../../README.md) を、バージョン変更の
 履歴は [CHANGELOG.md](../../CHANGELOG.md) を参照してください。
 
+## 公開対象のコミットとCI
+
+1. `CHANGELOG.md` に新しい版の変更内容を記載し、`scripts/bump-version.sh <new-version>` で配布面を同期します。変更履歴の日付はJSTで記載します。
+2. リリース用の変更をPRで検証し、mainへ統合します。
+3. タグが指す**正確なコミットSHA**について、`test.yml` の成功を確認します。統合時に新しいコミットが作られた場合、PR headのCI成功をその新しいSHAの成功とは扱いません。検証済みのPR headへタグを付ける場合は、mainの祖先に含まれ、公開するツリーがmainと一致することも確認します。
+4. そのコミットへ `v<new-version>` タグを付け、GitHub Releaseを公開します。`release.yml` は `ci-green` と `loop-gate` の両方に成功してから、タグのツリーからtarball・SBOM・チェックサム・provenance attestationを生成します。
+5. 公開後に成果物を取得し、`sha256sum -c SHA256SUMS` と `gh attestation verify <artifact> --repo aharada54914/sdd-forge` で検証します。
+
+`ci-green` はタグをコミットへ解決し、そのSHAに対する `test.yml` の成功がなければ停止します。手動の `workflow_dispatch` もmainまたはタグからのみ起動でき、同じ条件が適用されます。
+
 ## ループゲートの概要
 
 `tests/loop-consistency.tests.sh` と `tests/loop-inventory.tests.sh`
@@ -106,9 +116,9 @@ build-provenance attestation・リリースアセットのアップロードを�
   のち `tests/loop-consistency.tests.sh` と `tests/loop-inventory.tests.sh` を
   順に実行します。いずれかのスイートが非 0 終了した場合、GitHub Actions の
   通常のジョブ失敗としてこのジョブ自体が失敗します。
-- **ビルドジョブ（`release:`）**: `needs: loop-gate` 依存を持ちます
-  (`release.yml:51`)。GitHub Actions のジョブ依存セマンティクスにより、
-  `loop-gate` ジョブが成功しない限り、tarball / SBOM / checksum /
+- **ビルドジョブ（`release:`）**: `needs: [ci-green, loop-gate]` 依存を持ちます。
+  GitHub Actions のジョブ依存セマンティクスにより、
+  両ジョブが成功しない限り、tarball / SBOM / checksum /
   attestation / アップロードのいずれのステップも一切実行されません。
 
 `release.yml` のトリガー面（`release: [published]` および
