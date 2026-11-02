@@ -409,9 +409,11 @@ function Invoke-RemoteInstallerScenario {
         param(
             [Parameter(Mandatory)][string]$Uri,
             [hashtable]$Headers,
-            [Parameter(Mandatory)][string]$OutFile
+            [Parameter(Mandatory)][string]$OutFile,
+            [Parameter(Mandatory)][int]$TimeoutSec
         )
 
+        if ($TimeoutSec -ne 300) { throw "remote archive request must have a 300-second timeout" }
         Add-Content -Path $commandLog -Value "Invoke-WebRequest $Uri"
         if ($Headers.Authorization -ne "Bearer fake-gh-token") {
             throw "missing GitHub auth header"

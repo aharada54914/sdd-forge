@@ -380,7 +380,7 @@ download_authenticated_archive() {
     token="$(get_github_auth_token)" || return 1
     echo "Downloading authenticated archive from ${archive_url}"
     printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/vnd.github+json"\n' "$token" |
-        curl -fsSL --config - "$archive_url" -o "$archive_path"
+        curl -fsSL --max-time 300 --config - "$archive_url" -o "$archive_path"
 }
 
 install_codex_agents() {
