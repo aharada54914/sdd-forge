@@ -508,7 +508,7 @@ register_codex_mcp() {
         echo "Warning: ${config_toml} was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)." >&2
         return 0
     fi
-    local name entry_point entry_point_toml tmp_config control escaped_control code
+    local name entry_point entry_point_toml tmp_config control escaped_control octal_control code
     for name in "${MCP_SELECTION[@]}"; do
         entry_point="${install_root_path}/mcp/${name}/dist/index.js"
         [[ -f "$entry_point" ]] || continue
@@ -533,8 +533,9 @@ register_codex_mcp() {
         entry_point_toml="${entry_point_toml//\"/\\\"}"
         for code in {1..31} 127; do
             printf -v escaped_control '\\u%04x' "$code"
-            printf -v control '%b' "$escaped_control"
-            entry_point_toml="${entry_point_toml//"$control"/"$escaped_control"}"
+            printf -v octal_control '%03o' "$code"
+            printf -v control '%b' "\\$octal_control"
+            entry_point_toml="${entry_point_toml//$control/$escaped_control}"
         done
         {
             cat "$tmp_config"

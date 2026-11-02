@@ -1,0 +1,4 @@
+install.sh: Results: 63 passed, 0 failed.; exit0
+uninstall.sh: Results: 25 passed, 0 failed.; exit0
+install.ps1: Installer integration tests passed.; exit0
+uninstall.ps1: uninstall.tests.ps1: all scenarios passed.; exit0

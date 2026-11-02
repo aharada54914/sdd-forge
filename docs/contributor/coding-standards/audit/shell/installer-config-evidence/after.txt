@@ -23,5 +23,3 @@ PASS: powershell: escaped registration 1 parses and round-trips path
 PASS: powershell: escaped registration 2 parses and round-trips path
 PASS: powershell: escaped uninstall preserves unrelated settings
 24/24 passed
-
-exit=0

@@ -1,0 +1,25 @@
+PASS: bash: install rejects missing end and preserves bytes
+PASS: bash: uninstall rejects missing end and preserves bytes
+PASS: bash: install rejects nested begin and preserves bytes
+PASS: bash: uninstall rejects nested begin and preserves bytes
+PASS: bash: install rejects orphan end and preserves bytes
+PASS: bash: uninstall rejects orphan end and preserves bytes
+PASS: bash: ordinary registration 1 parses and round-trips path
+PASS: bash: ordinary registration 2 parses and round-trips path
+PASS: bash: ordinary uninstall preserves unrelated settings
+PASS: bash: escaped registration 1 parses and round-trips path
+PASS: bash: escaped registration 2 parses and round-trips path
+PASS: bash: escaped uninstall preserves unrelated settings
+PASS: powershell: install rejects missing end and preserves bytes
+PASS: powershell: uninstall rejects missing end and preserves bytes
+PASS: powershell: install rejects nested begin and preserves bytes
+PASS: powershell: uninstall rejects nested begin and preserves bytes
+PASS: powershell: install rejects orphan end and preserves bytes
+PASS: powershell: uninstall rejects orphan end and preserves bytes
+PASS: powershell: ordinary registration 1 parses and round-trips path
+PASS: powershell: ordinary registration 2 parses and round-trips path
+PASS: powershell: ordinary uninstall preserves unrelated settings
+PASS: powershell: escaped registration 1 parses and round-trips path
+PASS: powershell: escaped registration 2 parses and round-trips path
+PASS: powershell: escaped uninstall preserves unrelated settings
+24/24 passed

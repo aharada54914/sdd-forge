@@ -11,6 +11,7 @@ import tomllib
 parser = argparse.ArgumentParser()
 parser.add_argument('--repo', type=Path, default=Path(__file__).resolve().parents[1])
 parser.add_argument('--pwsh', default='pwsh')
+parser.add_argument('--bash', default='bash')
 args = parser.parse_args()
 repo = args.repo.resolve()
 name = 'sdd-forge-mcp'
@@ -59,7 +60,7 @@ $Mcp = @('sdd-forge-mcp')
 $SkipMcpUninstall = $false
 if ($Action -eq 'install') { Register-CodexMcp -InstallRootPath $env:TEST_PAYLOAD } else { Unregister-CodexMcp }
 ''')
-    for runtime, command in [('bash', ['bash', str(bash_driver)]), ('powershell', [args.pwsh, '-NoProfile', '-File', str(ps_driver)])]:
+    for runtime, command in [('bash', [args.bash, str(bash_driver)]), ('powershell', [args.pwsh, '-NoProfile', '-File', str(ps_driver)])]:
         def run(action):
             return subprocess.run(command + [action], env=env, capture_output=True, text=True, timeout=30)
         def check(label, condition):

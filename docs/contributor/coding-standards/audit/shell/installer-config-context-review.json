@@ -1,0 +1,202 @@
+{
+  "schema": "coding-standards-context-review/v1",
+  "owner_issue": 688,
+  "reviewer": "resume_installer",
+  "baseline": "ce8003b93b6c5b39573865c730e15dc3f849bf62",
+  "integration_base": "50c12f27",
+  "scope": "Codex managed TOML registration/unregistration delta only; prior whole-file contextual receipts remain owned by their original reviewers. This record does not assert whole-repository coverage.",
+  "files": [
+    {
+      "path": "install.sh",
+      "sha256": "f2f680420ca3823effa2e3dd333e96d696e4061221a32ae1fb60696f83a27828",
+      "review": "Actual Codex MCP function and caller dispatch delta reviewed against paired shell implementation."
+    },
+    {
+      "path": "install.ps1",
+      "sha256": "fc349a20f9530c0f708428a76bb6e6767a44b2bb5a8f9cec23172e8c0a380719",
+      "review": "Actual Codex MCP function and caller dispatch delta reviewed against paired shell implementation."
+    },
+    {
+      "path": "uninstall.sh",
+      "sha256": "1ef0405502d94ad301425c60745f3d1a57a1cf6b37279b891482a4b92244c81c",
+      "review": "Actual Codex MCP function and caller dispatch delta reviewed against paired shell implementation."
+    },
+    {
+      "path": "uninstall.ps1",
+      "sha256": "fbb84b68ca400f92fcff12210db5417542cda78da42504c4f2e8065d52f1d9a7",
+      "review": "Actual Codex MCP function and caller dispatch delta reviewed against paired shell implementation."
+    },
+    {
+      "path": "tests/codex-mcp-config.tests.py",
+      "sha256": "7287aacf0e8b346742403baecc4e6fe6fd4e3520d018c1924bbff1165380985a",
+      "review": "Complete focused test harness reviewed: extracts actual functions, feeds path/marker data, parses generated TOML with independent tomllib and compares unchanged bytes on failure."
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "b48f4c500a112753eeb899a433096d80093f4ea55b17c2cbafb955ea6b3c3243",
+      "review": "Existing integration suite rerun against final source; no scenario edits in this task."
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "sha256": "628c8b14d0c15dad60c2fda05ad4f7c0378aa9ad37f8c4b42ccd916e3f1f169c",
+      "review": "Existing integration suite rerun against final source; no scenario edits in this task."
+    },
+    {
+      "path": "tests/uninstall.tests.sh",
+      "sha256": "d4d7a48a64fa242cd99cbeb3c7c7d3a3d8a10333a9b15fc82b5d7eb40b022020",
+      "review": "Existing integration suite rerun against final source; no scenario edits in this task."
+    },
+    {
+      "path": "tests/uninstall.tests.ps1",
+      "sha256": "c2bdaac21e191086b46b40202e524fabe00b0338d640c345fa386ae78a41bd62",
+      "review": "Existing integration suite rerun against final source; no scenario edits in this task."
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "ee79edf2a4e2787aa87f6ba9864dd2b97ee74ab53d8bf5a7c5209bb453de597c",
+      "review": "Narrow registration delta reviewed: new static Python suite runs in existing Ubuntu posix-regression job, already provisioning native pwsh, and local-posix catalog profile. No permission, trigger, existing command or acceptance alteration."
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "b3d2f446c175e6481ead510df5fc5e721985b96f741f7ddc0d8c117174ac177b",
+      "review": "Narrow registration delta reviewed: new static Python suite runs in existing Ubuntu posix-regression job, already provisioning native pwsh, and local-posix catalog profile. No permission, trigger, existing command or acceptance alteration."
+    }
+  ],
+  "coverage": [
+    {
+      "source": "install.sh",
+      "source_sha256": "f2f680420ca3823effa2e3dd333e96d696e4061221a32ae1fb60696f83a27828",
+      "sections": [
+        "Codex MCP selected-name allowlist callers",
+        "managed marker scan and config write boundary",
+        "entry-point TOML basic-string serialization"
+      ],
+      "reasoning": "Names remain fixed allowlist tokens. Missing end, nested begin and orphan end reject before selected-block write. Bash checks awk status and deletes only owned temporary output; PowerShell throws before Set-Content. Balanced blocks still replace/remove and preserve unrelated settings. Install escapes quote, backslash and forbidden control characters. Bash uses octal control construction and unquoted substitution operands inside outer quotes for Bash3.2 compatibility; PowerShell uses existing ConvertTo-Json plus DEL escaping, retaining Windows slash normalization."
+    },
+    {
+      "source": "install.ps1",
+      "source_sha256": "fc349a20f9530c0f708428a76bb6e6767a44b2bb5a8f9cec23172e8c0a380719",
+      "sections": [
+        "Codex MCP selected-name allowlist callers",
+        "managed marker scan and config write boundary",
+        "entry-point TOML basic-string serialization"
+      ],
+      "reasoning": "Names remain fixed allowlist tokens. Missing end, nested begin and orphan end reject before selected-block write. Bash checks awk status and deletes only owned temporary output; PowerShell throws before Set-Content. Balanced blocks still replace/remove and preserve unrelated settings. Install escapes quote, backslash and forbidden control characters. Bash uses octal control construction and unquoted substitution operands inside outer quotes for Bash3.2 compatibility; PowerShell uses existing ConvertTo-Json plus DEL escaping, retaining Windows slash normalization."
+    },
+    {
+      "source": "uninstall.sh",
+      "source_sha256": "1ef0405502d94ad301425c60745f3d1a57a1cf6b37279b891482a4b92244c81c",
+      "sections": [
+        "Codex MCP selected-name allowlist callers",
+        "managed marker scan and config write boundary"
+      ],
+      "reasoning": "Names remain fixed allowlist tokens. Missing end, nested begin and orphan end reject before selected-block write. Bash checks awk status and deletes only owned temporary output; PowerShell throws before Set-Content. Balanced blocks still replace/remove and preserve unrelated settings. Install escapes quote, backslash and forbidden control characters. Bash uses octal control construction and unquoted substitution operands inside outer quotes for Bash3.2 compatibility; PowerShell uses existing ConvertTo-Json plus DEL escaping, retaining Windows slash normalization."
+    },
+    {
+      "source": "uninstall.ps1",
+      "source_sha256": "fbb84b68ca400f92fcff12210db5417542cda78da42504c4f2e8065d52f1d9a7",
+      "sections": [
+        "Codex MCP selected-name allowlist callers",
+        "managed marker scan and config write boundary"
+      ],
+      "reasoning": "Names remain fixed allowlist tokens. Missing end, nested begin and orphan end reject before selected-block write. Bash checks awk status and deletes only owned temporary output; PowerShell throws before Set-Content. Balanced blocks still replace/remove and preserve unrelated settings. Install escapes quote, backslash and forbidden control characters. Bash uses octal control construction and unquoted substitution operands inside outer quotes for Bash3.2 compatibility; PowerShell uses existing ConvertTo-Json plus DEL escaping, retaining Windows slash normalization."
+    }
+  ],
+  "findings": [
+    {
+      "id": "INSTALLER-CODEX-TOML-ESCAPING",
+      "rule_id": "CS-004",
+      "paths": [
+        "install.sh",
+        "install.ps1"
+      ],
+      "state": "fixed",
+      "before": "Raw path interpolation makes quote/newline/control-bearing install path invalid or structurally injected TOML. Slash normalization alone is insufficient.",
+      "after": "TOML basic-string serialization round-trips ordinary and quote/control/Unicode paths through independent tomllib; all U+0001..001F and U+007F covered. Bash backslash path preserved; PS established slash normalization retained.",
+      "evidence": [
+        "installer-config-evidence/before.txt",
+        "installer-config-evidence/after.txt",
+        "installer-config-evidence/bash32-after.txt"
+      ]
+    },
+    {
+      "id": "INSTALLER-CODEX-MALFORMED-MARKER",
+      "rule_id": "CS-014",
+      "paths": [
+        "install.sh",
+        "install.ps1",
+        "uninstall.sh",
+        "uninstall.ps1"
+      ],
+      "state": "fixed",
+      "before": "Unclosed begin deletes trailing user settings; nested/orphan markers are accepted and stripped.",
+      "after": "Malformed block produces nonzero/throw diagnostic and preserves file bytes. Balanced and repeat registration plus unregistration positive controls preserve user table and top-level title.",
+      "evidence": [
+        "installer-config-evidence/before.txt",
+        "installer-config-evidence/after.txt",
+        "installer-config-evidence/bash32-after.txt"
+      ]
+    }
+  ],
+  "validation": [
+    {
+      "command": "python3 tests/codex-mcp-config.tests.py --repo <ce8003b9 source fixture> --pwsh <native pwsh>",
+      "result": "exit1,8/24 pass; 16 expected negative-control failures across both runtimes; ordinary controls pass."
+    },
+    {
+      "command": "python3 tests/codex-mcp-config.tests.py --pwsh <native pwsh>",
+      "result": "exit0,24/24 pass."
+    },
+    {
+      "command": "python3 tests/codex-mcp-config.tests.py --bash <Bash3.2> --pwsh <native pwsh>",
+      "result": "exit0,24/24 pass."
+    },
+    {
+      "command": "bash -n install.sh uninstall.sh; shellcheck -S warning install.sh uninstall.sh",
+      "result": "pass; full ShellCheck also reports existing SC2006 style warning in usage heredoc at install.sh:54, outside this delta."
+    },
+    {
+      "command": "tests/coding-standards/powershell.ps1 with install.ps1/uninstall.ps1 and PSScriptAnalyzer1.25.0",
+      "result": "Native parser and selected analyzer rules: zero findings."
+    },
+    {
+      "command": "bash tests/install.tests.sh",
+      "result": "exit0,63 passed0failed on final50c12f27 plus Codex config fixes."
+    },
+    {
+      "command": "bash tests/uninstall.tests.sh",
+      "result": "exit0,25 passed0failed."
+    },
+    {
+      "command": "pwsh -NoProfile -File tests/install.tests.ps1",
+      "result": "exit0,Installer integration tests passed."
+    },
+    {
+      "command": "pwsh -NoProfile -File tests/uninstall.tests.ps1",
+      "result": "exit0,all scenarios passed."
+    },
+    {
+      "command": "python3 tests/verification-catalog.tests.py",
+      "result": "15 tests OK; standalone run without pwsh on PATH skipped one native optional self-check."
+    },
+    {
+      "command": "PATH=<native pwsh bin>:$PATH bash tests/ci-suite-wiring.tests.sh",
+      "result": "exit0; nested catalog15tests OK, no skips; workflow wiring accepted."
+    }
+  ],
+  "limits": [
+    "Dedicated regression invokes real source functions without installer placement/network phases; separate existing integration suites cover full entrypoints.",
+    "Linux Bash5.2 and locally built Bash3.2 plus PowerShell7.6.7 executed. No native Windows/macOS or WindowsPowerShell5.1 execution claim.",
+    "Managed block updates remain per selected MCP, not a new all-MCP transaction. A malformed selected block is rejected before that block writes; earlier successfully processed MCP blocks may have changed.",
+    "No generalized TOML parser is introduced: recognized exact owned markers delimit replacement, other user TOML is preserved as existing line-oriented contract."
+  ],
+  "test_oracle_review": {
+    "rule_ids": [
+      "CS-028",
+      "CS-029",
+      "CS-030"
+    ],
+    "source": "tests/codex-mcp-config.tests.py",
+    "scope": "Complete new harness, all branches inspected. Source extracted from requested checkout as static functions; fixture payload travels via environment data, never interpolated into runnable source. Expected path/settings come from independent fixture data, parsed by stdlib tomllib. Failures require actual nonzero plus explicit marker diagnostic AND byte-identical file. Ordinary balanced repeated registration/unregistration are positive controls. Timeout30s bounds each actual runtime. TemporaryDirectory owns only newly created scratch. Windows-only illegal filename restriction is accurately scoped by Ubuntu CI placement. No credential/network activity and no expected-value rebasing."
+  }
+}
