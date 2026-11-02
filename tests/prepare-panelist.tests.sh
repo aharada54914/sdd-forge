@@ -3069,6 +3069,94 @@ else
     echo "SKIP: PP-082 host does not create symlinks"
 fi
 
+# BSD wc pads counts; exact elision markers must remain runtime-independent.
+WC_FIXTURE="${WORK}/padded-wc"
+mkdir -p "$WC_FIXTURE"
+cat > "$WC_FIXTURE/wc" <<'WC_SHIM'
+#!/bin/sh
+case "${SDD_TEST_WC_FAIL:-0}" in
+    1) exit 17 ;;
+    malformed) printf 'not-a-count\n'; exit 0 ;;
+esac
+count=$("$SDD_TEST_REAL_WC" "$@") || exit $?
+printf '%8d\n' "$count"
+WC_SHIM
+chmod +x "$WC_FIXTURE/wc"
+REAL_WC=$(command -v wc)
+for fixture in 052 062; do
+    fixture_root="${WORK}/pp${fixture}"
+    padded_output="$fixture_root/padded-out.txt"
+    PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" run_prepare \
+        --task T-004 --feature cross-model-verification \
+        --input "$fixture_root/empty-input" \
+        --tasks-file "$fixture_root/specs/cross-model-verification/tasks.md" \
+        --project-root "$fixture_root" --out "$padded_output" --max-bytes 15000
+    expected_marker="$EXPECTED_MARKER052"
+    [ "$fixture" = 062 ] && expected_marker="$EXPECTED_MARKER062"
+    if [ "$PP_EXIT" -eq 0 ] && grep -qF "$expected_marker" "$padded_output"; then
+        ok "BSD-wc-$fixture: padded count retains the exact independent elision marker"
+    else
+        fail "BSD-wc-$fixture: padded count changed the exact elision marker (exit $PP_EXIT)"
+    fi
+done
+failed_output="${D052}/failed-wc-out.txt"
+PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" SDD_TEST_WC_FAIL=1 run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D052}/empty-input" --tasks-file "${SPECDIR052}/tasks.md" \
+    --project-root "$D052" --out "$failed_output" --max-bytes 15000
+if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$failed_output" ]; then
+    ok 'BSD-wc-failure: failed count remains a tool error without bundle publication'
+else
+    fail "BSD-wc-failure: expected tool error 2 and no bundle, got $PP_EXIT"
+fi
+
+# With no elidable evidence, the first count is final bundle measurement.
+write_tasks_with_consent "$WC_FIXTURE/tasks.md" T-004
+printf 'complete review input\n' > "$WC_FIXTURE/input.txt"
+for count_mode in 1 malformed; do
+    measure_output="$WC_FIXTURE/measure-$count_mode.txt"
+    PATH="$WC_FIXTURE:$PATH" SDD_TEST_REAL_WC="$REAL_WC" SDD_TEST_WC_FAIL="$count_mode" run_prepare \
+        --task T-004 --feature cross-model-verification \
+        --input "$WC_FIXTURE/input.txt" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$measure_output" --max-bytes 15000
+    if [ "$PP_EXIT" -eq 2 ] && [ ! -e "$measure_output" ]; then
+        ok "BSD-wc-measure-$count_mode: failed or malformed measurement cannot publish"
+    else
+        fail "BSD-wc-measure-$count_mode: expected tool error 2 and no bundle, got $PP_EXIT"
+    fi
+done
+
+# Compare cap boundaries to actual published bytes, including empty content.
+for content_case in populated empty; do
+    boundary_input="$WC_FIXTURE/boundary-input.txt"
+    : > "$boundary_input"
+    [ "$content_case" = empty ] || printf 'complete review input\n' > "$boundary_input"
+    boundary_output="$WC_FIXTURE/boundary-output.txt"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output"
+    [ "$PP_EXIT" -eq 0 ] || fail "size-boundary-$content_case: baseline failed"
+    published_bytes=$(wc -c < "$boundary_output")
+    rm -f "$boundary_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output" --max-bytes "$((published_bytes - 1))"
+    if [ "$PP_EXIT" -eq 1 ] && [ ! -e "$boundary_output" ]; then
+        ok "size-boundary-$content_case: one byte below actual bundle size rejects without publication"
+    else
+        fail "size-boundary-$content_case: cap below actual bytes admitted an oversized bundle"
+    fi
+    rm -f "$boundary_output"
+    run_prepare --task T-004 --feature cross-model-verification \
+        --input "$boundary_input" --tasks-file "$WC_FIXTURE/tasks.md" \
+        --project-root "$WC_FIXTURE" --out "$boundary_output" --max-bytes "$((published_bytes))"
+    if [ "$PP_EXIT" -eq 0 ] && [ "$(wc -c < "$boundary_output")" -eq "$published_bytes" ]; then
+        ok "size-boundary-$content_case: exact actual bundle size remains accepted"
+    else
+        fail "size-boundary-$content_case: exact cap unexpectedly rejected or changed bytes"
+    fi
+done
+
 # Real POSIX I/O failures cannot yield a successful empty review bundle.
 if python3 - "${SCRIPTS_DIR}/prepare-panelist-input.sh" <<'PY_IO'
 import os

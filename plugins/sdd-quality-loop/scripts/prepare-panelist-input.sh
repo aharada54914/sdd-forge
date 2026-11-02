@@ -551,17 +551,26 @@ _ppi_is_seen() {
 _ppi_elide_lines=40
 _ppi_tab="$(printf '\t')"
 
+# Count stdin bytes without hiding wc failure behind a formatting filter.
+_ppi_count_bytes() {
+    local count
+    count=$(wc -c) || return 1
+    count=${count//[[:space:]]/}
+    case "$count" in ''|*[!0-9]*) return 1 ;; esac
+    printf '%s\n' "$count"
+}
+
 # One file's content, elided to its first/last $_ppi_elide_lines lines
 # plus a marker. Callers only invoke this for a file the budget loop below
 # has already decided to elide — it is not itself threshold-gated.
 _ppi_elide_content() {
     _pec_file="$1"
     _pec_label="$2"
-    _pec_total=$(wc -c < "$_pec_file") || return 1
+    _pec_total=$(_ppi_count_bytes < "$_pec_file") || return 1
     _pec_head=$(head -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
     _pec_tail=$(tail -n "$_ppi_elide_lines" -- "$_pec_file") || return 1
-    _pec_head_bytes=$(printf '%s\n' "$_pec_head" | wc -c | tr -d ' ')
-    _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | wc -c | tr -d ' ')
+    _pec_head_bytes=$(printf '%s\n' "$_pec_head" | _ppi_count_bytes) || return 1
+    _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | _ppi_count_bytes) || return 1
     _pec_elided=$((_pec_total - _pec_head_bytes - _pec_tail_bytes))
     [ "$_pec_elided" -lt 0 ] && _pec_elided=0
     printf '%s\n' "$_pec_head"
@@ -672,7 +681,7 @@ elif [ -d "$input_path" ]; then
         while IFS= read -r _ppi_tf; do
             [ -n "$_ppi_tf" ] || continue
             _ppi_tf_rel="${spec_root}/${feature}/verification/${task_id}/${_ppi_tf#"${_ppi_task_verif_dir}"/}"
-            _ppi_tf_bytes=$(wc -c < "$_ppi_tf" | tr -d ' ')
+            _ppi_tf_bytes=$(_ppi_count_bytes < "$_ppi_tf") || _ppi_io_error
             _ppi_elidable_index="${_ppi_elidable_index}${_ppi_tf_bytes}${_ppi_tab}${_ppi_tf}${_ppi_tab}${_ppi_tf_rel}
 "
             _ppi_mark_seen "$_ppi_tf_rel"
@@ -714,7 +723,7 @@ elif [ -d "$input_path" ]; then
 
             _ppi_resolve_row_under_root "$_ppi_dep" "$project_root"
             if [ "$_ppi_row_state" = "matched" ]; then
-                _ppi_dep_bytes=$(wc -c < "$_ppi_row_candidate" | tr -d ' ')
+                _ppi_dep_bytes=$(_ppi_count_bytes < "$_ppi_row_candidate") || _ppi_io_error
                 _ppi_elidable_index="${_ppi_elidable_index}${_ppi_dep_bytes}${_ppi_tab}${_ppi_row_candidate}${_ppi_tab}${_ppi_dep}
 "
             else
@@ -1070,7 +1079,7 @@ _ppi_capture_declared_output_content() {
 "
 
     if [ -n "$_cdo_candidate" ]; then
-        _cdo_bytes=$(wc -c < "$_cdo_candidate" | tr -d ' ')
+        _cdo_bytes=$(_ppi_count_bytes < "$_cdo_candidate") || _ppi_io_error
         _ppi_declared_elidable_index="${_ppi_declared_elidable_index}${_cdo_bytes}${_ppi_tab}${_cdo_candidate}${_ppi_tab}${_cdo_row_path}
 "
     fi
@@ -1409,7 +1418,7 @@ PYEOF
 # $_ppi_sanitized_digest/$_ppi_sanitized_content would occupy on disk —
 # header included, since that is what --max-bytes is measured against.
 _ppi_measure_bundle_bytes() {
-    _ppi_bundle_preview=$(
+    {
         printf '# Panelist Input Bundle\n'
         printf '# task_id: %s\n' "$task_id"
         printf '# feature: %s\n' "$feature"
@@ -1419,8 +1428,7 @@ _ppi_measure_bundle_bytes() {
         printf '#          Do not include secrets, absolute paths, or private URLs.\n'
         printf '\n'
         printf '%s\n' "$_ppi_sanitized_content"
-    )
-    printf '%s' "$_ppi_bundle_preview" | wc -c | tr -d ' '
+    } | _ppi_count_bytes
 }
 
 # ── Size guard (fail-closed, --max-bytes only) — two-tier budget-driven
@@ -1436,7 +1444,7 @@ _ppi_build_step3_content "$_ppi_elide_set"
 _ppi_declared_elide_set=""
 _ppi_build_declared_content "$_ppi_declared_elide_set"
 _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-_ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+_ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
 
 _ppi_elided_count=0
 _ppi_declared_elided_count=0
@@ -1453,7 +1461,7 @@ ${_ppi_cand_relpath}"
             _ppi_elided_count=$((_ppi_elided_count + 1))
             _ppi_build_step3_content "$_ppi_elide_set"
             _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
             [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
         done < <(printf '%s\n' "$_ppi_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
     fi
@@ -1474,7 +1482,7 @@ ${_ppi_dcand_relpath}"
             _ppi_declared_elided_count=$((_ppi_declared_elided_count + 1))
             _ppi_build_declared_content "$_ppi_declared_elide_set"
             _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
-            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes) || _ppi_io_error
             [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
         done < <(printf '%s\n' "$_ppi_declared_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
     fi

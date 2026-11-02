@@ -1194,6 +1194,12 @@ $($script:PpiSanitizedContent)
 "@
 }
 
+# Match Set-Content Utf8 -NoNewline plus Add-Content's final host newline.
+function Get-PpiBundleByteCount([string]$Bundle) {
+    $preambleBytes = if ($PSVersionTable.PSVersion.Major -lt 6) { 3 } else { 0 }
+    return [System.Text.Encoding]::UTF8.GetByteCount($Bundle + [Environment]::NewLine) + $preambleBytes
+}
+
 # ── Size guard (fail-closed, --max-bytes only) -- two-tier budget-driven
 # elision ─────────────────────────────────────────────────────────────────
 # Compose the bundle whole (empty elide-sets, both tiers) and measure it --
@@ -1208,7 +1214,7 @@ $declaredElideSet = @()
 $script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
 Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
 $bundle = Get-PpiBundlePreview
-$bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+$bundleBytes = Get-PpiBundleByteCount $bundle
 
 $elidedCount = 0
 $declaredElidedCount = 0
@@ -1227,7 +1233,7 @@ if ($MaxBytes) {
             $step3Content = Build-PpiStep3Content -ElideSet $elideSet
             Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
             $bundle = Get-PpiBundlePreview
-            $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+            $bundleBytes = Get-PpiBundleByteCount $bundle
             if ($bundleBytes -le $maxBytesInt) { break }
         }
 
@@ -1248,7 +1254,7 @@ if ($MaxBytes) {
                 $script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
                 Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
                 $bundle = Get-PpiBundlePreview
-                $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+                $bundleBytes = Get-PpiBundleByteCount $bundle
                 if ($bundleBytes -le $maxBytesInt) { break }
             }
         }

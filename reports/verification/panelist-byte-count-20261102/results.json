@@ -1,0 +1,66 @@
+{
+  "platform": "Linux, Bash5/Bash3.2 and pwsh7",
+  "trigger": {
+    "run": 41459260603,
+    "job": 125324011399,
+    "head": "4c1aef08179c66f874b3080439d0301d9e70d338",
+    "first_failure": "TEST052b exact marker; TEST062b same; BSD wc leading spaces in original-size field"
+  },
+  "before": {
+    "bash": {
+      "passed": 194,
+      "failed": 7,
+      "exit_code": 1
+    },
+    "powershell": {
+      "passed": 187,
+      "failed": 2,
+      "exit_code": 1
+    },
+    "method": "Final changed tests executed against original4c1aef production sources; Bash product bytes restored in finally before after run. PowerShell production edited only after before suite completed."
+  },
+  "after": {
+    "bash": {
+      "passed": 201,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "bash32": {
+      "passed": 201,
+      "failed": 0,
+      "exit_code": 0,
+      "command": "PATH=/workspace/scratch/standards-685/bash-3.2:<environment> /workspace/scratch/standards-685/bash-3.2/bash tests/prepare-panelist.tests.sh"
+    },
+    "powershell": {
+      "passed": 189,
+      "failed": 0,
+      "exit_code": 0
+    }
+  },
+  "source_hashes": {
+    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+    "tests/prepare-panelist.tests.sh": "c3cbfb99a0bb76f32dbb7cce718b720704919821ade82817054354115f6cb12f",
+    "tests/prepare-panelist.tests.ps1": "20578db510a3410e54a3ec90000a6ff729f12920d8ea56b8d7c75fdcb6af6c2e"
+  },
+  "controls": [
+    "BSD-padded wc preserves independent052b/062b markers",
+    "wc exit17 inventory cannot publish",
+    "wc exit17 measurement cannot publish",
+    "malformed successful wc output cannot publish",
+    "populated and empty exact actual emitted-byte caps pass,cap-minus1 rejects in both twins"
+  ],
+  "static_checks": [
+    "Bash5 andBash3.2 syntax pass",
+    "ShellCheck --severity=error on changed Bash source/tests pass",
+    "git diff --check pass"
+  ],
+  "logs": {
+    "powershell-before.log": "7b4f04bd212cc3cb5a0196f4cb5a9c22fdab732749eb4ad17b8bdc8cdda04f2e",
+    "bash-before.log": "f209757bc9655f93c9dd0fe050eb57531ef82eb662667db395a713098f3de395",
+    "bash-after.log": "7bd4288ebfb4a964e22c6e95ae0489e71e990beb642e67e8a34e10133753d4c1",
+    "bash32-after.log": "7bd4288ebfb4a964e22c6e95ae0489e71e990beb642e67e8a34e10133753d4c1",
+    "powershell-after.log": "3efa1110528f906188b34ea39609177f0c48bc78873276ce50fc5c5ae61855e0"
+  },
+  "limits": "Native macOS/Windows final CI pending; no native WindowsPowerShell5.1 serialization observation claimed."
+}
