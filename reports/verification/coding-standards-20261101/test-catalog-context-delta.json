@@ -79,10 +79,44 @@
       "path": "tests/check-component-coverage.tests.sh",
       "before_sha256": "41ecbb872ed65e9201026bfdee6b78e7b272eefdaa53a26372b2cabc3b6bec95",
       "sha256": "1416841cb5e7627a1bd1248b4d2160960f19963bd327d9fd8fb887272f2df3db",
-      "review": "Delta: move existing sys import ahead of first sys.argv access in TEST036.4 inline Python. No invariant/hash exception or fixture data changed. Extracted exact body against final root passed0 including archived candidate hashes, guard evolution self-tests and research publication path validation. Full version suite rerun remains CI-owned.",
+      "review": "Delta: move existing sys import ahead of first sys.argv access in TEST036.4 inline Python. No invariant/hash exception or fixture data changed. Extracted exact body against /workspace/scratch/standards-685/integration at 293911ed7a056b82e3f1621fd54b5bee6ed5b1da passed0 including archived candidate hashes, guard evolution self-tests and research publication path validation. Full version suite rerun remains CI-owned.",
       "rule_ids": [
         "CS-009",
         "CS-019",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/check-component-coverage.tests.ps1",
+      "before_sha256": "cc4913f65c292ca20b8cf8ceba479f49b90acc88db101bde6e9a7660d1006b30",
+      "sha256": "ec91b980550058679e91d416329d42035ba984a46a672db21a590cd9e7b686ef",
+      "baseline_context": "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+      "baseline_revision": "339d0bd978b115529e796c6c7c308851d02c41bb",
+      "review": "Reviewed entire26-line added boundary block and its Invoke-Gate/summary/cleanup context. Four malformed manifests (scalar, numeric/null array item, root list) require hard error2. Non-string YAML enforcement asserts documented disabled-legacy exact state and0; A/a provider fixture makes distinct upper/lower paths and requires no Fail-6. Fixed JSON/YAML bytes and GUID temp root; finally removes only own fixture. No fixture weakening, dynamic code or live repository writes. Unchanged568-line source carries original whole-source owner context.",
+      "rule_ids": [
+        "CS-004",
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-025",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+      "before_sha256": "7bc9d4ba65d333a3a87fa00e9bedb9118c53678c69f8083c3ce7dd1af6d2cc22",
+      "sha256": "c68ccf0e4baa7352fe6385d7e8d8922bd1978cf0aa16b18e5392e4927da6023c",
+      "baseline_context": "docs/contributor/coding-standards/audit/shell/test-context-review.json",
+      "baseline_revision": "339d0bd978b115529e796c6c7c308851d02c41bb",
+      "review": "Reviewed complete3-line delta and Assert-FragmentInvalid helper/try-finally scope. Singleton array envelope is written literally to private temp root and passed as argv to real shipped PowerShell gate; asserts both hard error2 and dedicated diagnostic. This catches PowerShell singleton unwrapping without changing existing valid/invalid controls. Cleanup remains scoped. Unchanged283-line source carries original whole-source owner context.",
+      "rule_ids": [
+        "CS-004",
+        "CS-009",
+        "CS-019",
+        "CS-022",
+        "CS-025",
         "CS-027",
         "CS-028"
       ]
