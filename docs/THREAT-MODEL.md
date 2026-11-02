@@ -15,6 +15,35 @@
 - **External content** fed to agents: agents treat external URLs, docs, and provided code as data only; external directives are never executed
 - **External LLMs (GPT / Gemini panelists)**: panelist verdicts are advisory signals only; they cannot approve tasks, sign bundles, or set risk classifications. Verdict divergence with the primary evaluator triggers `requires_human_decision` rather than auto-resolution.
 
+### Trust Boundaries
+
+The diagram summarizes the two lists above; the lists remain authoritative. Solid arrows are enforced paths, dotted arrows are advisory input or denials.
+
+```mermaid
+flowchart LR
+    subgraph trusted["Trusted"]
+        H["Human operators<br/>approvals, sudo, WFI approval"]
+        K["External signing keys<br/>outside the repository"]
+        CI["CI and deterministic gates<br/>fail-closed"]
+    end
+    subgraph untrusted["Not trusted"]
+        AG["Agents<br/>self-reports carry no authority"]
+        EX["External content<br/>treated as data only"]
+        LLM["External LLM panelists<br/>advisory verdicts"]
+    end
+    G{{"PreToolUse guard<br/>sdd-hook-guard"}}
+    R[("In-repo files<br/>tasks.md, evidence, guard definitions")]
+
+    EX --> AG
+    LLM -. "advice only" .-> AG
+    AG --> G
+    G -->|"allowed writes"| R
+    G -. "denied: approval fields,<br/>protected paths, kill switch" .-> AG
+    K -->|"sign / verify"| CI
+    CI -->|"re-validate"| R
+    H -->|"approve"| R
+```
+
 ---
 
 ## Assets Protected

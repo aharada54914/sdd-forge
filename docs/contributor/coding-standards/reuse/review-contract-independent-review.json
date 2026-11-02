@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent-resumed-review",
+  "review_scope": "whole_file",
+  "source_files": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "sha256": "fc5d450728054b336d644d7b66e723098cf7cdd801b7b6b7f1ef3711712b8c3a"
+    },
+    {
+      "path": "tests/review-contract-foundation.tests.ps1",
+      "sha256": "da19fda926165785be52b4b313e949bf90fb09574683de6773393c43554ad8a0"
+    }
+  ],
+  "findings_resolved": [
+    "PowerShell ConvertFrom-Json pipeline unwrapped singleton root array into an accepted object; explicit object-root boundary now rejects it.",
+    "Test-Path Leaf admits POSIX FIFO and Get-Content blocked indefinitely; physical regular-file classification now rejects before read.",
+    "Report-parent link resolution now checks .NET API capability and uses bounded Target fallback when absent, retaining PowerShell5.1-compatible syntax."
+  ],
+  "judgment": "Whole validator and test file read: CLI identity and exact typed fields, canonical stdout, report containment and symlink policy retained. Regular contract files, symbolic links and hardlinks retain acceptance. Unix physical classification stays local because evidence-path owns canonicalization only and context validator is a policy entrypoint, not an importable file-mechanics library. No universal wrapper or new dependency.",
+  "execution": {
+    "heldout": "reuse/evidence/review-contract-heldout.json",
+    "harness": "reuse/evidence/review-contract-heldout.py.txt",
+    "runtime": "PowerShell 7.6.7 and Bash on Linux",
+    "maintained_tests": [
+      "PowerShell review-contract-foundation.tests.ps1 exit 0",
+      "Bash review-contract-foundation.tests.sh exit 0 including CRLF context controls"
+    ]
+  },
+  "limits": [
+    "No native Windows PowerShell5.1 receipt. Missing-ResolveLinkTarget branch executed by capability suppression on Linux for accepted internal and rejected external relative report-parent links.",
+    "File classification and read are separate operations; no atomic protection against concurrent path replacement is claimed.",
+    "Paired receipts establish these two specific regressions, not whole-population completion."
+  ]
+}

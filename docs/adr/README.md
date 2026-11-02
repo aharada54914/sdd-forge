@@ -264,3 +264,4 @@ must never rely on a bare legacy number.
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
 | 0045 | Bounded full workflow-state batch reuse | Proposed |
+| 0046 | Vendor agent toolkits coexist; SDD Forge does not own cloud adapters | Proposed |

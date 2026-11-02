@@ -31,6 +31,21 @@ try {
     throw "unexpected canonical output: $($output | ConvertTo-Json -Compress)"
   }
 
+  if ([IO.Path]::DirectorySeparatorChar -ne '\') {
+    [IO.File]::WriteAllText($tempContract, [IO.File]::ReadAllText($fixture))
+    foreach ($linkType in @('SymbolicLink', 'HardLink')) {
+      $linkPath = $tempContract + '.' + $linkType
+      try {
+        New-Item -ItemType $linkType -Path $linkPath -Target $tempContract | Out-Null
+        $linkedOutput = & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $linkPath
+        if ($linkedOutput -cne $rawOutput) { throw "$linkType contract changed canonical output" }
+      } finally { Remove-Item -LiteralPath $linkPath -Force -ErrorAction SilentlyContinue }
+    }
+  }
+
+  [IO.File]::WriteAllText($tempContract, ('[' + [IO.File]::ReadAllText($fixture) + ']'))
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'singleton root array must not unwrap to a contract'
+
   foreach ($case in @(
     @{ Field = 'verdict'; Value = 'pass' },
     @{ Field = 'schema'; Value = 'REVIEW-CONTRACT/v1' },
@@ -88,6 +103,18 @@ try {
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'undeclared contract property'
   New-Item -ItemType File -Path $reportFile | Out-Null
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportFile -Contract $fixture } 'report root is a regular file'
+
+  if ([IO.Path]::DirectorySeparatorChar -ne '\' -and (Get-Command mkfifo -ErrorAction SilentlyContinue)) {
+    . (Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1')
+    $fifoPath = $tempContract + '.fifo'
+    try {
+      & mkfifo $fifoPath
+      if ($LASTEXITCODE -ne 0) { throw 'could not create FIFO fixture' }
+      # A timeout throws and fails the suite; only a typed pre-read rejection passes.
+      $rejected = Invoke-SddNativeRaw -FileName (Get-Process -Id $PID).Path -Arguments @('-NoProfile', '-File', $validator, '-Feature', 'utf8-feature', '-Attempt', '1', '-Round', '2', '-Stage', 'spec', '-ReportRoot', $reportRoot, '-Contract', $fifoPath) -TimeoutMilliseconds 5000
+      if ($rejected.ExitCode -ne 1 -or $rejected.Stdout.Length -ne 0 -or [Text.Encoding]::UTF8.GetString($rejected.Stderr) -notmatch 'contract is not a regular file') { throw 'FIFO did not produce a pre-read regular-file rejection' }
+    } finally { Remove-Item -LiteralPath $fifoPath -Force -ErrorAction SilentlyContinue }
+  }
 
   Write-Output 'ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs'
 } finally {

@@ -418,11 +418,11 @@ if python3 -c "
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 repo = Path(sys.argv[1])
 manifest = Path(sys.argv[2])
 import importlib.util
-import sys
 sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location('guard_evolution', repo / 'tests/lib/guard-invariants-evolution.py')
 evolution = importlib.util.module_from_spec(spec)

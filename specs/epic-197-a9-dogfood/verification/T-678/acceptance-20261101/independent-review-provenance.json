@@ -3,7 +3,7 @@
   "source": "/workspace/scratch/678-final-independent-quality.md",
   "source_sha256": "41e3ce7cc65d21e4748b6663cc4ecc3faa93f450ccf987440ffece9a676fd353",
   "published_report": "reports/quality-gate/epic-197-a9-dogfood-T-678-final.md",
-  "published_sha256": "06aa7f4f9e206a4baba4bb3a5e081347f65a655c94857550a781722b92b2a482",
-  "format_adaptation": "Only Verdict label uppercased to VERDICT for existing validator; review wording and verdict unchanged.",
+  "published_sha256": "73d2b66ceaec082a66ad0a0742b85052fa47cfb64bdb8e34df19d89bcdfd7f24",
+  "format_adaptation": "Verdict label uppercased to VERDICT for existing validator; review wording and verdict unchanged. Later amendment: Critical/Major/Minor zero-count header lines and one identity note were added after the review (no run id was reserved for this gate-external review, none invented); findings and verdict unchanged.",
   "scope": "REQ001\u2013004 plus actual active-Context acceptance; parent release interval not complete"
 }

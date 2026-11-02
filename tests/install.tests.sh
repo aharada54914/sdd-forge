@@ -283,6 +283,10 @@ SHIM
 echo "curl \$*" >> $(shell_literal "$log_path")
 config=""
 case "\$*" in
+    *"--max-time 300"*) ;;
+    *) echo "missing bounded archive request deadline" >&2; exit 9 ;;
+esac
+case "\$*" in
     *"--config -"*) config="\$(cat)" ;;
 esac
 case "\$config" in
