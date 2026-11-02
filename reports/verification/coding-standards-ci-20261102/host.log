@@ -1,0 +1,18 @@
+..................F..
+======================================================================
+FAIL: test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/standards-685/python/tests/host-review-preflight.tests.py", line 402, in test_012d_unrelated_membership_unchanged
+    self.assert_unrelated_unchanged(data)
+  File "/workspace/scratch/standards-685/python/tests/host-review-preflight.tests.py", line 398, in assert_unrelated_unchanged
+    self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
+AssertionError: '7adb08ace776bf719bc40ed97a4ad208bff935ce176e6c0184e5fcc30839c0e7' != 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
+- 7adb08ace776bf719bc40ed97a4ad208bff935ce176e6c0184e5fcc30839c0e7
++ ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9
+ : unrelated invariant keys or membership changed
+
+----------------------------------------------------------------------
+Ran 21 tests in 16.391s
+
+FAILED (failures=1)

@@ -1,0 +1,3 @@
+detect-panel.ps1: success, exit=0, elapsed=0.37s
+detect-panel.ps1: fail, exit=1, elapsed=0.33s
+detect-panel.ps1: hang, exit=1, elapsed=5.32s
