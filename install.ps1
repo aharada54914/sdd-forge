@@ -565,7 +565,7 @@ function Download-AuthenticatedArchive {
     $encodedRef = [Uri]::EscapeDataString($RefName)
     $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$encodedRef"
     Write-Host "Downloading authenticated archive from $downloadUrl"
-    Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
+    Invoke-WebRequest -TimeoutSec 300 -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
 }
 
 function Get-RequiredPaths {

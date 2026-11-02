@@ -1,0 +1,35 @@
+{
+  "schema": "shell-test-context-delta/v1",
+  "base_revision": "de677e85f56467c2d9b45aa43ca576ff4296d88d",
+  "entries": [
+    {
+      "path": "tests/install.tests.sh",
+      "before_sha256": "a82dbf8fab391576ab2a7267c8d35633e5413b33a19066d1ce0a68b5332f1035",
+      "sha256": "b48f4c500a112753eeb899a433096d80093f4ea55b17c2cbafb955ea6b3c3243",
+      "diff_sha256": "9d1262ffb011b33e9ed51fc8b1ca51de8c6463e92de9931ff29040a0cd3fbeb5",
+      "review": "Existing fixture source plus entire changed control read. Installer remote mocks require300 seconds while preserving authentication/output assertions; rollback malformed root/files/schema cases check failure category and unchanged release hash, production AST helper is driven by noisy/nonzero/stalled native Git shim; successful native rollback and both restoration controls retained. POSIX fault fixture explicitly skips on Windows."
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "before_sha256": "7967da30abb520ba24537b721ab8064eb4864c966c534fba30f72119eec840f7",
+      "sha256": "628c8b14d0c15dad60c2fda05ad4f7c0378aa9ad37f8c4b42ccd916e3f1f169c",
+      "diff_sha256": "b4e23670c1ad012e4e5ca6bd22b80e1236a16688c134949b2503046cc3c0c70e",
+      "review": "Existing fixture source plus entire changed control read. Installer remote mocks require300 seconds while preserving authentication/output assertions; rollback malformed root/files/schema cases check failure category and unchanged release hash, production AST helper is driven by noisy/nonzero/stalled native Git shim; successful native rollback and both restoration controls retained. POSIX fault fixture explicitly skips on Windows."
+    },
+    {
+      "path": "tests/rollback-1.5.0.tests.ps1",
+      "before_sha256": "957746c3468adcd5c54789d97512fbaef2ad763324f3674519fa376ddd839166",
+      "sha256": "502a6269a479f478df27da6d3f9376fce203140c1935fcbfa4419b000b83eac8",
+      "diff_sha256": "b1956ef7b8a8d4dfec1311b7ae5299d4d5ec28e86ec85d299ea4b53931492385",
+      "review": "Existing fixture source plus entire changed control read. Installer remote mocks require300 seconds while preserving authentication/output assertions; rollback malformed root/files/schema cases check failure category and unchanged release hash, production AST helper is driven by noisy/nonzero/stalled native Git shim; successful native rollback and both restoration controls retained. POSIX fault fixture explicitly skips on Windows."
+    }
+  ],
+  "validation": {
+    "bash_installer": "63 passed, 0 failed; exit0",
+    "powershell_installer": "Installer integration tests passed; exit0",
+    "powershell_rollback": "Malformed containers, noisy stderr, nonzero exit, bounded stall, success, apply restoration and final-verification restoration passed; exit0"
+  },
+  "limitations": [
+    "No native Windows/macOS execution in this delta. Installer deadline controls validate configured transport bound, not a real300-second network stall."
+  ]
+}

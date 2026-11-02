@@ -67,7 +67,7 @@ function Test-GitObjectExists {
 }
 
 function Get-GitBlobHash {
-    param([string]$Commit, [string]$RelativePath)
+    param([string]$Commit, [string]$RelativePath, [int]$TimeoutMilliseconds = 30000)
     $startInfo = [Diagnostics.ProcessStartInfo]::new()
     $startInfo.FileName = (Get-Command git).Source
     $startInfo.UseShellExecute = $false
@@ -78,14 +78,31 @@ function Get-GitBlobHash {
     }
     $process = [Diagnostics.Process]::Start($startInfo)
     $sha256 = [Security.Cryptography.SHA256]::Create()
+    $hashStream = [Security.Cryptography.CryptoStream]::new(
+        [IO.Stream]::Null, $sha256, [Security.Cryptography.CryptoStreamMode]::Write)
+    $deadline = [Diagnostics.Stopwatch]::StartNew()
     try {
-        $bytes = $sha256.ComputeHash($process.StandardOutput.BaseStream)
-        $process.WaitForExit()
+        # Drain both pipes concurrently without buffering a blob or Git diagnostics in memory.
+        $stdoutTask = $process.StandardOutput.BaseStream.CopyToAsync($hashStream)
+        $stderrTask = $process.StandardError.BaseStream.CopyToAsync([IO.Stream]::Null)
+        $drains = [Threading.Tasks.Task]::WhenAll([Threading.Tasks.Task[]]@($stdoutTask, $stderrTask))
+        if (-not $drains.Wait($TimeoutMilliseconds) -or
+            -not $process.WaitForExit([Math]::Max(0, $TimeoutMilliseconds - [int]$deadline.ElapsedMilliseconds))) {
+            Fail-Rollback "ROLLBACK_GIT" "Git object read timed out: $RelativePath"
+        }
+        $hashStream.FlushFinalBlock()
+        $bytes = $sha256.Hash
         if ($process.ExitCode -ne 0) {
             Fail-Rollback "ROLLBACK_GIT" "cannot read Git object: $RelativePath"
         }
-        return ([Convert]::ToHexString($bytes)).ToLowerInvariant()
+        return ([BitConverter]::ToString($bytes)).Replace('-', '').ToLowerInvariant()
     } finally {
+        if (-not $process.HasExited) {
+            $process.Kill($true)
+            # Observe pipe completion after termination before disposing the hashing sink.
+            try { $null = $drains.Wait(1000) } catch { Write-Verbose $_.Exception.Message }
+        }
+        $hashStream.Dispose()
         $sha256.Dispose()
         $process.Dispose()
     }
@@ -143,22 +160,24 @@ try {
     }
 
     try {
-        $data = Get-Content -Raw -Encoding Utf8 -LiteralPath $Contract | ConvertFrom-Json
+        $data = Get-Content -Raw -Encoding Utf8 -LiteralPath $Contract | ConvertFrom-Json -NoEnumerate
     } catch {
         Fail-Rollback "ROLLBACK_CONTRACT" "invalid JSON"
     }
-    if (-not (Test-ExactProperties $data @("schema", "baseline_commit", "reviewed_release_commit", "files")) -or
-        $data.schema -cne $expectedSchema -or
+    if ($data -isnot [pscustomobject] -or
+        -not (Test-ExactProperties $data @("schema", "baseline_commit", "reviewed_release_commit", "files")) -or
+        $data.schema -isnot [string] -or $data.schema -cne $expectedSchema -or
         $data.baseline_commit -isnot [string] -or $data.baseline_commit -cnotmatch '^[a-f0-9]{40}$' -or
         $data.reviewed_release_commit -isnot [string] -or $data.reviewed_release_commit -cnotmatch '^[a-f0-9]{40}$' -or
-        @($data.files).Count -eq 0) {
+        $data.files -isnot [array] -or @($data.files).Count -eq 0) {
         Fail-Rollback "ROLLBACK_CONTRACT" "invalid or non-closed contract"
     }
 
     $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $previous = $null
     foreach ($entry in @($data.files)) {
-        if (-not (Test-ExactProperties $entry @("path", "baseline_sha256", "new_sha256")) -or
+        if ($entry -isnot [pscustomobject] -or
+            -not (Test-ExactProperties $entry @("path", "baseline_sha256", "new_sha256")) -or
             $entry.path -isnot [string] -or
             ($null -ne $entry.baseline_sha256 -and
                 ($entry.baseline_sha256 -isnot [string] -or $entry.baseline_sha256 -cnotmatch '^[a-f0-9]{64}$')) -or
