@@ -1,0 +1,81 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py	2026-11-02 13:14:39.371512079 +0000
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py	2026-11-02 13:14:39.403139935 +0000
+@@ -1413,6 +1413,66 @@
+     return False
+ 
+ 
++# ADR-0047 (Proposed, prototype): deny cloud deploy/destroy commands in shell tools.
++# A string match on the command line. This is an accident-prevention layer, NOT a
++# security boundary: wrappers (make, scripts), SDK calls and MCP tools bypass it.
++_DEPLOY_WRAPPERS = frozenset({"npx", "pnpx", "bunx", "env", "command", "exec", "time", "nohup"})
++_DEPLOY_ENV_ASSIGN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
++_DEPLOY_TF_SUBCMDS = frozenset({"apply", "destroy"})
++_DEPLOY_CDK_SUBCMDS = frozenset({"deploy", "destroy"})
++_DEPLOY_AZD_SUBCMDS = frozenset({"up", "provision", "deploy", "down"})
++_DEPLOY_CFN_SUBCMDS = frozenset({"deploy", "create-stack", "update-stack", "delete-stack", "execute-change-set"})
++_DEPLOY_AZ_ACTIONS = frozenset({"create", "delete"})
++
++
++def _deploy_segment_words(words):
++    k = 0
++    while k < len(words) and (_DEPLOY_ENV_ASSIGN_RE.match(words[k])
++                              or _shell_token_basename(words[k]) in _DEPLOY_WRAPPERS):
++        k += 1
++    return words[k:]
++
++
++def _segment_is_cloud_deploy(words):
++    words = _deploy_segment_words(words)
++    if not words:
++        return False
++    verb = _shell_token_basename(words[0])
++    args = [w for w in words[1:] if not w.startswith("-")]
++    if verb in ("terraform", "tofu"):
++        return bool(args) and args[0] in _DEPLOY_TF_SUBCMDS
++    if verb == "cdk":
++        return bool(args) and args[0] in _DEPLOY_CDK_SUBCMDS
++    if verb == "azd":
++        return bool(args) and args[0] in _DEPLOY_AZD_SUBCMDS
++    if verb == "aws":
++        return len(args) >= 2 and args[0] == "cloudformation" and args[1] in _DEPLOY_CFN_SUBCMDS
++    if verb == "az":
++        return "deployment" in args and bool(_DEPLOY_AZ_ACTIONS & set(args))
++    return False
++
++
++def _shell_runs_cloud_deploy(command):
++    """True when any simple command in the shell string is a cloud deploy/destroy."""
++    if not isinstance(command, str):
++        return False
++    tokens = _tokenize_shell_command(command)
++    if tokens is None:
++        return False
++    words = []
++    segments = []
++    for kind, text in tokens:
++        if kind == "sep":
++            if words:
++                segments.append(words)
++                words = []
++        else:
++            words.append(text)
++    if words:
++        segments.append(words)
++    return any(_segment_is_cloud_deploy(seg) for seg in segments)
++
++
+ # WFI-048: characters that may legitimately abut a path inside a larger token.
+ # Whitespace is deliberately absent on BOTH sides. A suffix surrounded by
+ # spaces is prose -- "fix the tests/gates.tests.sh handling" -- and prose is
+@@ -2105,6 +2165,11 @@
+             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+             return
+ 
++        # ADR-0047 (Proposed, prototype): cloud deploy/destroy commands are denied.
++        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
++                and _shell_runs_cloud_deploy(tool_input.get("command"))):
++            emit("deny", "SDD deterministic gate: cloud deploy/destroy commands are not run by the agent; a human or the approved CI environment runs them.", mode)
++            return
+         # Reject unknown argv before the legacy write scanners can miss glob-added options.
+         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+                 and _shell_has_globbed_reader_options(tool_input.get("command"))):
