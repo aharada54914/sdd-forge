@@ -222,7 +222,7 @@ manufacture acceptance.
 ## Final source-bound reconciliation
 
 This section supersedes the prior b0c13112 snapshot after native macOS job
-125310019228 (run41455000330, headaeaf22d0) exposed ROOT-008. Previously reviewed
+125310019228 (run 41455000330, head aeaf22d0) exposed ROOT-008. Previously reviewed
 bytes remain historical coverage; the actual failure disproved universal
 correctness, which the prior census did not claim.
 
@@ -236,10 +236,10 @@ findings: 245 fixed and PY-003's bounded invalid-source exception. The separate
 population exception remains the intentional symlink fixture.
 
 `reports/verification/evidence-alias-cycle-20261102/context-delta.json` joins
-helper before SHA63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d
-to167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274 and test
-befored6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844
-to7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8.
+helper before SHA 63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d
+to 167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274 and test
+before d6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844
+to 7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8.
 The exact former hashes already had whole-source-plus-delta review. ROOT-008's
 original helper hash was separately verified against aeaf22d0 Git bytes.
 
@@ -255,15 +255,15 @@ comparers, error paths, traversal bound and fixture cleanup remain unchanged.
 No duplicate execution, native WindowsPowerShell5.1 or atomic filesystem claim
 is inferred from that independent source/evidence review.
 
-The refreshed same-checker native comparison records code7d53b1bf:
-884 inspected of885 selected, zero native findings, 70.25seconds. Task baseline
-82b53695 remains856 inspected/285 findings/70.06seconds. Priorbd94 outputs are
+The refreshed same-checker native comparison records code 7d53b1bf:
+884 inspected of 885 selected, zero native findings, 70.25 seconds. Task baseline
+82b53695 remains 856 inspected / 285 findings / 70.06 seconds. Prior bd94 outputs are
 retained in the archive. This native result remains narrower than contextual
-coverage and does not replace final-head CI. The158 role receipts bind current
+coverage and does not replace final-head CI. The 158 role receipts bind current
 metadata, including captured alias regression evidence and the revised scan
 comparison; stored log/JSON/ZIP inspection remains data review, not code PASS.
 
-Executable source is frozen at7d53b1bf. Between that code fix and this clean
+Executable source is frozen at 7d53b1bf. Between that code fix and this clean
 snapshot, changes are only the four existing native comparison artifacts
 (verification README, SHA256SUMS, native-comparison.json, task-native-evidence.zip)
 and audit findings.json/final-record-role-review.json. The derived delta after
