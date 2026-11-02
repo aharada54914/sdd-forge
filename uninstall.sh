@@ -287,12 +287,17 @@ unregister_codex_mcp() {
         local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
         local marker_end="# <<< ${name} <<<"
         tmp_config="$(mktemp)"
-        awk -v begin="$marker_begin" -v end="$marker_end" '
-            $0 == begin { skip = 1; next }
-            $0 == end { skip = 0; next }
+        if ! awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
+            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
             skip { next }
             { print }
-        ' "$config_toml" > "$tmp_config"
+            END { if (skip || invalid) exit 1 }
+        ' "$config_toml" > "$tmp_config"; then
+            rm -f "$tmp_config"
+            echo "Malformed managed MCP markers in $config_toml; file unchanged for $name." >&2
+            return 1
+        fi
         mv "$tmp_config" "$config_toml"
     done
     return 0

@@ -156,10 +156,17 @@ function Unregister-CodexMcp {
         $filtered = [System.Collections.Generic.List[string]]::new()
         $skip = $false
         foreach ($line in $existingLines) {
-            if ($line -eq $markerBegin) { $skip = $true; continue }
-            if ($line -eq $markerEnd) { $skip = $false; continue }
+            if ($line -eq $markerBegin) {
+                if ($skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
+                $skip = $true; continue
+            }
+            if ($line -eq $markerEnd) {
+                if (-not $skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
+                $skip = $false; continue
+            }
             if (-not $skip) { $filtered.Add($line) }
         }
+        if ($skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
         Set-Content -LiteralPath $configToml -Value $filtered
     }
 }
