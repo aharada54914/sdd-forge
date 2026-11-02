@@ -1,0 +1,53 @@
+{
+  "platform": "Linux cloud; pwsh7 via environment launcher",
+  "source_revision": "5d8ba349a6e2694843dde80f1fe82a87d2b7c334",
+  "results": {
+    "owner": {
+      "exit_code": 0,
+      "tests": 8,
+      "log_sha256": "c9660b86bd262e6880106e2459dbb8d131ed62aed1f9d5291d6b71b6f2e017c1"
+    },
+    "formal-after": {
+      "exit_code": 0,
+      "tests": 6,
+      "scope": "real two-process lock-removal/baseline regression, not new TLC execution",
+      "log_sha256": "89063631160e4dba62e3d1001a29b2d776dab1c36eb2e8d68f52dac40fa3cd78"
+    },
+    "host-after": {
+      "exit_code": 0,
+      "tests": 21,
+      "log_sha256": "e0dbe84942bb1d7db5f63a63feb8e16ccb45cd08c35cdd5225cc3b011c5f7ca6"
+    },
+    "domain": {
+      "exit_code": 0,
+      "tests": 25,
+      "skipped": 1,
+      "reason": "root cannot exercise POSIX DAC denial",
+      "log_sha256": "df86eb0f9fa2c4ff25a3244af4c870c1e16744dbba82cd5656eaec25727bd2ca"
+    },
+    "criterion": {
+      "exit_code": 0,
+      "assertions": 39,
+      "log_sha256": "3ed0edfe8329d5ff9c262f730cab92ac702c25df8b1e741e0991573463eea67c"
+    },
+    "task": {
+      "exit_code": 0,
+      "log_sha256": "ab2608983ccbf71a747409d044bc3ed3eeaf597bcef824a68ea3655e4d8fcff2"
+    },
+    "probe-sh": {
+      "exit_code": 0,
+      "cases": 3,
+      "log_sha256": "06116a6a11876545d537e857bdb42e142094dbba7df1bad24977aaa9b2f7a859"
+    },
+    "probe-ps": {
+      "exit_code": 0,
+      "cases": 3,
+      "log_sha256": "d2e7cec2f0b068cce2e1137c8acac0a7f9c364d9c163515ac70c1f9005d6ec45"
+    }
+  },
+  "historical_failures": [
+    "formal.log",
+    "host.log"
+  ],
+  "limits": "Native Windows/macOS CI still required; no new model-checking or arbitrary descendant-tree guarantee."
+}
