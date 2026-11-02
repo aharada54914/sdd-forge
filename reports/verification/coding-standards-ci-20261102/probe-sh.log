@@ -1,0 +1,3 @@
+detect-panel.sh: success, exit=0, elapsed=1.01s
+detect-panel.sh: fail, exit=1, elapsed=1.01s
+detect-panel.sh: hang, exit=1, elapsed=6.03s
