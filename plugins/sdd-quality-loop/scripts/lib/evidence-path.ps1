@@ -15,7 +15,8 @@ function Resolve-SddEvidenceFilesystemPath([string]$Path) {
             $current = Join-Path $current $parts[$index]
             $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
             if (-not ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { continue }
-            if (-not $seen.Add($current) -or $seen.Count -gt $maximumLinkResolutions) {
+            # Reusing a directory alias is valid when the remaining path changes.
+            if (-not $seen.Add($pending) -or $seen.Count -gt $maximumLinkResolutions) {
                 throw "cyclic or excessive evidence link traversal: $current"
             }
             if ($item.PSObject.Methods['ResolveLinkTarget']) {

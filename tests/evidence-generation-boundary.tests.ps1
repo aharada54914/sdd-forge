@@ -74,6 +74,26 @@ try {
             [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
             & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
             Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) 'generator preserves in-repository evidence links'
+            $linkFixture = Join-Path $repo 'link-fixture'
+            New-Item -ItemType Directory -Path $linkFixture | Out-Null
+            $linkFixture = Resolve-SddEvidenceFilesystemPath $linkFixture
+            $alias = Join-Path $linkFixture 'alias'
+            $targetDirectory = Join-Path $linkFixture 'target'
+            New-Item -ItemType Directory -Path $targetDirectory | Out-Null
+            $targetFile = Join-Path $targetDirectory 'evidence.txt'
+            [IO.File]::WriteAllText($targetFile, 'repeated directory alias fixture')
+            New-Item -ItemType SymbolicLink -Path $alias -Target $targetDirectory | Out-Null
+            New-Item -ItemType SymbolicLink -Path (Join-Path $targetDirectory 'back-link') -Target (Join-Path $alias 'evidence.txt') | Out-Null
+            $aliasInput = Join-Path $alias 'back-link'
+            Assert ((Resolve-SddEvidenceFilesystemPath $aliasInput) -ceq $targetFile) 'resolver permits repeated directory alias with a different remaining path'
+            for ($linkIndex = 65; $linkIndex -ge 1; $linkIndex--) {
+                $nextTarget = if ($linkIndex -eq 65) { $targetFile } else { Join-Path $linkFixture ("chain-" + ($linkIndex + 1)) }
+                New-Item -ItemType SymbolicLink -Path (Join-Path $linkFixture "chain-$linkIndex") -Target $nextTarget | Out-Null
+            }
+            $cycleA = Join-Path $linkFixture 'cycle-a'
+            $cycleB = Join-Path $linkFixture 'cycle-b'
+            New-Item -ItemType SymbolicLink -Path $cycleA -Target $cycleB | Out-Null
+            New-Item -ItemType SymbolicLink -Path $cycleB -Target $cycleA | Out-Null
             # Inject the missing .NET method capability while retaining real
             # filesystem Target data; this is not a Windows-native claim.
             $expectedInsidePath = Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'inside-link.txt')
@@ -92,6 +112,14 @@ try {
                 return $item
             }
             try {
+                Assert ((Resolve-SddEvidenceFilesystemPath $aliasInput) -ceq $targetFile) 'legacy fallback permits repeated directory alias with a different remaining path'
+                Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $linkFixture 'chain-2')) -ceq $targetFile) 'legacy fallback accepts exactly 64 link resolutions'
+                foreach ($rejectedPath in @($cycleA, (Join-Path $linkFixture 'chain-1'))) {
+                    $rejected = $false
+                    try { Resolve-SddEvidenceFilesystemPath $rejectedPath | Out-Null }
+                    catch { $rejected = $_.Exception.Message -like 'cyclic or excessive evidence link traversal:*' }
+                    Assert $rejected 'legacy fallback rejects an actual cycle or more than 64 resolutions'
+                }
                 Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'inside-link.txt')) -ceq $expectedInsidePath) 'legacy Target fallback resolves real in-repository links'
                 Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'outside-link.txt')) -ceq $expectedOutsidePath) 'legacy Target fallback exposes the actual external target for caller containment'
                 Assert ((Resolve-SddEvidenceFilesystemPath ($rootLink + '/evidence.txt')) -ceq $expectedInsidePath) 'legacy Target fallback resolves a root-level relative directory link'
