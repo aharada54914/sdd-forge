@@ -12,7 +12,7 @@ Azure / AWS の IaC（Bicep、CDK、CloudFormation）を SDD Forge で進める�
 
 | 種類 | Azure | AWS | 証明できること | 証明できないこと |
 |---|---|---|---|---|
-| 構文・静的 | Bicep のビルドとリンター | `aws cloudformation validate-template` | テンプレートが解釈できる。 | AWS の validate-template は構文のみで、リソースのプロパティ値が正しいかは確認しません（[公式](https://docs.amazonaws.cn/en_us/AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html)）。 |
+| 構文・静的 | Bicep のビルドとリンター（ローカルで完結。ただし挙動は未確認） | `aws cloudformation validate-template`（**CloudFormation のサービスを呼ぶため、AWS の認証が要る。オンラインの検査**） | テンプレートが解釈できる。 | AWS の validate-template は構文のみで、リソースのプロパティ値が正しいかは確認しません（[公式](https://docs.amazonaws.cn/en_us/AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html)）。 |
 | デプロイ前の検証 | `Test-AzResourceGroupDeployment`（テンプレートとパラメーターが有効かを判定。[公式](https://learn.microsoft.com/powershell/module/az.resources/test-azresourcegroupdeployment)） | Change Set の作成と確認 | 入力が受け付けられる。 | 実際のデプロイの成功。 |
 | 変更の差分（plan 相当） | `az deployment group what-if`（既存リソースを変更せず、作成・変更・削除を予測。[公式](https://learn.microsoft.com/en-us/Azure/azure-resource-manager/bicep/deploy-what-if)） | `cdk diff`（`--method auto` は、リソースを変更しない Change Set を使用）、または CloudFormation の Change Set | どのリソースが作られ、変わり、消えるか。 | 実行時の挙動、容量やクォータ、Azure Policy などの実行時の結果。 |
 
@@ -24,8 +24,8 @@ Azure / AWS の IaC（Bicep、CDK、CloudFormation）を SDD Forge で進める�
 
 | 区分 | 例 | 認証情報 | 実行する場所 |
 |---|---|---|---|
-| オフライン | 構文・静的な検査、単体テスト | 不要 | ローカルと CI |
-| オンライン（リソースは変更しない） | what-if、`cdk diff`、Change Set の作成と確認 | 必要（下記の注意を参照） | CI（OIDC）。人間が承認した環境 |
+| オフライン | ローカルで完結する構文・静的な検査（Bicep のビルドなど）、単体テスト | 不要 | ローカルと CI |
+| オンライン（リソースは変更しない） | what-if、`cdk diff`、Change Set の作成と確認、`aws cloudformation validate-template`、Azure のデプロイ前の検証 | 必要（下記の注意を参照） | CI（OIDC）。人間が承認した環境 |
 
 **注意: what-if は読み取り専用の権限では実行できません。** Azure の公式ページによると、what-if には、デプロイと同じ権限（デプロイするリソースへの書込み権限と、`Microsoft.Resources/deployments` への全操作の権限）が要ります（[公式](https://docs.azure.cn/en-us/azure-resource-manager/bicep/deploy-what-if)）。つまり、what-if を実行できる ID は、同じ範囲でデプロイもできてしまいます。AWS の Change Set の作成に必要な権限は、この文書の作成時に確認できていません。
 
