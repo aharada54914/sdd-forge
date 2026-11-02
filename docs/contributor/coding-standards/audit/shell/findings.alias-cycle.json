@@ -1,0 +1,28 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "ROOT-008",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "line": 18,
+      "source_sha256": "63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d",
+      "flow": {
+        "input": "directory alias followed by leaf link whose target crosses that alias again",
+        "transformation": "visited-link set conflates repeated component with repeated resolution state",
+        "sink": "evidence filesystem resolver"
+      },
+      "impact": "Valid acyclic evidence paths are rejected, including native macOS /var paths.",
+      "reproduction": "reports/verification/evidence-alias-cycle-20261102/before.log",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/evidence-alias-cycle-20261102/context-delta.json",
+        "reports/verification/evidence-alias-cycle-20261102/results.json",
+        "reports/verification/evidence-alias-cycle-20261102/after.log"
+      ],
+      "resolution": "Track normalized pending path states, allowing repeated aliases with different remaining suffixes while retaining repeated-state rejection and the 64-resolution cap. Repaired source SHA256 167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274.",
+      "reuse": null
+    }
+  ]
+}

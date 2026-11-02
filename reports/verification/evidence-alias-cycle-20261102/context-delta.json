@@ -1,0 +1,25 @@
+{
+  "schema": "coding-standards-source-delta/v1",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "before_commit": "aeaf22d0",
+      "before_source_sha256": "63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d",
+      "source_sha256": "167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/root-path-delta.json",
+      "state": "reviewed",
+      "review": "Read full 46-line path walker and both production consumers. The cycle key is now the complete normalized pending path rather than a traversed directory component. A repeated alias with a different suffix represents progress and remains allowed; a repeated complete state is a cycle. Each restart still adds one unique state and the 65th unique state still fails, preserving the 64-resolution bound. OS comparer, modern ResolveLinkTarget and legacy Target branches, absolute/relative target handling, file lookup failures, caller containment and stricter consumer reparse policy remain unchanged. This is component-wise resolution under the existing no-hostile-concurrent-filesystem assumption; no atomic filesystem snapshot guarantee."
+    },
+    {
+      "path": "tests/evidence-generation-boundary.tests.ps1",
+      "before_commit": "aeaf22d0",
+      "before_source_sha256": "d6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844",
+      "source_sha256": "7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8",
+      "review_scope": "changed_hunks",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/root-path-delta.json",
+      "state": "reviewed",
+      "review": "Read changed test hunk with enclosing POSIX symlink gate, fixture cleanup and fallback Get-Item capability wrapper. Fixture creates an actual directory alias and a leaf symlink whose absolute target re-enters that alias with a different suffix; this reproduces the macOS /var traversal on Linux. Positive control checks exact final path in modern and capability-suppressed legacy branches. Real 64-link and 65-link chains and a two-link cycle exercise allowed bound and typed rejection. Canonicalizing fixture root prevents incidental macOS /var links from altering the intentional 64-link count. Existing outside-link denial, hardlink acceptance, root-relative-link fallback and consumer stricter reparse rejection remain. Fixture paths are GUID-scoped and all links are removed by existing finally cleanup. Native Windows link privilege coverage is not claimed."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "source_revision": "aeaf22d0 plus described working-tree change",
+  "command": "pwsh -NoProfile -File tests/evidence-generation-boundary.tests.ps1",
+  "platform": "Linux with pwsh7 environment launcher",
+  "before": {
+    "exit_code": 1,
+    "helper_sha256": "63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d",
+    "test_sha256": "7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8",
+    "result": "actual repeated-directory-alias fixture throws cyclic or excessive traversal"
+  },
+  "after": {
+    "exit_code": 0,
+    "helper_sha256": "167acae5d327293304266da900186a39e1bb385a385780120a1dfda6fbae9274",
+    "test_sha256": "7080a756bd5b249da15f117f6207f2cb047d13f51c5129e2624f0e1472e315c8",
+    "result": "full suite passes; modern and legacy repeated alias, 64-link success, 65-link rejection and actual cycle rejection"
+  },
+  "trigger": {
+    "run_id": 41455000330,
+    "job_id": 125310019228,
+    "head": "aeaf22d0f1c75aac407e0e8a73b94b82f80b45a3",
+    "failure": "cyclic or excessive evidence link traversal: /var"
+  },
+  "logs": {
+    "after.log": "10780d6122f6162cdd5194ee7ff6d387bbce6177cab34eefdf8c273dcb26481d",
+    "before.log": "d135abdabeb44f236a0bc9784264ecefa20541da3d66815cadd886e7ca717ac4"
+  },
+  "limits": "Actual macOS/native Windows rerun pending. No WindowsPowerShell5.1 or race-free filesystem snapshot claim."
+}
