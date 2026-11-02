@@ -1,0 +1,26 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "CHK-PS-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.ps1",
+      "line": 95,
+      "source_sha256": "8bc772740d8edd9998697c1e92c6b421f65772b44b0a7ac39bca7ad2e888fbce",
+      "flow": {
+        "input": "HTML directory and files",
+        "transformation": "recursive enumeration and six Select-String scans",
+        "sink": "clean egress verdict"
+      },
+      "impact": "Unreadable subdirectories and scan-time failures could silently produce a clean verdict; hidden HTML was omitted.",
+      "reproduction": "Actual uid1000 chmod000 directory returned0 before and2 after; full suite139 passes including hidden HTML and real invalid regex.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-20261101/powershell-scanner-failclosed.json"
+      ],
+      "resolution": "Force hidden-item enumeration and propagate enumeration/read/regex errors as tool error2 before emitting findings.",
+      "reuse": null
+    }
+  ]
+}
