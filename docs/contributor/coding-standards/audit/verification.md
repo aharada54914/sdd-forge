@@ -133,3 +133,88 @@ mapping. The pinned repository js-yaml parser independently reproduced this,
 with the added existing-suite control failing (24/1); a YAML literal block
 repairs it (25/0). Both CI placeholder programs were actually run and returned
 1 as intended. No remote GitLab pipeline execution is claimed.
+
+## Final source-bound reconciliation
+
+Snapshot: clean `b0c131121d5b3bc9875d4424f9f46a11dc5c53c7` (2026-11-02).
+Production and executable-test source equals code freeze `bd94f864`; later
+commits up to this snapshot only add/reconcile evidence metadata. The exact
+population is 11,792 entries: reviewed=1,586; fixed=1; out-of-scope=10,204;
+justified-exception=1; unreviewed=0; needs-review=0; confirmed-violation=0.
+This is finite, source-bound contextual coverage, not a universal no-defect claim.
+
+Actual checks performed for this snapshot:
+
+- Existing census enumerator `tests/coding_standards.py` read a clean tree.
+  Exact unique path set equals `git ls-tree -r --name-only -z` at the snapshot.
+  All 11,792 recorded blobs were independently read through `git cat-file
+  --batch`; every SHA-256 matched. Symlink target text was hashed without
+  following the link.
+- Installed jsonschema 4.26.0 validated population and finding schemas.
+  Population compaction was lossless by parsed-JSON equality. Every terminal
+  population row carries evidence. All 245 finding IDs are unique: 244 fixed,
+  one justified exception (PY-003). All twelve newly imported original source
+  hashes match actual Git bytes at their stated owner baselines. Earlier
+  source pins retain their historical verification above.
+- Imported only explicit contextual `entries`, `files`, `sources`, or the
+  review-contract record's explicit whole-file `source_files`. Narrow deltas
+  require their exact prior hash in a whole-source review chain. Nested test
+  dependencies, consumers, finding fix pins and syntax inventories never add
+  whole-source coverage. Context-precheck `test_deltas` use their explicit
+  `before_source_sha256`; final test/CI/installer/identity/registration deltas
+  join their recorded baselines. The final 3,062-line prepare-panelist test
+  review closes the last genuine test-source gap.
+- `external-main-delta.json` records externally merged documentation/record
+  changes and the actual joined catalog/workflow registration delta. The
+  existing catalog suite ran: 15 tests, one explicit skip, overall OK. Formal
+  mapping's current validator hash and unchanged reservation-tail hash were
+  recomputed; no new TLC or whole-application formal proof is asserted.
+- `final-record-role-review.json` binds 152 changed/new evidence records.
+  Their JSON/text structures and ZIP CRCs were inspected; no captured harness
+  or archive was executed merely to classify it. A literal search of current
+  tests/scripts/workflows/plugins found no direct consumer of those record
+  paths; structure and documented producers establish their evidence role,
+  not absence of a reference alone. The two reconciliation JSON artifacts
+  themselves are parsed metadata, bound by this clean snapshot and Git.
+- Independent native PowerShell parent-extraction control confirms the
+  root-path repair: `Split-Path -Parent /var` loses the root, while
+  `IO.Path.GetDirectoryName('/var')` preserves `/`. This is a Linux primitive
+  control and contextual delta review, not native macOS/Windows execution.
+- `git diff --check` passed for the derived publication changes.
+
+The matched native comparison is retained in
+`reports/verification/coding-standards-20261101/native-comparison.json` and
+`task-native-evidence.zip`: the same checker/tools report 285 native findings
+on task baseline `82b53695` (856 inspected, 70.06 seconds), versus zero on code
+freeze `bd94f864` (884 inspected of 885 selected, 70.15 seconds). One intentional
+invalid-source fixture remains explicitly excepted. These are selected native
+rule findings, not the count of contextual findings or a new whole-repository
+performance benchmark. Historical publisher-baseline/unknown-context wording
+in earlier reports is preserved as historical evidence.
+
+Post-code-freeze metadata before this snapshot is exactly:
+`audit/external-main-delta.json`, `audit/final-record-role-review.json`,
+`audit/findings.json`, `audit/shell/prepare-panelist-full-context-review.json`
+(all beneath `docs/contributor/coding-standards/`), plus verification report
+`README.md`, `SHA256SUMS`, `native-comparison.json`, and
+`task-native-evidence.zip` beneath
+`reports/verification/coding-standards-20261101/`. No product source changed.
+
+The derived publication delta after the snapshot contains only this
+`verification.md`, audit `README.md`, and `population.json`. These are reviewed
+explanatory/serialized evidence artifacts: counts copied from the checked
+snapshot, limitations retained, no executable dispatch or acceptance policy.
+The census's own entry identifies the previously committed census bytes at
+`b0c13112`; it does not hash its newly emitted self. The enclosing Git commit
+binds the new census. The same rule applies to updated explanatory artifacts.
+Later independent review or CI evidence is a separately identified post-snapshot
+delta, not silently claimed to exist inside this census.
+
+Final required native CI is owned by PR #697 and must pass its exact final head;
+this document does not assert an outcome before that run. Linux component
+receipts and simulated missing-API/CRLF controls are not native Windows
+PowerShell5.1 or macOS receipts. Source/Claim original web bytes remain
+unavailable where the research records say reader-body-only/unassessed; this
+reconciliation neither reacquires them nor upgrades those claims. No historical
+report, pending mirror, task approval or external-main record was rewritten to
+manufacture acceptance.
