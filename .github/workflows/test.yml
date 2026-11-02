@@ -120,6 +120,9 @@ jobs:
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
+
+      - name: Test Codex MCP config preservation and escaping
+        run: python3 tests/codex-mcp-config.tests.py
       - name: Test verification catalog and shadow selection
         shell: bash
         run: |
