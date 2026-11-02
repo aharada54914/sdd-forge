@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "review_scope": "delta",
+      "before_source_sha256": "a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43",
+      "source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+      "judgment": "Control-byte rejection moved to pre-extraction IDENTITY guard, preserving raw-byte safety before CR/newline loss and public PS/Bash diagnostic parity. Schema type and stage/role CONTRACT guards unchanged. Existing whitespace-session test remains unchanged."
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/mapping.json",
+      "review_scope": "delta",
+      "before_source_sha256": "28c8694ee4be41ccde71c770236b5105e173e0146f7deaa9a65900a681bf8a88",
+      "source_sha256": "07048253b825352f22d4ec8401b1f9bdd995942757a61251727cc995ef601502",
+      "judgment": "Rebound whole source after explicit unchanged reservation-tail SHA verification; property, assumptions and bounds unchanged. No fresh TLC claim."
+    }
+  ],
+  "finding": "CI job124785844094 rejected whitespace-session with CONTRACT instead of established IDENTITY. a22c9146 placed raw control check inside generic schema block; PS current code and longstanding test retain identity-specific contract.",
+  "executions": [
+    {
+      "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/review-agent-isolation.tests.sh",
+      "exit": 0,
+      "output": "reuse/evidence/identity-isolation-current.txt"
+    },
+    {
+      "command": "python3 tests/project-skill-formal.tests.py",
+      "exit": 0,
+      "tests": 6,
+      "output": "reuse/evidence/identity-formal-current.txt"
+    }
+  ],
+  "limits": [
+    "Current Linux Bash/PowerShell component parity; no native matrix or new TLC execution."
+  ]
+}
