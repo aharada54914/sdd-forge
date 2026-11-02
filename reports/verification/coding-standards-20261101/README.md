@@ -1,6 +1,8 @@
 # Scoped native comparison and held-out controls
 
-Current task comparison: baseline `82b53695` versus integration `bd94f864` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,788 tracked files, 884 inspected inputs, 0 findings in 70.15s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings; `native-comparison.json` records the current comparison and the separate historical comparison below.
+Current task comparison: baseline `82b53695` versus integration `7d53b1bf` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,797 tracked files, 884 inspected inputs, 0 findings in 70.25s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings plus the prior `bd94f864` completed scan; `native-comparison.json` records the current comparison and the separate historical comparison below.
+
+The prior `bd94f864` native zero was followed by a macOS CI failure: an alias of the same physical root was mistaken for a directory cycle. That scan is retained as historical evidence and superseded by the current result after the helper repair.
 
 The earlier final attempt aborted after65.96s with exit2 because a selected source changed mid-scan; it remains an error record, never a PASS. A native zero covers only configured rules and selected inputs. Whole-context review, embedded-fragment coverage and the final census are separate audit evidence. Model token cost was not measured; one native run per revision does not establish a speed/cost improvement.
 

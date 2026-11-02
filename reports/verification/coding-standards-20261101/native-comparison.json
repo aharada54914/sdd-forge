@@ -57,14 +57,14 @@
     "elapsed_seconds": 70.05578062598943
   },
   "current": {
-    "revision": "bd94f8645801d44f4084abe2a3a938311757d827",
+    "revision": "7d53b1bf2ffb79ed1c96acdff8ba119067f1afd8",
     "status": "complete",
-    "population_count": 11788,
+    "population_count": 11797,
     "selected_count": 885,
     "inspected_count": 884,
     "finding_count": 0,
     "manual_review": "unknown",
-    "manual_unreviewed_count": 11788,
+    "manual_unreviewed_count": 11797,
     "tools": [
       {
         "language": "bash",
@@ -98,7 +98,7 @@
       }
     ],
     "rules": {},
-    "elapsed_seconds": 70.15019716099982
+    "elapsed_seconds": 70.25044515699983
   },
   "checker_sha256": "29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5",
   "comparison": "Task baseline82b53695 versus final integrated source; identical checker, pinned native tools/config and Linux host; independently enumerated tracked populations. Source bytes verified at completion.",
@@ -222,5 +222,52 @@
     "manual_review": "unknown",
     "native_hosts": "Linux only; Claude/Codex/Copilot invocation not evaluated",
     "timing_comparability": "Baseline duration not instrumented; no speed or cost improvement claim."
-  }
+  },
+  "historical_task_scans": [
+    {
+      "revision": "bd94f8645801d44f4084abe2a3a938311757d827",
+      "status": "complete",
+      "population_count": 11788,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11788,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 70.15019716099982,
+      "later_ci_outcome": "Native scan completed with zero findings; subsequent macOS CI exposed false directory-cycle detection for an alias of the same physical root in evidence-path.ps1. This revision is superseded by the current comparison after that fix."
+    }
+  ]
 }
