@@ -1302,6 +1302,41 @@ if ($CdwFlat.Contains("design-sync-scan.sh") `
     Fail "TEST-047: claude-design-workflow.md must name design-sync-scan.sh/.ps1, specs/<feature>/mockups/, and state no Claude Code-specific tool/deferred-tool search/DesignSync capability is a precondition"
 }
 
+$hiddenRoot = New-WorkDir 'hidden-html'
+Set-Fixture (Join-Path $hiddenRoot '.page.html') @('TODO')
+$hiddenResult = Invoke-Scan @($hiddenRoot)
+if ($hiddenResult.ExitCode -eq 1 -and $hiddenResult.Output -match 'placeholder') { Ok 'hidden HTML participates in recursive scan' }
+else { Fail 'hidden HTML must not bypass scanning' }
+
+# Actual native failure controls: enumeration and regex execution cannot certify clean.
+if (-not $IsWindows -and (& id -u) -ne '0') {
+    $ioRoot = New-WorkDir 'denied-enumeration'
+    $denied = Join-Path $ioRoot 'denied'
+    New-Item -ItemType Directory -Path $denied | Out-Null
+    Set-Fixture (Join-Path $denied 'page.html') @('TODO')
+    & chmod 000 $denied
+    try {
+        $result = Invoke-Scan @($ioRoot)
+        if ($result.ExitCode -eq 2 -and $result.Output -notmatch 'passed') { Ok 'denied directory is tool error 2' }
+        else { Fail 'denied directory must not pass' }
+    } finally { & chmod 700 $denied }
+} else { Write-Host 'SKIP: POSIX permission denial requires an unprivileged POSIX host' }
+$regexRoot = New-WorkDir 'regex-execution'
+Set-Fixture (Join-Path $regexRoot 'page.html') @('ordinary content')
+$wrapper = Join-Path $Work 'invalid-regex.ps1'
+[IO.File]::WriteAllText($wrapper, @'
+param($Scanner, $Target)
+function Select-String {
+    param($LiteralPath, $Pattern, [switch]$CaseSensitive, [switch]$AllMatches, $ErrorAction)
+    Microsoft.PowerShell.Utility\Select-String -LiteralPath $LiteralPath -Pattern '[' -ErrorAction Stop
+}
+& $Scanner $Target
+exit $LASTEXITCODE
+'@)
+$regexOutput = & pwsh -NoProfile -File $wrapper $SC $regexRoot 2>&1
+if ($LASTEXITCODE -eq 2 -and ($regexOutput -join "`n") -notmatch 'passed') { Ok 'real regex execution error is tool error 2' }
+else { Fail 'regex execution error must not pass' }
+
 # ============================================================================
 # Summary
 # ============================================================================

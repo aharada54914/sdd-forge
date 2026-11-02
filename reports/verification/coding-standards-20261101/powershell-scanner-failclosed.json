@@ -1,0 +1,38 @@
+{
+  "schema": "powershell-scanner-failclosed/v1",
+  "sources": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.ps1",
+      "sha256": "99d025e7574d0fc473fda1ca253fb679f59cbe890248b273aa897544c48714fb"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.ps1",
+      "sha256": "8723678a665caebea4551aba7d4a53e64762848454dc9234e526567ab901795e"
+    }
+  ],
+  "baseline_sha256": "8bc772740d8edd9998697c1e92c6b421f65772b44b0a7ac39bca7ad2e888fbce",
+  "results": [
+    {
+      "case": "actual chmod000 subtree uid1000",
+      "variant": "baseline",
+      "exit_code": 0,
+      "stdout": "Design-Sync Scan passed (0 findings).\n",
+      "stderr": ""
+    },
+    {
+      "case": "actual chmod000 subtree uid1000",
+      "variant": "current",
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "design-sync-scan: cannot enumerate target directory\n"
+    }
+  ],
+  "validation": "139 passed, 0 failed on Linux uid1000 PowerShell7.6.7; hidden HTML and actual .NET regex error controls included",
+  "log": {
+    "path": "reports/verification/coding-standards-20261101/design-sync-powershell-failclosed.log",
+    "sha256": "756b8ef962eb1af320393579a960060b08f1fbba76e6f8f6fadf13ec165d4c66"
+  },
+  "limits": [
+    "Windows/macOS not executed."
+  ]
+}

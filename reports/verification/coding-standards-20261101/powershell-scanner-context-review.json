@@ -1,0 +1,53 @@
+{
+  "schema": "coding-checker-supplemental-context-review/v1",
+  "sources": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.ps1",
+      "sha256": "99d025e7574d0fc473fda1ca253fb679f59cbe890248b273aa897544c48714fb",
+      "review": "Complete source read: CLI exactly one literal directory, recursive HTML selection, preflight open, six literal regex rules, case-sensitive vendor/placeholder distinction, reserved-domain exclusion, redacted secret/PII rendering and exit precedence. Enumeration and actual scan errors now terminate with2; findings buffered until all rules complete. No process/network/database sink or interpolated regex input. Native control demonstrates prior false clean. Existing path selection and report contract retained."
+    },
+    {
+      "path": "tests/design-sync-scan.tests.ps1",
+      "sha256": "8723678a665caebea4551aba7d4a53e64762848454dc9234e526567ab901795e",
+      "review": "Delta from prior whole-file owner record: three added controls use private temp fixtures, actual POSIX permission denial with finally restoration, and a real .NET regex parser error via wrapper. Hidden-file positive validates selection. Full suite139 passed. Unsupported root/Windows permissions explicitly skip; no native Windows claim."
+    }
+  ],
+  "rule_families_considered": [
+    "CS-001",
+    "CS-002",
+    "CS-003",
+    "CS-004",
+    "CS-005",
+    "CS-006",
+    "CS-007",
+    "CS-008",
+    "CS-009",
+    "CS-010",
+    "CS-011",
+    "CS-012",
+    "CS-013",
+    "CS-014",
+    "CS-015",
+    "CS-016",
+    "CS-017",
+    "CS-018",
+    "CS-019",
+    "CS-020",
+    "CS-021",
+    "CS-022",
+    "CS-023",
+    "CS-024",
+    "CS-025",
+    "CS-026",
+    "CS-027",
+    "CS-028",
+    "CS-029",
+    "CS-030"
+  ],
+  "validation": [
+    "139 passed,0 failed"
+  ],
+  "limits": [
+    "Same implementation reviewer, no independent review; Windows/macOS execution not performed."
+  ]
+}
