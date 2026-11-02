@@ -277,7 +277,7 @@ controls do not retroactively make the failed macOS run pass. Earlier research
 original-byte acquisition limits, historical evidence and protected mirrors
 remain unchanged. No source-acquisition or all-platform guarantee is added.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (c35176a0)
 
 Clean snapshot `c35176a068f42ec417feb4e3e213fc926e6ad084` supersedes the prior snapshots.
 Actual native CI and subsequent public-CLI controls found ROOT-009–012 after
@@ -363,3 +363,65 @@ Required native CI must pass PR #697's exact final head. This publication does
 not assert that outcome in advance or convert Linux/simulated controls into
 native macOS/Windows receipts. Finite contextual coverage is not universal
 correctness, complete web-source acquisition or all-platform proof.
+
+## Final source-bound reconciliation
+
+Clean snapshot `bb50ad4fa2e8805a7a0f46b66428c1e97a13a6bc` includes external main #705
+(`c4dd6264`, merged at `e1d19cf3`) and supersedes the prior census. All 11,817
+paths are unique and exactly match that Git tree. Each path-to-blob binding and
+every blob SHA-256 were checked through `git cat-file --batch`; population and
+canonical schemas, unique finding IDs and terminal evidence passed. Compact
+serialization was checked by parsed-JSON equality.
+
+States are reviewed=1,590; fixed=1; out-of-scope=10,225;
+justified-exception=1; unreviewed=0; needs-review=0; confirmed-violation=0.
+Canonical findings remain 250 records: 249 fixed and PY-003's bounded
+invalid-source exception. The population's symlink exception is distinct.
+No new executable defect or repair is inferred from a documentation merge.
+
+`external-main-705-delta.json` binds the complete new ADR-0047, three cloud
+planning guides and retained prototype, and exact prior-plus-delta reviews of
+the ADR index, cloud README and AWS guide. The prototype was read as a rejected
+proposal and not applied. Its Python code and historical Proposed comment do
+not become active guard coverage; the rejected ADR expressly prohibits its
+application unless superseded. References from current executable tests,
+scripts, workflows and plugins were searched; only documentary references
+exist. The role also follows its actual rejected producer/consumer contract,
+not an absent literal reference alone.
+
+Cloud README and least-privilege wording now distinguish the recorded direct
+Python guard invocation from still-unverified native host-hook paths and real
+cloud API calls. No permission, guard behavior, cloud adapter, approval or
+runtime capability changed. The guides retain GHES 3.10 source limitations,
+unverified permission details, external IAM/CI ownership, and the distinction
+between static checks, credentialed previews and actual deployment. Inherited
+external source claims/prototype measurements were not reacquired or rerun.
+
+Executed `DOC_DIAGRAMS_REQUIRE_MERMAID=1 python3 tests/doc-diagrams.tests.py`:
+exit 0, 232 Markdown files, 19 parsed Mermaid blocks, link/pinned-anchor and
+negative controls passing; no optional parser skip. The final derived prose
+changes add no Mermaid blocks or executable fences.
+
+The renewed native comparison at `e1d19cf3` inspected 884 of 885 selected
+inputs, reported zero native findings and took 74.36 seconds. Its 885 exact
+(path, SHA-256) pairs, exclusions and tool/version metadata equal source
+`5533762d`, as separately recorded in `native-source-equivalence.json`.
+This proves selected-source equivalence only; it does not replace contextual
+documentation review, whole-application correctness or final-head CI. Prior
+native results remain in the archive. There are now 172 inspected evidence
+role receipts; stored evidence remains data, never code PASS.
+
+From merged main `e1d19cf3` to this snapshot, changes are confined to the two
+cloud verification-scope clarifications, audit external-main-705-delta.json and
+final-record-role-review.json, and five native evidence artifacts (verification
+README, SHA256SUMS, native-comparison.json, native-source-equivalence.json and
+task-native-evidence.zip). Runtime/test source and canonical findings did not
+change. The derived publication delta after this snapshot is only audit
+population.json, README.md and verification.md. Their snapshot entries bind
+prior committed bytes; enclosing Git commits bind the emitted artifacts,
+without self-hash circularity. Later evidence must identify its later head.
+
+PR #697's exact final head still requires its native CI gates. Earlier scoped
+Claude/Astra review, platform limits and original research-byte availability
+limits remain unchanged. No earlier snapshot is relabeled as having reviewed
+this later documentation, and no rejected design is represented as adopted.

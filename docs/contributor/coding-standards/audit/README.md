@@ -102,7 +102,7 @@ full blob checks and post-snapshot publication limits are recorded in the latest
 [verification section](verification.md#final-source-bound-reconciliation).
 Final-head native CI remains separately required by PR #697.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (c35176a0)
 
 Snapshot `c35176a068f42ec417feb4e3e213fc926e6ad084` supersedes the preceding snapshots
 following actual BSD byte-count, size-admission and cap-argument defects.
@@ -118,3 +118,19 @@ They do not claim a Claude whole-repository review. See the latest
 [verification section](verification.md#final-source-bound-reconciliation) for
 source bindings, evidence limits and the three-file derived publication delta.
 Exact-final-head PR #697 CI remains separately required.
+
+## Final source-bound reconciliation
+
+Latest-main snapshot `bb50ad4fa2e8805a7a0f46b66428c1e97a13a6bc` includes main #705's
+eight documentation changes and preserves the rejected deployment-guard
+prototype as data. It contains 11,817 entries: reviewed=1,590; fixed=1;
+out-of-scope=10,225; justified-exception=1; unresolved review states=0.
+Canonical findings remain 250: 249 fixed and the separate PY-003 exception.
+
+[External-main review](external-main-705-delta.json) binds all eight changes
+and the clarification distinguishing direct Python guard checks from unverified
+native host/cloud calls. Existing documentation checks passed on 232 Markdown
+files and 19 Mermaid blocks. No rejected prototype was applied or new cloud
+permission/capability added. See the latest [verification](verification.md#final-source-bound-reconciliation)
+for complete snapshot and publication-delta limits. Exact-final-head CI remains
+separate from this finite contextual review.
