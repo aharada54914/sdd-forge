@@ -121,11 +121,13 @@ def command_suites(command, catalog, shell='bash'):
                 return None
             if key == '--run':
                 options[key] = True
-            elif key in ('--profile', '--suite', '--receipt') and args:
+            elif key in ('--profile', '--suite', '--receipt', '--powershell') and args:
                 options[key] = args.pop(0)
             else:
                 return None
         if not options.get('--run') or ('--profile' in options) == ('--suite' in options):
+            return None
+        if '--powershell' in options and options['--powershell'] not in ('powershell', 'pwsh'):
             return None
         if '--profile' in options:
             members = catalog['profiles'].get(options['--profile'])
@@ -176,7 +178,8 @@ def workflow_coverage(workflow, catalog):
         found = set()
         for row in matrix_rows(job):
             target = expand_matrix(job.get('runs-on', ''), row)
-            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'macos-latest': 'macOS'}.get(target)
+            runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows',
+                      'windows-2022': 'Windows', 'macos-latest': 'macOS'}.get(target)
             if not runner or not enabled(job.get('if'), row, runner) or job.get('continue-on-error', False) is not False:
                 continue
             defaults = dict(workflow.get('defaults', {}).get('run', {}))

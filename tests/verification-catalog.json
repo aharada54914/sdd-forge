@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/windows-powershell.tests.ps1", "runtime": "powershell", "ci_jobs": ["windows-powershell"]},
     {"path": "tests/codex-mcp-config.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/kill-switch-inspection.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
     {"path": "tests/guard-stop-inspection.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -135,7 +136,7 @@
     {"path": "tests/emit-run-record-feature-scope.tests.sh", "runtime": "bash"},
     {"path": "tests/escalation-skip-activation.tests.sh", "runtime": "bash", "excluded": "Isolated clone mutation diagnostic; not registered by the previous runners."},
     {"path": "tests/eval.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
-    {"path": "tests/evidence-generation-boundary.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+    {"path": "tests/evidence-generation-boundary.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy", "windows-powershell"]},
     {"path": "tests/evaluate-predicate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
     {"path": "tests/evaluate-predicate.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/evaluator-scratch-metrics.tests.py", "runtime": "python", "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"},
@@ -392,6 +393,13 @@
     {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
+    "ci-windows-powershell51": [
+      "tests/windows-powershell.tests.ps1",
+      "tests/evidence-generation-boundary.tests.ps1"
+    ],
+    "ci-windows-powershell7": [
+      "tests/windows-powershell.tests.ps1"
+    ],
     "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
     "local-posix": [
       "tests/codex-mcp-config.tests.py",

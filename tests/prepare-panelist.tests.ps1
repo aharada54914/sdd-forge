@@ -1,15 +1,12 @@
-# prepare-panelist.tests.ps1 — TDD tests for prepare-panelist-input.ps1 (AC-005)
+﻿# prepare-panelist.tests.ps1 — TDD tests for prepare-panelist-input.ps1 (AC-005)
 # Style: mirrors cross-model.tests.ps1 (ok/fail counters, New-TemporaryFile fixtures, exits 1 on failure)
-param()
+param([switch]$RuntimeBoundariesOnly)
 $ErrorActionPreference = "Stop"
 
 $RepoRoot   = Split-Path -Parent $PSScriptRoot
 $ScriptsDir = Join-Path $RepoRoot "plugins/sdd-quality-loop/scripts"
-$PowerShellHost = if ($null -ne (Get-Command pwsh -ErrorAction SilentlyContinue)) {
-    (Get-Command pwsh).Source
-} else {
-    Join-Path $PSHOME "powershell.exe"
-}
+$PowerShellHost = (Get-Process -Id $PID).Path
+. (Join-Path $ScriptsDir 'lib/native-arguments.ps1')
 
 $Pass = 0
 $Fail = 0
@@ -35,8 +32,11 @@ function Invoke-Prepare {
     $start.UseShellExecute = $false
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
-    foreach ($atom in @('-NoLogo', '-NoProfile', '-File', (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) + $ArgList) {
-        [void]$start.ArgumentList.Add($atom)
+    $childArguments = @('-NoLogo', '-NoProfile', '-File', (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) + $ArgList
+    if ($null -ne $start.PSObject.Properties['ArgumentList']) {
+        foreach ($atom in $childArguments) { [void]$start.ArgumentList.Add($atom) }
+    } else {
+        $start.Arguments = ConvertTo-SddNativeArgumentString -Arguments $childArguments
     }
     $process = [Diagnostics.Process]::new()
     $process.StartInfo = $start
@@ -262,6 +262,9 @@ function Invoke-PpiGitCommit {
     & git -C $Root commit -q -m $Message
     if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git commit failed: $Root" }
 }
+
+# Common behavior runs once in the full suite; legacy-engine CI targets the boundaries below.
+if (-not $RuntimeBoundariesOnly) {
 
 # ============================================================================
 # PP-001: No consent → fail closed
@@ -2986,6 +2989,8 @@ if ($bundleText077.Contains("MARKER_077")) {
     fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: $($script:PP_Output)"
 }
 
+}
+
 # Literal input/output paths and exact consent spelling are security boundaries.
 $literalRoot = Join-Path $Work 'literal-boundaries'
 New-Item -ItemType Directory -Path $literalRoot -Force | Out-Null
@@ -3124,7 +3129,7 @@ if ($script:PP_Exit -eq 1 -and -not (Test-Path -LiteralPath $capOutput)) {
     ok "max-bytes-boundary: zero-padded cap one below rejects"
 } else { fail "max-bytes-boundary: one-below zero-padded cap got $($script:PP_Exit)" }
 
-# In-process numeric 0 is a real zero cap, not omitted (child pwsh, script invoked directly).
+# In-process numeric 0 is a real zero cap, not omitted (same-engine child, script invoked directly).
 Remove-Item -LiteralPath $capOutput -ErrorAction SilentlyContinue
 $q = { param($v) "'" + ($v -replace "'", "''") + "'" }
 $inprocCmd = "& " + (& $q (Join-Path $ScriptsDir 'prepare-panelist-input.ps1')) +

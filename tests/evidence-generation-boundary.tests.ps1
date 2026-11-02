@@ -5,6 +5,7 @@ $scripts = Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts'
 . (Join-Path $scripts 'lib/evidence-key.ps1')
 . (Join-Path $scripts 'lib/evidence-path.ps1')
 $hostPath = (Get-Process -Id $PID).Path
+$isWindowsPlatform = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
 $work = Join-Path ([IO.Path]::GetTempPath()) ('evidence boundary ' + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $work | Out-Null
 function Assert([bool]$Condition, [string]$Message) {
@@ -60,7 +61,26 @@ try {
         Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
         $consumerOutput = & $hostPath -NoProfile -File (Join-Path $scripts 'check-evidence-bundle.ps1') $checkedBundle -RepoRoot $repo 2>&1
         Assert ($LASTEXITCODE -eq 0) 'evidence consumer accepts ordinary hardlinked artifacts'
-        if (-not $IsWindows) {
+        if ($isWindowsPlatform) {
+            $outside = Join-Path $work 'outside-directory'
+            New-Item -ItemType Directory -Path $outside -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $outside 'evidence.txt'), 'outside fixture')
+            New-Item -ItemType Junction -Path (Join-Path $repo 'outside-junction') -Target $outside | Out-Null
+            $contract.checks[0].evidence = 'outside-junction/evidence.txt'
+            [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
+            Remove-Item -LiteralPath $bundle
+            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Assert ($LASTEXITCODE -ne 0 -and -not (Test-Path -LiteralPath $bundle)) 'generator rejects Windows junctions outside repository'
+            $inside = Join-Path $repo 'inside-directory'
+            New-Item -ItemType Directory -Path $inside | Out-Null
+            [IO.File]::WriteAllText((Join-Path $inside 'evidence.txt'), 'inside fixture')
+            New-Item -ItemType Junction -Path (Join-Path $repo 'inside-junction') -Target $inside | Out-Null
+            $contract.checks[0].evidence = 'inside-junction/evidence.txt'
+            [IO.File]::WriteAllText($contractPath, ($contract | ConvertTo-Json -Depth 5))
+            & $hostPath -NoProfile -File (Join-Path $scripts 'generate-evidence-bundle.ps1') -RepoRoot $repo -ContractPath $contractPath -QualityReport $report -OutputPath $bundle *> $null
+            Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) 'generator preserves in-repository Windows junctions'
+        }
+        if (-not $isWindowsPlatform) {
             $outside = Join-Path $work 'outside.txt'
             [IO.File]::WriteAllText($outside, 'outside fixture')
             New-Item -ItemType SymbolicLink -Path (Join-Path $repo 'outside-link.txt') -Target $outside | Out-Null
