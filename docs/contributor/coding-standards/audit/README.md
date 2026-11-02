@@ -67,7 +67,7 @@ combined with remaining owner coverage; stale pins remain unknown until a
 contextual change review binds the new bytes. Machine ledgers use compact entry
 rows; lossless compaction was checked by parsed JSON equality.
 
-## Final source-bound reconciliation
+## Prior source-bound reconciliation (b0c13112)
 
 The final census snapshots clean commit `b0c131121d5b3bc9875d4424f9f46a11dc5c53c7`:
 11,792 tracked entries, with 1,586 reviewed, one fixed, 10,204 scoped data or
@@ -87,3 +87,17 @@ checks, post-snapshot artifact semantics, native comparison and remaining
 platform/source-acquisition limits. Earlier reports and earlier sections retain
 their historical scope, including then-unknown contextual coverage. Native scan
 results are narrower than this reconciliation and final PR CI remains separate.
+
+## Final source-bound reconciliation
+
+This supersedes the preceding snapshot after native macOS CI exposed ROOT-008,
+a valid-path rejection in evidence link-cycle detection. Snapshot `c259c73610119a5ceafad79634fd8c38918c6a03`
+contains 11,797 entries: reviewed=1,586; fixed=1; out-of-scope=10,209;
+justified-exception=1; unresolved review states=0. The canonical finding ledger
+now has 246 findings: 245 fixed and the separate PY-003 fixture exception.
+Role exclusions remain data judgments, not code PASS or universal correctness.
+
+Exact helper/test deltas, paired failing/passing controls, renewed native scan,
+full blob checks and post-snapshot publication limits are recorded in the latest
+[verification section](verification.md#final-source-bound-reconciliation).
+Final-head native CI remains separately required by PR #697.
