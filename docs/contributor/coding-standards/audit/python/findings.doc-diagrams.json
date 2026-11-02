@@ -2,7 +2,7 @@
   "schema": "coding-standards-findings/v1",
   "findings": [
     {
-      "finding_id": "PY-065",
+      "finding_id": "PY-067",
       "rule_id": "CS-023",
       "path": "tests/doc-diagrams.tests.py",
       "line": 125,
