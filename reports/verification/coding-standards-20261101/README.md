@@ -1,8 +1,10 @@
 # Scoped native comparison and held-out controls
 
-Current task comparison: baseline `82b53695` versus integration `7d53b1bf` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,797 tracked files, 884 inspected inputs, 0 findings in 70.25s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings plus the prior `bd94f864` completed scan; `native-comparison.json` records the current comparison and the separate historical comparison below.
+Current task comparison: baseline `82b53695` versus integration `d6b66e6d` used identical checker SHA256 `29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5` and native tools on Linux. Baseline: 11,501 tracked files, 856 inspected inputs, 285 findings in 70.06s. Final: 11,805 tracked files, 884 inspected inputs, 0 findings in 69.40s. Each excludes one exact-content invalid-source fixture. `task-native-evidence.zip` retains both complete scans and timings plus the prior `bd94f864` and `7d53b1bf` completed scans; `native-comparison.json` records the current comparison and the separate historical comparison below.
 
 The prior `bd94f864` native zero was followed by a macOS CI failure: an alias of the same physical root was mistaken for a directory cycle. That scan is retained as historical evidence and superseded by the current result after the helper repair.
+
+The prior `7d53b1bf` native zero was followed by a macOS CI failure from BSD `wc` leading-space formatting in the panelist byte count. It is retained as historical evidence; the current comparison follows the checked byte-count repair in both twins.
 
 The earlier final attempt aborted after65.96s with exit2 because a selected source changed mid-scan; it remains an error record, never a PASS. A native zero covers only configured rules and selected inputs. Whole-context review, embedded-fragment coverage and the final census are separate audit evidence. Model token cost was not measured; one native run per revision does not establish a speed/cost improvement.
 
