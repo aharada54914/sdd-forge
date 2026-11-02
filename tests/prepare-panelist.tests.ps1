@@ -1665,7 +1665,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
 }
-if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-049d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-049d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -1705,7 +1705,7 @@ if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "
 } else {
     fail "TEST-050b: bundle missing or content lost under a generous --max-bytes"
 }
-if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+if ($script:PP_Output -match "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-050c: digest printed normally"
 } else {
     fail "TEST-050c: expected a printed digest, got: $($script:PP_Output)"
@@ -1958,7 +1958,7 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
 } else {
     fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
 }
-if ($script:PP_Output -cnotmatch "^[0-9a-f]{64}$") {
+if ($script:PP_Output -cnotmatch "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-055d: no digest line printed on a size-guard failure"
 } else {
     fail "TEST-055d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
@@ -2212,7 +2212,7 @@ if (Test-Path (Join-Path $d "out.txt")) {
 } else {
     fail "TEST-060b: bundle file not written"
 }
-if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+if ($script:PP_Output -match "\A[0-9a-f]{64}(?:\r?\n)?\z") {
     ok "TEST-060c: normal digest line still printed -- empty fields are not an error"
 } else {
     fail "TEST-060c: expected a digest line, got: $($script:PP_Output)"

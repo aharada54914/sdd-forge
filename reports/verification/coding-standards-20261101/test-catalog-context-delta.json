@@ -62,6 +62,30 @@
         "CS-027",
         "CS-028"
       ]
+    },
+    {
+      "path": "tests/prepare-panelist.tests.ps1",
+      "before_sha256": "12318b1b5cf1ac512df19a051c631e106d5d080408b97f88af3e2fa054229cfa",
+      "sha256": "f4ca8d3943abb981b912ec17e8b7f991a3995bf8e7c171d807c5ba6a8651e0ee",
+      "review": "Delta: four exact digest assertions now accept a single LF or CRLF ending using absolute anchors; negative assertions share the same grammar so warnings, extra lines and malformed digests remain rejected. Six actual PowerShell regex controls passed; full Linux PowerShell suite185 passed0failed. Windows CI failure matched raw CRLF capture; Windows rerun remains CI-owned.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-027",
+        "CS-028"
+      ]
+    },
+    {
+      "path": "tests/check-component-coverage.tests.sh",
+      "before_sha256": "41ecbb872ed65e9201026bfdee6b78e7b272eefdaa53a26372b2cabc3b6bec95",
+      "sha256": "1416841cb5e7627a1bd1248b4d2160960f19963bd327d9fd8fb887272f2df3db",
+      "review": "Delta: move existing sys import ahead of first sys.argv access in TEST036.4 inline Python. No invariant/hash exception or fixture data changed. Extracted exact body against final root passed0 including archived candidate hashes, guard evolution self-tests and research publication path validation. Full version suite rerun remains CI-owned.",
+      "rule_ids": [
+        "CS-009",
+        "CS-019",
+        "CS-027",
+        "CS-028"
+      ]
     }
   ]
 }
