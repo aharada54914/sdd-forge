@@ -1,0 +1,58 @@
+[
+  {
+    "runtime": "bash",
+    "case": "normal",
+    "exit_code": 0,
+    "published": true,
+    "bytes": 303
+  },
+  {
+    "runtime": "bash",
+    "case": "invalid",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  },
+  {
+    "runtime": "bash",
+    "case": "missing",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  },
+  {
+    "runtime": "bash",
+    "case": "overflow",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  },
+  {
+    "runtime": "pwsh",
+    "case": "normal",
+    "exit_code": 0,
+    "published": true,
+    "bytes": 304
+  },
+  {
+    "runtime": "pwsh",
+    "case": "invalid",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  },
+  {
+    "runtime": "pwsh",
+    "case": "missing",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  },
+  {
+    "runtime": "pwsh",
+    "case": "overflow",
+    "exit_code": 2,
+    "published": false,
+    "bytes": null
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "schema": "coding-standards-findings/v1",
+  "findings": [
+    {
+      "finding_id": "ROOT-011",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "line": 92,
+      "source_sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+      "flow": {
+        "input": "CLI --max-bytes value or missing value",
+        "transformation": "Unvalidated numeric comparison / optional-value truthiness",
+        "sink": "Size guard and output publication"
+      },
+      "impact": "Nondecimal and overflowing --max-bytes values let integer comparisons fail and publish an uncapped bundle.",
+      "reproduction": "Bash abc/overflow returned0 and published303B before; after both return2 without output; normal10000 remains0/303B.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/claude-cap-audit-20261102/argument-before.json",
+        "reports/verification/claude-cap-audit-20261102/argument-after.json",
+        "reports/verification/claude-cap-audit-20261102/context-delta.json",
+        "reports/verification/claude-cap-audit-20261102/test-logs.zip"
+      ],
+      "resolution": "69fd8cbe; repaired source SHA256 e7cb8c5f7624a38e476093ba8d94a2f08a59de799afd960a438235b853657b1f; supplied flag distinguished from omission, strict ASCII decimal and signed64 range validated before guard, explicit zero preserved.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-012",
+      "rule_id": "CS-027",
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "line": 92,
+      "source_sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+      "flow": {
+        "input": "CLI --max-bytes value or missing value",
+        "transformation": "Unvalidated numeric comparison / optional-value truthiness",
+        "sink": "Size guard and output publication"
+      },
+      "impact": "A supplied max-bytes option without a value became false/unset and skipped admission.",
+      "reproduction": "PowerShell missing final --max-bytes returned0 and published304B before; after returns2 without output; normal10000 remains0/304B. Explicit in-process numeric0 is separately exercised as a zero cap.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/claude-cap-audit-20261102/argument-before.json",
+        "reports/verification/claude-cap-audit-20261102/argument-after.json",
+        "reports/verification/claude-cap-audit-20261102/context-delta.json",
+        "reports/verification/claude-cap-audit-20261102/test-logs.zip"
+      ],
+      "resolution": "69fd8cbe; repaired source SHA256 838bdb82cd315a76863b7f5d69d5db1c89d6a51d8b1ffd8d12d58c516d62189f; supplied flag distinguished from omission, strict ASCII decimal and signed64 range validated before guard, explicit zero preserved.",
+      "reuse": null
+    }
+  ]
+}

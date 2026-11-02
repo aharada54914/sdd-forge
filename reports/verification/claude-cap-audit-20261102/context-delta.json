@@ -1,0 +1,127 @@
+{
+  "schema": "claude-panelist-cap-review/v1",
+  "before_revision": "e3f74664",
+  "implementation_revision": "69fd8cbe",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "before_sha256": "5bb0340fe8cdd5f971feb1c91ce9ecc4bcf95166293e1cedf5541c71374e0232",
+      "source_sha256": "e7cb8c5f7624a38e476093ba8d94a2f08a59de799afd960a438235b853657b1f",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "baseline_evidence": "reports/verification/panelist-byte-count-20261102/context-delta.json",
+      "review": "Claude implementation followed by separate Astra source review of parser/presence/range/guard/test changes and root actual CLI replay; no whole-file or native Windows5.1 claim. Existing writer, consent and elision paths unchanged."
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "before_sha256": "4670092ff2f4fccce0581e4011fd04083ef630d59337850e582bd4fd060d0609",
+      "source_sha256": "838bdb82cd315a76863b7f5d69d5db1c89d6a51d8b1ffd8d12d58c516d62189f",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "baseline_evidence": "reports/verification/panelist-byte-count-20261102/context-delta.json",
+      "review": "Claude implementation followed by separate Astra source review of parser/presence/range/guard/test changes and root actual CLI replay; no whole-file or native Windows5.1 claim. Existing writer, consent and elision paths unchanged."
+    },
+    {
+      "path": "tests/prepare-panelist.tests.sh",
+      "before_sha256": "c3cbfb99a0bb76f32dbb7cce718b720704919821ade82817054354115f6cb12f",
+      "source_sha256": "5bd971bc427bb43a842c6300dbc1a06ad397ee129e6ac620c7af79f1dd998115",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "baseline_evidence": "reports/verification/panelist-byte-count-20261102/context-delta.json",
+      "review": "Claude implementation followed by separate Astra source review of parser/presence/range/guard/test changes and root actual CLI replay; no whole-file or native Windows5.1 claim. Existing writer, consent and elision paths unchanged."
+    },
+    {
+      "path": "tests/prepare-panelist.tests.ps1",
+      "before_sha256": "20578db510a3410e54a3ec90000a6ff729f12920d8ea56b8d7c75fdcb6af6c2e",
+      "source_sha256": "19ec4bb3e9e2cd126d477270fc480e9e2d4f5d5272a7ccc19763d2be5fb4e109",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "baseline_evidence": "reports/verification/panelist-byte-count-20261102/context-delta.json",
+      "review": "Claude implementation followed by separate Astra source review of parser/presence/range/guard/test changes and root actual CLI replay; no whole-file or native Windows5.1 claim. Existing writer, consent and elision paths unchanged."
+    }
+  ],
+  "runs": [
+    {
+      "role": "read-only audit",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 123.60061999699974,
+      "reported_cost_usd": 0.37690799999999997,
+      "reported_usage": {
+        "input_tokens": 20,
+        "cache_creation_input_tokens": 57491,
+        "cache_read_input_tokens": 249140,
+        "output_tokens": 12199
+      },
+      "permission_denials": 0,
+      "result_is_error": false
+    },
+    {
+      "role": "four-file implementation and local tests",
+      "model": [
+        "claude-sonnet-5-5"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 138.33441725099965,
+      "reported_cost_usd": 0.271978,
+      "reported_usage": {
+        "input_tokens": 22,
+        "cache_creation_input_tokens": 31939,
+        "cache_read_input_tokens": 223380,
+        "output_tokens": 12184
+      },
+      "permission_denials": 0,
+      "result_is_error": false
+    }
+  ],
+  "tests": {
+    "bash5": {
+      "passed": 227,
+      "failed": 0
+    },
+    "bash3_2": {
+      "passed": 227,
+      "failed": 0
+    },
+    "powershell7_linux": {
+      "passed": 215,
+      "failed": 0
+    },
+    "root_independent_public_cases": 8
+  },
+  "independent_review": {
+    "reviewer": "Astra delegate resume_review; distinct from Claude implementer",
+    "result": "changed source/test contracts reviewed, no remaining actionable issue in delta",
+    "execution_scope": "Reviewed actual log tails/source hashes; did not duplicate whole-suite execution"
+  },
+  "dispositions": [
+    {
+      "claim": "invalid/overflow Bash cap permits publication",
+      "result": "confirmed actual CLI; fixed ROOT-011"
+    },
+    {
+      "claim": "missing PowerShell cap permits publication; presence differs from numeric zero",
+      "result": "missing value independently reproduced; strict presence fixed ROOT-012, numeric-zero regression exercised in child PowerShell"
+    },
+    {
+      "claim": "atomic output needed for every write failure",
+      "result": "conditional design suggestion; current contract forbids publication on admission refusal and reports writer failures nonzero, but does not promise atomic replacement on filesystem write failure. No atomicity guarantee added."
+    },
+    {
+      "claim": "unchecked secondary diagnostic byte counts",
+      "result": "diagnostic-only best effort on already-refused oversize path; no admission success or published bundle follows. Existing checked admission counts remain authoritative."
+    },
+    {
+      "claim": "boundary oracle self-referential",
+      "result": "not accepted: oracle reads actual published file byte length independently of the internal measurement; a systematic omitted serializer byte was reproduced by that oracle. Native Windows5.1 remains unexecuted."
+    }
+  ],
+  "limits": [
+    "Claude audit scoped patched count/parser/guard/writer areas; it explicitly did not review every PS inventory/elision function or test helper.",
+    "No raw model transcripts, credentials or MCP replies are published.",
+    "Usage/cost are provider-reported per run, not a controlled cost comparison.",
+    "Final native-platform CI remains required."
+  ]
+}
