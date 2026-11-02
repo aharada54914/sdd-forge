@@ -5389,6 +5389,283 @@
       ],
       "resolution": "Shared three-second write/process/drain budget and final kill/reap/dispose.",
       "reuse": null
+    },
+    {
+      "finding_id": "CHK-PS-001",
+      "rule_id": "CS-019",
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.ps1",
+      "line": 95,
+      "source_sha256": "8bc772740d8edd9998697c1e92c6b421f65772b44b0a7ac39bca7ad2e888fbce",
+      "flow": {
+        "input": "HTML directory and files",
+        "transformation": "recursive enumeration and six Select-String scans",
+        "sink": "clean egress verdict"
+      },
+      "impact": "Unreadable subdirectories and scan-time failures could silently produce a clean verdict; hidden HTML was omitted.",
+      "reproduction": "Actual uid1000 chmod000 directory returned0 before and2 after; full suite139 passes including hidden HTML and real invalid regex.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "reports/verification/coding-standards-20261101/powershell-scanner-failclosed.json",
+        "reports/verification/coding-standards-20261101/powershell-scanner-findings.json"
+      ],
+      "resolution": "Force hidden-item enumeration and propagate enumeration/read/regex errors as tool error2 before emitting findings.",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-061",
+      "rule_id": "CS-004",
+      "path": "scripts/rollback-1.5.0.ps1",
+      "line": 165,
+      "source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",
+      "flow": {
+        "input": "Rollback contract JSON",
+        "transformation": "PowerShell JSON pipeline enumerates root arrays; comparisons permit container coercion",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Malformed contract containers can pass the closed-contract boundary",
+      "reproduction": "tests/rollback-1.5.0.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.ps1",
+        "scripts/rollback-1.5.0.ps1 SHA256 c0c6dbbde682c08dc1e6ef07df7206b6ed306a018756e7386aeaa3e8ba456a21",
+        "docs/contributor/coding-standards/audit/shell/findings.installer-rollback.json"
+      ],
+      "resolution": "Preserve root JSON container with NoEnumerate; require object root/entries, array files and string schema before property consumption",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-062",
+      "rule_id": "CS-023",
+      "path": "scripts/rollback-1.5.0.ps1",
+      "line": 81,
+      "source_sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc",
+      "flow": {
+        "input": "Git object stdout/stderr",
+        "transformation": "Synchronous stdout hashing leaves redirected stderr undrained and waits without deadline",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Noisy or stalled Git blocks rollback before mutation",
+      "reproduction": "tests/rollback-1.5.0.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/rollback-1.5.0.tests.ps1",
+        "scripts/rollback-1.5.0.ps1 SHA256 c0c6dbbde682c08dc1e6ef07df7206b6ed306a018756e7386aeaa3e8ba456a21",
+        "docs/contributor/coding-standards/audit/shell/findings.installer-rollback.json"
+      ],
+      "resolution": "Stream stdout into CryptoStream and stderr into Stream.Null concurrently, await both and process within one 30-second deadline, kill owned process tree on timeout",
+      "reuse": null
+    },
+    {
+      "finding_id": "SH-SHELL-063",
+      "rule_id": "CS-023",
+      "path": "install.sh",
+      "line": 383,
+      "source_sha256": "dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+      "flow": {
+        "input": "Authenticated archive download",
+        "transformation": "curl has no configured request deadline",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Network stall can indefinitely block installation",
+      "reproduction": "tests/install.tests.sh",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.sh",
+        "install.sh SHA256 926836f31a2a6362ab62f33474384f9130e2cd306e40b32d32fc15d4002fadb6",
+        "docs/contributor/coding-standards/audit/shell/findings.installer-rollback.json"
+      ],
+      "resolution": "Set curl --max-time 300; remote installer shim requires exact bound",
+      "reuse": null
+    },
+    {
+      "finding_id": "PS-SHELL-064",
+      "rule_id": "CS-023",
+      "path": "install.ps1",
+      "line": 568,
+      "source_sha256": "b281bdcc09371e36fef6fc81e12382ab7a4c1b7666d9ed707d01dfe867ddb3c2",
+      "flow": {
+        "input": "Authenticated archive download",
+        "transformation": "Invoke-WebRequest has no configured timeout",
+        "sink": "rollback or installation user path"
+      },
+      "impact": "Network stall can indefinitely block installation",
+      "reproduction": "tests/install.tests.ps1",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "tests/install.tests.ps1",
+        "install.ps1 SHA256 5649ade71027df0a20667d3276e1673a575c9f98898f13da5cdf9f73e541c18f",
+        "docs/contributor/coding-standards/audit/shell/findings.installer-rollback.json"
+      ],
+      "resolution": "Set Invoke-WebRequest -TimeoutSec 300; remote installer shim requires exact bound",
+      "reuse": null
+    },
+    {
+      "finding_id": "PY-067",
+      "rule_id": "CS-023",
+      "path": "tests/doc-diagrams.tests.py",
+      "line": 125,
+      "source_sha256": "9138acc186ccba2f6adb8ca22fc19d11d7ac51355cdfe8a44322adf667cfcdd7",
+      "flow": {
+        "input": "temporary npm install directory",
+        "transformation": "mkdtemp without success-path cleanup; subprocess timeout escapes before cleanup",
+        "sink": "filesystem scratch lifetime"
+      },
+      "impact": "Each ordinary run retains an installed dependency tree; timeout/spawn failure also leaks owned scratch. Directory symlink additionally imposed an unnecessary host privilege requirement.",
+      "reproduction": "reports/verification/coding-standards-doc-diagrams-20261102/lifecycle-controls.py.txt",
+      "state": "fixed",
+      "owner_issue": 689,
+      "evidence": [
+        "tests/doc-diagrams.tests.py SHA256 6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190",
+        "reports/verification/coding-standards-doc-diagrams-20261102/controls.log",
+        "docs/contributor/coding-standards/audit/python/findings.doc-diagrams.json"
+      ],
+      "resolution": "Clean owned dependencies in parser finally and install spawn/timeout handling; preserve externally supplied dependencies; invoke fixed ESM helper from dependency cwd with JSON stdin, avoiding symlink creation.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-021",
+      "rule_id": "CS-004",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 53,
+      "source_sha256": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71",
+      "flow": {
+        "input": "Contract JSON root",
+        "transformation": "ConvertFrom-Json pipeline unwraps singleton array",
+        "sink": "PASS identity verdict"
+      },
+      "impact": "A singleton root array is admitted as the expected contract object.",
+      "reproduction": "Baseline537a50b2 actual PowerShell singleton array exit0 while Bash rejects; current twins reject and object control passes.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/reuse/review-contract-independent-review.json",
+        "docs/contributor/coding-standards/reuse/evidence/review-contract-heldout.json"
+      ],
+      "resolution": "Reject nonobject root before JSON field consumption; repaired source SHA256 fc5d450728054b336d644d7b66e723098cf7cdd801b7b6b7f1ef3711712b8c3a.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-022",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
+      "line": 20,
+      "source_sha256": "aef3b800f2cd65a1a8d47a45cc2f1f14d45dfcf3f84ee0bb6d9fa82163722b71",
+      "flow": {
+        "input": "Contract file path",
+        "transformation": "Test-Path Leaf accepts FIFO before Get-Content",
+        "sink": "Blocking contract read"
+      },
+      "impact": "A POSIX FIFO blocks contract validation indefinitely.",
+      "reproduction": "Baseline PowerShell read exceeded3second harness deadline; Bash rejected. Current twins reject FIFO; regular, symlink and hardlink controls retain documented behavior.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/reuse/review-contract-independent-review.json",
+        "docs/contributor/coding-standards/reuse/evidence/review-contract-heldout.json"
+      ],
+      "resolution": "Require physical regular-file classification before read. Separate classification/read is not atomic replacement protection; repaired source SHA256 fc5d450728054b336d644d7b66e723098cf7cdd801b7b6b7f1ef3711712b8c3a.",
+      "reuse": null
+    },
+    {
+      "finding_id": "ROOT-007",
+      "rule_id": "CS-009",
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "line": 32,
+      "source_sha256": "52f75373d614efa6a3c1664b4551f1817b8d8ebf74ae6f812969676d37230317",
+      "flow": {
+        "input": "Root-level relative symbolic link",
+        "transformation": "Split-Path drops root parent",
+        "sink": "Legacy Target resolution"
+      },
+      "impact": "Legacy Target fallback fails for root-level relative directory symlink because Split-Path /var returns empty; macOS native CI caught this path through /var.",
+      "reproduction": "Actual resolver with suppressed capability and root-level link metadata fails before and succeeds after; native macOS failure prompted investigation.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/root-path-delta.json"
+      ],
+      "resolution": "Use IO.Path.GetDirectoryName to preserve filesystem root. Source SHA256 63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d; no native WindowsPowerShell5.1 execution claim.",
+      "reuse": null
+    },
+    {
+      "finding_id": "INSTALLER-CODEX-TOML-ESCAPING",
+      "rule_id": "CS-004",
+      "path": "install.sh",
+      "line": 528,
+      "source_sha256": "dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+      "flow": {
+        "input": "Codex MCP managed configuration",
+        "transformation": "Managed block replacement and TOML string serialization",
+        "sink": "User config.toml"
+      },
+      "impact": "Raw path interpolation makes quote/newline/control-bearing install path invalid or structurally injected TOML. Slash normalization alone is insufficient.",
+      "reproduction": "Independent actual Bash/PowerShell extracted production functions; before/after logs and independent tomllib roundtrip/unchanged-byte oracle retained.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/installer-config-context-review.json",
+        "install.sh original SHA256 dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+        "install.ps1 original SHA256 b281bdcc09371e36fef6fc81e12382ab7a4c1b7666d9ed707d01dfe867ddb3c2",
+        "install.sh repaired SHA256 f2f680420ca3823effa2e3dd333e96d696e4061221a32ae1fb60696f83a27828",
+        "install.ps1 repaired SHA256 fc349a20f9530c0f708428a76bb6e6767a44b2bb5a8f9cec23172e8c0a380719"
+      ],
+      "resolution": "TOML basic-string serialization round-trips ordinary and quote/control/Unicode paths through independent tomllib; all U+0001..001F and U+007F covered. Bash backslash path preserved; PS established slash normalization retained. Affected source paths are all explicitly hash-bound in evidence; one shared root cause record retains all twins.",
+      "reuse": null
+    },
+    {
+      "finding_id": "INSTALLER-CODEX-MALFORMED-MARKER",
+      "rule_id": "CS-019",
+      "path": "install.sh",
+      "line": 520,
+      "source_sha256": "dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+      "flow": {
+        "input": "Codex MCP managed configuration",
+        "transformation": "Managed block replacement and TOML string serialization",
+        "sink": "User config.toml"
+      },
+      "impact": "Unclosed begin deletes trailing user settings; nested/orphan markers are accepted and stripped.",
+      "reproduction": "Independent actual Bash/PowerShell extracted production functions; before/after logs and independent tomllib roundtrip/unchanged-byte oracle retained.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/audit/shell/installer-config-context-review.json",
+        "install.sh original SHA256 dacb10fa46ffcec662997f52ee1c439c9b69dbeee4ddcfe0d89103d4c93328fb",
+        "install.ps1 original SHA256 b281bdcc09371e36fef6fc81e12382ab7a4c1b7666d9ed707d01dfe867ddb3c2",
+        "uninstall.sh original SHA256 8e827939ae7df5a6e90477161003973d4b2597ccd09a9741afd49b29253de785",
+        "uninstall.ps1 original SHA256 fe0a8d772745a9f548a6809d90f286eb274fe2d89fcf77006cf42970376c15ae",
+        "install.sh repaired SHA256 f2f680420ca3823effa2e3dd333e96d696e4061221a32ae1fb60696f83a27828",
+        "install.ps1 repaired SHA256 fc349a20f9530c0f708428a76bb6e6767a44b2bb5a8f9cec23172e8c0a380719",
+        "uninstall.sh repaired SHA256 1ef0405502d94ad301425c60745f3d1a57a1cf6b37279b891482a4b92244c81c",
+        "uninstall.ps1 repaired SHA256 fbb84b68ca400f92fcff12210db5417542cda78da42504c4f2e8065d52f1d9a7"
+      ],
+      "resolution": "Malformed block produces nonzero/throw diagnostic and preserves file bytes. Balanced and repeat registration plus unregistration positive controls preserve user table and top-level title. Affected source paths are all explicitly hash-bound in evidence; one shared root cause record retains all twins.",
+      "reuse": null
+    },
+    {
+      "finding_id": "RV-023",
+      "rule_id": "CS-018",
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "line": 502,
+      "source_sha256": "a02118e32da650aefbaf7461b4af467adcd773c146fd0d4c1ea63dd5140cbe43",
+      "flow": {
+        "input": "Whitespace/control-bearing review identity",
+        "transformation": "Early generic contract guard rejects identity before identity classifier",
+        "sink": "CONTRACT diagnostic instead of IDENTITY"
+      },
+      "impact": "CI job124785844094 rejected whitespace-session with CONTRACT instead of established IDENTITY. a22c9146 placed raw control check inside generic schema block; PS current code and longstanding test retain identity-specific contract.",
+      "reproduction": "Actual existing isolation suite failed on unchanged whitespace-session assertion; repaired suite and six formal reservation tests pass.",
+      "state": "fixed",
+      "owner_issue": 688,
+      "evidence": [
+        "docs/contributor/coding-standards/reuse/identity-diagnostic-delta-review.json"
+      ],
+      "resolution": "Control-byte rejection moved to pre-extraction IDENTITY guard, preserving raw-byte safety before CR/newline loss and public PS/Bash diagnostic parity. Schema type and stage/role CONTRACT guards unchanged. Existing whitespace-session test remains unchanged. Repaired SHA256 50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+      "reuse": null
     }
   ]
 }
