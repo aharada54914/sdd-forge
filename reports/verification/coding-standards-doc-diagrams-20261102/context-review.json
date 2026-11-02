@@ -1,0 +1,38 @@
+{
+  "schema": "coding-standards-source-context/v1",
+  "source_revision": "0ad68533",
+  "entries": [
+    {
+      "path": "tests/doc-diagrams.tests.py",
+      "source_sha256": "6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190",
+      "review_scope": "whole_file",
+      "state": "reviewed",
+      "review": "Whole-source review: local Markdown traversal reads explicit UTF-8; fixed regexes select links/fences/version tokens, without interpolating external regex. Link checks only probe local existence; URI schemes and fragment-only links are excluded, not fetched. Mermaid source crosses into the fixed Node helper only through JSON stdin, never source interpolation. Node helper uses trusted installed parser APIs, returns serialized per-block results, and subprocess status is checked. npm installs fixed versions with scripts disabled; npm/Node calls have 600-second direct-process bounds. Owned dependency scratch is now removed on successful parse and handled spawn/timeout failure; caller-supplied dependencies are retained. Fixed --eval helper runs from dependency cwd using standard ESM resolution, no directory symlink or writable caller-directory requirement. No eval of document data occurs. Selftest negative link/version/pinned-anchor cases and actual valid/invalid Mermaid controls independently check observable results. CI true requires parser availability; local optional skip remains the documented contract. This is finite selected-Markdown/link-existence/parse coverage, not every CommonMark form, anchor existence, browser rendering, arbitrary npm descendant cleanup, or native Windows certification."
+    },
+    {
+      "path": "tests/doc-diagrams.tests.sh",
+      "source_sha256": "e7441894b563fe56e91c9ba6c9a80e3e54608228ee8e6d9edfca5c46d0113e86",
+      "review_scope": "whole_file",
+      "state": "reviewed",
+      "review": "Whole wrapper review: strict Bash mode, checkout-relative root resolved with quoted paths, exec python3 transfers argv as distinct atoms and preserves process status. No evaluation of caller strings or extra child cleanup ownership."
+    },
+    {
+      "path": "tests/doc-diagrams.tests.ps1",
+      "source_sha256": "c96a1adc66f3925d698a9158c6e9824da4aac524387c45ce2c15831eb7993974",
+      "review_scope": "whole_file",
+      "state": "reviewed",
+      "review": "Whole wrapper review: Stop preference, checkout-relative Python path, explicit python3 then python discovery; missing interpreter errors out. Native call splats args and propagates LASTEXITCODE. No interpolation into a command string. Actual pwsh wrapper run on Linux; no claim of native Windows npm discovery."
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "source_sha256": "a297163d2c96b0cc8dfe478ecbe82e54e962c800294c25abd6cc49e62c67a01f",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Reviewed six new entries against parent catalog and verification.py selection/delegation contract: three suite registrations, Python delegated to Bash wrapper, Bash included in local-posix and ci-posix-fallback, PowerShell included in local-powershell. Existing profiles/membership retained. Catalog intentionally has no new native CI job for the PowerShell wrapper. This is changed-hunk review of those six entries, joined to prior catalog evidence, not fresh whole-catalog certification.",
+      "before_commit": "0ad68533^1",
+      "before_source_sha256": "a2581fa56975a90196a5bb00447bc2accf724a7515729d485e7fb3c090905431",
+      "baseline_evidence": "reports/verification/coding-standards-20261101/test-catalog-context-delta.json"
+    }
+  ],
+  "limitations": "Linux execution; native Windows/macOS await CI. Main-added scanner scope intentionally unchanged."
+}
