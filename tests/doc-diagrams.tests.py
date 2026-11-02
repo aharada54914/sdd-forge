@@ -123,11 +123,15 @@ def find_mermaid_dir() -> tuple[Path | None, str]:
     if shutil.which("node") is None or shutil.which("npm") is None:
         return None, "node/npm not found"
     tmp = Path(tempfile.mkdtemp(prefix="doc-diagrams-"))
-    proc = subprocess.run(
-        ["npm", "install", "--no-audit", "--no-fund", "--ignore-scripts", "--prefix", str(tmp),
-         f"mermaid@{MERMAID_VERSION}", f"jsdom@{JSDOM_VERSION}"],
-        capture_output=True, text=True, timeout=600,
-    )
+    try:
+        proc = subprocess.run(
+            ["npm", "install", "--no-audit", "--no-fund", "--ignore-scripts", "--prefix", str(tmp),
+             f"mermaid@{MERMAID_VERSION}", f"jsdom@{JSDOM_VERSION}"],
+            capture_output=True, text=True, timeout=600,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        shutil.rmtree(tmp, ignore_errors=True)
+        return None, f"npm install of mermaid/jsdom unavailable: {exc}"
     if proc.returncode != 0:
         shutil.rmtree(tmp, ignore_errors=True)
         tail = proc.stderr.strip().splitlines()[-1:] or ["no stderr"]
@@ -139,20 +143,21 @@ def parse_blocks(blocks: list[dict]) -> list[dict]:
     mdir, why = find_mermaid_dir()
     if mdir is None:
         raise RuntimeError(why)
-    work = Path(tempfile.mkdtemp(prefix="doc-diagrams-run-"))
     try:
-        (work / "node_modules").symlink_to(mdir / "node_modules", target_is_directory=True)
-        helper = work / "parse.mjs"
-        helper.write_text(MJS_HELPER, encoding="utf-8")
+        # Evaluate fixed helper source beside dependencies; no symlink is needed.
         proc = subprocess.run(
-            ["node", str(helper)], input=json.dumps(blocks), capture_output=True, text=True,
-            cwd=work, timeout=600,
+            ["node", "--input-type=module", "--eval", MJS_HELPER],
+            input=json.dumps(blocks), capture_output=True, text=True,
+            cwd=mdir, timeout=600,
         )
         if proc.returncode != 0:
             raise RuntimeError("node parser failed: " + proc.stderr.strip()[:300])
         return json.loads(proc.stdout)
+    except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
+        raise RuntimeError(f"node parser unavailable: {exc}") from exc
     finally:
-        shutil.rmtree(work, ignore_errors=True)
+        if not os.environ.get("DOC_DIAGRAMS_MERMAID_DIR"):
+            shutil.rmtree(mdir, ignore_errors=True)
 
 
 def mermaid_required() -> bool:

@@ -1,0 +1,32 @@
+{
+  "platform": "Linux, Node24.19.0, pwsh7",
+  "source_sha256": "6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190",
+  "commands": [
+    {
+      "command": "CI=true python3 tests/doc-diagrams.tests.py (before repair)",
+      "exit_code": 0,
+      "result": "228 Markdown files,18 diagrams; confirmed owned dependency dir survives"
+    },
+    {
+      "command": "CI=true bash tests/doc-diagrams.tests.sh",
+      "exit_code": 0,
+      "result": "228 Markdown files,18 diagrams"
+    },
+    {
+      "command": "CI=true DOC_DIAGRAMS_MERMAID_DIR=<existing> pwsh -NoProfile -File tests/doc-diagrams.tests.ps1",
+      "exit_code": 0,
+      "result": "228 Markdown files,18 diagrams"
+    },
+    {
+      "command": "DOC_DIAGRAMS_MERMAID_DIR=<existing> python3 reports/verification/coding-standards-doc-diagrams-20261102/lifecycle-controls.py.txt",
+      "exit_code": 0,
+      "result": "spawn/timeout and owned/caller lifecycle controls; actual Mermaid valid and malformed controls pass"
+    }
+  ],
+  "logs": {
+    "bash-after.log": "0e9d23f7ea3e71f0e493eeaf3721bdbba9dc549490e1ae4ffffd3c4d46785621",
+    "before.log": "0e9d23f7ea3e71f0e493eeaf3721bdbba9dc549490e1ae4ffffd3c4d46785621",
+    "controls.log": "a086c6f5d2a2623b05165466b0f42b14f49351a69316491d5ceb25e506bfb52d",
+    "powershell-after.log": "0e9d23f7ea3e71f0e493eeaf3721bdbba9dc549490e1ae4ffffd3c4d46785621"
+  }
+}

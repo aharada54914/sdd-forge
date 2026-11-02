@@ -1,0 +1,40 @@
+import importlib.util
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+from unittest.mock import patch
+
+spec = importlib.util.spec_from_file_location('diagrams', 'tests/doc-diagrams.tests.py')
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+with tempfile.TemporaryDirectory() as directory:
+    root = Path(directory)
+    for failure in (subprocess.TimeoutExpired(['npm'], 600), OSError('fixture spawn failure')):
+        owned = root / 'owned'
+        owned.mkdir()
+        with patch.dict(os.environ, {}, clear=True), patch.object(m.shutil, 'which', return_value='/tool'), patch.object(m.tempfile, 'mkdtemp', return_value=str(owned)), patch.object(m.subprocess, 'run', side_effect=failure):
+            result, reason = m.find_mermaid_dir()
+        assert result is None and reason and not owned.exists()
+    print('PASS: npm timeout/spawn failure clean owned install directories')
+    for supplied in (False, True):
+        for failure in (None, subprocess.TimeoutExpired(['node'], 600)):
+            deps = root / 'dependencies'
+            deps.mkdir(exist_ok=True)
+            env = {'DOC_DIAGRAMS_MERMAID_DIR': str(deps)} if supplied else {}
+            process = subprocess.CompletedProcess(['node'], 0, '[{"id":0,"ok":true}]', '')
+            with patch.dict(os.environ, env, clear=True), patch.object(m, 'find_mermaid_dir', return_value=(deps, '')), patch.object(m.subprocess, 'run', return_value=process, side_effect=failure), patch.object(Path, 'symlink_to', side_effect=AssertionError('symlink must not be required')):
+                try:
+                    m.parse_blocks([{'id': 0, 'source': 'flowchart TD\nA-->B'}])
+                except RuntimeError:
+                    assert failure is not None
+                else:
+                    assert failure is None
+            assert deps.exists() == supplied
+            if supplied:
+                assert list(deps.iterdir()) == []
+                deps.rmdir()
+    print('PASS: parser success/timeout clean owned dependencies and preserve caller dependencies without symlinks')
+results = m.parse_blocks([{'id':0,'source':'flowchart TD\nA-->B'}, {'id':1,'source':'not_a_mermaid_diagram !!!'}])
+assert results[0]['ok'] is True and results[1]['ok'] is False
+print('PASS: actual Mermaid accepts valid diagram and rejects malformed diagram')
