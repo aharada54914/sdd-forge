@@ -1,0 +1,64 @@
+{
+  "schema": "coding-standards-ci-test-context/v1",
+  "source_revision": "5d8ba349a6e2694843dde80f1fe82a87d2b7c334",
+  "method": "Verified prior exact bytes in Git, read diffs with enclosing fixture/assertion/consumer context. Whole-file review only where stated; prior snapshots are not relabeled. Native CI rerun remains necessary.",
+  "entries": [
+    {
+      "path": "tests/criterion-freeze.tests.sh",
+      "source_sha256": "1bc0321d3158ee979a2a0ea896400448b473b5ba436e44848912c927a727f1f5",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Read CF.11 and enclosing real-repository setup, trap, run_guard and expect_case. Two distinct newly committed tasks blobs are removed only beneath the mktemp repository after verifying loose objects exist; commit/tree metadata remains available. Both public dispatchers must return independent tool-error status 2 and a failed diagnostic. Earlier success/specs-only/criterion-change controls remain. This replaces a POSIX shim that Windows children bypassed; it does not reinterpret an infrastructure error as a criterion change.",
+      "before_commit": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "before_source_sha256": "065ddcbd4b9e3db0157b870a18dc18700d86a52e5d156b72f4fb1ced56efaa5b",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/test-context-review.json"
+    },
+    {
+      "path": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "41978e5c465017fa36a9a2d0fa9b302e3f1928946780e10ce07cc313b7aa04ea",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Read added precheck helper and all four new tests with Fixture lifecycle and public precheck contracts. Argument vectors remain separate; calls have 30-second deadlines and fixture cleanup. Literal malformed hashes/verdicts require rejection plus no next round/attempt side effect. Integer spelling/range checks require a diagnostic; quoted/newline filename fingerprint checks independently hash fixture bytes. Permission-denial control restores permissions in finally and requires non-root POSIX. Native Windows follows the existing PowerShell suite matrix; Bash twin cases execute on POSIX, avoiding accidental WSL bash.exe selection. This is no claim of Windows Bash coverage.",
+      "before_commit": "cf7b57991399331a4733ef7b1b381cecd14db746",
+      "before_source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/python/contextual-coverage.json"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.ps1",
+      "source_sha256": "fbbe20093d5983d0c949f9446dab96085ed33de25067f967ee50832ed658fa40",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Read changed fixture/serialization/process-launch hunks with Expect-Diagnostic, Write-Manifest, barrier lifecycle and validator/snapshot consumers. Shared native argument serializer preserves path atoms in a deliberately spaced temporary root. Singleton arrays are serialized as JSON arrays, preserving malformed shape. Handoff hashes are recalculated so rejection tests shape rather than stale digest; original evidence is restored. Root-array envelopes invoke both validator and snapshot and require TASK_INPUT_JSON. Existing typed diagnostic and positive controls remain; publication-boundary child lifetime remains owned by enclosing CI suite, while copy-mode control has explicit deadline and finally disposal.",
+      "before_commit": "6aa89916975ad4656283140cd90eaeea27725328",
+      "before_source_sha256": "db948c35d7ab14a977da671ea53d354bcde34ac8cd065ba15db8e7b4bfba9123",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/shell/test-context-review.json"
+    },
+    {
+      "path": "tests/lib/detect-panel-probe.py",
+      "source_sha256": "c8ff37c01e57be5a11365767eba3b361bd3f3d0acd083de6be39ccfb7004502c",
+      "review_scope": "whole_file",
+      "state": "reviewed",
+      "review": "Read entire helper and both collection-layer callsites and detector process contracts. Checkout-controlled script/host argv select actual public detector; private PATH supplies one disposable provider command. Python worker records its own PID, returns a literal success/fail status or ignores TERM and hangs. Assertions independently require exact provider stdout, exit status, elapsed deadline and exited worker; POSIX zombie tolerance requires /proc state Z, Windows checks a process handle with finally close. Temporary root is scoped and version fixture text is explicit UTF-8. This exercises actual subprocess behavior on success; outer subprocess timeout is 12 seconds. Failure-path descendant cleanup remains detector/CI-owned, not a guarantee of arbitrary-tree cleanup by this test helper."
+    },
+    {
+      "path": "tests/research-owner-integration.tests.py",
+      "source_sha256": "a0658733f138fbd7b38697186ed49086171df7401da521710803bf6d2bec0648",
+      "before_commit": "293911ed",
+      "before_source_sha256": "ec9332db526fa7f0b0744a2929ad3b3de83fd7115b758d90065205562a036c18",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/python/contextual-coverage.json",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Non-string check IDs now assert public typed validation failure (exit1, exact stdout diagnostic, empty stderr), while only exact source-evidence string delegates. Case-mismatched string still passes legacy route. This follows the guarded production contract rather than preserving its former ContainsKey exception or coercion."
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "source_sha256": "ae9603efdbe59c7f83370151f0ba24115bb83cdaa2564ad017eb3b452fe299d7",
+      "before_commit": "293911ed",
+      "before_source_sha256": "2476dcd7fd6744ac116031f9126f0cb94caabd9e9e25b8092af59c60376cc584",
+      "baseline_evidence": "docs/contributor/coding-standards/audit/python/contextual-coverage.json",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Only explicit native-arguments.ps1 additive protection is admitted. Compared canonical invariants against b3b997ed: this is the sole membership addition. Existing baseline digest is unchanged; omission/duplication and unrelated membership mutations remain detected."
+    }
+  ]
+}

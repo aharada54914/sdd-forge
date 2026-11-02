@@ -320,12 +320,14 @@ class Owners(unittest.TestCase):
                     if check_id == "source-evidence":
                         self.assertNotEqual(0, result.returncode)
                         self.assertIn("py-dispatch.ps1", result.stderr)
-                    elif check_id is None:
-                        # Historical PowerShell null-key validation still fails
-                        # in the legacy owner, without loading Python.
-                        self.assertNotEqual(0, result.returncode)
+                    elif not isinstance(check_id, str):
+                        self.assertEqual(1, result.returncode)
                         self.assertNotIn("py-dispatch", result.stderr)
-                        self.assertIn("ContainsKey", result.stderr)
+                        self.assertEqual(
+                            "Verification contract FAILED: check id must be a string\n",
+                            result.stdout,
+                        )
+                        self.assertEqual("", result.stderr)
                     else:
                         self.assertEqual(
                             0, result.returncode, result.stdout + result.stderr
