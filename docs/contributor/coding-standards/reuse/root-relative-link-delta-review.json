@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent-resumed-review",
+  "source_commit": "daf801ce67b00df90d8cade2fe9342600e0ff544",
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "before_source_sha256": "52f75373d614efa6a3c1664b4551f1817b8d8ebf74ae6f812969676d37230317",
+      "source_sha256": "63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d",
+      "diff_sha256": "5508303faaa6b8d4cc7d43289ced9005fb60eee93ffdf72865679e5bb2ca0f49",
+      "review_scope": "delta",
+      "judgment": "DirectoryName retains filesystem root for a root-child path where Split-Path returns empty; relative targets continue to resolve against lexical link parent, absolute/device-prefix handling unchanged. Component traversal and cycle bound unchanged. No broader admission/containment policy added."
+    },
+    {
+      "path": "tests/evidence-generation-boundary.tests.ps1",
+      "before_source_sha256": "fa045d49fcba6843bbfee8f91e2ae4feb433788229659860cfa09be0e565cf1f",
+      "source_sha256": "d6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844",
+      "diff_sha256": "2d0450cdac155333013a23efe2b5fce14f3690e44a0600adda185bba72e81a68",
+      "review_scope": "delta",
+      "judgment": "Test captures native physical target before hiding link API, so macOS /var ancestor canonicalization is preserved. Missing-method proxy adds unique fake root-level relative directory link without privilege; other paths still real filesystem. Relative root target resolves actual temp repo and remaining evidence.txt. Function override always removed in finally; no native Windows claim."
+    }
+  ],
+  "limits": [
+    "Delta inspection joins earlier whole-source records; no whole-repository or native Windows acceptance."
+  ],
+  "actual_execution": {
+    "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/evidence-generation-boundary.tests.ps1",
+    "cwd": "integration worktree",
+    "runtime": "PowerShell7.6.7 Linux",
+    "exit": 0,
+    "passed_controls": 42,
+    "output": "reuse/evidence/root-relative-link-current.txt",
+    "output_sha256": "3d3c8498c2cb5627d58c005e94cf8907efff78e69773a01d607b7afdb11dc7f9"
+  }
+}
