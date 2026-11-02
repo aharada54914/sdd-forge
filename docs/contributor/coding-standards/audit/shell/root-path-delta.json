@@ -1,0 +1,44 @@
+{
+  "schema": "coding-standards-root-path-delta/v1",
+  "finding_id": "ROOT-007",
+  "state": "fixed",
+  "rule_ids": [
+    "CS-009",
+    "CS-027"
+  ],
+  "before_commit": "293911ed7a056b82e3f1621fd54b5bee6ed5b1da",
+  "before_sha256": "52f75373d614efa6a3c1664b4551f1817b8d8ebf74ae6f812969676d37230317",
+  "impact": "Legacy Target fallback fails for root-level relative directory symlink because Split-Path /var returns empty; macOS native CI caught this path through /var.",
+  "control": {
+    "method": "Actual PowerShell resolver with simulated root-level relative link metadata, real /tmp directory; no root privileges needed.",
+    "exit_codes": {
+      "before": 1,
+      "after": 0
+    }
+  },
+  "validation": {
+    "suite": "tests/evidence-generation-boundary.tests.ps1",
+    "passed": 42,
+    "failed": 0,
+    "runtime": "PowerShell7.6.7/Linux",
+    "limits": "Native macOS final CI pending; fallback simulation is not native Windows5.1 execution."
+  },
+  "entries": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/evidence-path.ps1",
+      "source_sha256": "63addd988063dfdead35c811461d17b438322ccea6b307677d4b87a3c636740d",
+      "review_scope": "changed_hunks",
+      "state": "reviewed",
+      "review": "Read complete helper and boundary suite. Path resolution retains cycle/depth bounds and caller containment ownership. Only parent extraction uses filesystem API preserving root; expected physical paths account for macOS /var alias before fallback injection. Negative and real-file positive controls remain independent of admission policy. Test temporary repositories, key fixtures and children are bounded/cleaned; no real credentials or remote writes.",
+      "baseline_evidence": "docs/contributor/coding-standards/reuse/shared-helpers-independent-review.json"
+    },
+    {
+      "path": "tests/evidence-generation-boundary.tests.ps1",
+      "source_sha256": "d6d04293eec491c23a8040d5c513e3c7cce732bd3ce9c97b7cdc30f4d2b97844",
+      "review_scope": "whole_file",
+      "state": "reviewed",
+      "review": "Read complete helper and boundary suite. Path resolution retains cycle/depth bounds and caller containment ownership. Only parent extraction uses filesystem API preserving root; expected physical paths account for macOS /var alias before fallback injection. Negative and real-file positive controls remain independent of admission policy. Test temporary repositories, key fixtures and children are bounded/cleaned; no real credentials or remote writes.",
+      "baseline_evidence": "docs/contributor/coding-standards/reuse/shared-helpers-independent-review.json"
+    }
+  ]
+}

@@ -29,7 +29,7 @@ function Resolve-SddEvidenceFilesystemPath([string]$Path) {
                     $target = $target.Substring(4)
                     if ($target.StartsWith('UNC\', [StringComparison]::OrdinalIgnoreCase)) { $target = '\\' + $target.Substring(4) }
                 }
-                if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path (Split-Path -Parent $current) $target }
+                if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path ([IO.Path]::GetDirectoryName($current)) $target }
             }
             $pending = $target
             for ($remaining = $index + 1; $remaining -lt $parts.Count; $remaining++) {

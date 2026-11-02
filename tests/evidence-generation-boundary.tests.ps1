@@ -76,8 +76,15 @@ try {
             Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $bundle)) 'generator preserves in-repository evidence links'
             # Inject the missing .NET method capability while retaining real
             # filesystem Target data; this is not a Windows-native claim.
+            $expectedInsidePath = Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'inside-link.txt')
+            $expectedOutsidePath = Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'outside-link.txt')
+            $rootLink = '/' + 'sdd-evidence-test-' + [guid]::NewGuid()
             function Get-Item {
                 [CmdletBinding()] param([string]$LiteralPath, [switch]$Force)
+                # Simulate a root-level relative link without requiring root access.
+                if ($LiteralPath -ceq $rootLink) {
+                    return [pscustomobject]@{ Attributes=[IO.FileAttributes]::ReparsePoint; Target=$repo.TrimStart('/'); FullName=$rootLink }
+                }
                 $item = Microsoft.PowerShell.Management\Get-Item -LiteralPath $LiteralPath -Force:$Force -ErrorAction Stop
                 if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
                     return [pscustomobject]@{ Attributes=$item.Attributes; Target=$item.Target; FullName=$item.FullName }
@@ -85,8 +92,9 @@ try {
                 return $item
             }
             try {
-                Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'inside-link.txt')) -ceq (Join-Path $repo 'evidence.txt')) 'legacy Target fallback resolves real in-repository links'
-                Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'outside-link.txt')) -ceq $outside) 'legacy Target fallback exposes the actual external target for caller containment'
+                Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'inside-link.txt')) -ceq $expectedInsidePath) 'legacy Target fallback resolves real in-repository links'
+                Assert ((Resolve-SddEvidenceFilesystemPath (Join-Path $repo 'outside-link.txt')) -ceq $expectedOutsidePath) 'legacy Target fallback exposes the actual external target for caller containment'
+                Assert ((Resolve-SddEvidenceFilesystemPath ($rootLink + '/evidence.txt')) -ceq $expectedInsidePath) 'legacy Target fallback resolves a root-level relative directory link'
             } finally { Remove-Item Function:\Get-Item }
 
             Copy-Item -LiteralPath $bundle -Destination $checkedBundle -Force
