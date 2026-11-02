@@ -57,14 +57,14 @@
     "elapsed_seconds": 70.05578062598943
   },
   "current": {
-    "revision": "d6b66e6d327cbd9fee8130bb2a3f42117b5fb5f0",
+    "revision": "5533762d4b93c06825cdbec6dab0ca63e352fb4d",
     "status": "complete",
-    "population_count": 11805,
+    "population_count": 11810,
     "selected_count": 885,
     "inspected_count": 884,
     "finding_count": 0,
     "manual_review": "unknown",
-    "manual_unreviewed_count": 11805,
+    "manual_unreviewed_count": 11810,
     "tools": [
       {
         "language": "bash",
@@ -98,7 +98,7 @@
       }
     ],
     "rules": {},
-    "elapsed_seconds": 69.40345573000013
+    "elapsed_seconds": 71.30373431499993
   },
   "checker_sha256": "29cb08b6e8285d20e8fe9abb8916c6a4df17f1a1bf7c260f2ba51d385afbeef5",
   "comparison": "Task baseline82b53695 versus final integrated source; identical checker, pinned native tools/config and Linux host; independently enumerated tracked populations. Source bytes verified at completion.",
@@ -313,6 +313,51 @@
       "rules": {},
       "elapsed_seconds": 70.25044515699983,
       "later_ci_outcome": "Native scan completed with zero findings; subsequent macOS CI exposed BSD wc leading-space formatting in prepare-panelist-input.sh. This revision is superseded by the current comparison after checked byte-count repair in both twins."
+    },
+    {
+      "revision": "d6b66e6d327cbd9fee8130bb2a3f42117b5fb5f0",
+      "status": "complete",
+      "population_count": 11805,
+      "selected_count": 885,
+      "inspected_count": 884,
+      "finding_count": 0,
+      "manual_review": "unknown",
+      "manual_unreviewed_count": 11805,
+      "tools": [
+        {
+          "language": "bash",
+          "status": "executed",
+          "version": "0.11.0",
+          "target_count": 276
+        },
+        {
+          "language": "javascript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 19
+        },
+        {
+          "language": "powershell",
+          "status": "executed",
+          "version": "7.6.7",
+          "target_count": 231
+        },
+        {
+          "language": "python",
+          "status": "executed",
+          "version": "ruff 0.13.3",
+          "target_count": 231
+        },
+        {
+          "language": "typescript",
+          "status": "executed",
+          "version": "7.0.2",
+          "target_count": 127
+        }
+      ],
+      "rules": {},
+      "elapsed_seconds": 69.40345573000013,
+      "later_ci_outcome": "Native scan completed with zero findings; subsequent Claude audit identified max-cap argument guard gaps (ROOT011/012). This revision is superseded by the current comparison after the argument-guard repairs; native selected rules had not detected those contextual defects."
     }
   ]
 }
